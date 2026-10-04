@@ -274,20 +274,34 @@ Devuelve ÚNICAMENTE un bloque JSON válido con este esquema exacto, sin texto a
 
     raise ValueError(f"Error generando ideas tras varios reintentos: {last_error}")
 
+class _GoogleRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return urllib.request.Request(newurl, headers={"User-Agent": "PebaiRadar/1.0"})
+
 def push_to_google_sheet(webhook_url: str, ideas: list, month_name: str) -> dict:
-    """Envía las ideas formateadas al Webhook de Google Apps Script usando requests."""
-    import requests
+    """Envía las ideas formateadas al Webhook de Google Apps Script con soporte nativo de redirección."""
     payload = {
         "month": month_name,
         "ideas": ideas
     }
     
-    # Enviar como data=json.dumps para compatibilidad total con Google Apps Script
-    response = requests.post(webhook_url, data=json.dumps(payload), timeout=35)
+    # 1. Intentar con requests si está disponible
     try:
+        import requests
+        response = requests.post(webhook_url, data=json.dumps(payload), timeout=35)
         return response.json()
     except Exception:
-        return {"status": "raw", "text": response.text}
+        pass
+        
+    # 2. Fallback 100% nativo con urllib y manejador de redirección 302 de Google
+    opener = urllib.request.build_opener(_GoogleRedirectHandler)
+    req = urllib.request.Request(
+        webhook_url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "text/plain;charset=utf-8"}
+    )
+    with opener.open(req, timeout=35) as res:
+        return json.loads(res.read().decode("utf-8"))
 
 def main():
     parser = argparse.ArgumentParser(description="Radar Diario de Ideas PEBAI Systems")
