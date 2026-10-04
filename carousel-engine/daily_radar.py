@@ -282,7 +282,8 @@ def push_to_google_sheet(webhook_url: str, ideas: list, month_name: str) -> dict
         "ideas": ideas
     }
     
-    response = requests.post(webhook_url, json=payload, timeout=30)
+    # Enviar como data=json.dumps para compatibilidad total con Google Apps Script
+    response = requests.post(webhook_url, data=json.dumps(payload), timeout=35)
     try:
         return response.json()
     except Exception:
