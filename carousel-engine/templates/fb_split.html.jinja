@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ main_title|default("Split Contrast") }} - PEBAI Systems</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1080px;
+      height: 1440px;
+      background-color: #EFEDE7; /* Official PEBAI Mineral White */
+      color: #12121A;
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px 65px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle background grid */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(18, 18, 26, 0.05) 1.2px, transparent 0);
+      background-size: 30px 30px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Header */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .badge-topic {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555562;
+    }
+
+    .topic-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #B7FF3C;
+      box-shadow: 0 0 10px #B7FF3C;
+    }
+
+    .slide-index {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #12121A;
+      background: rgba(18, 18, 26, 0.06);
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    /* Hook Title */
+    .hook-section {
+      text-align: center;
+      margin-top: 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .tag-small {
+      display: inline-block;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #6A5CFF;
+      margin-bottom: 12px;
+    }
+
+    .main-title {
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      text-transform: uppercase;
+      color: #12121A;
+    }
+
+    .main-title span {
+      color: #12121A;
+      position: relative;
+      display: inline-block;
+    }
+
+    .main-title span::after {
+      content: "";
+      position: absolute;
+      left: -4px;
+      right: -4px;
+      bottom: 6px;
+      height: 14px;
+      background: #B7FF3C;
+      z-index: -1;
+      border-radius: 4px;
+    }
+
+    /* Split Container */
+    .split-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      width: 100%;
+      max-width: 950px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .split-card {
+      border-radius: 24px;
+      padding: 36px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      box-shadow: 0 10px 0 #12121A;
+      border: 1.5px solid #12121A;
+      min-height: 720px;
+    }
+
+    .card-manual {
+      background: #FFFFFF;
+    }
+
+    .card-pebai {
+      background: #12121A;
+      border-color: #B7FF3C;
+      box-shadow: 0 12px 0 #000000, 0 20px 40px rgba(183, 255, 60, 0.18);
+    }
+
+    .card-tag {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .card-manual .card-tag {
+      background: #FEE2E2;
+      color: #DC2626;
+    }
+
+    .card-pebai .card-tag {
+      background: #B7FF3C;
+      color: #12121A;
+    }
+
+    .card-header-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 28px;
+    }
+
+    .card-manual .card-header-title {
+      color: #12121A;
+    }
+
+    .card-pebai .card-header-title {
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-pebai .card-header-title img {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+    }
+
+    .items-group {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .item-point {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .point-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .card-manual .point-icon {
+      background: #FEE2E2;
+      color: #DC2626;
+    }
+
+    .card-pebai .point-icon {
+      background: rgba(183, 255, 60, 0.2);
+      color: #B7FF3C;
+      border: 1px solid rgba(183, 255, 60, 0.4);
+    }
+
+    .point-text h4 {
+      font-size: 19px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+    }
+
+    .card-manual .point-text h4 {
+      color: #12121A;
+    }
+
+    .card-pebai .point-text h4 {
+      color: #FFFFFF;
+    }
+
+    .point-text p {
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    .card-manual .point-text p {
+      color: #646470;
+    }
+
+    .card-pebai .point-text p {
+      color: #94A3B8;
+    }
+
+    .card-bottom-metric {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-manual .card-bottom-metric {
+      border-color: rgba(18, 18, 26, 0.1);
+    }
+
+    .card-pebai .card-bottom-metric {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .metric-col span:first-child {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .metric-col span:last-child {
+      display: block;
+      font-size: 24px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .card-manual .metric-col span:first-child { color: #888894; }
+    .card-manual .metric-col span:last-child { color: #DC2626; }
+
+    .card-pebai .metric-col span:first-child { color: #A1A1AA; }
+    .card-pebai .metric-col span:last-child { color: #B7FF3C; }
+
+    /* Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding-top: 24px;
+      border-top: 1px solid rgba(18, 18, 26, 0.12);
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-id {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-id img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #12121A;
+    }
+
+    .brand-name span {
+      font-weight: 400;
+      color: #646470;
+      margin-left: 4px;
+    }
+
+    .web-url {
+      font-size: 18px;
+      font-weight: 600;
+      color: #555562;
+    }
+
+    .swipe-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #E2DFD7;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #12121A;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="slide-header">
+    <div class="badge-topic">
+      <div class="topic-dot"></div>
+      <span>{{ topic_tag|default("AUDITORÍA OPERATIVA · PEBAI") }}</span>
+    </div>
+    <div class="slide-index">{{ slide_number|default(1) }} / {{ total_slides|default(3) }}</div>
+  </header>
+
+  <!-- Hook Question -->
+  <section class="hook-section">
+    <span class="tag-small">{{ sub_tag|default("Comparativa B2B") }}</span>
+    <h1 class="main-title">
+      {{ title_line1|default("2 FORMAS DE ATENDER LEADS") }}<br><span>{{ title_highlight|default("EN TU EMPRESA") }}</span>
+    </h1>
+  </section>
+
+  <!-- Center Split Comparison -->
+  <section class="split-container">
+    
+    <!-- Left: Manual -->
+    <div class="split-card card-manual">
+      <div>
+        <span class="card-tag">{{ left_tag|default("Operativa Manual") }}</span>
+        <h3 class="card-header-title">{{ left_title|default("Método Lento") }}</h3>
+
+        <div class="items-group">
+          {% for pt in left_points|default([
+            {"title": "Llamadas a deshora perdidas", "desc": "El 42% de clientes llaman fuera del horario comercial y nadie atiende."},
+            {"title": "4 horas para un presupuesto", "desc": "Copiar y pegar datos de Excel a mano genera cuellos de botella."},
+            {"title": "Leads fríos sin seguimiento", "desc": "Si tardas más de 5 minutos, el cliente ya ha llamado a tu competencia."}
+          ]) %}
+          <div class="item-point">
+            <div class="point-icon">✕</div>
+            <div class="point-text">
+              <h4>{{ pt.title }}</h4>
+              <p>{{ pt.desc }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card-bottom-metric">
+        <div class="metric-col">
+          <span>{{ left_metric1_label|default("Tiempo de respuesta") }}</span>
+          <span>{{ left_metric1_val|default("> 4 Horas") }}</span>
+        </div>
+        <div class="metric-col" style="text-align: right;">
+          <span>{{ left_metric2_label|default("Ventas perdidas") }}</span>
+          <span>{{ left_metric2_val|default("- 38%") }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: PEBAI Hero -->
+    <div class="split-card card-pebai">
+      <div>
+        <span class="card-tag">{{ right_tag|default("Sistema PEBAI") }}</span>
+        <h3 class="card-header-title">
+          <span>{{ right_title|default("Agente Autónomo") }}</span>
+          <img src="{{ assets_uri }}/pebai/pebai-mark-color.svg" alt="PEBAI Logo">
+        </h3>
+
+        <div class="items-group">
+          {% for pt in right_points|default([
+            {"title": "Atención 24/7 sin descanso", "desc": "Descuelga al primer tono y atiende WhatsApp en 12 segundos reales."},
+            {"title": "Presupuesto en PDF en 3 min", "desc": "Consulta tarifas y genera la propuesta en directo sin tocar un teclado."},
+            {"title": "Agenda citas en tu Calendar", "desc": "Cualifica al cliente y bloquea la reunión directamente en tu CRM."}
+          ]) %}
+          <div class="item-point">
+            <div class="point-icon">✓</div>
+            <div class="point-text">
+              <h4>{{ pt.title }}</h4>
+              <p>{{ pt.desc }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card-bottom-metric">
+        <div class="metric-col">
+          <span>{{ right_metric1_label|default("Tiempo de respuesta") }}</span>
+          <span>{{ right_metric1_val|default("12 Segundos") }}</span>
+        </div>
+        <div class="metric-col" style="text-align: right;">
+          <span>{{ right_metric2_label|default("Cierre de citas") }}</span>
+          <span>{{ right_metric2_val|default("+ 35%") }}</span>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Slide Footer -->
+  <footer class="slide-footer">
+    <div class="brand-id">
+      <img src="{{ assets_uri }}/pebai/pebai-horizontal-dark.svg" alt="PEBAI Systems" style="height: 32px; width: auto;">
+    </div>
+    <div class="web-url">{{ footer_web|default("pebaisystems.es") }}</div>
+    <div class="swipe-pill">
+      <span>{{ footer_cta|default("Desliza para ver la solución") }}</span>
+      <span style="font-size: 18px;">&rarr;</span>
+    </div>
+  </footer>
+
+</body>
+</html>

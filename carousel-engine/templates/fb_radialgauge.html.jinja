@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ title_line1 }} - PEBAI Systems</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 1080px;
+      height: 1440px;
+      background-color: #EFEDE7;
+      color: #12121A;
+      font-family: 'Manrope', -apple-system, sans-serif;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 70px 75px 55px 75px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .noise-overlay {
+      position: absolute;
+      inset: 0;
+      opacity: 0.045;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      z-index: 10;
+    }
+
+    .top-meta {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .meta-tag {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #55545E;
+    }
+
+    .meta-pagination {
+      font-size: 13px;
+      font-weight: 800;
+      color: #12121A;
+      background: #E2DFD6;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .header-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      z-index: 2;
+      margin-top: 15px;
+    }
+
+    .category-icon-pill {
+      width: 48px;
+      height: 48px;
+      background: #12121A;
+      color: #B7FF3C;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      padding: 10px;
+    }
+
+    .category-icon-pill svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .main-title {
+      font-size: 54px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      text-transform: uppercase;
+      color: #12121A;
+      max-width: 900px;
+    }
+
+    .main-title span.highlight {
+      color: #594AF7;
+    }
+
+    /* Gauge & Speedometer Area */
+    .gauge-container {
+      width: 100%;
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .radial-circle-box {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .radial-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .center-metric {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      z-index: 3;
+    }
+
+    .metric-value {
+      font-size: 92px;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      color: #12121A;
+      line-height: 0.95;
+    }
+
+    .metric-label {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #594AF7;
+      margin-top: 6px;
+    }
+
+    .metric-badge {
+      font-size: 11px;
+      font-weight: 800;
+      background: #12121A;
+      color: #B7FF3C;
+      padding: 4px 10px;
+      border-radius: 12px;
+      margin-top: 6px;
+      letter-spacing: 0.08em;
+    }
+
+    /* Comparison Bars Section */
+    .comparison-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 35px;
+    }
+
+    .speed-card {
+      background: #FFFFFF;
+      border: 1px solid #D8D4C8;
+      border-radius: 20px;
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(18, 18, 26, 0.03);
+    }
+
+    .speed-card.hero-speed {
+      background: #12121A;
+      color: #FFFFFF;
+      border: 2px solid #B7FF3C;
+      box-shadow: 0 15px 40px rgba(18, 18, 26, 0.2);
+    }
+
+    .speed-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      width: 60%;
+    }
+
+    .speed-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #F2EFE8;
+      color: #12121A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      flex-shrink: 0;
+    }
+
+    .hero-speed .speed-icon {
+      background: rgba(183, 255, 60, 0.2);
+      color: #B7FF3C;
+    }
+
+    .speed-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .speed-details {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .speed-name {
+      font-size: 20px;
+      font-weight: 800;
+      color: #12121A;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-speed .speed-name {
+      color: #FFFFFF;
+    }
+
+    .speed-sub {
+      font-size: 13px;
+      font-weight: 500;
+      color: #55545E;
+    }
+
+    .hero-speed .speed-sub {
+      color: #A3A1B0;
+    }
+
+    .speed-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .speed-num {
+      font-size: 26px;
+      font-weight: 800;
+      color: #12121A;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-speed .speed-num {
+      color: #B7FF3C;
+    }
+
+    .speed-tag {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #71707B;
+    }
+
+    .hero-speed .speed-tag {
+      color: #9A97A6;
+    }
+
+    /* Bottom Hook Pill */
+    .hook-banner {
+      width: 100%;
+      background: #E5E2DA;
+      border-radius: 16px;
+      padding: 16px 24px;
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 600;
+      color: #12121A;
+    }
+
+    .hook-banner strong {
+      color: #594AF7;
+      font-weight: 800;
+    }
+
+    .hook-badge {
+      font-size: 11px;
+      font-weight: 800;
+      background: #12121A;
+      color: #B7FF3C;
+      padding: 4px 10px;
+      border-radius: 8px;
+      text-transform: uppercase;
+    }
+
+    /* Footer */
+    .footer-section {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 2;
+      border-top: 1.5px solid #D8D4C8;
+      padding-top: 24px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-brand img {
+      height: 32px;
+      width: auto;
+    }
+
+    .footer-note {
+      font-size: 13px;
+      font-weight: 700;
+      color: #71707B;
+    }
+
+    .footer-cta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 800;
+      color: #12121A;
+      background: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 30px;
+      border: 1px solid #D8D4C8;
+    }
+  </style>
+</head>
+<body>
+  <div class="noise-overlay"></div>
+
+  <!-- Meta Pagination -->
+  <div class="top-meta">
+    <span class="meta-tag">{{ topic_tag|default("VELOCÍMETRO DE VENTAS · PEBAI") }}</span>
+    {% if slide_number and total_slides %}
+    <span class="meta-pagination">{{ slide_number }}/{{ total_slides }}</span>
+    {% endif %}
+  </div>
+
+  <!-- Header -->
+  <div class="header-container">
+    <div class="category-icon-pill">
+      {{ category_icon_svg|safe }}
+    </div>
+    <h1 class="main-title">{{ title_line1 }} <span class="highlight">{{ title_highlight }}</span></h1>
+  </div>
+
+  <!-- Gauge Section -->
+  <div class="gauge-container">
+    <div class="radial-circle-box">
+      <svg class="radial-svg" viewBox="0 0 100 100">
+        <!-- Background track -->
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#D8D4C8" stroke-width="7" stroke-dasharray="264" stroke-dashoffset="30" stroke-linecap="round"/>
+        <!-- Active Speed Arc (95%) -->
+        <circle cx="50" cy="50" r="42" fill="none" stroke="url(#speed_grad)" stroke-width="8" stroke-dasharray="264" stroke-dashoffset="50" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="speed_grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#594AF7"/>
+            <stop offset="100%" stop-color="#99ED24"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="center-metric">
+        <div class="metric-value">{{ center_value|default("12s") }}</div>
+        <div class="metric-label">{{ center_label|default("ATENCIÓN INMEDIATA") }}</div>
+        <div class="metric-badge">{{ center_badge|default("24/7 SIN ESPERAS") }}</div>
+      </div>
+    </div>
+
+    <!-- Comparison Cards -->
+    <div class="comparison-section">
+      <!-- Row 1: Traditional -->
+      <div class="speed-card">
+        <div class="speed-left">
+          <div class="speed-icon">{{ row1_icon_svg|safe }}</div>
+          <div class="speed-details">
+            <div class="speed-name">{{ row1_title|default("Buzón de Voz / Fuera de Horario") }}</div>
+            <div class="speed-sub">{{ row1_desc|default("El cliente llama a la competencia en 2 minutos") }}</div>
+          </div>
+        </div>
+        <div class="speed-right">
+          <div class="speed-num">{{ row1_metric|default("> 14 Horas") }}</div>
+          <div class="speed-tag">60% Fuga de Leads</div>
+        </div>
+      </div>
+
+      <!-- Row 2: Receptionist -->
+      <div class="speed-card">
+        <div class="speed-left">
+          <div class="speed-icon">{{ row2_icon_svg|safe }}</div>
+          <div class="speed-details">
+            <div class="speed-name">{{ row2_title|default("Secretaría en Horario Laboral") }}</div>
+            <div class="speed-sub">{{ row2_desc|default("Saturada con tareas administrativas y llamadas acumuladas") }}</div>
+          </div>
+        </div>
+        <div class="speed-right">
+          <div class="speed-num">{{ row2_metric|default("4 Horas") }}</div>
+          <div class="speed-tag">Cuello de Botella</div>
+        </div>
+      </div>
+
+      <!-- Row 3: HERO PEBAI -->
+      <div class="speed-card hero-speed">
+        <div class="speed-left">
+          <div class="speed-icon">{{ row3_icon_svg|safe }}</div>
+          <div class="speed-details">
+            <div class="speed-name">{{ row3_title|default("Agente de IA PEBAI Systems") }}</div>
+            <div class="speed-sub">{{ row3_desc|default("Descuelga al 1er tono, cualifica el lead y agenda en Calendar") }}</div>
+          </div>
+        </div>
+        <div class="speed-right">
+          <div class="speed-num">{{ row3_metric|default("12 Segundos") }}</div>
+          <div class="speed-tag" style="color:#B7FF3C;">78% Cierre de Ventas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hook Banner -->
+    <div class="hook-banner">
+      <span>El <strong>78% de las compras</strong> se cierran con la primera empresa que contesta.</span>
+      <span class="hook-badge">Dato Operativo</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-section">
+    <div class="footer-brand">
+      <img src="{{ assets_uri }}/pebai/pebai-horizontal-dark.svg" alt="PEBAI Systems">
+    </div>
+    <div class="footer-note">{{ footer_web|default("pebaisystems.es") }}</div>
+    <div class="footer-cta">
+      <span>{{ footer_cta|default("Desliza para auditar tu caso") }}</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#12121A" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </div>
+  </div>
+</body>
+</html>

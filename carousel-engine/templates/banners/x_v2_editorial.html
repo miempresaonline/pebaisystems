@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>X Banner - Editorial Swiss</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1500px;
+      height: 500px;
+      overflow: hidden;
+      background-color: #0B0C10;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      position: relative;
+      color: #F4F4F6;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 44px 70px;
+    }
+
+    .ambient-glow {
+      position: absolute;
+      top: -50px;
+      right: 150px;
+      width: 600px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(106, 92, 255, 0.16) 0%, rgba(106, 92, 255, 0) 70%);
+      filter: blur(70px);
+      pointer-events: none;
+    }
+
+    .dot-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
+      background-size: 36px 36px;
+      mask-image: radial-gradient(circle at 60% 50%, black 50%, transparent 90%);
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
+    }
+
+    .brand-logo {
+      height: 32px;
+      width: auto;
+    }
+
+    .tag-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: #A1A1AA;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 14px;
+      border-radius: 6px;
+    }
+
+    /* Main Editorial Headline */
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+      max-width: 1200px;
+    }
+
+    .editorial-headline {
+      font-family: 'Instrument Serif', serif;
+      font-size: 48px;
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+    }
+
+    .editorial-headline em {
+      font-style: italic;
+      color: #9D93FF;
+    }
+
+    .editorial-sub {
+      font-size: 16px;
+      font-weight: 500;
+      color: #A1A1AA;
+      letter-spacing: -0.01em;
+    }
+
+    /* Bottom Bar: Pushed right to clear bottom-left avatar */
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      position: relative;
+      z-index: 10;
+      gap: 28px;
+      padding-left: 360px;
+    }
+
+    .metrics-group {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .metric-item {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .metric-val {
+      font-family: 'Instrument Serif', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: #B7FF3C;
+    }
+
+    .metric-lbl {
+      font-size: 11px;
+      font-weight: 600;
+      color: #71717A;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      color: #0B0C10;
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+  <div class="dot-grid"></div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <img src="../../assets/pebai/pebai-horizontal-light.svg" alt="PEBAI Systems" class="brand-logo">
+    <div class="tag-mono">PEBAI.ARCHITECTURE // B2B AI</div>
+  </div>
+
+  <!-- Hero Content -->
+  <div class="hero-content">
+    <h1 class="editorial-headline">Tu empresa no necesita más horas de gestión. <em>Necesita sistemas que no duermen.</em></h1>
+    <p class="editorial-sub">Agentes autónomos de IA para atención telefónica, WhatsApp y gestión comercial sin fricción.</p>
+  </div>
+
+  <!-- Bottom Bar (Safe from bottom-left avatar) -->
+  <div class="bottom-bar">
+    <div class="metrics-group">
+      <div class="metric-item">
+        <span class="metric-val">12s</span>
+        <span class="metric-lbl">Respuesta a leads</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-val">24/7</span>
+        <span class="metric-lbl">Operatividad</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-val">0%</span>
+        <span class="metric-lbl">Fuga de clientes</span>
+      </div>
+    </div>
+    <div class="cta-button">
+      pebaisystems.es &rarr;
+    </div>
+  </div>
+
+</body>
+</html>

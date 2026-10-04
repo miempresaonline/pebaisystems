@@ -1,0 +1,33 @@
+name: PEBAI Daily Carousel Radar
+
+on:
+  schedule:
+    # Ejecuta todos los dias a las 06:00 UTC (08:00 AM hora peninsular espanola en verano / 07:00 en invierno)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Permite disparar la ejecucion manualmente desde la pestana Actions de GitHub
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar codigo del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar entorno Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Ejecutar Radar Diario y Enviar a Google Sheets
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GSHEET_WEBHOOK_URL: ${{ secrets.GSHEET_WEBHOOK_URL }}
+        run: |
+          python carousel-engine/daily_radar.py

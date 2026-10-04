@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ title_line1 }} - PEBAI Systems</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 1080px;
+      height: 1440px;
+      background-color: #EFEDE7;
+      color: #12121A;
+      font-family: 'Manrope', -apple-system, sans-serif;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 70px 75px 55px 75px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .noise-overlay {
+      position: absolute;
+      inset: 0;
+      opacity: 0.045;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      z-index: 10;
+    }
+
+    .top-meta {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .meta-tag {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #55545E;
+    }
+
+    .meta-pagination {
+      font-size: 13px;
+      font-weight: 800;
+      color: #12121A;
+      background: #E2DFD6;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .header-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      z-index: 2;
+      margin-top: 15px;
+    }
+
+    .category-icon-pill {
+      width: 48px;
+      height: 48px;
+      background: #12121A;
+      color: #B7FF3C;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      padding: 10px;
+    }
+
+    .category-icon-pill svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .main-title {
+      font-size: 54px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      text-transform: uppercase;
+      color: #12121A;
+      max-width: 900px;
+    }
+
+    .main-title span.highlight {
+      color: #594AF7;
+    }
+
+    /* Chat Mockup Phone Frame */
+    .chat-mockup-wrapper {
+      width: 100%;
+      position: relative;
+      z-index: 2;
+      margin-top: 25px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .chat-window {
+      width: 100%;
+      background: #FFFFFF;
+      border: 1px solid #D8D4C8;
+      border-radius: 28px;
+      padding: 24px 30px;
+      box-shadow: 0 10px 30px rgba(18, 18, 26, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Chat Header */
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #EAE7DF;
+    }
+
+    .chat-contact {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .avatar-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #12121A;
+      color: #B7FF3C;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .contact-name {
+      font-size: 18px;
+      font-weight: 800;
+      color: #12121A;
+    }
+
+    .contact-status {
+      font-size: 12px;
+      font-weight: 600;
+      color: #15803d;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: #15803d;
+      border-radius: 50%;
+    }
+
+    .channel-badge {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: #F2EFE8;
+      color: #55545E;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    /* Chat Messages */
+    .message-bubble {
+      max-width: 82%;
+      border-radius: 18px;
+      padding: 16px 20px;
+      font-size: 17px;
+      line-height: 1.35;
+      position: relative;
+    }
+
+    .msg-incoming {
+      background: #F3F1EC;
+      color: #12121A;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg-outgoing {
+      background: #12121A;
+      color: #FFFFFF;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+      border: 1.5px solid #B7FF3C;
+      box-shadow: 0 10px 25px rgba(18, 18, 26, 0.2);
+    }
+
+    .msg-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #B7FF3C;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .msg-meta {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #71707B;
+    }
+
+    .msg-outgoing .msg-meta {
+      color: #9A97A6;
+    }
+
+    .msg-pdf-card {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(183, 255, 60, 0.3);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #B7FF3C;
+    }
+
+    /* Result Banner Below Chat */
+    .result-banner {
+      width: 100%;
+      background: #12121A;
+      color: #FFFFFF;
+      border-radius: 20px;
+      padding: 20px 26px;
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(183, 255, 60, 0.3);
+      box-shadow: 0 12px 30px rgba(18, 18, 26, 0.18);
+    }
+
+    .result-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .result-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #B7FF3C;
+      letter-spacing: -0.01em;
+    }
+
+    .result-desc {
+      font-size: 14px;
+      font-weight: 500;
+      color: #A3A1B0;
+    }
+
+    .result-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .result-metric {
+      font-size: 28px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+    }
+
+    .result-badge {
+      font-size: 11px;
+      font-weight: 800;
+      background: #B7FF3C;
+      color: #12121A;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* Footer */
+    .footer-section {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 2;
+      border-top: 1.5px solid #D8D4C8;
+      padding-top: 24px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-brand img {
+      height: 32px;
+      width: auto;
+    }
+
+    .footer-note {
+      font-size: 13px;
+      font-weight: 700;
+      color: #71707B;
+    }
+
+    .footer-cta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 800;
+      color: #12121A;
+      background: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 30px;
+      border: 1px solid #D8D4C8;
+    }
+  </style>
+</head>
+<body>
+  <div class="noise-overlay"></div>
+
+  <!-- Meta Pagination -->
+  <div class="top-meta">
+    <span class="meta-tag">{{ topic_tag|default("CASO PRÁCTICO REAL · PEBAI") }}</span>
+    {% if slide_number and total_slides %}
+    <span class="meta-pagination">{{ slide_number }}/{{ total_slides }}</span>
+    {% endif %}
+  </div>
+
+  <!-- Header -->
+  <div class="header-container">
+    <div class="category-icon-pill">
+      {{ category_icon_svg|safe }}
+    </div>
+    <h1 class="main-title">{{ title_line1 }} <span class="highlight">{{ title_highlight }}</span></h1>
+  </div>
+
+  <!-- Chat Mockup Window -->
+  <div class="chat-mockup-wrapper">
+    <div class="chat-window">
+      <!-- Contact Header -->
+      <div class="chat-header">
+        <div class="chat-contact">
+          <div class="avatar-circle">CP</div>
+          <div class="contact-info">
+            <span class="contact-name">{{ contact_name|default("Cliente Potencial (CEO)") }}</span>
+            <span class="contact-status"><span class="status-dot"></span> {{ contact_status|default("En línea · WhatsApp Oficial") }}</span>
+          </div>
+        </div>
+        <span class="channel-badge">Lead Entrante</span>
+      </div>
+
+      <!-- Message 1: Lead asks question -->
+      <div class="message-bubble msg-incoming">
+        {{ msg1_text|default("Hola buenas noches. Os vi por internet. Necesito saber si podéis automatizar la gestión de llamadas y presupuestos de mi empresa. Nos entran muchas solicitudes fuera de horario y no damos abasto.") }}
+        <div class="msg-meta">
+          <span>21:04:02</span>
+        </div>
+      </div>
+
+      <!-- Message 2: HERO AI Response in 12s -->
+      <div class="message-bubble msg-outgoing">
+        <div class="msg-header">
+          <span>Agente de IA PEBAI · 12 Segundos</span>
+        </div>
+        {{ msg2_text|default("Buenas noches Carlos. Por supuesto. El sistema descuelga al 1er tono, cualifica las necesidades según tu tarifa y agenda citas directamente en tu CRM. Te acabo de adjuntar una estimación formal de ahorro para tu sector:") }}
+        <div class="msg-pdf-card">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>Propuesta_Optimizacion_PEBAI.pdf (84 KB)</span>
+        </div>
+        <div style="margin-top: 8px;">¿Te va bien una breve demo de 10 min mañana a las 11:30 para verlo en directo?</div>
+        <div class="msg-meta">
+          <span>21:04:14 · Leído</span>
+        </div>
+      </div>
+
+      <!-- Message 3: Lead books -->
+      <div class="message-bubble msg-incoming">
+        {{ msg3_text|default("¡Impresionante la rapidez! Me viene perfecto mañana a las 11:30. Agendado.") }}
+        <div class="msg-meta">
+          <span>21:04:36</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Banner -->
+    <div class="result-banner">
+      <div class="result-left">
+        <div class="result-title">{{ banner_title|default("Reunión Comercial Agendada") }}</div>
+        <div class="result-desc">{{ banner_desc|default("Sin empleados a deshora. Cero llamadas perdidas. 100% automático.") }}</div>
+      </div>
+      <div class="result-right">
+        <div class="result-metric">34 Seg</div>
+        <span class="result-badge">Cierre Récord</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-section">
+    <div class="footer-brand">
+      <img src="{{ assets_uri }}/pebai/pebai-horizontal-dark.svg" alt="PEBAI Systems">
+    </div>
+    <div class="footer-note">{{ footer_web|default("pebaisystems.es") }}</div>
+    <div class="footer-cta">
+      <span>{{ footer_cta|default("Comenta RESPUESTA para auditar") }}</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#12121A" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </div>
+  </div>
+</body>
+</html>

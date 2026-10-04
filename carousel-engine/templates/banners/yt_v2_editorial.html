@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Banner - Editorial Swiss</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 2560px;
+      height: 1440px;
+      overflow: hidden;
+      background-color: #0B0C10;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      position: relative;
+      color: #F4F4F6;
+    }
+
+    /* Ambient background graphics */
+    .ambient-glow {
+      position: absolute;
+      top: 300px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1200px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(106, 92, 255, 0.12) 0%, rgba(106, 92, 255, 0) 70%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .dot-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(circle at 50% 50%, black 50%, transparent 90%);
+    }
+
+    /* FULL-WIDTH DESKTOP STRIPE: 2560 x 423 px */
+    .banner-stripe {
+      position: absolute;
+      left: 0;
+      top: 508px;
+      width: 2560px;
+      height: 423px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(90deg, 
+        rgba(11, 12, 16, 0.85) 0%, 
+        rgba(16, 18, 26, 0.95) 20%, 
+        rgba(16, 18, 26, 0.95) 80%, 
+        rgba(11, 12, 16, 0.85) 100%);
+      box-shadow: 0 0 80px rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* SAFE ZONE: Centered 1546 x 423 px */
+    .safe-zone {
+      width: 1546px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 38px 0;
+      position: relative;
+    }
+
+    /* Top Row */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-id {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      height: 34px;
+      width: auto;
+    }
+
+    .tag-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: #A1A1AA;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 14px;
+      border-radius: 6px;
+    }
+
+    /* Main Editorial Headline */
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .editorial-headline {
+      font-family: 'Instrument Serif', serif;
+      font-size: 56px;
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+    }
+
+    .editorial-headline em {
+      font-style: italic;
+      color: #9D93FF;
+    }
+
+    .editorial-sub {
+      font-size: 18px;
+      font-weight: 500;
+      color: #A1A1AA;
+      letter-spacing: -0.01em;
+    }
+
+    /* Bottom Row: Metrics & URL */
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .metrics-group {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .metric-item {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .metric-val {
+      font-family: 'Instrument Serif', serif;
+      font-size: 30px;
+      font-weight: 400;
+      color: #B7FF3C;
+    }
+
+    .metric-lbl {
+      font-size: 13px;
+      font-weight: 600;
+      color: #71717A;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #FFFFFF;
+      color: #0B0C10;
+      padding: 10px 22px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+  <div class="dot-grid"></div>
+
+  <!-- Full-Width Stripe for Desktop, Tablet, and Mobile -->
+  <div class="banner-stripe">
+    <div class="safe-zone">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div class="brand-id">
+          <img src="../../assets/pebai/pebai-horizontal-light.svg" alt="PEBAI Systems" class="brand-logo">
+        </div>
+        <div class="tag-mono">PEBAI.ARCHITECTURE // B2B AI</div>
+      </div>
+
+      <!-- Hero Content -->
+      <div class="hero-content">
+        <h1 class="editorial-headline">Tu empresa no necesita más horas de gestión. <em>Necesita sistemas que no duermen.</em></h1>
+        <p class="editorial-sub">Agentes autónomos de IA para atención telefónica, WhatsApp y gestión comercial sin fricción.</p>
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="bottom-bar">
+        <div class="metrics-group">
+          <div class="metric-item">
+            <span class="metric-val">12s</span>
+            <span class="metric-lbl">Respuesta a leads</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-val">24/7</span>
+            <span class="metric-lbl">Operatividad</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-val">0%</span>
+            <span class="metric-lbl">Fuga de clientes</span>
+          </div>
+        </div>
+        <div class="cta-button">
+          pebaisystems.es &rarr;
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

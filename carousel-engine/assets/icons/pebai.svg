@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 550" fill="none">
+  <defs>
+    <linearGradient id="pebai_lime" x1="20" y1="25" x2="235" y2="140" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B7FF3C"/>
+      <stop offset="1" stop-color="#99ED24"/>
+    </linearGradient>
+    <linearGradient id="pebai_violet" x1="82" y1="235" x2="260" y2="115" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6A5CFF"/>
+      <stop offset="1" stop-color="#594AF7"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#pebai_lime)" d="M64 338C52 299 78 237 130 183C211 98 350 42 569 13L666 0 558 84C468 153 397 208 348 250 305 287 275 320 261 351L219 401C214 370 200 349 172 336 115 309 82 321 64 338Z"/>
+  <path fill="url(#pebai_violet)" d="M202 500 317 401C373 353 430 304 489 249 532 209 561 177 574 153 621 183 637 226 626 274 608 355 498 418 321 468L202 500Z"/>
+  <path fill="#12121A" d="M251 351C276 314 310 283 353 246 405 202 472 147 558 84L541 101C487 151 440 185 399 208 365 227 351 242 354 258 357 276 385 287 419 301 373 332 339 357 317 385L219 464 251 351Z"/>
+</svg>

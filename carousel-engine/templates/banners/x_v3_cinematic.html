@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>X Banner - Cinematic 3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1500px;
+      height: 500px;
+      overflow: hidden;
+      background-color: #07080B;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      position: relative;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 40px 70px;
+    }
+
+    /* Background Photo & Mask */
+    .bg-photo {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 900px;
+      height: 500px;
+      object-fit: cover;
+      object-position: center 25%;
+      opacity: 0.45;
+    }
+
+    .gradient-mask {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #07080B 0%, #07080B 40%, rgba(7, 8, 11, 0.85) 65%, rgba(7, 8, 11, 0.3) 100%),
+                  linear-gradient(180deg, rgba(7, 8, 11, 0.7) 0%, transparent 25%, transparent 75%, rgba(7, 8, 11, 0.8) 100%);
+    }
+
+    .ambient-glow {
+      position: absolute;
+      top: 50px;
+      left: 100px;
+      width: 500px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(183, 255, 60, 0.1) 0%, transparent 70%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    /* Left Column Content */
+    .left-col {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      max-width: 900px;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      height: 30px;
+      width: auto;
+    }
+
+    .badge-topic {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #FFFFFF;
+    }
+
+    .badge-topic::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #B7FF3C;
+      box-shadow: 0 0 6px #B7FF3C;
+    }
+
+    .main-headline {
+      font-size: 38px;
+      font-weight: 900;
+      line-height: 1.12;
+      letter-spacing: -0.035em;
+      color: #FFFFFF;
+      margin-top: 10px;
+    }
+
+    .lime-text {
+      color: #B7FF3C;
+      text-shadow: 0 0 25px rgba(183, 255, 60, 0.35);
+    }
+
+    .sub-headline {
+      font-size: 15px;
+      font-weight: 500;
+      color: #A1A1AA;
+      line-height: 1.4;
+      margin-top: 6px;
+    }
+
+    /* Bottom Row: Pushed right past avatar clearance */
+    .bottom-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 10px;
+      padding-left: 360px; /* Safe space from bottom-left avatar */
+    }
+
+    .web-pill {
+      font-size: 13px;
+      font-weight: 800;
+      color: #07080B;
+      background: #B7FF3C;
+      letter-spacing: 0.04em;
+      padding: 7px 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(183, 255, 60, 0.3);
+      white-space: nowrap;
+    }
+
+    .claim-tag {
+      font-size: 13px;
+      font-weight: 600;
+      color: #D4D4D8;
+    }
+
+    /* Right 3D Badges */
+    .right-col {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .tile-3d {
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(255, 255, 255, 0.25) inset;
+    }
+
+    .tile-whatsapp {
+      width: 82px;
+      height: 82px;
+      background: linear-gradient(135deg, #2EE06E 0%, #15A852 100%);
+      transform: rotate(-6deg);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .tile-pebai {
+      width: 98px;
+      height: 98px;
+      background: linear-gradient(135deg, #1C1D24 0%, #101116 100%);
+      transform: rotate(4deg);
+      border: 2px solid #B7FF3C;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(183, 255, 60, 0.35);
+    }
+
+    .tile-crm {
+      width: 78px;
+      height: 78px;
+      background: linear-gradient(135deg, #594AF7 0%, #3B2BBF 100%);
+      transform: rotate(-4deg);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Photo & Masks -->
+  <img src="../../assets/stock/stock_consultant_laptop.jpg" class="bg-photo" alt="Consultant Stock">
+  <div class="gradient-mask"></div>
+  <div class="ambient-glow"></div>
+
+  <!-- Left Column -->
+  <div class="left-col">
+    <div class="top-row">
+      <img src="../../assets/pebai/pebai-horizontal-light.svg" alt="PEBAI Systems" class="brand-logo">
+      <div class="badge-topic">OPTIMIZACIÓN OPERATIVA B2B</div>
+    </div>
+
+    <div>
+      <h1 class="main-headline">MULTIPLICA TU CAPACIDAD OPERATIVA <span class="lime-text">SIN MÁS PLANTILLA</span></h1>
+      <p class="sub-headline">Agentes autónomos de IA que atienden por voz, WhatsApp y agendan en tu CRM las 24 horas.</p>
+    </div>
+
+    <div class="bottom-row">
+      <div class="claim-tag">Auditoría gratuita en</div>
+      <div class="web-pill">pebaisystems.es &rarr;</div>
+    </div>
+  </div>
+
+  <!-- Right 3D Badges Column -->
+  <div class="right-col">
+    <div class="tile-3d tile-whatsapp">
+      <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+      </svg>
+    </div>
+
+    <div class="tile-3d tile-pebai">
+      <img src="../../assets/pebai/pebai-mark-color.svg" alt="PEBAI" style="width: 52px; height: 52px;">
+    </div>
+
+    <div class="tile-3d tile-crm">
+      <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </svg>
+    </div>
+  </div>
+
+</body>
+</html>

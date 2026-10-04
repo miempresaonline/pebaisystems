@@ -1,0 +1,40 @@
+# Environment and Secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.token
+*.pat
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Database & local dumps
+*.sqlite
+*.db
+backups/
+dump_*.json
+dump_*.csv
+
+# Heavy Media & Downloads
+tiktok_downloads/
+carousel-engine/output/
+carousel-engine/tiktok_inspect/
+carousel-engine/*.png
+*.tar.gz
+*.mp4
+*.webm
+
+# OS
+.DS_Store
+Thumbs.db

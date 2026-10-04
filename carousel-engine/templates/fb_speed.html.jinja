@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ main_title|default("Speed Benchmark") }} - PEBAI Systems</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1080px;
+      height: 1440px;
+      background-color: #EFEDE7; /* Official PEBAI Mineral White */
+      color: #12121A;
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px 65px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(18, 18, 26, 0.05) 1.2px, transparent 0);
+      background-size: 30px 30px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Header */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .badge-topic {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555562;
+    }
+
+    .topic-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #B7FF3C;
+      box-shadow: 0 0 10px #B7FF3C;
+    }
+
+    .slide-index {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #12121A;
+      background: rgba(18, 18, 26, 0.06);
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    /* Hook Title */
+    .hook-section {
+      text-align: center;
+      margin-top: 15px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .tag-small {
+      display: inline-block;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #6A5CFF;
+      margin-bottom: 12px;
+    }
+
+    .main-title {
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      text-transform: uppercase;
+      color: #12121A;
+    }
+
+    .main-title span {
+      color: #12121A;
+      position: relative;
+      display: inline-block;
+    }
+
+    .main-title span::after {
+      content: "";
+      position: absolute;
+      left: -4px;
+      right: -4px;
+      bottom: 6px;
+      height: 14px;
+      background: #B7FF3C;
+      z-index: -1;
+      border-radius: 4px;
+    }
+
+    /* Speed Benchmark List */
+    .speed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      width: 100%;
+      max-width: 920px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .speed-row {
+      background: #FFFFFF;
+      border: 1.5px solid #12121A;
+      border-radius: 22px;
+      padding: 26px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 0 #12121A;
+    }
+
+    .speed-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .speed-icon-box {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: #F1F0ED;
+      border: 1px solid rgba(18, 18, 26, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .speed-icon-box svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .speed-info h3 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #12121A;
+      margin-bottom: 4px;
+    }
+
+    .speed-info p {
+      font-size: 16px;
+      font-weight: 500;
+      color: #646470;
+    }
+
+    .speed-metric {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 24px;
+      font-weight: 800;
+      padding: 12px 24px;
+      border-radius: 14px;
+      flex-shrink: 0;
+      border: 1px solid rgba(18, 18, 26, 0.12);
+    }
+
+    .speed-row.level-1 .speed-metric {
+      background: #FEE2E2;
+      color: #DC2626;
+      border-color: #FECACA;
+    }
+
+    .speed-row.level-2 .speed-metric {
+      background: #EDE9FE;
+      color: #6A5CFF;
+      border-color: #DDD6FE;
+    }
+
+    /* Level 3 Hero PEBAI */
+    .speed-row.hero-level {
+      background: #12121A;
+      border-color: #B7FF3C;
+      box-shadow: 0 10px 0 #000000, 0 20px 45px rgba(183, 255, 60, 0.2);
+    }
+
+    .speed-row.hero-level .speed-icon-box {
+      background: #000000;
+      border: 1px solid rgba(183, 255, 60, 0.3);
+      padding: 12px;
+    }
+
+    .speed-row.hero-level .speed-icon-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .speed-row.hero-level .speed-info h3 {
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .speed-row.hero-level .speed-info h3::after {
+      content: "{{ hero_badge|default('LÍDER EN VELOCIDAD') }}";
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      background: #B7FF3C;
+      color: #12121A;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .speed-row.hero-level .speed-info p {
+      color: #B7FF3C;
+    }
+
+    .speed-row.hero-level .speed-metric {
+      background: #B7FF3C;
+      color: #12121A;
+      box-shadow: 0 4px 18px rgba(183, 255, 60, 0.35);
+    }
+
+    /* Bottom Highlight Banner */
+    .rule-banner {
+      width: 100%;
+      background: #FFFFFF;
+      border: 1.5px solid #12121A;
+      border-radius: 20px;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2;
+    }
+
+    .rule-banner span {
+      font-size: 18px;
+      font-weight: 700;
+      color: #12121A;
+    }
+
+    .rule-banner span strong {
+      color: #6A5CFF;
+    }
+
+    .rule-banner .badge-win {
+      background: #12121A;
+      color: #B7FF3C !important;
+      font-size: 14px;
+      font-weight: 800;
+      padding: 8px 16px;
+      border-radius: 20px;
+    }
+
+    /* Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding-top: 24px;
+      border-top: 1px solid rgba(18, 18, 26, 0.12);
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-id {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-id img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #12121A;
+    }
+
+    .brand-name span {
+      font-weight: 400;
+      color: #646470;
+      margin-left: 4px;
+    }
+
+    .web-url {
+      font-size: 18px;
+      font-weight: 600;
+      color: #555562;
+    }
+
+    .swipe-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #E2DFD7;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #12121A;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="slide-header">
+    <div class="badge-topic">
+      <div class="topic-dot"></div>
+      <span>{{ topic_tag|default("BENCHMARK DE VELOCIDAD · PEBAI") }}</span>
+    </div>
+    <div class="slide-index">{{ slide_number|default(1) }} / {{ total_slides|default(3) }}</div>
+  </header>
+
+  <!-- Hook Question -->
+  <section class="hook-section">
+    <span class="tag-small">{{ sub_tag|default("Tiempo de Respuesta") }}</span>
+    <h1 class="main-title">
+      {{ title_line1|default("EL QUE RESPONDE ANTES") }}<br><span>{{ title_highlight|default("SE LLEVA EL CLIENTE") }}</span>
+    </h1>
+  </section>
+
+  <!-- Speed Benchmark List -->
+  <section class="speed-list">
+    
+    <!-- Level 1 -->
+    <div class="speed-row level-1">
+      <div class="speed-left">
+        <div class="speed-icon-box">
+          {{ row1_icon_svg|default('<svg viewBox="0 0 24 24" fill="none" stroke="#12121A" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><circle cx="8" cy="12" r="2.5"></circle><circle cx="16" cy="12" r="2.5"></circle><path d="M8 14.5h8"></path></svg>')|safe }}
+        </div>
+        <div class="speed-info">
+          <h3>{{ row1_title|default("Buzón de Voz Tradicional") }}</h3>
+          <p>{{ row1_desc|default("El cliente cuelga y llama a otra empresa") }}</p>
+        </div>
+      </div>
+      <div class="speed-metric">{{ row1_metric|default("> 14 Horas") }}</div>
+    </div>
+
+    <!-- Level 2 -->
+    <div class="speed-row level-2">
+      <div class="speed-left">
+        <div class="speed-icon-box">
+          {{ row2_icon_svg|default('<svg viewBox="0 0 24 24" fill="none" stroke="#6A5CFF" stroke-width="2.2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>')|safe }}
+        </div>
+        <div class="speed-info">
+          <h3>{{ row2_title|default("Secretaria en Horario de Oficina") }}</h3>
+          <p>{{ row2_desc|default("Saturada con tareas y emails acumulados") }}</p>
+        </div>
+      </div>
+      <div class="speed-metric">{{ row2_metric|default("4 Horas") }}</div>
+    </div>
+
+    <!-- Level 3 Hero -->
+    <div class="speed-row hero-level">
+      <div class="speed-left">
+        <div class="speed-icon-box">
+          <img src="{{ assets_uri }}/pebai/pebai-mark-color.svg" alt="PEBAI Logo">
+        </div>
+        <div class="speed-info">
+          <h3>{{ row3_title|default("Agente de IA PEBAI Systems") }}</h3>
+          <p>{{ row3_desc|default("Atiende al 1er tono, cualifica y agenda la cita") }}</p>
+        </div>
+      </div>
+      <div class="speed-metric">{{ row3_metric|default("12 Seg") }}</div>
+    </div>
+
+  </section>
+
+  <!-- Bottom Insight -->
+  <div class="rule-banner">
+    <span>{{ banner_text|default("La empresa que contesta en <strong>menos de 5 minutos</strong> se lleva el <strong>78%</strong> de las ventas.")|safe }}</span>
+    <span class="badge-win">{{ banner_badge|default("Dato Real") }}</span>
+  </div>
+
+  <!-- Slide Footer -->
+  <footer class="slide-footer">
+    <div class="brand-id">
+      <img src="{{ assets_uri }}/pebai/pebai-horizontal-dark.svg" alt="PEBAI Systems" style="height: 32px; width: auto;">
+    </div>
+    <div class="web-url">{{ footer_web|default("pebaisystems.es") }}</div>
+    <div class="swipe-pill">
+      <span>{{ footer_cta|default("Desliza para auditar tu caso") }}</span>
+      <span style="font-size: 18px;">&rarr;</span>
+    </div>
+  </footer>
+
+</body>
+</html>

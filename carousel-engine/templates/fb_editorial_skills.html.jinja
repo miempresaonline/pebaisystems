@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ hook_title|default("Editorial Skills") }} - PEBAI Systems</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1080px;
+      height: 1440px;
+      background-color: #F8F7F2;
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .slide {
+      width: 1080px;
+      height: 1440px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 70px 75px 60px 75px;
+    }
+
+    /* Subtle dot grid */
+    .bg-dots {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(#D6D3C7 1.2px, transparent 1.2px);
+      background-size: 28px 28px;
+      z-index: 1;
+      opacity: 0.65;
+    }
+
+    /* Top Handle */
+    .top-handle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      color: #71707B;
+      letter-spacing: 0.05em;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-handle .handle-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #594AF7;
+    }
+
+    /* Main Editorial Headline */
+    .headline-area {
+      text-align: center;
+      margin-top: 40px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .editorial-title {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 82px;
+      line-height: 1.04;
+      font-weight: 400;
+      color: #12121A;
+      letter-spacing: -0.02em;
+    }
+
+    .editorial-title em {
+      font-style: italic;
+      color: #594AF7;
+      letter-spacing: -0.01em;
+    }
+
+    /* Center Hero Graphic (Pixel Brain / Core Engine) */
+    .center-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 40px 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .brain-badge {
+      background: #EAE6D9;
+      color: #594AF7;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 999px;
+      margin-bottom: 20px;
+    }
+
+    .pixel-art-icon {
+      width: 140px;
+      height: 140px;
+      border-radius: 36px;
+      background: #FFFFFF;
+      border: 1px solid #D8D4C8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 16px 36px rgba(18, 18, 26, 0.08);
+      margin-bottom: 20px;
+    }
+
+    .core-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 28px;
+      font-weight: 800;
+      color: #12121A;
+      letter-spacing: 0.05em;
+    }
+
+    .core-caption {
+      font-size: 16px;
+      color: #71707B;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* Category Skills Pills Row */
+    .skills-pills-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      width: 100%;
+      position: relative;
+      z-index: 10;
+      margin-bottom: 30px;
+    }
+
+    .skill-pill-card {
+      background: #FFFFFF;
+      border: 1px solid #D8D4C8;
+      border-radius: 20px;
+      padding: 20px 16px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(18, 18, 26, 0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .skill-pill-card.hero-pill {
+      background: #594AF7;
+      color: #FFFFFF;
+      border-color: #594AF7;
+      box-shadow: 0 12px 28px rgba(89, 74, 247, 0.35);
+    }
+
+    .pill-icon {
+      margin-bottom: 4px;
+    }
+
+    .pill-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .pill-metric {
+      font-size: 13px;
+      font-weight: 700;
+      background: rgba(18, 18, 26, 0.06);
+      padding: 4px 10px;
+      border-radius: 8px;
+      color: #555460;
+    }
+
+    .skill-pill-card.hero-pill .pill-metric {
+      background: rgba(255, 255, 255, 0.22);
+      color: #FFFFFF;
+    }
+
+    /* Subtitle hook */
+    .hook-footer-callout {
+      text-align: center;
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-style: italic;
+      font-size: 34px;
+      color: #594AF7;
+      margin-bottom: 25px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding-top: 24px;
+      border-top: 1px solid rgba(18, 18, 26, 0.12);
+      position: relative;
+      z-index: 10;
+    }
+
+    .brand-id {
+      display: flex;
+      align-items: center;
+    }
+
+    .swipe-text {
+      font-size: 18px;
+      font-weight: 800;
+      color: #12121A;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slide">
+    <div class="bg-dots"></div>
+
+    <!-- Top Handle -->
+    <div class="top-handle">
+      <span class="handle-dot"></span>
+      <span>{{ top_handle|default("@pebaisystems.es") }}</span>
+    </div>
+
+    <!-- Editorial Headline -->
+    <div class="headline-area">
+      <h1 class="editorial-title">
+        {{ title_prefix|default("Mi empresa entera") }}<br>
+        corre en <em>{{ title_accent|default("Agentes de IA.") }}</em>
+      </h1>
+    </div>
+
+    <!-- Center Hero Graphic -->
+    <div class="center-hero">
+      <div class="brain-badge">{{ badge_label|default("EL CEREBRO OPERATIVO") }}</div>
+      <div class="pixel-art-icon">
+        <img src="{{ assets_uri }}/pebai/pebai-mark-color.svg" alt="PEBAI Core" style="width: 76px; height: 76px;">
+      </div>
+      <div class="core-name">{{ core_title|default("PEBAI.ARCHITECTURE") }}</div>
+      <div class="core-caption">{{ core_sub|default("La infraestructura que cualifica y agenda sin intervención humana") }}</div>
+    </div>
+
+    <!-- Skills Category Row -->
+    <div class="skills-pills-row">
+      <div class="skill-pill-card">
+        <div class="pill-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555460" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="pill-title">Llamadas</div>
+        <div class="pill-metric">24/7 Activo</div>
+      </div>
+
+      <div class="skill-pill-card hero-pill">
+        <div class="pill-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </div>
+        <div class="pill-title">WhatsApp</div>
+        <div class="pill-metric">12 Segundos</div>
+      </div>
+
+      <div class="skill-pill-card">
+        <div class="pill-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555460" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        </div>
+        <div class="pill-title">Cotizaciones</div>
+        <div class="pill-metric">4 Minutos</div>
+      </div>
+
+      <div class="skill-pill-card">
+        <div class="pill-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555460" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <div class="pill-title">Cierre CRM</div>
+        <div class="pill-metric">0% Fallos</div>
+      </div>
+    </div>
+
+    <!-- Hook Callout -->
+    <div class="hook-footer-callout">
+      {{ hook_callout|default("4 agentes autónomos organizados como un equipo comercial real &rarr;") }}
+    </div>
+
+    <!-- Footer -->
+    <footer class="slide-footer">
+      <div class="brand-id">
+        <img src="{{ assets_uri }}/pebai/pebai-horizontal-dark.svg" alt="PEBAI Systems" style="height: 32px; width: auto;">
+      </div>
+      <div class="swipe-text">
+        <span>{{ swipe_label|default("desliza") }}</span>
+        <span>&rarr;</span>
+      </div>
+    </footer>
+  </div>
+
+</body>
+</html>

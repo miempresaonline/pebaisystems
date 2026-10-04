@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Banner - Mineral Light Luxe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 2560px;
+      height: 1440px;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, #FFFFFF 0%, #F5F7FA 55%, #E9EEF5 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .central-glow {
+      position: absolute;
+      width: 1500px;
+      height: 750px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(ellipse at center, rgba(89, 74, 247, 0.12) 0%, rgba(183, 255, 60, 0.08) 45%, transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .waves-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2560px;
+      height: 1440px;
+      pointer-events: none;
+    }
+
+    .brand-center {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-logo-img {
+      height: 185px;
+      width: auto;
+      filter: drop-shadow(0 14px 40px rgba(15, 23, 42, 0.15));
+    }
+  </style>
+</head>
+<body>
+
+  <div class="central-glow"></div>
+
+  <!-- Concentric Wave Rings (Centered at 1280, 720) in subtle violet/slate -->
+  <svg class="waves-svg" viewBox="0 0 2560 1440" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ring 1 -->
+    <circle cx="1280" cy="720" r="380" fill="none" stroke="rgba(89, 74, 247, 0.25)" stroke-width="12" />
+    <!-- Ring 2 -->
+    <circle cx="1280" cy="720" r="540" fill="none" stroke="rgba(89, 74, 247, 0.18)" stroke-width="12" />
+    <!-- Ring 3 -->
+    <circle cx="1280" cy="720" r="720" fill="none" stroke="rgba(89, 74, 247, 0.13)" stroke-width="12" />
+    <!-- Ring 4 -->
+    <circle cx="1280" cy="720" r="930" fill="none" stroke="rgba(15, 23, 42, 0.08)" stroke-width="12" />
+    <!-- Ring 5 -->
+    <circle cx="1280" cy="720" r="1160" fill="none" stroke="rgba(15, 23, 42, 0.05)" stroke-width="12" />
+  </svg>
+
+  <!-- Official PEBAI Horizontal Color Logo (Dark Ink text) -->
+  <div class="brand-center">
+    <img src="../../assets/pebai/pebai-horizontal-color-ink-2320.png" alt="PEBAI Systems" class="brand-logo-img">
+  </div>
+
+</body>
+</html>

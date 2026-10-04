@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Banner - Dark Tech</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 2560px;
+      height: 1440px;
+      overflow: hidden;
+      background-color: #07080B;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      position: relative;
+      color: #FFFFFF;
+    }
+
+    /* Full Canvas Tech Ambient Graphics (visible on TV) */
+    .ambient-glow-1 {
+      position: absolute;
+      top: 250px;
+      left: 400px;
+      width: 900px;
+      height: 900px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(183, 255, 60, 0.08) 0%, rgba(183, 255, 60, 0) 70%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .ambient-glow-2 {
+      position: absolute;
+      top: 300px;
+      right: 350px;
+      width: 800px;
+      height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(99, 102, 241, 0) 70%);
+      filter: blur(70px);
+      pointer-events: none;
+    }
+
+    /* Technical grid pattern */
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(circle at 50% 50%, black 55%, transparent 95%);
+    }
+
+    /* Subtle circuit connectors extending outside safe zone */
+    .circuit-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* FULL-WIDTH DESKTOP STRIPE: 2560 x 423 px (Y: 508px to 931px) */
+    .banner-stripe {
+      position: absolute;
+      left: 0;
+      top: 508px;
+      width: 2560px;
+      height: 423px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(90deg, 
+        rgba(10, 11, 16, 0.85) 0%, 
+        rgba(14, 16, 23, 0.95) 20%, 
+        rgba(14, 16, 23, 0.95) 80%, 
+        rgba(10, 11, 16, 0.85) 100%);
+      box-shadow: 0 0 80px rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* SAFE ZONE: Centered 1546 x 423 px */
+    .safe-zone {
+      width: 1546px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 38px 0;
+      position: relative;
+    }
+
+    /* Top Row of Safe Zone */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .brand-logo {
+      height: 38px;
+      width: auto;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(183, 255, 60, 0.08);
+      border: 1px solid rgba(183, 255, 60, 0.25);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #B7FF3C;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #B7FF3C;
+      box-shadow: 0 0 10px #B7FF3C;
+    }
+
+    /* Middle Row: Hero Headline */
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .main-headline {
+      font-size: 46px;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+      color: #FFFFFF;
+    }
+
+    .lime-text {
+      color: #B7FF3C;
+      text-shadow: 0 0 35px rgba(183, 255, 60, 0.35);
+    }
+
+    .sub-headline {
+      font-size: 18px;
+      font-weight: 500;
+      color: #A1A1AA;
+      line-height: 1.4;
+      max-width: 1200px;
+    }
+
+    /* Bottom Row: Bento Chips */
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .chips-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .feature-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #E4E4E7;
+      letter-spacing: -0.01em;
+    }
+
+    .feature-chip svg {
+      stroke: #B7FF3C;
+    }
+
+    .url-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #07080B;
+      background: #B7FF3C;
+      padding: 10px 22px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(183, 255, 60, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient background for TV / large viewports -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+  <div class="bg-grid"></div>
+
+  <!-- Full-Width Stripe for Desktop, Tablet, and Mobile -->
+  <div class="banner-stripe">
+    <div class="safe-zone">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <img src="../../assets/pebai/pebai-horizontal-light.svg" alt="PEBAI Systems" class="brand-logo">
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          SISTEMA AUTÓNOMO OPERATIVO
+        </div>
+      </div>
+
+      <!-- Main Headline -->
+      <div class="hero-content">
+        <h1 class="main-headline">INFRAESTRUCTURA DE AGENTES DE IA <span class="lime-text">PARA EMPRESAS</span></h1>
+        <p class="sub-headline">Automatizamos llamadas de voz, WhatsApp 24/7 y la sincronización con tu CRM sin intervención humana.</p>
+      </div>
+
+      <!-- Bottom Features & URL -->
+      <div class="bottom-bar">
+        <div class="chips-group">
+          <div class="feature-chip">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            Agentes de Voz 24/7
+          </div>
+          <div class="feature-chip">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            WhatsApp API Oficial
+          </div>
+          <div class="feature-chip">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Sincronización CRM
+          </div>
+          <div class="feature-chip">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            Cero Fuga de Leads
+          </div>
+        </div>
+        <div class="url-pill">pebaisystems.es &rarr;</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

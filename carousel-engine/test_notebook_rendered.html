@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>5 fugas de dinero en tu empresa que la IA resuelve hoy - PEBAI Systems</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1080px;
+      height: 1440px;
+      background: url('file:///C:/programacion/emprendimiento/PAI Systems/carousel-engine/assets/real_notebook_bg_1.jpg') no-repeat center center;
+      background-size: cover;
+      position: relative;
+      overflow: hidden;
+      font-family: 'Caveat', cursive;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ink layer strictly bounded inside the paper sheet */
+    .ink-layer {
+      position: absolute;
+      left: 295px;
+      top: 155px;
+      width: 635px;
+      height: 1050px; /* Safe: ends at Y=1205px, 105px above table wood edge */
+      mix-blend-mode: multiply;
+      color: #0e3878; /* Real Bic Cristal Blue */
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Watermark inside paper header */
+    .paper-handle {
+      position: absolute;
+      right: 20px;
+      top: 0px;
+      font-size: 20px;
+      font-weight: 500;
+      color: #1a4382;
+      letter-spacing: 0.5px;
+      opacity: 0.85;
+    }
+
+    /* Title at top of paper */
+    .title-container {
+      position: absolute;
+      left: 10px;
+      top: 25px;
+      width: 615px;
+    }
+
+    .title-text {
+      font-size: 32px;
+      line-height: 1.2;
+      font-weight: 600;
+      color: #0d326b;
+      letter-spacing: -0.01em;
+    }
+
+    .red-underlines {
+      margin-top: 4px;
+      width: 580px;
+      height: 8px;
+    }
+
+    /* Diagram Section - fully inside white paper lines */
+    .diagram-area {
+      position: absolute;
+      left: 10px;
+      top: 135px;
+      width: 615px;
+      height: 640px;
+    }
+
+    /* Hand-sketched root box with fine 1.2px stroke */
+    .root-box {
+      position: absolute;
+      left: 0px;
+      top: 215px;
+      width: 155px;
+      height: 95px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6px;
+    }
+
+    .root-title {
+      font-size: 27px;
+      font-weight: 600;
+      color: #0d326b;
+      letter-spacing: 1px;
+      line-height: 1.1;
+    }
+
+    .root-sub {
+      font-size: 17px;
+      font-weight: 500;
+      color: #9e1818; /* Bic Red fine pen */
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    /* Branch lines radiating from box with fine 1.2px stroke */
+    .branch-lines {
+      position: absolute;
+      left: 150px;
+      top: 20px;
+      width: 110px;
+      height: 520px;
+      pointer-events: none;
+    }
+
+    /* Items List */
+    .items-list {
+      position: absolute;
+      left: 255px;
+      top: 10px;
+      width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 34px;
+    }
+
+    .item-row {
+      position: relative;
+    }
+
+    .item-header {
+      font-size: 24px;
+      font-weight: 600;
+      color: #0d326b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1.15;
+    }
+
+    .item-num {
+      color: #9e1818; /* Bic Red */
+      font-weight: 600;
+      font-size: 23px;
+    }
+
+    .item-desc {
+      font-size: 21px;
+      color: #166534; /* Bic Green fine ink */
+      margin-top: 1px;
+      padding-left: 14px;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .item-desc .highlight {
+      font-weight: 600;
+      color: #0d326b;
+    }
+
+    /* Bottom Summary / Moral - safely well above table wood edge */
+    .bottom-section {
+      position: absolute;
+      left: 10px;
+      top: 800px;
+      width: 615px;
+    }
+
+    .rule-box {
+      font-size: 22px;
+      line-height: 1.35;
+      color: #0d326b;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed rgba(158, 24, 24, 0.4);
+    }
+
+    .rule-box span.striked {
+      text-decoration: line-through;
+      text-decoration-thickness: 1.4px;
+      color: #64748b;
+    }
+
+    .rule-box span.bold {
+      font-weight: 600;
+      color: #0b2554;
+    }
+
+    .cta-handwritten {
+      font-size: 24px;
+      font-weight: 600;
+      color: #9e1818; /* Bic Red */
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .cta-underline {
+      width: 100%;
+      height: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ink-layer">
+    <!-- Paper handle safely in header area -->
+    <div class="paper-handle">@pebaisystems.es</div>
+
+    <!-- Title -->
+    <div class="title-container">
+      <h1 class="title-text">5 fugas de dinero en tu empresa que la IA resuelve hoy</h1>
+      <svg class="red-underlines" viewBox="0 0 580 8" fill="none">
+        <path d="M 0 3 Q 190 1, 380 4 T 570 3" stroke="#9e1818" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M 10 6 Q 210 4, 400 6 T 550 5" stroke="#9e1818" stroke-width="1.0" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <!-- Diagram Section -->
+    <div class="diagram-area">
+      <!-- Hand-drawn Root Box (0.7mm fine pen) -->
+      <div class="root-box">
+        <svg style="position: absolute; inset: -4px; width: calc(100% + 8px); height: calc(100% + 8px);" viewBox="0 0 160 100" fill="none">
+          <path d="M 8 8 C 45 5, 110 9, 152 6 C 155 30, 150 65, 153 92 C 110 90, 45 94, 6 91 C 9 60, 5 30, 8 8 Z" stroke="#0d326b" stroke-width="1.3" stroke-linejoin="round"/>
+          <path d="M 10 10 C 48 8, 105 11, 149 9 C 151 32, 147 63, 149 89 C 107 87, 48 91, 8 89 C 11 58, 8 32, 10 10 Z" stroke="#0d326b" stroke-width="0.8" opacity="0.4"/>
+        </svg>
+        <span class="root-title">FUGAS</span>
+        <span class="root-sub">EN PROCESOS</span>
+      </div>
+
+      <!-- Radiating Branch Lines (0.7mm fine pen) -->
+      <svg class="branch-lines" viewBox="0 0 110 520" fill="none">
+        <path d="M 5 260 C 35 240, 65 70, 105 25" stroke="#0d326b" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M 5 262 C 40 250, 70 160, 105 130" stroke="#0d326b" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M 5 265 C 45 265, 75 245, 105 240" stroke="#0d326b" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M 5 268 C 45 285, 70 330, 105 350" stroke="#0d326b" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M 5 270 C 35 295, 65 410, 105 455" stroke="#0d326b" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+
+      <!-- 5 Items -->
+      <div class="items-list">
+        
+        <div class="item-row" style="margin-top: 5px;">
+          <div class="item-header"><span class="item-num">1.</span> Llamadas a deshora</div>
+          <div class="item-desc">
+            <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M 1 5 L 12 5 M 8 1 L 12 5 L 8 9" stroke="#166534" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Agente de voz 24/7 <span class="highlight">(+35% ventas)</span>
+          </div>
+        </div>
+        
+        <div class="item-row" >
+          <div class="item-header"><span class="item-num">2.</span> Presupuestos lentos</div>
+          <div class="item-desc">
+            <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M 1 5 L 12 5 M 8 1 L 12 5 L 8 9" stroke="#166534" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Pipeline automático n8n <span class="highlight">(de 3h a 4 min)</span>
+          </div>
+        </div>
+        
+        <div class="item-row" >
+          <div class="item-header"><span class="item-num">3.</span> Búsqueda de archivos</div>
+          <div class="item-desc">
+            <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M 1 5 L 12 5 M 8 1 L 12 5 L 8 9" stroke="#166534" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Asistente RAG privado <span class="highlight">(en 3 seg)</span>
+          </div>
+        </div>
+        
+        <div class="item-row" >
+          <div class="item-header"><span class="item-num">4.</span> WhatsApp sin responder</div>
+          <div class="item-desc">
+            <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M 1 5 L 12 5 M 8 1 L 12 5 L 8 9" stroke="#166534" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Bot API oficial <span class="highlight">(en 12 seg)</span>
+          </div>
+        </div>
+        
+        <div class="item-row" >
+          <div class="item-header"><span class="item-num">5.</span> Agendar reuniones</div>
+          <div class="item-desc">
+            <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M 1 5 L 12 5 M 8 1 L 12 5 L 8 9" stroke="#166534" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Sync Calendar y CRM <span class="highlight">(cero fallos)</span>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Bottom Lesson & CTA -->
+    <div class="bottom-section">
+      <div class="rule-box">
+        
+        <span class="striked">Contratar 3 administrativos más</span>
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none" style="display:inline-block; vertical-align:middle; margin:0 4px;"><path d="M 1 5 L 12 5 M 8 1 L 12 5 L 8 9" stroke="#0d326b" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="bold">Optimizar tus procesos con IA.</span><br>
+        
+        
+        <span style="color:#9e1818; font-weight:600;">Regla clave:</span> Si una tarea se repite a diario, no va a mano.
+        
+      </div>
+      <div class="cta-handwritten">
+        Comenta CONSULTORÍA para auditar tu caso gratis
+        <svg class="cta-underline" viewBox="0 0 580 6" fill="none">
+          <path d="M 0 3 Q 190 1, 380 4 T 570 3" stroke="#9e1818" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

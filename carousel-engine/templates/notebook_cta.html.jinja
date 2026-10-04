@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Nota Manuscrita - PEBAI Systems</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1080px;
+      height: 1440px;
+      background: url('{{ assets_uri }}/real_notebook_bg_{{ bg_angle|default(2) }}.jpg') no-repeat center center;
+      background-size: cover;
+      position: relative;
+      overflow: hidden;
+      font-family: 'Kalam', 'Caveat', cursive;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ink layer strictly bounded inside the paper sheet */
+    .ink-layer {
+      position: absolute;
+      left: 310px;
+      top: 170px;
+      width: 615px;
+      height: 1020px;
+      mix-blend-mode: multiply;
+      color: #133886; /* Authentic Bic Cristal Blue */
+      text-shadow: 0 0 0.35px rgba(19, 56, 134, 0.4);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Watermark inside paper header */
+    .paper-handle {
+      position: absolute;
+      right: 20px;
+      top: 0px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a4382;
+      opacity: 0.85;
+    }
+
+    /* Note Container */
+    .note-container {
+      position: absolute;
+      left: 10px;
+      top: 120px;
+      width: 595px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .note-line {
+      font-size: 38px;
+      line-height: 1.25;
+      font-weight: 700;
+      color: #0b2554;
+      letter-spacing: -0.01em;
+    }
+
+    .note-line.highlight {
+      color: #a81a24; /* Bic Red */
+    }
+
+    .scribble-box {
+      margin-top: 36px;
+      padding: 18px 20px;
+      position: relative;
+      width: 95%;
+    }
+
+    .scribble-box svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .scribble-text {
+      position: relative;
+      z-index: 2;
+      font-size: 26px;
+      line-height: 1.35;
+      color: #0d326b;
+    }
+
+    .scribble-text strong {
+      color: #9e1818;
+      font-weight: 600;
+    }
+
+    /* Arrow pointing to follow button */
+    .bottom-cta-hand {
+      margin-top: 45px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .arrow-svg {
+      width: 90px;
+      height: 45px;
+    }
+
+    .cta-badge {
+      font-size: 26px;
+      font-weight: 600;
+      color: #9e1818;
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ink-layer">
+    <div class="paper-handle">{{ watermark|default("@pebaisystems.es") }}</div>
+
+    <div class="note-container">
+      <div class="note-line">{{ line1|default("Créame, esta cuenta") }}</div>
+      <div class="note-line">{{ line2|default("no le va a aparecer") }}</div>
+      <div class="note-line">{{ line3|default("otra vez, así que") }}</div>
+      <div class="note-line highlight">{{ line4|default("¡sígala para no perderla!") }}</div>
+
+      <!-- Hand-sketched box with 0.7mm fine pen stroke -->
+      <div class="scribble-box">
+        <svg viewBox="0 0 540 90" fill="none">
+          <path d="M 6 8 C 140 5, 380 10, 532 7 C 536 28, 533 60, 534 82 C 380 80, 140 85, 5 83 C 7 55, 4 28, 6 8 Z" stroke="#0d326b" stroke-width="1.2" stroke-linejoin="round"/>
+        </svg>
+        <div class="scribble-text">
+          {{ subnote|default("Comenta <strong>CONSULTORÍA</strong> y valoramos la operativa de tu empresa.") }}
+        </div>
+      </div>
+
+      <!-- Handwritten CTA Arrow -->
+      <div class="bottom-cta-hand">
+        <svg class="arrow-svg" viewBox="0 0 90 45" fill="none">
+          <path d="M 5 10 Q 40 5, 75 35" stroke="#9e1818" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M 55 35 L 75 35 L 72 15" stroke="#9e1818" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="cta-badge">{{ cta_action|default("Guardar apunte") }}</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
