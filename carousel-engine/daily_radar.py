@@ -109,7 +109,7 @@ def fetch_reddit_feed(sub: str, max_age_hours: int = 48) -> list:
     items = []
     
     try:
-        time.sleep(1.2)  # Prevenir rate limiting 429 de Reddit
+        time.sleep(2.0)  # Prevenir rate limiting 429 de Reddit
         req = urllib.request.Request(url, headers=HTTP_HEADERS)
         with urllib.request.urlopen(req, timeout=10) as response:
             xml_data = response.read()
@@ -175,7 +175,7 @@ def load_pebai_b2b_context() -> str:
             
     return context
 
-def generate_ideas_with_gemini(raw_news: list, b2b_context: str, api_key: str, model_name: str = "gemini-3.8-flash") -> list:
+def generate_ideas_with_gemini(raw_news: list, b2b_context: str, api_key: str) -> list:
     """Utiliza Gemini para curar, filtrar y redactar hasta 10 ideas ganadoras de carrusel con reintentos."""
     today_str = datetime.now().strftime("%d/%m/%Y")
     
@@ -197,7 +197,7 @@ CRITERIOS ESTRICTOS:
 7. Cero emojis en todos los textos generados.
 
 NOTICIAS FRESCAS DETECTADAS (<48H):
-{json.dumps(raw_news[:30], indent=2, ensure_ascii=False)}
+{json.dumps(raw_news[:25], indent=2, ensure_ascii=False)}
 
 CONTEXTO INTERNO PEBAI B2B (PARA FALLBACK Y ALINEACION):
 {b2b_context}
@@ -219,26 +219,26 @@ Devuelve ÚNICAMENTE un bloque JSON válido con este esquema exacto, sin texto a
 ]
 """
 
-    models_to_try = [model_name, "gemini-3.6-flash", "gemini-2.5-flash"]
+    # Modelos flash optimizados y disponibles sin saturación
+    models_to_try = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.6-flash"]
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
-            "temperature": 0.4,
-            "responseMimeType": "application/json"
+            "temperature": 0.3
         }
     }
     
     last_error = None
     for target_model in models_to_try:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:generateContent?key={api_key}"
-        for attempt in range(1, 4):
+        for attempt in range(1, 3):
             try:
                 req = urllib.request.Request(
                     url,
                     data=json.dumps(payload).encode("utf-8"),
                     headers={"Content-Type": "application/json"}
                 )
-                with urllib.request.urlopen(req, timeout=45) as response:
+                with urllib.request.urlopen(req, timeout=40) as response:
                     res_json = json.loads(response.read().decode("utf-8"))
                     
                 candidates = res_json.get("candidates", [])
@@ -252,24 +252,25 @@ Devuelve ÚNICAMENTE un bloque JSON válido con este esquema exacto, sin texto a
                         text_content += p["text"]
                         
                 clean_text = text_content.strip()
-                if clean_text.startswith("```json"):
-                    clean_text = clean_text[7:]
-                if clean_text.startswith("```"):
-                    clean_text = clean_text[3:]
-                if clean_text.endswith("```"):
-                    clean_text = clean_text[:-3]
+                if "```json" in clean_text:
+                    clean_text = clean_text.split("```json", 1)[1]
+                    clean_text = clean_text.split("```", 1)[0]
+                elif "```" in clean_text:
+                    clean_text = clean_text.split("```", 1)[1]
+                    clean_text = clean_text.split("```", 1)[0]
                 clean_text = clean_text.strip()
                 
                 ideas = json.loads(clean_text)
+                print(f"[OK] Generación completada con éxito usando modelo: {target_model}")
                 return ideas
             except urllib.error.HTTPError as http_err:
                 last_error = http_err
-                print(f"[REINTENTO] Modelo {target_model} (intento {attempt}/3): HTTP {http_err.code}")
-                time.sleep(attempt * 3)
+                print(f"[AVISO] Modelo {target_model} (intento {attempt}/2): HTTP {http_err.code}")
+                time.sleep(2)
             except Exception as gen_err:
                 last_error = gen_err
-                print(f"[REINTENTO] Modelo {target_model} (intento {attempt}/3): {gen_err}")
-                time.sleep(attempt * 2)
+                print(f"[AVISO] Modelo {target_model} (intento {attempt}/2): {gen_err}")
+                time.sleep(2)
 
     raise ValueError(f"Error generando ideas tras varios reintentos: {last_error}")
 
