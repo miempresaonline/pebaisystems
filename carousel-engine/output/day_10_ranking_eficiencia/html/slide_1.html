@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>PARA ABSORBER MÁS CLIENTES - PEBAI Systems</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 1080px;
+      height: 1440px;
+      background-color: #EFEDE7;
+      color: #12121A;
+      font-family: 'Manrope', -apple-system, sans-serif;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 85px 80px 65px 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .noise-overlay {
+      position: absolute;
+      inset: 0;
+      opacity: 0.045;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      z-index: 10;
+    }
+
+    /* Top Pagination Pill */
+    .top-meta {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+      margin-bottom: 10px;
+    }
+
+    .meta-tag {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #55545E;
+    }
+
+    .meta-pagination {
+      font-size: 14px;
+      font-weight: 700;
+      color: #55545E;
+      background: #E5E2DA;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    /* Header */
+    .header-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      z-index: 2;
+    }
+
+    .category-icon {
+      width: 46px;
+      height: 46px;
+      margin-bottom: 20px;
+      stroke: #12121A;
+      stroke-width: 1.8;
+      fill: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .main-title {
+      font-size: 72px;
+      font-weight: 800;
+      letter-spacing: -0.045em;
+      line-height: 1.05;
+      text-transform: uppercase;
+      color: #12121A;
+      max-width: 900px;
+    }
+
+    /* Chart */
+    .chart-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+      margin-top: 30px;
+    }
+
+    .bars-wrapper {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 48px;
+      width: 100%;
+      height: 770px;
+    }
+
+    .bar-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 235px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .rating-label {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      color: #12121A;
+    }
+
+    .rating-label.hero-rating {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #12121A;
+    }
+
+    .pill-bar {
+      width: 100%;
+      border-radius: 118px 118px 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 36px;
+      position: relative;
+    }
+
+    .pill-bar.is-hero {
+      box-shadow: 0 25px 60px rgba(183, 255, 60, 0.35);
+    }
+
+    .pill-icon {
+      width: 68px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pill-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* High contrast dark badge for PEBAI logo inside lime pillar */
+    .brand-hero-badge {
+      width: 86px;
+      height: 86px;
+      background: #12121A;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 24px rgba(18, 18, 26, 0.22);
+      padding: 18px;
+    }
+
+    .brand-hero-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .baseline-line {
+      width: 860px;
+      height: 4px;
+      background-color: #12121A;
+      border-radius: 2px;
+    }
+
+    .labels-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      width: 100%;
+      margin-top: 22px;
+    }
+
+    .tool-label {
+      width: 235px;
+      text-align: center;
+      font-size: 29px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #12121A;
+    }
+
+    .tool-label.highlight {
+      font-weight: 800;
+    }
+
+    /* Footer */
+    .footer-section {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(18, 18, 26, 0.12);
+      padding-top: 30px;
+      z-index: 2;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-brand img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .footer-name {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #12121A;
+    }
+
+    .footer-note {
+      font-size: 18px;
+      font-weight: 500;
+      color: #55545E;
+    }
+
+    .footer-cta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #12121A;
+      background: #E5E2DA;
+      padding: 10px 20px;
+      border-radius: 30px;
+      border: 1px solid #C6C3BB;
+    }
+  </style>
+</head>
+<body>
+  <div class="noise-overlay"></div>
+
+  <!-- Meta Pagination -->
+  <div class="top-meta">
+    <span class="meta-tag">AUDITORÍA VISUAL · PEBAI</span>
+    
+    <span class="meta-pagination">1/1</span>
+    
+  </div>
+
+  <!-- Header -->
+  <div class="header-container">
+    <div class="category-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    </div>
+    <h1 class="main-title">PARA ABSORBER MÁS CLIENTES</h1>
+  </div>
+
+  <!-- Chart Columns -->
+  <div class="chart-container">
+    <div class="bars-wrapper">
+      
+      <div class="bar-column">
+        <span class="rating-label ">QUEMA</span>
+        <div class="pill-bar " style="height: 280px; background-color: #12121A;">
+          
+          <div class="pill-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          
+        </div>
+      </div>
+      
+      <div class="bar-column">
+        <span class="rating-label ">CARO</span>
+        <div class="pill-bar " style="height: 480px; background-color: #6A5CFF;">
+          
+          <div class="pill-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          
+        </div>
+      </div>
+      
+      <div class="bar-column">
+        <span class="rating-label hero-rating">ESCALABLE</span>
+        <div class="pill-bar is-hero" style="height: 740px; background-color: #B7FF3C;">
+          
+          <div class="brand-hero-badge">
+            <img src="file:///C:/programacion/emprendimiento/PAI Systems/carousel-engine/assets/pebai/pebai-mark-color.svg" alt="PEBAI Logo">
+          </div>
+          
+        </div>
+      </div>
+      
+    </div>
+
+    <div class="baseline-line"></div>
+
+    <div class="labels-wrapper">
+      
+      <div class="tool-label ">Pagar horas extra</div>
+      
+      <div class="tool-label ">Contratar más juniors</div>
+      
+      <div class="tool-label highlight">Infraestructura PEBAI</div>
+      
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-section">
+    <div class="footer-brand">
+      <img src="file:///C:/programacion/emprendimiento/PAI Systems/carousel-engine/assets/pebai/pebai-horizontal-dark.svg" alt="PEBAI Systems">
+    </div>
+    <div class="footer-note">pebaisystems.es</div>
+    <div class="footer-cta">
+      <span>Desliza para ver la comparativa</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#12121A" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </div>
+  </div>
+</body>
+</html>

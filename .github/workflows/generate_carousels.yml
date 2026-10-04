@@ -1,0 +1,41 @@
+name: PEBAI Generate Approved Carousels
+
+on:
+  workflow_dispatch: # Ejecutar con 1 clic cuando el usuario haya marcado PUBLICAR en Google Sheets
+  schedule:
+    # Opcional: chequeo diario a las 14:00 UTC (16:00 hora espana) para preparar los carruseles de la tarde
+    - cron: '0 14 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar dependencias y navegadores Playwright
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests jinja2 playwright
+          playwright install --with-deps chromium
+
+      - name: Generar Carruseles Aprobados y Entregar en Google Sheets
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GSHEET_WEBHOOK_URL: ${{ secrets.GSHEET_WEBHOOK_URL }}
+        run: |
+          python carousel-engine/build_approved_carousels.py
+
+      - name: Guardar imágenes generadas en el repositorio
+        run: |
+          git config --global user.name "PEBAI Automation"
+          git config --global user.email "bot@pebaisystems.es"
+          git add carousel-engine/output/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: add rendered carousels output" && git push)

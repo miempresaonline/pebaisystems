@@ -193,7 +193,12 @@ CRITERIOS ESTRICTOS:
    - 'MIXTO': Noticia tecnológica llevada a la consecuencia operativa empresarial.
 4. Gancho de Portada (Slide 1): DEBE seguir fórmulas probadas de alta retención (alto contraste, cifras concretas, curiosidad o marco negativo ej. "Por qué el 90% de las empresas se equivoca al..."). Cero titulares genéricos o aburridos.
 5. Desarrollo (Slides 2-4): Breve síntesis paso a paso del contenido de las diapositivas intermedias (ej. Slide 2: Problema/Dato, Slide 3: Demostración técnica, Slide 4: Conclusión o llamado de valor).
-6. Formato Visual recomendado: Uno de los siguientes: 'Split-Screen', 'Notebook/Cuaderno', 'Diagrama Miro', 'Fórmula ROI'.
+6. Formato Visual recomendado: Uno de los siguientes estilos de alta tecnología (sin plantillas de cuaderno ni bolígrafo):
+   - 'Dark Tech UI' (interfaz oscura moderna, micro-acentos de luz, tarjetas de cristal, alta tecnología).
+   - 'Diagrama Miro' (arquitectura técnica de procesos, esquema limpio de nodos y flujos de automatización).
+   - 'Fórmula ROI' (diseño ejecutivo financiero, cifras masivas, contraste y cálculo de retorno).
+   - 'Split-Screen Contrast' (pantalla dividida de alto impacto: error tradicional vs solución de ingeniería).
+   - 'Terminal Workflow' (consola de comandos y canvas de automatización n8n/Python).
 7. Cero emojis en todos los textos generados.
 
 NOTICIAS FRESCAS DETECTADAS (<48H):

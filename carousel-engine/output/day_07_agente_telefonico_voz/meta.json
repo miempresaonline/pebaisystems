@@ -1,0 +1,11 @@
+{
+  "id": "day_07_agente_telefonico_voz",
+  "type": "fb_speed",
+  "topic": "Atención Telefónica 24/7",
+  "keyword": "VOZ",
+  "slides_count": 1,
+  "slide_images": [
+    "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_07_agente_telefonico_voz\\slide_1.png"
+  ],
+  "caption_file": "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_07_agente_telefonico_voz\\caption.txt"
+}

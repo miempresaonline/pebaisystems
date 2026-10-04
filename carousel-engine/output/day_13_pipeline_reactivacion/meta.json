@@ -1,0 +1,11 @@
+{
+  "id": "day_13_pipeline_reactivacion",
+  "type": "fb_nodegraph",
+  "topic": "Reactivación de Clientes",
+  "keyword": "REACTIVAR",
+  "slides_count": 1,
+  "slide_images": [
+    "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_13_pipeline_reactivacion\\slide_1.png"
+  ],
+  "caption_file": "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_13_pipeline_reactivacion\\caption.txt"
+}

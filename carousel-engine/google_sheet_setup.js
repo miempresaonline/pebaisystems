@@ -5,11 +5,13 @@
  * Funcionalidades:
  * 1. Inicializacion y diseno automatico de la hoja con diseno profesional.
  * 2. Creacion automatica de pestana mensual (ej. 'Octubre 2026', 'Noviembre 2026').
- * 3. Menu desplegable para TIPO y ESTADO (PENDIENTE, PUBLICAR, DESCARTAR, RD, PUBLICADO).
+ * 3. Menu desplegable para TIPO y ESTADO (PENDIENTE, PUBLICAR, DESCARTAR, RD, LISTO, PUBLICADO).
  * 4. Formato condicional de colores automatico para cada estado.
- * 5. Webhook HTTP POST para recibir ideas desde GitHub Actions.
- * 6. Consulta de ideas aprobadas y actualizacion de estado.
+ * 5. Columnas de entrega directa al movil: ENLACE SLIDES y COPY PIE DE FOTO.
+ * 6. Webhook HTTP POST/GET para sincronizar ideas y adjuntar entregables.
  */
+
+var SPREADSHEET_ID = "110nBsx3YGGohHHMzjDNzAKL_Nj87gt_CYjWREqnbHjM";
 
 var COLUMNS = [
   "ID",
@@ -22,6 +24,8 @@ var COLUMNS = [
   "ESTADO",
   "FECHA PUBLICACION",
   "HORA PUBLICACION",
+  "ENLACE SLIDES (DESCARGA MOVIL)",
+  "COPY / PIE DE FOTO",
   "LIKES IG (48H)",
   "VIEWS IG (48H)",
   "COMMENTS IG (48H)",
@@ -34,15 +38,17 @@ var COLUMN_WIDTHS = [
   95,  // C: Tipo
   320, // D: Gancho Portada
   380, // E: Desarrollo
-  160, // F: Formato Visual
+  170, // F: Formato Visual (Dark Tech, Miro, ROI, etc.)
   210, // G: Fuente / Link
-  125, // H: Estado
+  135, // H: Estado
   125, // I: Fecha Publicacion
   105, // J: Hora Publicacion
-  90,  // K: Likes IG
-  90,  // L: Views IG
-  95,  // M: Comments IG
-  220  // N: Notas
+  220, // K: ENLACE SLIDES (DESCARGA MOVIL)
+  360, // L: COPY / PIE DE FOTO
+  90,  // M: Likes IG
+  90,  // N: Views IG
+  95,  // O: Comments IG
+  220  // P: Notas
 ];
 
 var MONTH_NAMES = [
@@ -50,31 +56,30 @@ var MONTH_NAMES = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
 
+function getSpreadsheet() {
+  try {
+    var active = SpreadsheetApp.getActiveSpreadsheet();
+    if (active) return active;
+  } catch (e) {}
+  return SpreadsheetApp.openById(SPREADSHEET_ID);
+}
+
 function getMonthName(date) {
   var d = date || new Date();
   return MONTH_NAMES[d.getMonth()] + " " + d.getFullYear();
 }
 
-/**
- * Ejecuta esta funcion desde el editor de Apps Script si quieres
- * formatear e inicializar la hoja del mes actual de inmediato.
- */
 function inicializarHoja() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSpreadsheet();
   var sheetName = getMonthName(new Date());
   var sheet = getOrCreateMonthSheet(ss, sheetName);
   
-  // Limpiar Hoja 1 por defecto si esta vacia
   var defaultSheet = ss.getSheetByName("Hoja 1");
   if (defaultSheet && ss.getSheets().length > 1 && defaultSheet.getLastRow() <= 1) {
     try {
       ss.deleteSheet(defaultSheet);
-    } catch (e) {
-      // Ignorar si no permite borrar
-    }
+    } catch (e) {}
   }
-  
-  Logger.log("Hoja configurada con exito: " + sheetName);
 }
 
 function getOrCreateMonthSheet(ss, sheetName) {
@@ -90,11 +95,9 @@ function aplicarEstiloBase(sheet) {
   sheet.clear();
   sheet.setFrozenRows(1);
   
-  // Escribir cabeceras
   var headerRange = sheet.getRange(1, 1, 1, COLUMNS.length);
   headerRange.setValues([COLUMNS]);
   
-  // Estilo visual cabecera: Slate Navy moderno
   headerRange
     .setBackground("#1A2530")
     .setFontColor("#FFFFFF")
@@ -106,12 +109,10 @@ function aplicarEstiloBase(sheet) {
   
   sheet.setRowHeight(1, 38);
   
-  // Ajustar anchos de columna
   for (var i = 0; i < COLUMN_WIDTHS.length; i++) {
     sheet.setColumnWidth(i + 1, COLUMN_WIDTHS[i]);
   }
   
-  // Reglas de validacion de datos (Desplegables)
   var ruleTipo = SpreadsheetApp.newDataValidation()
     .requireValueInList(["VIRAL", "B2B", "MIXTO"], true)
     .setAllowInvalid(false)
@@ -119,12 +120,11 @@ function aplicarEstiloBase(sheet) {
   sheet.getRange("C2:C500").setDataValidation(ruleTipo);
   
   var ruleEstado = SpreadsheetApp.newDataValidation()
-    .requireValueInList(["PENDIENTE", "PUBLICAR", "DESCARTAR", "RD", "PUBLICADO"], true)
+    .requireValueInList(["PENDIENTE", "PUBLICAR", "DESCARTAR", "RD", "LISTO", "PUBLICADO"], true)
     .setAllowInvalid(false)
     .build();
   sheet.getRange("H2:H500").setDataValidation(ruleEstado);
   
-  // Formato de texto y alineaciones para datos
   sheet.getRange("A2:A500").setFontFamily("Google Sans Mono").setFontSize(9).setHorizontalAlignment("center");
   sheet.getRange("B2:B500").setFontFamily("Google Sans").setFontSize(9).setHorizontalAlignment("center");
   sheet.getRange("C2:C500").setFontFamily("Google Sans").setFontSize(9).setHorizontalAlignment("center").setFontWeight("bold");
@@ -135,10 +135,11 @@ function aplicarEstiloBase(sheet) {
   sheet.getRange("H2:H500").setFontFamily("Google Sans").setFontSize(10).setHorizontalAlignment("center").setFontWeight("bold");
   sheet.getRange("I2:I500").setFontFamily("Google Sans").setFontSize(9).setHorizontalAlignment("center");
   sheet.getRange("J2:J500").setFontFamily("Google Sans Mono").setFontSize(9).setHorizontalAlignment("center");
-  sheet.getRange("K2:M500").setFontFamily("Google Sans Mono").setFontSize(9).setHorizontalAlignment("right");
-  sheet.getRange("N2:N500").setFontFamily("Google Sans").setFontSize(9).setWrap(true);
+  sheet.getRange("K2:K500").setFontFamily("Google Sans").setFontSize(9).setHorizontalAlignment("center");
+  sheet.getRange("L2:L500").setFontFamily("Google Sans").setFontSize(9).setWrap(true);
+  sheet.getRange("M2:O500").setFontFamily("Google Sans Mono").setFontSize(9).setHorizontalAlignment("right");
+  sheet.getRange("P2:P500").setFontFamily("Google Sans").setFontSize(9).setWrap(true);
   
-  // Formato Condicional para Columna H (ESTADO)
   configurarColoresCondicionales(sheet);
 }
 
@@ -173,6 +174,13 @@ function configurarColoresCondicionales(sheet) {
     .setRanges([range])
     .build();
     
+  var ruleListo = SpreadsheetApp.newConditionalFormatRule()
+    .whenTextEqualTo("LISTO")
+    .setBackground("#CFF4FC")
+    .setFontColor("#055160")
+    .setRanges([range])
+    .build();
+
   var rulePublicado = SpreadsheetApp.newConditionalFormatRule()
     .whenTextEqualTo("PUBLICADO")
     .setBackground("#C3E6CB")
@@ -180,20 +188,17 @@ function configurarColoresCondicionales(sheet) {
     .setRanges([range])
     .build();
     
-  sheet.setConditionalFormatRules([rulePendiente, rulePublicar, ruleDescartar, ruleRD, rulePublicado]);
+  sheet.setConditionalFormatRules([rulePendiente, rulePublicar, ruleDescartar, ruleRD, ruleListo, rulePublicado]);
 }
 
-/**
- * Webhook para recibir las ideas desde GitHub Actions o actualizar estado
- */
 function doPost(e) {
   try {
     var contents = e.postData.contents;
     var data = JSON.parse(contents);
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var ss = getSpreadsheet();
     
-    // Accion para marcar una fila como PUBLICADO
-    if (data.action === "mark_published") {
+    // Entrega del carrusel renderizado a la fila del Google Sheet
+    if (data.action === "deliver_carousel") {
       var sheet = ss.getSheetByName(data.month || getMonthName(new Date()));
       if (!sheet) return jsonResponse({ status: "error", message: "Hoja no encontrada" });
       
@@ -201,8 +206,17 @@ function doPost(e) {
       var idCol = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
       for (var r = 0; r < idCol.length; r++) {
         if (idCol[r][0] === data.id) {
-          sheet.getRange(r + 2, 8).setValue("PUBLICADO");
-          return jsonResponse({ status: "success", updated_id: data.id });
+          var rowIndex = r + 2;
+          if (data.link_slides) {
+            sheet.getRange(rowIndex, 11).setValue(data.link_slides); // Col K: ENLACE SLIDES
+          }
+          if (data.copy_text) {
+            sheet.getRange(rowIndex, 12).setValue(data.copy_text);   // Col L: COPY PIE DE FOTO
+          }
+          if (data.estado) {
+            sheet.getRange(rowIndex, 8).setValue(data.estado);       // Col H: ESTADO
+          }
+          return jsonResponse({ status: "success", delivered_id: data.id, row: rowIndex });
         }
       }
       return jsonResponse({ status: "not_found" });
@@ -211,14 +225,10 @@ function doPost(e) {
     // Insercion de ideas del radar
     var sheetName = data.month || getMonthName(new Date());
     var sheet = getOrCreateMonthSheet(ss, sheetName);
-    
     var ideas = data.ideas || [];
+    
     if (ideas.length === 0) {
-      return jsonResponse({
-        status: "ok",
-        message: "No se recibieron ideas nuevas",
-        count: 0
-      });
+      return jsonResponse({ status: "ok", message: "Sin ideas", count: 0 });
     }
     
     var rowsToAdd = [];
@@ -235,9 +245,9 @@ function doPost(e) {
         item.estado || "PENDIENTE",
         item.fecha_publicacion || "",
         item.hora_publicacion || "",
-        "", // Likes IG
-        "", // Views IG
-        "", // Comments IG
+        item.enlace_slides || "",
+        item.copy || "",
+        "", "", "",
         item.notas || ""
       ]);
     }
@@ -250,26 +260,15 @@ function doPost(e) {
       sheet.setRowHeight(lastRow + 1 + r, 48);
     }
     
-    return jsonResponse({
-      status: "success",
-      sheet: sheetName,
-      count: rowsToAdd.length
-    });
-    
+    return jsonResponse({ status: "success", sheet: sheetName, count: rowsToAdd.length });
   } catch (err) {
-    return jsonResponse({
-      status: "error",
-      message: err.toString()
-    });
+    return jsonResponse({ status: "error", message: err.toString() });
   }
 }
 
-/**
- * Consulta de estado y extraccion de ideas aprobadas
- */
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : "status";
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSpreadsheet();
   
   if (action === "get_approved") {
     var sheetName = (e.parameter && e.parameter.month) ? e.parameter.month : getMonthName(new Date());
@@ -285,16 +284,12 @@ function doGet(e) {
     
     for (var i = 0; i < data.length; i++) {
       var row = data[i];
-      var estado = String(row[7]).trim(); // Col H: Estado
-      var hora = String(row[9]).trim();   // Col J: Hora Publicacion
+      var estado = String(row[7]).trim();
+      var hora = String(row[9]).trim();
       
       if (estado === "PUBLICAR") {
-        // Regla estricta: Si tiene PUBLICAR pero la hora esta vacia, NO se publica
         if (hora === "") {
-          blocked.push({
-            id: row[0],
-            motivo: "Estado es PUBLICAR pero el campo HORA esta vacio"
-          });
+          blocked.push({ id: row[0], motivo: "Estado PUBLICAR pero sin HORA" });
         } else {
           approved.push({
             id: row[0],
@@ -307,25 +302,16 @@ function doGet(e) {
             estado: estado,
             fecha_publicacion: row[8],
             hora_publicacion: hora,
-            notas: row[13]
+            enlace_slides: row[10],
+            copy: row[11],
+            notas: row[15]
           });
         }
       }
     }
-    
-    return jsonResponse({
-      status: "ok",
-      sheet: sheetName,
-      approved: approved,
-      blocked_without_time: blocked
-    });
+    return jsonResponse({ status: "ok", sheet: sheetName, approved: approved, blocked_without_time: blocked });
   }
-  
-  return jsonResponse({
-    status: "active",
-    service: "PEBAI Systems Radar Google Sheet Webhook",
-    timestamp: new Date().toISOString()
-  });
+  return jsonResponse({ status: "active", service: "PEBAI Radar Hub" });
 }
 
 function jsonResponse(obj) {

@@ -1,0 +1,11 @@
+{
+  "id": "day_08_posicionamiento_geo",
+  "type": "fb_matrix2x2",
+  "topic": "Posicionamiento GEO",
+  "keyword": "GEO",
+  "slides_count": 1,
+  "slide_images": [
+    "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_08_posicionamiento_geo\\slide_1.png"
+  ],
+  "caption_file": "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_08_posicionamiento_geo\\caption.txt"
+}

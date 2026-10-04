@@ -1,0 +1,11 @@
+{
+  "id": "day_02_velocimetro_respuesta",
+  "type": "fb_radialgauge",
+  "topic": "Velocidad Operativa",
+  "keyword": "RESPUESTA",
+  "slides_count": 1,
+  "slide_images": [
+    "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_02_velocimetro_respuesta\\slide_1.png"
+  ],
+  "caption_file": "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_02_velocimetro_respuesta\\caption.txt"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "day_09_chat_presupuesto_n8n",
+  "type": "fb_chat_mockup",
+  "topic": "Automatización de Presupuestos",
+  "keyword": "CONSULTORÍA",
+  "slides_count": 1,
+  "slide_images": [
+    "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_09_chat_presupuesto_n8n\\slide_1.png"
+  ],
+  "caption_file": "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_09_chat_presupuesto_n8n\\caption.txt"
+}

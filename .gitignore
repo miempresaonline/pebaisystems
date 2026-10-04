@@ -28,9 +28,7 @@ dump_*.csv
 
 # Heavy Media & Downloads
 tiktok_downloads/
-carousel-engine/output/
 carousel-engine/tiktok_inspect/
-carousel-engine/*.png
 *.tar.gz
 *.mp4
 *.webm

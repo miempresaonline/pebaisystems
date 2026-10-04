@@ -1,0 +1,11 @@
+{
+  "id": "day_11_roi_recuperacion",
+  "type": "fb_radialgauge",
+  "topic": "Retorno de Inversión",
+  "keyword": "AUDITORÍA",
+  "slides_count": 1,
+  "slide_images": [
+    "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_11_roi_recuperacion\\slide_1.png"
+  ],
+  "caption_file": "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_11_roi_recuperacion\\caption.txt"
+}

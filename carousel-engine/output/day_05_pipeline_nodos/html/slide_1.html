@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>DEL MENSAJE DE WHATSAPP - PEBAI Systems</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 1080px;
+      height: 1440px;
+      background-color: #EFEDE7;
+      color: #12121A;
+      font-family: 'Manrope', -apple-system, sans-serif;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 70px 75px 55px 75px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .noise-overlay {
+      position: absolute;
+      inset: 0;
+      opacity: 0.045;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      z-index: 10;
+    }
+
+    .top-meta {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .meta-tag {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #55545E;
+    }
+
+    .meta-pagination {
+      font-size: 13px;
+      font-weight: 800;
+      color: #12121A;
+      background: #E2DFD6;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .header-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      z-index: 2;
+      margin-top: 15px;
+    }
+
+    .category-icon-pill {
+      width: 48px;
+      height: 48px;
+      background: #12121A;
+      color: #B7FF3C;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      padding: 10px;
+    }
+
+    .category-icon-pill svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .main-title {
+      font-size: 54px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      text-transform: uppercase;
+      color: #12121A;
+      max-width: 900px;
+    }
+
+    .main-title span.highlight {
+      color: #594AF7;
+    }
+
+    /* Node Graph Area */
+    .nodes-container {
+      width: 100%;
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 25px;
+    }
+
+    .node-card {
+      width: 100%;
+      background: #FFFFFF;
+      border: 1px solid #D8D4C8;
+      border-radius: 22px;
+      padding: 24px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      box-shadow: 0 4px 14px rgba(18, 18, 26, 0.04);
+    }
+
+    .node-card.hero-node {
+      background: #12121A;
+      color: #FFFFFF;
+      border: 2px solid #B7FF3C;
+      box-shadow: 0 16px 45px rgba(18, 18, 26, 0.22), 0 0 25px rgba(183, 255, 60, 0.15);
+    }
+
+    .node-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      width: 70%;
+    }
+
+    .node-icon-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: #F3F1EC;
+      color: #12121A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      flex-shrink: 0;
+    }
+
+    .hero-node .node-icon-box {
+      background: rgba(183, 255, 60, 0.2);
+      color: #B7FF3C;
+    }
+
+    .node-icon-box svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .node-texts {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .node-step-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #71707B;
+    }
+
+    .hero-node .node-step-label {
+      color: #B7FF3C;
+    }
+
+    .node-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #12121A;
+    }
+
+    .hero-node .node-title {
+      color: #FFFFFF;
+    }
+
+    .node-desc {
+      font-size: 14px;
+      font-weight: 500;
+      color: #55545E;
+      line-height: 1.3;
+    }
+
+    .hero-node .node-desc {
+      color: #AFAEB9;
+    }
+
+    .node-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .node-badge {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: #F2EFE8;
+      color: #12121A;
+      text-transform: uppercase;
+    }
+
+    .hero-node .node-badge {
+      background: #B7FF3C;
+      color: #12121A;
+      font-weight: 800;
+      box-shadow: 0 4px 14px rgba(183, 255, 60, 0.3);
+    }
+
+    /* Node Connectors */
+    .node-connector {
+      height: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .connector-line {
+      width: 2px;
+      height: 100%;
+      background: #C4C0B4;
+    }
+
+    .connector-pill {
+      position: absolute;
+      background: #EFEDE7;
+      border: 1px solid #C4C0B4;
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #55545E;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* Bottom 3 Metric Pills */
+    .metric-pills-row {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-top: 30px;
+    }
+
+    .metric-pill-card {
+      background: #E5E2DA;
+      border-radius: 16px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 4px;
+    }
+
+    .metric-pill-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: #12121A;
+      letter-spacing: -0.02em;
+    }
+
+    .metric-pill-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: #55545E;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Footer */
+    .footer-section {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 2;
+      border-top: 1.5px solid #D8D4C8;
+      padding-top: 24px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-brand img {
+      height: 32px;
+      width: auto;
+    }
+
+    .footer-note {
+      font-size: 13px;
+      font-weight: 700;
+      color: #71707B;
+    }
+
+    .footer-cta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 800;
+      color: #12121A;
+      background: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 30px;
+      border: 1px solid #D8D4C8;
+    }
+  </style>
+</head>
+<body>
+  <div class="noise-overlay"></div>
+
+  <!-- Meta Pagination -->
+  <div class="top-meta">
+    <span class="meta-tag">ARQUITECTURA DE PROCESOS · PEBAI</span>
+    
+    <span class="meta-pagination">1/1</span>
+    
+  </div>
+
+  <!-- Header -->
+  <div class="header-container">
+    <div class="category-icon-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <h1 class="main-title">DEL MENSAJE DE WHATSAPP <span class="highlight">A LA REUNIÓN EN 26 SEG</span></h1>
+  </div>
+
+  <!-- Connected Nodes Flow -->
+  <div class="nodes-container">
+    <!-- Node 1: Input -->
+    <div class="node-card">
+      <div class="node-left">
+        <div class="node-icon-box"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></div>
+        <div class="node-texts">
+          <span class="node-step-label">Paso 01 · Canal de Entrada</span>
+          <h3 class="node-title">Lead Entrante por WhatsApp</h3>
+          <p class="node-desc">El cliente solicita presupuesto con audio o texto a las 21:04</p>
+        </div>
+      </div>
+      <div class="node-right">
+        <span class="node-badge">21:04:00</span>
+      </div>
+    </div>
+
+    <!-- Connector 1 -->
+    <div class="node-connector">
+      <div class="connector-line"></div>
+      <span class="connector-pill">Disparo de IA en 0.2s</span>
+    </div>
+
+    <!-- Node 2: HERO AI Brain -->
+    <div class="node-card hero-node">
+      <div class="node-left">
+        <div class="node-icon-box"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 550" fill="none">
+  <defs>
+    <linearGradient id="pebai_lime" x1="20" y1="25" x2="235" y2="140" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B7FF3C"/>
+      <stop offset="1" stop-color="#99ED24"/>
+    </linearGradient>
+    <linearGradient id="pebai_violet" x1="82" y1="235" x2="260" y2="115" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6A5CFF"/>
+      <stop offset="1" stop-color="#594AF7"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#pebai_lime)" d="M64 338C52 299 78 237 130 183C211 98 350 42 569 13L666 0 558 84C468 153 397 208 348 250 305 287 275 320 261 351L219 401C214 370 200 349 172 336 115 309 82 321 64 338Z"/>
+  <path fill="url(#pebai_violet)" d="M202 500 317 401C373 353 430 304 489 249 532 209 561 177 574 153 621 183 637 226 626 274 608 355 498 418 321 468L202 500Z"/>
+  <path fill="#12121A" d="M251 351C276 314 310 283 353 246 405 202 472 147 558 84L541 101C487 151 440 185 399 208 365 227 351 242 354 258 357 276 385 287 419 301 373 332 339 357 317 385L219 464 251 351Z"/>
+</svg></div>
+        <div class="node-texts">
+          <span class="node-step-label">Paso 02 · Cerebro Autónomo PEBAI</span>
+          <h3 class="node-title">Agente IA Cualifica y Cotiza</h3>
+          <p class="node-desc">Consulta tarifas, valida disponibilidad y genera propuesta en PDF</p>
+        </div>
+      </div>
+      <div class="node-right">
+        <span class="node-badge">12 Segundos</span>
+      </div>
+    </div>
+
+    <!-- Connector 2 -->
+    <div class="node-connector">
+      <div class="connector-line"></div>
+      <span class="connector-pill">Sincronización en CRM</span>
+    </div>
+
+    <!-- Node 3: Output -->
+    <div class="node-card">
+      <div class="node-left">
+        <div class="node-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="node-texts">
+          <span class="node-step-label">Paso 03 · Cierre Comercial</span>
+          <h3 class="node-title">Cierre en Google Calendar</h3>
+          <p class="node-desc">Propuesta enviada al cliente y cita sincronizada en CRM</p>
+        </div>
+      </div>
+      <div class="node-right">
+        <span class="node-badge">21:04:26</span>
+      </div>
+    </div>
+
+    <!-- Metric Summary Row -->
+    <div class="metric-pills-row">
+      <div class="metric-pill-card">
+        <div class="metric-pill-val">26 Seg</div>
+        <div class="metric-pill-lbl">Tiempo Total</div>
+      </div>
+      <div class="metric-pill-card">
+        <div class="metric-pill-val" style="color:#594AF7;">0% Fallos</div>
+        <div class="metric-pill-lbl">Error Humano</div>
+      </div>
+      <div class="metric-pill-card">
+        <div class="metric-pill-val" style="color:#15803d;">24/7/365</div>
+        <div class="metric-pill-lbl">Disponibilidad</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-section">
+    <div class="footer-brand">
+      <img src="file:///C:/programacion/emprendimiento/PAI Systems/carousel-engine/assets/pebai/pebai-horizontal-dark.svg" alt="PEBAI Systems">
+    </div>
+    <div class="footer-note">pebaisystems.es</div>
+    <div class="footer-cta">
+      <span>Comenta RESPUESTA para auditar</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#12121A" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </div>
+  </div>
+</body>
+</html>

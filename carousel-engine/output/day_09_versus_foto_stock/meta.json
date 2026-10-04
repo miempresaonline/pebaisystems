@@ -1,0 +1,12 @@
+{
+  "id": "day_09_versus_foto_stock",
+  "type": "fb_versus_photo",
+  "topic": "Comparativa Manual vs IA",
+  "keyword": "COMPARATIVA",
+  "slides_count": 2,
+  "slide_images": [
+    "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_09_versus_foto_stock\\slide_1.png",
+    "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_09_versus_foto_stock\\slide_2.png"
+  ],
+  "caption_file": "C:\\programacion\\emprendimiento\\PAI Systems\\carousel-engine\\output\\day_09_versus_foto_stock\\caption.txt"
+}
