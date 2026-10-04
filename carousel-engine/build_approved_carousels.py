@@ -50,7 +50,7 @@ def deliver_to_sheet(webhook_url: str, month: str, item_id: str, link_slides: st
         "id": item_id,
         "link_slides": link_slides,
         "copy_text": copy_text,
-        "estado": "LISTO"
+        "estado": "PUBLICADO"
     }
     r = requests.post(webhook_url, data=json.dumps(payload), timeout=25)
     return r.json()
