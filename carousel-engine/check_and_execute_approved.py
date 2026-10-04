@@ -32,29 +32,22 @@ def get_current_month_name() -> str:
 
 def fetch_approved_from_sheet(webhook_url: str, month_name: str) -> dict:
     """Consulta la API de Apps Script para obtener ideas marcadas como PUBLICAR."""
-    query = urllib.parse.urlencode({"action": "get_approved", "month": month_name})
-    full_url = f"{webhook_url}?{query}"
-    
-    req = urllib.request.Request(full_url, headers={"User-Agent": "PebaiChecker/1.0"})
-    with urllib.request.urlopen(req, timeout=20) as response:
-        return json.loads(response.read().decode("utf-8"))
+    import requests
+    params = {"action": "get_approved", "month": month_name}
+    r = requests.get(webhook_url, params=params, timeout=25)
+    return r.json()
 
 def mark_as_published(webhook_url: str, item_id: str, month_name: str) -> bool:
     """Actualiza el estado en Google Sheets a PUBLICADO tras su generación."""
+    import requests
     payload = {
         "action": "mark_published",
         "id": item_id,
         "month": month_name
     }
-    req = urllib.request.Request(
-        webhook_url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"}
-    )
     try:
-        with urllib.request.urlopen(req, timeout=15) as res:
-            data = json.loads(res.read().decode("utf-8"))
-            return data.get("status") == "success"
+        r = requests.post(webhook_url, json=payload, timeout=20)
+        return r.json().get("status") == "success"
     except Exception as e:
         print(f"[ERROR] No se pudo actualizar estado a PUBLICADO para {item_id}: {e}")
         return False

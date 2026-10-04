@@ -275,21 +275,18 @@ Devuelve ÚNICAMENTE un bloque JSON válido con este esquema exacto, sin texto a
     raise ValueError(f"Error generando ideas tras varios reintentos: {last_error}")
 
 def push_to_google_sheet(webhook_url: str, ideas: list, month_name: str) -> dict:
-    """Envía las ideas formateadas al Webhook de Google Apps Script."""
+    """Envía las ideas formateadas al Webhook de Google Apps Script usando requests."""
+    import requests
     payload = {
         "month": month_name,
         "ideas": ideas
     }
     
-    req = urllib.request.Request(
-        webhook_url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"}
-    )
-    
-    with urllib.request.urlopen(req, timeout=30) as response:
-        res = json.loads(response.read().decode("utf-8"))
-        return res
+    response = requests.post(webhook_url, json=payload, timeout=30)
+    try:
+        return response.json()
+    except Exception:
+        return {"status": "raw", "text": response.text}
 
 def main():
     parser = argparse.ArgumentParser(description="Radar Diario de Ideas PEBAI Systems")
