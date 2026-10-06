@@ -1,10 +1,9 @@
 name: PEBAI Generate Approved Carousels
 
 on:
-  workflow_dispatch: # Ejecutar con 1 clic cuando el usuario haya marcado PUBLICAR en Google Sheets
-  schedule:
-    # Opcional: chequeo diario a las 14:00 UTC (16:00 hora espana) para preparar los carruseles de la tarde
-    - cron: '0 14 * * *'
+  workflow_dispatch: # Ejecutar manualmente o con webhook cuando el usuario apruebe carruseles
+  # schedule:
+  #   - cron: '0 14 * * *' # Desactivado para evitar ejecuciones fallidas automáticas sin secretos configurados
 
 jobs:
   build:

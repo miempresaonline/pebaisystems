@@ -1,10 +1,9 @@
 name: PEBAI Daily Carousel Radar
 
 on:
-  schedule:
-    # Ejecuta todos los dias a las 06:00 UTC (08:00 AM hora peninsular espanola en verano / 07:00 en invierno)
-    - cron: '0 6 * * *'
   workflow_dispatch: # Permite disparar la ejecucion manualmente desde la pestana Actions de GitHub
+  # schedule:
+  #   - cron: '0 6 * * *' # Desactivado temporalmente para no saturar con emails de error si faltan secretos
 
 jobs:
   radar:
