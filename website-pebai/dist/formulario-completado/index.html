@@ -1328,9 +1328,8 @@
         <div class="player-viewport" id="player-screen" title="Toca para agendar cita">
           
           <!-- VÍDEO REAL EN ALTA RESOLUCIÓN CON AUDIO -->
-          <video id="player-video" class="player-video-element" playsinline preload="auto" muted>
-            <source src="../video/stock_prescripcion.mp4" type="video/mp4">
-            <source src="https://frangarciacars.com/uploads/fotos%20coches/1121.mp4" type="video/mp4">
+          <video id="player-video" class="player-video-element" playsinline preload="auto" muted poster="../video/formulario_completado_poster.webp">
+            <source src="../video/formulario_completado.mp4" type="video/mp4">
             Tu navegador no soporta vídeo HTML5.
           </video>
 
@@ -1471,7 +1470,7 @@
       const soundBars = document.querySelectorAll('.pip-badge .sound-bars span');
 
       // Estado del reproductor
-      let totalDuration = 75; // Se actualiza dinámicamente con playerVideo.duration
+      let totalDuration = 128; // Se actualiza dinámicamente con playerVideo.duration
       let currentProgressTime = 0;
       let isPlaying = false;
       let animFrameId = null;
@@ -1550,7 +1549,7 @@
       function loop(timestamp) {
         if (playerVideo && !playerVideo.paused && !isDragging) {
           currentProgressTime = playerVideo.currentTime;
-          totalDuration = playerVideo.duration || 75;
+          totalDuration = playerVideo.duration || 128;
           updateProgressUI();
         } else if (!playerVideo && isPlaying && !isDragging) {
           if (!lastTimestamp) lastTimestamp = timestamp;
