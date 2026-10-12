@@ -1699,8 +1699,8 @@
         <div class="player-viewport" id="player-screen" title="Toca para pausar o continuar">
           
           <!-- VÍDEO REAL EN ALTA RESOLUCIÓN CON AUDIO -->
-          <video id="player-video" class="player-video-element" playsinline preload="auto" muted>
-            <source src="../video/vsl_consultoria_gratuita.mp4" type="video/mp4">
+          <video id="player-video" class="player-video-element" playsinline autoplay preload="auto" muted poster="../video/vsl_consultoria_gratuita_poster.webp?v=20261012">
+            <source src="../video/vsl_consultoria_gratuita.mp4?v=20261012" type="video/mp4">
             Tu navegador no soporta vídeo HTML5.
           </video>
 
@@ -2101,7 +2101,10 @@
 
       // Inicialización nativa del vídeo
       if (playerVideo) {
-        playerVideo.play().catch(function(){});
+        // Si el navegador bloquea el autoplay, reflejar la pausa en la interfaz
+        playerVideo.play().catch(function(){
+          if (!isUnmutedStarted) setPlayingState(false, false);
+        });
         playerVideo.addEventListener('ended', function() {
           setPlayingState(false, true);
         });
