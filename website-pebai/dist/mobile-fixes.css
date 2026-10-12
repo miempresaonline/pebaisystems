@@ -1,0 +1,15 @@
+.social-stage-card:hover .icon-youtube path{fill:#EFEDE7}
+.person-image::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(145deg,transparent 42%,rgba(106,92,255,.18) 100%);mix-blend-mode:screen;transition:background .45s}
+:root[data-theme=light] .person-image::after{background:linear-gradient(145deg,rgba(239,237,231,.15),rgba(183,255,60,.13));mix-blend-mode:soft-light}
+@media(max-width:760px){.hero-mark-scroll{top:34%;left:69%;width:min(50vw,245px)}.orbital{top:34%;left:69%;width:66vw;height:47vw}.orbital-two{width:76vw;height:56vw}.hero h1{font-size:clamp(40px,10.6vw,54px);line-height:.98}.hero h1 .line>span{transform:translateY(0)!important}.hero h1 .text-accent{background:none;-webkit-background-clip:initial;-webkit-text-fill-color:var(--lime);color:var(--lime)}.hero-copy{padding-bottom:max(64px,env(safe-area-inset-bottom))}.section-heading h2,.team-heading h2,.social-stage-heading h2,.word-reveal{font-size:clamp(31px,8vw,40px);line-height:1.06;text-wrap:wrap;letter-spacing:-.06em}}
+@media(max-height:700px) and (max-width:760px){.hero-mark-scroll{top:31%;width:min(45vw,205px)}.orbital{top:31%;width:58vw;height:42vw}.orbital-two{width:68vw;height:51vw}.hero h1{font-size:clamp(37px,9.7vw,46px)}}
+:root[data-theme=dark] .text-highlight,:root[data-theme=dark] .text-dim.text-highlight{text-decoration-color:var(--lime)}
+@media(max-width:760px){.section-heading h2,.team-heading h2,.social-stage-heading h2,.word-reveal{max-width:100%;overflow-wrap:normal}.social-stage-heading h2{font-size:clamp(30px,7.8vw,36px)}.word-reveal{font-size:clamp(32px,8.1vw,38px)}.contact h2{max-width:100%;font-size:clamp(37px,9.4vw,43px);line-height:1.02;letter-spacing:-.065em;text-wrap:pretty}.contact p{font-size:14px;line-height:1.58;max-width:100%}.section-heading>p,.team-heading>p,.social-stage-heading p{max-width:100%;font-size:13px;line-height:1.65}.text-highlight{text-decoration-thickness:3px;text-underline-offset:7px}}
+@media(max-width:760px){
+  .ai-lead-lock{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;vertical-align:middle}
+  .ai-badges-inline{display:inline-flex;align-items:center;gap:3px;margin:0 2px;vertical-align:middle}
+  .ai-badge{padding:3px 5px;border-radius:7px;gap:0}
+  .ai-badge .ai-name{display:none}
+  .ai-badge svg{width:13px;height:13px;display:block}
+}
+

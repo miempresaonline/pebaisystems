@@ -1,0 +1,36 @@
+<?php
+/* Copiar como instagram-config.php SOLO en el servidor. */
+return [
+    'enabled' => false,
+    'verify_token' => 'CAMBIA_ESTO_POR_UN_SECRETO_LARGO',
+    'app_secret' => 'PEGA_AQUI_EL_APP_SECRET_DE_META',
+    'access_token' => 'PEGA_AQUI_EL_ACCESS_TOKEN_DE_INSTAGRAM',
+    'instagram_account_id' => 'ID_DE_LA_CUENTA_PROFESIONAL',
+    'graph_version' => 'v24.0',
+    'campaigns' => [
+        'consultoria' => [
+            'enabled' => true,
+            'keywords' => ['consultoria', 'consultoría'],
+            'message' => "Gracias por escribir CONSULTORÍA.\n\nEstamos abriendo solicitudes para consultorías de IA 0 € por tiempo limitado. Revisamos cada caso antes de abrir una plaza.\n\nAquí tienes la solicitud privada:\n{{url}}",
+            'url' => 'https://pebaisystems.es/diagnostico/?origen=instagram&palabra=consultoria&utm_medium=dm',
+        ],
+        'respuesta' => [
+            'enabled' => false,
+            'keywords' => ['respuesta'],
+            'message' => "Aquí tienes la prueba para detectar si tu empresa está perdiendo ventas por tardar en responder:\n{{url}}\n\nAl final encontrarás la solicitud privada si quieres que estudiemos vuestro caso.",
+            'url' => 'https://pebaisystems.es/recursos/respuesta/?origen=instagram&palabra=respuesta&utm_medium=dm',
+        ],
+        'geo' => [
+            'enabled' => false,
+            'keywords' => ['geo'],
+            'message' => "Aquí tienes la prueba GEO para comprobar si una IA recomienda tu empresa:\n{{url}}\n\nAl final podrás solicitar que analicemos vuestra visibilidad.",
+            'url' => 'https://pebaisystems.es/recursos/geo/?origen=instagram&palabra=geo&utm_medium=dm',
+        ],
+        'formacion' => [
+            'enabled' => false,
+            'keywords' => ['formacion', 'formación'],
+            'message' => "Aquí tienes la checklist para saber si vuestro equipo está aprovechando de verdad la IA:\n{{url}}\n\nAl final podrás solicitar una consultoría privada.",
+            'url' => 'https://pebaisystems.es/recursos/formacion/?origen=instagram&palabra=formacion&utm_medium=dm',
+        ],
+    ],
+];

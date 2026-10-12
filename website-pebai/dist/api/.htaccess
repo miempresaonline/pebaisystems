@@ -1,0 +1,5 @@
+# Bloquear acceso publico directo a credenciales y logs
+<FilesMatch "\.(json|log|key)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

@@ -1,0 +1,2288 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="theme-color" content="#080A12">
+  <title>Consultoría de Procesos e IA (0 €) | PEBAI Systems</title>
+  <meta name="description" content="Sesión técnica de 25 minutos con ingenieros de IA para empresas con equipo. Analizamos tu operativa diaria y diseñamos la solución exacta para tu negocio a coste cero. 5 plazas este mes.">
+  <link rel="canonical" href="https://pebaisystems.es/consultoria-gratuita/">
+
+  <!-- OpenGraph -->
+  <meta property="og:site_name" content="PEBAI Systems">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Consultoría de Procesos e IA (0 €) | PEBAI Systems">
+  <meta property="og:description" content="Cómo implantar Inteligencia Artificial en tu empresa para ahorrar horas de trabajo y no perder clientes a coste cero. Sesión privada de 25 minutos.">
+  <meta property="og:url" content="https://pebaisystems.es/consultoria-gratuita/">
+  <meta property="og:image" content="https://pebaisystems.es/brand/pebai-og-diagnostico.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Favicon Oficial PEBAI Exacto -->
+  <link rel="icon" type="image/png" href="../brand/pebai-logo-exact.png">
+  <link rel="apple-touch-icon" href="../brand/pebai-logo-exact.png">
+  
+  <!-- Tipografía Editorial: Instrument Serif (Cursiva de Alta Gama) + Manrope -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+  <!-- Microsoft Clarity Oficial PEBAI -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "yjwe6ir50h");
+  </script>
+
+  <style>
+    @font-face {
+      font-family: 'Manrope';
+      src: url('../brand/Manrope-latin-variable.woff2') format('woff2');
+      font-style: normal;
+      font-weight: 200 800;
+      font-display: swap;
+    }
+
+    :root {
+      color-scheme: dark;
+      --bg: #070911;
+      --bg-chassis: #0B0E19;
+      --surface: #0E1222;
+      --surface-card: rgba(14, 18, 34, 0.78);
+      --surface-elevated: rgba(20, 26, 48, 0.9);
+      
+      /* Azul Cobalto PEBAI como protagonista cromático */
+      --blue: #6A5CFF;
+      --blue-bright: #7E73FF;
+      --blue-deep: #5142EC;
+      --blue-glow: rgba(106, 92, 255, 0.32);
+
+      /* Lima Eléctrico PEBAI para tensión visual y contrastes */
+      --lime: #B7FF3C;
+      --lime-glow: rgba(183, 255, 60, 0.22);
+      
+      --crimson: #FF5A5A;
+      --crimson-glow: rgba(255, 90, 90, 0.2);
+
+      --border: rgba(106, 92, 255, 0.18);
+      --border-subtle: rgba(255, 255, 255, 0.05);
+      --border-blue: rgba(106, 92, 255, 0.45);
+      --border-lime: rgba(183, 255, 60, 0.35);
+
+      --fg: #ECEBF0;
+      --fg-title: #FFFFFF;
+      --muted: #9498AC;
+      --dim: #5A5E73;
+
+      --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      width: 100%;
+      min-height: 100%;
+      scroll-behavior: smooth;
+      background: var(--bg);
+      overflow-x: hidden;
+      touch-action: pan-y;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+      padding-top: 76px;
+      touch-action: pan-y;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding-top: 58px;
+      }
+    }
+
+    /* Atmósfera profunda contenida: CERO desbordamiento horizontal en móviles */
+    .bg-fx-stage {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(106, 92, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(106, 92, 255, 0.025) 1px, transparent 1px);
+      background-size: 44px 44px;
+      pointer-events: none;
+    }
+
+    .ambient-glow-blue {
+      position: absolute;
+      top: -160px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      max-width: 96vw;
+      height: 520px;
+      background: radial-gradient(ellipse at 50% 30%, rgba(106, 92, 255, 0.22) 0%, rgba(81, 66, 236, 0.08) 50%, transparent 75%);
+      pointer-events: none;
+      filter: blur(80px);
+    }
+
+    .ambient-glow-side {
+      position: absolute;
+      top: 500px;
+      right: -60px;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(183, 255, 60, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+      filter: blur(90px);
+    }
+
+    @media (max-width: 640px) {
+      .ambient-glow-side {
+        width: 260px;
+        height: 260px;
+        right: 0;
+        top: 600px;
+        filter: blur(60px);
+      }
+    }
+
+    /* HEADER ZERO-LEAK FIXED PERMANENTE CON LOGO HORIZONTAL E INSIGNIA PREMIUM */
+    .vsl-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 99999;
+      width: 100%;
+      padding: 15px 32px;
+      border-bottom: 1px solid rgba(106, 92, 255, 0.14);
+      background: rgba(7, 9, 17, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      transition: padding 0.2s var(--ease-spring), background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .vsl-header.scrolled {
+      padding: 11px 32px;
+      background: rgba(7, 9, 17, 0.97);
+      border-bottom: 1px solid rgba(106, 92, 255, 0.28);
+      box-shadow: 
+        0 10px 32px rgba(0, 0, 0, 0.7),
+        0 0 24px rgba(106, 92, 255, 0.12);
+    }
+
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-wrap {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .brand-wrap:hover {
+      opacity: 0.92;
+      transform: scale(1.01);
+    }
+
+    .brand-logo-img {
+      width: auto;
+      height: 48px;
+      max-width: 190px;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+    }
+
+    .header-right-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* INSIGNIA PREMIUM DE 5 PLAZAS MENSUALES (0 €) */
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      padding: 7px 18px 7px 13px;
+      border-radius: 999px;
+      background: rgba(14, 18, 36, 0.88);
+      border: 1px solid rgba(106, 92, 255, 0.32);
+      box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.45),
+        0 0 20px rgba(106, 92, 255, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      user-select: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .header-badge:hover {
+      transform: translateY(-1px);
+      border-color: rgba(106, 92, 255, 0.55);
+      box-shadow: 
+        0 6px 24px rgba(0, 0, 0, 0.55),
+        0 0 28px rgba(106, 92, 255, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .badge-beacon {
+      position: relative;
+      width: 10px;
+      height: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .beacon-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 10px var(--lime);
+      position: relative;
+      z-index: 2;
+    }
+
+    .beacon-pulse {
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: rgba(183, 255, 60, 0.45);
+      animation: beaconPulse 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+      z-index: 1;
+    }
+
+    @keyframes beaconPulse {
+      0% { transform: scale(0.6); opacity: 0.9; }
+      75% { transform: scale(2.4); opacity: 0; }
+      100% { transform: scale(2.4); opacity: 0; }
+    }
+
+    .badge-content {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      letter-spacing: -0.01em;
+      color: #F0EFF5;
+      line-height: 1;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge-text-main {
+      font-weight: 700;
+      color: #FFFFFF;
+      white-space: nowrap;
+    }
+
+    .badge-chip-free {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, rgba(183, 255, 60, 0.18) 0%, rgba(106, 92, 255, 0.25) 100%);
+      border: 1px solid rgba(183, 255, 60, 0.45);
+      color: #B7FF3C;
+      font-weight: 800;
+      font-size: 11.5px;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      box-shadow: 0 0 12px rgba(183, 255, 60, 0.2);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge-divider {
+      color: rgba(255, 255, 255, 0.3);
+      font-weight: 300;
+    }
+
+    .badge-text-sub {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 12px;
+    }
+
+    .mobile-lead { display: none; }
+    .desktop-lead { display: inline; }
+
+    @media (max-width: 640px) {
+      .desktop-lead { display: none; }
+      .mobile-lead { display: inline; }
+
+      .vsl-header, .vsl-header.scrolled {
+        padding: 10px 16px;
+        padding-top: max(10px, env(safe-area-inset-top));
+      }
+      .brand-logo-img {
+        height: 28px;
+        max-width: 116px;
+      }
+      .header-badge {
+        font-size: 11px;
+        padding: 5px 10px;
+        gap: 7px;
+      }
+      .badge-text-main {
+        font-size: 11px;
+      }
+      .badge-chip-free {
+        font-size: 10.5px;
+        padding: 2px 6px;
+      }
+      .badge-text-sub, .badge-divider {
+        display: none;
+      }
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .vsl-main {
+      position: relative;
+      z-index: 10;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 36px 20px 90px;
+    }
+
+    @media (max-width: 768px) {
+      .vsl-main {
+        padding: 24px 16px 70px;
+      }
+    }
+
+    /* HERO COMPACTO (SIN SALTOS ARTIFICIALES, CON CURSIVA EDITORIAL) */
+    .vsl-hero {
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto 30px;
+    }
+
+    .vsl-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--blue-bright);
+      margin-bottom: 14px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(106, 92, 255, 0.1);
+      border: 1px solid rgba(106, 92, 255, 0.28);
+    }
+
+    /* Titular fluido sin saltos forzados de línea */
+    .vsl-headline {
+      font-size: clamp(23px, 3.2vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.25;
+      color: var(--fg-title);
+      margin-bottom: 14px;
+      max-width: 840px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Cursiva Editorial de Lujo */
+    .hero-italic {
+      display: inline;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.15em;
+      letter-spacing: normal;
+      background: linear-gradient(135deg, #FFFFFF 20%, #B7FF3C 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      padding-left: 2px;
+    }
+
+    /* Subtítulo estratégico para incentivar el clic */
+    .vsl-subhead {
+      font-size: clamp(14px, 1.5vw, 15.5px);
+      color: var(--muted);
+      max-width: 780px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    .vsl-subhead strong {
+      color: #FFF;
+      font-weight: 600;
+    }
+
+    .vsl-subhead .blue-hint {
+      color: var(--blue-bright);
+      font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+      .vsl-hero {
+        margin-bottom: 26px;
+      }
+      .vsl-kicker {
+        font-size: 10px;
+        margin-bottom: 12px;
+        padding: 4px 11px;
+      }
+      .vsl-headline {
+        font-size: 23px;
+        line-height: 1.34;
+        letter-spacing: -0.02em;
+        margin-bottom: 12px;
+      }
+      .vsl-subhead {
+        font-size: 14.5px;
+        line-height: 1.55;
+      }
+      .vsl-player-wrap {
+        margin: 26px auto 24px;
+      }
+      .player-topbar {
+        height: 32px;
+        padding: 0 12px;
+      }
+      .vsl-cta-action-area {
+        margin: 24px auto 70px;
+      }
+      .primary-vsl-btn {
+        padding: 13px 18px;
+        border-radius: 12px;
+        max-width: 440px;
+        box-sizing: border-box;
+      }
+      .btn-main-text {
+        font-size: 14.5px;
+        white-space: nowrap;
+        gap: 8px;
+        justify-content: center;
+      }
+      .btn-main-text svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+      .btn-sub-text {
+        font-size: 11px;
+        margin-top: 3px;
+        line-height: 1.35;
+        white-space: normal;
+        text-align: center;
+        opacity: 0.85;
+      }
+    }
+
+    /* REPRODUCTOR DE VÍDEO CINEMÁTICO EN GRANDE CON MÁS ESPACIO */
+    .vsl-player-wrap {
+      width: 100%;
+      margin: 34px auto 32px;
+      position: relative;
+    }
+
+    .vsl-player-chassis {
+      position: relative;
+      background: var(--bg-chassis);
+      border: 1px solid rgba(106, 92, 255, 0.28);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 
+        0 24px 70px -10px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(255, 255, 255, 0.04),
+        0 0 45px rgba(106, 92, 255, 0.18);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .vsl-player-chassis:hover {
+      border-color: rgba(106, 92, 255, 0.45);
+      box-shadow: 
+        0 28px 80px -10px rgba(0, 0, 0, 0.95),
+        0 0 55px rgba(106, 92, 255, 0.24);
+    }
+
+    /* Barra superior del reproductor */
+    .player-topbar {
+      height: 36px;
+      background: rgba(11, 14, 25, 0.96);
+      border-bottom: 1px solid rgba(106, 92, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Botones de ventana oficiales estilo macOS / Apple */
+    .apple-traffic-lights {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 2px 0;
+    }
+
+    .apple-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      position: relative;
+      display: inline-block;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      cursor: default;
+    }
+
+    .apple-dot-close {
+      background: #FF5F56;
+      border: 1px solid #E0443E;
+    }
+
+    .apple-dot-min {
+      background: #FFBD2E;
+      border: 1px solid #DEA123;
+    }
+
+    .apple-dot-max {
+      background: #27C93F;
+      border: 1px solid #1AAB29;
+    }
+
+    .topbar-right {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--blue-bright);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 480px) {
+      .player-topbar {
+        padding: 0 12px;
+        height: 32px;
+      }
+      .apple-dot {
+        width: 10px;
+        height: 10px;
+      }
+      .topbar-right {
+        font-size: 9px;
+      }
+    }
+
+    /* Viewport 16:9 */
+    .player-viewport {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 */
+      background: #04060C;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .player-video-element {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #04060C;
+      z-index: 5;
+    }
+
+    /* Maqueta Técnica Miro Board */
+    .miro-stage {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at 50% 25%, #13172E 0%, #050711 82%);
+      user-select: none;
+    }
+
+    .miro-bar {
+      height: 32px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(14, 18, 34, 0.65);
+      border-bottom: 1px solid rgba(106, 92, 255, 0.1);
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .miro-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      color: #FFF;
+    }
+
+    .miro-grid-canvas {
+      flex: 1;
+      padding: clamp(12px, 2.2vw, 24px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(10px, 1.8vw, 18px);
+      align-items: stretch;
+      background-image: radial-gradient(rgba(106, 92, 255, 0.12) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+
+    .miro-col {
+      border-radius: 12px;
+      padding: clamp(10px, 1.6vw, 16px);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      backdrop-filter: blur(8px);
+    }
+
+    .miro-col-a {
+      background: rgba(30, 16, 22, 0.55);
+      border: 1px solid rgba(255, 90, 90, 0.28);
+    }
+
+    .miro-col-b {
+      background: rgba(14, 28, 36, 0.6);
+      border: 1px solid rgba(106, 92, 255, 0.4);
+      box-shadow: 0 0 20px rgba(106, 92, 255, 0.1);
+    }
+
+    .miro-col-title {
+      font-size: clamp(9.5px, 1.2vw, 11.5px);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .miro-col-a .miro-col-title { color: #FF7B7B; }
+    .miro-col-b .miro-col-title { color: var(--blue-bright); }
+
+    .miro-item {
+      background: rgba(7, 9, 16, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      padding: clamp(6px, 1.1vw, 10px);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .miro-item-head {
+      font-size: clamp(9px, 1.05vw, 10.5px);
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .miro-item-tag {
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .tag-red { background: rgba(255, 90, 90, 0.2); color: #FF7B7B; }
+    .tag-blue { background: rgba(106, 92, 255, 0.25); color: var(--blue-bright); }
+
+    .miro-item-desc {
+      font-size: clamp(8px, 0.9vw, 9px);
+      color: var(--muted);
+      line-height: 1.25;
+    }
+
+    /* Picture in Picture Fundador */
+    .pip-founder {
+      position: absolute;
+      bottom: clamp(10px, 2vw, 18px);
+      right: clamp(10px, 2vw, 18px);
+      width: clamp(70px, 11vw, 100px);
+      height: clamp(70px, 11vw, 100px);
+      border-radius: 50%;
+      border: 2px solid var(--blue-bright);
+      box-shadow: 0 0 20px var(--blue-glow), 0 6px 18px rgba(0,0,0,0.8);
+      overflow: hidden;
+      background: #0F1222;
+      z-index: 20;
+    }
+
+    .pip-founder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 15%;
+      display: block;
+    }
+
+    .pip-badge {
+      position: absolute;
+      bottom: clamp(7px, 1.6vw, 14px);
+      right: clamp(10px, 2vw, 18px);
+      transform: translateY(50%);
+      background: rgba(7, 9, 17, 0.95);
+      border: 1px solid rgba(106, 92, 255, 0.35);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      z-index: 25;
+      white-space: nowrap;
+    }
+
+    .sound-bars {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.5px;
+      height: 7px;
+    }
+
+    .sound-bars span {
+      width: 1.5px;
+      background: var(--blue-bright);
+      border-radius: 1px;
+      animation: soundAnim 0.7s infinite alternate;
+    }
+    .sound-bars span:nth-child(2) { animation-delay: 0.2s; height: 6px; }
+    .sound-bars span:nth-child(3) { animation-delay: 0.4s; height: 7px; }
+    .sound-bars span:nth-child(1) { height: 3px; }
+
+    @keyframes soundAnim {
+      0% { height: 2px; }
+      100% { height: 7px; }
+    }
+
+    /* Botón Pulsante Unmute (SIN EMOJIS, CON SVG Y TIPOGRAFÍA PULIDA) */
+    .unmute-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(6, 8, 16, 0.42);
+      backdrop-filter: blur(2px);
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+
+    .unmute-overlay.unmuted {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .unmute-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 26px;
+      border-radius: 999px;
+      background: rgba(12, 16, 32, 0.95);
+      border: 1.5px solid var(--blue-bright);
+      box-shadow: 
+        0 0 28px var(--blue-glow),
+        0 10px 30px rgba(0, 0, 0, 0.85);
+      color: #FFF;
+      font-family: inherit;
+      font-size: clamp(13.5px, 1.6vw, 15.5px);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+      animation: pulseBtn 2.3s infinite;
+    }
+
+    @keyframes pulseBtn {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); box-shadow: 0 0 40px rgba(106, 92, 255, 0.55); }
+    }
+
+    .unmute-pill-btn:hover { transform: scale(1.05); }
+    .unmute-pill-btn:active { transform: scale(0.97); }
+
+    .unmute-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #FFF;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .unmute-icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; }
+
+    /* CONTROLES MODERNOS A MEDIDA DEL REPRODUCTOR */
+    .player-control-chassis {
+      background: rgba(9, 12, 22, 0.98);
+      border-top: 1px solid rgba(106, 92, 255, 0.14);
+      position: relative;
+      z-index: 35;
+      user-select: none;
+    }
+
+    /* Línea de progreso láser ultra-fina (2px) enrasada en la arista superior, sin caja ni barra gris */
+    .progress-container {
+      position: absolute;
+      top: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      cursor: default;
+      pointer-events: none;
+      background: transparent;
+      overflow: hidden;
+      z-index: 40;
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background: transparent;
+    }
+
+    .progress-bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 0%;
+      background: linear-gradient(90deg, #5142EC 0%, #6A5CFF 65%, #B7FF3C 100%);
+      box-shadow: 0 0 8px rgba(106, 92, 255, 0.8), 0 0 3px rgba(183, 255, 60, 0.9);
+      transition: width 0.35s linear;
+    }
+
+    /* Fila de controles interactivos */
+    .player-controls-row {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      gap: 12px;
+    }
+
+    .controls-left, .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .player-ctrl-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      color: #ECEBF2;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+      padding: 0;
+    }
+
+    .player-ctrl-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .player-ctrl-btn:hover {
+      background: rgba(106, 92, 255, 0.2);
+      color: #FFFFFF;
+      transform: scale(1.05);
+    }
+
+    .player-ctrl-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Módulo de volumen moderno con slider deslizante */
+    .volume-module {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+    }
+
+    .volume-slider-track {
+      width: 64px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.15);
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    .volume-slider-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #6A5CFF, #B7FF3C);
+      pointer-events: none;
+      transition: width 0.1s ease;
+    }
+
+    .volume-slider-input {
+      position: absolute;
+      inset: -6px 0;
+      width: 100%;
+      height: 16px;
+      opacity: 0;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    /* Selector de velocidad rápido (x1, x1.5, x2) con alternancia directa en clic */
+    .player-speed-btn {
+      height: 28px;
+      min-width: 38px;
+      padding: 0 9px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(106, 92, 255, 0.25);
+      color: #ECEBF2;
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+      user-select: none;
+    }
+
+    .player-speed-btn:hover {
+      background: rgba(106, 92, 255, 0.25);
+      border-color: var(--blue-bright);
+      color: #FFF;
+      transform: scale(1.03);
+    }
+
+    .player-speed-btn:active {
+      transform: scale(0.96);
+    }
+
+    .player-speed-btn.active-speed {
+      background: rgba(106, 92, 255, 0.32);
+      border-color: var(--lime);
+      color: var(--lime);
+      box-shadow: 0 0 10px rgba(183, 255, 60, 0.2);
+    }
+
+    /* Feedback visual central al pausar o reanudar */
+    .player-feedback-badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(10, 13, 26, 0.85);
+      border: 1.5px solid var(--blue-bright);
+      box-shadow: 0 0 25px var(--blue-glow);
+      display: grid;
+      place-items: center;
+      color: #FFF;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease, transform 0.25s var(--ease-spring);
+      z-index: 28;
+    }
+
+    .player-feedback-badge.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .player-feedback-badge svg {
+      width: 26px;
+      height: 26px;
+      fill: currentColor;
+    }
+
+    /* PANTALLA COMPLETA A MEDIDA */
+    .vsl-player-chassis:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      border: none;
+      background: #020307;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .vsl-player-chassis:fullscreen .player-viewport {
+      flex: 1;
+      padding-top: 0;
+      height: calc(100vh - 84px);
+    }
+
+    .vsl-player-chassis:fullscreen .player-control-chassis {
+      height: 48px;
+    }
+
+    /* BOTÓN PRINCIPAL PEBAI: AZUL COBALTO EMBLEMÁTICO CON TOQUE LIMA (SIN TICKS REPETIDOS) */
+    .vsl-cta-action-area {
+      text-align: center;
+      margin: 24px auto 70px;
+      max-width: 620px;
+    }
+
+    .primary-vsl-btn {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 18px 28px;
+      border-radius: 14px;
+      /* Gradiente de Azul Cobalto profundo oficial de PEBAI */
+      background: linear-gradient(135deg, #6A5CFF 0%, #4F3FEC 100%);
+      color: #FFFFFF;
+      text-decoration: none;
+      box-shadow: 
+        0 12px 36px rgba(106, 92, 255, 0.42),
+        0 0 20px rgba(183, 255, 60, 0.15);
+      border: 1px solid rgba(183, 255, 60, 0.35);
+      transition: transform 0.12s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      cursor: pointer;
+    }
+
+    .primary-vsl-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 16px 44px rgba(106, 92, 255, 0.55),
+        0 0 28px rgba(183, 255, 60, 0.25);
+      filter: brightness(1.04);
+    }
+
+    .primary-vsl-btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-main-text {
+      font-size: clamp(16px, 2.1vw, 19px);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-main-text svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.15s ease;
+    }
+
+    .primary-vsl-btn:hover .btn-main-text svg {
+      transform: translateX(4px);
+    }
+
+    .btn-sub-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.85);
+      margin-top: 4px;
+      letter-spacing: 0.01em;
+    }
+
+    /* SECCIÓN FILTRO DE ADMISIÓN (ESPACIADA PARA DAR PROTAGONISMO AL VÍDEO Y AL BOTÓN) */
+    .filter-section {
+      margin-top: clamp(95px, 11vw, 140px);
+      margin-bottom: 50px;
+    }
+
+    .filter-header {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto 36px;
+    }
+
+    .filter-title {
+      font-size: clamp(24px, 3.2vw, 34px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      color: #FFF;
+      margin-bottom: 10px;
+    }
+
+    .filter-lead {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .filter-container {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .filter-box-unified {
+      border-radius: 20px;
+      padding: clamp(24px, 3.2vw, 36px);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: linear-gradient(180deg, rgba(16, 22, 42, 0.85) 0%, rgba(9, 12, 24, 0.95) 100%);
+      border: 1px solid rgba(106, 92, 255, 0.35);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 35px rgba(106, 92, 255, 0.08);
+    }
+
+    .filter-card-exclusion {
+      margin-top: 28px;
+      padding: 20px 24px;
+      border-radius: 14px;
+      background: rgba(255, 90, 90, 0.05);
+      border: 1px solid rgba(255, 90, 90, 0.22);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .exclusion-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 90, 90, 0.12);
+    }
+
+    .exclusion-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 90, 90, 0.15);
+      border: 1px solid rgba(255, 90, 90, 0.32);
+      color: #FF8B8B;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .exclusion-badge svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .exclusion-sublabel {
+      font-size: 12px;
+      color: #FF9B9B;
+      opacity: 0.85;
+      font-weight: 500;
+    }
+
+    .exclusion-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .filter-section {
+        margin-top: 0;
+        margin-bottom: 50px;
+      }
+      .filter-header {
+        margin-bottom: 26px;
+      }
+      .filter-title {
+        font-size: 24px;
+        line-height: 1.32;
+        letter-spacing: -0.02em;
+        margin-bottom: 12px;
+      }
+      .filter-lead {
+        font-size: 14.5px;
+        line-height: 1.55;
+        color: #A4A7BC;
+      }
+      .filter-box-unified {
+        padding: 26px 18px;
+        border-radius: 18px;
+      }
+      .box-top-row {
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+      }
+      .box-status-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+      }
+      .box-headline {
+        font-size: 16.5px;
+        line-height: 1.35;
+      }
+      .box-sublabel {
+        font-size: 10.5px;
+        margin-top: 3px;
+      }
+      .criteria-stack {
+        gap: 18px;
+      }
+      .criteria-row {
+        font-size: 14px;
+        line-height: 1.55;
+        gap: 12px;
+      }
+      .criteria-dot {
+        width: 18px;
+        height: 18px;
+        margin-top: 3px;
+      }
+      .criteria-dot svg {
+        width: 10px;
+        height: 10px;
+      }
+      .filter-card-exclusion {
+        margin-top: 26px;
+        padding: 20px 16px;
+        border-radius: 16px;
+        gap: 14px;
+      }
+      .exclusion-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding-bottom: 12px;
+      }
+      .exclusion-badge {
+        font-size: 10px;
+        padding: 2.5px 7px;
+      }
+      .exclusion-sublabel {
+        font-size: 11px;
+      }
+      .exclusion-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      .exclusion-item {
+        font-size: 13.5px;
+        line-height: 1.5;
+        gap: 10px;
+      }
+      .exclusion-item-dot {
+        width: 16px;
+        height: 16px;
+        margin-top: 3px;
+      }
+      .exclusion-item-dot svg {
+        width: 9px;
+        height: 9px;
+      }
+      .filter-footer-cta {
+        margin-top: 34px;
+      }
+      .secondary-vsl-btn {
+        min-height: 48px;
+        padding: 14px 18px;
+        font-size: 13.5px;
+        line-height: 1.35;
+        width: 100%;
+      }
+    }
+
+    .exclusion-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .exclusion-item-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255, 90, 90, 0.18);
+      color: var(--crimson);
+      border: 1px solid rgba(255, 90, 90, 0.3);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .exclusion-item-dot svg {
+      width: 9px;
+      height: 9px;
+    }
+
+    .exclusion-item strong {
+      color: #FFF;
+      font-weight: 700;
+    }
+
+    .box-top-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .box-status-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .filter-box-yes .box-status-icon {
+      background: rgba(106, 92, 255, 0.2);
+      color: var(--blue-bright);
+      border: 1px solid rgba(106, 92, 255, 0.35);
+    }
+
+    .filter-box-no .box-status-icon {
+      background: rgba(255, 90, 90, 0.15);
+      color: var(--crimson);
+      border: 1px solid rgba(255, 90, 90, 0.25);
+    }
+
+    .box-status-icon svg { width: 17px; height: 17px; }
+
+    .box-headline {
+      font-size: 17px;
+      font-weight: 700;
+      color: #FFF;
+      line-height: 1.2;
+    }
+
+    .box-sublabel {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .filter-box-yes .box-sublabel { color: var(--blue-bright); }
+    .filter-box-no .box-sublabel { color: #FF7B7B; }
+
+    .criteria-stack {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .criteria-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .criteria-dot {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .filter-box-yes .criteria-dot {
+      background: rgba(106, 92, 255, 0.22);
+      color: var(--lime);
+      border: 1px solid rgba(106, 92, 255, 0.4);
+    }
+
+    .filter-box-no .criteria-dot {
+      background: rgba(255, 90, 90, 0.15);
+      color: var(--crimson);
+      border: 1px solid rgba(255, 90, 90, 0.25);
+    }
+
+    .criteria-dot svg { width: 10px; height: 10px; }
+
+    .criteria-row strong {
+      color: #FFF;
+      font-weight: 700;
+    }
+
+    /* CIERRE Y ACCIÓN FINAL */
+    .filter-footer-cta {
+      margin-top: 45px;
+      text-align: center;
+    }
+
+    .secondary-vsl-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 15px 32px;
+      border-radius: 12px;
+      background: rgba(14, 18, 36, 0.9);
+      border: 1px solid var(--border-blue);
+      color: #FFF;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      transition: transform 0.12s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .secondary-vsl-btn:hover {
+      border-color: var(--blue-bright);
+      background: rgba(24, 30, 58, 0.95);
+      transform: translateY(-2px);
+    }
+
+    .secondary-vsl-btn:active {
+      transform: scale(0.98);
+    }
+
+    .secondary-vsl-btn svg {
+      width: 15px;
+      height: 15px;
+      color: var(--lime);
+    }
+
+    /* FOOTER ZERO-LEAK */
+    .vsl-footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--border-subtle);
+      padding: 28px 20px 48px;
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--dim);
+    }
+
+    .footer-content {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .footer-links-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .footer-links-line button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 11.5px;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 6px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .footer-links-line button:hover {
+      color: #FFF;
+    }
+
+    /* MODAL DE PRIVACIDAD DISCRETO */
+    .privacy-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .privacy-modal.open {
+      display: flex;
+    }
+
+    .privacy-card {
+      background: #0B0E1B;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-width: 540px;
+      width: 100%;
+      padding: 26px;
+      color: var(--fg);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .privacy-card h3 {
+      font-size: 17px;
+      color: #FFF;
+      margin-bottom: 12px;
+    }
+
+    .privacy-card-close {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 8px 20px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      color: #FFF;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Atmósfera visual 100% contenida sin desbordamiento horizontal -->
+  <div class="bg-fx-stage" aria-hidden="true">
+    <div class="bg-grid"></div>
+    <div class="ambient-glow-blue"></div>
+    <div class="ambient-glow-side"></div>
+  </div>
+
+  <!-- HEADER ZERO-LEAK CON INSIGNIA REFINADA -->
+  <header class="vsl-header">
+    <div class="header-inner">
+      <a class="brand-wrap" href="#top" aria-label="PEBAI Systems">
+        <img class="brand-logo-img" src="../brand/pebai-horizontal-color-mineral-cropped.png" alt="PEBAI Systems" width="162" height="47">
+      </a>
+
+      <div class="header-right-group">
+        <div class="header-badge" id="header-badge" role="status" aria-label="5 plazas mensuales, 0 € por tiempo limitado">
+          <div class="badge-beacon">
+            <span class="beacon-pulse"></span>
+            <span class="beacon-dot"></span>
+          </div>
+          <div class="badge-content">
+            <span class="badge-text-main">5 plazas mensuales</span>
+            <span class="badge-chip-free">0 €</span>
+            <span class="badge-divider" aria-hidden="true">·</span>
+            <span class="badge-text-sub">Por tiempo limitado</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="vsl-main">
+
+    <!-- HERO COMPACTO (TÍTULO MEDIDO, FLUIDO SIN SALTOS FORZADOS, CURSIVA EDITORIAL) -->
+    <section class="vsl-hero">
+      <h1 class="vsl-headline">
+        Cómo implantar Inteligencia Artificial en tu empresa para ahorrar horas de trabajo y no perder clientes <span class="hero-italic">a coste cero.</span>
+      </h1>
+
+      <p class="vsl-subhead">
+        <span class="desktop-lead">Videollamada de <strong>25 minutos con nuestros ingenieros de IA</strong>: analizamos tu operativa diaria y te diseñamos la solución técnica exacta para tu negocio, sin coste ni compromiso.</span>
+        <span class="mobile-lead">Videollamada de <strong>25 min con ingenieros de IA</strong>: analizamos tu operativa y diseñamos tu solución técnica a medida.</span>
+      </p>
+    </section>
+
+    <!-- REPRODUCTOR DE VÍDEO CINEMÁTICO EN GRANDE (ESPACIADO Y CON MÁS AZUL PEBAI) -->
+    <section class="vsl-player-wrap" aria-label="Vídeo explicativo">
+      <div class="vsl-player-chassis" id="player-chassis">
+        
+        <div class="player-topbar">
+          <div class="topbar-left">
+            <div class="apple-traffic-lights" aria-label="Controles de ventana">
+              <span class="apple-dot apple-dot-close" title="Cerrar"></span>
+              <span class="apple-dot apple-dot-min" title="Minimizar"></span>
+              <span class="apple-dot apple-dot-max" title="Maximizar"></span>
+            </div>
+          </div>
+          <div class="topbar-right" id="playback-status">
+            EN REPRODUCCIÓN
+          </div>
+        </div>
+
+        <div class="player-viewport" id="player-screen" title="Toca para pausar o continuar">
+          
+          <!-- VÍDEO REAL EN ALTA RESOLUCIÓN CON AUDIO -->
+          <video id="player-video" class="player-video-element" playsinline preload="auto" muted>
+            <source src="../video/vsl_consultoria_gratuita.mp4" type="video/mp4">
+            Tu navegador no soporta vídeo HTML5.
+          </video>
+
+          <!-- Botón Pulsante Unmute (SIN EMOJIS, CON SVG LIMPIO Y ESTILO PEBAI) -->
+          <div class="unmute-overlay" id="unmute-layer">
+            <button class="unmute-pill-btn" id="unmute-trigger" type="button" aria-label="Activar sonido">
+              <span class="unmute-icon">
+                <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+              </span>
+              <span>Toca para escuchar con sonido</span>
+            </button>
+          </div>
+
+          <!-- Feedback visual central al pausar o continuar -->
+          <div class="player-feedback-badge" id="player-feedback" aria-hidden="true">
+            <svg class="fb-icon-play" id="fb-icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+            <svg class="fb-icon-pause" id="fb-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>
+          </div>
+
+        </div>
+
+        <!-- Barra de controles moderna a medida -->
+        <div class="player-control-chassis">
+          
+          <!-- Barra de progreso continua de solo lectura (curva de retención psicológica) -->
+          <div class="progress-container" aria-hidden="true">
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+          </div>
+
+          <!-- Fila de controles interactivos -->
+          <div class="player-controls-row">
+            
+            <!-- Izquierda: Play / Pause + Volumen moderno -->
+            <div class="controls-left">
+              <button class="player-ctrl-btn" id="play-pause-btn" type="button" aria-label="Pausar o continuar vídeo" title="Pausar / Continuar">
+                <svg class="icon-pause" id="icon-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>
+                <svg class="icon-play" id="icon-play" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+              </button>
+
+              <!-- Control de volumen con slider deslizante moderno -->
+              <div class="volume-module" id="volume-module">
+                <button class="player-ctrl-btn" id="volume-btn" type="button" aria-label="Silenciar o activar sonido" title="Volumen">
+                  <!-- Volumen alto -->
+                  <svg class="vol-icon" id="vol-icon-high" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                  <!-- Volumen bajo -->
+                  <svg class="vol-icon" id="vol-icon-low" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="display:none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  <!-- Mute -->
+                  <svg class="vol-icon" id="vol-icon-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="display:none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                </button>
+                <div class="volume-slider-track" id="vol-track" title="Ajustar volumen">
+                  <div class="volume-slider-fill" id="vol-fill" style="width: 80%;"></div>
+                  <input type="range" class="volume-slider-input" id="vol-slider" min="0" max="1" step="0.05" value="0.8" aria-label="Nivel de volumen">
+                </div>
+              </div>
+            </div>
+
+            <!-- Derecha: Selector de velocidad rápido (1x, 1.5x, 2x con clic directo) + Pantalla completa -->
+            <div class="controls-right">
+              
+              <!-- Selector de velocidad: Clic directo para alternar sin menú desplegable -->
+              <button class="player-speed-btn" id="speed-btn" type="button" aria-label="Cambiar velocidad de reproducción" title="Cambiar velocidad: 1x / 1.5x / 2x">
+                <span class="speed-txt" id="speed-label">1x</span>
+              </button>
+
+              <!-- Botón Ampliar / Desampliar pantalla completa -->
+              <button class="player-ctrl-btn" id="fs-btn" type="button" aria-label="Pantalla completa" title="Ampliar / Reducir pantalla">
+                <svg class="fs-icon" id="fs-icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                <svg class="fs-icon" id="fs-icon-compress" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="display:none;"><path d="M4 14h6m0 0v6m0-6-7 7m17-11h-6m0 0V4m0 6 7-7m-7 17v-6m0 0h6m-6 0 7 7M3 7l7 7m0-7v6m0-6H4"/></svg>
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- BOTÓN DE ACCIÓN PRINCIPAL (AZUL COBALTO PEBAI, VISIBLE JUNTO AL VÍDEO, SIN REPETICIONES) -->
+    <div class="vsl-cta-action-area">
+      <a class="primary-vsl-btn" href="../diagnostico/?origen=vsl_consultoria_gratuita" id="vsl-cta-btn" data-event="click_vsl_primary">
+        <span class="btn-main-text">
+          <span>Solicitar 1 de las 5 plazas (0 €)</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+        <span class="btn-sub-text">
+          <span class="desktop-lead">Videollamada de 25 minutos con ingenieros de IA · Sin compromiso de contratación →</span>
+          <span class="mobile-lead">Videollamada de 25 min · Sin compromiso</span>
+        </span>
+      </a>
+    </div>
+
+    <!-- SECCIÓN FILTRO DE ADMISIÓN (ESPACIADA, CON CURSIVA EDITORIAL Y MÁS AZUL PEBAI) -->
+    <section class="filter-section" id="criterios">
+      <div class="filter-header">
+        <div class="vsl-kicker">FILTRO DE ADMISIÓN</div>
+        <h2 class="filter-title">
+          Por qué no aceptamos a todas las empresas <span class="hero-italic" style="white-space: nowrap;">que nos contactan.</span>
+        </h2>
+        <p class="filter-lead">
+          <span class="desktop-lead">No hacemos videollamadas masivas ni llamadas comerciales genéricas. Para sentarnos con el director general y diseñar una hoja de ruta con impacto real en vuestra operativa, limitamos el acceso a solo 5 empresas al mes.</span>
+          <span class="mobile-lead">Para auditar tu operativa y diseñar una hoja de ruta técnica con impacto real, reservamos solo 5 plazas al mes.</span>
+        </p>
+      </div>
+
+      <div class="filter-container">
+        
+        <!-- TARJETA UNIFICADA DE ADMISIÓN -->
+        <div class="filter-box-unified">
+          <div class="box-top-row">
+            <div class="box-status-icon" style="background: rgba(106, 92, 255, 0.2); color: var(--blue-bright); border: 1px solid rgba(106, 92, 255, 0.35);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="box-headline">Requisitos para optar a <span class="hero-italic" style="font-size:1.15em;">1 de las 5 plazas</span> (0 €)</div>
+              <div class="box-sublabel" style="color: var(--blue-bright);">Perfil de empresa admitido</div>
+            </div>
+          </div>
+
+          <ul class="criteria-stack">
+            <li class="criteria-row">
+              <span class="criteria-dot" style="background: rgba(106, 92, 255, 0.22); color: var(--lime); border: 1px solid rgba(106, 92, 255, 0.4);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div>
+                <strong>Empresas con equipo en marcha (a partir de 3-5 empleados):</strong> Negocios donde las horas de trabajo del personal suponen un coste operativo directo.
+              </div>
+            </li>
+
+            <li class="criteria-row">
+              <span class="criteria-dot" style="background: rgba(106, 92, 255, 0.22); color: var(--lime); border: 1px solid rgba(106, 92, 255, 0.4);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div>
+                <strong>Equipos saturados por trabajo manual repetitivo:</strong> Empleados que pierden horas volcando Excel, respondiendo emails o copiando datos.
+              </div>
+            </li>
+
+            <li class="criteria-row">
+              <span class="criteria-dot" style="background: rgba(106, 92, 255, 0.22); color: var(--lime); border: 1px solid rgba(106, 92, 255, 0.4);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div>
+                <strong>Negocios con flujo continuo de clientes y presupuestos:</strong> Empresas que atienden peticiones a diario y necesitan responder rápido para no perder ventas.
+              </div>
+            </li>
+
+            <li class="criteria-row">
+              <span class="criteria-dot" style="background: rgba(106, 92, 255, 0.22); color: var(--lime); border: 1px solid rgba(106, 92, 255, 0.4);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div>
+                <strong>Directivos que buscan rentabilidad y/o formación práctica:</strong> Quieren ahorrar horas reales y capacitar a su equipo para aplicar la IA con seguridad.
+              </div>
+            </li>
+
+            <li class="criteria-row">
+              <span class="criteria-dot" style="background: rgba(106, 92, 255, 0.22); color: var(--lime); border: 1px solid rgba(106, 92, 255, 0.4);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div>
+                <strong>Compromiso del responsable de la empresa:</strong> El director general o socio asiste en persona para revisar juntos los procesos y números.
+              </div>
+            </li>
+          </ul>
+
+          <!-- CRITERIOS DE EXCLUSIÓN REALES (A y B) -->
+          <div class="filter-card-exclusion">
+            <div class="exclusion-header">
+              <div class="exclusion-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <span>Perfiles descartados</span>
+              </div>
+              <div class="exclusion-sublabel">
+                <span class="desktop-lead">Motivos de anulación de plaza</span>
+                <span class="mobile-lead">Anulación inmediata</span>
+              </div>
+            </div>
+
+            <div class="exclusion-grid">
+              <div class="exclusion-item">
+                <span class="exclusion-item-dot">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </span>
+                <div>
+                  <strong>Proyectos en fase de idea o sin facturación:</strong> Emprendedores sin empresa en marcha, equipo ni clientes reales.
+                </div>
+              </div>
+
+              <div class="exclusion-item">
+                <span class="exclusion-item-dot">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </span>
+                <div>
+                  <strong>Reuniones delegadas sin poder de decisión:</strong> Si no asiste el gerente o socio que decide, la plaza se anula de inmediato.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- BOTÓN SECUNDARIO AL FINAL DE LOS CRITERIOS -->
+      <div class="filter-footer-cta">
+        <a class="secondary-vsl-btn" href="../diagnostico/?origen=vsl_consultoria_gratuita_filter">
+          <span>Comprobar si mi empresa encaja en 1 de las 5 plazas (0 €)</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER ZERO-LEAK -->
+  <footer class="vsl-footer">
+    <div class="footer-content">
+      <div style="font-weight: 700; color: #FFF; font-size: 13px;">
+        PEBAI SYSTEMS · INGENIERÍA DE PROCESOS E INTELIGENCIA ARTIFICIAL
+      </div>
+      <p>
+        Operativa confidencial conforme al RGPD y AI Act europeo. Sede en Valencia & Madrid, España.
+      </p>
+      <div class="footer-links-line">
+        <button type="button" id="privacy-btn">Privacidad y Protección de Datos</button>
+        <span>·</span>
+        <button type="button" id="legal-btn">Aviso Legal y Confidencialidad</button>
+      </div>
+      <p style="margin-top: 4px; font-size: 10px; color: #3E4254;">
+        © 2026 PEBAI Systems. Todos los derechos reservados.
+      </p>
+    </div>
+  </footer>
+
+  <!-- MODAL DE PRIVACIDAD DISCRETO -->
+  <div class="privacy-modal" id="modal-box" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="privacy-card">
+      <h3 id="modal-title">Compromiso de Privacidad y Confidencialidad Técnica</h3>
+      <p>
+        Toda la información operativa compartida durante la solicitud y en la videollamada técnica de 25 minutos está sujeta a secreto profesional estricto.
+      </p>
+      <p style="margin-top: 8px;">
+        Los datos se emplean únicamente para analizar los procesos de tu empresa y calcular la estimación de ahorro de tiempo. En ningún caso se ceden ni comparten con terceros.
+      </p>
+      <button class="privacy-card-close" id="modal-close" type="button">Entendido</button>
+    </div>
+  </div>
+
+  <!-- SCRIPT DE INTERACCIÓN -->
+  <script>
+    (function() {
+      'use strict';
+
+      // REPRODUCTOR DE VÍDEO A MEDIDA
+      const playerChassis = document.getElementById('player-chassis');
+      const playerScreen = document.getElementById('player-screen');
+      const playerVideo = document.getElementById('player-video');
+      const unmuteLayer = document.getElementById('unmute-layer');
+      const unmuteTrigger = document.getElementById('unmute-trigger');
+      const playbackStatus = document.getElementById('playback-status');
+      const progressFill = document.getElementById('progress-fill');
+      const playPauseBtn = document.getElementById('play-pause-btn');
+      const iconPause = document.getElementById('icon-pause');
+      const iconPlay = document.getElementById('icon-play');
+      const playerFeedback = document.getElementById('player-feedback');
+      const fbPlay = document.getElementById('fb-icon-play');
+      const fbPause = document.getElementById('fb-icon-pause');
+
+      // Módulo de volumen
+      const volumeBtn = document.getElementById('volume-btn');
+      const volIconHigh = document.getElementById('vol-icon-high');
+      const volIconLow = document.getElementById('vol-icon-low');
+      const volIconMute = document.getElementById('vol-icon-mute');
+      const volSlider = document.getElementById('vol-slider');
+      const volFill = document.getElementById('vol-fill');
+
+      // Selector de velocidad directo (1x / 1.5x / 2x)
+      const speedBtn = document.getElementById('speed-btn');
+      const speedLabel = document.getElementById('speed-label');
+
+      // Pantalla completa
+      const fsBtn = document.getElementById('fs-btn');
+      const fsIconExpand = document.getElementById('fs-icon-expand');
+      const fsIconCompress = document.getElementById('fs-icon-compress');
+
+      // Estado del reproductor
+      let isPlaying = true;
+      let currentSec = 0;
+      let totalSec = 169;
+      let playbackSpeed = 1;
+      let currentVolume = 0.8;
+      let isMuted = false;
+      let isUnmutedStarted = false;
+
+      // Curva de retención psicológica: más rápido al inicio, desacelerando suavemente (x^0.76)
+      function calcProgressPct(sec, total) {
+        const x = Math.min(1, Math.max(0, sec / total));
+        return Math.min(100, Math.pow(x, 0.76) * 100);
+      }
+
+      function updateProgressBar() {
+        const dur = (playerVideo && playerVideo.duration) ? playerVideo.duration : totalSec;
+        const pct = calcProgressPct(currentSec, dur);
+        if (progressFill) {
+          progressFill.style.width = pct.toFixed(2) + '%';
+        }
+      }
+
+      // Animación de feedback central al pausar / reanudar
+      let feedbackTimer = null;
+      function showFeedback(type) {
+        if (!playerFeedback) return;
+        if (type === 'play') {
+          if (fbPlay) fbPlay.style.display = 'block';
+          if (fbPause) fbPause.style.display = 'none';
+        } else {
+          if (fbPlay) fbPlay.style.display = 'none';
+          if (fbPause) fbPause.style.display = 'block';
+        }
+        playerFeedback.classList.add('show');
+        clearTimeout(feedbackTimer);
+        feedbackTimer = setTimeout(function() {
+          playerFeedback.classList.remove('show');
+        }, 550);
+      }
+
+      function setPlayingState(playing, triggerFeedback) {
+        isPlaying = playing;
+        if (playerVideo) {
+          if (isPlaying) {
+            playerVideo.play().catch(function(){});
+          } else {
+            playerVideo.pause();
+          }
+        }
+        if (isPlaying) {
+          if (iconPause) iconPause.style.display = 'block';
+          if (iconPlay) iconPlay.style.display = 'none';
+          if (playbackStatus) {
+            playbackStatus.textContent = 'EN REPRODUCCIÓN';
+            playbackStatus.style.color = 'var(--blue-bright)';
+          }
+          if (triggerFeedback) showFeedback('play');
+        } else {
+          if (iconPause) iconPause.style.display = 'none';
+          if (iconPlay) iconPlay.style.display = 'block';
+          if (playbackStatus) {
+            playbackStatus.textContent = 'PAUSADO';
+            playbackStatus.style.color = 'var(--muted)';
+          }
+          if (triggerFeedback) showFeedback('pause');
+        }
+      }
+
+      function togglePlayPause() {
+        setPlayingState(!isPlaying, true);
+      }
+
+      if (playPauseBtn) {
+        playPauseBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          togglePlayPause();
+        });
+      }
+
+      if (playerScreen) {
+        playerScreen.addEventListener('click', function(e) {
+          if (e.target.closest('#unmute-layer') || e.target.closest('.player-control-chassis')) return;
+          togglePlayPause();
+        });
+      }
+
+      // Unmute overlay
+      function handleUnmute() {
+        isUnmutedStarted = true;
+        if (unmuteLayer) unmuteLayer.classList.add('unmuted');
+        if (playerVideo) {
+          playerVideo.currentTime = 0;
+          playerVideo.muted = false;
+          playerVideo.volume = 0.85;
+          playerVideo.play().catch(function(){});
+        }
+        setPlayingState(true, false);
+        setVolume(0.85);
+      }
+
+      if (unmuteLayer) unmuteLayer.addEventListener('click', handleUnmute);
+      if (unmuteTrigger) {
+        unmuteTrigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          handleUnmute();
+        });
+      }
+
+      // Inicialización nativa del vídeo
+      if (playerVideo) {
+        playerVideo.play().catch(function(){});
+        playerVideo.addEventListener('ended', function() {
+          setPlayingState(false, true);
+        });
+        playerVideo.addEventListener('play', function() {
+          isPlaying = true;
+          if (iconPause) iconPause.style.display = 'block';
+          if (iconPlay) iconPlay.style.display = 'none';
+        });
+        playerVideo.addEventListener('pause', function() {
+          isPlaying = false;
+          if (iconPause) iconPause.style.display = 'none';
+          if (iconPlay) iconPlay.style.display = 'block';
+        });
+      }
+
+      // CONTROL DE VOLUMEN MODERNO
+      function updateVolumeUI(vol) {
+        const v = Math.max(0, Math.min(1, vol));
+        if (volFill) volFill.style.width = (v * 100) + '%';
+        if (volSlider) volSlider.value = v;
+
+        if (v === 0 || isMuted) {
+          if (volIconHigh) volIconHigh.style.display = 'none';
+          if (volIconLow) volIconLow.style.display = 'none';
+          if (volIconMute) volIconMute.style.display = 'block';
+        } else if (v < 0.5) {
+          if (volIconHigh) volIconHigh.style.display = 'none';
+          if (volIconLow) volIconLow.style.display = 'block';
+          if (volIconMute) volIconMute.style.display = 'none';
+        } else {
+          if (volIconHigh) volIconHigh.style.display = 'block';
+          if (volIconLow) volIconLow.style.display = 'none';
+          if (volIconMute) volIconMute.style.display = 'none';
+        }
+      }
+
+      function setVolume(v) {
+        currentVolume = v;
+        isMuted = (v === 0);
+        if (playerVideo) {
+          playerVideo.muted = isMuted;
+          playerVideo.volume = v;
+        }
+        updateVolumeUI(v);
+      }
+
+      if (volumeBtn) {
+        volumeBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (isMuted || currentVolume === 0) {
+            isMuted = false;
+            setVolume(0.8);
+          } else {
+            isMuted = true;
+            if (playerVideo) playerVideo.muted = true;
+            updateVolumeUI(0);
+          }
+        });
+      }
+
+      if (volSlider) {
+        volSlider.addEventListener('input', function(e) {
+          e.stopPropagation();
+          const val = parseFloat(e.target.value);
+          setVolume(val);
+        });
+      }
+
+      // SELECTOR DE VELOCIDAD DIRECTO (1x, 1.5x, 2x con clic directo)
+      const speedList = [1, 1.5, 2];
+      function applySpeed(speed) {
+        playbackSpeed = speed;
+        if (playerVideo) {
+          try { playerVideo.preservesPitch = true; } catch(e){}
+          playerVideo.defaultPlaybackRate = speed;
+          playerVideo.playbackRate = speed;
+        }
+        if (speedLabel) speedLabel.textContent = speed + 'x';
+        if (speedBtn) {
+          if (speed > 1) {
+            speedBtn.classList.add('active-speed');
+          } else {
+            speedBtn.classList.remove('active-speed');
+          }
+        }
+      }
+
+      if (speedBtn) {
+        speedBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // Ciclar directamente entre 1x -> 1.5x -> 2x -> 1x
+          const currentIdx = speedList.indexOf(playbackSpeed);
+          const nextIdx = (currentIdx + 1) % speedList.length;
+          applySpeed(speedList[nextIdx]);
+        });
+      }
+
+      // PANTALLA COMPLETA (AMPLIAR / DESAMPLIAR)
+      function updateFullscreenUI() {
+        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        if (isFs) {
+          if (fsIconExpand) fsIconExpand.style.display = 'none';
+          if (fsIconCompress) fsIconCompress.style.display = 'block';
+        } else {
+          if (fsIconExpand) fsIconExpand.style.display = 'block';
+          if (fsIconCompress) fsIconCompress.style.display = 'none';
+        }
+      }
+
+      function toggleFullscreen() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          if (playerChassis.requestFullscreen) {
+            playerChassis.requestFullscreen().catch(function(){});
+          } else if (playerChassis.webkitRequestFullscreen) {
+            playerChassis.webkitRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(function(){});
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+      }
+
+      if (fsBtn) {
+        fsBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleFullscreen();
+        });
+      }
+
+      document.addEventListener('fullscreenchange', updateFullscreenUI);
+      document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+
+      // Loop de tiempo con curva de retención psicológica (cada 200ms para suavidad)
+      const tickIntervalMs = 200;
+      setInterval(function() {
+        if (playerVideo && !playerVideo.paused) {
+          currentSec = playerVideo.currentTime;
+          totalSec = playerVideo.duration || 270;
+          updateProgressBar();
+        } else if (!playerVideo && isPlaying) {
+          currentSec += (tickIntervalMs / 1000) * playbackSpeed;
+          if (currentSec > totalSec) currentSec = 0; // Reinicio en bucle continuo
+          updateProgressBar();
+        }
+      }, tickIntervalMs);
+
+      // Modal legal
+      const modal = document.getElementById('modal-box');
+      const pBtn = document.getElementById('privacy-btn');
+      const lBtn = document.getElementById('legal-btn');
+      const cBtn = document.getElementById('modal-close');
+
+      function openM() { if (modal) modal.classList.add('open'); }
+      function closeM() { if (modal) modal.classList.remove('open'); }
+
+      if (pBtn) pBtn.addEventListener('click', openM);
+      if (lBtn) lBtn.addEventListener('click', openM);
+      if (cBtn) cBtn.addEventListener('click', closeM);
+      if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) closeM(); });
+      window.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeM(); });
+
+      // Header Scroll Listener (fijo permanente con efecto visual al hacer scroll)
+      const vslHeader = document.querySelector('.vsl-header');
+      function onScrollHeader() {
+        const sy = window.scrollY || window.pageYOffset || (document.documentElement && document.documentElement.scrollTop) || 0;
+        if (vslHeader) {
+          if (sy > 10) {
+            vslHeader.classList.add('scrolled');
+          } else {
+            vslHeader.classList.remove('scrolled');
+          }
+        }
+      }
+      window.addEventListener('scroll', onScrollHeader, { passive: true });
+      document.addEventListener('scroll', onScrollHeader, { passive: true });
+      window.addEventListener('touchmove', onScrollHeader, { passive: true });
+      onScrollHeader();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,2088 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="theme-color" content="#070911">
+  <title>¡Tu llamada está confirmada! | PEBAI Systems</title>
+  <meta name="description" content="Tu sesión de diagnóstico de procesos e IA está confirmada. Añade el evento a tu calendario y mira las instrucciones en 60 segundos.">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="https://pebaisystems.es/confirmacion-de-llamada/">
+
+  <!-- OpenGraph -->
+  <meta property="og:site_name" content="PEBAI Systems">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="¡Tu llamada está confirmada! | PEBAI Systems">
+  <meta property="og:description" content="Tu sesión técnica de 25 minutos está agendada. Guarda el evento en tu calendario.">
+  <meta property="og:url" content="https://pebaisystems.es/confirmacion-de-llamada/">
+  <meta property="og:image" content="https://pebaisystems.es/brand/pebai-og-diagnostico.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Favicon Oficial PEBAI -->
+  <link rel="icon" type="image/png" href="../brand/pebai-logo-exact.png">
+  <link rel="apple-touch-icon" href="../brand/pebai-logo-exact.png">
+  
+  <!-- Tipografía Editorial Oficial: Instrument Serif + Manrope -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+  <!-- Microsoft Clarity Oficial PEBAI -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "yjwe6ir50h");
+  </script>
+
+  <style>
+    @font-face {
+      font-family: 'Manrope';
+      src: url('../brand/Manrope-latin-variable.woff2') format('woff2');
+      font-style: normal;
+      font-weight: 200 800;
+      font-display: swap;
+    }
+
+    :root {
+      color-scheme: dark;
+      --bg: #070911;
+      --bg-chassis: #0B0E19;
+      --surface: #0E1222;
+      --surface-card: rgba(14, 18, 34, 0.78);
+      --surface-elevated: rgba(20, 26, 48, 0.9);
+      
+      /* Azul Cobalto PEBAI */
+      --blue: #6A5CFF;
+      --blue-bright: #7E73FF;
+      --blue-deep: #5142EC;
+      --blue-glow: rgba(106, 92, 255, 0.32);
+
+      /* Lima Eléctrico PEBAI */
+      --lime: #B7FF3C;
+      --lime-glow: rgba(183, 255, 60, 0.25);
+
+      --border: rgba(106, 92, 255, 0.18);
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-blue: rgba(106, 92, 255, 0.38);
+
+      --fg: #ECEBF0;
+      --fg-title: #FFFFFF;
+      --muted: #9498AC;
+      --dim: #5A5E73;
+
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      width: 100%;
+      min-height: 100%;
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    body {
+      width: 100%;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: clip;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Atmósfera PEBAI refinada */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(106, 92, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(106, 92, 255, 0.025) 1px, transparent 1px);
+      background-size: 44px 44px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-top {
+      position: absolute;
+      top: -140px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1000px;
+      max-width: 96vw;
+      height: 520px;
+      background: radial-gradient(ellipse at 50% 30%, rgba(106, 92, 255, 0.22) 0%, rgba(81, 66, 236, 0.08) 50%, transparent 75%);
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(80px);
+    }
+
+    /* HEADER STICKY OFICIAL PEBAI */
+    .vsl-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+      padding: 14px 24px;
+      border-bottom: 1px solid rgba(106, 92, 255, 0.14);
+      background: rgba(7, 9, 17, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-wrap {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 4px 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .brand-wrap:hover {
+      opacity: 0.92;
+      transform: scale(1.01);
+    }
+
+    .brand-logo-img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+    }
+
+    .header-step-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(183, 255, 60, 0.08);
+      border: 1px solid rgba(183, 255, 60, 0.28);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--lime);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .step-dot-pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 8px var(--lime);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    @media (max-width: 640px) {
+      .vsl-header { padding: 10px 16px; }
+      .brand-logo-img { height: 32px; }
+      .header-step-pill { font-size: 10px; padding: 4px 10px; }
+    }
+
+    /* CONTENEDOR PRINCIPAL: AMPLIO EN ESCRITORIO, SIN SCROLL INICIAL */
+    .confirm-main {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 34px 22px 64px;
+    }
+
+    @media (max-width: 768px) {
+      .confirm-main { padding: 20px 14px 44px; }
+    }
+
+    /* RETÍCULA A 2 COLUMNAS EN PANTALLAS DE ORDENADOR (ABOVE-THE-FOLD) */
+    .above-fold-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+      align-items: stretch;
+    }
+
+    @media (min-width: 960px) {
+      .above-fold-grid {
+        grid-template-columns: 1fr 1.15fr;
+        gap: 40px;
+        align-items: stretch;
+      }
+    }
+
+    .grid-col-left,
+    .grid-col-right {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    @media (max-width: 959px) {
+      .above-fold-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+      .grid-col-right {
+        order: 1;
+      }
+      .grid-col-left {
+        order: 2;
+      }
+      .appt-summary-box {
+        padding: 18px 16px;
+      }
+      .appt-meta-card {
+        padding: 10px 12px;
+        gap: 12px;
+      }
+      .meta-icon-bubble {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+      }
+      .meta-icon-bubble svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    /* COLUMNA IZQUIERDA: TARJETA DE CITA & CALENDARIO */
+    /* TITULAR MAESTRO CENTRADO (UNIFICADO ARRIBA) */
+    .confirm-hero-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .confirm-title {
+      font-size: clamp(28px, 3.4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      color: var(--fg-title);
+      margin: 0 0 8px 0;
+      text-align: center;
+    }
+
+    .confirm-subtitle {
+      font-size: clamp(14px, 1.4vw, 16px);
+      color: var(--muted);
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .hero-italic {
+      display: inline;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.18em;
+      letter-spacing: normal;
+      background: linear-gradient(135deg, #FFFFFF 20%, #B7FF3C 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      padding-left: 2px;
+    }
+
+    /* Caja resumen minimalista: Boarding Pass Ejecutivo */
+    .appt-summary-box {
+      background: linear-gradient(180deg, rgba(16, 21, 42, 0.92) 0%, rgba(10, 13, 26, 0.96) 100%);
+      border: 1px solid rgba(106, 92, 255, 0.36);
+      border-radius: 20px;
+      padding: 24px 24px;
+      box-shadow: 
+        0 20px 50px -10px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 0 35px rgba(106, 92, 255, 0.16);
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .appt-summary-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(183, 255, 60, 0.4), transparent);
+    }
+
+    .appt-meta-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      margin-bottom: 18px;
+    }
+
+    .appt-meta-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(14, 18, 34, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+
+    .meta-icon-bubble {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(106, 92, 255, 0.16);
+      border: 1px solid rgba(106, 92, 255, 0.35);
+      color: var(--blue-bright);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .meta-icon-bubble svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .meta-texts {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .meta-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .meta-val {
+      font-size: clamp(13px, 3.6vw, 15px);
+      font-weight: 700;
+      color: #FFFFFF;
+      line-height: 1.3;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .meta-val.lime-val {
+      color: var(--lime);
+      font-size: clamp(13.5px, 3.8vw, 16px);
+      text-shadow: 0 0 14px rgba(183, 255, 60, 0.3);
+    }
+
+    /* Botones 1-Click de Calendario */
+    .cal-section-label {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .calendar-buttons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 520px) {
+      .calendar-buttons-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cal-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 48px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.15s var(--ease-spring), background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .cal-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .cal-btn:active {
+      transform: scale(0.975);
+    }
+
+    .cal-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* Google Calendar como CTA de acción primordial */
+    .cal-btn-google {
+      background: linear-gradient(135deg, #6A5CFF 0%, #4F3FEC 100%);
+      border: 1px solid rgba(183, 255, 60, 0.35);
+      color: #FFFFFF;
+      box-shadow: 
+        0 8px 24px rgba(106, 92, 255, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .cal-btn-google:hover {
+      background: linear-gradient(135deg, #7A6DFF 0%, #5847F0 100%);
+      box-shadow: 
+        0 10px 28px rgba(106, 92, 255, 0.55),
+        0 0 20px rgba(183, 255, 60, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+
+    .cal-btn-outlook {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #ECEBF0;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .cal-btn-outlook:hover {
+      background: rgba(0, 120, 212, 0.2);
+      border-color: rgba(0, 120, 212, 0.45);
+      color: #FFFFFF;
+    }
+
+    /* Micro-nota de una línea */
+    .appt-micro-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      margin-top: auto;
+      padding-top: 14px;
+    }
+
+    .appt-micro-note svg {
+      width: 14px;
+      height: 14px;
+      color: var(--blue-bright);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* COLUMNA DERECHA: EL VÍDEO DE COMPROMISO */
+    .grid-col-right {
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .video-header-box {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .video-heading {
+      font-size: clamp(16px, 1.8vw, 20px);
+      font-weight: 700;
+      color: var(--fg-title);
+      letter-spacing: -0.015em;
+      text-align: center;
+    }
+
+    .vsl-player-chassis {
+      position: relative;
+      background: var(--bg-chassis);
+      border: 1px solid rgba(106, 92, 255, 0.28);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 
+        0 24px 70px -10px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(255, 255, 255, 0.04),
+        0 0 45px rgba(106, 92, 255, 0.18);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .vsl-player-chassis:hover {
+      border-color: rgba(106, 92, 255, 0.45);
+      box-shadow: 
+        0 28px 80px -10px rgba(0, 0, 0, 0.95),
+        0 0 55px rgba(106, 92, 255, 0.24);
+    }
+
+    /* macOS Traffic Lights Topbar - LIMPIO SIN TEXTO */
+    .player-topbar {
+      height: 36px;
+      background: rgba(11, 14, 25, 0.96);
+      border-bottom: 1px solid rgba(106, 92, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .apple-traffic-lights {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .apple-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .apple-dot-close { background: #FF5F56; border: 1px solid #E0443E; }
+    .apple-dot-min   { background: #FFBD2E; border: 1px solid #DEA123; }
+    .apple-dot-max   { background: #27C93F; border: 1px solid #1AAB29; }
+
+    .topbar-right {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--blue-bright);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .player-viewport {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 */
+      background: #04060C;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .player-video-element {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #04060C;
+      z-index: 5;
+      transition: filter 0.4s var(--ease-spring), transform 0.4s var(--ease-spring);
+    }
+
+    .player-video-element.is-preview {
+      filter: blur(4px) brightness(0.8);
+      transform: scale(1.03);
+    }
+
+    /* Maqueta Técnica Miro Board (Fallback elegante) */
+    .miro-stage {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at 50% 25%, #13172E 0%, #050711 82%);
+      user-select: none;
+      z-index: 4;
+    }
+
+    .miro-bar {
+      height: 32px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(14, 18, 34, 0.75);
+      border-bottom: 1px solid rgba(106, 92, 255, 0.1);
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .miro-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      color: #FFF;
+    }
+
+    .miro-grid-canvas {
+      flex: 1;
+      padding: clamp(10px, 1.8vw, 20px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(8px, 1.4vw, 14px);
+      align-items: stretch;
+      background-image: radial-gradient(rgba(106, 92, 255, 0.12) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+
+    .miro-col {
+      border-radius: 12px;
+      padding: clamp(8px, 1.3vw, 14px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      backdrop-filter: blur(8px);
+    }
+
+    .miro-col-a {
+      background: rgba(14, 28, 36, 0.75);
+      border: 1px solid rgba(106, 92, 255, 0.35);
+    }
+
+    .miro-col-b {
+      background: rgba(30, 20, 16, 0.65);
+      border: 1px solid rgba(183, 255, 60, 0.3);
+    }
+
+    .miro-col-title {
+      font-size: clamp(8.5px, 1vw, 10.5px);
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .miro-col-a .miro-col-title { color: var(--blue-bright); }
+    .miro-col-b .miro-col-title { color: var(--lime); }
+
+    .miro-item {
+      background: rgba(7, 9, 16, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: clamp(5px, 1vw, 8px);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .miro-item-head {
+      font-size: clamp(8px, 0.95vw, 10px);
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .miro-item-tag {
+      font-size: 7.5px;
+      font-weight: 800;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    .tag-blue { background: rgba(106, 92, 255, 0.25); color: var(--blue-bright); }
+    .tag-lime { background: rgba(183, 255, 60, 0.2); color: var(--lime); }
+
+    .miro-item-desc {
+      font-size: clamp(7px, 0.8vw, 8.5px);
+      color: var(--muted);
+      line-height: 1.25;
+    }
+
+    /* Picture in Picture */
+    .pip-founder {
+      position: absolute;
+      bottom: clamp(10px, 2vw, 18px);
+      right: clamp(10px, 2vw, 18px);
+      width: clamp(64px, 9.5vw, 90px);
+      height: clamp(64px, 9.5vw, 90px);
+      border-radius: 50%;
+      border: 2px solid var(--blue-bright);
+      box-shadow: 0 0 20px var(--blue-glow);
+      overflow: hidden;
+      background: #0F1222;
+      z-index: 20;
+    }
+
+    .pip-founder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 15%;
+      display: block;
+    }
+
+    .pip-badge {
+      position: absolute;
+      bottom: clamp(8px, 1.7vw, 14px);
+      right: clamp(10px, 2vw, 18px);
+      transform: translateY(50%);
+      background: rgba(7, 9, 17, 0.95);
+      border: 1px solid rgba(106, 92, 255, 0.35);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      z-index: 25;
+      white-space: nowrap;
+    }
+
+    .sound-bars {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      height: 8px;
+    }
+
+    .sound-bars span {
+      width: 1.5px;
+      background: var(--lime);
+      border-radius: 1px;
+      animation: soundAnim 0.7s infinite alternate;
+    }
+    .sound-bars span:nth-child(2) { animation-delay: 0.2s; height: 6px; }
+    .sound-bars span:nth-child(3) { animation-delay: 0.4s; height: 8px; }
+    .sound-bars span:nth-child(1) { height: 4px; }
+
+    @keyframes soundAnim {
+      0% { height: 2px; }
+      100% { height: 8px; }
+    }
+
+    /* Botón central de Unmute / Play */
+    .unmute-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(6, 8, 16, 0.4);
+      backdrop-filter: blur(2px);
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+
+    .unmute-overlay.unmuted {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .unmute-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 24px;
+      border-radius: 999px;
+      background: rgba(12, 16, 32, 0.95);
+      border: 1.5px solid var(--lime);
+      box-shadow: 
+        0 0 28px var(--lime-glow),
+        0 10px 30px rgba(0, 0, 0, 0.85);
+      color: #FFF;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .unmute-pill-btn:hover { transform: translateY(-2px); }
+    .unmute-pill-btn:active { transform: scale(0.97); }
+
+    .unmute-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--lime);
+      color: #070911;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .unmute-icon svg { width: 14px; height: 14px; fill: currentColor; }
+
+    /* Barra inferior con controles accesibles (>= 38px) */
+    .player-bottombar {
+      height: 42px;
+      background: rgba(9, 12, 22, 0.97);
+      border-top: 1px solid rgba(106, 92, 255, 0.14);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      position: relative;
+      z-index: 20;
+    }
+
+    .player-mini-btn {
+      background: none;
+      border: none;
+      color: #FFF;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 38px;
+      min-height: 38px;
+      border-radius: 8px;
+      padding: 0;
+      flex-shrink: 0;
+      transition: background 0.15s ease, color 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .player-mini-btn:hover {
+      background: rgba(106, 92, 255, 0.2);
+    }
+
+    .player-mini-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .progress-bar-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+      padding: 6px 0;
+      background-clip: content-box;
+    }
+
+    .progress-bar-fill {
+      position: absolute;
+      top: 6px;
+      left: 0;
+      bottom: 6px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--blue-deep), var(--blue-bright));
+      border-radius: 999px;
+      transition: width 0.08s linear;
+      pointer-events: none;
+    }
+
+    .progress-scrubber {
+      position: absolute;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%) scale(0);
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 8px var(--lime);
+      transition: transform 0.15s var(--ease-spring);
+      pointer-events: none;
+    }
+
+    .progress-bar-track:hover .progress-scrubber,
+    .progress-bar-track.dragging .progress-scrubber {
+      transform: translateY(-50%) scale(1.2);
+    }
+
+    .player-controls-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .volume-control-wrap {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .vol-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 38px;
+      min-height: 38px;
+      border-radius: 8px;
+      padding: 0;
+      touch-action: manipulation;
+    }
+
+    .vol-toggle-btn:hover {
+      color: #FFF;
+      background: rgba(106, 92, 255, 0.2);
+    }
+
+    .vol-slider-wrap {
+      width: 0;
+      opacity: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      transition: width 0.25s var(--ease-spring), opacity 0.2s ease, margin-left 0.2s;
+    }
+
+    .volume-control-wrap:hover .vol-slider-wrap,
+    .volume-control-wrap:focus-within .vol-slider-wrap,
+    .volume-control-wrap.touch-open .vol-slider-wrap {
+      width: 50px;
+      opacity: 1;
+      margin-left: 4px;
+    }
+
+    .vol-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.2);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .vol-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--lime);
+      cursor: pointer;
+    }
+
+    .speed-btn {
+      background: rgba(106, 92, 255, 0.18);
+      border: 1px solid rgba(106, 92, 255, 0.35);
+      color: #FFF;
+      border-radius: 6px;
+      min-width: 38px;
+      min-height: 32px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+
+    .speed-btn:hover {
+      background: rgba(106, 92, 255, 0.32);
+      border-color: var(--blue-bright);
+    }
+
+    .fullscreen-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 38px;
+      min-height: 38px;
+      border-radius: 8px;
+      padding: 0;
+      touch-action: manipulation;
+    }
+
+    .fullscreen-btn:hover {
+      color: #FFF;
+      background: rgba(106, 92, 255, 0.2);
+    }
+
+    /* PANTALLA COMPLETA */
+    :fullscreen .vsl-player-chassis,
+    .vsl-player-chassis:fullscreen,
+    .vsl-player-chassis:-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      border-radius: 0 !important;
+      border: none !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      background: #04060C !important;
+    }
+
+    :fullscreen .player-viewport,
+    .vsl-player-chassis:fullscreen .player-viewport,
+    .vsl-player-chassis:-webkit-full-screen .player-viewport {
+      flex: 1 !important;
+      height: 100% !important;
+      padding-top: 0 !important;
+    }
+
+    /* ========================================================
+       BLOQUE 3: LAS 3 DUDAS CLAVE (RESPUESTAS DE 1 SOLA LÍNEA)
+       Separadas con holgura para priorizar lo que realmente importa
+       ======================================================== */
+    .block-faqs {
+      max-width: 860px;
+      margin: 100px auto 44px;
+    }
+
+    @media (max-width: 768px) {
+      .block-faqs {
+        margin: 64px auto 36px;
+      }
+    }
+
+    .faqs-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .faqs-heading {
+      font-size: clamp(17px, 2.2vw, 22px);
+      font-weight: 700;
+      color: var(--fg-title);
+      letter-spacing: -0.015em;
+    }
+
+    .faqs-clean-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .clean-faq-item {
+      background: var(--surface-card);
+      border: 1px solid rgba(106, 92, 255, 0.2);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .clean-faq-item:hover {
+      border-color: rgba(106, 92, 255, 0.4);
+      background: rgba(16, 21, 40, 0.85);
+    }
+
+    .clean-faq-item.active {
+      border-color: var(--blue-bright);
+      background: rgba(15, 20, 38, 0.94);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(106, 92, 255, 0.15);
+    }
+
+    .clean-faq-btn {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      min-height: 52px;
+      touch-action: manipulation;
+    }
+
+    .clean-faq-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .clean-faq-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: rgba(106, 92, 255, 0.14);
+      border: 1px solid rgba(106, 92, 255, 0.28);
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--blue-bright);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .clean-faq-item.active .clean-faq-num {
+      background: rgba(183, 255, 60, 0.15);
+      border-color: rgba(183, 255, 60, 0.35);
+      color: var(--lime);
+    }
+
+    .clean-faq-question {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.01em;
+      line-height: 1.35;
+    }
+
+    .clean-faq-chevron {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--muted);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition: transform 0.25s var(--ease-spring), color 0.2s, background 0.2s;
+    }
+
+    .clean-faq-item.active .clean-faq-chevron {
+      transform: rotate(180deg);
+      color: var(--lime);
+      background: rgba(183, 255, 60, 0.12);
+    }
+
+    .clean-faq-chevron svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2.5;
+    }
+
+    .clean-faq-answer {
+      display: none;
+      padding: 0 22px 18px 48px;
+      font-size: 14px;
+      color: #ECEBF0;
+      line-height: 1.55;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 14px;
+      position: relative;
+    }
+
+    .clean-faq-answer::before {
+      content: '';
+      position: absolute;
+      left: 28px;
+      top: 14px;
+      bottom: 18px;
+      width: 2px;
+      background: var(--lime);
+      border-radius: 999px;
+    }
+
+    .clean-faq-item.active .clean-faq-answer {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========================================================
+       PIE: ASISTENCIA RÁPIDA POR WHATSAPP (UNA SOLA BARRA DISCRETA)
+       ======================================================== */
+    .whatsapp-quick-bar {
+      max-width: 860px;
+      margin: 0 auto;
+      background: rgba(15, 21, 38, 0.72);
+      border: 1px solid rgba(37, 211, 102, 0.25);
+      border-radius: 14px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      flex-wrap: wrap;
+      font-size: 13.5px;
+      color: var(--muted);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .wa-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #25D366;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: opacity 0.15s, transform 0.15s;
+      min-height: 38px;
+      padding: 4px 6px;
+      touch-action: manipulation;
+    }
+
+    .wa-link:hover {
+      opacity: 0.9;
+      transform: translateX(2px);
+    }
+
+    .wa-link svg {
+      width: 17px;
+      height: 17px;
+      fill: currentColor;
+    }
+
+    /* FOOTER ZERO-LEAK */
+    .vsl-footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--border-subtle);
+      padding: 30px 18px 42px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--dim);
+    }
+
+    .footer-content {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .footer-links-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-links-line a {
+      color: var(--muted);
+      text-decoration: underline;
+      font-size: 11px;
+      padding: 4px;
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .footer-links-line a:hover { color: #FFF; }
+  </style>
+</head>
+<body>
+
+  <!-- Atmósfera oficial PEBAI -->
+  <div class="bg-grid"></div>
+  <div class="ambient-glow-top"></div>
+
+  <!-- HEADER OFICIAL STICKY -->
+  <header class="vsl-header">
+    <div class="header-inner">
+      <a class="brand-wrap" href="https://pebaisystems.es" target="_blank" rel="noopener" aria-label="PEBAI Systems">
+        <img class="brand-logo-img" src="../brand/pebai-horizontal-color-mineral-cropped.png" alt="PEBAI Systems" width="140" height="38">
+      </a>
+      <div class="header-step-pill">
+        <span class="step-dot-pulse"></span>
+        <span>Llamada Agendada</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="confirm-main">
+
+    <!-- TITULAR MAESTRO DE LA PÁGINA (HERO HEADLINE UNIFICADO) -->
+    <header class="confirm-hero-header">
+      <h1 class="confirm-title">
+        ¡Tu llamada está <span class="hero-italic">confirmada!</span>
+      </h1>
+      <p class="confirm-subtitle">Guarda la cita en tu calendario y revisa estas instrucciones de 60 segundos antes de entrar.</p>
+    </header>
+
+    <!-- ========================================================
+         ABOVE-THE-FOLD: RETÍCULA 2 COLUMNAS EN ORDENADOR
+         (IZQUIERDA: CITA & CALENDARIO | DERECHA: VÍDEO)
+         ======================================================== -->
+    <div class="above-fold-grid">
+      
+      <!-- COLUMNA IZQUIERDA: TARJETA DE CITA & CALENDARIO -->
+      <section class="grid-col-left" aria-label="Confirmación y Calendario">
+        <div class="appt-summary-box">
+          <div class="appt-meta-list">
+            <!-- Día y Hora dinámicos -->
+            <div class="appt-meta-card">
+              <div class="meta-icon-bubble">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div class="meta-texts">
+                <span class="meta-label">Día y Hora</span>
+                <span class="meta-val lime-val" id="meeting-datetime">Calculando fecha...</span>
+              </div>
+            </div>
+
+            <!-- Formato Google Meet -->
+            <div class="appt-meta-card">
+              <div class="meta-icon-bubble">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+              </div>
+              <div class="meta-texts">
+                <span class="meta-label">Formato</span>
+                <span class="meta-val">Google Meet (Enlace en tu correo)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones 1-Click de Calendario -->
+          <span class="cal-section-label">Añadir a tu calendario:</span>
+          <div class="calendar-buttons-grid">
+            <a class="cal-btn cal-btn-google" id="btn-google-cal" href="#" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Google Calendar</span>
+            </a>
+
+            <!-- Botón con logo oficial de Microsoft Outlook -->
+            <a class="cal-btn cal-btn-outlook" id="btn-outlook-cal" href="#" target="_blank" rel="noopener">
+              <svg viewBox="70 107 343 282" width="18" height="18" aria-hidden="true">
+                <rect width="231" height="270" x="168" y="107" fill="#005da6" rx="14"/>
+                <path fill="#103f91" d="M398 247v23l15-8s0-7-5-9l-10-6zm-230 43v70h77v-70h-77z"/>
+                <path fill="#1675d1" d="M168 150v70h77v-70h-77zm77 70v70h77v-70h-77zm77 70v70h77v-70h-77z"/>
+                <path fill="#2e9ae6" d="M245 150v70h77v-70h-77zm77 70v70h77v-70h-77z"/>
+                <path fill="#50c8ff" d="M322 150h77v70h-77z"/>
+                <path fill="#1675d1" d="M413 261 282 336s121 73 124 71c5-3 7-11 7-18V261Z"/>
+                <path fill="#2e9ae6" d="M160 266c-4 3-6 7-6 12v117c0 8 6 14 14 14h230c4 0 5 0 8-2"/>
+                <rect width="172" height="172" x="70" y="172" fill="#0078d4" rx="14"/>
+                <path fill="#fff" d="M155 230c14 0 22 11 22 29s-9 28-23 28c-11 0-22-10-22-28 0-15 7-29 23-29Zm-1 75c26 0 44-18 44-47 0-25-16-46-43-46-28 0-44 20-44 48 0 27 20 45 43 45Z"/>
+              </svg>
+              <span>Outlook</span>
+            </a>
+          </div>
+
+          <!-- Micro-nota de una línea -->
+          <p class="appt-micro-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span>Revisa tu bandeja de entrada (y la carpeta de spam si no lo ves) para tener el enlace a mano.</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- COLUMNA DERECHA: EL VÍDEO DE COMPROMISO -->
+      <section class="grid-col-right" aria-label="Vídeo de Instrucciones">
+        <div class="vsl-player-chassis" id="player-chassis">
+          <div class="player-topbar">
+            <div class="topbar-left">
+              <div class="apple-traffic-lights" aria-label="Controles de ventana">
+                <span class="apple-dot apple-dot-close" title="Cerrar"></span>
+                <span class="apple-dot apple-dot-min" title="Minimizar"></span>
+                <span class="apple-dot apple-dot-max" title="Maximizar"></span>
+              </div>
+            </div>
+            <div class="topbar-right" id="audio-status">
+              INSTRUCCIONES · 60s
+            </div>
+          </div>
+
+          <div class="player-viewport" id="player-screen" title="Toca para reproducir">
+            <!-- VÍDEO REAL EN ALTA RESOLUCIÓN CON AUDIO -->
+            <video id="player-video" class="player-video-element is-preview" playsinline preload="auto" muted autoplay loop>
+              <source src="../video/stock_prescripcion.mp4" type="video/mp4">
+              Tu navegador no soporta vídeo HTML5.
+            </video>
+
+            <!-- Maqueta visual interactiva Miro PEBAI (Fallback técnico) -->
+            <div class="miro-stage">
+              <div class="miro-bar">
+                <div class="miro-title">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                  <span>Miro Board · Esquema Técnico PEBAI</span>
+                </div>
+                <span style="color:var(--lime);">60 seg · Directo</span>
+              </div>
+
+              <div class="miro-grid-canvas">
+                <div class="miro-col miro-col-a">
+                  <div class="miro-col-title">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>1. Diagnóstico</span>
+                  </div>
+                  <div class="miro-item">
+                    <div class="miro-item-head">
+                      <span>Mapa de Procesos</span>
+                      <span class="miro-item-tag tag-blue">A Medida</span>
+                    </div>
+                    <span class="miro-item-desc">Detección de fugas en ERP y CRM.</span>
+                  </div>
+                  <div class="miro-item">
+                    <div class="miro-item-head">
+                      <span>Calculadora ROI</span>
+                      <span class="miro-item-tag tag-blue">Cifras Reales</span>
+                    </div>
+                    <span class="miro-item-desc">Ahorro exacto de horas y costes.</span>
+                  </div>
+                </div>
+
+                <div class="miro-col miro-col-b">
+                  <div class="miro-col-title">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+                    <span>2. Compromiso</span>
+                  </div>
+                  <div class="miro-item">
+                    <div class="miro-item-head">
+                      <span>Aviso 24h Previas</span>
+                      <span class="miro-item-tag tag-lime">Compromiso</span>
+                    </div>
+                    <span class="miro-item-desc">Aviso si surge un imprevisto.</span>
+                  </div>
+                  <div class="miro-item">
+                    <div class="miro-item-head">
+                      <span>Conexión en PC</span>
+                      <span class="miro-item-tag tag-lime">Pantalla</span>
+                    </div>
+                    <span class="miro-item-desc">Para ver diagramas técnicos.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Picture-in-Picture Fundador -->
+              <div class="pip-founder">
+                <img src="../team/dani-editorial-v2.png" alt="Daniel Peñuela" width="90" height="90" loading="eager" onerror="this.src='../team/adrian-editorial-v2.png'">
+              </div>
+              <div class="pip-badge">
+                <span class="sound-bars"><span></span><span></span><span></span></span>
+                <span>Daniel Peñuela</span>
+              </div>
+            </div>
+
+            <!-- Botón Central Pulsante -->
+            <div class="unmute-overlay" id="unmute-layer">
+              <button class="unmute-pill-btn" id="unmute-trigger" type="button" aria-label="Toca para ver el vídeo">
+                <span class="unmute-icon">
+                  <svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                </span>
+                <span>Toca para ver el vídeo (60 seg)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Barra inferior con controles -->
+          <div class="player-bottombar">
+            <button class="player-mini-btn" id="bottom-play-btn" type="button" aria-label="Reproducir o pausar" title="Reproducir / Pausar">
+              <svg id="play-mini-icon" viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+              <svg id="pause-mini-icon" viewBox="0 0 24 24" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
+
+            <div class="progress-bar-track" id="progress-track" title="Avanzar o retroceder">
+              <div class="progress-bar-fill" id="progress-fill">
+                <span class="progress-scrubber" id="progress-scrubber"></span>
+              </div>
+            </div>
+
+            <div class="player-controls-right">
+              <!-- Volumen con flyout -->
+              <div class="volume-control-wrap" id="volume-wrap">
+                <button class="vol-toggle-btn" id="vol-toggle-btn" type="button" aria-label="Silenciar o activar sonido" title="Volumen">
+                  <svg id="vol-icon-high" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                  <svg id="vol-icon-mute" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                </button>
+                <div class="vol-slider-wrap">
+                  <input type="range" class="vol-range" id="vol-range" min="0" max="1" step="0.05" value="1" aria-label="Nivel de volumen">
+                </div>
+              </div>
+
+              <!-- Velocidad -->
+              <button class="speed-btn" id="speed-btn" type="button" aria-label="Velocidad de reproducción" title="Velocidad">1x</button>
+
+              <!-- Pantalla Completa -->
+              <button class="fullscreen-btn" id="fullscreen-btn" type="button" aria-label="Pantalla completa" title="Ampliar / Desampliar">
+                <svg id="fs-expand-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                <svg id="fs-compress-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" style="display:none;"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ========================================================
+         BLOQUE 3: LAS 3 DUDAS CLAVE (RESPUESTAS DE 1 SOLA LÍNEA)
+         Espaciado holgado para que la vista inicial sea solo la cita y el vídeo
+         ======================================================== -->
+    <section class="block-faqs" aria-label="Dudas Clave">
+      <div class="faqs-header">
+        <h2 class="faqs-heading">Dudas habituales antes de entrar</h2>
+      </div>
+
+      <div class="faqs-clean-list">
+        <!-- Duda 1 (Abierta por defecto) -->
+        <article class="clean-faq-item active" id="clean-faq-1">
+          <button class="clean-faq-btn" type="button" aria-expanded="true">
+            <div class="clean-faq-left">
+              <span class="clean-faq-num">01</span>
+              <span class="clean-faq-question">¿Sirve si mi empresa es tradicional?</span>
+            </div>
+            <span class="clean-faq-chevron">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </button>
+          <div class="clean-faq-answer">
+            100% compatible. No cambiamos tus programas de siempre; creamos una conexión invisible por detrás para que las tareas se hagan solas.
+          </div>
+        </article>
+
+        <!-- Duda 2 -->
+        <article class="clean-faq-item" id="clean-faq-2">
+          <button class="clean-faq-btn" type="button" aria-expanded="false">
+            <div class="clean-faq-left">
+              <span class="clean-faq-num">02</span>
+              <span class="clean-faq-question">¿Cómo y cuándo se recupera la inversión (ROI)?</span>
+            </div>
+            <span class="clean-faq-chevron">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </button>
+          <div class="clean-faq-answer">
+            Amortización media de 3 a 6 meses gracias a las horas recuperadas de tu equipo y al aumento de ventas por responder al instante.
+          </div>
+        </article>
+
+        <!-- Duda 3 -->
+        <article class="clean-faq-item" id="clean-faq-3">
+          <button class="clean-faq-btn" type="button" aria-expanded="false">
+            <div class="clean-faq-left">
+              <span class="clean-faq-num">03</span>
+              <span class="clean-faq-question">¿Los datos y el sistema son de mi empresa?</span>
+            </div>
+            <span class="clean-faq-chevron">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </button>
+          <div class="clean-faq-answer">
+            Propiedad absoluta. Todo se aloja en tus servidores y cuentas corporativas. Cero ataduras técnicas ni cuotas cautivas.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         PIE: ASISTENCIA RÁPIDA POR WHATSAPP (UNA SOLA BARRA DISCRETA)
+         ======================================================== -->
+    <aside class="whatsapp-quick-bar" aria-label="Asistencia Rápida">
+      <span>¿Te ha surgido un imprevisto con la hora?</span>
+      <a class="wa-link" href="https://wa.me/34611082500?text=Hola%20PEBAI,%20tengo%20un%20imprevisto%20con%20la%20hora%20de%20mi%20cita%20agendada" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        <span>Escríbenos por WhatsApp</span>
+      </a>
+    </aside>
+
+  </main>
+
+  <!-- FOOTER MINIMALISTA ZERO-LEAK -->
+  <footer class="vsl-footer">
+    <div class="footer-content">
+      <div>PEBAI SYSTEMS · INGENIERÍA DE PROCESOS E INTELIGENCIA ARTIFICIAL</div>
+      <div class="footer-links-line">
+        <a href="https://pebaisystems.es/privacidad" target="_blank" rel="noopener">Privacidad</a>
+        <span>·</span>
+        <a href="https://pebaisystems.es/aviso-legal" target="_blank" rel="noopener">Aviso Legal</a>
+      </div>
+      <p style="color: #383B4C;">© 2026 PEBAI Systems. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT COMPACTO Y ROBUSTO -->
+  <script>
+    (function() {
+      'use strict';
+
+      // 1. FECHA Y BOTONES DE CALENDARIO
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramDate = urlParams.get('date') || urlParams.get('fecha');
+      const paramTime = urlParams.get('time') || urlParams.get('hora');
+
+      const meetingDatetimeEl = document.getElementById('meeting-datetime');
+      const btnGoogleCal = document.getElementById('btn-google-cal');
+      const btnOutlookCal = document.getElementById('btn-outlook-cal');
+
+      let startDate = new Date();
+      if (paramDate) {
+        if (paramTime) {
+          startDate = new Date(paramDate + 'T' + paramTime + ':00');
+        } else {
+          startDate = new Date(paramDate + 'T11:00:00');
+        }
+      } else {
+        startDate.setDate(startDate.getDate() + (startDate.getDay() === 5 ? 3 : startDate.getDay() === 6 ? 2 : 1));
+        startDate.setHours(11, 0, 0, 0);
+      }
+
+      if (isNaN(startDate.getTime())) {
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() + 1);
+        startDate.setHours(11, 0, 0, 0);
+      }
+
+      const endDate = new Date(startDate.getTime() + 25 * 60 * 1000);
+
+      const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+      const dayName = dayNames[startDate.getDay()];
+      const dayNum = startDate.getDate();
+      const monthName = monthNames[startDate.getMonth()];
+      const timeFormatted = startDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + ' h';
+
+      if (meetingDatetimeEl) {
+        meetingDatetimeEl.textContent = dayName + ' ' + dayNum + ' ' + monthName + ' · ' + timeFormatted;
+      }
+
+      function toGCalISO(d) {
+        return d.toISOString().replace(/-|:|\.\d\d\d/g, '');
+      }
+
+      const eventTitle = 'Sesión de Diagnóstico Técnico de Procesos e IA · PEBAI Systems';
+      const eventDetails = 'Sesión privada de consultoría técnica de Procesos e IA con el equipo de ingeniería de PEBAI Systems.\n\nAcceso a Google Meet: Enlace enviado a tu correo electrónico.\n\nSoporte urgente: https://wa.me/34611082500';
+      const eventLocation = 'Google Meet (Enlace en tu correo electrónico)';
+
+      const gCalDates = toGCalISO(startDate) + '/' + toGCalISO(endDate);
+      if (btnGoogleCal) {
+        btnGoogleCal.href = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+          '&text=' + encodeURIComponent(eventTitle) +
+          '&dates=' + gCalDates +
+          '&details=' + encodeURIComponent(eventDetails) +
+          '&location=' + encodeURIComponent(eventLocation);
+      }
+
+      if (btnOutlookCal) {
+        btnOutlookCal.href = 'https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent' +
+          '&subject=' + encodeURIComponent(eventTitle) +
+          '&startdt=' + encodeURIComponent(startDate.toISOString()) +
+          '&enddt=' + encodeURIComponent(endDate.toISOString()) +
+          '&body=' + encodeURIComponent(eventDetails) +
+          '&location=' + encodeURIComponent(eventLocation);
+      }
+
+      // 2. REPRODUCTOR DE VÍDEO CON VÍDEO REAL Y FALLBACK TÉCNICO
+      const playerChassis = document.getElementById('player-chassis');
+      const playerVideo = document.getElementById('player-video');
+      const unmuteLayer = document.getElementById('unmute-layer');
+      const unmuteTrigger = document.getElementById('unmute-trigger');
+      const audioStatus = document.getElementById('audio-status');
+      const bottomPlayBtn = document.getElementById('bottom-play-btn');
+      const playMiniIcon = document.getElementById('play-mini-icon');
+      const pauseMiniIcon = document.getElementById('pause-mini-icon');
+      const progressTrack = document.getElementById('progress-track');
+      const progressFill = document.getElementById('progress-fill');
+      const volWrap = document.getElementById('volume-wrap');
+      const volToggleBtn = document.getElementById('vol-toggle-btn');
+      const volIconHigh = document.getElementById('vol-icon-high');
+      const volIconMute = document.getElementById('vol-icon-mute');
+      const volRange = document.getElementById('vol-range');
+      const speedBtn = document.getElementById('speed-btn');
+      const fullscreenBtn = document.getElementById('fullscreen-btn');
+      const fsExpandIcon = document.getElementById('fs-expand-icon');
+      const fsCompressIcon = document.getElementById('fs-compress-icon');
+      const soundBars = document.querySelectorAll('.pip-badge .sound-bars span');
+
+      const totalDuration = 60;
+      let currentProgressTime = 0;
+      let isPlaying = false;
+      let animFrameId = null;
+      let lastTimestamp = null;
+      let isDragging = false;
+
+      const availableSpeeds = [1, 1.5, 2];
+      let speedIndex = 0;
+      let currentVolume = 1;
+      let previousVolume = 1;
+      let isMuted = false;
+      let hasRealVideo = false;
+      let isFirstUnmute = true;
+
+      function startMutedTeaser() {
+        if (!playerVideo) return;
+        playerVideo.muted = true;
+        playerVideo.loop = true;
+        const playPromise = playerVideo.play();
+        if (playPromise !== undefined) {
+          playPromise.then(function() {
+            hasRealVideo = true;
+          }).catch(function(err) {
+            console.log('Autoplay muted waiting user interaction:', err);
+          });
+        }
+      }
+
+      if (playerVideo) {
+        playerVideo.addEventListener('loadedmetadata', function() {
+          if (playerVideo.duration && !isNaN(playerVideo.duration)) {
+            hasRealVideo = true;
+          }
+        });
+        playerVideo.addEventListener('canplay', function() {
+          if (isFirstUnmute) {
+            startMutedTeaser();
+          }
+        });
+        playerVideo.addEventListener('timeupdate', function() {
+          if (hasRealVideo && !isDragging) {
+            currentProgressTime = playerVideo.currentTime;
+            const pct = Math.min(100, Math.max(0, (playerVideo.currentTime / playerVideo.duration) * 100));
+            if (progressFill && !isFirstUnmute) progressFill.style.width = pct + '%';
+          }
+        });
+        playerVideo.addEventListener('ended', function() {
+          pauseVideo();
+        });
+        playerVideo.addEventListener('error', function() {
+          hasRealVideo = false;
+          playerVideo.style.display = 'none';
+        });
+
+        startMutedTeaser();
+      }
+
+      function updateProgressUI() {
+        const pct = Math.min(100, Math.max(0, (currentProgressTime / totalDuration) * 100));
+        if (progressFill) progressFill.style.width = pct + '%';
+      }
+
+      function updateSoundBarsState() {
+        soundBars.forEach(function(bar) {
+          if (isPlaying && !isMuted && currentVolume > 0) {
+            bar.style.animationPlayState = 'running';
+            bar.style.opacity = '1';
+          } else {
+            bar.style.animationPlayState = 'paused';
+            bar.style.opacity = '0.35';
+          }
+        });
+      }
+
+      function updatePlayPauseIcons() {
+        if (isPlaying) {
+          if (playMiniIcon) playMiniIcon.style.display = 'none';
+          if (pauseMiniIcon) pauseMiniIcon.style.display = 'block';
+          if (audioStatus) {
+            audioStatus.textContent = 'AUDIO ACTIVADO';
+            audioStatus.style.color = 'var(--lime)';
+          }
+        } else {
+          if (playMiniIcon) playMiniIcon.style.display = 'block';
+          if (pauseMiniIcon) pauseMiniIcon.style.display = 'none';
+          if (audioStatus && unmuteLayer && unmuteLayer.classList.contains('unmuted')) {
+            audioStatus.textContent = 'PAUSADO';
+            audioStatus.style.color = 'var(--muted)';
+          }
+        }
+        updateSoundBarsState();
+      }
+
+      function fallbackLoop(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const delta = (timestamp - lastTimestamp) / 1000;
+        lastTimestamp = timestamp;
+
+        if (isPlaying && !isDragging && !hasRealVideo) {
+          const currentSpeed = availableSpeeds[speedIndex];
+          currentProgressTime += delta * currentSpeed;
+          if (currentProgressTime >= totalDuration) {
+            currentProgressTime = totalDuration;
+            pauseVideo();
+          }
+          updateProgressUI();
+        }
+
+        if (isPlaying && !hasRealVideo) animFrameId = requestAnimationFrame(fallbackLoop);
+      }
+
+      function playVideo() {
+        if (isFirstUnmute) {
+          isFirstUnmute = false;
+          isPlaying = true;
+          if (unmuteLayer) unmuteLayer.classList.add('unmuted');
+          if (playerVideo) {
+            playerVideo.classList.remove('is-preview');
+            playerVideo.muted = false;
+            playerVideo.loop = false;
+            playerVideo.currentTime = 0;
+            currentProgressTime = 0;
+            playerVideo.volume = currentVolume;
+            playerVideo.playbackRate = availableSpeeds[speedIndex];
+            playerVideo.play().catch(function() {
+              hasRealVideo = false;
+              lastTimestamp = performance.now();
+              animFrameId = requestAnimationFrame(fallbackLoop);
+            });
+          }
+          updatePlayPauseIcons();
+          if (typeof clarity === 'function') clarity('event', 'confirmacion_video_played');
+          return;
+        }
+
+        if (isPlaying) return;
+        isPlaying = true;
+        if (unmuteLayer) unmuteLayer.classList.add('unmuted');
+        updatePlayPauseIcons();
+
+        if (playerVideo && hasRealVideo) {
+          playerVideo.muted = false;
+          playerVideo.volume = currentVolume;
+          playerVideo.playbackRate = availableSpeeds[speedIndex];
+          playerVideo.play().catch(function() {
+            hasRealVideo = false;
+            lastTimestamp = performance.now();
+            animFrameId = requestAnimationFrame(fallbackLoop);
+          });
+        } else {
+          lastTimestamp = performance.now();
+          animFrameId = requestAnimationFrame(fallbackLoop);
+        }
+
+        if (typeof clarity === 'function') clarity('event', 'confirmacion_video_played');
+      }
+
+      function pauseVideo() {
+        if (!isPlaying) return;
+        isPlaying = false;
+        if (playerVideo && hasRealVideo) {
+          playerVideo.pause();
+        }
+        if (animFrameId) {
+          cancelAnimationFrame(animFrameId);
+          animFrameId = null;
+        }
+        lastTimestamp = null;
+        updatePlayPauseIcons();
+      }
+
+      function togglePlayPause() {
+        if (isPlaying) pauseVideo();
+        else playVideo();
+      }
+
+      if (unmuteLayer) unmuteLayer.addEventListener('click', playVideo);
+      if (unmuteTrigger) {
+        unmuteTrigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          playVideo();
+        });
+      }
+      if (bottomPlayBtn) {
+        bottomPlayBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          togglePlayPause();
+        });
+      }
+
+      function seekFromEvent(e) {
+        if (!progressTrack) return;
+        const rect = progressTrack.getBoundingClientRect();
+        const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+        let fraction = (clientX - rect.left) / rect.width;
+        fraction = Math.max(0, Math.min(1, fraction));
+
+        if (playerVideo && hasRealVideo && playerVideo.duration) {
+          playerVideo.currentTime = fraction * playerVideo.duration;
+          currentProgressTime = playerVideo.currentTime;
+        } else {
+          currentProgressTime = fraction * totalDuration;
+          updateProgressUI();
+        }
+      }
+
+      if (progressTrack) {
+        progressTrack.addEventListener('pointerdown', function(e) {
+          isDragging = true;
+          progressTrack.classList.add('dragging');
+          if (progressTrack.setPointerCapture) progressTrack.setPointerCapture(e.pointerId);
+          seekFromEvent(e);
+        });
+
+        progressTrack.addEventListener('pointermove', function(e) {
+          if (isDragging) seekFromEvent(e);
+        });
+
+        function endDrag(e) {
+          if (isDragging) {
+            isDragging = false;
+            progressTrack.classList.remove('dragging');
+            if (progressTrack.releasePointerCapture && e.pointerId) {
+              try { progressTrack.releasePointerCapture(e.pointerId); } catch(err) {}
+            }
+          }
+        }
+
+        progressTrack.addEventListener('pointerup', endDrag);
+        progressTrack.addEventListener('pointercancel', endDrag);
+      }
+
+      if (speedBtn) {
+        speedBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          speedIndex = (speedIndex + 1) % availableSpeeds.length;
+          const spd = availableSpeeds[speedIndex];
+          speedBtn.textContent = spd + 'x';
+          if (playerVideo && hasRealVideo) playerVideo.playbackRate = spd;
+        });
+      }
+
+      function updateVolumeUI() {
+        if (currentVolume === 0 || isMuted) {
+          if (volIconHigh) volIconHigh.style.display = 'none';
+          if (volIconMute) volIconMute.style.display = 'block';
+          if (volRange) volRange.value = 0;
+          if (playerVideo && hasRealVideo) playerVideo.muted = true;
+        } else {
+          if (volIconHigh) volIconHigh.style.display = 'block';
+          if (volIconMute) volIconMute.style.display = 'none';
+          if (volRange) volRange.value = currentVolume;
+          if (playerVideo && hasRealVideo) {
+            playerVideo.muted = false;
+            playerVideo.volume = currentVolume;
+          }
+        }
+        updateSoundBarsState();
+      }
+
+      if (volRange) {
+        volRange.addEventListener('input', function(e) {
+          const val = parseFloat(e.target.value);
+          currentVolume = val;
+          isMuted = (val === 0);
+          if (val > 0) previousVolume = val;
+          updateVolumeUI();
+        });
+      }
+
+      if (volToggleBtn) {
+        volToggleBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (isMuted || currentVolume === 0) {
+            isMuted = false;
+            currentVolume = previousVolume > 0 ? previousVolume : 1;
+          } else {
+            previousVolume = currentVolume;
+            isMuted = true;
+            currentVolume = 0;
+          }
+          updateVolumeUI();
+        });
+      }
+
+      if (volWrap) {
+        volWrap.addEventListener('touchstart', function() {
+          volWrap.classList.toggle('touch-open');
+        }, { passive: true });
+      }
+
+      function isFsActive() {
+        return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+      }
+
+      function updateFsIcons() {
+        const active = isFsActive();
+        if (fsExpandIcon) fsExpandIcon.style.display = active ? 'none' : 'block';
+        if (fsCompressIcon) fsCompressIcon.style.display = active ? 'block' : 'none';
+      }
+
+      function toggleFullscreen() {
+        if (!playerChassis) return;
+        if (!isFsActive()) {
+          if (playerChassis.requestFullscreen) playerChassis.requestFullscreen();
+          else if (playerChassis.webkitRequestFullscreen) playerChassis.webkitRequestFullscreen();
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      }
+
+      if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleFullscreen();
+        });
+      }
+
+      document.addEventListener('fullscreenchange', updateFsIcons);
+      document.addEventListener('webkitfullscreenchange', updateFsIcons);
+
+      // 3. INTERACTIVIDAD LIMPIA DE LAS 3 DUDAS
+      const cleanFaqs = document.querySelectorAll('.clean-faq-item');
+      cleanFaqs.forEach(function(item) {
+        const btn = item.querySelector('.clean-faq-btn');
+        if (btn) {
+          btn.addEventListener('click', function() {
+            const isAlreadyActive = item.classList.contains('active');
+            cleanFaqs.forEach(function(other) {
+              other.classList.remove('active');
+              const ob = other.querySelector('.clean-faq-btn');
+              if (ob) ob.setAttribute('aria-expanded', 'false');
+            });
+
+            if (!isAlreadyActive) {
+              item.classList.add('active');
+              btn.setAttribute('aria-expanded', 'true');
+            } else {
+              item.classList.remove('active');
+              btn.setAttribute('aria-expanded', 'false');
+            }
+
+            if (typeof clarity === 'function') clarity('event', 'faq_toggle_' + item.id);
+          });
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>

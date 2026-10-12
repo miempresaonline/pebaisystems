@@ -1,0 +1,48 @@
+# ==============================================================================
+# PEBAI SYSTEMS - HIGH PERFORMANCE, EDGE CACHING & CRO REDIRECTS
+# Dominio: pebaisystems.es
+# ==============================================================================
+
+# 0. Índice por defecto y resolución canónica de directorios
+DirectoryIndex index.html index.php
+
+# 1. Redirecciones de Conversión Directa a WhatsApp (+34 624 84 27 99)
+RewriteEngine On
+RewriteBase /
+
+# Resolución directa para las landings principales
+RewriteRule ^consultoria-gratuita/?$ consultoria-gratuita/index.html [L]
+RewriteRule ^confirmacion-de-llamada/?$ confirmacion-de-llamada/index.html [L]
+RewriteRule ^formulario-completado/?$ formulario-completado/index.html [L]
+
+# Redirección 302 para /contacto y /contact hacia WhatsApp oficial
+RewriteRule ^contact(o)?/?$ "https://wa.me/34624842799?text=Hola%2C%20soy%20%5B%20x%20%5D%20vengo%20de%20la%20web%20con%20principal%20inter%C3%A9s%20en%20realizar%20una%20consultor%C3%ADa%20gratuita%20sin%20compromiso." [R=302,L]
+
+# Forzar HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2. Cabeceras de Rendimiento Extremo y Edge Caching
+<IfModule mod_headers.c>
+    # Cache-Control optimizado para Cloudflare Edge y navegadores (Edge Cache 30ms)
+    <FilesMatch "\.(html|htm)$">
+        Header set Cache-Control "public, max-age=3600, stale-while-revalidate=86400"
+    </FilesMatch>
+
+    <FilesMatch "\.(css|js|woff2|woff|ttf|png|jpg|jpeg|svg|webp|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # Cabeceras de Seguridad y Privacidad
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# 3. Compresión GZIP / Brotli
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json application/xml image/svg+xml
+</IfModule>
+
+# 4. Codificación de Caracteres por Defecto
+AddDefaultCharset UTF-8

@@ -1,0 +1,48 @@
+# ==============================================================================
+# PEBAI SYSTEMS - GEO & SEARCH ENGINE ROBOTS.TXT
+# https://pebaisystems.es
+# Permite explícitamente el rastreo a motores de Inteligencia Artificial (GEO)
+# ==============================================================================
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /uploads/
+
+# Motores de Inteligencia Artificial y Búsqueda Generativa (GEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Mapa del sitio canónico
+Sitemap: https://pebaisystems.es/sitemap.xml
+
+# Referencias Canónicas para Modelos de Lenguaje (GEO)
+# LLM-TXT: https://pebaisystems.es/llms.txt
+# LLM-FULL-TXT: https://pebaisystems.es/llms-full.txt
