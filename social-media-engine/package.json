@@ -1,0 +1,13 @@
+{
+  "name": "pebai-social-media-engine",
+  "version": "1.0.0",
+  "description": "Motor de automatización y respuesta 24/7 en redes sociales para PEBAI Systems",
+  "main": "runner.js",
+  "scripts": {
+    "start": "node runner.js",
+    "dry-run": "node test-simulation.js"
+  },
+  "keywords": ["pebai", "automation", "instagram", "tiktok", "b2b"],
+  "author": "PEBAI Systems",
+  "license": "ISC"
+}
