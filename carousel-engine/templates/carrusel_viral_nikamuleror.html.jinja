@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ title|default("PEBAI Systems - Agentes Cloud VM") }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1080px;
+      height: 1440px;
+      background-color: #FAF9F6;
+      background-image: radial-gradient(circle at 50% 15%, #FFFFFF 0%, #FAF9F6 100%);
+      color: #0F172A;
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 65px 75px 55px 75px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient Subtle Tech Grid */
+    .bg-dot-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(#CBD5E1 1.2px, transparent 1.2px);
+      background-size: 32px 32px;
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Header Bar */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .brand-handle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(79, 70, 229, 0.06);
+      border: 1.5px solid rgba(79, 70, 229, 0.18);
+      padding: 8px 18px;
+      border-radius: 9999px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #4F46E5;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-handle-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4F46E5;
+      box-shadow: 0 0 8px rgba(79, 70, 229, 0.6);
+    }
+
+    .brand-logo-img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .category-tag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #475569;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    /* Double Divider Rule */
+    .double-divider {
+      width: 100%;
+      height: 5px;
+      border-top: 1.5px solid rgba(79, 70, 229, 0.3);
+      border-bottom: 1.5px solid rgba(6, 182, 212, 0.35);
+      margin: 14px 0 16px 0;
+    }
+
+    /* Cursive Subtitle */
+    .cursive-hook {
+      font-family: 'Caveat', cursive;
+      font-size: 32px;
+      font-weight: 700;
+      color: #1E293B;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.01em;
+    }
+
+    /* Washi Tape Note Component */
+    .washi-note {
+      position: absolute;
+      background: #F4EFE6;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 4px;
+      padding: 16px 22px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+      text-align: center;
+      z-index: 20;
+    }
+
+    .washi-tape {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 75px;
+      height: 24px;
+      background: rgba(225, 218, 195, 0.8);
+      backdrop-filter: blur(2px);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border-radius: 2px;
+    }
+
+    .washi-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #0F172A;
+      margin-bottom: 4px;
+    }
+
+    .washi-desc {
+      font-family: 'Caveat', cursive;
+      font-size: 24px;
+      font-weight: 700;
+      color: #334155;
+      line-height: 1.2;
+    }
+
+    /* Doodles SVG */
+    .doodle-bulb {
+      width: 52px;
+      height: 52px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
+    }
+
+    /* Tech Stack Cards */
+    .stack-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(15, 23, 42, 0.07);
+      border-radius: 18px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 10px 25px -8px rgba(15, 23, 42, 0.06);
+      transition: all 0.2s ease;
+    }
+
+    .stack-icon-wrap {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .stack-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0F172A;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .stack-subtitle {
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748B;
+      margin-top: 2px;
+    }
+
+    /* Floating Mini Terminal */
+    .mini-terminal {
+      background: #0F172A;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 18px 22px;
+      box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.35);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .mac-dots {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .mac-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #EF4444; }
+    .dot-yellow { background: #F59E0B; }
+    .dot-green { background: #10B981; }
+
+    /* Footer Pagination */
+    .footer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      padding-top: 16px;
+    }
+
+    .footer-left {
+      font-size: 14px;
+      font-weight: 700;
+      color: #64748B;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .page-dots-wrap {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .page-dot-item {
+      height: 6px;
+      border-radius: 3px;
+      background: #CBD5E1;
+      transition: all 0.3s;
+    }
+
+    .page-dot-item.active {
+      width: 28px;
+      background: #4F46E5;
+    }
+
+    .page-dot-item.inactive {
+      width: 8px;
+    }
+
+    .slide-num-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 800;
+      color: #0F172A;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-dot-grid"></div>
+
+  <!-- HEADER -->
+  <header class="header-bar">
+    <div class="brand-handle-pill">
+      <span class="brand-handle-dot"></span>
+      <span>@pebaisystems</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span class="category-tag-badge">ARQUITECTURA DE SOFTWARE</span>
+      <img src="file:///{{ pebai_logo_horizontal }}" alt="PEBAI Systems" class="brand-logo-img">
+    </div>
+  </header>
+
+  <!-- CONTENT PER SLIDE -->
+  {% if slide_num == 1 %}
+  <!-- SLIDE 1: PORTADA ESTILO DANIEL BROWN CON ARTE 3D Y PILLS -->
+  <main style="position: relative; z-index: 10; margin-top: 25px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div>
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 72px; font-weight: 400; color: #0F172A; line-height: 1.0; letter-spacing: -0.02em;">
+        Construye tu
+      </h2>
+      <h1 style="font-size: 106px; font-weight: 800; line-height: 0.95; letter-spacing: -0.04em; background: linear-gradient(135deg, #06B6D4 0%, #4F46E5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        Agente Cloud VM
+      </h1>
+
+      <div class="double-divider"></div>
+
+      <div class="cursive-hook">
+        <span>con sandboxes aislados, ejecutan todo el día sin romperse</span>
+        <span style="font-size: 34px;">→</span>
+      </div>
+    </div>
+
+    <!-- MAIN BODY SPLIT -->
+    <div style="display: grid; grid-template-columns: 430px 1fr; gap: 30px; align-items: center; margin-top: 15px;">
+      <!-- LEFT STACK PILLS -->
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="stack-card">
+          <div class="stack-icon-wrap" style="background: rgba(79, 70, 229, 0.1); color: #4F46E5;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div>
+            <div class="stack-title">CLAUDE CODE & RUNTIME</div>
+            <div class="stack-subtitle">El motor de inferencia autónomo</div>
+          </div>
+        </div>
+
+        <div class="stack-card">
+          <div class="stack-icon-wrap" style="background: rgba(6, 182, 212, 0.1); color: #06B6D4;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+          </div>
+          <div>
+            <div class="stack-title">SANDBOX CLOUD LINUX</div>
+            <div class="stack-subtitle">Aislamiento a nivel kernel</div>
+          </div>
+        </div>
+
+        <div class="stack-card">
+          <div class="stack-icon-wrap" style="background: rgba(183, 255, 60, 0.2); color: #15803D;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          </div>
+          <div>
+            <div class="stack-title">TERMINAL BASH NATIVO</div>
+            <div class="stack-subtitle">Ejecución y auto-depuración</div>
+          </div>
+        </div>
+
+        <div class="stack-card">
+          <div class="stack-icon-wrap" style="background: rgba(245, 158, 11, 0.12); color: #D97706;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <div>
+            <div class="stack-title">OPENTELEMETRY GATE</div>
+            <div class="stack-subtitle">Telemetría y control de costes</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT 3D CENTERPIECE ARTWORK -->
+      <div style="position: relative; display: flex; justify-content: center; align-items: center;">
+        <img src="file:///{{ cover_3d_artwork }}" alt="3D Robot Agent" style="width: 440px; height: 440px; object-fit: contain; filter: drop-shadow(0 25px 35px rgba(15, 23, 42, 0.12));">
+      </div>
+    </div>
+
+    <!-- BOTTOM FLOATING MINI TERMINAL -->
+    <div class="mini-terminal" style="margin-top: 15px;">
+      <div class="mac-dots">
+        <div class="mac-dot dot-red"></div>
+        <div class="mac-dot dot-yellow"></div>
+        <div class="mac-dot dot-green"></div>
+        <span style="color: #64748B; font-size: 12px; margin-left: 10px;">sandbox-vm-debian-isolated · bash</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 14px; line-height: 1.6;">
+        <div>
+          <span style="color: #64748B;">&gt; git checkout -b feature/auth-agent</span><br>
+          <span style="color: #64748B;">&gt; pytest tests/unit/ --maxfail=1</span><br>
+          <span style="color: #10B981; font-weight: 700;">&gt; PASS: 48/48 unit tests (0.42s)</span>
+        </div>
+        <div>
+          <span style="color: #64748B;">&gt; gh pr create --fill --label automated</span><br>
+          <span style="color: #06B6D4; font-weight: 800;">&gt; SISTEMA AUTÓNOMO AISLADO EN EJECUCIÓN_</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  {% elif slide_num == 2 %}
+  <!-- SLIDE 2: COMPARATIVA CON NOTA WASHI TAPE Y DOODLES -->
+  <main style="position: relative; z-index: 10; margin-top: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <!-- TOP WASHI NOTE -->
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(2deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">PARADIGMA 2026</div>
+      <div class="washi-desc">Cero ventanas de chat.<br>Puro código en sandbox.</div>
+    </div>
+
+    <div style="max-width: 630px;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+          ¿Por Qué Mueren
+        </h2>
+        <svg class="doodle-bulb" viewBox="0 0 100 100" fill="none" stroke="#0F172A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M50 15 C33 15 22 28 22 42 C22 52 28 60 36 67 L36 78 C36 81 39 84 43 84 L57 84 C61 84 64 81 64 78 L64 67 C72 60 78 52 78 42 C78 28 67 15 50 15 Z"/>
+          <path d="M40 92 L60 92"/><path d="M43 74 L57 74"/><path d="M50 5 L50 9"/><path d="M22 18 L26 22"/><path d="M78 18 L74 22"/>
+        </svg>
+      </div>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #06B6D4 0%, #4F46E5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        Los Chatbots Web?
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 22px;"></div>
+    </div>
+
+    <!-- COMPARISON CARDS -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 26px;">
+      <!-- ANTES -->
+      <div style="background: #FFFFFF; border: 1.5px solid #FCA5A5; border-radius: 20px; padding: 28px; box-shadow: 0 12px 30px rgba(239, 68, 68, 0.06); display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: #FEF2F2; color: #DC2626; padding: 6px 14px; border-radius: 9999px; font-size: 14px; font-weight: 800; text-transform: uppercase;">
+              Chatbot Pasivo Web
+            </div>
+            <img src="file:///{{ icons_dir }}/badge_alert.png" alt="Warning" style="width: 52px; height: 52px;">
+          </div>
+          <h3 style="font-size: 30px; font-weight: 800; color: #0F172A; margin-top: 16px; line-height: 1.2;">
+            Texto Plano Sin Acción
+          </h3>
+          <p style="font-size: 20px; color: #64748B; margin-top: 12px; line-height: 1.5;">
+            El modelo responde con prosa en un navegador. No puede ejecutar el código ni validar si compila: traslada todo el trabajo manual al desarrollador.
+          </p>
+        </div>
+
+        <div style="margin-top: 20px; padding-top: 16px; border-top: 1.5px dashed #FECACA; display: flex; flex-direction: column; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 15.5px; color: #991B1B; font-weight: 700;">
+          <div>✕ Sin terminal ni sistema operativo</div>
+          <div>✕ Alucinación sin depuración</div>
+          <div>✕ Requiere copiar y pegar manual</div>
+        </div>
+      </div>
+
+      <!-- AHORA: MÉTODO PEBAI -->
+      <div style="background: #FFFFFF; border: 2.5px solid #4F46E5; border-radius: 20px; padding: 28px; box-shadow: 0 16px 36px rgba(79, 70, 229, 0.12); display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: #EEF2FF; color: #4F46E5; padding: 6px 14px; border-radius: 9999px; font-size: 14px; font-weight: 800; text-transform: uppercase;">
+              Agente Cloud VM PEBAI
+            </div>
+            <img src="file:///{{ icons_dir }}/badge_terminal.png" alt="Terminal VM" style="width: 52px; height: 52px;">
+          </div>
+          <h3 style="font-size: 30px; font-weight: 800; color: #0F172A; margin-top: 16px; line-height: 1.2;">
+            Máquina Virtual + Bash
+          </h3>
+          <p style="font-size: 20px; color: #334155; margin-top: 12px; line-height: 1.5;">
+            El agente dispone de una máquina virtual Debian aislada en la nube. Clona el repositorio, corre la suite de pruebas, lee errores de consola y se auto-corrige hasta pasar el 100%.
+          </p>
+        </div>
+
+        <div style="margin-top: 20px; padding-top: 16px; border-top: 1.5px dashed #C7D2FE; display: flex; flex-direction: column; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 15.5px; color: #3730A3; font-weight: 700;">
+          <div>✓ Sandbox aislado por cada tarea</div>
+          <div>✓ Auto-corrección en bucle cerrado</div>
+          <div>✓ Pull Request listo para producción</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANNOTATION BAR -->
+    <div style="background: #FFFFFF; border: 1.5px solid rgba(15, 23, 42, 0.08); border-left: 6px solid #4F46E5; border-radius: 16px; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 6px 18px rgba(0,0,0,0.04);">
+      <div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; color: #4F46E5; letter-spacing: 0.06em; text-transform: uppercase;">VEREDICTO TÉCNICO</div>
+        <div style="font-size: 21px; font-weight: 700; color: #0F172A; margin-top: 4px;">
+          Un LLM sin terminal de ejecución es como un coche sin ruedas: puede rugir, pero no avanza.
+        </div>
+      </div>
+      <div style="font-family: 'Caveat', cursive; font-size: 32px; font-weight: 700; color: #4F46E5; white-space: nowrap; margin-left: 20px;">
+        Código que corre solo →
+      </div>
+    </div>
+  </main>
+
+  {% elif slide_num == 3 %}
+  <!-- SLIDE 3: TERMINAL DARK MACOS Y AUTO-DEPURACIÓN -->
+  <main style="position: relative; z-index: 10; margin-top: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(-1.5deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">AISLAMIENTO TOTAL</div>
+      <div class="washi-desc">Sin tocar tu disco local.<br>100% en la nube.</div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+      <div style="max-width: 630px;">
+        <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+          Paso 1: El Bucle
+        </h2>
+        <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #06B6D4 0%, #4F46E5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+          De Auto-Depuración
+        </h1>
+        <div class="double-divider" style="margin-top: 12px; margin-bottom: 16px;"></div>
+      </div>
+      <img src="file:///{{ icons_dir }}/badge_check.png" alt="Verified" style="width: 64px; height: 64px; margin-bottom: 20px;">
+    </div>
+
+    <!-- TERMINAL WINDOW -->
+    <div class="mini-terminal" style="padding: 24px 28px; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.4);">
+      <div class="mac-dots">
+        <div class="mac-dot dot-red"></div>
+        <div class="mac-dot dot-yellow"></div>
+        <div class="mac-dot dot-green"></div>
+        <span style="color: #64748B; font-size: 14px; margin-left: 10px; font-family: 'JetBrains Mono', monospace;">sandbox-cloud-vm-node-04 · pytest-runner</span>
+      </div>
+
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 16px; line-height: 1.7; color: #E2E8F0;">
+        <p style="color: #94A3B8;"># Ciclo 1: Inferencia e inyección de código</p>
+        <p><span style="color: #38BDF8;">pebai@cloud-vm:~$</span> python3 -m pytest tests/test_orders.py</p>
+        <p style="color: #F87171;">FAILED tests/test_orders.py::test_webhook_retry - AssertionError: 502 != 200</p>
+        <p style="color: #EF4444;">================ 1 failed, 14 passed in 0.88s ================</p>
+        
+        <p style="margin-top: 12px; color: #FBBF24;">[AGENT REFLECTION] Capturado error de idempotencia en gateway Stripe.</p>
+        <p style="color: #FBBF24;">[AGENT ACTION] Modificando /src/handlers/stripe.py con retries exponenciales...</p>
+
+        <p style="margin-top: 12px; color: #94A3B8;"># Ciclo 2: Re-ejecución autónoma de verificación</p>
+        <p><span style="color: #38BDF8;">pebai@cloud-vm:~$</span> python3 -m pytest tests/test_orders.py</p>
+        <p style="color: #34D399; font-weight: 700;">PASSED tests/test_orders.py::test_webhook_retry</p>
+        <p style="color: #34D399; font-weight: 700;">================ 15 passed in 0.41s (100% GREEN) ================</p>
+        
+        <p style="margin-top: 12px; color: #38BDF8;">pebai@cloud-vm:~$ git commit -m "fix(stripe): exponential retry" &amp;&amp; gh pr create</p>
+      </div>
+    </div>
+
+    <!-- ANNOTATION ROW -->
+    <div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px;">
+        <div style="background: #FFFFFF; border: 1.5px solid rgba(15, 23, 42, 0.08); border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 800; color: #4F46E5;">0 s</div>
+          <div style="font-size: 16px; font-weight: 700; color: #64748B; margin-top: 4px;">Intervención humana</div>
+        </div>
+        <div style="background: #FFFFFF; border: 1.5px solid rgba(15, 23, 42, 0.08); border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 800; color: #06B6D4;">100%</div>
+          <div style="font-size: 16px; font-weight: 700; color: #64748B; margin-top: 4px;">Suite tests verificada</div>
+        </div>
+        <div style="background: #FFFFFF; border: 1.5px solid rgba(15, 23, 42, 0.08); border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 800; color: #10B981;">Bancaria</div>
+          <div style="font-size: 16px; font-weight: 700; color: #64748B; margin-top: 4px;">Seguridad por sandbox</div>
+        </div>
+      </div>
+      <div style="font-family: 'Caveat', cursive; font-size: 30px; font-weight: 700; color: #4F46E5; text-align: right; margin-top: 10px;">
+        El bucle autónomo resuelve el fallo y valida antes de hacer merge →
+      </div>
+    </div>
+  </main>
+
+  {% elif slide_num == 4 %}
+  <!-- SLIDE 4: MATRIZ DE 3 PILARES Y REGLA DE INGENIERÍA -->
+  <main style="position: relative; z-index: 10; margin-top: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(1.5deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">LA REGLA</div>
+      <div class="washi-desc">Autonomía sin aislamiento<br>es vulnerabilidad.</div>
+    </div>
+
+    <div style="max-width: 630px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        Paso 2: Los 3 Pilares
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #06B6D4 0%, #4F46E5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        De Seguridad en VM
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 24px;"></div>
+    </div>
+
+    <!-- 3 BENTO CARDS -->
+    <div style="display: flex; flex-direction: column; gap: 18px;">
+      <div style="background: #FFFFFF; border: 1.5px solid rgba(15, 23, 42, 0.08); border-left: 6px solid #4F46E5; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 60px 1fr; gap: 22px; align-items: center;">
+        <img src="file:///{{ icons_dir }}/badge_shield.png" alt="Shield" style="width: 58px; height: 58px;">
+        <div>
+          <h3 style="font-size: 26px; font-weight: 800; color: #0F172A;">Aislamiento a Nivel Kernel (gVisor / Firecracker)</h3>
+          <p style="font-size: 19.5px; color: #475569; margin-top: 6px; line-height: 1.5;">
+            El agente corre en un micro-contenedor efímero sin acceso a red interna ni host, destruyéndose al terminar la tarea.
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1.5px solid rgba(15, 23, 42, 0.08); border-left: 6px solid #06B6D4; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 60px 1fr; gap: 22px; align-items: center;">
+        <img src="file:///{{ icons_dir }}/badge_clock.png" alt="Clock" style="width: 58px; height: 58px;">
+        <div>
+          <h3 style="font-size: 26px; font-weight: 800; color: #0F172A;">Presupuesto de Tokens y Límite de Ejecución</h3>
+          <p style="font-size: 19.5px; color: #475569; margin-top: 6px; line-height: 1.5;">
+            Límite forzado de 5 reintentos o 0.80$ por tarea. Si no pasa la suite de tests, se aborta y alerta a un revisor humano.
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1.5px solid rgba(15, 23, 42, 0.08); border-left: 6px solid #10B981; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 60px 1fr; gap: 22px; align-items: center;">
+        <img src="file:///{{ icons_dir }}/badge_server.png" alt="Server" style="width: 58px; height: 58px;">
+        <div>
+          <h3 style="font-size: 26px; font-weight: 800; color: #0F172A;">Validación Determinista Inquebrantable</h3>
+          <p style="font-size: 19.5px; color: #475569; margin-top: 6px; line-height: 1.5;">
+            Ninguna línea de código llega a producción por juicio probabilístico: solo se mergea si la suite pasa con 0 errores.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALLOUT CARD -->
+    <div style="background: #FAF5FF; border: 1.5px solid #E9D5FF; border-radius: 16px; padding: 20px 26px; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <img src="file:///{{ icons_dir }}/badge_shield.png" alt="Shield" style="width: 38px; height: 38px;">
+        <span style="font-size: 21px; font-weight: 700; color: #581C87;">
+          Arquitectura adoptada en entornos de misión crítica por PEBAI Systems.
+        </span>
+      </div>
+      <span style="font-family: 'Caveat', cursive; font-size: 32px; font-weight: 700; color: #7E22CE;">Cero riesgo.</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 5 %}
+  <!-- SLIDE 5: CIERRE VIRAL CON DEBATE A VS B Y LLAMADA A GUARDAR (SIN PALABRA COMENTA) -->
+  <main style="position: relative; z-index: 10; margin-top: 25px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+    <div>
+      <div style="display: inline-flex; align-items: center; gap: 8px; background: #EEF2FF; border: 1.5px solid #C7D2FE; padding: 8px 20px; border-radius: 9999px; font-size: 15px; font-weight: 800; color: #4F46E5; text-transform: uppercase;">
+        Debate Técnico de Arquitectura
+      </div>
+
+      <h1 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 64px; font-weight: 400; color: #0F172A; line-height: 1.1; margin-top: 18px;">
+        ¿Qué arquitectura adoptará<br>tu empresa en <span style="font-style: italic; color: #4F46E5;">2026</span>?
+      </h1>
+      <div class="double-divider" style="max-width: 600px; margin: 16px auto 26px auto;"></div>
+    </div>
+
+    <!-- VOTING CARDS A VS B -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; text-align: left;">
+      <div style="background: #FFFFFF; border: 2.5px solid #4F46E5; border-radius: 20px; padding: 28px; box-shadow: 0 16px 36px rgba(79, 70, 229, 0.12); position: relative; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="position: absolute; top: -14px; right: 20px; background: #4F46E5; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; padding: 4px 12px; border-radius: 8px;">
+          OPCIÓN A
+        </div>
+        <div>
+          <img src="file:///{{ icons_dir }}/badge_terminal.png" alt="Autonomía" style="width: 52px; height: 52px; margin-bottom: 12px;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 800; color: #4F46E5;">
+            Autonomía VM
+          </div>
+          <p style="font-size: 20px; color: #334155; margin-top: 10px; line-height: 1.5;">
+            Agentes con terminal propio, ejecución de suites de tests en la nube y resolución desatendida bajo límites de seguridad estrictos.
+          </p>
+        </div>
+        <div style="margin-top: 18px; font-family: 'Caveat', cursive; font-size: 28px; font-weight: 700; color: #4F46E5;">
+          Máxima velocidad y escala →
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 20px; padding: 28px; box-shadow: 0 10px 25px rgba(0,0,0,0.04); position: relative; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="position: absolute; top: -14px; right: 20px; background: #64748B; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; padding: 4px 12px; border-radius: 8px;">
+          OPCIÓN B
+        </div>
+        <div>
+          <img src="file:///{{ icons_dir }}/badge_alert.png" alt="Supervisión" style="width: 52px; height: 52px; margin-bottom: 12px;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 800; color: #0F172A;">
+            Supervisión Manual
+          </div>
+          <p style="font-size: 20px; color: #64748B; margin-top: 10px; line-height: 1.5;">
+            Modelos asistenciales que solo sugieren cambios en chat y requieren que un ingeniero humano ejecute y despliegue manualmente.
+          </p>
+        </div>
+        <div style="margin-top: 18px; font-family: 'Caveat', cursive; font-size: 28px; font-weight: 700; color: #64748B;">
+          Control humano total →
+        </div>
+      </div>
+    </div>
+
+    <!-- CALL TO SAVE & DEBATE (VIRAL / TOFU: NO COMMENT KEYWORD) -->
+    <div style="background: #FFFFFF; border: 1px solid rgba(15, 23, 42, 0.1); border-radius: 18px; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+      <div style="text-align: left; display: flex; align-items: center; gap: 16px;">
+        <img src="file:///{{ icons_dir }}/badge_check.png" alt="Bookmark" style="width: 48px; height: 48px;">
+        <div>
+          <div style="font-size: 21px; font-weight: 800; color: #0F172A;">Deja tu voto en los comentarios (A o B)</div>
+          <div style="font-size: 16px; font-weight: 600; color: #64748B; margin-top: 2px;">Guarda este carrusel para consultar la arquitectura de sandbox.</div>
+        </div>
+      </div>
+      <div style="font-family: 'Caveat', cursive; font-size: 32px; font-weight: 700; color: #4F46E5;">
+        ¿A o B? Vota abajo ↓
+      </div>
+    </div>
+  </main>
+  {% endif %}
+
+  <!-- FOOTER -->
+  <footer class="footer-bar">
+    <div class="footer-left">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: #4F46E5;">@pebaisystems</span>
+      <span>·</span>
+      <span>Arquitectura Cloud VM</span>
+    </div>
+
+    <div class="page-dots-wrap">
+      {% for i in range(1, total_slides + 1) %}
+        <div class="page-dot-item {% if i == slide_num %}active{% else %}inactive{% endif %}"></div>
+      {% endfor %}
+    </div>
+
+    <div class="slide-num-text">
+      {{ slide_num }} / {{ total_slides }}
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,771 @@
+import os
+
+viral_template = """<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ title }} — Slide {{ slide_num }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      width: 1080px;
+      height: 1440px;
+      overflow: hidden;
+      background: #FAF9F6;
+      color: #0F172A;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 65px 95px 75px 75px;
+    }
+
+    .bg-dot-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1440px;
+      background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1.5px, transparent 1.5px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .header-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .brand-handle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #FFFFFF;
+      border: 1.5px solid #E2E8F0;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .brand-handle-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #5848FA;
+    }
+
+    .category-tag-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #5848FA;
+      background: rgba(88, 72, 250, 0.08);
+      border: 1px solid rgba(88, 72, 250, 0.2);
+      padding: 6px 14px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .brand-logo-img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .double-divider {
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, #5848FA 0%, #B7FF3C 70%, transparent 100%);
+      margin-top: 14px;
+      margin-bottom: 16px;
+      border-radius: 2px;
+    }
+
+    .washi-note {
+      position: absolute;
+      background: #FDFBF7;
+      border: 1.5px solid rgba(215, 205, 180, 0.6);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+      padding: 14px 20px;
+      border-radius: 6px;
+      z-index: 15;
+    }
+
+    .washi-tape {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 22px;
+      background: rgba(225, 218, 195, 0.75);
+      border-left: 2px dashed rgba(180, 170, 145, 0.6);
+      border-right: 2px dashed rgba(180, 170, 145, 0.6);
+    }
+
+    .washi-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 800;
+      color: #5848FA;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .washi-desc {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1E293B;
+      line-height: 1.35;
+      margin-top: 4px;
+    }
+
+    /* REAL SQUIRCLE APP BADGES */
+    .app-squircle {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 22px -4px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.04);
+      flex-shrink: 0;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+    .app-squircle img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+    .app-squircle.sm {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+    }
+    .app-squircle.sm img {
+      width: 28px;
+      height: 28px;
+    }
+    .app-squircle.lg {
+      width: 78px;
+      height: 78px;
+      border-radius: 22px;
+      box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.18), 0 4px 10px rgba(15, 23, 42, 0.06);
+    }
+    .app-squircle.lg img {
+      width: 46px;
+      height: 46px;
+    }
+
+    .sq-openai { background: #10A37F; }
+    .sq-openai img { filter: brightness(0) invert(1); }
+    .sq-deepseek { background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%); }
+    .sq-deepseek img { filter: brightness(0) invert(1); }
+    .sq-docker { background: #2496ED; }
+    .sq-docker img { filter: brightness(0) invert(1); }
+    .sq-ubuntu { background: #E95420; }
+    .sq-ubuntu img { filter: brightness(0) invert(1); }
+    .sq-nvidia { background: #76B900; }
+    .sq-nvidia img { filter: brightness(0) invert(1); }
+    .sq-n8n { background: #EA4B71; }
+    .sq-n8n img { filter: brightness(0) invert(1); }
+    .sq-make { background: #6432FA; }
+    .sq-make img { filter: brightness(0) invert(1); }
+    .sq-python { background: #1E293B; border: 1px solid #334155; }
+    .sq-qdrant { background: #DC2626; }
+    .sq-qdrant img { filter: brightness(0) invert(1); }
+    .sq-postgres { background: #336791; }
+    .sq-postgres img { filter: brightness(0) invert(1); }
+    .sq-pebai { background: #12121A; border: 1.5px solid #5848FA; }
+
+    /* FOOTER */
+    .footer-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      border-top: 1px solid #E2E8F0;
+      padding-top: 16px;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #64748B;
+    }
+
+    .page-dots-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .page-dot-item {
+      height: 8px;
+      border-radius: 9999px;
+      background: #CBD5E1;
+      transition: all 0.3s ease;
+    }
+
+    .page-dot-item.active {
+      width: 28px;
+      background: #5848FA;
+    }
+
+    .page-dot-item.inactive {
+      width: 8px;
+    }
+
+    .slide-num-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-dot-grid"></div>
+
+  <!-- HEADER -->
+  <header class="header-bar">
+    <div class="brand-handle-pill">
+      <span class="brand-handle-dot"></span>
+      <span>@pebaisystems</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span class="category-tag-badge">STACK OPEN-SOURCE · 2026</span>
+      <img src="file:///{{ pebai_logo_horizontal }}" alt="PEBAI Systems" class="brand-logo-img">
+    </div>
+  </header>
+
+  <!-- CONTENT PER SLIDE -->
+  {% if slide_num == 1 %}
+  <!-- SLIDE 1: PORTADA VIRAL - DUAL FINANCIAL SHOWDOWN (SAAS VS LOCAL) -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div>
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.05; letter-spacing: -0.02em;">
+        El Stack Local Que
+      </h2>
+      <h1 style="font-size: 82px; font-weight: 800; line-height: 1.02; letter-spacing: -0.03em; background: linear-gradient(135deg, #5848FA 0%, #12121A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        Sustituye 1.450 € / Mes
+      </h1>
+
+      <div class="double-divider"></div>
+
+      <div style="font-family: 'Caveat', cursive; font-size: 36px; font-weight: 700; color: #5848FA; display: flex; align-items: center; gap: 12px;">
+        <span>6 herramientas de IA en tu propio servidor sin pagar suscripciones recurrentes →</span>
+      </div>
+    </div>
+
+    <!-- DUAL FINANCIAL SHOWDOWN (50 / 50 COMPARISON STAGE) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; position: relative; margin-top: 10px;">
+      
+      <!-- COL 1: SAAS CERRADOS -->
+      <div style="background: #FFFFFF; border: 2px solid #E2E8F0; border-radius: 22px; padding: 22px 24px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05); display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 12px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; color: #64748B; text-transform: uppercase;">
+            SAAS CERRADOS
+          </span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 900; color: #DC2626; text-decoration: line-through;">
+            -1.450 €/m
+          </span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #FAF9F6; border-radius: 12px; padding: 8px 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="app-squircle sm sq-openai">
+                <img src="{{ logos.openai }}" alt="OpenAI">
+              </div>
+              <span style="font-size: 18px; font-weight: 800; color: #0F172A;">OpenAI API</span>
+            </div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 800; color: #DC2626;">-450 €</span>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #FAF9F6; border-radius: 12px; padding: 8px 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="app-squircle sm sq-make">
+                <img src="{{ logos.make }}" alt="Make">
+              </div>
+              <span style="font-size: 18px; font-weight: 800; color: #0F172A;">Zapier / Make</span>
+            </div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 800; color: #DC2626;">-320 €</span>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #FAF9F6; border-radius: 12px; padding: 8px 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="app-squircle sm sq-postgres">
+                <img src="{{ logos.postgresql }}" alt="Vector DB">
+              </div>
+              <span style="font-size: 18px; font-weight: 800; color: #0F172A;">Vector DB Cloud</span>
+            </div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 800; color: #DC2626;">-280 €</span>
+          </div>
+        </div>
+
+        <div style="font-size: 17px; font-weight: 600; color: #64748B; line-height: 1.35; padding-top: 6px;">
+          Límites por token, datos en servidores ajenos y subidas continuas de cuota.
+        </div>
+      </div>
+
+      <!-- VS BADGE IN CENTER -->
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 25; width: 56px; height: 56px; border-radius: 50%; background: #12121A; border: 3px solid #B7FF3C; color: #B7FF3C; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 900; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+        VS
+      </div>
+
+      <!-- COL 2: STACK LOCAL PEBAI -->
+      <div style="background: #FFFFFF; border: 2.5px solid #5848FA; border-radius: 22px; padding: 22px 24px; box-shadow: 0 18px 40px -8px rgba(88, 72, 250, 0.18); display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 12px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; color: #5848FA; text-transform: uppercase;">
+            STACK LOCAL PEBAI
+          </span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 900; color: #12121A; background: #B7FF3C; padding: 2px 10px; border-radius: 6px;">
+            0 € LICENCIAS
+          </span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #FAF9F6; border: 1px solid rgba(88, 72, 250, 0.2); border-radius: 12px; padding: 8px 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="app-squircle sm sq-deepseek">
+                <img src="{{ logos.deepseek }}" alt="DeepSeek">
+              </div>
+              <span style="font-size: 18px; font-weight: 800; color: #0F172A;">DeepSeek-R1</span>
+            </div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 800; color: #5848FA;">0 €</span>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #FAF9F6; border: 1px solid rgba(88, 72, 250, 0.2); border-radius: 12px; padding: 8px 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="app-squircle sm sq-n8n">
+                <img src="{{ logos.n8n }}" alt="n8n">
+              </div>
+              <span style="font-size: 18px; font-weight: 800; color: #0F172A;">n8n Self-Hosted</span>
+            </div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 800; color: #5848FA;">0 €</span>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #FAF9F6; border: 1px solid rgba(88, 72, 250, 0.2); border-radius: 12px; padding: 8px 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="app-squircle sm sq-qdrant">
+                <img src="{{ logos.qdrant }}" alt="Qdrant">
+              </div>
+              <span style="font-size: 18px; font-weight: 800; color: #0F172A;">Qdrant Vector DB</span>
+            </div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 800; color: #5848FA;">0 €</span>
+          </div>
+        </div>
+
+        <div style="font-size: 17px; font-weight: 700; color: #5848FA; line-height: 1.35; padding-top: 6px;">
+          100% Privacidad, tokens ilimitados y control total en tu propio servidor.
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM HARDWARE CALLOUT WITH ARTWORK -->
+    <div style="background: #12121A; border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="width: 12px; height: 12px; border-radius: 50%; background: #B7FF3C; box-shadow: 0 0 10px #B7FF3C;"></div>
+        <span style="font-size: 22px; font-weight: 700; color: #FAF9F6;">
+          Inferencia local ilimitada: 12.600 € al año ahorrados en tu empresa
+        </span>
+      </div>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #B7FF3C;">
+        0 € TOKENS
+      </span>
+    </div>
+  </main>
+
+  {% elif slide_num == 2 %}
+  <!-- SLIDE 2: 3 SUSTITUCIONES INMEDIATAS A 0€ -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(2deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">AHORRO DIRECTO</div>
+      <div class="washi-desc">Pagas por token lo que<br>puedes correr en local.</div>
+    </div>
+
+    <div style="max-width: 720px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        3 Sustituciones
+      </h2>
+      <h1 style="font-size: 68px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #5848FA 0%, #12121A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px; white-space: nowrap;">
+        Inmediatas a 0 €
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 20px;"></div>
+    </div>
+
+    <!-- 3 COMPARISON CARDS -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <!-- CARD 1: OPENAI -> DEEPSEEK -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-left: 6px solid #5848FA; border-radius: 18px; padding: 20px 24px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="app-squircle sm sq-openai">
+              <img src="{{ logos.openai }}" alt="OpenAI">
+            </div>
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: #64748B;">SaaS Cerrado</div>
+              <div style="font-size: 22px; font-weight: 800; color: #0F172A;">OpenAI API</div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #5848FA; background: rgba(88, 72, 250, 0.08); padding: 4px 10px; border-radius: 8px;">
+              -450 €/m
+            </div>
+          </div>
+
+          <div style="font-size: 26px; font-weight: 800; color: #5848FA;">➔</div>
+
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="app-squircle sm sq-deepseek">
+              <img src="{{ logos.deepseek }}" alt="DeepSeek">
+            </div>
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: #5848FA;">Open Source Local</div>
+              <div style="font-size: 22px; font-weight: 800; color: #0F172A;">DeepSeek-R1 + vLLM</div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #12121A; background: #B7FF3C; padding: 4px 10px; border-radius: 8px;">
+              0 € Licencia
+            </div>
+          </div>
+        </div>
+        <p style="font-size: 21px; color: #475569; line-height: 1.4; border-top: 1px solid #F1F5F9; padding-top: 8px;">
+          Inferencia ilimitada sin costes por millón de tokens, sin caídas de terceros y con paridad matemática de razonamiento en código.
+        </p>
+      </div>
+
+      <!-- CARD 2: ZAPIER/MAKE -> N8N -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-left: 6px solid #5848FA; border-radius: 18px; padding: 20px 24px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="app-squircle sm sq-make">
+              <img src="{{ logos.make }}" alt="Make">
+            </div>
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: #64748B;">SaaS Cerrado</div>
+              <div style="font-size: 22px; font-weight: 800; color: #0F172A;">Zapier / Make Pro</div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #5848FA; background: rgba(88, 72, 250, 0.08); padding: 4px 10px; border-radius: 8px;">
+              -320 €/m
+            </div>
+          </div>
+
+          <div style="font-size: 26px; font-weight: 800; color: #5848FA;">➔</div>
+
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="app-squircle sm sq-n8n">
+              <img src="{{ logos.n8n }}" alt="n8n">
+            </div>
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: #5848FA;">Open Source Local</div>
+              <div style="font-size: 22px; font-weight: 800; color: #0F172A;">n8n Self-Hosted</div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #12121A; background: #B7FF3C; padding: 4px 10px; border-radius: 8px;">
+              0 € Licencia
+            </div>
+          </div>
+        </div>
+        <p style="font-size: 21px; color: #475569; line-height: 1.4; border-top: 1px solid #F1F5F9; padding-top: 8px;">
+          Flujos de integración con cientos de miles de ejecuciones concurrentes sin penalización de precio por cada operación.
+        </p>
+      </div>
+
+      <!-- CARD 3: VECTOR DB CLOUD -> QDRANT -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-left: 6px solid #5848FA; border-radius: 18px; padding: 20px 24px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="app-squircle sm sq-postgres">
+              <img src="{{ logos.postgresql }}" alt="Vector DB">
+            </div>
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: #64748B;">SaaS Cerrado</div>
+              <div style="font-size: 22px; font-weight: 800; color: #0F172A;">Vector DB Cloud</div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #5848FA; background: rgba(88, 72, 250, 0.08); padding: 4px 10px; border-radius: 8px;">
+              -280 €/m
+            </div>
+          </div>
+
+          <div style="font-size: 26px; font-weight: 800; color: #5848FA;">➔</div>
+
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="app-squircle sm sq-qdrant">
+              <img src="{{ logos.qdrant }}" alt="Qdrant">
+            </div>
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: #5848FA;">Open Source Local</div>
+              <div style="font-size: 22px; font-weight: 800; color: #0F172A;">Qdrant Vector DB</div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #12121A; background: #B7FF3C; padding: 4px 10px; border-radius: 8px;">
+              0 € Licencia
+            </div>
+          </div>
+        </div>
+        <p style="font-size: 21px; color: #475569; line-height: 1.4; border-top: 1px solid #F1F5F9; padding-top: 8px;">
+          Búsqueda semántica híbrida ultrarrápida sobre millones de documentos corporativos sin enviar secretos comerciales a la nube.
+        </p>
+      </div>
+    </div>
+
+    <!-- BOTTOM SUMMARY -->
+    <div style="background: #FFFFFF; border: 1.5px solid rgba(88, 72, 250, 0.2); border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div class="app-squircle sm sq-pebai">
+          <img src="{{ logos.python }}" alt="PEBAI">
+        </div>
+        <span style="font-size: 22px; font-weight: 700; color: #0F172A;">
+          Ahorro mínimo consolidado: más de 12.600 € al año en licencias auto-hospedables.
+        </span>
+      </div>
+      <span style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #5848FA;">Sustitución 1 a 1 →</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 3 %}
+  <!-- SLIDE 3: TU SERVIDOR 100% INDEPENDIENTE -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(-1.5deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">DESPLIEGUE</div>
+      <div class="washi-desc">Docker Compose en<br>tu propio hardware.</div>
+    </div>
+
+    <div style="max-width: 700px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        Paso 1: Tu Servidor
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #5848FA 0%, #12121A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        100% Independiente
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 20px;"></div>
+    </div>
+
+    <!-- 3 STEP BLOCKS -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 140px 1fr; gap: 20px; align-items: center;">
+        <div class="app-squircle sq-docker">
+          <img src="{{ logos.docker }}" alt="Docker">
+        </div>
+        <div style="background: rgba(88, 72, 250, 0.08); color: #5848FA; font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 800; padding: 10px 14px; border-radius: 10px; text-align: center;">
+          PASO 01
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">Aislamiento en Contenedores Docker</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Cada servicio (vLLM, n8n, Qdrant) se ejecuta en un contenedor independiente con recursos de GPU y RAM garantizados.
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 140px 1fr; gap: 20px; align-items: center;">
+        <div class="app-squircle sq-python">
+          <img src="{{ logos.python }}" alt="vLLM">
+        </div>
+        <div style="background: rgba(88, 72, 250, 0.08); color: #5848FA; font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 800; padding: 10px 14px; border-radius: 10px; text-align: center;">
+          PASO 02
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">Motor de Inferencia vLLM / Ollama</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Expone una API estándar 100% compatible con OpenAI. Tus herramientas conectan con el servidor local sin cambiar código.
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 140px 1fr; gap: 20px; align-items: center;">
+        <div class="app-squircle sq-ubuntu">
+          <img src="{{ logos.ubuntu }}" alt="Ubuntu">
+        </div>
+        <div style="background: rgba(88, 72, 250, 0.08); color: #5848FA; font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 800; padding: 10px 14px; border-radius: 10px; text-align: center;">
+          PASO 03
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">Túnel Seguro WireGuard / VPN</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Acceso encriptado exclusivo para tu equipo. Cero exposición pública y 100% de cumplimiento del RGPD europeo.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CODE SNIPPET TERMINAL -->
+    <div style="background: #12121A; border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: #FAF9F6;">
+        curl http://localhost:8000/v1/chat/completions ➔ 115 tokens/segundo
+      </span>
+      <span style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #B7FF3C;">
+        Despliegue reproducible →
+      </span>
+    </div>
+  </main>
+
+  {% elif slide_num == 4 %}
+  <!-- SLIDE 4: HARDWARE NECESARIO -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(1.5deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">INFRAESTRUCTURA</div>
+      <div class="washi-desc">Desde 45€/mes en Cloud<br>o GPU local amortizada.</div>
+    </div>
+
+    <div style="max-width: 700px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        Paso 2: ¿Qué Máquina
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #5848FA 0%, #12121A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        Necesitas Realmente?
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 20px;"></div>
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <div style="background: #FFFFFF; border: 2px solid rgba(88, 72, 250, 0.15); border-radius: 20px; padding: 26px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: grid; grid-template-columns: 220px 1fr 1fr; gap: 16px; padding-bottom: 12px; border-bottom: 2px solid #E2E8F0; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800;">
+        <span style="color: #64748B;">CAPACIDAD</span>
+        <span style="color: #5848FA;">RUTA VPS DEDICADO</span>
+        <span style="color: #0F172A;">RUTA HARDWARE LOCAL</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 220px 1fr 1fr; gap: 16px; align-items: center; font-size: 22px; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
+        <span style="font-weight: 700; color: #0F172A;">Modelos 8B - 14B</span>
+        <span style="color: #5848FA; font-weight: 800;">Hetzner Cloud (45 €/m)</span>
+        <span style="color: #0F172A; font-weight: 800;">RTX 4060 Ti 16GB (480 €)</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 220px 1fr 1fr; gap: 16px; align-items: center; font-size: 22px; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
+        <span style="font-weight: 700; color: #0F172A;">Modelos 32B (R1)</span>
+        <span style="color: #5848FA; font-weight: 800;">Servidor GPU (140 €/m)</span>
+        <span style="color: #0F172A; font-weight: 800;">RTX 3090 24GB (750 €)</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 220px 1fr 1fr; gap: 16px; align-items: center; font-size: 22px; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
+        <span style="font-weight: 700; color: #0F172A;">Inferencia Multiusuario</span>
+        <span style="color: #5848FA; font-weight: 800;">Clúster Escalable</span>
+        <span style="color: #0F172A; font-weight: 800;">Workstation Dual GPU</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 220px 1fr 1fr; gap: 16px; align-items: center; font-size: 22px; padding: 8px 0;">
+        <span style="font-weight: 700; color: #0F172A;">Retorno de Inversión</span>
+        <span style="color: #12121A; background: #B7FF3C; font-weight: 900; padding: 4px 10px; border-radius: 6px; display: inline-block; width: fit-content;">Mes 1</span>
+        <span style="color: #12121A; background: #B7FF3C; font-weight: 900; padding: 4px 10px; border-radius: 6px; display: inline-block; width: fit-content;">Mes 2</span>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div style="background: #FFFFFF; border: 1.5px solid rgba(88, 72, 250, 0.2); border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div class="app-squircle sm sq-nvidia">
+          <img src="{{ logos.nvidia }}" alt="NVIDIA">
+        </div>
+        <span style="font-size: 22px; font-weight: 700; color: #0F172A;">
+          El coste del hardware se amortiza en menos de 60 días frente a cuotas de suscripción SaaS.
+        </span>
+      </div>
+      <span style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #5848FA;">Rentabilidad inmediata →</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 5 %}
+  <!-- SLIDE 5: CIERRE VIRAL CON DEBATE DE INFRAESTRUCTURA A VS B -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+    <div>
+      <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(88, 72, 250, 0.08); border: 1.5px solid rgba(88, 72, 250, 0.25); padding: 8px 22px; border-radius: 9999px; font-size: 17px; font-weight: 800; color: #5848FA; text-transform: uppercase;">
+        Debate Técnico · Arquitectura 2026
+      </div>
+
+      <h1 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 72px; font-weight: 400; color: #0F172A; line-height: 1.05; margin-top: 16px;">
+        ¿SaaS Propietario o<br><span style="font-style: italic; color: #5848FA;">Stack Auto-Hospedado?</span>
+      </h1>
+      <div class="double-divider" style="max-width: 600px; margin: 14px auto 20px auto;"></div>
+    </div>
+
+    <!-- DUAL DEBATE CARDS -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; text-align: left;">
+      <div style="background: #FFFFFF; border: 2px solid #E2E8F0; border-radius: 20px; padding: 24px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; color: #64748B;">POSTURA A</span>
+          <span style="font-size: 18px; font-weight: 800; color: #0F172A;">SaaS de Pago</span>
+        </div>
+        <p style="font-size: 21px; color: #475569; margin-top: 12px; line-height: 1.45;">
+          Prefiero pagar suscripciones recurrentes mes a mes a cambio de no gestionar servidores ni hardware propio.
+        </p>
+      </div>
+
+      <div style="background: #FFFFFF; border: 2.5px solid #5848FA; border-radius: 20px; padding: 24px; box-shadow: 0 16px 36px rgba(88, 72, 250, 0.12);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; color: #5848FA;">POSTURA B</span>
+          <span style="font-size: 18px; font-weight: 800; color: #0F172A;">Stack Local</span>
+        </div>
+        <p style="font-size: 21px; color: #475569; margin-top: 12px; line-height: 1.45;">
+          Prefiero soberanía total de datos, cero cuotas de API y control absoluto del sistema en mis servidores.
+        </p>
+      </div>
+    </div>
+
+    <!-- BOTTOM ENGAGEMENT CALL -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+      <div style="display: inline-flex; align-items: center; gap: 16px; background: #12121A; border: 2px solid #5848FA; color: #FFFFFF; padding: 18px 42px; border-radius: 9999px; box-shadow: 0 15px 35px rgba(15, 23, 42, 0.35);">
+        <span style="font-size: 24px; font-weight: 800;">¿Cuál es tu postura:</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 900; color: #B7FF3C;">A o B?</span>
+      </div>
+
+      <div style="font-family: 'Caveat', cursive; font-size: 36px; font-weight: 700; color: #5848FA;">
+        Deja tu postura en comentarios y guarda este post para consultar la arquitectura ↓
+      </div>
+    </div>
+  </main>
+  {% endif %}
+
+  <!-- FOOTER -->
+  <footer class="footer-bar">
+    <div class="footer-left">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; color: #5848FA;">@pebaisystems</span>
+      <span>·</span>
+      <span>Stack IA Open-Source</span>
+    </div>
+
+    <div class="page-dots-wrap">
+      {% for i in range(1, total_slides + 1) %}
+        <div class="page-dot-item {% if i == slide_num %}active{% else %}inactive{% endif %}"></div>
+      {% endfor %}
+    </div>
+
+    <div class="slide-num-text">
+      {{ slide_num }} / {{ total_slides }}
+    </div>
+  </footer>
+</body>
+</html>
+"""
+
+with open("carousel-engine/templates/carrusel_viral_v2_opensource.html.jinja", "w", encoding="utf-8") as f:
+    f.write(viral_template.strip())
+
+print("carrusel_viral_v2_opensource.html.jinja successfully written!")

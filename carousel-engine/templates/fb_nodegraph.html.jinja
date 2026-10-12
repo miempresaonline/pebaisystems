@@ -373,7 +373,7 @@
     <!-- Connector 1 -->
     <div class="node-connector">
       <div class="connector-line"></div>
-      <span class="connector-pill">Disparo de IA en 0.2s</span>
+      <span class="connector-pill">{{ connector1_text|default("Disparo de IA en 0.2s") }}</span>
     </div>
 
     <!-- Node 2: HERO AI Brain -->
@@ -381,7 +381,7 @@
       <div class="node-left">
         <div class="node-icon-box">{{ step2_icon_svg|safe }}</div>
         <div class="node-texts">
-          <span class="node-step-label">Paso 02 · Cerebro Autónomo PEBAI</span>
+          <span class="node-step-label">{{ step2_label|default("Paso 02 · Cerebro Autónomo PEBAI") }}</span>
           <h3 class="node-title">{{ step2_title|default("Agente de IA Cualifica y Cotiza") }}</h3>
           <p class="node-desc">{{ step2_desc|default("Consulta tarifas, valida stock y genera propuesta formal en PDF") }}</p>
         </div>
@@ -394,7 +394,7 @@
     <!-- Connector 2 -->
     <div class="node-connector">
       <div class="connector-line"></div>
-      <span class="connector-pill">Sincronización en CRM</span>
+      <span class="connector-pill">{{ connector2_text|default("Sincronización en CRM") }}</span>
     </div>
 
     <!-- Node 3: Output -->
@@ -402,7 +402,7 @@
       <div class="node-left">
         <div class="node-icon-box">{{ step3_icon_svg|safe }}</div>
         <div class="node-texts">
-          <span class="node-step-label">Paso 03 · Cierre Comercial</span>
+          <span class="node-step-label">{{ step3_label|default("Paso 03 · Cierre Comercial") }}</span>
           <h3 class="node-title">{{ step3_title|default("Cita Cerrada en Google Calendar") }}</h3>
           <p class="node-desc">{{ step3_desc|default("Propuesta entregada al cliente y reunión agendada en la agenda") }}</p>
         </div>
@@ -415,16 +415,16 @@
     <!-- Metric Summary Row -->
     <div class="metric-pills-row">
       <div class="metric-pill-card">
-        <div class="metric-pill-val">26 Seg</div>
-        <div class="metric-pill-lbl">Tiempo Total</div>
+        <div class="metric-pill-val">{{ metric1_val|default("26 Seg") }}</div>
+        <div class="metric-pill-lbl">{{ metric1_lbl|default("Tiempo Total") }}</div>
       </div>
       <div class="metric-pill-card">
-        <div class="metric-pill-val" style="color:#594AF7;">0% Fallos</div>
-        <div class="metric-pill-lbl">Error Humano</div>
+        <div class="metric-pill-val" style="color:#594AF7;">{{ metric2_val|default("0% Fallos") }}</div>
+        <div class="metric-pill-lbl">{{ metric2_lbl|default("Error Humano") }}</div>
       </div>
       <div class="metric-pill-card">
-        <div class="metric-pill-val" style="color:#15803d;">24/7/365</div>
-        <div class="metric-pill-lbl">Disponibilidad</div>
+        <div class="metric-pill-val" style="color:#15803d;">{{ metric3_val|default("24/7/365") }}</div>
+        <div class="metric-pill-lbl">{{ metric3_lbl|default("Disponibilidad") }}</div>
       </div>
     </div>
   </div>

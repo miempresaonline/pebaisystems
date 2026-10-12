@@ -408,7 +408,7 @@
         </div>
         <div class="speed-right">
           <div class="speed-num">{{ row1_metric|default("> 14 Horas") }}</div>
-          <div class="speed-tag">60% Fuga de Leads</div>
+          <div class="speed-tag">{{ row1_tag|default("Pérdida de Leads") }}</div>
         </div>
       </div>
 
@@ -423,7 +423,7 @@
         </div>
         <div class="speed-right">
           <div class="speed-num">{{ row2_metric|default("4 Horas") }}</div>
-          <div class="speed-tag">Cuello de Botella</div>
+          <div class="speed-tag">{{ row2_tag|default("Fricción Operativa") }}</div>
         </div>
       </div>
 
@@ -438,15 +438,15 @@
         </div>
         <div class="speed-right">
           <div class="speed-num">{{ row3_metric|default("12 Segundos") }}</div>
-          <div class="speed-tag" style="color:#B7FF3C;">78% Cierre de Ventas</div>
+          <div class="speed-tag" style="color:#B7FF3C;">{{ row3_tag|default("Cierre de Ventas") }}</div>
         </div>
       </div>
     </div>
 
     <!-- Hook Banner -->
     <div class="hook-banner">
-      <span>El <strong>78% de las compras</strong> se cierran con la primera empresa que contesta.</span>
-      <span class="hook-badge">Dato Operativo</span>
+      <span>{{ hook_banner_text|default("El <strong>78% de las compras</strong> se cierran con la primera empresa que contesta.")|safe }}</span>
+      <span class="hook-badge">{{ hook_banner_badge|default("Dato Operativo") }}</span>
     </div>
   </div>
 

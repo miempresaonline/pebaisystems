@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ title }} — Slide {{ slide_num }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      width: 1080px;
+      height: 1440px;
+      overflow: hidden;
+      background: #FAF9F6;
+      color: #0F172A;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 65px 95px 75px 75px;
+    }
+
+    .bg-dot-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1440px;
+      background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1.5px, transparent 1.5px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .header-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .brand-handle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #FFFFFF;
+      border: 1.5px solid #E2E8F0;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .brand-handle-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #5848FA;
+    }
+
+    .category-tag-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #5848FA;
+      background: rgba(88, 72, 250, 0.08);
+      border: 1px solid rgba(88, 72, 250, 0.2);
+      padding: 6px 14px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .brand-logo-img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .double-divider {
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, #5848FA 0%, #B7FF3C 70%, transparent 100%);
+      margin-top: 14px;
+      margin-bottom: 16px;
+      border-radius: 2px;
+    }
+
+    .washi-note {
+      position: absolute;
+      background: #FDFBF7;
+      border: 1.5px solid rgba(215, 205, 180, 0.6);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+      padding: 14px 20px;
+      border-radius: 6px;
+      z-index: 15;
+    }
+
+    .washi-tape {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 22px;
+      background: rgba(225, 218, 195, 0.75);
+      border-left: 2px dashed rgba(180, 170, 145, 0.6);
+      border-right: 2px dashed rgba(180, 170, 145, 0.6);
+    }
+
+    .washi-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 800;
+      color: #5848FA;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .washi-desc {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1E293B;
+      line-height: 1.35;
+      margin-top: 4px;
+    }
+
+    /* REAL SQUIRCLE APP BADGES */
+    .app-squircle {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 22px -4px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.04);
+      flex-shrink: 0;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+    .app-squircle img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+    .app-squircle.sm {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+    }
+    .app-squircle.sm img {
+      width: 28px;
+      height: 28px;
+    }
+    .app-squircle.lg {
+      width: 78px;
+      height: 78px;
+      border-radius: 22px;
+      box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.18), 0 4px 10px rgba(15, 23, 42, 0.06);
+    }
+    .app-squircle.lg img {
+      width: 46px;
+      height: 46px;
+    }
+
+    .sq-whatsapp { background: #25D366; }
+    .sq-whatsapp img { filter: brightness(0) invert(1); }
+    .sq-excel { background: #107C41; }
+    .sq-excel img { filter: brightness(0) invert(1); }
+    .sq-sheets { background: #0F9D58; }
+    .sq-sheets img { filter: brightness(0) invert(1); }
+    .sq-hubspot { background: #FF7A59; }
+    .sq-hubspot img { filter: brightness(0) invert(1); }
+    .sq-sap { background: #008FD3; }
+    .sq-sap img { filter: brightness(0) invert(1); }
+    .sq-googlemeet { background: #FFFFFF; border: 1.5px solid #E2E8F0; }
+    .sq-n8n { background: #EA4B71; }
+    .sq-n8n img { filter: brightness(0) invert(1); }
+    .sq-make { background: #6432FA; }
+    .sq-make img { filter: brightness(0) invert(1); }
+    .sq-python { background: #1E293B; border: 1px solid #334155; }
+    .sq-pebai { background: #12121A; border: 1.5px solid #5848FA; }
+
+    /* FOOTER */
+    .footer-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      border-top: 1px solid #E2E8F0;
+      padding-top: 16px;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #64748B;
+    }
+
+    .page-dots-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .page-dot-item {
+      height: 8px;
+      border-radius: 9999px;
+      background: #CBD5E1;
+      transition: all 0.3s ease;
+    }
+
+    .page-dot-item.active {
+      width: 28px;
+      background: #5848FA;
+    }
+
+    .page-dot-item.inactive {
+      width: 8px;
+    }
+
+    .slide-num-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-dot-grid"></div>
+
+  <!-- HEADER -->
+  <header class="header-bar">
+    <div class="brand-handle-pill">
+      <span class="brand-handle-dot"></span>
+      <span>@pebaisystems</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span class="category-tag-badge">CONSULTORÍA TÉCNICA · 25 MIN</span>
+      <img src="file:///{{ pebai_logo_horizontal }}" alt="PEBAI Systems" class="brand-logo-img">
+    </div>
+  </header>
+
+  <!-- CONTENT PER SLIDE -->
+  {% if slide_num == 1 %}
+  <!-- SLIDE 1: PORTADA B2B - PASE DE CONSULTORÍA PRIVADA (WHATSAPP A EXCEL) -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div>
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.05; letter-spacing: -0.02em;">
+        ¿Tu equipo sigue pasando
+      </h2>
+      <h1 style="font-size: 76px; font-weight: 800; line-height: 1.02; letter-spacing: -0.03em; background: linear-gradient(135deg, #5848FA 0%, #12121A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        Datos a Mano de WhatsApp a Excel?
+      </h1>
+
+      <div class="double-divider"></div>
+
+      <div style="font-family: 'Caveat', cursive; font-size: 36px; font-weight: 700; color: #5848FA; display: flex; align-items: center; gap: 12px;">
+        <span>22 horas a la semana perdidas en tareas manuales que drenan el beneficio de tu empresa →</span>
+      </div>
+    </div>
+
+    <!-- EXECUTIVE CONSULTING VOUCHER (DIFFERENT COVER LAYOUT) -->
+    <div style="background: #FFFFFF; border: 2px solid #5848FA; border-radius: 24px; padding: 26px 30px; box-shadow: 0 20px 45px -10px rgba(88, 72, 250, 0.15); display: flex; flex-direction: column; gap: 18px; position: relative;">
+      
+      <!-- TOP VOUCHER BADGES -->
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="app-squircle sm sq-googlemeet">
+            <img src="{{ logos.googlemeet }}" alt="Google Meet">
+          </div>
+          <div>
+            <div style="font-size: 15px; font-weight: 800; color: #5848FA; letter-spacing: 0.05em; text-transform: uppercase;">SESIÓN TÉCNICA 1 A 1</div>
+            <div style="font-size: 22px; font-weight: 800; color: #0F172A;">Diagnóstico de Procesos en Vivo</div>
+          </div>
+        </div>
+
+        <div style="background: #12121A; color: #FAF9F6; font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; padding: 8px 18px; border-radius: 9999px; border: 1.5px solid #5848FA;">
+          25 MIN CRONOMETRADOS
+        </div>
+      </div>
+
+      <!-- CENTER HIGHLIGHT: 0€ + PLAZAS LIMITADAS + 3D ART -->
+      <div style="display: grid; grid-template-columns: 1fr 210px; gap: 20px; align-items: center; background: #FAF9F6; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 20px 24px;">
+        <div>
+          <!-- GIANT 0€ HIGHLIGHT -->
+          <div style="display: inline-flex; align-items: center; gap: 12px; background: #B7FF3C; border: 2px solid #12121A; border-radius: 12px; padding: 8px 22px; box-shadow: 0 6px 18px rgba(183, 255, 60, 0.4);">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 40px; font-weight: 900; color: #12121A; line-height: 1;">0 €</span>
+            <span style="font-size: 20px; font-weight: 900; color: #12121A; text-transform: uppercase; letter-spacing: 0.02em;">COSTE CERO · GRATUITA</span>
+          </div>
+
+          <!-- PLAZAS LIMITADAS TAG -->
+          <div style="margin-top: 14px; display: inline-flex; align-items: center; gap: 8px; background: #12121A; color: #FAF9F6; padding: 8px 18px; border-radius: 8px; font-size: 19px; font-weight: 800;">
+            <span style="color: #B7FF3C;">●</span> SOLO 5 PLAZAS DISPONIBLES ESTE MES
+          </div>
+
+          <div style="margin-top: 12px; font-size: 23px; font-weight: 700; color: #334155; line-height: 1.4;">
+            Conectamos con un Ingeniero de PEBAI para auditar en tiempo real tus fugas operativas sin compromiso.
+          </div>
+        </div>
+
+        <!-- 3D PDA Artwork within ticket -->
+        <div style="display: flex; justify-content: center; align-items: center;">
+          <img src="file:///{{ cover_3d_artwork }}" alt="Diagnóstico PDA" style="width: 200px; height: 200px; object-fit: contain; filter: drop-shadow(0 15px 25px rgba(15, 23, 42, 0.15));">
+        </div>
+      </div>
+
+      <!-- BOTTOM ROW: THE 4 TOOLS FLOW -->
+      <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed #CBD5E1; padding-top: 14px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="app-squircle sm sq-whatsapp">
+            <img src="{{ logos.whatsapp }}" alt="WhatsApp">
+          </div>
+          <span style="font-size: 20px; font-weight: 800; color: #64748B;">➔</span>
+          <div class="app-squircle sm sq-excel">
+            <img src="{{ logos.excel }}" alt="Excel">
+          </div>
+          <span style="font-size: 20px; font-weight: 800; color: #64748B;">➔</span>
+          <div class="app-squircle sm sq-hubspot">
+            <img src="{{ logos.hubspot }}" alt="HubSpot">
+          </div>
+          <span style="font-size: 20px; font-weight: 800; color: #5848FA;">➔</span>
+          <div class="app-squircle sm sq-pebai">
+            <img src="{{ logos.python }}" alt="PEBAI Engine">
+          </div>
+        </div>
+
+        <div style="font-family: 'Caveat', cursive; font-size: 28px; font-weight: 700; color: #5848FA;">
+          Sincronización API automática en 14 días →
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM GUARANTEE -->
+    <div style="background: #12121A; border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="width: 12px; height: 12px; border-radius: 50%; background: #B7FF3C; box-shadow: 0 0 10px #B7FF3C;"></div>
+        <span style="font-size: 22px; font-weight: 700; color: #FAF9F6;">
+          Garantía: Si a los 10 minutos no detectamos fugas cuantificables, cerramos la sesión.
+        </span>
+      </div>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #B7FF3C;">
+        0 € RIESGO
+      </span>
+    </div>
+  </main>
+
+  {% elif slide_num == 2 %}
+  <!-- SLIDE 2: LAS 3 FRICCIONES QUE DRENAN TU MARGEN -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(2deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">DATOS REALES</div>
+      <div class="washi-desc">Horas de trabajo que<br>no generan facturación.</div>
+    </div>
+
+    <div style="max-width: 700px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        Las 3 Fricciones Que
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #5848FA 0%, #12121A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        Drenan tu Margen
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 20px;"></div>
+    </div>
+
+    <!-- 3 QUANTIFIED LEAK ROWS WITH REAL LOGOS -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <!-- ROW 1: WHATSAPP MANUAL REENTRY -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-left: 6px solid #5848FA; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 160px 1fr; gap: 20px; align-items: center;">
+        <div class="app-squircle sq-whatsapp">
+          <img src="{{ logos.whatsapp }}" alt="WhatsApp">
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 36px; font-weight: 800; color: #5848FA; line-height: 1.1;">
+          9.5 h<br><span style="font-size: 20px; color: #64748B; font-weight: 700;">/ semana</span>
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">Reintroducción Manual de Pedidos (WhatsApp &amp; Mail)</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Traspasar datos de chats a mano hacia el CRM o ERP. Errores de tipeo que provocan envíos fallidos y horas de soporte innecesarias.
+          </p>
+        </div>
+      </div>
+
+      <!-- ROW 2: EXCEL DESINCRONIZADO -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-left: 6px solid #5848FA; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 160px 1fr; gap: 20px; align-items: center;">
+        <div class="app-squircle sq-excel">
+          <img src="{{ logos.excel }}" alt="Excel">
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 36px; font-weight: 800; color: #5848FA; line-height: 1.1;">
+          68%<br><span style="font-size: 20px; color: #64748B; font-weight: 700;">demora</span>
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">Hojas de Cálculo Inconexas y Desfasadas</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Departamentos manejando versiones distintas de un mismo archivo. Tardar horas en presupuestar hace que el cliente firme con otro.
+          </p>
+        </div>
+      </div>
+
+      <!-- ROW 3: HUBSPOT & SAP DESCONECTADOS -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-left: 6px solid #5848FA; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 160px 1fr; gap: 20px; align-items: center;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div class="app-squircle sm sq-hubspot">
+            <img src="{{ logos.hubspot }}" alt="HubSpot">
+          </div>
+          <div class="app-squircle sm sq-sap">
+            <img src="{{ logos.sap }}" alt="SAP">
+          </div>
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 36px; font-weight: 800; color: #5848FA; line-height: 1.1;">
+          -950 €<br><span style="font-size: 20px; color: #64748B; font-weight: 700;">/ mes</span>
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">CRM y ERP Sin Conexión Bidireccional</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Pagar licencias caras que no se hablan entre sí, obligando a los empleados a actuar como puentes manuales entre plataformas.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSOLIDATED FINANCIAL IMPACT -->
+    <div style="background: #FFFFFF; border: 1.5px solid rgba(88, 72, 250, 0.2); border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div class="app-squircle sm sq-pebai">
+          <img src="{{ logos.python }}" alt="PEBAI">
+        </div>
+        <span style="font-size: 22px; font-weight: 700; color: #0F172A;">
+          Impacto medio: más de 16.800 € al año en tareas improductivas.
+        </span>
+      </div>
+      <span style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #5848FA;">Fuga real detectada en 25 min →</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 3 %}
+  <!-- SLIDE 3: ROADMAP DE LOS 25 MINUTOS -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(-1.5deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">SESIÓN EN VIVO</div>
+      <div class="washi-desc">25 minutos cronometrados.<br>Cero presentaciones.</div>
+    </div>
+
+    <div style="max-width: 700px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        Paso 1: El Desglose
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #5848FA 0%, #12121A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        De los 25 Minutos
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 20px;"></div>
+    </div>
+
+    <!-- 3 TIMELINE BLOCKS WITH REAL LOGOS -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <!-- STEP 1 -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 150px 1fr; gap: 20px; align-items: center;">
+        <div class="app-squircle sq-googlemeet">
+          <img src="{{ logos.googlemeet }}" alt="Google Meet">
+        </div>
+        <div style="background: rgba(88, 72, 250, 0.08); color: #5848FA; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; padding: 10px 14px; border-radius: 10px; text-align: center;">
+          00 - 08 MIN
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">Diagnóstico de tu Operativa Diaria</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Compartes pantalla y mapeamos tus herramientas reales (CRM, ERP, WhatsApp, Excel) para ver dónde se atascan los datos.
+          </p>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 150px 1fr; gap: 20px; align-items: center;">
+        <div class="app-squircle sq-pebai">
+          <img src="{{ logos.python }}" alt="Cálculo">
+        </div>
+        <div style="background: rgba(88, 72, 250, 0.08); color: #5848FA; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; padding: 10px 14px; border-radius: 10px; text-align: center;">
+          08 - 16 MIN
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">Detección Matemática de Fugas</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Calculamos el coste en horas/hombre y el capital mensual que se pierde en cada proceso repetitivo. Cifras reales sin especular.
+          </p>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 150px 1fr; gap: 20px; align-items: center;">
+        <div style="display: flex; gap: 6px;">
+          <div class="app-squircle sm sq-n8n">
+            <img src="{{ logos.n8n }}" alt="n8n">
+          </div>
+          <div class="app-squircle sm sq-make">
+            <img src="{{ logos.make }}" alt="Make">
+          </div>
+        </div>
+        <div style="background: rgba(88, 72, 250, 0.08); color: #5848FA; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; padding: 10px 14px; border-radius: 10px; text-align: center;">
+          16 - 25 MIN
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">Plan Técnico de Automatización</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Diseñamos el esquema exacto de integración (conectores API en n8n/Python, triggers y validaciones) para resolver la fuga en 14 días.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUARANTEE ROW -->
+    <div style="background: #FFFFFF; border: 1.5px solid rgba(88, 72, 250, 0.2); border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div class="app-squircle sm sq-googlemeet">
+          <img src="{{ logos.googlemeet }}" alt="Meet">
+        </div>
+        <span style="font-size: 22px; font-weight: 700; color: #0F172A;">
+          Garantía: Si a los 10 minutos no detectamos fugas cuantificables, cerramos la llamada de inmediato.
+        </span>
+      </div>
+      <span style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #5848FA;">0€ Coste · 25 min →</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 4 %}
+  <!-- SLIDE 4: PARA QUIÉN ES ESTA SESIÓN PRIVADA (CRITERIOS REALES) -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(1.5deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">PLAZAS LIMITADAS</div>
+      <div class="washi-desc">Solo 5 plazas por mes.<br>Filtro estricto.</div>
+    </div>
+
+    <div style="max-width: 700px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        Paso 2: Filtro
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #5848FA 0%, #12121A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        ¿Para Quién Es?
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 20px;"></div>
+    </div>
+
+    <!-- CHECKLIST CARD -->
+    <div style="background: #FFFFFF; border: 2px solid rgba(88, 72, 250, 0.15); border-radius: 20px; padding: 26px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; gap: 18px; align-items: flex-start;">
+        <div class="app-squircle sm sq-pebai">
+          <img src="{{ logos.python }}" alt="Check">
+        </div>
+        <div>
+          <h4 style="font-size: 26px; font-weight: 800; color: #0F172A;">Ganas Reales de Impulsar Tu Operativa</h4>
+          <p style="font-size: 22px; color: #475569; margin-top: 4px; line-height: 1.4;">Buscamos empresas con ambición decidida de automatizar tareas manuales y escalar sus procesos mediante IA.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 18px; align-items: flex-start;">
+        <div class="app-squircle sm sq-hubspot">
+          <img src="{{ logos.hubspot }}" alt="Presupuesto">
+        </div>
+        <div>
+          <h4 style="font-size: 26px; font-weight: 800; color: #0F172A;">Presupuesto Disponible para Inversión</h4>
+          <p style="font-size: 22px; color: #475569; margin-top: 4px; line-height: 1.4;">Si el diagnóstico demuestra un retorno claro y la solución encaja, debes tener capacidad para implementarla.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 18px; align-items: flex-start;">
+        <div class="app-squircle sm sq-googlemeet">
+          <img src="{{ logos.googlemeet }}" alt="Plazas">
+        </div>
+        <div>
+          <h4 style="font-size: 26px; font-weight: 800; color: #0F172A;">Compromiso y Plazas Limitadas a 5 al Mes</h4>
+          <p style="font-size: 22px; color: #475569; margin-top: 4px; line-height: 1.4;">Reservamos la agenda exclusiva de un ingeniero sénior. Solo admitimos negocios con compromiso y puntualidad.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 18px; align-items: flex-start;">
+        <div class="app-squircle sm sq-pebai">
+          <img src="{{ logos.python }}" alt="1 a 1">
+        </div>
+        <div>
+          <h4 style="font-size: 26px; font-weight: 800; color: #0F172A;">Sesión 1 a 1 Práctica por Google Meet</h4>
+          <p style="font-size: 22px; color: #475569; margin-top: 4px; line-height: 1.4;">25 minutos enfocados directamente en resolver problemas operativos de tu empresa, sin teoría ni rodeos comerciales.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIVACY ROW -->
+    <div style="background: #FFFFFF; border: 1.5px solid rgba(88, 72, 250, 0.2); border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div class="app-squircle sm sq-pebai">
+          <img src="{{ logos.python }}" alt="Seguridad">
+        </div>
+        <span style="font-size: 22px; font-weight: 700; color: #0F172A;">
+          Sesión 1 a 1 conducida por un Ingeniero de Procesos Sénior de PEBAI.
+        </span>
+      </div>
+      <span style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #5848FA;">Coste 0€ · Solo 5 plazas →</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 5 %}
+  <!-- SLIDE 5: CIERRE B2B CON MEGA 0€, 5 PLAZAS Y COMENTA CONSULTORÍA -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+    <div>
+      <!-- PLAZAS LIMITADAS PILL -->
+      <div style="display: inline-flex; align-items: center; gap: 10px; background: #12121A; border: 2px solid #5848FA; padding: 10px 28px; border-radius: 9999px; font-size: 20px; font-weight: 800; color: #FFFFFF; text-transform: uppercase;">
+        <span style="width: 10px; height: 10px; border-radius: 50%; background: #B7FF3C; box-shadow: 0 0 10px #B7FF3C;"></span>
+        SOLO 5 PLAZAS DISPONIBLES ESTE MES
+      </div>
+
+      <h1 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 72px; font-weight: 400; color: #0F172A; line-height: 1.05; margin-top: 16px;">
+        Reserva tu Sesión de<br><span style="font-style: italic; color: #5848FA;">Consultoría Privada</span>
+      </h1>
+      <div class="double-divider" style="max-width: 600px; margin: 14px auto 20px auto;"></div>
+    </div>
+
+    <!-- MASSIVE 0€ DELIVERABLE TICKET -->
+    <div style="background: #FFFFFF; border: 2.5px solid #5848FA; border-radius: 24px; padding: 26px 30px; box-shadow: 0 20px 45px -10px rgba(88, 72, 250, 0.15); text-align: left; display: flex; flex-direction: column; gap: 16px;">
+      
+      <!-- TOP PRICE CALLOUT -->
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div class="app-squircle lg sq-googlemeet">
+            <img src="{{ logos.googlemeet }}" alt="Google Meet">
+          </div>
+          <div>
+            <div style="font-size: 16px; font-weight: 800; color: #64748B; text-transform: uppercase;">SESIÓN 1 A 1 VÍA GOOGLE MEET</div>
+            <div style="font-size: 28px; font-weight: 800; color: #0F172A;">25 Minutos con un Ingeniero PEBAI</div>
+          </div>
+        </div>
+
+        <!-- GIANT 0€ HIGHLIGHT -->
+        <div style="background: #B7FF3C; border: 2px solid #12121A; border-radius: 14px; padding: 10px 24px; text-align: center; box-shadow: 0 8px 20px rgba(183, 255, 60, 0.4);">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 42px; font-weight: 900; color: #12121A; line-height: 1;">0 €</div>
+          <div style="font-size: 16px; font-weight: 900; color: #12121A; text-transform: uppercase;">COSTE CERO</div>
+        </div>
+      </div>
+
+      <!-- DELIVERABLES LIST (LARGE READABLE TEXT) -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 23px; font-weight: 700; color: #1E293B;">
+          <span style="color: #5848FA; font-size: 24px;">✔</span> Diagnóstico en tiempo real de tu operativa (CRM, WhatsApp, ERP).
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 23px; font-weight: 700; color: #1E293B;">
+          <span style="color: #5848FA; font-size: 24px;">✔</span> Cálculo matemático exacto de tus horas y dinero perdidos por semana.
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 23px; font-weight: 700; color: #1E293B;">
+          <span style="color: #5848FA; font-size: 24px;">✔</span> Entrega de hoja de ruta técnica con el esquema de automatización.
+        </div>
+      </div>
+
+      <!-- REQUISITO -->
+      <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px 18px; font-size: 21px; font-weight: 700; color: #64748B;">
+        Requisito: Empresa constituida con más de 3 empleados y operativa comercial activa.
+      </div>
+    </div>
+
+    <!-- HIGH-VISIBILITY CTA BUTTON (COMENTA CONSULTORÍA) -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+      <div style="display: inline-flex; align-items: center; gap: 18px; background: #12121A; border: 2.5px solid #5848FA; color: #FFFFFF; padding: 20px 48px; border-radius: 9999px; box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.45);">
+        <span style="font-size: 26px; font-weight: 800; letter-spacing: 0.02em;">COMENTA</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 34px; font-weight: 900; color: #12121A; background: #B7FF3C; padding: 6px 24px; border-radius: 10px; border: 2px solid #B7FF3C; box-shadow: 0 4px 15px rgba(183, 255, 60, 0.5);">
+          CONSULTORÍA
+        </span>
+      </div>
+
+      <div style="font-family: 'Caveat', cursive; font-size: 36px; font-weight: 700; color: #5848FA;">
+        Comenta CONSULTORÍA para solicitar una de las 5 plazas disponibles ↓
+      </div>
+    </div>
+  </main>
+  {% endif %}
+
+  <!-- FOOTER -->
+  <footer class="footer-bar">
+    <div class="footer-left">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; color: #5848FA;">@pebaisystems</span>
+      <span>·</span>
+      <span>Consultoría Técnica Privada</span>
+    </div>
+
+    <div class="page-dots-wrap">
+      {% for i in range(1, total_slides + 1) %}
+        <div class="page-dot-item {% if i == slide_num %}active{% else %}inactive{% endif %}"></div>
+      {% endfor %}
+    </div>
+
+    <div class="slide-num-text">
+      {{ slide_num }} / {{ total_slides }}
+    </div>
+  </footer>
+</body>
+</html>

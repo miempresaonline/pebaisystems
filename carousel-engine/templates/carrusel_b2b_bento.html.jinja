@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ title|default("PEBAI Systems - Consultoría Técnica 25 Min") }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1080px;
+      height: 1440px;
+      background-color: #FAF9F6;
+      background-image: radial-gradient(circle at 50% 15%, #FFFFFF 0%, #FAF9F6 100%);
+      color: #0F172A;
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 65px 75px 55px 75px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .bg-dot-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(#CBD5E1 1.2px, transparent 1.2px);
+      background-size: 32px 32px;
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .brand-handle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(79, 70, 229, 0.06);
+      border: 1.5px solid rgba(79, 70, 229, 0.18);
+      padding: 8px 18px;
+      border-radius: 9999px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #4F46E5;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-handle-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4F46E5;
+      box-shadow: 0 0 8px rgba(79, 70, 229, 0.6);
+    }
+
+    .brand-logo-img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .category-tag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #475569;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .double-divider {
+      width: 100%;
+      height: 5px;
+      border-top: 1.5px solid rgba(245, 158, 11, 0.35);
+      border-bottom: 1.5px solid rgba(79, 70, 229, 0.35);
+      margin: 14px 0 16px 0;
+    }
+
+    .cursive-hook {
+      font-family: 'Caveat', cursive;
+      font-size: 32px;
+      font-weight: 700;
+      color: #1E293B;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.01em;
+    }
+
+    .washi-note {
+      position: absolute;
+      background: #F4EFE6;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 4px;
+      padding: 16px 22px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+      text-align: center;
+      z-index: 20;
+    }
+
+    .washi-tape {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 75px;
+      height: 24px;
+      background: rgba(225, 218, 195, 0.8);
+      backdrop-filter: blur(2px);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border-radius: 2px;
+    }
+
+    .washi-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #0F172A;
+      margin-bottom: 4px;
+    }
+
+    .washi-desc {
+      font-family: 'Caveat', cursive;
+      font-size: 24px;
+      font-weight: 700;
+      color: #334155;
+      line-height: 1.2;
+    }
+
+    .stack-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(15, 23, 42, 0.07);
+      border-radius: 18px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 10px 25px -8px rgba(15, 23, 42, 0.06);
+    }
+
+    .stack-icon-wrap {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .stack-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0F172A;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .stack-subtitle {
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748B;
+      margin-top: 2px;
+    }
+
+    .mini-terminal {
+      background: #0F172A;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 18px 22px;
+      box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.35);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .mac-dots {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .mac-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #EF4444; }
+    .dot-yellow { background: #F59E0B; }
+    .dot-green { background: #10B981; }
+
+    .footer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      padding-top: 16px;
+    }
+
+    .footer-left {
+      font-size: 14px;
+      font-weight: 700;
+      color: #64748B;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .page-dots-wrap {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .page-dot-item {
+      height: 6px;
+      border-radius: 3px;
+      background: #CBD5E1;
+      transition: all 0.3s;
+    }
+
+    .page-dot-item.active {
+      width: 28px;
+      background: #4F46E5;
+    }
+
+    .page-dot-item.inactive {
+      width: 8px;
+    }
+
+    .slide-num-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 800;
+      color: #0F172A;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-dot-grid"></div>
+
+  <!-- HEADER -->
+  <header class="header-bar">
+    <div class="brand-handle-pill">
+      <span class="brand-handle-dot"></span>
+      <span>@pebaisystems</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span class="category-tag-badge">CONSULTORÍA TÉCNICA · 25 MIN</span>
+      <img src="file:///{{ pebai_logo_horizontal }}" alt="PEBAI Systems" class="brand-logo-img">
+    </div>
+  </header>
+
+  <!-- CONTENT PER SLIDE -->
+  {% if slide_num == 1 %}
+  <!-- SLIDE 1: PORTADA B2B DANIEL BROWN + ZOOUT CON SCANNER 3D Y IMPACTO FINANCIERO -->
+  <main style="position: relative; z-index: 10; margin-top: 25px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div>
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 72px; font-weight: 400; color: #0F172A; line-height: 1.0; letter-spacing: -0.02em;">
+        Tu Empresa Pierde
+      </h2>
+      <h1 style="font-size: 104px; font-weight: 800; line-height: 1.05; padding-top: 4px; letter-spacing: -0.04em; background: linear-gradient(135deg, #F59E0B 0%, #4F46E5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px; overflow: visible;">
+        -12.400 € / Año
+      </h1>
+
+      <div class="double-divider"></div>
+
+      <div class="cursive-hook">
+        <span>en 25 minutos detectamos exactamente dónde se fuga el dinero</span>
+        <span style="font-size: 34px;">→</span>
+      </div>
+    </div>
+
+    <!-- MAIN BODY SPLIT -->
+    <div style="display: grid; grid-template-columns: 430px 1fr; gap: 30px; align-items: center; margin-top: 15px;">
+      <!-- LEFT STACK PILLS -->
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="stack-card">
+          <div class="stack-icon-wrap" style="background: rgba(79, 70, 229, 0.1); color: #4F46E5;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <div class="stack-title">00 - 08 MINUTOS</div>
+            <div class="stack-subtitle">Mapeo de flujos operativos reales</div>
+          </div>
+        </div>
+
+        <div class="stack-card">
+          <div class="stack-icon-wrap" style="background: rgba(245, 158, 11, 0.12); color: #D97706;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <div class="stack-title">08 - 16 MINUTOS</div>
+            <div class="stack-subtitle">Detección matemática de fugas</div>
+          </div>
+        </div>
+
+        <div class="stack-card">
+          <div class="stack-icon-wrap" style="background: rgba(6, 182, 212, 0.1); color: #06B6D4;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <div>
+            <div class="stack-title">16 - 25 MINUTOS</div>
+            <div class="stack-subtitle">Plan de automatización técnica</div>
+          </div>
+        </div>
+
+        <div class="stack-card">
+          <div class="stack-icon-wrap" style="background: rgba(183, 255, 60, 0.2); color: #15803D;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <div class="stack-title">COSTE: 0 € · 1 A 1</div>
+            <div class="stack-subtitle">5 plazas mensuales por selección</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT 3D CENTERPIECE ARTWORK (PRECISION SCANNER) -->
+      <div style="position: relative; display: flex; justify-content: center; align-items: center;">
+        <img src="file:///{{ cover_3d_artwork }}" alt="3D Precision Audit Device" style="width: 440px; height: 440px; object-fit: contain; filter: drop-shadow(0 25px 35px rgba(15, 23, 42, 0.12));">
+      </div>
+    </div>
+
+    <!-- BOTTOM FLOATING MINI TERMINAL -->
+    <div class="mini-terminal" style="margin-top: 15px;">
+      <div class="mac-dots">
+        <div class="mac-dot dot-red"></div>
+        <div class="mac-dot dot-yellow"></div>
+        <div class="mac-dot dot-green"></div>
+        <span style="color: #64748B; font-size: 13px; margin-left: 10px; font-family: 'JetBrains Mono', monospace;">consultoria-procesos-sesion · google-meet-live</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 14.5px; line-height: 1.6;">
+        <div>
+          <span style="color: #F59E0B;">&gt; Fuga detectada: 18.5h/sem en traspaso manual de albaranes</span><br>
+          <span style="color: #94A3B8;">&gt; Pérdida económica calculada: 1.150 € / mes por operario</span><br>
+          <span style="color: #10B981; font-weight: 700;">&gt; Solución técnica: Parser OCR + Webhook SQL (0 errores)</span>
+        </div>
+        <div>
+          <span style="color: #64748B;">&gt; Requisitos: Empresa constituida + 3 empleados</span><br>
+          <span style="color: #B7FF3C; font-weight: 800;">&gt; CONSULTORÍA PRIVADA PEBAI: 5 PLAZAS ACTIVAS_</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  {% elif slide_num == 2 %}
+  <!-- SLIDE 2: DÓNDE SE FUGA EL DINERO (QUANTIFIED LEAKS) -->
+  <main style="position: relative; z-index: 10; margin-top: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(2deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">DATOS REALES</div>
+      <div class="washi-desc">El 40% del tiempo<br>no factura ni un euro.</div>
+    </div>
+
+    <div style="max-width: 630px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        Las 3 Fugas Que
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #F59E0B 0%, #4F46E5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        Desangran tu Margen
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 22px;"></div>
+    </div>
+
+    <!-- 3 QUANTIFIED LEAK ROWS -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-left: 6px solid #EF4444; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 160px 1fr; gap: 20px; align-items: center;">
+        <img src="file:///{{ icons_dir }}/badge_money.png" alt="Pérdida Económica" style="width: 58px; height: 58px;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 34px; font-weight: 800; color: #DC2626; line-height: 1.1;">
+          18.5 h<br><span style="font-size: 19px; color: #64748B; font-weight: 700;">/ semana</span>
+        </div>
+        <div>
+          <h3 style="font-size: 26px; font-weight: 800; color: #0F172A;">Copia y Pegado Manual Entre Plataformas</h3>
+          <p style="font-size: 19.5px; color: #475569; margin-top: 6px; line-height: 1.5;">
+            Traspasar datos entre CRM, ERP, hojas de cálculo y correos. Empleados cualificados actuando como conectores humanos lentos y propensos a error.
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-left: 6px solid #F59E0B; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 160px 1fr; gap: 20px; align-items: center;">
+        <img src="file:///{{ icons_dir }}/badge_clock.png" alt="Lentitud" style="width: 58px; height: 58px;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 34px; font-weight: 800; color: #D97706; line-height: 1.1;">
+          74%<br><span style="font-size: 19px; color: #64748B; font-weight: 700;">de fuga</span>
+        </div>
+        <div>
+          <h3 style="font-size: 26px; font-weight: 800; color: #0F172A;">Lentitud Crítica de Respuesta Comercial</h3>
+          <p style="font-size: 19.5px; color: #475569; margin-top: 6px; line-height: 1.5;">
+            Tardar más de 60 minutos en cualificar y contestar un lead entrante reduce la probabilidad de cierre en un 74%. Clientes que acaban comprando a la competencia.
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-left: 6px solid #4F46E5; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 160px 1fr; gap: 20px; align-items: center;">
+        <img src="file:///{{ icons_dir }}/badge_alert.png" alt="Licencias" style="width: 58px; height: 58px;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 34px; font-weight: 800; color: #4F46E5; line-height: 1.1;">
+          -1.200 €<br><span style="font-size: 19px; color: #64748B; font-weight: 700;">/ mes</span>
+        </div>
+        <div>
+          <h3 style="font-size: 26px; font-weight: 800; color: #0F172A;">Licencias de Software Inconexas y Redundantes</h3>
+          <p style="font-size: 19.5px; color: #475569; margin-top: 6px; line-height: 1.5;">
+            Pagos recurrentes por 5 aplicaciones aisladas que no se hablan entre sí, cuando un único flujo centralizado ahorra el 80% de ese coste mensual.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSOLIDATED FINANCIAL IMPACT -->
+    <div style="background: #FEF2F2; border: 1.5px solid #FECACA; border-radius: 16px; padding: 20px 26px; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <img src="file:///{{ icons_dir }}/badge_shield.png" alt="Alerta" style="width: 40px; height: 40px;">
+        <span style="font-size: 20px; font-weight: 700; color: #991B1B;">
+          Impacto consolidado medio: más de 24.000 € anuales en ineficiencia no contabilizada.
+        </span>
+      </div>
+      <span style="font-family: 'Caveat', cursive; font-size: 32px; font-weight: 700; color: #DC2626;">Fuga real detectada en 25 min →</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 3 %}
+  <!-- SLIDE 3: ROADMAP DE LOS 25 MINUTOS -->
+  <main style="position: relative; z-index: 10; margin-top: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(-1.5deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">SESIÓN EN VIVO</div>
+      <div class="washi-desc">25 minutos cronometrados.<br>Cero presentaciones.</div>
+    </div>
+
+    <div style="max-width: 630px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        Paso 1: El Desglose
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #06B6D4 0%, #4F46E5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        De los 25 Minutos
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 22px;"></div>
+    </div>
+
+    <!-- 3 TIMELINE BLOCKS -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 140px 1fr; gap: 20px; align-items: center;">
+        <img src="file:///{{ icons_dir }}/badge_meet.png" alt="Meet" style="width: 58px; height: 58px;">
+        <div style="background: #EEF2FF; color: #4F46E5; font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; padding: 10px 14px; border-radius: 10px; text-align: center;">
+          00 - 08 MIN
+        </div>
+        <div>
+          <h3 style="font-size: 26px; font-weight: 800; color: #0F172A;">Diagnóstico de tu Operativa Diaria</h3>
+          <p style="font-size: 19.5px; color: #475569; margin-top: 6px; line-height: 1.5;">
+            Compartes pantalla y nos muestras tus herramientas reales (CRM, ERP, correo, WhatsApp). Identificamos en qué tareas tu equipo invierte más de 2 horas al día.
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 140px 1fr; gap: 20px; align-items: center;">
+        <img src="file:///{{ icons_dir }}/badge_clock.png" alt="Clock" style="width: 58px; height: 58px;">
+        <div style="background: #FEF3C7; color: #D97706; font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; padding: 10px 14px; border-radius: 10px; text-align: center;">
+          08 - 16 MIN
+        </div>
+        <div>
+          <h3 style="font-size: 26px; font-weight: 800; color: #0F172A;">Detección Matemática de Fugas</h3>
+          <p style="font-size: 19.5px; color: #475569; margin-top: 6px; line-height: 1.5;">
+            Calculamos el coste en horas/hombre y el capital mensual que se pierde por cada proceso manual o desconectado. Cifras exactas, sin estimaciones al aire.
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 140px 1fr; gap: 20px; align-items: center;">
+        <img src="file:///{{ icons_dir }}/badge_terminal.png" alt="Terminal" style="width: 58px; height: 58px;">
+        <div style="background: #DCFCE7; color: #15803D; font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; padding: 10px 14px; border-radius: 10px; text-align: center;">
+          16 - 25 MIN
+        </div>
+        <div>
+          <h3 style="font-size: 26px; font-weight: 800; color: #0F172A;">Plan Técnico de Automatización</h3>
+          <p style="font-size: 19.5px; color: #475569; margin-top: 6px; line-height: 1.5;">
+            Diseñamos el esquema de arquitectura exacto (conectores, APIs, reglas de negocio) necesario para resolver la mayor fuga en menos de 14 días.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUARANTEE ROW -->
+    <div style="background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 16px; padding: 20px 26px; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <img src="file:///{{ icons_dir }}/badge_check.png" alt="Garantía" style="width: 40px; height: 40px;">
+        <span style="font-size: 20px; font-weight: 700; color: #166534;">
+          Garantía PEBAI: Si a los 10 minutos no detectamos fugas cuantificables, cerramos la llamada de inmediato.
+        </span>
+      </div>
+      <span style="font-family: 'Caveat', cursive; font-size: 32px; font-weight: 700; color: #15803D;">0€ Coste · 25 min →</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 4 %}
+  <!-- SLIDE 4: REQUISITOS DE ELEGIBILIDAD (FILTRO B2B CALIFICADO) -->
+  <main style="position: relative; z-index: 10; margin-top: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(1.5deg);">
+      <div class="washi-tape"></div>
+      <div class="washi-title">PLAZAS LIMITADAS</div>
+      <div class="washi-desc">Solo 5 plazas por mes.<br>Filtro estricto.</div>
+    </div>
+
+    <div style="max-width: 630px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        Paso 2: Requisitos
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #06B6D4 0%, #4F46E5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        De Elegibilidad
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 22px;"></div>
+    </div>
+
+    <!-- CHECKLIST CARD -->
+    <div style="background: #FFFFFF; border: 2px solid #E2E8F0; border-radius: 20px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; gap: 18px; align-items: flex-start;">
+        <img src="file:///{{ icons_dir }}/badge_check.png" alt="Check" style="width: 42px; height: 42px; flex-shrink: 0; margin-top: 2px;">
+        <div>
+          <h4 style="font-size: 24px; font-weight: 800; color: #0F172A;">Empresa Constituida con Más de 3 Empleados</h4>
+          <p style="font-size: 18.5px; color: #475569; margin-top: 4px; line-height: 1.45;">No atendemos proyectos unipersonales sin volumen de datos ni empresas en fase de idea.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 18px; align-items: flex-start;">
+        <img src="file:///{{ icons_dir }}/badge_check.png" alt="Check" style="width: 42px; height: 42px; flex-shrink: 0; margin-top: 2px;">
+        <div>
+          <h4 style="font-size: 24px; font-weight: 800; color: #0F172A;">Volumen Operativo Diario Activo</h4>
+          <p style="font-size: 18.5px; color: #475569; margin-top: 4px; line-height: 1.45;">Manejo continuo de pedidos, clientes, facturas, tickets de soporte o procesos logísticos recurrentes.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 18px; align-items: flex-start;">
+        <img src="file:///{{ icons_dir }}/badge_check.png" alt="Check" style="width: 42px; height: 42px; flex-shrink: 0; margin-top: 2px;">
+        <div>
+          <h4 style="font-size: 24px; font-weight: 800; color: #0F172A;">Presencia del Responsable de Operaciones o Dirección</h4>
+          <p style="font-size: 18.5px; color: #475569; margin-top: 4px; line-height: 1.45;">La persona con capacidad de decisión sobre la infraestructura y los procesos debe asistir a la llamada.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 18px; align-items: flex-start;">
+        <img src="file:///{{ icons_dir }}/badge_check.png" alt="Check" style="width: 42px; height: 42px; flex-shrink: 0; margin-top: 2px;">
+        <div>
+          <h4 style="font-size: 24px; font-weight: 800; color: #0F172A;">Acuerdo Mutuo de Confidencialidad (NDA)</h4>
+          <p style="font-size: 18.5px; color: #475569; margin-top: 4px; line-height: 1.45;">Toda la información analizada durante la sesión está blindada jurídicamente por contrato previo.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIVACY ROW -->
+    <div style="background: #FAF5FF; border: 1.5px solid #E9D5FF; border-radius: 16px; padding: 20px 26px; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <img src="file:///{{ icons_dir }}/badge_shield.png" alt="Seguridad" style="width: 40px; height: 40px;">
+        <span style="font-size: 20px; font-weight: 700; color: #7E22CE;">
+          Sesión 1 a 1 conducida por un Ingeniero de Sistemas Sénior de PEBAI.
+        </span>
+      </div>
+      <span style="font-family: 'Caveat', cursive; font-size: 32px; font-weight: 700; color: #7E22CE;">Seguridad y confidencialidad total →</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 5 %}
+  <!-- SLIDE 5: CIERRE B2B CON BOTÓN COMENTA CONSULTORÍA -->
+  <main style="position: relative; z-index: 10; margin-top: 25px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+    <div>
+      <div style="display: inline-flex; align-items: center; gap: 8px; background: #EEF2FF; border: 1.5px solid #C7D2FE; padding: 8px 22px; border-radius: 9999px; font-size: 15px; font-weight: 800; color: #4F46E5; text-transform: uppercase;">
+        5 Plazas Disponibles Este Mes
+      </div>
+
+      <h1 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 64px; font-weight: 400; color: #0F172A; line-height: 1.1; margin-top: 18px;">
+        Reserva tu Sesión de<br><span style="font-style: italic; color: #4F46E5;">Consultoría Privada</span>
+      </h1>
+      <div class="double-divider" style="max-width: 600px; margin: 16px auto 26px auto;"></div>
+    </div>
+
+    <!-- DELIVERABLE CARD -->
+    <div style="background: #FFFFFF; border: 2px solid #E2E8F0; border-radius: 20px; padding: 28px; box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08); text-align: left; display: grid; grid-template-columns: 80px 1fr; gap: 24px; align-items: center;">
+      <img src="file:///{{ icons_dir }}/badge_meet.png" alt="Meet 1 a 1" style="width: 78px; height: 78px;">
+      <div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <span style="background: #DCFCE7; color: #15803D; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px;">COSTE: 0 €</span>
+          <span style="font-size: 15px; font-weight: 700; color: #64748B;">25 MINUTOS · MEET 1 A 1</span>
+        </div>
+        <h3 style="font-size: 26px; font-weight: 800; color: #0F172A; margin-top: 6px;">
+          Diagnóstico de Fugas + Plan de Automatización
+        </h3>
+        <p style="font-size: 19px; color: #475569; margin-top: 6px; line-height: 1.5;">
+          Al finalizar la sesión te entregamos el informe detallado de fugas detectadas y el esquema de arquitectura para resolverlas sin compromiso alguno.
+        </p>
+      </div>
+    </div>
+
+    <!-- HIGH-VISIBILITY CTA BUTTON (COMENTA CONSULTORÍA) -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+      <div style="display: inline-flex; align-items: center; gap: 14px; background: #0F172A; color: #FFFFFF; padding: 22px 46px; border-radius: 9999px; box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.4);">
+        <span style="font-size: 22px; font-weight: 800; letter-spacing: 0.02em;">COMENTA</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 800; color: #B7FF3C; background: rgba(183, 255, 60, 0.15); padding: 6px 18px; border-radius: 8px; border: 1.5px solid #B7FF3C;">
+          CONSULTORÍA
+        </span>
+      </div>
+
+      <div style="font-family: 'Caveat', cursive; font-size: 32px; font-weight: 700; color: #4F46E5;">
+        Comenta CONSULTORÍA para acceder a una plaza ↓
+      </div>
+    </div>
+  </main>
+  {% endif %}
+
+  <!-- FOOTER -->
+  <footer class="footer-bar">
+    <div class="footer-left">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: #4F46E5;">@pebaisystems</span>
+      <span>·</span>
+      <span>Consultoría Técnica Privada</span>
+    </div>
+
+    <div class="page-dots-wrap">
+      {% for i in range(1, total_slides + 1) %}
+        <div class="page-dot-item {% if i == slide_num %}active{% else %}inactive{% endif %}"></div>
+      {% endfor %}
+    </div>
+
+    <div class="slide-num-text">
+      {{ slide_num }} / {{ total_slides }}
+    </div>
+  </footer>
+</body>
+</html>

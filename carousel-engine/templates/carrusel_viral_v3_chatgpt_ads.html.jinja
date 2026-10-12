@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ title }} — Slide {{ slide_num }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      width: 1080px;
+      height: 1440px;
+      overflow: hidden;
+      background: #FAF9F6;
+      color: #0F172A;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 65px 95px 75px 75px;
+    }
+
+    .bg-dot-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1440px;
+      background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1.5px, transparent 1.5px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .header-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .brand-handle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #FFFFFF;
+      border: 1.5px solid #E2E8F0;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .brand-handle-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #5848FA;
+    }
+
+    .category-tag-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #5848FA;
+      background: rgba(88, 72, 250, 0.08);
+      border: 1px solid rgba(88, 72, 250, 0.2);
+      padding: 6px 14px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .brand-logo-img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .double-divider {
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, #5848FA 0%, #B7FF3C 70%, transparent 100%);
+      margin-top: 14px;
+      margin-bottom: 16px;
+      border-radius: 2px;
+    }
+
+    .app-squircle {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .app-squircle.sm {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+    }
+
+    .app-squircle img {
+      width: 65%;
+      height: 65%;
+      object-fit: contain;
+    }
+
+    .sq-openai { background: #10A37F; }
+    .sq-claude { background: #D97706; }
+    .sq-nvidia { background: #76B900; }
+    .sq-pebai { background: #12121A; }
+
+    .bottom-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      border-top: 1.5px solid #E2E8F0;
+      padding-top: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14.5px;
+      color: #64748B;
+      font-weight: 600;
+    }
+
+    .progress-track {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #CBD5E1;
+    }
+
+    .progress-dot.active {
+      width: 26px;
+      height: 8px;
+      border-radius: 4px;
+      background: #5848FA;
+    }
+
+    .washi-note {
+      position: absolute;
+      background: #FFFFFF;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 16px 20px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      z-index: 20;
+    }
+
+    .washi-tape {
+      position: absolute;
+      top: -10px;
+      left: 30%;
+      width: 70px;
+      height: 20px;
+      background: rgba(226, 232, 240, 0.85);
+      border-left: 2px dashed rgba(100, 116, 139, 0.4);
+      border-right: 2px dashed rgba(100, 116, 139, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-dot-grid"></div>
+
+  <!-- HEADER -->
+  <header class="header-bar">
+    <div class="brand-handle-pill">
+      <span class="brand-handle-dot"></span>
+      <span>@pebaisystems</span>
+    </div>
+    <div class="category-tag-badge">{{ category_tag }}</div>
+    <img src="{{ pebai_logo_horizontal }}" alt="PEBAI Systems" class="brand-logo-img">
+  </header>
+
+  {% if slide_num == 1 %}
+  <!-- SLIDE 1: PORTADA VIRAL (MOCKUP ANUNCIOS EN CHATGPT) -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    
+    <!-- WASHI STICKER -->
+    <div class="washi-note" style="top: -5px; right: 0; transform: rotate(2deg);">
+      <div class="washi-tape"></div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 800; color: #5848FA; letter-spacing: 0.08em; text-transform: uppercase;">ACTUALIZACIÓN &lt; 24H</div>
+      <div style="font-size: 15px; font-weight: 700; color: #0F172A; margin-top: 2px;">Oficial OpenAI · Octubre</div>
+    </div>
+
+    <!-- MAIN HEADLINE -->
+    <div style="max-width: 780px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        OpenAI Meterá Anuncios
+      </h2>
+      <h1 style="font-size: 82px; font-weight: 900; line-height: 0.95; letter-spacing: -0.04em; background: linear-gradient(135deg, #10A37F 0%, #0F172A 70%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-top: 4px;">
+        En ChatGPT Este Mes
+      </h1>
+      <div class="double-divider"></div>
+      <p style="font-size: 26px; color: #334155; line-height: 1.35; font-weight: 600; margin-top: 6px;">
+        La era del chat limpio ha terminado. OpenAI comenzará a probar inserciones publicitarias con marcas en EE.UU.
+      </p>
+    </div>
+
+    <!-- BESPOKE VISUAL CENTERPIECE: MOCKUP DE CHATGPT CON ANUNCIO PATROCINADO -->
+    <div style="background: #FFFFFF; border: 2px solid #E2E8F0; border-radius: 24px; padding: 24px 28px; box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08); display: flex; flex-direction: column; gap: 18px;">
+      
+      <!-- CHATGPT UI BAR -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="app-squircle sm sq-openai">
+            <img src="{{ logos.openai }}" alt="OpenAI">
+          </div>
+          <div>
+            <div style="font-size: 20px; font-weight: 800; color: #0F172A;">ChatGPT 4o / GPT-5</div>
+            <div style="font-size: 14px; font-family: 'JetBrains Mono', monospace; color: #64748B;">1.200M Usuarios Semanales</div>
+          </div>
+        </div>
+        <div style="background: rgba(16, 163, 127, 0.1); color: #10A37F; border: 1.5px solid rgba(16, 163, 127, 0.3); font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; padding: 6px 14px; border-radius: 9999px;">
+          TESTING ADS · US ONLY
+        </div>
+      </div>
+
+      <!-- PROMPT MOCKUP -->
+      <div style="background: #F8FAFC; border-radius: 14px; padding: 14px 18px; border-left: 4px solid #5848FA;">
+        <div style="font-size: 13px; font-family: 'JetBrains Mono', monospace; color: #64748B; font-weight: 700;">PROMPT DEL USUARIO:</div>
+        <div style="font-size: 20px; font-weight: 600; color: #0F172A; margin-top: 4px;">"Genera una imagen publicitaria para mi marca de café de especialidad..."</div>
+      </div>
+
+      <!-- AD INSERTION BOX -->
+      <div style="background: linear-gradient(135deg, rgba(183, 255, 60, 0.15) 0%, rgba(88, 72, 250, 0.06) 100%); border: 2px dashed #5848FA; border-radius: 18px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="background: #12121A; color: #B7FF3C; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 900; padding: 6px 12px; border-radius: 6px; letter-spacing: 0.05em;">
+            PATROCINADO · AD
+          </div>
+          <div>
+            <div style="font-size: 22px; font-weight: 800; color: #0F172A;">Nespresso / Rocket Espresso Machine</div>
+            <div style="font-size: 17px; color: #475569; margin-top: 2px;">Descuento exclusivo para creadores en ChatGPT (+20% OFF)</div>
+          </div>
+        </div>
+        <div style="background: #5848FA; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; padding: 10px 18px; border-radius: 10px; white-space: nowrap;">
+          VER ANUNCIO →
+        </div>
+      </div>
+
+      <!-- CAVEAT HANDWRITTEN NOTE -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+        <span style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #5848FA;">
+          El fin del chat sin anuncios ➔
+        </span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: #64748B;">
+          Desliza para entender el impacto
+        </span>
+      </div>
+    </div>
+
+    <!-- METRIC BANNER -->
+    <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <span style="width: 12px; height: 12px; border-radius: 50%; background: #10A37F;"></span>
+        <span style="font-size: 22px; font-weight: 800; color: #0F172A;">5.000M$ de coste anual en servidores</span>
+      </div>
+      <span style="font-size: 20px; font-weight: 700; color: #5848FA;">¿Era inevitable la publicidad?</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 2 %}
+  <!-- SLIDE 2: CÓMO FUNCIONARÁN LOS ANUNCIOS (EXPLICACIÓN CLARA) -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(-1.5deg);">
+      <div class="washi-tape"></div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 800; color: #5848FA;">PASO A PASO</div>
+      <div style="font-size: 15px; font-weight: 700; color: #0F172A;">Cómo va a funcionar</div>
+    </div>
+
+    <div style="max-width: 740px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        ¿Cómo Funcionarán?
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; color: #0F172A; text-transform: uppercase; margin-top: 4px;">
+        Así Cambiará Tu Chat
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 20px;"></div>
+    </div>
+
+    <!-- 3 SIMPLE BENTO CARDS -->
+    <div style="display: flex; flex-direction: column; gap: 18px;">
+      
+      <!-- CARD 1 -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 1fr; gap: 20px; align-items: flex-start;">
+        <div class="app-squircle sq-openai">
+          <img src="{{ logos.openai }}" alt="Imágenes">
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">1. Saldrán cuando pidas imágenes</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Si le pides a ChatGPT que diseñe un café, unas zapatillas o una oficina, justo debajo de la imagen aparecerá una tarjeta con un producto real de una marca patrocinada.
+          </p>
+        </div>
+      </div>
+
+      <!-- CARD 2 -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 1fr; gap: 20px; align-items: flex-start;">
+        <div class="app-squircle sq-pebai">
+          <img src="{{ logos.python }}" alt="Texto Limpio">
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">2. El texto normal seguirá limpio</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Por ahora no habrá anuncios en medio de tus preguntas cotidianas de texto. OpenAI quiere que no sea molesto y que se note claramente qué es publicidad y qué no.
+          </p>
+        </div>
+      </div>
+
+      <!-- CARD 3 -->
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: grid; grid-template-columns: 58px 1fr; gap: 20px; align-items: flex-start;">
+        <div class="app-squircle sq-nvidia">
+          <img src="{{ logos.nvidia }}" alt="Pruebas">
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">3. Empieza en EE.UU. a finales de mes</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Primero lo probarán con un grupo reducido de usuarios en Estados Unidos este mes de octubre. Si la prueba funciona bien, llegará a España y al resto del mundo.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NOTE -->
+    <div style="background: #FFFFFF; border: 1.5px solid rgba(88, 72, 250, 0.2); border-radius: 16px; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-size: 22px; font-weight: 700; color: #0F172A;">
+        Parece un cambio pequeño, pero marca un antes y un después.
+      </span>
+      <span style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #5848FA;">¿Por qué lo hacen? →</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 3 %}
+  <!-- SLIDE 3: POR QUÉ OPENAI HACE ESTO (EXPLICACIÓN SENCILLA) -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(1deg);">
+      <div class="washi-tape"></div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 800; color: #5848FA;">LA RAZÓN OCULTA</div>
+      <div style="font-size: 15px; font-weight: 700; color: #0F172A;">La factura de OpenAI</div>
+    </div>
+
+    <div style="max-width: 740px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        Paso 1: La Razón
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; color: #0F172A; text-transform: uppercase; margin-top: 4px;">
+        ¿Por Qué Hacen Esto?
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 20px;"></div>
+    </div>
+
+    <!-- COMPARISON BOXES -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      
+      <!-- BOX 1: CASI NADIE PAGA -->
+      <div style="background: #FFFFFF; border: 2px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);">
+        <div>
+          <div style="font-size: 16px; font-family: 'JetBrains Mono', monospace; color: #EF4444; font-weight: 800;">1. CASI NADIE PAGA LA SUSCRIPCIÓN</div>
+          <div style="font-size: 28px; font-weight: 800; color: #0F172A; margin-top: 4px;">El 94% de los usuarios usa la versión gratis</div>
+          <p style="font-size: 22px; color: #475569; margin-top: 6px;">Más de 1.000 millones de personas usan ChatGPT sin pagar ni un céntimo cada semana.</p>
+        </div>
+        <div style="background: rgba(239, 68, 68, 0.1); color: #EF4444; font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 900; padding: 12px 18px; border-radius: 12px; white-space: nowrap;">
+          94% GRATIS
+        </div>
+      </div>
+
+      <!-- BOX 2: CADA MENSAJE CUESTA DINERO -->
+      <div style="background: #FFFFFF; border: 2px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);">
+        <div>
+          <div style="font-size: 16px; font-family: 'JetBrains Mono', monospace; color: #5848FA; font-weight: 800;">2. CADA RESPUESTA GASTA ELECTRICIDAD</div>
+          <div style="font-size: 28px; font-weight: 800; color: #0F172A; margin-top: 4px;">Miles de millones al año en servidores</div>
+          <p style="font-size: 22px; color: #475569; margin-top: 6px;">Los superordenadores que piensan las respuestas consumen una barbaridad de luz y chips.</p>
+        </div>
+        <div style="background: rgba(88, 72, 250, 0.1); color: #5848FA; font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 900; padding: 12px 18px; border-radius: 12px; white-space: nowrap;">
+          GASTO DIARIO
+        </div>
+      </div>
+
+      <!-- BOX 3: EL MODELO GOOGLE -->
+      <div style="background: linear-gradient(135deg, rgba(183, 255, 60, 0.15) 0%, rgba(255, 255, 255, 1) 100%); border: 2px solid #B7FF3C; border-radius: 18px; padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);">
+        <div>
+          <div style="font-size: 16px; font-family: 'JetBrains Mono', monospace; color: #12121A; font-weight: 800;">3. EL CAMINO DE GOOGLE Y META</div>
+          <div style="font-size: 28px; font-weight: 800; color: #0F172A; margin-top: 4px;">Que las marcas paguen la fiesta</div>
+          <p style="font-size: 22px; color: #475569; margin-top: 6px;">Para no obligarte a pagar 20€ al mes, meten patrocinadores que pagan la cuenta por ti.</p>
+        </div>
+        <div style="background: #12121A; color: #B7FF3C; font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 900; padding: 12px 18px; border-radius: 12px; white-space: nowrap;">
+          SOLUCIÓN ADS
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div style="background: #FFFFFF; border: 1.5px solid rgba(88, 72, 250, 0.2); border-radius: 16px; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-size: 22px; font-weight: 700; color: #0F172A;">
+        En internet no hay nada gratis: o pagas tú, o paga el anunciante.
+      </span>
+      <span style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #5848FA;">¿Cómo te afecta? →</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 4 %}
+  <!-- SLIDE 4: QUÉ SIGNIFICA PARA TI (EXPLICACIÓN SENCILLA) -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="washi-note" style="top: -10px; right: 0; transform: rotate(-2deg);">
+      <div class="washi-tape"></div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 800; color: #5848FA;">EN TU DÍA A DÍA</div>
+      <div style="font-size: 15px; font-weight: 700; color: #0F172A;">Lo que notarás</div>
+    </div>
+
+    <div style="max-width: 740px;">
+      <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 68px; font-weight: 400; color: #0F172A; line-height: 1.0;">
+        Paso 2: En Tu Móvil
+      </h2>
+      <h1 style="font-size: 78px; font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; color: #0F172A; text-transform: uppercase; margin-top: 4px;">
+        ¿En Qué Te Afecta?
+      </h1>
+      <div class="double-divider" style="margin-top: 12px; margin-bottom: 20px;"></div>
+    </div>
+
+    <!-- 3 IMPACT CARDS -->
+    <div style="display: flex; flex-direction: column; gap: 18px;">
+      
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: flex; gap: 20px; align-items: flex-start;">
+        <div class="app-squircle sq-openai">
+          <img src="{{ logos.openai }}" alt="Recomendaciones">
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">1. Verás marcas cuando pidas consejos</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Si le pides ideas para regalar, qué portátil comprar o a qué hotel ir, empezarás a ver sugerencias de empresas que han pagado para aparecer en tu respuesta.
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: flex; gap: 20px; align-items: flex-start;">
+        <div class="app-squircle sq-pebai">
+          <img src="{{ logos.python }}" alt="Duda">
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">2. ¿La respuesta seguirá siendo honesta?</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            La gran pregunta que todos nos hacemos: ¿la IA te recomendará lo que de verdad es mejor para ti, o recomendará a la marca que más dinero ha pagado?
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); display: flex; gap: 20px; align-items: flex-start;">
+        <div class="app-squircle sq-claude">
+          <img src="{{ logos.claude }}" alt="Claude">
+        </div>
+        <div>
+          <h3 style="font-size: 28px; font-weight: 800; color: #0F172A;">3. El auge de apps sin publicidad</h3>
+          <p style="font-size: 23px; color: #475569; margin-top: 6px; line-height: 1.45;">
+            Mucha gente que busca respuestas limpias y privadas empezará a cambiarse a alternativas como Claude o a programas que funcionan sin anuncios en tu propio ordenador.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div style="background: #FFFFFF; border: 1.5px solid rgba(88, 72, 250, 0.2); border-radius: 16px; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-size: 22px; font-weight: 700; color: #0F172A;">
+        ¿Estarías dispuesto a aguantar anuncios en tu chat diario?
+      </span>
+      <span style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #5848FA;">Vota en la siguiente slide →</span>
+    </div>
+  </main>
+
+  {% elif slide_num == 5 %}
+  <!-- SLIDE 5: CIERRE DEBATE VIRAL A VS B (SIN PALABRAS BOT, 100% VIRAL TOFU) -->
+  <main style="position: relative; z-index: 10; margin-top: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+    <div>
+      <div style="display: inline-flex; align-items: center; gap: 10px; background: #FFFFFF; border: 1.5px solid #E2E8F0; padding: 8px 24px; border-radius: 9999px; font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; color: #5848FA;">
+        DEBATE DE LA COMUNIDAD · VIRAL TOFU
+      </div>
+
+      <h1 style="font-size: 64px; font-weight: 900; line-height: 1.05; letter-spacing: -0.03em; color: #0F172A; text-transform: uppercase; margin-top: 14px;">
+        ¿Pagarías Más por un ChatGPT<br>Sin Ningún Anuncio?
+      </h1>
+      <div class="double-divider" style="max-width: 500px; margin: 16px auto;"></div>
+    </div>
+
+    <!-- A VS B DEBATE CARDS -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 10px;">
+      
+      <!-- OPTION A -->
+      <div style="background: #FFFFFF; border: 2.5px solid #10A37F; border-radius: 22px; padding: 32px 24px; text-align: left; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 12px 32px rgba(16, 163, 127, 0.08);">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="background: #10A37F; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 900; padding: 6px 16px; border-radius: 8px;">
+              POSTURA A
+            </div>
+            <div class="app-squircle sm sq-openai">
+              <img src="{{ logos.openai }}" alt="OpenAI">
+            </div>
+          </div>
+          <h3 style="font-size: 30px; font-weight: 800; color: #0F172A; margin-top: 16px;">Tolerar Publicidad</h3>
+          <p style="font-size: 22px; color: #475569; margin-top: 10px; line-height: 1.45;">
+            "Acepto anuncios patrocinados discretos si el modelo sigue siendo gratuito, potente y cada día más rápido."
+          </p>
+        </div>
+        <div style="margin-top: 24px; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #10A37F;">
+          Vota escribiendo 'A' ↓
+        </div>
+      </div>
+
+      <!-- OPTION B -->
+      <div style="background: #FFFFFF; border: 2.5px solid #5848FA; border-radius: 22px; padding: 32px 24px; text-align: left; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 12px 32px rgba(88, 72, 250, 0.08);">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="background: #5848FA; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 900; padding: 6px 16px; border-radius: 8px;">
+              POSTURA B
+            </div>
+            <div class="app-squircle sm sq-claude">
+              <img src="{{ logos.claude }}" alt="Claude">
+            </div>
+          </div>
+          <h3 style="font-size: 30px; font-weight: 800; color: #0F172A; margin-top: 16px;">Migrar a Alternativas</h3>
+          <p style="font-size: 22px; color: #475569; margin-top: 10px; line-height: 1.45;">
+            "Si me meten publicidad en el chat, cancelo mi cuenta y me paso a Claude o a modelos Open Source locales."
+          </p>
+        </div>
+        <div style="margin-top: 24px; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; color: #5848FA;">
+          Vota escribiendo 'B' ↓
+        </div>
+      </div>
+    </div>
+
+    <!-- VIRAL CTA -->
+    <div style="background: #12121A; border-radius: 20px; padding: 22px 30px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+      <div style="text-align: left;">
+        <div style="font-size: 24px; font-weight: 800; color: #FFFFFF;">¿Cuál es tu postura: A o B?</div>
+        <div style="font-size: 19px; color: #94A3B8; margin-top: 4px;">Deja tu respuesta en comentarios y guarda este post para seguir la evolución.</div>
+      </div>
+      <div style="background: #B7FF3C; color: #12121A; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 900; padding: 12px 24px; border-radius: 12px; white-space: nowrap;">
+        DEBATE EN COMENTARIOS
+      </div>
+    </div>
+  </main>
+  {% endif %}
+
+  <!-- FOOTER -->
+  <footer class="bottom-bar">
+    <div>@pebaisystems &nbsp;·&nbsp; Análisis de Actualidad IA</div>
+    <div class="progress-track">
+      {% for i in range(1, total_slides + 1) %}
+      <div class="progress-dot {% if i == slide_num %}active{% endif %}"></div>
+      {% endfor %}
+    </div>
+    <div>{{ slide_num }} / {{ total_slides }}</div>
+  </footer>
+</body>
+</html>

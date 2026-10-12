@@ -59,7 +59,7 @@ Desde ahí podrás deslizar las diapositivas de cada carrusel, leer el texto con
 * `templates/`: Plantillas Jinja2 (`fontbravo_slide.html.jinja`, `notebook_slide.html.jinja`, `notebook_cta.html.jinja`).
 * `assets/icons/`: Librería local de logotipos e iconos vectoriales (SVG).
 * `assets/pebai/`: Logotipos e isotipos corporativos oficiales de PEBAI Systems.
-* `content_calendar.py`: Calendario editorial de 14 días según `CONTENT_SYSTEM_PBI.md`.
+* `content_calendar.py`: Calendario editorial de 14 días según `docs/CONTENT_SYSTEM_PBI.md`.
 * `generator.py`: Ensamblador multidiapositiva que une datos + plantillas.
 * `renderer.py`: Motor Playwright que exporta PNGs en resolución Retina (1080 x 1440 px).
 * `output/`: Carpetas con cada carrusel generado (diapositivas PNG + `caption.txt`).

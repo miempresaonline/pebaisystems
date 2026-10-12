@@ -151,7 +151,7 @@ Comenta CONSULTORÍA para valorar cómo transformar la operativa de tu negocio.
                 "q1_badge": "Saturado",
                 "q1_icon": "clock",
                 "q1_title": "Equipo Interno Manual",
-                "q1_desc": "Sueldos fijos, cuellos de botella y llamadas a deshora sin contestar.",
+                "q1_desc": "Sueldos fijos, fugas operativas y llamadas a deshora sin contestar.",
                 "q1_metric": "4 Horas",
                 "q1_metric_sub": "Tiempo de Espera",
                 "q2_badge": "LÍDER OPERATIVO",

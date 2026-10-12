@@ -26,7 +26,13 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzI9PH8bdUa3LCzSVjj0-lISwPgXLvFeXQ4sv49qJOy-VcvbEIYic7pgvMBkr-a0mOIzQ/exec"
+# URL del webhook de Google Sheets: GitHub Secret en CI, PAI Systems/.env en local
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, '.env'))
+except ImportError:
+    pass
+DEFAULT_WEBHOOK_URL = os.environ.get("GSHEET_WEBHOOK_URL", "")
 DEFAULT_SPREADSHEET_ID = "110nBsx3YGGohHHMzjDNzAKL_Nj87gt_CYjWREqnbHjM"
 
 SPANISH_MONTHS = [
@@ -135,8 +141,8 @@ Slide 1 (Portada de Alto Impacto):
   - Hero Tag (ej. "INFORME DE PRODUCTIVIDAD B2B").
   - Indicador de swipe (ej. "DESLIZA HACIA LA DERECHA").
 
-Slide 2 (El Cuello de Botella / Problema Operativo):
-  - Badge: "EL CUELLO DE BOTELLA".
+Slide 2 (El Punto de Bloqueo / Problema Operativo):
+  - Badge: "EL PUNTO DE BLOQUEO".
   - Titular analitico del dolor en la empresa.
   - Metrica destacada grande con etiqueta (ej. "80%", "Perdida de retencion a los 3 dias" o "15h", "Desperdicio semanal por empleado").
   - 2 o 3 bullets concisos con las fricciones tecnicas u organizativas.
@@ -184,7 +190,7 @@ Devuelve UNICAMENTE un JSON valido con esta estructura exacta:
     }},
     {{
       "number": 2,
-      "tag": "EL CUELLO DE BOTELLA",
+      "tag": "EL PUNTO DE BLOQUEO",
       "headline": "Titular de la radiografia del problema",
       "metric_number": "80%",
       "metric_label": "Perdida de conocimiento a los 3 dias",
