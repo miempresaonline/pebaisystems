@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">PAI Systems app icon</title>
+  <rect width="512" height="512" rx="112" fill="#12121A"/>
+  <path fill="#B7FF3C" d="M106 120h182l118 74v83l-118-74H106z"/>
+  <path fill="#6A5CFF" d="M106 194h182l118 74v83l-118-74H106z"/>
+  <path fill="#EFEDE7" d="M106 268h182l118 74v83l-118-74H106z"/>
+</svg>

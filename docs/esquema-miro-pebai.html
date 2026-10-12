@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esquema de Arquitectura Operativa · PEBAI Systems</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-canvas: #0b0f19;
+            --dot-color: #233148;
+            --card-bg: #111827;
+            --card-inner: #162032;
+            --card-border: #1f2d47;
+            --card-hover-border: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-emerald: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --grid-size: 30px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
+        }
+
+        /* Full 2D Panning Canvas */
+        #viewport {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            cursor: crosshair;
+            background-color: var(--bg-canvas);
+            background-image: radial-gradient(circle, var(--dot-color) 1.5px, transparent 1.5px);
+            background-size: var(--grid-size) var(--grid-size);
+        }
+
+        #viewport.space-held {
+            cursor: grab !important;
+        }
+
+        #viewport.panning {
+            cursor: grabbing !important;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: 0 0;
+            will-change: transform;
+            padding: 160px 300px 300px 160px;
+            display: inline-flex;
+            align-items: center;
+            gap: 90px;
+        }
+
+        /* Fullscreen Laser Overlay Canvas */
+        #laserCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Floating Logo Only */
+        .miro-bar {
+            position: fixed;
+            z-index: 100;
+            background: rgba(17, 24, 39, 0.9);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            padding: 8px 14px;
+        }
+
+        .top-left-bar {
+            top: 24px;
+            left: 24px;
+        }
+
+        .brand-logo-only {
+            height: 34px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* SVG Flow Connectors */
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            position: relative;
+        }
+
+        .flow-arrow svg {
+            width: 70px;
+            height: 48px;
+            overflow: visible;
+        }
+
+        .arrow-line {
+            stroke: var(--accent-blue);
+            stroke-width: 3.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-dasharray: 8 6;
+            animation: dashPulse 1.2s linear infinite;
+        }
+
+        @keyframes dashPulse {
+            from { stroke-dashoffset: 28; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* SCHEMATIC NODES & CARDS */
+        .stage-box {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stage-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            width: fit-content;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 22px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+            padding: 34px 38px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .card:hover {
+            border-color: var(--card-hover-border);
+            transform: translateY(-4px);
+            box-shadow: 0 35px 60px -15px rgba(59, 130, 246, 0.25);
+        }
+
+        /* Pure Vector Badges */
+        .vector-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .vector-badge svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .badge-green {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-purple {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--accent-purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .badge-amber {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-cyan {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        /* STAGE 01: LAS 2 OPCIONES ESTRATÉGICAS */
+        .stage-0-container {
+            width: 560px;
+        }
+
+        .options-grid {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .option-choice-card {
+            flex: 1;
+            border-radius: 18px;
+            padding: 24px 20px;
+            border: 2px solid;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background: var(--card-inner);
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .option-card-1 {
+            border-color: rgba(59, 130, 246, 0.4);
+            background: radial-gradient(circle at top, rgba(59, 130, 246, 0.15), var(--card-inner) 75%);
+        }
+
+        .option-card-2 {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: radial-gradient(circle at top, rgba(16, 185, 129, 0.15), var(--card-inner) 75%);
+        }
+
+        .option-choice-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .artwork-container {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .art-boost {
+            background: rgba(59, 130, 246, 0.15);
+            border: 2px solid var(--accent-blue);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+        }
+
+        .art-boost svg {
+            width: 48px;
+            height: 48px;
+            color: var(--accent-blue);
+        }
+
+        .art-cost {
+            background: rgba(16, 185, 129, 0.15);
+            border: 2px solid var(--accent-emerald);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+        }
+
+        .art-cost svg {
+            width: 48px;
+            height: 48px;
+            color: var(--accent-emerald);
+        }
+
+        .option-tag {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+        }
+
+        .option-title {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            line-height: 1.3;
+        }
+
+        .choice-equation-bar {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .eq-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* STAGE 02: LAS 3 ÁREAS (CLEAN ARCHITECTURE) */
+        .areas-row {
+            display: flex;
+            gap: 26px;
+        }
+
+        .area-card {
+            width: 390px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .area-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .area-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 18px;
+        }
+
+        /* Process Steps Bar */
+        .process-steps-bar {
+            background: var(--card-inner);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .step-block {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .step-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .step-sep {
+            color: var(--accent-blue);
+            font-size: 16px;
+            font-weight: 800;
+            padding: 0 4px;
+        }
+
+        /* Clean Deliverable Row */
+        .benefit-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 18px;
+        }
+
+        .benefit-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .benefit-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .benefit-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.35;
+        }
+
+        /* Brand Logos Row */
+        .tech-logos-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            flex-wrap: wrap;
+        }
+
+        .tech-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 7px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .tech-pill svg, .tech-pill img {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+        }
+
+        /* STAGE FINAL: CONSULTORÍA PRIVADA */
+        .stage-4-card {
+            width: 480px;
+            border: 2px solid var(--accent-emerald) !important;
+            background: radial-gradient(circle at top, rgba(16, 185, 129, 0.15), var(--card-bg) 75%) !important;
+            box-shadow: 0 30px 60px -15px rgba(16, 185, 129, 0.35) !important;
+        }
+
+        .price-hero {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 18px;
+            padding: 24px;
+            margin-top: 22px;
+            text-align: center;
+        }
+
+        .price-cross {
+            font-size: 16px;
+            color: var(--text-muted);
+            text-decoration: line-through;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .price-main {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--accent-emerald);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .pill-free {
+            font-size: 13px;
+            background: var(--accent-emerald);
+            color: #ffffff;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 999px;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP LEFT: LOGO ONLY -->
+    <div class="miro-bar top-left-bar">
+        <img class="brand-logo-only" src="data:image/png;base64,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" alt="PEBAI Systems">
+    </div>
+
+    <!-- 2D PANNING VIEWPORT -->
+    <div id="viewport">
+        <!-- CANVAS CON LOS ELEMENTOS DE ARQUITECTURA -->
+        <div id="canvas">
+
+            <!-- ============================================== -->
+            <!-- STAGE 01: LO PRIMERO QUE DEBES SABER           -->
+            <!-- ============================================== -->
+            <div class="stage-box" id="stage-0">
+                <div class="stage-badge badge-purple">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Principio Fundamental
+                </div>
+
+                <div class="card stage-0-container">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <h2 style="font-size: 26px; font-weight: 800; letter-spacing: -0.02em;">LO PRIMERO QUE DEBES SABER</h2>
+                        <span class="stage-badge badge-purple" style="font-size: 11px; padding: 4px 10px;">OBJETIVO ESTRATÉGICO</span>
+                    </div>
+
+                    <!-- LAS DOS OPCIONES ESTRATÉGICAS DE TU FRASE -->
+                    <div class="options-grid">
+                        
+                        <!-- OPCIÓN A: RENDIR EL DOBLE -->
+                        <div class="option-choice-card option-card-1">
+                            <div class="artwork-container art-boost">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <polyline points="16 11 19 8 22 11"></polyline>
+                                    <line x1="19" y1="8" x2="19" y2="16"></line>
+                                </svg>
+                            </div>
+                            <span class="option-tag badge-blue">OPCIÓN 01</span>
+                            <h4 class="option-title" style="color: var(--accent-blue);">HACER QUE TU EQUIPO RINDA EL DOBLE</h4>
+                        </div>
+
+                        <!-- OPCIÓN B: REDUCIR COSTES DE PERSONAL -->
+                        <div class="option-choice-card option-card-2">
+                            <div class="artwork-container art-cost">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2v20"></path>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    <polyline points="18 15 15 18 12 15"></polyline>
+                                </svg>
+                            </div>
+                            <span class="option-tag badge-green">OPCIÓN 02</span>
+                            <h4 class="option-title" style="color: var(--accent-emerald);">REDUCIR COSTES DE PERSONAL</h4>
+                        </div>
+
+                    </div>
+
+                    <!-- EQUATION SUMMARY -->
+                    <div class="choice-equation-bar">
+                        <div class="eq-item">
+                            <div class="vector-badge badge-purple" style="width: 32px; height: 32px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+                            </div>
+                            <span>Inteligencia Artificial</span>
+                        </div>
+                        <span style="color: var(--accent-blue); font-weight: 800; font-size: 18px;">➔</span>
+                        <div class="eq-item" style="color: var(--text-main);">
+                            <span style="color: var(--text-muted); font-size: 13px;">Tú Tienes el Control:</span>
+                            <span style="color: var(--accent-blue); font-weight: 800;">Rendimiento x2</span>
+                            <span style="color: var(--text-muted); font-size: 12px;">o</span>
+                            <span style="color: var(--accent-emerald); font-weight: 800;">Menor Coste</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ARROW TO STAGE 02 -->
+            <div class="flow-arrow">
+                <svg viewBox="0 0 70 48">
+                    <path class="arrow-line" d="M 5,24 L 60,24" />
+                    <polygon points="56,16 68,24 56,32" fill="var(--accent-blue)" />
+                </svg>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- STAGE 02: LAS 3 ÁREAS CLAVE                   -->
+            <!-- ============================================== -->
+            <div class="stage-box" id="stage-1">
+                <div class="stage-badge badge-blue">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    Diagnóstico Operativo
+                </div>
+
+                <div>
+                    <h2 style="font-size: 32px; font-weight: 800; letter-spacing: -0.02em;">LAS TRES ÁREAS CLAVE DE LA OPERATIVA</h2>
+                </div>
+
+                <div class="areas-row">
+
+                    <!-- AREA 01 -->
+                    <div class="card area-card">
+                        <div>
+                            <div class="area-top-row">
+                                <span class="stage-badge badge-cyan" style="font-size: 11px; padding: 4px 10px;">ÁREA 01</span>
+                                <div class="vector-badge badge-cyan">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                </div>
+                            </div>
+                            <h3 class="area-title">Atención y Clientes</h3>
+
+                            <!-- Structured Process Steps -->
+                            <div class="process-steps-bar">
+                                <div class="step-block">
+                                    <span class="step-label">Entrada</span>
+                                    <span class="step-value">Lead / Solicitud</span>
+                                </div>
+                                <span class="step-sep">➔</span>
+                                <div class="step-block">
+                                    <span class="step-label">Proceso</span>
+                                    <span class="step-value">Filtro IA 24/7</span>
+                                </div>
+                                <span class="step-sep">➔</span>
+                                <div class="step-block">
+                                    <span class="step-label">Salida</span>
+                                    <span class="step-value">Presupuesto</span>
+                                </div>
+                            </div>
+
+                            <!-- Styled Deliverable Row -->
+                            <div class="benefit-row">
+                                <div class="benefit-icon badge-cyan">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                </div>
+                                <div class="benefit-text">Respuesta Inmediata · Cobertura 24 Horas</div>
+                            </div>
+                        </div>
+
+                        <!-- Brand Logos -->
+                        <div class="tech-logos-row">
+                            <div class="tech-pill" title="WhatsApp"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>WhatsApp</title><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg> <span>WhatsApp</span></div>
+                            <div class="tech-pill" title="Gmail"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Gmail</title><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg> <span>Gmail</span></div>
+                            <div class="tech-pill" title="Calendar"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Google Calendar</title><path d="M18.316 5.684H24v12.632h-5.684V5.684zM5.684 24h12.632v-5.684H5.684V24zM18.316 5.684V0H1.895A1.894 1.894 0 0 0 0 1.895v16.421h5.684V5.684h12.632zm-7.207 6.25v-.065c.272-.144.5-.349.687-.617s.279-.595.279-.982c0-.379-.099-.72-.3-1.025a2.05 2.05 0 0 0-.832-.714 2.703 2.703 0 0 0-1.197-.257c-.6 0-1.094.156-1.481.467-.386.311-.65.671-.793 1.078l1.085.452c.086-.249.224-.461.413-.633.189-.172.445-.257.767-.257.33 0 .602.088.816.264a.86.86 0 0 1 .322.703c0 .33-.12.589-.36.778-.24.19-.535.284-.886.284h-.567v1.085h.633c.407 0 .748.109 1.02.327.272.218.407.499.407.843 0 .336-.129.614-.387.832s-.565.327-.924.327c-.351 0-.651-.103-.897-.311-.248-.208-.422-.502-.521-.881l-1.096.452c.178.616.505 1.082.977 1.401.472.319.984.478 1.538.477a2.84 2.84 0 0 0 1.293-.291c.382-.193.684-.458.902-.794.218-.336.327-.72.327-1.149 0-.429-.115-.797-.344-1.105a2.067 2.067 0 0 0-.881-.689zm2.093-1.931l.602.913L15 10.045v5.744h1.187V8.446h-.827l-2.158 1.557zM22.105 0h-3.289v5.184H24V1.895A1.894 1.894 0 0 0 22.105 0zm-3.289 23.5l4.684-4.684h-4.684V23.5zM0 22.105C0 23.152.848 24 1.895 24h3.289v-5.184H0v3.289z"/></svg> <span>Agenda</span></div>
+                        </div>
+                    </div>
+
+                    <!-- AREA 02 -->
+                    <div class="card area-card">
+                        <div>
+                            <div class="area-top-row">
+                                <span class="stage-badge badge-purple" style="font-size: 11px; padding: 4px 10px;">ÁREA 02</span>
+                                <div class="vector-badge badge-purple">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                </div>
+                            </div>
+                            <h3 class="area-title">Operativa y Flujos</h3>
+
+                            <!-- Structured Process Steps -->
+                            <div class="process-steps-bar">
+                                <div class="step-block">
+                                    <span class="step-label">Fuga</span>
+                                    <span class="step-value">Tareas Manuales</span>
+                                </div>
+                                <span class="step-sep">➔</span>
+                                <div class="step-block">
+                                    <span class="step-label">Motor</span>
+                                    <span class="step-value">Flujo n8n/Make</span>
+                                </div>
+                                <span class="step-sep">➔</span>
+                                <div class="step-block">
+                                    <span class="step-label">Resultado</span>
+                                    <span class="step-value">Horas Ganadas</span>
+                                </div>
+                            </div>
+
+                            <!-- Styled Deliverable Row -->
+                            <div class="benefit-row">
+                                <div class="benefit-icon badge-purple">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                </div>
+                                <div class="benefit-text">Ahorro de Horas Críticas Semanales</div>
+                            </div>
+                        </div>
+
+                        <!-- Brand Logos -->
+                        <div class="tech-logos-row">
+                            <div class="tech-pill" title="Excel"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Microsoft Excel</title><path d="M23 1.5q.41 0 .7.3.3.29.3.7v19q0 .41-.3.7-.29.3-.7.3H7q-.41 0-.7-.3-.3-.29-.3-.7V18H1q-.41 0-.7-.3-.3-.29-.3-.7V7q0-.41.3-.7Q.58 6 1 6h5V2.5q0-.41.3-.7.29-.3.7-.3zM6 13.28l1.42 2.66h2.14l-2.38-3.87 2.34-3.8H7.46l-1.3 2.4-.05.08-.04.09-.64-1.28-.66-1.29H2.59l2.27 3.82-2.48 3.85h2.16zM14.25 21v-3H7.5v3zm0-4.5v-3.75H12v3.75zm0-5.25V7.5H12v3.75zm0-5.25V3H7.5v3zm8.25 15v-3h-6.75v3zm0-4.5v-3.75h-6.75v3.75zm0-5.25V7.5h-6.75v3.75zm0-5.25V3h-6.75v3Z"/></svg> <span>Excel</span></div>
+                            <div class="tech-pill" title="Google Sheets"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Google Sheets</title><path d="M11.318 12.545H7.91v-1.909h3.41v1.91zM14.728 0v6h6l-6-6zm1.363 10.636h-3.41v1.91h3.41v-1.91zm0 3.273h-3.41v1.91h3.41v-1.91zM20.727 6.5v15.864c0 .904-.732 1.636-1.636 1.636H4.909a1.636 1.636 0 0 1-1.636-1.636V1.636C3.273.732 4.005 0 4.909 0h9.318v6.5h6.5zm-3.273 2.773H6.545v7.909h10.91v-7.91zm-6.136 4.636H7.91v1.91h3.41v-1.91z"/></svg> <span>Sheets</span></div>
+                            <div class="tech-pill" title="Make"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Make</title><path d="M13.38 3.498c-.27 0-.511.19-.566.465L9.85 18.986a.578.578 0 0 0 .453.678l4.095.826a.58.58 0 0 0 .682-.455l2.963-15.021a.578.578 0 0 0-.453-.678l-4.096-.826a.589.589 0 0 0-.113-.012zm-5.876.098a.576.576 0 0 0-.516.318L.062 17.697a.575.575 0 0 0 .256.774l3.733 1.877a.578.578 0 0 0 .775-.258l6.926-13.781a.577.577 0 0 0-.256-.776L7.762 3.658a.571.571 0 0 0-.258-.062zm11.74.115a.576.576 0 0 0-.576.576v15.426c0 .318.258.578.576.578h4.178a.58.58 0 0 0 .578-.578V4.287a.578.578 0 0 0-.578-.576Z"/></svg> <span>Make</span></div>
+                            <div class="tech-pill" title="n8n"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>n8n</title><path d="M21.4737 5.6842c-1.1772 0-2.1663.8051-2.4468 1.8947h-2.8955c-1.235 0-2.289.893-2.492 2.111l-.1038.623a1.263 1.263 0 0 1-1.246 1.0555H11.289c-.2805-1.0896-1.2696-1.8947-2.4468-1.8947s-2.1663.8051-2.4467 1.8947H4.973c-.2805-1.0896-1.2696-1.8947-2.4468-1.8947C1.1311 9.4737 0 10.6047 0 12s1.131 2.5263 2.5263 2.5263c1.1772 0 2.1663-.8051 2.4468-1.8947h1.4223c.2804 1.0896 1.2696 1.8947 2.4467 1.8947 1.1772 0 2.1663-.8051 2.4468-1.8947h1.0008a1.263 1.263 0 0 1 1.2459 1.0555l.1038.623c.203 1.218 1.257 2.111 2.492 2.111h.3692c.2804 1.0895 1.2696 1.8947 2.4468 1.8947 1.3952 0 2.5263-1.131 2.5263-2.5263s-1.131-2.5263-2.5263-2.5263c-1.1772 0-2.1664.805-2.4468 1.8947h-.3692a1.263 1.263 0 0 1-1.246-1.0555l-.1037-.623A2.52 2.52 0 0 0 13.9607 12a2.52 2.52 0 0 0 .821-1.4794l.1038-.623a1.263 1.263 0 0 1 1.2459-1.0555h2.8955c.2805 1.0896 1.2696 1.8947 2.4468 1.8947 1.3952 0 2.5263-1.131 2.5263-2.5263s-1.131-2.5263-2.5263-2.5263m0 1.2632a1.263 1.263 0 0 1 1.2631 1.2631 1.263 1.263 0 0 1-1.2631 1.2632 1.263 1.263 0 0 1-1.2632-1.2632 1.263 1.263 0 0 1 1.2632-1.2631M2.5263 10.7368A1.263 1.263 0 0 1 3.7895 12a1.263 1.263 0 0 1-1.2632 1.2632A1.263 1.263 0 0 1 1.2632 12a1.263 1.263 0 0 1 1.2631-1.2632m6.3158 0A1.263 1.263 0 0 1 10.1053 12a1.263 1.263 0 0 1-1.2632 1.2632A1.263 1.263 0 0 1 7.579 12a1.263 1.263 0 0 1 1.2632-1.2632m10.1053 3.7895a1.263 1.263 0 0 1 1.2631 1.2632 1.263 1.263 0 0 1-1.2631 1.2631 1.263 1.263 0 0 1-1.2632-1.2631 1.263 1.263 0 0 1 1.2632-1.2632"/></svg> <span>n8n</span></div>
+                        </div>
+                    </div>
+
+                    <!-- AREA 03 -->
+                    <div class="card area-card">
+                        <div>
+                            <div class="area-top-row">
+                                <span class="stage-badge badge-amber" style="font-size: 11px; padding: 4px 10px;">ÁREA 03</span>
+                                <div class="vector-badge badge-amber">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                </div>
+                            </div>
+                            <h3 class="area-title">Sistemas e Integración</h3>
+
+                            <!-- Structured Process Steps -->
+                            <div class="process-steps-bar">
+                                <div class="step-block">
+                                    <span class="step-label">Origen</span>
+                                    <span class="step-value">Tus Programas</span>
+                                </div>
+                                <span class="step-sep">➔</span>
+                                <div class="step-block">
+                                    <span class="step-label">Enlace</span>
+                                    <span class="step-value">Integración API</span>
+                                </div>
+                                <span class="step-sep">➔</span>
+                                <div class="step-block">
+                                    <span class="step-label">Entorno</span>
+                                    <span class="step-value">Cero Fricción</span>
+                                </div>
+                            </div>
+
+                            <!-- Styled Deliverable Row -->
+                            <div class="benefit-row">
+                                <div class="benefit-icon badge-amber">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                </div>
+                                <div class="benefit-text">100% Compatible · Sin Cambiar Software</div>
+                            </div>
+                        </div>
+
+                        <!-- Brand Logos -->
+                        <div class="tech-logos-row">
+                            <div class="tech-pill" title="HubSpot"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>HubSpot</title><path d="M18.164 7.93V5.084a2.198 2.198 0 001.267-1.978v-.067A2.2 2.2 0 0017.238.845h-.067a2.2 2.2 0 00-2.193 2.193v.067a2.196 2.196 0 001.252 1.973l.013.006v2.852a6.22 6.22 0 00-2.969 1.31l.012-.01-7.828-6.095A2.497 2.497 0 104.3 4.656l-.012.006 7.697 5.991a6.176 6.176 0 00-1.038 3.446c0 1.343.425 2.588 1.147 3.607l-.013-.02-2.342 2.343a1.968 1.968 0 00-.58-.095h-.002a2.033 2.033 0 102.033 2.033 1.978 1.978 0 00-.1-.595l.005.014 2.317-2.317a6.247 6.247 0 104.782-11.134l-.036-.005zm-.964 9.378a3.206 3.206 0 113.215-3.207v.002a3.206 3.206 0 01-3.207 3.207z"/></svg> <span>HubSpot</span></div>
+                            <div class="tech-pill" title="Salesforce"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Salesforce</title><path d="M10.006 5.415a4.195 4.195 0 013.045-1.306c1.56 0 2.954.9 3.69 2.205.63-.3 1.35-.45 2.1-.45 2.85 0 5.159 2.34 5.159 5.22s-2.31 5.22-5.176 5.22c-.345 0-.69-.044-1.02-.104a3.75 3.75 0 01-3.3 1.95c-.6 0-1.155-.15-1.65-.375A4.314 4.314 0 018.88 20.4a4.302 4.302 0 01-4.05-2.82c-.27.062-.54.076-.825.076-2.204 0-4.005-1.8-4.005-4.05 0-1.5.811-2.805 2.01-3.51-.255-.57-.39-1.2-.39-1.846 0-2.58 2.1-4.65 4.65-4.65 1.53 0 2.85.705 3.72 1.8"/></svg> <span>CRM/ERP</span></div>
+                            <div class="tech-pill" title="OpenAI"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>OpenAI</title><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z"/></svg> <span>OpenAI</span></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- DIRECT ARROW TO FINAL STAGE (CONSULTORÍA) -->
+            <div class="flow-arrow">
+                <svg viewBox="0 0 70 48">
+                    <path class="arrow-line" d="M 5,24 L 60,24" style="stroke: var(--accent-emerald);" />
+                    <polygon points="56,16 68,24 56,32" fill="var(--accent-emerald)" />
+                </svg>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- FINAL STAGE: CONSULTORÍA PRIVADA · 25 MIN      -->
+            <!-- ============================================== -->
+            <div class="stage-box" id="stage-final">
+                <div class="stage-badge badge-green">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Convocatoria Activa
+                </div>
+
+                <div class="card stage-4-card">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                        <span class="stage-badge badge-green" style="font-size: 12px; padding: 4px 12px;">
+                            SOLO 5 PLAZAS / MES
+                        </span>
+                        <div class="vector-badge badge-green" style="width: 36px; height: 36px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                    </div>
+
+                    <h2 style="font-size: 28px; font-weight: 800; letter-spacing: -0.02em;">CONSULTORÍA PRIVADA · 25 MIN</h2>
+
+                    <div class="process-steps-bar" style="margin-top: 18px;">
+                        <div class="step-block">
+                            <span class="step-label">Paso 1</span>
+                            <span class="step-value">Radiografía en Directo</span>
+                        </div>
+                        <span class="step-sep">➔</span>
+                        <div class="step-block">
+                            <span class="step-label">Paso 2</span>
+                            <span class="step-value">Cálculo de Ahorro</span>
+                        </div>
+                        <span class="step-sep">➔</span>
+                        <div class="step-block">
+                            <span class="step-label">Paso 3</span>
+                            <span class="step-value">Hoja de Ruta</span>
+                        </div>
+                    </div>
+
+                    <div class="price-hero">
+                        <div class="price-cross">Valoración de mercado: 800€ - 1.500€</div>
+                        <div class="price-main">
+                            0€ <span class="pill-free">COSTE ASUMIDO AL 100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FULLSCREEN OVERLAY LASER CANVAS -->
+        <canvas id="laserCanvas"></canvas>
+    </div>
+
+    <!-- 2D PAN, ZOOM & LASER PEN CONTROLLER -->
+    <script>
+        const viewport = document.getElementById('viewport');
+        const canvas = document.getElementById('canvas');
+        const laserCanvas = document.getElementById('laserCanvas');
+        const ctx = laserCanvas.getContext('2d');
+
+        // CANVAS STATE
+        let translateX = 40;
+        let translateY = 30;
+        let scale = 0.88;
+
+        // LASER STATE (Azul PEBAI por defecto)
+        let laserColor = '#38bdf8';
+        let laserGlowColor = '#0284c7';
+        const LASER_LIFETIME = 2000; // 2 seconds
+
+        function resizeLaserCanvas() {
+            laserCanvas.width = window.innerWidth;
+            laserCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeLaserCanvas);
+        resizeLaserCanvas();
+
+        function updateTransform() {
+            canvas.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        }
+
+        // LASER STROKES MEMORY
+        let strokes = [];
+        let activeStroke = null;
+
+        // PANNING & KEYBOARD STATE
+        let isPanning = false;
+        let panStartX = 0;
+        let panStartY = 0;
+        let isSpacePressed = false;
+
+        // MOUSE EVENTS:
+        // POR DEFECTO: 1 CLIC IZQUIERDO = DIBUJAR CON LÁPIZ (2 SEGUNDOS)
+        // DESPLAZAR: CLIC DERECHO, CLIC CENTRAL O MANTENER ESPACIO
+        viewport.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.miro-bar')) return;
+
+            const shouldPan = isSpacePressed || (e.button === 2) || (e.button === 1);
+
+            if (shouldPan) {
+                isPanning = true;
+                panStartX = e.clientX - translateX;
+                panStartY = e.clientY - translateY;
+                viewport.classList.add('panning');
+                return;
+            }
+
+            // 1 Clic Izquierdo normal = DIBUJAR LÁPIZ (POR DEFECTO SIEMPRE)
+            if (e.button === 0) {
+                const worldX = (e.clientX - translateX) / scale;
+                const worldY = (e.clientY - translateY) / scale;
+                activeStroke = {
+                    points: [{ x: worldX, y: worldY, time: performance.now() }],
+                    color: laserColor,
+                    glowColor: laserGlowColor
+                };
+                strokes.push(activeStroke);
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isPanning) {
+                translateX = e.clientX - panStartX;
+                translateY = e.clientY - panStartY;
+                updateTransform();
+                return;
+            }
+
+            if (activeStroke) {
+                const worldX = (e.clientX - translateX) / scale;
+                const worldY = (e.clientY - translateY) / scale;
+                activeStroke.points.push({ x: worldX, y: worldY, time: performance.now() });
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isPanning = false;
+            viewport.classList.remove('panning');
+            activeStroke = null;
+        });
+
+        // Soporte Táctil / Stylus: 1 dedo dibuja lápiz
+        viewport.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                const t = e.touches[0];
+                const worldX = (t.clientX - translateX) / scale;
+                const worldY = (t.clientY - translateY) / scale;
+                activeStroke = {
+                    points: [{ x: worldX, y: worldY, time: performance.now() }],
+                    color: laserColor,
+                    glowColor: laserGlowColor
+                };
+                strokes.push(activeStroke);
+            }
+        }, { passive: true });
+
+        viewport.addEventListener('touchmove', (e) => {
+            if (activeStroke && e.touches.length === 1) {
+                const t = e.touches[0];
+                const worldX = (t.clientX - translateX) / scale;
+                const worldY = (t.clientY - translateY) / scale;
+                activeStroke.points.push({ x: worldX, y: worldY, time: performance.now() });
+            }
+        }, { passive: true });
+
+        viewport.addEventListener('touchend', () => {
+            activeStroke = null;
+        });
+
+        // Bloquear menú contextual de clic derecho para permitir desplazamiento fluido
+        viewport.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // Bloquear doble clic
+        viewport.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        // Rueda de ratón / touchpad
+        viewport.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.ctrlKey || e.metaKey) {
+                const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+                scale = Math.min(Math.max(scale * zoomFactor, 0.35), 2.2);
+            } else {
+                translateY -= e.deltaY * 0.9;
+                if (e.deltaX) translateX -= e.deltaX * 0.9;
+            }
+            updateTransform();
+        }, { passive: false });
+
+        // ANIMACIÓN DE DESVANECIMIENTO EN 2 SEGUNDOS
+        function renderLaserFrame() {
+            ctx.clearRect(0, 0, laserCanvas.width, laserCanvas.height);
+            const now = performance.now();
+
+            ctx.save();
+            ctx.translate(translateX, translateY);
+            ctx.scale(scale, scale);
+
+            for (let i = strokes.length - 1; i >= 0; i--) {
+                const stroke = strokes[i];
+                stroke.points = stroke.points.filter(p => now - p.time < LASER_LIFETIME);
+
+                if (stroke.points.length < 2) {
+                    if (stroke.points.length === 0 && stroke !== activeStroke) {
+                        strokes.splice(i, 1);
+                    }
+                    continue;
+                }
+
+                for (let j = 0; j < stroke.points.length - 1; j++) {
+                    const p1 = stroke.points[j];
+                    const p2 = stroke.points[j + 1];
+                    const age = now - p1.time;
+                    const lifeRatio = Math.max(0, 1 - (age / LASER_LIFETIME));
+
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+
+                    ctx.lineWidth = Math.max(1.5, 7 * lifeRatio);
+                    ctx.shadowBlur = 18 * lifeRatio;
+                    ctx.shadowColor = stroke.glowColor;
+                    ctx.strokeStyle = stroke.color;
+                    ctx.globalAlpha = Math.pow(lifeRatio, 0.65);
+                    ctx.stroke();
+                }
+            }
+
+            ctx.restore();
+            requestAnimationFrame(renderLaserFrame);
+        }
+        requestAnimationFrame(renderLaserFrame);
+
+        // Teclado
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !isSpacePressed) {
+                isSpacePressed = true;
+                viewport.classList.add('space-held');
+                e.preventDefault();
+            }
+            else if (e.code === 'KeyC') {
+                // Alternar color entre Azul y Verde con la tecla 'C'
+                if (laserColor === '#38bdf8') {
+                    laserColor = '#34d399';
+                    laserGlowColor = '#059669';
+                } else {
+                    laserColor = '#38bdf8';
+                    laserGlowColor = '#0284c7';
+                }
+            }
+            else if (e.key === 'ArrowRight') translateX -= 140;
+            else if (e.key === 'ArrowLeft') translateX += 140;
+            else if (e.key === 'ArrowUp') translateY += 140;
+            else if (e.key === 'ArrowDown') translateY -= 140;
+            updateTransform();
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                isSpacePressed = false;
+                viewport.classList.remove('space-held');
+            }
+        });
+
+        updateTransform();
+    </script>
+</body>
+</html>

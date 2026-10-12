@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="title">
+  <title id="title">PBI Systems lockups</title>
+  <rect width="1200" height="520" fill="#EFEDE7"/>
+  <g transform="translate(80 80) scale(.32)"><path fill="#B7FF3C" d="M115 105c52-70 175-89 217-36 20 25-1 55-45 59-45 4-83 15-100 42-22 34-14 80 19 113-54-19-119-73-91-178z"/><path fill="#6A5CFF" d="M397 407c-52 70-175 89-217 36-20-25 1-55 45-59 45-4 83-15 100-42 22-34 14-80-19-113 54 19 119 73 91 178z"/><path fill="#12121A" d="M172 326c28 15 52 16 76 8-9 25-30 42-63 50-26 6-50 6-70 1 15-20 35-41 57-59z"/></g>
+  <text x="235" y="145" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="72" font-weight="700" letter-spacing="-3">PBI SYSTEMS</text>
+  <text x="88" y="245" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="18" letter-spacing="4">DESKTOP / HORIZONTAL LOCKUP</text>
+  <rect x="80" y="285" width="1040" height="88" rx="44" fill="#12121A"/>
+  <g transform="translate(120 304) scale(.13)"><path fill="#B7FF3C" d="M115 105c52-70 175-89 217-36 20 25-1 55-45 59-45 4-83 15-100 42-22 34-14 80 19 113-54-19-119-73-91-178z"/><path fill="#6A5CFF" d="M397 407c-52 70-175 89-217 36-20-25 1-55 45-59 45-4 83-15 100-42 22-34 14-80-19-113 54 19 119 73 91 178z"/><path fill="#EFEDE7" d="M172 326c28 15 52 16 76 8-9 25-30 42-63 50-26 6-50 6-70 1 15-20 35-41 57-59z"/></g>
+  <text x="235" y="348" fill="#EFEDE7" font-family="Manrope, Arial, sans-serif" font-size="38" font-weight="700" letter-spacing="-1">PBI SYSTEMS</text>
+  <text x="88" y="435" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="18" letter-spacing="4">CORE PALETTE</text>
+  <circle cx="300" cy="430" r="23" fill="#12121A"/><text x="335" y="438" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="18">INK  #12121A</text>
+  <circle cx="550" cy="430" r="23" fill="#B7FF3C"/><text x="585" y="438" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="18">SIGNAL  #B7FF3C</text>
+  <circle cx="850" cy="430" r="23" fill="#6A5CFF"/><text x="885" y="438" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="18">VIOLET  #6A5CFF</text>
+</svg>

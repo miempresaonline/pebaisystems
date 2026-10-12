@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title">
+  <title id="title">PBI Systems visual identity board</title>
+  <rect width="1600" height="1000" fill="#EFEDE7"/>
+  <rect x="0" y="0" width="1600" height="440" fill="#12121A"/>
+  <text x="84" y="82" fill="#EFEDE7" font-family="Manrope, Arial, sans-serif" font-size="17" letter-spacing="5">PBI SYSTEMS / VISUAL IDENTITY 01</text>
+  <text x="84" y="185" fill="#EFEDE7" font-family="Manrope, Arial, sans-serif" font-size="94" font-weight="700" letter-spacing="-5">PBI SYSTEMS</text>
+  <text x="90" y="240" fill="#EFEDE7" font-family="Manrope, Arial, sans-serif" font-size="22" letter-spacing="3">AI SYSTEMS FOR REAL WORK</text>
+  <g transform="translate(1120 54) scale(.78)"><path fill="#B7FF3C" d="M115 105c52-70 175-89 217-36 20 25-1 55-45 59-45 4-83 15-100 42-22 34-14 80 19 113-54-19-119-73-91-178z"/><path fill="#6A5CFF" d="M397 407c-52 70-175 89-217 36-20-25 1-55 45-59 45-4 83-15 100-42 22-34 14-80-19-113 54 19 119 73 91 178z"/><path fill="#EFEDE7" d="M172 326c28 15 52 16 76 8-9 25-30 42-63 50-26 6-50 6-70 1 15-20 35-41 57-59z"/></g>
+  <text x="84" y="515" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="19" letter-spacing="5">SYSTEM IN USE</text>
+  <rect x="84" y="550" width="880" height="300" rx="18" fill="#F8F7F2" stroke="#12121A" stroke-opacity=".15"/>
+  <rect x="84" y="550" width="880" height="48" rx="18" fill="#12121A"/>
+  <circle cx="116" cy="574" r="7" fill="#B7FF3C"/><text x="145" y="581" fill="#EFEDE7" font-family="Manrope, Arial, sans-serif" font-size="16" letter-spacing="2">PBI SYSTEMS</text>
+  <text x="135" y="690" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="58" font-weight="400" letter-spacing="-3">Build systems</text>
+  <text x="135" y="755" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="58" font-weight="400" letter-spacing="-3">that move work.</text>
+  <rect x="138" y="790" width="158" height="15" rx="8" fill="#B7FF3C"/>
+  <rect x="1060" y="550" width="420" height="300" rx="34" fill="#12121A"/>
+  <g transform="translate(1172 608) scale(.42)"><path fill="#B7FF3C" d="M115 105c52-70 175-89 217-36 20 25-1 55-45 59-45 4-83 15-100 42-22 34-14 80 19 113-54-19-119-73-91-178z"/><path fill="#6A5CFF" d="M397 407c-52 70-175 89-217 36-20-25 1-55 45-59 45-4 83-15 100-42 22-34 14-80-19-113 54 19 119 73 91 178z"/><path fill="#EFEDE7" d="M172 326c28 15 52 16 76 8-9 25-30 42-63 50-26 6-50 6-70 1 15-20 35-41 57-59z"/></g>
+  <text x="1120" y="805" fill="#EFEDE7" font-family="Manrope, Arial, sans-serif" font-size="23" letter-spacing="3">PBI SYSTEMS</text>
+  <text x="84" y="930" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="18" letter-spacing="4">#EFEDE7  MINERAL WHITE</text>
+  <text x="520" y="930" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="18" letter-spacing="4">#12121A  INK</text>
+  <text x="800" y="930" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="18" letter-spacing="4">#B7FF3C  SIGNAL</text>
+  <text x="1120" y="930" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="18" letter-spacing="4">#6A5CFF  VIOLET</text>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 300" role="img" aria-labelledby="title">
+  <title id="title">PAI Systems stacked color logo</title>
+  <path fill="#B7FF3C" d="M116 32h88l40 25v38l-40-25h-88z"/>
+  <path fill="#6A5CFF" d="M116 70h88l40 25v38l-40-25h-88z"/>
+  <path fill="#12121A" d="M116 108h88l40 25v38l-40-25h-88z"/>
+  <text x="180" y="225" text-anchor="middle" fill="#12121A" font-family="Manrope, Arial, sans-serif" font-size="43" font-weight="700" letter-spacing="-2">PAI SYSTEMS</text>
+</svg>

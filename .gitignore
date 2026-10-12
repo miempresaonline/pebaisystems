@@ -1,13 +1,64 @@
-# Environment and Secrets
+# ==============================================================================
+# PEBAI SYSTEMS - .gitignore
+# El repositorio es PUBLICO: nada de credenciales, datos de clientes ni sesiones.
+# Las credenciales viven en .env (local) o en C:/programacion/APIs (fuera del repo).
+# ==============================================================================
+
+# --- Credenciales y secretos ---------------------------------------------------
 .env
 .env.*
+!.env.example
 *.env
 *.pem
 *.key
 *.token
 *.pat
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+*_ed25519*
+*service_account*.json
+*credentials*.json
+client_secret*.json
+*cookies*.txt
+*cookies*.json
+secrets.local.*
+privado/
+.agents/mcp_config.json
 
-# Python
+# PHP desplegados en Hostinger que aun llevan claves dentro (pendiente de migrar a secrets.local.php)
+website-pebai/api/cron_publish.php
+website-pebai/api/send_alert.php
+website-pebai/dist/api/diagnostico.php
+website-pebai/dist/api/instagram-config.php
+
+# --- Datos personales, clientes y sesiones -------------------------------------
+documentos/
+leads*.csv
+conversations_memory.json
+learning_metrics.json
+whatsapp-outreach-bot/session/
+whatsapp-outreach-bot/.wwebjs_*/
+social-media-engine/sessions/
+social-media-engine/data/
+social-media-engine/logs/
+commercial-engine/backups/
+assets/clients/
+
+# --- Zona de pruebas y material de terceros ------------------------------------
+scratch/
+archive/
+tiktok_downloads/
+carousel-engine/tiktok_inspect/
+carousel-engine/knowledge/visual_vault/
+carousel-engine/ig_dump.html
+
+# Salidas generadas: solo se versionan los carruseles RAD-* que entrega GitHub Actions
+carousel-engine/output/*
+!carousel-engine/output/RAD-*/
+
+# --- Python --------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
@@ -15,24 +66,28 @@ venv/
 .venv/
 env/
 
-# Node
+# --- Node ----------------------------------------------------------------------
 node_modules/
 npm-debug.log*
 
-# Database & local dumps
+# --- Bases de datos y volcados -------------------------------------------------
 *.sqlite
 *.db
 backups/
 dump_*.json
 dump_*.csv
 
-# Heavy Media & Downloads
-tiktok_downloads/
-carousel-engine/tiktok_inspect/
+# --- Media pesada y binarios ---------------------------------------------------
 *.tar.gz
+*.zip
 *.mp4
+*.mov
 *.webm
+*.wav
+*.mp3
 
-# OS
+# --- Logs y SO -----------------------------------------------------------------
+*.log
 .DS_Store
 Thumbs.db
+desktop.ini
