@@ -46,34 +46,37 @@
       background-size: 48px 48px;
       mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 75%);
     }
-    .glow { position: fixed; top: -240px; left: 50%; width: 900px; height: 520px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(106,92,255,.22), transparent); pointer-events: none; z-index: 0; }
+    .glow { position: fixed; top: -260px; left: 50%; width: 1000px; height: 560px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(106,92,255,.22), transparent); pointer-events: none; z-index: 0; }
     header { position: sticky; top: 0; z-index: 10; padding: 14px 24px; border-bottom: 1px solid var(--line); background: rgba(7,9,17,.86); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-    .header-inner { max-width: 1000px; margin: 0 auto; display: flex; justify-content: center; }
+    .header-inner { max-width: 1120px; margin: 0 auto; display: flex; justify-content: center; }
     .brand-logo-img { height: 40px; width: auto; display: block; }
-    main { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 34px 16px 60px; }
+    main { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 40px 16px 64px; }
+    .hero { text-align: center; max-width: 720px; margin: 0 auto 30px; }
     .kicker { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .14em; color: var(--lime); background: rgba(183,255,60,.05); }
     .kicker .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 10px var(--lime); }
-    .hero { text-align: center; margin-bottom: 26px; }
-    h1 { font-size: clamp(28px, 4.4vw, 44px); line-height: 1.12; margin: 16px 0 10px; font-weight: 800; color: #fff; }
+    h1 { font-size: clamp(30px, 4.6vw, 48px); line-height: 1.1; margin: 18px 0 12px; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
     h1 em { font-family: 'Instrument Serif', serif; font-weight: 400; color: var(--lime); }
-    .sub { margin: 0 auto; max-width: 620px; color: var(--muted); font-size: 16px; line-height: 1.55; }
-    .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
-    .fact { padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 600; }
-    .cal-shell { border: 1px solid var(--line); border-radius: 20px; background: rgba(14,18,34,.7); padding: 6px; min-height: 560px; position: relative; overflow: hidden; }
-    #cal-inline { width: 100%; min-height: 540px; }
+    .sub { margin: 0 auto; color: var(--muted); font-size: 17px; line-height: 1.55; }
+    .booker { position: relative; width: 100%; min-height: 600px; }
+    #cal-inline { width: 100%; min-height: 600px; }
     .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 15px; gap: 10px; }
-    .loading .spin { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,.15); border-top-color: var(--lime); animation: spin 0.8s linear infinite; }
+    .spin { display: inline-block; width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,.15); border-top-color: var(--lime); animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .help { text-align: center; margin-top: 18px; color: var(--muted); font-size: 14px; }
+    .next { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 900px; margin: 26px auto 0; }
+    .next-item { display: flex; gap: 12px; align-items: flex-start; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(14,18,34,.6); font-size: 14px; line-height: 1.5; color: var(--muted); }
+    .next-item strong { display: block; color: #fff; font-size: 15px; margin-bottom: 2px; }
+    .next-num { flex: 0 0 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--blue); color: #fff; font-weight: 800; font-size: 13px; }
+    .help { text-align: center; margin-top: 22px; color: var(--muted); font-size: 14px; }
     .help a { color: var(--lime); font-weight: 700; text-decoration: none; }
-    .redirecting { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(7,9,17,.92); align-items: center; justify-content: center; flex-direction: column; gap: 12px; font-size: 18px; font-weight: 700; }
+    .redirecting { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(7,9,17,.94); align-items: center; justify-content: center; flex-direction: column; gap: 14px; font-size: 18px; font-weight: 700; }
     .redirecting.on { display: flex; }
-    @media (max-width: 600px) {
+    @media (max-width: 760px) {
       header { padding: 10px 16px; }
       .brand-logo-img { height: 32px; }
-      main { padding: 24px 12px 48px; }
+      main { padding: 26px 12px 48px; }
+      .hero { margin-bottom: 20px; }
       .sub { font-size: 15px; }
-      .cal-shell { border-radius: 16px; padding: 0; }
+      .next { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -91,19 +94,20 @@
 
   <main>
     <section class="hero">
-      <span class="kicker"><span class="dot"></span>TU CASO HA SIDO ACEPTADO</span>
-      <h1>Elige día y hora para tu <em>sesión técnica.</em></h1>
-      <p class="sub">Videollamada privada de 25 minutos con nuestro equipo de ingeniería. Conéctate desde un ordenador y que asista quien toma las decisiones.</p>
-      <div class="facts">
-        <span class="fact">25 min</span>
-        <span class="fact">Google Meet</span>
-        <span class="fact">Coste 0 €</span>
-      </div>
+      <span class="kicker"><span class="dot"></span>SOLICITUD REVISADA</span>
+      <h1>Tu empresa encaja. <em>Elige cuándo hablamos.</em></h1>
+      <p class="sub">Hemos analizado tu caso y vemos margen real de mejora. Reserva la sesión técnica con nuestro equipo de ingeniería.</p>
     </section>
 
-    <section class="cal-shell" aria-label="Calendario de reserva">
+    <section class="booker" aria-label="Calendario de reserva">
       <div class="loading" id="cal-loading"><span class="spin"></span>Cargando huecos disponibles…</div>
       <div id="cal-inline"></div>
+    </section>
+
+    <section class="next" aria-label="Qué pasa al reservar">
+      <div class="next-item"><span class="next-num">1</span><div><strong>Recibes el enlace</strong>Te llega un email con el acceso a Google Meet y todos los detalles.</div></div>
+      <div class="next-item"><span class="next-num">2</span><div><strong>Guárdala en tu agenda</strong>En la siguiente pantalla tienes los botones para añadirla con alarma.</div></div>
+      <div class="next-item"><span class="next-num">3</span><div><strong>Conéctate desde un ordenador</strong>Compartiremos pantalla para revisar vuestros procesos.</div></div>
     </section>
 
     <p class="help">¿No te encaja ningún hueco? <a href="https://wa.me/34624842799?text=Hola%20PEBAI%2C%20no%20me%20encaja%20ning%C3%BAn%20hueco%20para%20la%20sesi%C3%B3n." target="_blank" rel="noopener">Escríbenos por WhatsApp</a></p>
@@ -133,7 +137,7 @@
 
       Cal.ns.sesion('ui', {
         theme: 'dark',
-        hideEventTypeDetails: true,
+        hideEventTypeDetails: false,
         layout: 'month_view',
         cssVarsPerTheme: {
           dark: {

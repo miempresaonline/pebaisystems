@@ -8,6 +8,7 @@ Los HTML se suben al final, para que nunca apunten a un recurso que aún no exis
 (Cloudflare cachea los 404).
 --private  sube también website-pebai/private/config.php a
            domains/pebaisystems.es/private/ (fuera de public_html).
+--remove=a,b  borra del servidor esas rutas (relativas a public_html).
 """
 import os
 import sys
@@ -54,11 +55,13 @@ def ensure_remote_dir(sftp, path):
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     with_private = '--private' in sys.argv
+    to_remove = [r.strip().lstrip('/') for a in sys.argv if a.startswith('--remove=')
+                 for r in a.split('=', 1)[1].split(',') if r.strip() and '..' not in r]
     commit = args[0] if args else 'HEAD'
     files = changed_files(commit)
     # Recursos (php, js, css, imágenes) primero y HTML al final
     files.sort(key=lambda f: (f.endswith('.html'), f))
-    if not files and not with_private:
+    if not files and not with_private and not to_remove:
         print(f'No hay archivos de {PREFIX} en {commit}.')
         return
     print(f'{len(files)} archivos a subir desde {commit}. Conectando...')
@@ -75,6 +78,13 @@ def main():
             ensure_remote_dir(sftp, posixpath.dirname(remote))
             sftp.put(os.path.join(REPO, f), remote)
             print(f'[{i}/{len(files)}] {remote}')
+        for r in to_remove:
+            remote = posixpath.join(REMOTE_DIR, r)
+            try:
+                sftp.remove(remote)
+                print(f'[borrado] {remote}')
+            except IOError:
+                print(f'[no existe] {remote}')
     finally:
         sftp.close()
         transport.close()
