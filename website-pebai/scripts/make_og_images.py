@@ -57,35 +57,45 @@ CSS = """
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 1200px; height: 630px; overflow: hidden; }
 body { background: #070911; font-family: 'Manrope', sans-serif; color: #ECEBF0; position: relative; }
-.grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(106,92,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(106,92,255,.07) 1px, transparent 1px); background-size: 48px 48px; -webkit-mask-image: radial-gradient(ellipse at 70% 40%, #000 25%, transparent 75%); }
-.glow { position: absolute; width: 820px; height: 820px; right: -260px; top: -280px; border-radius: 50%; background: radial-gradient(closest-side, rgba(106,92,255,.42), rgba(106,92,255,.08) 60%, transparent); }
-.glow2 { position: absolute; width: 520px; height: 520px; left: -220px; bottom: -300px; border-radius: 50%; background: radial-gradient(closest-side, rgba(183,255,60,.14), transparent); }
+.grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(106,92,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(106,92,255,.07) 1px, transparent 1px); background-size: 48px 48px; -webkit-mask-image: radial-gradient(ellipse at 50% 45%, #000 20%, transparent 72%); }
+.glow { position: absolute; width: 900px; height: 900px; left: 50%; top: -420px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(106,92,255,.40), rgba(106,92,255,.07) 62%, transparent); }
+.glow2 { position: absolute; width: 700px; height: 340px; left: 50%; bottom: -230px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(183,255,60,.13), transparent); }
 .frame { position: absolute; inset: 22px; border: 1px solid rgba(106,92,255,.22); border-radius: 26px; }
-.content { position: absolute; left: 76px; top: 64px; width: 720px; display: flex; flex-direction: column; }
-.logo { height: 46px; width: auto; align-self: flex-start; }
-.kicker { margin-top: 54px; display: inline-flex; align-self: flex-start; align-items: center; gap: 10px; padding: 9px 18px; border-radius: 999px; border: 1px solid rgba(183,255,60,.35); background: rgba(183,255,60,.06); color: #B7FF3C; font-size: 17px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
-.kicker::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: #B7FF3C; box-shadow: 0 0 12px #B7FF3C; }
-h1 { margin-top: 22px; font-size: 58px; white-space: nowrap; line-height: 1.05; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+
+/* Todo el mensaje vive en el cuadrado central (x 300-900): WhatsApp en ordenador recorta ahí */
+.content { position: absolute; left: 315px; top: 0; width: 570px; height: 630px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.logo { height: 42px; width: auto; }
+.kicker { margin-top: 30px; display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(183,255,60,.35); background: rgba(183,255,60,.06); color: #B7FF3C; font-size: 15px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
+.kicker::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #B7FF3C; box-shadow: 0 0 12px #B7FF3C; }
+h1 { margin-top: 18px; font-size: 50px; white-space: nowrap; line-height: 1.08; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
 h1 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #B7FF3C; letter-spacing: 0; }
-.sub { margin-top: 18px; font-size: 24px; line-height: 1.4; color: #A3A8BC; max-width: 600px; }
-.chips { margin-top: 28px; display: flex; gap: 12px; }
-.chip { padding: 10px 18px; border-radius: 12px; border: 1px solid rgba(106,92,255,.3); background: rgba(14,18,34,.85); font-size: 19px; font-weight: 700; color: #fff; }
-.side { position: absolute; right: 64px; top: 50%; transform: translateY(-50%); width: 320px; height: 320px; display: flex; align-items: center; justify-content: center; }
-.ring { position: absolute; border-radius: 50%; border: 1px solid rgba(183,255,60,.18); }
-.ring.r1 { inset: 0; } .ring.r2 { inset: -46px; border-color: rgba(106,92,255,.18); } .ring.r3 { inset: 46px; border-color: rgba(183,255,60,.28); }
-.mark { width: 205px; filter: drop-shadow(0 0 40px rgba(106,92,255,.55)); }
-.faces { position: relative; display: flex; }
-.faces img { width: 168px; height: 168px; border-radius: 50%; object-fit: cover; border: 5px solid #0B0F1D; box-shadow: 0 0 0 3px rgba(183,255,60,.75), 0 20px 50px rgba(0,0,0,.5); }
-.faces img + img { margin-left: -40px; }
-.names { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 9px 18px; border-radius: 999px; background: rgba(11,15,29,.92); border: 1px solid rgba(106,92,255,.35); font-size: 19px; font-weight: 700; }
-.names b { color: #B7FF3C; }
-.url { position: absolute; right: 64px; bottom: 44px; font-size: 18px; font-weight: 700; color: #6B7089; letter-spacing: .04em; }
+.sub { margin-top: 16px; font-size: 21px; line-height: 1.42; color: #A3A8BC; max-width: 540px; }
+.chips { margin-top: 24px; display: flex; gap: 10px; justify-content: center; }
+.chip { padding: 9px 16px; border-radius: 12px; border: 1px solid rgba(106,92,255,.3); background: rgba(14,18,34,.85); font-size: 17px; font-weight: 700; color: #fff; white-space: nowrap; }
+
+/* Laterales: solo se ven en la vista rectangular (móvil) */
+.side { position: absolute; top: 50%; transform: translateY(-50%); width: 220px; display: flex; flex-direction: column; align-items: center; }
+.side.left { left: 48px; } .side.right { right: 48px; }
+.person img { width: 176px; height: 176px; border-radius: 50%; object-fit: cover; border: 5px solid #0B0F1D; box-shadow: 0 0 0 3px rgba(183,255,60,.75), 0 0 60px rgba(106,92,255,.35), 0 20px 50px rgba(0,0,0,.5); display: block; }
+.person span { display: block; margin-top: 16px; padding: 7px 16px; border-radius: 999px; background: rgba(11,15,29,.92); border: 1px solid rgba(106,92,255,.35); font-size: 18px; font-weight: 700; text-align: center; }
+.person span b { color: #B7FF3C; }
+.person small { display: block; margin-top: 6px; font-size: 14px; color: #6B7089; text-align: center; font-weight: 600; }
+.orb { position: relative; width: 210px; height: 210px; display: flex; align-items: center; justify-content: center; }
+.orb::before, .orb::after { content: ''; position: absolute; border-radius: 50%; }
+.orb::before { inset: 0; border: 1px solid rgba(183,255,60,.22); }
+.orb::after { inset: -34px; border: 1px solid rgba(106,92,255,.2); }
+.orb img { width: 140px; filter: drop-shadow(0 0 34px rgba(106,92,255,.6)); }
+.orb.check { background: radial-gradient(closest-side, rgba(106,92,255,.25), transparent); }
+.orb.check svg { filter: drop-shadow(0 0 14px rgba(183,255,60,.6)); }
+.orb .dot { width: 14px; height: 14px; border-radius: 50%; background: #B7FF3C; box-shadow: 0 0 18px #B7FF3C; }
+.url { position: absolute; left: 0; right: 0; bottom: 40px; text-align: center; font-size: 16px; font-weight: 700; color: #6B7089; letter-spacing: .06em; }
 """
 
 HTML = """<!doctype html><html><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=block" rel="stylesheet">
 <style>%(css)s</style></head><body>
 <div class="grid"></div><div class="glow"></div><div class="glow2"></div><div class="frame"></div>
+%(sides)s
 <div class="content">
   <img class="logo" src="%(brand)s/pebai-horizontal-color-mineral-cropped.png">
   <span class="kicker">%(kicker)s</span>
@@ -93,13 +103,25 @@ HTML = """<!doctype html><html><head><meta charset="utf-8">
   <p class="sub">%(sub)s</p>
   <div class="chips">%(chips)s</div>
 </div>
-<div class="side"><span class="ring r2"></span><span class="ring r1"></span>%(side)s</div>
 <div class="url">pebaisystems.es</div>
 </body></html>"""
 
-SIDE_MARK = '<span class="ring r3"></span><img class="mark" src="%s/pebai-logo-03-master-transparent-v1.png">' % BRAND
-SIDE_TEAM = ('<div class="faces"><img src="%s/avatar-adrian.webp"><img src="%s/avatar-dani.webp"></div>'
-             '<div class="names">Te atenderán <b>Adrián</b> o <b>Dani</b></div>') % (TEAM, TEAM)
+SIDE_MARK = ('<div class="side left"><div class="orb check"><svg viewBox="0 0 132 132" width="120" height="120"><path d="M42 68 L59 85 L92 50" fill="none" stroke="#B7FF3C" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>'
+             '<div class="side right"><div class="orb"><img src="%s/pebai-logo-03-master-transparent-v1.png"></div></div>') % BRAND
+SIDE_TEAM = ('<div class="side left person"><img src="%s/avatar-adrian.webp"><span><b>Adrián</b></span><small>Ingeniería de procesos</small></div>'
+             '<div class="side right person"><img src="%s/avatar-dani.webp"><span><b>Dani</b></span><small>Ingeniería de procesos</small></div>') % (TEAM, TEAM)
+
+# Si un título no cabe en el cuadrado, se reduce hasta que quepa
+FIT_JS = """() => {
+  const box = 560;
+  for (const sel of ['h1', '.sub', '.chips', '.kicker']) {
+    const el = document.querySelector(sel);
+    let size = parseFloat(getComputedStyle(el).fontSize);
+    while (el.scrollWidth > box && size > 12) { size -= 1; el.style.fontSize = size + 'px'; }
+  }
+  const c = document.querySelector('.content').getBoundingClientRect();
+  return Math.round(c.left) + '-' + Math.round(c.right);
+}"""
 
 
 def main():
@@ -116,12 +138,13 @@ def main():
                 'title': v['title'],
                 'sub': v['sub'],
                 'chips': ''.join('<span class="chip">%s</span>' % c for c in v['chips']),
-                'side': SIDE_TEAM if v['side'] == 'team' else SIDE_MARK,
+                'sides': SIDE_TEAM if v['side'] == 'team' else SIDE_MARK,
             }
             tmp.write_text(html, encoding='utf-8')
             page.goto(tmp.as_uri())
             page.evaluate('document.fonts.ready')
             page.wait_for_timeout(400)
+            page.evaluate(FIT_JS)
             png = page.screenshot(type='png')
             img = Image.open(io.BytesIO(png)).convert('RGB')
             dest = OUT / f'{name}.jpg'
