@@ -104,7 +104,7 @@
       .brand-logo-img { height: 32px; }
       main { padding: 26px 12px 48px; }
       .hero { margin-bottom: 20px; }
-      .sub { font-size: 15px; text-align: center; }
+      .sub { display: none; }  /* en móvil, el título basta: calendario más arriba */
       .hero-row { display: block; }
       .hosts-wrap { display: none; }
       .sk-card { grid-template-columns: 1fr; height: 520px; }
@@ -184,6 +184,8 @@
 
       Cal('init', 'sesion', { origin: 'https://cal.com' });
 
+      var isMobile = window.matchMedia('(max-width: 760px)').matches;
+
       var config = { layout: 'month_view', theme: 'dark' };
       if (solicitud) {
         config.solicitud = solicitud;               // campo oculto del evento
@@ -198,7 +200,7 @@
 
       Cal.ns.sesion('ui', {
         theme: 'dark',
-        hideEventTypeDetails: false,
+        hideEventTypeDetails: isMobile,  // en móvil, directo al calendario
         layout: 'month_view',
         cssVarsPerTheme: {
           dark: {
@@ -211,6 +213,25 @@
       });
 
       var booker = document.querySelector('.booker');
+
+      // Móvil: al elegir un día, bajar solo hasta las horas; al elegir hora, subir al formulario
+      var lastH = 0, touched = false, scrollTimer = null;
+      window.addEventListener('blur', function () { touched = true; });  // toque dentro del calendario
+      Cal.ns.sesion('on', { action: '__dimensionChanged', callback: function (e) {
+        var h = e && e.detail && e.detail.data ? Math.round(e.detail.data.iframeHeight || 0) : 0;
+        if (!isMobile || !h) { lastH = h; return; }
+        var prev = lastH; lastH = h;
+        if (!touched || !prev || Math.abs(h - prev) < 120) return;
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(function () {
+          var frame = document.querySelector('#cal-inline iframe') || document.getElementById('cal-inline');
+          var top = frame.getBoundingClientRect().top + window.scrollY;
+          var target = h > prev
+            ? top + h - window.innerHeight + 24      // han aparecido las horas debajo: mostrarlas
+            : top - 70;                              // ha cambiado de pantalla: volver arriba
+          if (Math.abs(target - window.scrollY) > 40) window.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+        }, 180);
+      } });
       function showCalendar() { booker.classList.add('ready'); }
       Cal.ns.sesion('on', { action: 'linkReady', callback: function () { setTimeout(showCalendar, 150); } });
       setTimeout(showCalendar, 9000);

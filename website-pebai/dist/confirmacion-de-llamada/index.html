@@ -1225,6 +1225,7 @@
   <script>try{if(sessionStorage.getItem('pebai_handoff')){sessionStorage.removeItem('pebai_handoff');document.documentElement.classList.add('handoff')}}catch(e){}</script>
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://pebaisystems.es/brand/og/og-confirmacion.jpg?v=3">
+  <script src="/video-fs.js"></script>
 </head>
 <body>
 
@@ -1912,6 +1913,7 @@
       }
 
       function toggleFullscreen() {
+        if (window.PEBAI_FS && window.PEBAI_FS.toggle(playerChassis, document.getElementById('player-video'), document.getElementById('unmute-trigger'))) return;
         if (!playerChassis) return;
         if (!isFsActive()) {
           if (playerChassis.requestFullscreen) playerChassis.requestFullscreen();

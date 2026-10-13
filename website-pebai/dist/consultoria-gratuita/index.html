@@ -1634,6 +1634,7 @@
   </style>
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://pebaisystems.es/brand/og/og-consultoria.jpg?v=3">
+  <script src="/video-fs.js"></script>
 </head>
 <body>
 
@@ -2219,6 +2220,7 @@
       }
 
       function toggleFullscreen() {
+        if (window.PEBAI_FS && window.PEBAI_FS.toggle(playerChassis, document.getElementById('player-video'), document.getElementById('unmute-trigger'))) return;
         if (!document.fullscreenElement && !document.webkitFullscreenElement) {
           if (playerChassis.requestFullscreen) {
             playerChassis.requestFullscreen().catch(function(){});
