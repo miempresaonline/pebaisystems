@@ -1168,12 +1168,12 @@
     }
 
     /* ESCRITORIO FLUIDO: ocupa todo el ancho y todo escala con la pantalla.
-       --u = 1px a 1440px de ancho (0.0694vw); mínimo 0.85px, máximo 2.4px.
+       Márgenes laterales de 7vw; --u = 0.91px a 1440px (0.0633vw), mínimo 0.75px, máximo 2.2px.
        Tarjeta de cita y vídeo miden lo mismo: misma columna (1fr 1fr) y misma altura. */
     @media (min-width: 1200px) {
-      :root { --u: clamp(0.85px, 0.0694vw, 2.4px); }
-      .confirm-main { max-width: none; padding: calc(26 * var(--u)) 3vw calc(48 * var(--u)); }
-      .vsl-header { padding-left: 3vw; padding-right: 3vw; }
+      :root { --u: clamp(0.75px, 0.0633vw, 2.2px); }
+      .confirm-main { max-width: none; padding: calc(26 * var(--u)) 7vw calc(48 * var(--u)); }
+      .vsl-header { padding-left: 7vw; padding-right: 7vw; }
       .header-inner { max-width: none; }
       .confirm-hero-header { margin-bottom: calc(26 * var(--u)); }
       .confirm-title { font-size: calc(50 * var(--u)); margin-bottom: calc(8 * var(--u)); }
