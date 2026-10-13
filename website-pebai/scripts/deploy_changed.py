@@ -29,10 +29,12 @@ PRIVATE_REMOTE = 'domains/pebaisystems.es/private/config.php'
 
 
 def changed_files(commit):
-    out = subprocess.run(
-        ['git', 'show', '--name-only', '--diff-filter=AM', '--pretty=format:', commit, '--', PREFIX],
-        cwd=REPO, capture_output=True, text=True, check=True,
-    ).stdout
+    # Un commit ("abc123") o un rango de commits ("abc123..HEAD")
+    if '..' in commit:
+        cmd = ['git', 'diff', '--name-only', '--diff-filter=AM', commit, '--', PREFIX]
+    else:
+        cmd = ['git', 'show', '--name-only', '--diff-filter=AM', '--pretty=format:', commit, '--', PREFIX]
+    out = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True, check=True).stdout
     return [line.strip() for line in out.splitlines() if line.strip()]
 
 

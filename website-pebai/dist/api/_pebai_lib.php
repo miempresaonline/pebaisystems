@@ -72,6 +72,13 @@ function pebai_db(): PDO
             updated_at TEXT NOT NULL DEFAULT ""
         )');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_leads_created ON leads(created_at)');
+        // Columnas de la cita (Cal.com), añadidas sin perder datos existentes
+        $cols = array_column($pdo->query('PRAGMA table_info(leads)')->fetchAll(), 'name');
+        foreach (['cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email'] as $col) {
+            if (!in_array($col, $cols, true)) {
+                $pdo->exec("ALTER TABLE leads ADD COLUMN $col TEXT NOT NULL DEFAULT ''");
+            }
+        }
         $pdo->exec('CREATE TABLE IF NOT EXISTS login_attempts (ip_hash TEXT NOT NULL, ts INTEGER NOT NULL)');
     }
     return $pdo;

@@ -259,8 +259,28 @@ textarea{width:100%;min-height:110px}
             </div>
             <div><?= badge($detail['estado']) ?> <span class="opt <?= h($detail['opcion']) ?>">Opción <?= h($detail['opcion'] ?: '—') ?></span></div>
           </div>
-          <p style="margin:16px 0 0"><a class="btn wa" href="https://wa.me/<?= h(pebai_phone_digits($detail['telefono'])) ?>" target="_blank" rel="noopener">WhatsApp · <?= h($detail['telefono']) ?></a></p>
+          <?php
+            $bookingUrl = 'https://pebaisystems.es/reservar/?s=' . (int)$detail['id'];
+            $waText = 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos. '
+                . 'Aquí podéis elegir día y hora para la sesión técnica de 25 minutos: ' . $bookingUrl;
+          ?>
+          <p style="margin:16px 0 0;display:flex;flex-wrap:wrap;gap:8px">
+            <a class="btn wa" href="https://wa.me/<?= h(pebai_phone_digits($detail['telefono'])) ?>" target="_blank" rel="noopener">WhatsApp · <?= h($detail['telefono']) ?></a>
+            <a class="btn primary" href="https://wa.me/<?= h(pebai_phone_digits($detail['telefono'])) ?>?text=<?= h(rawurlencode($waText)) ?>" target="_blank" rel="noopener">Enviar enlace de reserva</a>
+            <button class="btn" type="button" onclick="navigator.clipboard.writeText('<?= h($bookingUrl) ?>').then(()=>{this.textContent='Enlace copiado'})">Copiar enlace</button>
+          </p>
         </div>
+        <?php if (!empty($detail['cita_inicio'])): ?>
+        <div class="card" style="margin-bottom:14px;border-color:<?= $detail['cita_estado'] === 'cancelada' ? '#FF5A6A' : '#25D366' ?>">
+          <h2>Cita</h2>
+          <dl class="kv">
+            <dt>Estado</dt><dd><?= h(ucfirst($detail['cita_estado'])) ?></dd>
+            <dt>Cuándo</dt><dd><?= h(pebai_fecha(date('Y-m-d H:i:s', strtotime($detail['cita_inicio'])))) ?></dd>
+            <dt>Persona</dt><dd><?= h($detail['cliente_nombre'] ?: '—') ?></dd>
+            <dt>Email</dt><dd><?= h($detail['cliente_email'] ?: '—') ?></dd>
+          </dl>
+        </div>
+        <?php endif; ?>
         <div class="card" style="margin-bottom:14px">
           <h2>Respuestas</h2>
           <dl class="kv">
@@ -345,6 +365,9 @@ textarea{width:100%;min-height:110px}
           <div>
             <div class="emp"><?= h($l['empresa']) ?> <span class="muted" style="font-weight:400">· <?= h($l['telefono']) ?></span></div>
             <div class="meta"><?= h(pebai_fecha($l['created_at'])) ?> · <?= h($l['fuente'] ?: 'sin fuente') ?><?= $l['palabra'] ? ' · ' . h($l['palabra']) : '' ?> · <?= h($l['objetivo']) ?></div>
+            <?php if (!empty($l['cita_inicio']) && $l['cita_estado'] !== 'cancelada'): ?>
+              <div class="meta" style="color:#25D366;font-weight:700">📅 Cita: <?= h(pebai_fecha(date('Y-m-d H:i:s', strtotime($l['cita_inicio'])))) ?></div>
+            <?php endif; ?>
           </div>
           <div><?= badge($l['estado']) ?></div>
         </a>

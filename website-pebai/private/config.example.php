@@ -12,5 +12,7 @@ return [
     ],
     // php -r "echo password_hash('CONTRASEÑA', PASSWORD_DEFAULT);"
     'panel_password_hash' => '',
+    // Secreto del webhook de Cal.com (mismo valor en Cal.com)
+    'calcom_webhook_secret' => '',
     'salt' => '',
 ];

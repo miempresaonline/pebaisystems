@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elige día y hora | PEBAI Systems</title>
+  <meta name="description" content="Reserva tu sesión técnica privada de procesos e IA con el equipo de PEBAI Systems.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "yjwe6ir50h");
+  </script>
+  <style>
+    @font-face {
+      font-family: 'Manrope';
+      src: url('../brand/Manrope-latin-variable.woff2') format('woff2');
+      font-style: normal;
+      font-weight: 200 800;
+      font-display: swap;
+    }
+    :root {
+      color-scheme: dark;
+      --bg: #070911;
+      --surface: #0E1222;
+      --line: rgba(106, 92, 255, 0.18);
+      --blue: #6A5CFF;
+      --lime: #B7FF3C;
+      --fg: #ECEBF0;
+      --muted: #9498AC;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--fg); }
+    body { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; min-height: 100vh; overflow-x: hidden; }
+    .bg-grid {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: linear-gradient(rgba(106,92,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(106,92,255,.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 75%);
+    }
+    .glow { position: fixed; top: -240px; left: 50%; width: 900px; height: 520px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(106,92,255,.22), transparent); pointer-events: none; z-index: 0; }
+    header { position: sticky; top: 0; z-index: 10; padding: 14px 24px; border-bottom: 1px solid var(--line); background: rgba(7,9,17,.86); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    .header-inner { max-width: 1000px; margin: 0 auto; display: flex; justify-content: center; }
+    .brand-logo-img { height: 40px; width: auto; display: block; }
+    main { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 34px 16px 60px; }
+    .kicker { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .14em; color: var(--lime); background: rgba(183,255,60,.05); }
+    .kicker .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 10px var(--lime); }
+    .hero { text-align: center; margin-bottom: 26px; }
+    h1 { font-size: clamp(28px, 4.4vw, 44px); line-height: 1.12; margin: 16px 0 10px; font-weight: 800; color: #fff; }
+    h1 em { font-family: 'Instrument Serif', serif; font-weight: 400; color: var(--lime); }
+    .sub { margin: 0 auto; max-width: 620px; color: var(--muted); font-size: 16px; line-height: 1.55; }
+    .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
+    .fact { padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 600; }
+    .cal-shell { border: 1px solid var(--line); border-radius: 20px; background: rgba(14,18,34,.7); padding: 6px; min-height: 560px; position: relative; overflow: hidden; }
+    #cal-inline { width: 100%; min-height: 540px; }
+    .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 15px; gap: 10px; }
+    .loading .spin { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,.15); border-top-color: var(--lime); animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .help { text-align: center; margin-top: 18px; color: var(--muted); font-size: 14px; }
+    .help a { color: var(--lime); font-weight: 700; text-decoration: none; }
+    .redirecting { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(7,9,17,.92); align-items: center; justify-content: center; flex-direction: column; gap: 12px; font-size: 18px; font-weight: 700; }
+    .redirecting.on { display: flex; }
+    @media (max-width: 600px) {
+      header { padding: 10px 16px; }
+      .brand-logo-img { height: 32px; }
+      main { padding: 24px 12px 48px; }
+      .sub { font-size: 15px; }
+      .cal-shell { border-radius: 16px; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="glow"></div>
+
+  <header>
+    <div class="header-inner">
+      <a href="https://pebaisystems.es" aria-label="PEBAI Systems">
+        <img class="brand-logo-img" src="../brand/pebai-horizontal-color-mineral-cropped.png" alt="PEBAI Systems" width="162" height="47">
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="kicker"><span class="dot"></span>TU CASO HA SIDO ACEPTADO</span>
+      <h1>Elige día y hora para tu <em>sesión técnica.</em></h1>
+      <p class="sub">Videollamada privada de 25 minutos con nuestro equipo de ingeniería. Conéctate desde un ordenador y que asista quien toma las decisiones.</p>
+      <div class="facts">
+        <span class="fact">25 min</span>
+        <span class="fact">Google Meet</span>
+        <span class="fact">Coste 0 €</span>
+      </div>
+    </section>
+
+    <section class="cal-shell" aria-label="Calendario de reserva">
+      <div class="loading" id="cal-loading"><span class="spin"></span>Cargando huecos disponibles…</div>
+      <div id="cal-inline"></div>
+    </section>
+
+    <p class="help">¿No te encaja ningún hueco? <a href="https://wa.me/34624842799?text=Hola%20PEBAI%2C%20no%20me%20encaja%20ning%C3%BAn%20hueco%20para%20la%20sesi%C3%B3n." target="_blank" rel="noopener">Escríbenos por WhatsApp</a></p>
+  </main>
+
+  <div class="redirecting" id="redirecting"><span class="loading" style="position:static"><span class="spin"></span></span>Sesión reservada. Un momento…</div>
+
+  <script>
+    (function () {
+      'use strict';
+      var params = new URLSearchParams(window.location.search);
+      var solicitud = (params.get('s') || '').replace(/[^0-9]/g, '').slice(0, 10);
+
+      // Loader oficial del embed de Cal.com
+      (function (C, A, L) { var p = function (a, ar) { a.q.push(ar); }; var d = C.document; C.Cal = C.Cal || function () { var cal = C.Cal; var ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement('script')).src = A; cal.loaded = true; } if (ar[0] === L) { var api = function () { p(api, arguments); }; var namespace = ar[1]; api.q = api.q || []; if (typeof namespace === 'string') { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ['initNamespace', namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, 'https://app.cal.com/embed/embed.js', 'init');
+
+      Cal('init', 'sesion', { origin: 'https://cal.com' });
+
+      var config = { layout: 'month_view', theme: 'dark' };
+      if (solicitud) config.solicitud = solicitud;
+
+      Cal.ns.sesion('inline', {
+        elementOrSelector: '#cal-inline',
+        calLink: 'pebai-systems/sesion-tecnica',
+        config: config
+      });
+
+      Cal.ns.sesion('ui', {
+        theme: 'dark',
+        hideEventTypeDetails: true,
+        layout: 'month_view',
+        cssVarsPerTheme: {
+          dark: {
+            'cal-brand': '#B7FF3C', 'cal-brand-emphasis': '#C9FF6B', 'cal-brand-text': '#0B0F14',
+            'cal-bg': '#0E1222', 'cal-bg-muted': '#121831', 'cal-bg-subtle': '#1A2140', 'cal-bg-emphasis': '#262E52',
+            'cal-border': '#262E52', 'cal-border-subtle': '#1D2442', 'cal-border-booker': '#1D2442',
+            'cal-text': '#ECEBF0', 'cal-text-emphasis': '#FFFFFF', 'cal-text-subtle': '#9498AC', 'cal-text-muted': '#9498AC'
+          }
+        }
+      });
+
+      function hideLoading() {
+        var el = document.getElementById('cal-loading');
+        if (el) el.style.display = 'none';
+      }
+      Cal.ns.sesion('on', { action: 'linkReady', callback: hideLoading });
+      setTimeout(hideLoading, 8000);
+
+      var redirected = false;
+      function goToConfirmation(data) {
+        if (redirected) return;
+        data = data || {};
+        var booking = data.booking || data;
+        var start = data.startTime || booking.startTime || data.date || '';
+        var end = data.endTime || booking.endTime || '';
+        redirected = true;
+        document.getElementById('redirecting').classList.add('on');
+        if (typeof clarity === 'function') { try { clarity('event', 'sesion_reservada'); } catch (e) {} }
+        var url = '/confirmacion-de-llamada/';
+        var q = [];
+        if (start) q.push('startTime=' + encodeURIComponent(start));
+        if (end) q.push('endTime=' + encodeURIComponent(end));
+        window.location.href = url + (q.length ? '?' + q.join('&') : '');
+      }
+
+      Cal.ns.sesion('on', { action: 'bookingSuccessfulV2', callback: function (e) { goToConfirmation(e.detail && e.detail.data); } });
+      Cal.ns.sesion('on', { action: 'bookingSuccessful', callback: function (e) { goToConfirmation(e.detail && e.detail.data); } });
+    })();
+  </script>
+  <script src="/utm.js" defer></script>
+</body>
+</html>
