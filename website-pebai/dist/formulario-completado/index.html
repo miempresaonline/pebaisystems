@@ -1272,15 +1272,13 @@
         padding: 12px 14px;
       }
     }
-      .next-steps { max-width: 760px; margin: 28px auto 8px; padding: 24px 22px; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; background: rgba(255,255,255,.03); }
-    .next-steps-kicker { font-size: 12px; font-weight: 800; letter-spacing: .14em; color: #B7FF3C; margin-bottom: 14px; }
-    .next-steps-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-    .next-steps-list li { display: flex; gap: 14px; align-items: flex-start; color: #C9CED8; font-size: 16px; line-height: 1.5; }
-    .next-steps-list strong { color: #FFFFFF; }
-    .next-steps-list a { color: #B7FF3C; text-decoration: none; font-weight: 700; white-space: nowrap; }
-    .ns-num { flex: 0 0 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #6A5CFF; color: #FFFFFF; font-weight: 800; font-size: 14px; }
-    .ns-wa-btn { display: block; margin-top: 20px; text-align: center; padding: 14px 18px; border-radius: 12px; background: #25D366; color: #0B0F14; font-weight: 800; text-decoration: none; }
-    @media (max-width: 600px) { .next-steps { margin: 22px 16px 8px; padding: 20px 16px; } .next-steps-list li { font-size: 15px; } }
+
+    /* Saltos de línea controlados: nunca una palabra suelta en la última línea */
+    .vsl-headline, .subhead-line { text-wrap: balance; }
+    .br-mobile { display: none; }
+    @media (max-width: 599px) { .br-mobile { display: inline; } .hide-mobile { display: none; } }
+    .footer-content p { text-wrap: balance; }
+    @media (max-width: 360px) { .vsl-subhead { font-size: 11.5px; } }
 </style>
 </head>
 <body>
@@ -1309,7 +1307,7 @@
       </div>
       
       <h1 class="vsl-headline">
-        Mira este vídeo: te contamos <span class="hero-italic">qué pasa ahora.</span>
+        Mira este vídeo: te contamos <br class="br-mobile"><span class="hero-italic">qué pasa ahora.</span>
       </h1>
       
       <p class="vsl-subhead">
@@ -1397,27 +1395,6 @@
       </div>
     </section>
 
-    <!-- PRÓXIMOS PASOS: el equipo revisa y contacta por WhatsApp (sin reserva directa) -->
-    <section class="next-steps" aria-label="Próximos pasos">
-      <div class="next-steps-kicker">PRÓXIMOS PASOS</div>
-      <ol class="next-steps-list">
-        <li>
-          <span class="ns-num">1</span>
-          <div><strong>Revisamos tu solicitud.</strong> Ya la hemos recibido y una persona del equipo analiza tu caso.</div>
-        </li>
-        <li>
-          <span class="ns-num">2</span>
-          <div><strong>Te escribimos por WhatsApp en menos de 24 h</strong> desde el <a href="https://wa.me/34624842799" target="_blank" rel="noopener">+34 624 84 27 99</a>. Guárdalo para reconocer el mensaje y responde lo antes posible.</div>
-        </li>
-        <li>
-          <span class="ns-num">3</span>
-          <div><strong>Si tu caso encaja, te enviamos el enlace</strong> para elegir día y hora de la sesión de 25 minutos por videollamada.</div>
-        </li>
-      </ol>
-      <a class="ns-wa-btn" href="https://wa.me/34624842799?text=Hola%20PEBAI%2C%20acabo%20de%20enviar%20la%20solicitud%20de%20consultor%C3%ADa." target="_blank" rel="noopener" id="ns-wa-btn">
-        ¿Prefieres adelantarte? Escríbenos por WhatsApp
-      </a>
-    </section>
 
   </main>
 
@@ -1425,7 +1402,7 @@
   <footer class="vsl-footer">
     <div class="footer-content">
       <div style="font-weight: 700; color: #FFF; font-size: 13px;">
-        PEBAI SYSTEMS · INGENIERÍA DE PROCESOS E INTELIGENCIA ARTIFICIAL
+        PEBAI SYSTEMS<span class="hide-mobile"> ·</span> <br class="br-mobile">INGENIERÍA DE PROCESOS <br class="br-mobile">E INTELIGENCIA ARTIFICIAL
       </div>
       <p>
         Operativa profesional y segura conforme al RGPD y AI Act europeo. Sede en Valencia & Madrid, España.
@@ -1862,12 +1839,6 @@
         });
       }
 
-      const nsWaBtn = document.getElementById('ns-wa-btn');
-      if (nsWaBtn) {
-        nsWaBtn.addEventListener('click', function () {
-          if (typeof clarity === 'function') clarity('event', 'click_whatsapp_formulario_completado');
-        });
-      }
     })();
   </script>
 <script src="/utm.js" defer></script>
