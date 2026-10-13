@@ -69,7 +69,7 @@ try {
     $db = pebai_db();
     if (!$solicitud && $uid) {
         // Cambios y cancelaciones pueden no traer el campo oculto: se busca por la cita anterior
-        $prev = $p['rescheduleUid'] ?? ($p['fromReschedule'] ?? $uid);
+        $prev = $p['rescheduleUid'] ?? ($p['fromReschedule'] ?? ($p['rescheduledFromUid'] ?? $uid));
         $q = $db->prepare('SELECT id FROM leads WHERE cita_uid IN (?, ?) LIMIT 1');
         $q->execute([$uid, $prev]);
         $solicitud = (int)$q->fetchColumn();

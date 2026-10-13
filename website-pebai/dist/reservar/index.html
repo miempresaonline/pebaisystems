@@ -55,8 +55,9 @@
     h1 { font-size: clamp(28px, 4.4vw, 50px); line-height: 1.12; margin: 0 0 14px; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
     h1 .nb { white-space: nowrap; display: inline-block; }
     h1 em { font-family: 'Instrument Serif', serif; font-weight: 400; color: var(--lime); }
-    .hosts-wrap { margin-top: 22px; }
-    .sub { margin: 0 auto; max-width: 640px; color: var(--muted); font-size: 17px; line-height: 1.55; }
+    .hero-row { display: flex; align-items: center; justify-content: center; gap: 28px; max-width: 900px; margin: 0 auto; }
+    .sub { margin: 0; max-width: 470px; text-align: left; color: var(--muted); font-size: 17px; line-height: 1.55; }
+    .hosts-wrap { flex-shrink: 0; }
     .booker { position: relative; width: 100%; min-height: 560px; }
     #cal-inline { width: 100%; min-height: 560px; opacity: 0; transform: translateY(14px) scale(.985); transition: opacity .6s cubic-bezier(.2,.8,.2,1), transform .6s cubic-bezier(.2,.8,.2,1); }
     .booker.ready #cal-inline { opacity: 1; transform: none; }
@@ -90,7 +91,9 @@
       .brand-logo-img { height: 32px; }
       main { padding: 26px 12px 48px; }
       .hero { margin-bottom: 20px; }
-      .sub { font-size: 15px; }
+      .sub { font-size: 15px; text-align: center; }
+      .hero-row { display: block; }
+      .hosts-wrap { display: none; }
       .sk-card { grid-template-columns: 1fr; height: 520px; }
       .sk-col.info .sk-line:nth-child(n+4), .sk-col.slots { display: none; }
       .sk-col + .sk-col { border-left: 0; border-top: 1px solid #1D2442; }
@@ -114,8 +117,10 @@
   <main>
     <section class="hero">
       <h1><span class="nb">Tu empresa encaja.</span> <em class="nb">Elige cuándo hablamos.</em></h1>
-      <p class="sub">Hemos analizado tu caso y vemos margen real de mejora. Reserva la sesión técnica con nuestro equipo de ingeniería.</p>
-      <div class="hosts-wrap"><div class="pf-hosts"><div class="pf-hosts-faces"><img src="/team/avatar-adrian.webp" alt="Adrián" width="42" height="42"><img src="/team/avatar-dani.webp" alt="Dani" width="42" height="42"></div><div class="pf-hosts-text"><strong>Te atenderán <b>Adrián</b> o <b>Dani</b></strong><span>Equipo de ingeniería · PEBAI</span></div></div></div>
+      <div class="hero-row">
+        <p class="sub">Hemos analizado tu caso y vemos margen real de mejora. Reserva la sesión técnica con nuestro equipo de ingeniería.</p>
+        <div class="hosts-wrap"><div class="pf-hosts"><div class="pf-hosts-faces"><img src="/team/avatar-adrian.webp" alt="Adrián" width="42" height="42"><img src="/team/avatar-dani.webp" alt="Dani" width="42" height="42"></div><div class="pf-hosts-text"><strong>Te atenderán <b>Adrián</b> o <b>Dani</b></strong><span>Equipo de ingeniería · PEBAI</span></div></div></div>
+      </div>
     </section>
 
     <section class="booker" aria-label="Calendario de reserva">
@@ -159,6 +164,7 @@
       'use strict';
       var params = new URLSearchParams(window.location.search);
       var solicitud = (params.get('s') || '').replace(/[^0-9]/g, '').slice(0, 10);
+      var firma = (params.get('t') || '').replace(/[^0-9a-f]/gi, '').slice(0, 32);
 
       // Loader oficial del embed de Cal.com
       (function (C, A, L) { var p = function (a, ar) { a.q.push(ar); }; var d = C.document; C.Cal = C.Cal || function () { var cal = C.Cal; var ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement('script')).src = A; cal.loaded = true; } if (ar[0] === L) { var api = function () { p(api, arguments); }; var namespace = ar[1]; api.q = api.q || []; if (typeof namespace === 'string') { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ['initNamespace', namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, 'https://app.cal.com/embed/embed.js', 'init');
@@ -197,13 +203,27 @@
       setTimeout(showCalendar, 9000);
 
       var redirected = false;
-      function goToConfirmation(data) {
+      function linkBooking(uid, start, end, reschedule) {
+        if (!solicitud || !firma || !start) return;
+        try {
+          fetch('/api/link-booking.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ s: solicitud, t: firma, uid: uid, start: start, end: end, reschedule: !!reschedule }),
+            keepalive: true
+          }).catch(function () {});
+        } catch (e) {}
+      }
+
+      function goToConfirmation(data, reschedule) {
         if (redirected) return;
         data = data || {};
         var booking = data.booking || data;
         var start = data.startTime || booking.startTime || data.date || '';
         var end = data.endTime || booking.endTime || '';
+        var uid = data.uid || booking.uid || '';
         redirected = true;
+        linkBooking(uid, start, end, reschedule);
         if (typeof clarity === 'function') { try { clarity('event', 'sesion_reservada'); } catch (e) {} }
 
         var detail = '';
@@ -218,14 +238,17 @@
         if (end) q.push('endTime=' + encodeURIComponent(end));
         var href = '/confirmacion-de-llamada/' + (q.length ? '?' + q.join('&') : '');
         if (window.PEBAI_FUNNEL) {
-          window.PEBAI_FUNNEL.go({ title: 'Sesión reservada', detail: detail, note: 'Preparando tu confirmación…', href: href });
+          window.PEBAI_FUNNEL.go({ title: reschedule ? 'Sesión cambiada' : 'Sesión reservada', detail: detail, note: 'Preparando tu confirmación…', href: href });
         } else {
           window.location.href = href;
         }
       }
 
-      Cal.ns.sesion('on', { action: 'bookingSuccessfulV2', callback: function (e) { goToConfirmation(e.detail && e.detail.data); } });
-      Cal.ns.sesion('on', { action: 'bookingSuccessful', callback: function (e) { goToConfirmation(e.detail && e.detail.data); } });
+      Cal.ns.sesion('on', { action: 'bookingSuccessfulV2', callback: function (e) { goToConfirmation(e.detail && e.detail.data, false); } });
+      Cal.ns.sesion('on', { action: 'bookingSuccessful', callback: function (e) { goToConfirmation(e.detail && e.detail.data, false); } });
+      // Si ya tenía una cita, Cal.com ofrece cambiarla: también hay que redirigir
+      Cal.ns.sesion('on', { action: 'rescheduleBookingSuccessfulV2', callback: function (e) { goToConfirmation(e.detail && e.detail.data, true); } });
+      Cal.ns.sesion('on', { action: 'rescheduleBookingSuccessful', callback: function (e) { goToConfirmation(e.detail && e.detail.data, true); } });
     })();
   </script>
   <script src="/utm.js" defer></script>

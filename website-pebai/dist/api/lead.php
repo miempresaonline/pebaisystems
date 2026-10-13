@@ -121,24 +121,53 @@ try {
     pebai_log('DB: ' . $e->getMessage());
 }
 
-$mailed = false;
-try {
-    [$subject, $html, $text] = pebai_lead_email($lead, $id);
-    pebai_smtp_send(pebai_config()['notify_to'], $subject, $html, $text);
-    $mailed = true;
-} catch (Throwable $e) {
-    pebai_log('EMAIL (lead ' . $id . '): ' . $e->getMessage());
-}
-
-if ($saved && $mailed) {
-    try {
-        pebai_db()->prepare('UPDATE leads SET email_enviado = 1 WHERE id = ?')->execute([$id]);
-    } catch (Throwable $e) {
-        pebai_log('DB update: ' . $e->getMessage());
+// Responder YA al navegador si la solicitud quedó guardada; el email se envía después
+// (el SMTP puede tardar varios segundos y el cliente no tiene por qué esperarlo).
+function respond_and_continue(array $payload): void
+{
+    ignore_user_abort(true);
+    $body = json_encode($payload, JSON_UNESCAPED_UNICODE);
+    http_response_code(200);
+    header('Content-Length: ' . strlen($body));
+    header('Connection: close');
+    echo $body;
+    if (function_exists('litespeed_finish_request')) {
+        litespeed_finish_request();
+    } elseif (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    } else {
+        while (ob_get_level() > 0) {
+            ob_end_flush();
+        }
+        flush();
     }
 }
 
-if (!$saved && !$mailed) {
-    respond(500, ['status' => 'error', 'message' => 'No hemos podido registrar la solicitud.']);
+$sendEmail = function () use ($lead, $id): bool {
+    try {
+        [$subject, $html, $text] = pebai_lead_email($lead, $id);
+        pebai_smtp_send(pebai_config()['notify_to'], $subject, $html, $text);
+        return true;
+    } catch (Throwable $e) {
+        pebai_log('EMAIL (lead ' . $id . '): ' . $e->getMessage());
+        return false;
+    }
+};
+
+if ($saved) {
+    respond_and_continue(['status' => 'ok', 'id' => $id]);
+    if ($sendEmail()) {
+        try {
+            pebai_db()->prepare('UPDATE leads SET email_enviado = 1 WHERE id = ?')->execute([$id]);
+        } catch (Throwable $e) {
+            pebai_log('DB update: ' . $e->getMessage());
+        }
+    }
+    exit;
 }
-respond(200, ['status' => 'ok', 'id' => $id]);
+
+// Sin base de datos: solo vale si el email sale (el cliente espera en este caso)
+if ($sendEmail()) {
+    respond(200, ['status' => 'ok', 'id' => 0]);
+}
+respond(500, ['status' => 'error', 'message' => 'No hemos podido registrar la solicitud.']);

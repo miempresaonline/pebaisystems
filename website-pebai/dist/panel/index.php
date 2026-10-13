@@ -260,7 +260,7 @@ textarea{width:100%;min-height:110px}
             <div><?= badge($detail['estado']) ?> <span class="opt <?= h($detail['opcion']) ?>">Opción <?= h($detail['opcion'] ?: '—') ?></span></div>
           </div>
           <?php
-            $bookingUrl = 'https://pebaisystems.es/reservar/?s=' . (int)$detail['id'];
+            $bookingUrl = pebai_booking_url((int)$detail['id']);
             $waText = 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos. '
                 . 'Aquí podéis elegir día y hora para la sesión técnica de 25 minutos: ' . $bookingUrl;
           ?>

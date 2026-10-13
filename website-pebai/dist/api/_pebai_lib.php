@@ -90,6 +90,18 @@ function pebai_ip_hash(): string
     return hash('sha256', ($cfg['salt'] ?? 'pebai') . '|' . ($_SERVER['REMOTE_ADDR'] ?? ''));
 }
 
+// Firma corta del enlace de reserva (/reservar/?s=ID&t=FIRMA) para que nadie pueda
+// asignar citas a solicitudes ajenas cambiando el número.
+function pebai_booking_token(int $id): string
+{
+    return substr(hash_hmac('sha256', 'reservar|' . $id, pebai_config()['salt'] ?? 'pebai'), 0, 12);
+}
+
+function pebai_booking_url(int $id): string
+{
+    return 'https://pebaisystems.es/reservar/?s=' . $id . '&t=' . pebai_booking_token($id);
+}
+
 function h($s): string
 {
     return htmlspecialchars((string)$s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
