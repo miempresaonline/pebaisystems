@@ -1279,7 +1279,13 @@
     @media (max-width: 599px) { .br-mobile { display: inline; } .hide-mobile { display: none; } }
     .footer-content p { text-wrap: balance; }
     @media (max-width: 360px) { .vsl-subhead { font-size: 11.5px; } }
+    .save-contact { text-align: center; margin: 22px 0 0; }
+    .save-contact a { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; border: 1px solid rgba(106, 92, 255, .25); color: #C9CED8; font-size: 13.5px; font-weight: 600; text-decoration: none; transition: border-color .2s ease, color .2s ease, background .2s ease; }
+    .save-contact a:hover { color: #fff; border-color: rgba(183, 255, 60, .5); background: rgba(183, 255, 60, .06); }
+    .save-contact svg { color: #B7FF3C; }
 </style>
+  <link rel="stylesheet" href="/funnel.css">
+  <script>try{if(sessionStorage.getItem('pebai_handoff')){sessionStorage.removeItem('pebai_handoff');document.documentElement.classList.add('handoff')}}catch(e){}</script>
 </head>
 <body>
 
@@ -1301,10 +1307,6 @@
 
     <!-- HERO LIMPIO (1 LÍNEA EN DESKTOP PARA EL TITULAR + 2 LÍNEAS LIMPIAS EN DESCRIPCIÓN) -->
     <section class="vsl-hero">
-      <div class="vsl-kicker">
-        <span class="kicker-pulse-dot"></span>
-        <span>SOLICITUD REGISTRADA</span>
-      </div>
       
       <h1 class="vsl-headline">
         Mira este vídeo: te contamos <br class="br-mobile"><span class="hero-italic">qué pasa ahora.</span>
@@ -1337,7 +1339,7 @@
           
           <!-- VÍDEO REAL EN ALTA RESOLUCIÓN CON AUDIO -->
           <video id="player-video" class="player-video-element" playsinline preload="auto" muted poster="../video/formulario_completado_poster.webp">
-            <source src="../video/formulario_completado.mp4" type="video/mp4">
+            <source src="../video/formulario_completado_v2.mp4" type="video/mp4">
             Tu navegador no soporta vídeo HTML5.
           </video>
 
@@ -1395,6 +1397,13 @@
       </div>
     </section>
 
+
+    <p class="save-contact">
+      <a href="/pebai-systems.vcf" download="PEBAI Systems.vcf" id="save-contact-btn">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Guardar nuestro contacto para reconocer el WhatsApp
+      </a>
+    </p>
 
   </main>
 
@@ -1842,5 +1851,6 @@
     })();
   </script>
 <script src="/utm.js" defer></script>
+  <script src="/funnel.js" data-step="2" defer></script>
 </body>
 </html>

@@ -55,6 +55,7 @@
     h1 { font-size: clamp(28px, 4.4vw, 50px); line-height: 1.12; margin: 0 0 14px; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
     h1 .nb { white-space: nowrap; display: inline-block; }
     h1 em { font-family: 'Instrument Serif', serif; font-weight: 400; color: var(--lime); }
+    .hosts-wrap { margin-top: 22px; }
     .sub { margin: 0 auto; max-width: 640px; color: var(--muted); font-size: 17px; line-height: 1.55; }
     .booker { position: relative; width: 100%; min-height: 560px; }
     #cal-inline { width: 100%; min-height: 560px; opacity: 0; transform: translateY(14px) scale(.985); transition: opacity .6s cubic-bezier(.2,.8,.2,1), transform .6s cubic-bezier(.2,.8,.2,1); }
@@ -79,39 +80,6 @@
     @keyframes shimmer { 0% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
     @keyframes blink { 50% { opacity: .25; } }
 
-    /* Transición de reserva confirmada */
-    .booked { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 24px; pointer-events: none; opacity: 0; visibility: hidden; }
-    .booked.on { pointer-events: all; visibility: visible; opacity: 1; }
-    .booked-bg { position: absolute; inset: 0; background: radial-gradient(circle at 50% 45%, rgba(106,92,255,.28), rgba(7,9,17,.97) 55%); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: 0; }
-    .booked.on .booked-bg { animation: fadeIn .45s ease forwards; }
-    .badge { position: relative; width: 132px; height: 132px; margin-bottom: 30px; }
-    .ripple { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(183,255,60,.55); opacity: 0; }
-    .booked.on .ripple { animation: ripple 1.6s cubic-bezier(.2,.8,.2,1) .55s infinite; }
-    .booked.on .ripple.r2 { animation-delay: 1.05s; }
-    .ring { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 210deg, #6A5CFF, #B7FF3C, #6A5CFF); padding: 3px; transform: scale(.3) rotate(-90deg); opacity: 0; }
-    .ring::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #0B0F1D; }
-    .booked.on .ring { animation: ringIn .7s cubic-bezier(.34,1.56,.64,1) .15s forwards; }
-    .check { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
-    .check path { fill: none; stroke: #B7FF3C; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 80; stroke-dashoffset: 80; filter: drop-shadow(0 0 10px rgba(183,255,60,.6)); }
-    .booked.on .check path { animation: draw .55s cubic-bezier(.65,0,.35,1) .6s forwards; }
-    .booked-title, .booked-date, .booked-progress { position: relative; opacity: 0; transform: translateY(16px); }
-    .booked-title { font-size: clamp(26px, 4vw, 40px); font-weight: 800; color: #fff; margin: 0; }
-    .booked-date { margin-top: 10px; font-family: 'Instrument Serif', serif; font-size: clamp(22px, 3vw, 30px); color: var(--lime); }
-    .booked.on .booked-title { animation: up .55s cubic-bezier(.2,.8,.2,1) .85s forwards; }
-    .booked.on .booked-date { animation: up .55s cubic-bezier(.2,.8,.2,1) 1s forwards; }
-    .booked-progress { margin-top: 30px; width: 220px; height: 3px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; }
-    .booked-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #6A5CFF, #B7FF3C); }
-    .booked.on .booked-progress { animation: up .5s ease 1.15s forwards; }
-    .booked.on .booked-progress span { animation: fill 1.1s cubic-bezier(.65,0,.35,1) 1.25s forwards; }
-    .booked-note { position: relative; margin-top: 12px; font-size: 13px; color: var(--muted); opacity: 0; }
-    .booked.on .booked-note { animation: fadeIn .4s ease 1.3s forwards; }
-    @keyframes fadeIn { to { opacity: 1; } }
-    @keyframes up { to { opacity: 1; transform: none; } }
-    @keyframes ringIn { to { opacity: 1; transform: scale(1) rotate(0deg); } }
-    @keyframes draw { to { stroke-dashoffset: 0; } }
-    @keyframes ripple { 0% { opacity: .7; transform: scale(1); } 100% { opacity: 0; transform: scale(1.9); } }
-    @keyframes fill { to { width: 100%; } }
-    body.leaving main, body.leaving header { transition: opacity .4s ease, filter .4s ease, transform .4s ease; opacity: .25; filter: blur(6px); transform: scale(.985); }
     @media (prefers-reduced-motion: reduce) {
       .sk, .sk-dot, .booked.on .ripple { animation: none; }
     }
@@ -128,6 +96,8 @@
       .sk-col + .sk-col { border-left: 0; border-top: 1px solid #1D2442; }
       }
   </style>
+  <link rel="stylesheet" href="/funnel.css">
+  <script>try{if(sessionStorage.getItem('pebai_handoff')){sessionStorage.removeItem('pebai_handoff');document.documentElement.classList.add('handoff')}}catch(e){}</script>
 </head>
 <body>
   <div class="bg-grid"></div>
@@ -145,6 +115,7 @@
     <section class="hero">
       <h1><span class="nb">Tu empresa encaja.</span> <em class="nb">Elige cuándo hablamos.</em></h1>
       <p class="sub">Hemos analizado tu caso y vemos margen real de mejora. Reserva la sesión técnica con nuestro equipo de ingeniería.</p>
+      <div class="hosts-wrap"><div class="pf-hosts"><div class="pf-hosts-faces"><img src="/team/avatar-adrian.webp" alt="Adrián" width="42" height="42"><img src="/team/avatar-dani.webp" alt="Dani" width="42" height="42"></div><div class="pf-hosts-text"><strong>Te atenderán <b>Adrián</b> o <b>Dani</b></strong><span>Equipo de ingeniería · PEBAI</span></div></div></div>
     </section>
 
     <section class="booker" aria-label="Calendario de reserva">
@@ -182,18 +153,6 @@
     <p class="help">¿No te encaja ningún hueco? <a href="https://wa.me/34624842799?text=Hola%20PEBAI%2C%20no%20me%20encaja%20ning%C3%BAn%20hueco%20para%20la%20sesi%C3%B3n." target="_blank" rel="noopener">Escríbenos por WhatsApp</a></p>
   </main>
 
-  <div class="booked" id="booked" role="status" aria-live="polite">
-    <div class="booked-bg"></div>
-    <div class="badge">
-      <span class="ripple"></span><span class="ripple r2"></span>
-      <span class="ring"></span>
-      <svg class="check" viewBox="0 0 132 132" aria-hidden="true"><path d="M42 68 L59 85 L92 50"/></svg>
-    </div>
-    <p class="booked-title">Sesión reservada</p>
-    <div class="booked-date" id="booked-date"></div>
-    <div class="booked-progress"><span></span></div>
-    <div class="booked-note">Preparando tu confirmación…</div>
-  </div>
 
   <script>
     (function () {
@@ -247,25 +206,22 @@
         redirected = true;
         if (typeof clarity === 'function') { try { clarity('event', 'sesion_reservada'); } catch (e) {} }
 
+        var detail = '';
         var d = new Date(start);
         if (start && !isNaN(d.getTime())) {
           var dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
           var meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-          var hora = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-          document.getElementById('booked-date').textContent = dias[d.getDay()] + ' ' + d.getDate() + ' de ' + meses[d.getMonth()] + ' · ' + hora + ' h';
+          detail = dias[d.getDay()] + ' ' + d.getDate() + ' de ' + meses[d.getMonth()] + ' · ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + ' h';
         }
-        document.body.classList.add('leaving');
-        document.getElementById('booked').classList.add('on');
-        try { sessionStorage.setItem('pebai_booked_handoff', '1'); } catch (e) {}
-
-        var url = '/confirmacion-de-llamada/';
         var q = [];
         if (start) q.push('startTime=' + encodeURIComponent(start));
         if (end) q.push('endTime=' + encodeURIComponent(end));
-        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        setTimeout(function () {
-          window.location.href = url + (q.length ? '?' + q.join('&') : '');
-        }, reduced ? 600 : 2450);
+        var href = '/confirmacion-de-llamada/' + (q.length ? '?' + q.join('&') : '');
+        if (window.PEBAI_FUNNEL) {
+          window.PEBAI_FUNNEL.go({ title: 'Sesión reservada', detail: detail, note: 'Preparando tu confirmación…', href: href });
+        } else {
+          window.location.href = href;
+        }
       }
 
       Cal.ns.sesion('on', { action: 'bookingSuccessfulV2', callback: function (e) { goToConfirmation(e.detail && e.detail.data); } });
@@ -273,5 +229,6 @@
     })();
   </script>
   <script src="/utm.js" defer></script>
+  <script src="/funnel.js" data-step="3" defer></script>
 </body>
 </html>

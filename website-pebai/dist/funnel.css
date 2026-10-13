@@ -1,0 +1,152 @@
+/*
+ * PEBAI · Componentes compartidos del embudo
+ * Barra de pasos, transición entre páginas y llegada animada.
+ * Páginas: /diagnostico/ (1) · /formulario-completado/ (2) · /reservar/ (3) · /confirmacion-de-llamada/ (4)
+ */
+
+/* ------------------------------------------------------- Barra de pasos -- */
+.pf-steps {
+  --pf-lime: #B7FF3C;
+  --pf-violet: #6A5CFF;
+  --pf-dim: rgba(236, 235, 240, .32);
+  --pf-line: rgba(106, 92, 255, .22);
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto 26px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  position: relative;
+  z-index: 5;
+  flex-shrink: 0;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.pf-step { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.pf-step::before {
+  content: '';
+  position: absolute;
+  top: 13px;
+  left: calc(-50% + 18px);
+  right: calc(50% + 18px);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--pf-line);
+}
+.pf-step:first-child::before { display: none; }
+.pf-step.done::before, .pf-step.current::before { background: linear-gradient(90deg, var(--pf-lime), var(--pf-violet)); }
+.pf-dot {
+  position: relative;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800;
+  color: var(--pf-dim);
+  background: rgba(14, 18, 34, .9);
+  border: 1.5px solid var(--pf-line);
+  transition: transform .3s ease;
+}
+.pf-step.done .pf-dot { background: var(--pf-lime); border-color: var(--pf-lime); color: #0B0F14; }
+.pf-step.done .pf-dot svg { width: 14px; height: 14px; }
+.pf-step.current .pf-dot {
+  color: #fff;
+  background: var(--pf-violet);
+  border-color: var(--pf-violet);
+  box-shadow: 0 0 0 5px rgba(106, 92, 255, .18), 0 0 22px rgba(106, 92, 255, .55);
+}
+.pf-step.current .pf-dot::after {
+  content: '';
+  position: absolute; inset: -5px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(106, 92, 255, .6);
+  animation: pfPulse 2.2s ease-out infinite;
+}
+.pf-label { font-size: 12px; font-weight: 700; letter-spacing: .02em; color: var(--pf-dim); white-space: nowrap; }
+.pf-step.done .pf-label { color: rgba(236, 235, 240, .62); }
+.pf-step.current .pf-label { color: #fff; }
+@keyframes pfPulse { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.55); opacity: 0; } }
+
+/* El formulario de diagnóstico ocupa la pantalla exacta: barra más compacta */
+.app-viewport .pf-steps { margin-bottom: 12px; max-width: 460px; }
+.app-viewport .pf-dot { width: 24px; height: 24px; font-size: 11px; }
+.app-viewport .pf-step::before { top: 11px; left: calc(-50% + 16px); right: calc(50% + 16px); }
+.app-viewport .pf-label { font-size: 11px; }
+.app-viewport .pf-steps ~ .funnel-container { max-height: calc(100dvh - 118px); }
+
+:root[data-theme="light"] .pf-steps { --pf-dim: rgba(20, 22, 40, .4); --pf-line: rgba(106, 92, 255, .25); }
+:root[data-theme="light"] .pf-step.next .pf-dot { background: #fff; }
+:root[data-theme="light"] .pf-step.current .pf-label { color: #0B0F14; }
+:root[data-theme="light"] .pf-step.done .pf-label { color: rgba(20, 22, 40, .7); }
+
+@media (max-width: 600px) {
+  .pf-steps { margin-bottom: 20px; }
+  .pf-label { font-size: 11px; }
+}
+
+/* ------------------------------------------------- Quién te atenderá -- */
+.pf-hosts { display: inline-flex; align-items: center; gap: 14px; padding: 8px 18px 8px 8px; border-radius: 999px; border: 1px solid rgba(106, 92, 255, .22); background: linear-gradient(180deg, rgba(20, 26, 52, .85), rgba(12, 16, 32, .85)); box-shadow: 0 10px 30px rgba(0, 0, 0, .35); text-align: left; font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.pf-hosts-faces { display: flex; }
+.pf-hosts-faces img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #0B0F1D; box-shadow: 0 0 0 1.5px rgba(183, 255, 60, .55); background: #141a33; }
+.pf-hosts-faces img + img { margin-left: -12px; }
+.pf-hosts-text { display: flex; flex-direction: column; line-height: 1.25; }
+.pf-hosts-text strong { font-size: 14.5px; font-weight: 700; color: #fff; }
+.pf-hosts-text strong b { color: #B7FF3C; font-weight: 800; }
+.pf-hosts-text span { font-size: 12px; color: #9498AC; margin-top: 2px; display: inline-flex; align-items: center; gap: 6px; }
+.pf-hosts-text span::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #B7FF3C; box-shadow: 0 0 8px #B7FF3C; }
+@media (max-width: 600px) { .pf-hosts { padding: 6px 14px 6px 6px; gap: 10px; } .pf-hosts-faces img { width: 36px; height: 36px; } .pf-hosts-text strong { font-size: 13.5px; } }
+
+/* ------------------------------------------- Transición entre páginas -- */
+.pf-transition { position: fixed; inset: 0; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; visibility: hidden; pointer-events: none; font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.pf-transition.on { visibility: visible; pointer-events: all; }
+.pf-t-bg { position: absolute; inset: 0; opacity: 0; background: radial-gradient(circle at 50% 45%, rgba(106, 92, 255, .28), rgba(7, 9, 17, .97) 55%), #070911; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.pf-transition.on .pf-t-bg { animation: pfFade .45s ease forwards; }
+.pf-badge { position: relative; width: 132px; height: 132px; margin-bottom: 30px; }
+.pf-ripple { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(183, 255, 60, .55); opacity: 0; }
+.pf-transition.on .pf-ripple { animation: pfRipple 1.6s cubic-bezier(.2, .8, .2, 1) .55s infinite; }
+.pf-transition.on .pf-ripple.r2 { animation-delay: 1.05s; }
+.pf-ring { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 210deg, #6A5CFF, #B7FF3C, #6A5CFF); transform: scale(.3) rotate(-90deg); opacity: 0; }
+.pf-ring::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #0B0F1D; }
+.pf-transition.on .pf-ring { animation: pfRing .7s cubic-bezier(.34, 1.56, .64, 1) .15s forwards; }
+.pf-check { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; }
+.pf-check path { fill: none; stroke: #B7FF3C; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 80; stroke-dashoffset: 80; filter: drop-shadow(0 0 10px rgba(183, 255, 60, .6)); }
+.pf-transition.on .pf-check path { animation: pfDraw .55s cubic-bezier(.65, 0, .35, 1) .6s forwards; }
+.pf-t-title, .pf-t-detail, .pf-t-bar { position: relative; opacity: 0; transform: translateY(16px); }
+.pf-t-title { margin: 0; font-size: clamp(26px, 4vw, 40px); font-weight: 800; color: #fff; }
+.pf-t-detail { margin-top: 10px; font-family: 'Instrument Serif', Georgia, serif; font-size: clamp(22px, 3vw, 30px); color: #B7FF3C; }
+.pf-transition.on .pf-t-title { animation: pfUp .55s cubic-bezier(.2, .8, .2, 1) .85s forwards; }
+.pf-transition.on .pf-t-detail { animation: pfUp .55s cubic-bezier(.2, .8, .2, 1) 1s forwards; }
+.pf-t-bar { margin-top: 30px; width: 220px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.pf-t-bar span { display: block; width: 0; height: 100%; background: linear-gradient(90deg, #6A5CFF, #B7FF3C); }
+.pf-transition.on .pf-t-bar { animation: pfUp .5s ease 1.15s forwards; }
+.pf-transition.on .pf-t-bar span { animation: pfFill 1.1s cubic-bezier(.65, 0, .35, 1) 1.25s forwards; }
+.pf-t-note { position: relative; margin-top: 12px; font-size: 13px; color: #9498AC; opacity: 0; }
+.pf-transition.on .pf-t-note { animation: pfFade .4s ease 1.3s forwards; }
+body.pf-leaving > *:not(.pf-transition) { transition: opacity .4s ease, filter .4s ease; opacity: .25; filter: blur(6px); }
+@keyframes pfFade { to { opacity: 1; } }
+@keyframes pfUp { to { opacity: 1; transform: none; } }
+@keyframes pfRing { to { opacity: 1; transform: scale(1) rotate(0deg); } }
+@keyframes pfDraw { to { stroke-dashoffset: 0; } }
+@keyframes pfRipple { 0% { opacity: .7; transform: scale(1); } 100% { opacity: 0; transform: scale(1.9); } }
+@keyframes pfFill { to { width: 100%; } }
+
+/* --------------------------------------------- Llegada tras la transición -- */
+.pf-handoff { display: none; }
+html.handoff .pf-handoff { display: flex; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; pointer-events: none; background: radial-gradient(circle at 50% 45%, rgba(106, 92, 255, .28), rgba(7, 9, 17, .97) 55%), #070911; animation: pfOut .7s cubic-bezier(.65, 0, .35, 1) .35s forwards; }
+.pf-handoff-badge { position: relative; width: 132px; height: 132px; border-radius: 50%; background: conic-gradient(from 210deg, #6A5CFF, #B7FF3C, #6A5CFF); animation: pfBadgeOut .7s cubic-bezier(.65, 0, .35, 1) .3s forwards; }
+.pf-handoff-badge::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #0B0F1D; }
+.pf-handoff-badge svg { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; }
+.pf-handoff-badge path { fill: none; stroke: #B7FF3C; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 10px rgba(183, 255, 60, .6)); }
+html.handoff body > header, html.handoff main > * { opacity: 0; transform: translateY(22px); animation: pfUp .75s cubic-bezier(.2, .8, .2, 1) forwards; }
+html.handoff body > header { transform: none; animation-delay: .45s; }
+html.handoff main > *:nth-child(1) { animation-delay: .55s; }
+html.handoff main > *:nth-child(2) { animation-delay: .68s; }
+html.handoff main > *:nth-child(3) { animation-delay: .81s; }
+html.handoff main > *:nth-child(n+4) { animation-delay: .94s; }
+@keyframes pfOut { to { opacity: 0; visibility: hidden; } }
+@keyframes pfBadgeOut { to { transform: scale(.35) translateY(-120px); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-step.current .pf-dot::after, .pf-transition.on .pf-ripple { animation: none; }
+  html.handoff .pf-handoff { display: none; }
+  html.handoff body > header, html.handoff main > * { animation: none; opacity: 1; transform: none; }
+}

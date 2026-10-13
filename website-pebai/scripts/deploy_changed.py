@@ -9,6 +9,7 @@ Los HTML se suben al final, para que nunca apunten a un recurso que aún no exis
 --private  sube también website-pebai/private/config.php a
            domains/pebaisystems.es/private/ (fuera de public_html).
 --remove=a,b  borra del servidor esas rutas (relativas a public_html).
+--files=a,b   sube además esos archivos de dist/ aunque no estén en Git (p. ej. vídeos .mp4).
 """
 import os
 import sys
@@ -55,11 +56,17 @@ def ensure_remote_dir(sftp, path):
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     with_private = '--private' in sys.argv
+    extra = [f.strip().lstrip('/') for a in sys.argv if a.startswith('--files=')
+             for f in a.split('=', 1)[1].split(',') if f.strip() and '..' not in f]
     to_remove = [r.strip().lstrip('/') for a in sys.argv if a.startswith('--remove=')
                  for r in a.split('=', 1)[1].split(',') if r.strip() and '..' not in r]
     commit = args[0] if args else 'HEAD'
     files = changed_files(commit)
     # Recursos (php, js, css, imágenes) primero y HTML al final
+    files += [PREFIX + f for f in extra if PREFIX + f not in files]
+    missing = [f for f in files if not os.path.isfile(os.path.join(REPO, f))]
+    if missing:
+        sys.exit('No existen en local: ' + ', '.join(missing))
     files.sort(key=lambda f: (f.endswith('.html'), f))
     if not files and not with_private and not to_remove:
         print(f'No hay archivos de {PREFIX} en {commit}.')

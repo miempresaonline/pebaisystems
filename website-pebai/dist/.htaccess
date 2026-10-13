@@ -46,3 +46,7 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # 4. Codificación de Caracteres por Defecto
 AddDefaultCharset UTF-8
+
+# Contacto descargable de PEBAI (formulario-completado)
+AddType text/vcard .vcf
+AddType text/calendar .ics

@@ -1978,7 +1978,10 @@
       color: #493AC4;
     }
 
-  </style>
+      .field-error { margin: 6px 2px 0; min-height: 0; font-size: 12.5px; font-weight: 600; color: #FF6B7A; line-height: 1.35; }
+    .field-error:empty { display: none; }
+    .form-input.has-error { border-color: #FF6B7A !important; box-shadow: 0 0 0 3px rgba(255, 107, 122, .15) !important; }
+</style>
   <script>
     try {
       const urlTheme = new URLSearchParams(window.location.search).get('theme');
@@ -1989,6 +1992,8 @@
     }
   </script>
   <script src="/utm.js"></script>
+  <link rel="stylesheet" href="/funnel.css">
+  <script>try{if(sessionStorage.getItem('pebai_handoff')){sessionStorage.removeItem('pebai_handoff');document.documentElement.classList.add('handoff')}}catch(e){}</script>
 </head>
 <body>
   <div class="ambient-glow-1"></div>
@@ -2270,16 +2275,18 @@
           <p class="question-desc">Introduce los datos de tu empresa para remitirte la valoración técnica.</p>
         </div>
 
-        <form id="fallback-form" onsubmit="handleFallbackSubmit(event)">
+        <form id="fallback-form" onsubmit="handleFallbackSubmit(event)" novalidate>
           <input type="text" id="input-website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
           <div class="form-group">
             <label class="form-label" for="input-empresa">Empresa / Negocio</label>
-            <input type="text" id="input-empresa" class="form-input" placeholder="Ej: Clínica Dental Norte" required>
+            <input type="text" id="input-empresa" class="form-input" placeholder="Ej: Clínica Dental Norte" required autocomplete="organization" aria-describedby="err-empresa">
+            <p class="field-error" id="err-empresa" role="alert"></p>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="input-telefono">Teléfono WhatsApp</label>
-            <input type="tel" id="input-telefono" class="form-input" placeholder="Ej: 612 34 56 78" required>
+            <input type="tel" id="input-telefono" class="form-input" placeholder="Ej: 612 34 56 78" required autocomplete="tel" inputmode="tel" aria-describedby="err-telefono">
+            <p class="field-error" id="err-telefono" role="alert"></p>
           </div>
 
           <!-- CASILLA OBLIGATORIA DE POLÍTICA DE PRIVACIDAD -->
@@ -2295,6 +2302,7 @@
             </label>
           </div>
 
+          <p class="field-error" id="err-privacidad" role="alert"></p>
           <button type="submit" class="submit-btn" id="submit-fallback-btn">
             <span>Enviar solicitud privada</span>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -2718,21 +2726,52 @@
       document.getElementById('back-btn').style.visibility = 'hidden';
     }
 
+    function setFieldError(inputId, errId, msg) {
+      const input = document.getElementById(inputId);
+      const err = document.getElementById(errId);
+      if (err) err.textContent = msg || '';
+      if (input) {
+        input.classList.toggle('has-error', !!msg);
+        input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      }
+    }
+
+    function validatePhone(raw) {
+      let d = (raw || '').replace(/\D+/g, '');
+      if (d.indexOf('0034') === 0) d = d.slice(4);
+      if (d.length === 11 && d.indexOf('34') === 0) d = d.slice(2);
+      if (d.length === 9) return /^[6789]/.test(d) ? '' : 'Revisa el número: en España empieza por 6, 7, 8 o 9.';
+      if (d.length >= 10 && d.length <= 15 && /^\+/.test((raw || '').trim())) return '';
+      return d.length < 9 ? 'Faltan dígitos: el teléfono tiene 9 cifras.' : 'Revisa el número de teléfono.';
+    }
+
+    ['input-empresa', 'input-telefono'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', function () { setFieldError(id, id === 'input-empresa' ? 'err-empresa' : 'err-telefono', ''); });
+    });
+    const privCheckEl = document.getElementById('check-privacidad');
+    if (privCheckEl) privCheckEl.addEventListener('change', function () { document.getElementById('err-privacidad').textContent = ''; });
+
     function handleFallbackSubmit(e) {
       e.preventDefault();
       const empInput = document.getElementById('input-empresa');
       const telInput = document.getElementById('input-telefono');
       const privCheck = document.getElementById('check-privacidad');
-
-      if (!privCheck || !privCheck.checked) {
-        if (privCheck) privCheck.focus();
-        alert('Por favor, acepta la política de privacidad para enviar tu solicitud.');
+      const empresa = empInput ? empInput.value.trim() : '';
+      const telefono = telInput ? telInput.value.trim() : '';
+      const errEmpresa = empresa.length < 2 ? 'Escribe el nombre de tu empresa o negocio.' : '';
+      const errTelefono = !telefono ? 'Necesitamos tu WhatsApp para enviarte la valoración.' : validatePhone(telefono);
+      const errPriv = (privCheck && privCheck.checked) ? '' : 'Acepta la política de privacidad para continuar.';
+      setFieldError('input-empresa', 'err-empresa', errEmpresa);
+      setFieldError('input-telefono', 'err-telefono', errTelefono);
+      document.getElementById('err-privacidad').textContent = errPriv;
+      if (errEmpresa || errTelefono || errPriv) {
+        const first = errEmpresa ? empInput : (errTelefono ? telInput : privCheck);
+        if (first) first.focus();
         return;
       }
-
-      if (empInput) state.empresa = empInput.value.trim();
-      if (telInput) state.telefono = telInput.value.trim();
-
+      state.empresa = empresa;
+      state.telefono = telefono;
       document.getElementById('step-fallback').style.display = 'none';
       executeSubmission();
     }
@@ -2863,9 +2902,15 @@
       }
       radarPct.textContent = '100%';
       processingStatus.textContent = 'Solicitud registrada.';
+      const nextUrl = '/formulario-completado/?solicitud=' + encodeURIComponent(result.id || '');
       setTimeout(() => {
-        window.location.href = '/formulario-completado/?solicitud=' + encodeURIComponent(result.id || '');
-      }, 450);
+        processingView.style.display = 'none';
+        if (window.PEBAI_FUNNEL) {
+          window.PEBAI_FUNNEL.go({ title: 'Solicitud enviada', detail: state.empresa, note: 'Preparando el siguiente paso…', href: nextUrl });
+        } else {
+          window.location.href = nextUrl;
+        }
+      }, 350);
     }
 
     const resourceTitles = {
@@ -3012,5 +3057,6 @@
     }
 
   </script>
+  <script src="/funnel.js" data-step="1" defer></script>
 </body>
 </html>
