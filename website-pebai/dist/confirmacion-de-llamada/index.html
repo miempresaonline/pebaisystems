@@ -234,7 +234,7 @@
       align-items: stretch;
     }
 
-    @media (min-width: 960px) {
+    @media (min-width: 1200px) {
       .above-fold-grid {
         grid-template-columns: 1fr 1.15fr;
         gap: 40px;
@@ -249,7 +249,7 @@
       height: 100%;
     }
 
-    @media (max-width: 959px) {
+    @media (max-width: 1199px) {
       .above-fold-grid {
         display: flex;
         flex-direction: column;
@@ -1167,30 +1167,58 @@
       .meta-val { white-space: normal; }
     }
 
-    /* ESCRITORIO: sin bloque de dudas, la cita y el vídeo ocupan la pantalla */
-    @media (min-width: 960px) {
-      .confirm-main { max-width: 1320px; padding-top: 30px; padding-bottom: 56px; }
-      .confirm-hero-header { margin-bottom: 30px; }
-      .confirm-title { font-size: clamp(36px, 3.6vw, 52px); }
-      .confirm-subtitle { font-size: 18px; }
-      .above-fold-grid { gap: 48px; }
-      .appt-summary-box { padding: 30px; border-radius: 22px; }
-      .appt-meta-list { gap: 16px; padding-bottom: 22px; margin-bottom: 22px; }
-      .appt-meta-card { padding: 16px 20px; gap: 16px; }
-      .meta-icon-bubble { width: 52px; height: 52px; border-radius: 14px; }
-      .meta-icon-bubble svg { width: 24px; height: 24px; }
-      .meta-label { font-size: 11.5px; }
-      .meta-val { font-size: 18px; }
-      .meta-val.lime-val { font-size: 21px; }
-      .cal-section-label { font-size: 12px; margin-bottom: 12px; }
-      .cal-btn { min-height: 54px; font-size: 15px; }
-      .cal-btn svg { width: 20px; height: 20px; }
-      .appt-micro-note { font-size: 13.5px; }
-      .player-topbar { font-size: 12px; }
-      .topbar-right { font-size: 11.5px; }
-      .unmute-pill-btn { font-size: 16px; }
-      .whatsapp-quick-bar { max-width: 1320px; margin-top: 32px; padding: 18px 24px; font-size: 16px; }
-      .wa-link svg { width: 20px; height: 20px; }
+    /* ESCRITORIO FLUIDO: ocupa todo el ancho y todo escala con la pantalla.
+       --u = 1px a 1440px de ancho (0.0694vw); mínimo 0.85px, máximo 2.4px.
+       Tarjeta de cita y vídeo miden lo mismo: misma columna (1fr 1fr) y misma altura. */
+    @media (min-width: 1200px) {
+      :root { --u: clamp(0.85px, 0.0694vw, 2.4px); }
+      .confirm-main { max-width: none; padding: calc(26 * var(--u)) 3vw calc(48 * var(--u)); }
+      .vsl-header { padding-left: 3vw; padding-right: 3vw; }
+      .header-inner { max-width: none; }
+      .confirm-hero-header { margin-bottom: calc(26 * var(--u)); }
+      .confirm-title { font-size: calc(50 * var(--u)); margin-bottom: calc(8 * var(--u)); }
+      .confirm-subtitle { font-size: calc(18 * var(--u)); }
+
+      .above-fold-grid { grid-template-columns: 1fr 1fr; gap: 2.5vw; align-items: stretch; }
+
+      /* Vídeo: rellena la altura común de la fila (16:9 como mínimo) */
+      .vsl-player-chassis { height: 100%; display: flex; flex-direction: column; border-radius: calc(20 * var(--u)); }
+      .player-viewport { flex: 1 1 auto; padding-top: 0; aspect-ratio: 16 / 9; }
+      .player-topbar { height: calc(36 * var(--u)); padding: 0 calc(16 * var(--u)); font-size: calc(11 * var(--u)); }
+      .apple-dot { width: calc(12 * var(--u)); height: calc(12 * var(--u)); }
+      .topbar-right { font-size: calc(11 * var(--u)); }
+      .player-bottombar { height: calc(44 * var(--u)); padding: 0 calc(12 * var(--u)); }
+      .player-mini-btn svg { width: calc(17 * var(--u)); height: calc(17 * var(--u)); }
+      .speed-btn { font-size: calc(12 * var(--u)); }
+      .unmute-pill-btn { font-size: calc(16 * var(--u)); padding: calc(14 * var(--u)) calc(26 * var(--u)); }
+      .unmute-icon { width: calc(30 * var(--u)); height: calc(30 * var(--u)); }
+      .unmute-icon svg { width: calc(14 * var(--u)); height: calc(14 * var(--u)); }
+
+      /* Tarjeta de cita: mismo alto que el vídeo, contenido repartido */
+      .appt-summary-box { padding: calc(28 * var(--u)); border-radius: calc(20 * var(--u)); justify-content: space-between; }
+      .hosts-row { margin-bottom: calc(14 * var(--u)); }
+      .hosts-row .pf-hosts { gap: calc(14 * var(--u)); padding: calc(8 * var(--u)) calc(18 * var(--u)) calc(8 * var(--u)) calc(8 * var(--u)); }
+      .hosts-row .pf-hosts-faces img { width: calc(42 * var(--u)); height: calc(42 * var(--u)); }
+      .hosts-row .pf-hosts-text strong { font-size: calc(15 * var(--u)); }
+      .hosts-row .pf-hosts-text span { font-size: calc(12.5 * var(--u)); }
+      .appt-meta-list { gap: calc(12 * var(--u)); padding-bottom: calc(16 * var(--u)); margin-bottom: calc(16 * var(--u)); }
+      .appt-meta-card { padding: calc(12 * var(--u)) calc(18 * var(--u)); gap: calc(16 * var(--u)); border-radius: calc(14 * var(--u)); }
+      .meta-icon-bubble { width: calc(48 * var(--u)); height: calc(48 * var(--u)); border-radius: calc(13 * var(--u)); }
+      .meta-icon-bubble svg { width: calc(22 * var(--u)); height: calc(22 * var(--u)); }
+      .meta-label { font-size: calc(11 * var(--u)); }
+      .meta-val { font-size: calc(17 * var(--u)); }
+      .meta-val.lime-val { font-size: calc(20 * var(--u)); }
+      .cal-section-label { font-size: calc(11.5 * var(--u)); margin-bottom: calc(10 * var(--u)); }
+      .calendar-buttons-grid { gap: calc(10 * var(--u)); margin-bottom: calc(12 * var(--u)); }
+      .cal-btn { min-height: calc(52 * var(--u)); font-size: calc(15 * var(--u)); border-radius: calc(12 * var(--u)); gap: calc(9 * var(--u)); }
+      .cal-btn svg { width: calc(19 * var(--u)); height: calc(19 * var(--u)); }
+      .appt-micro-note { font-size: calc(13 * var(--u)); padding-top: calc(10 * var(--u)); }
+      .appt-micro-note svg { width: calc(14 * var(--u)); height: calc(14 * var(--u)); }
+
+      /* WhatsApp: a todo el ancho, mismo ritmo */
+      .whatsapp-quick-bar { max-width: none; margin-top: calc(28 * var(--u)); padding: calc(18 * var(--u)) calc(24 * var(--u)); font-size: calc(16 * var(--u)); border-radius: calc(14 * var(--u)); }
+      .wa-link { min-height: calc(38 * var(--u)); }
+      .wa-link svg { width: calc(20 * var(--u)); height: calc(20 * var(--u)); }
     }
 </style>
   <link rel="stylesheet" href="/funnel.css">
@@ -1446,8 +1474,8 @@
          PIE: ASISTENCIA RÁPIDA POR WHATSAPP (UNA SOLA BARRA DISCRETA)
          ======================================================== -->
     <aside class="whatsapp-quick-bar" aria-label="Asistencia Rápida">
-      <span>¿Te ha surgido un imprevisto con la hora?</span>
-      <a class="wa-link" href="https://wa.me/34624842799?text=Hola%20PEBAI,%20tengo%20un%20imprevisto%20con%20la%20hora%20de%20mi%20cita%20agendada" target="_blank" rel="noopener">
+      <span>¿Te ha surgido un imprevisto o tienes alguna duda antes de la sesión?</span>
+      <a class="wa-link" href="https://wa.me/34624842799?text=Hola%20PEBAI,%20te%20escribo%20por%20mi%20sesi%C3%B3n%20agendada:%20" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         <span>Escríbenos por WhatsApp</span>
       </a>
