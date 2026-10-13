@@ -694,6 +694,7 @@ def build_erp_html(data):
 </a>
 
 <script defer src="/geo-tracker.js"></script>
+<script src="/utm.js" defer></script>
 </body>
 </html>
 """

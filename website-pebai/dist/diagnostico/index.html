@@ -1988,6 +1988,7 @@
       document.documentElement.dataset.theme = 'light';
     }
   </script>
+  <script src="/utm.js"></script>
 </head>
 <body>
   <div class="ambient-glow-1"></div>
@@ -2270,6 +2271,7 @@
         </div>
 
         <form id="fallback-form" onsubmit="handleFallbackSubmit(event)">
+          <input type="text" id="input-website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
           <div class="form-group">
             <label class="form-label" for="input-empresa">Empresa / Negocio</label>
             <input type="text" id="input-empresa" class="form-input" placeholder="Ej: Clínica Dental Norte" required>
@@ -2301,6 +2303,20 @@
       </div>
 
       <!-- RADAR SCANNER -->
+      <div id="submit-error-view" class="fallback-card" style="display:none;" role="alert">
+        <div class="question-header">
+          <span class="question-category">NO SE HA PODIDO ENVIAR</span>
+          <h2 class="question-title">Tu solicitud no ha llegado todavía.</h2>
+          <p class="question-desc" id="submit-error-msg">Ha habido un problema de conexión. Tus respuestas siguen guardadas: vuelve a intentarlo.</p>
+        </div>
+        <button type="button" class="submit-btn" onclick="retrySubmission()">
+          <span>Reintentar envío</span>
+        </button>
+        <a class="submit-btn" style="margin-top:10px;background:#25D366;color:#0B0F14;text-decoration:none;justify-content:center" href="https://wa.me/34624842799?text=Hola%20PEBAI%2C%20he%20intentado%20enviar%20la%20solicitud%20de%20consultor%C3%ADa%20desde%20la%20web%20y%20me%20ha%20dado%20error." target="_blank" rel="noopener">
+          <span>Escribirnos por WhatsApp</span>
+        </a>
+      </div>
+
       <div id="processing-view" class="processing-view">
         <div class="radar-circle">
           <div class="radar-ring"></div>
@@ -2513,6 +2529,8 @@
       state.palabra = (urlParams.get('palabra') || urlParams.get('utm_term') || urlParams.get('utm_campaign') || urlParams.get('keyword') || urlParams.get('kw') || '').trim();
       state.utm_medium = (urlParams.get('utm_medium') || '').trim();
       state.utm_content = (urlParams.get('utm_content') || '').trim();
+      state.cta = (urlParams.get('cta') || '').trim();
+      if (state.origen.indexOf('vsl_') === 0) { state.cta = state.cta || state.origen; state.origen = ''; }
 
       if (!state.origen) {
         state.origen = sessionStorage.getItem('pebai_origen') || '';
@@ -2738,32 +2756,63 @@
       closePrivacyModal();
     }
 
+    function urlAttribution() {
+      const p = new URLSearchParams(window.location.search);
+      const t = {};
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'origen', 'palabra'].forEach(function (k) {
+        const v = p.get(k);
+        if (v) t[k] = v;
+      });
+      if (t.origen && t.origen.indexOf('vsl_') === 0) delete t.origen;
+      if (!t.utm_source && t.origen) t.utm_source = t.origen;
+      if (!t.utm_term && t.palabra) t.utm_term = t.palabra;
+      if (Object.keys(t).length) {
+        t.landing = window.location.pathname;
+        t.referrer = document.referrer || '';
+      }
+      return t;
+    }
+
+    function showSubmitError(message) {
+      state.isSubmitting = false;
+      document.getElementById('processing-view').style.display = 'none';
+      if (message) document.getElementById('submit-error-msg').textContent = message;
+      document.getElementById('submit-error-view').style.display = 'block';
+      forceScrollTop();
+      if (typeof clarity === 'function') {
+        try { clarity('event', 'solicitud_error'); } catch (e) {}
+      }
+    }
+
+    function retrySubmission() {
+      document.getElementById('submit-error-view').style.display = 'none';
+      executeSubmission();
+    }
+
     async function executeSubmission() {
+      if (state.isSubmitting) return;
       state.isSubmitting = true;
       forceScrollTop();
-
       const fill = document.getElementById('progress-fill');
       if (fill) fill.style.width = '100%';
-
       document.querySelectorAll('.step-card').forEach(s => s.classList.remove('active', 'anim-in'));
       document.getElementById('progress-wrapper').style.display = 'none';
       document.getElementById('funnel-footer').style.display = 'none';
-      
       const processingView = document.getElementById('processing-view');
       const radarPct = document.getElementById('radar-pct');
       const processingStatus = document.getElementById('processing-status');
       processingView.style.display = 'block';
-
+      processingStatus.textContent = '[1/2] Enviando solicitud cifrada...';
       let progress = 25;
+      radarPct.textContent = progress + '%';
       const statusInterval = setInterval(() => {
-        progress += Math.floor(Math.random() * 22) + 16;
-        if (progress > 95) progress = 95;
+        progress = Math.min(progress + Math.floor(Math.random() * 12) + 6, 92);
         radarPct.textContent = progress + '%';
-        if (progress > 55) {
-          processingStatus.textContent = '[2/2] Finalizando registro confidencial...';
-        }
-      }, 220);
+        if (progress > 55) processingStatus.textContent = '[2/2] Finalizando registro confidencial...';
+      }, 250);
 
+      const attr = (window.PEBAI_ATTR && window.PEBAI_ATTR.get) ? window.PEBAI_ATTR.get() : {};
+      const honeypot = document.getElementById('input-website');
       const payload = {
         empresa: state.empresa,
         nombre: state.nombre,
@@ -2773,39 +2822,50 @@
         objetivo: state.objetivo,
         presupuesto: state.presupuesto,
         opcion: state.opcion,
-        origen: state.origen || 'directo',
-        palabra: state.palabra || 'sin_palabra',
-        utm_medium: state.utm_medium || '',
-        utm_content: state.utm_content || '',
         privacidad_aceptada: true,
-        landing_url: window.location.href,
-        referrer: document.referrer || 'direct'
+        cta: state.cta || attr.cta || '',
+        primer_toque: attr.first || null,
+        ultimo_toque: attr.last || null,
+        url_params: urlAttribution(),
+        pagina: window.location.href,
+        website: honeypot ? honeypot.value : ''
       };
 
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      let result = null;
+      let errorMessage = '';
       try {
-        await fetch('/api/diagnostico.php', {
+        const res = await fetch('/api/lead.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: controller.signal
         });
+        result = await res.json().catch(() => null);
+        if (!res.ok || !result || result.status !== 'ok') {
+          errorMessage = (result && result.message) ? result.message : '';
+          result = null;
+        }
       } catch (err) {
-        console.warn('Submission notice:', err);
+        result = null;
+      }
+      clearTimeout(timeout);
+      clearInterval(statusInterval);
+
+      if (!result) {
+        showSubmitError(errorMessage ? errorMessage + ' Si el problema sigue, escríbenos por WhatsApp.' : '');
+        return;
       }
 
       if (typeof clarity === 'function') {
-        try { clarity('event', 'solicitud_privada_submitted'); } catch(e) {}
+        try { clarity('event', 'solicitud_privada_submitted'); } catch (e) {}
       }
-
+      radarPct.textContent = '100%';
+      processingStatus.textContent = 'Solicitud registrada.';
       setTimeout(() => {
-        clearInterval(statusInterval);
-        radarPct.textContent = '100%';
-        processingStatus.textContent = 'Solicitud registrada.';
-
-        setTimeout(() => {
-          processingView.style.display = 'none';
-          showFinalOutcome();
-        }, 280);
-      }, 1000);
+        window.location.href = '/formulario-completado/?solicitud=' + encodeURIComponent(result.id || '');
+      }, 450);
     }
 
     const resourceTitles = {

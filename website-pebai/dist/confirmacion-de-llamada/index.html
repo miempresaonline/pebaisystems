@@ -1655,25 +1655,28 @@
       const btnGoogleCal = document.getElementById('btn-google-cal');
       const btnOutlookCal = document.getElementById('btn-outlook-cal');
 
-      let startDate = new Date();
-      if (paramDate) {
-        if (paramTime) {
-          startDate = new Date(paramDate + 'T' + paramTime + ':00');
-        } else {
-          startDate = new Date(paramDate + 'T11:00:00');
-        }
-      } else {
-        startDate.setDate(startDate.getDate() + (startDate.getDay() === 5 ? 3 : startDate.getDay() === 6 ? 2 : 1));
-        startDate.setHours(11, 0, 0, 0);
+      // Fecha real de la reserva: Cal.com envía startTime/endTime (ISO) al redirigir;
+      // también se aceptan ?date=YYYY-MM-DD&time=HH:MM para enlaces enviados a mano.
+      const paramStart = urlParams.get('startTime') || urlParams.get('start');
+      const paramEnd = urlParams.get('endTime') || urlParams.get('end');
+      let startDate = null;
+      if (paramStart) {
+        startDate = new Date(paramStart);
+      } else if (paramDate) {
+        startDate = new Date(paramDate + 'T' + (paramTime || '11:00') + ':00');
       }
+      const hasRealDate = !!startDate && !isNaN(startDate.getTime());
 
-      if (isNaN(startDate.getTime())) {
+      if (!hasRealDate) {
+        // Sin fecha en la URL: no inventamos ninguna
+        if (meetingDatetimeEl) meetingDatetimeEl.textContent = 'La tienes en tu email de confirmación';
+        if (btnGoogleCal) btnGoogleCal.style.display = 'none';
+        if (btnOutlookCal) btnOutlookCal.style.display = 'none';
         startDate = new Date();
-        startDate.setDate(startDate.getDate() + 1);
-        startDate.setHours(11, 0, 0, 0);
       }
 
-      const endDate = new Date(startDate.getTime() + 25 * 60 * 1000);
+      let endDate = new Date(startDate.getTime() + 25 * 60 * 1000);
+      if (paramEnd && !isNaN(new Date(paramEnd).getTime())) endDate = new Date(paramEnd);
 
       const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
       const monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -1682,7 +1685,7 @@
       const monthName = monthNames[startDate.getMonth()];
       const timeFormatted = startDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + ' h';
 
-      if (meetingDatetimeEl) {
+      if (meetingDatetimeEl && hasRealDate) {
         meetingDatetimeEl.textContent = dayName + ' ' + dayNum + ' ' + monthName + ' · ' + timeFormatted;
       }
 
@@ -2085,5 +2088,6 @@
 
     })();
   </script>
+<script src="/utm.js" defer></script>
 </body>
 </html>

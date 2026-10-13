@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <meta name="theme-color" content="#070911">
   <title>Solicitud registrada | PEBAI Systems</title>
-  <meta name="description" content="Solicitud recibida con éxito. Mira este breve vídeo en 64 segundos antes de seleccionar tu día y hora.">
+  <meta name="description" content="Solicitud recibida. Nuestro equipo revisa tu caso y te escribe por WhatsApp en menos de 24 horas.">
   <link rel="canonical" href="https://pebaisystems.es/formulario-completado/">
 
   <!-- OpenGraph -->
@@ -1272,7 +1272,16 @@
         padding: 12px 14px;
       }
     }
-  </style>
+      .next-steps { max-width: 760px; margin: 28px auto 8px; padding: 24px 22px; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; background: rgba(255,255,255,.03); }
+    .next-steps-kicker { font-size: 12px; font-weight: 800; letter-spacing: .14em; color: #B7FF3C; margin-bottom: 14px; }
+    .next-steps-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+    .next-steps-list li { display: flex; gap: 14px; align-items: flex-start; color: #C9CED8; font-size: 16px; line-height: 1.5; }
+    .next-steps-list strong { color: #FFFFFF; }
+    .next-steps-list a { color: #B7FF3C; text-decoration: none; font-weight: 700; white-space: nowrap; }
+    .ns-num { flex: 0 0 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #6A5CFF; color: #FFFFFF; font-weight: 800; font-size: 14px; }
+    .ns-wa-btn { display: block; margin-top: 20px; text-align: center; padding: 14px 18px; border-radius: 12px; background: #25D366; color: #0B0F14; font-weight: 800; text-decoration: none; }
+    @media (max-width: 600px) { .next-steps { margin: 22px 16px 8px; padding: 20px 16px; } .next-steps-list li { font-size: 15px; } }
+</style>
 </head>
 <body>
 
@@ -1300,12 +1309,12 @@
       </div>
       
       <h1 class="vsl-headline">
-        Antes de elegir tu fecha, mira este vídeo en <span class="hero-italic">64 segundos.</span>
+        Mira este vídeo: te contamos <span class="hero-italic">qué pasa ahora.</span>
       </h1>
       
       <p class="vsl-subhead">
-        <span class="subhead-line">Revisamos tu caso a mano para preparar la solución que necesita tu negocio.</span>
-        <span class="subhead-line">Escucha las 3 condiciones en el vídeo antes de seleccionar tu día y hora.</span>
+        <span class="subhead-line">Nuestro equipo ya está revisando tu caso a mano.</span>
+        <span class="subhead-line">En menos de 24 horas te escribiremos por WhatsApp.</span>
       </p>
     </section>
 
@@ -1326,7 +1335,7 @@
           </div>
         </div>
 
-        <div class="player-viewport" id="player-screen" title="Toca para agendar cita">
+        <div class="player-viewport" id="player-screen" title="Toca para activar el sonido">
           
           <!-- VÍDEO REAL EN ALTA RESOLUCIÓN CON AUDIO -->
           <video id="player-video" class="player-video-element" playsinline preload="auto" muted poster="../video/formulario_completado_poster.webp">
@@ -1336,11 +1345,11 @@
 
           <!-- BOTÓN CENTRAL PULSANTE: ESTRATEGIA "TOCA PARA AGENDAR CITA" -->
           <div class="unmute-overlay" id="unmute-layer">
-            <button class="unmute-pill-btn" id="unmute-trigger" type="button" aria-label="Toca para agendar cita">
+            <button class="unmute-pill-btn" id="unmute-trigger" type="button" aria-label="Toca para activar el sonido">
               <span class="unmute-icon">
                 <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
               </span>
-              <span>Toca para agendar cita</span>
+              <span>Toca para activar el sonido</span>
             </button>
           </div>
 
@@ -1388,33 +1397,27 @@
       </div>
     </section>
 
-    <!-- BOTÓN DE ACCIÓN (SOLO APARECE TRAS TOCAR EL VÍDEO, SIN TEXTOS SOBRANTES) -->
-    <div class="cta-container" id="cta-box">
-      <button class="action-btn" id="open-calendar-btn" type="button">
-        <span>Seleccionar día y hora →</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-    </div>
-
-    <!-- MÓDULO DE CALENDARIO DESPLEGABLE CON SCROLL SUAVE -->
-    <div class="calendar-container" id="calendar-area">
-      <div class="calendar-topbar">
-        <div class="calendar-header-title">Agenda Técnica · PEBAI Systems</div>
-        <div class="calendar-meta-notice">
-          <div class="bullet"></div>
-          <span>Google Meet · Sesión privada a coste cero (0 €)</span>
-        </div>
-      </div>
-      <div class="calendar-iframe-wrap">
-        <iframe 
-          id="cal-frame"
-          src="https://cal.com/pebaisystems?theme=dark" 
-          title="Calendario de Reserva"
-          loading="lazy"
-          allow="camera; microphone; autoplay">
-        </iframe>
-      </div>
-    </div>
+    <!-- PRÓXIMOS PASOS: el equipo revisa y contacta por WhatsApp (sin reserva directa) -->
+    <section class="next-steps" aria-label="Próximos pasos">
+      <div class="next-steps-kicker">PRÓXIMOS PASOS</div>
+      <ol class="next-steps-list">
+        <li>
+          <span class="ns-num">1</span>
+          <div><strong>Revisamos tu solicitud.</strong> Ya la hemos recibido y una persona del equipo analiza tu caso.</div>
+        </li>
+        <li>
+          <span class="ns-num">2</span>
+          <div><strong>Te escribimos por WhatsApp en menos de 24 h</strong> desde el <a href="https://wa.me/34624842799" target="_blank" rel="noopener">+34 624 84 27 99</a>. Guárdalo para reconocer el mensaje y responde lo antes posible.</div>
+        </li>
+        <li>
+          <span class="ns-num">3</span>
+          <div><strong>Si tu caso encaja, te enviamos el enlace</strong> para elegir día y hora de la sesión de 25 minutos por videollamada.</div>
+        </li>
+      </ol>
+      <a class="ns-wa-btn" href="https://wa.me/34624842799?text=Hola%20PEBAI%2C%20acabo%20de%20enviar%20la%20solicitud%20de%20consultor%C3%ADa." target="_blank" rel="noopener" id="ns-wa-btn">
+        ¿Prefieres adelantarte? Escríbenos por WhatsApp
+      </a>
+    </section>
 
   </main>
 
@@ -1859,18 +1862,14 @@
         });
       }
 
-      // Parámetros de URL (email / nombre) heredados automáticamente en el iframe de Cal.com
-      const urlParams = new URLSearchParams(window.location.search);
-      const email = urlParams.get('email');
-      const name = urlParams.get('nombre') || urlParams.get('name');
-      const calIframe = document.getElementById('cal-frame');
-      if (calIframe && (email || name)) {
-        let baseSrc = calIframe.src;
-        if (email) baseSrc += (baseSrc.includes('?') ? '&' : '?') + 'email=' + encodeURIComponent(email);
-        if (name) baseSrc += '&name=' + encodeURIComponent(name);
-        calIframe.src = baseSrc;
+      const nsWaBtn = document.getElementById('ns-wa-btn');
+      if (nsWaBtn) {
+        nsWaBtn.addEventListener('click', function () {
+          if (typeof clarity === 'function') clarity('event', 'click_whatsapp_formulario_completado');
+        });
       }
     })();
   </script>
+<script src="/utm.js" defer></script>
 </body>
 </html>

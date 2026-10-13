@@ -16,4 +16,6 @@ Mapa de proyectos y despliegues: ver `README.md`.
 
 ## Hostinger
 - `website-pebai/dist/` es la web en producción; se sube con `website-pebai/scripts/deploy.py`.
+- Desplegar solo lo de un commit: `python website-pebai/scripts/deploy_changed.py <commit>` (una sola conexión SFTP, HTML al final). `--private` sube además `website-pebai/private/config.php` (SMTP, hash del panel) a `domains/pebaisystems.es/private/`, fuera de public_html.
+- Embudo: VSL `/consultoria-gratuita/` → `/diagnostico/` → `api/lead.php` (email HTML a equipo@ + SQLite privada) → `/formulario-completado/` (WhatsApp en 24 h) → reserva por Cal.com → `/confirmacion-de-llamada/?startTime=…`. Solicitudes en `/panel/` (contraseña `PANEL_PASSWORD` del `.env`). Origen del tráfico: `/utm.js` en todas las páginas.
 - Los PHP con claves (`website-pebai/api/cron_publish.php`, `send_alert.php`, `dist/api/diagnostico.php`) están ignorados: siguen funcionando en el servidor pero no se versionan hasta migrar sus claves a `secrets.local.php`.

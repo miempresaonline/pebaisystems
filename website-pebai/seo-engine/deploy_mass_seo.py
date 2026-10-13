@@ -223,6 +223,7 @@ def generate_static_landings(pages):
   <span class="floating-cta-arrow" aria-hidden="true"><svg class="arrow-glyph" width="11" height="11" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.5 7.5L7.5 2.5M7.5 2.5H3.5M7.5 2.5V6.5"/></svg></span>
 </a>
 
+<script src="/utm.js" defer></script>
 </body>
 </html>'''
 

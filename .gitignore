@@ -91,3 +91,7 @@ dump_*.csv
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Configuración privada del embudo (SMTP, panel)
+website-pebai/private/*
+!website-pebai/private/config.example.php

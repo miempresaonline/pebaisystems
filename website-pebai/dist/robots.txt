@@ -7,6 +7,7 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /panel/
 Disallow: /uploads/
 
 # Motores de Inteligencia Artificial y Búsqueda Generativa (GEO)
