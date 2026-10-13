@@ -1315,8 +1315,32 @@
 
     .footer-links-line a:hover { color: #FFF; }
   </style>
+  <script>
+    // Viene de /reservar/: continúa la animación de "Sesión reservada"
+    try { if (sessionStorage.getItem('pebai_booked_handoff')) { sessionStorage.removeItem('pebai_booked_handoff'); document.documentElement.classList.add('handoff'); } } catch (e) {}
+  </script>
+  <style>
+    .handoff-layer { display: none; }
+    html.handoff .handoff-layer { display: flex; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; pointer-events: none;
+      background: radial-gradient(circle at 50% 45%, rgba(106,92,255,.28), rgba(7,9,17,.97) 55%); animation: hoOut .7s cubic-bezier(.65,0,.35,1) .35s forwards; }
+    .handoff-badge { position: relative; width: 132px; height: 132px; border-radius: 50%; background: conic-gradient(from 210deg, #6A5CFF, #B7FF3C, #6A5CFF); padding: 3px; animation: hoBadge .7s cubic-bezier(.65,0,.35,1) .3s forwards; }
+    .handoff-badge::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #0B0F1D; }
+    .handoff-badge svg { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; }
+    .handoff-badge path { fill: none; stroke: #B7FF3C; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 10px rgba(183,255,60,.6)); }
+    html.handoff .confirm-main > *, html.handoff .vsl-header { opacity: 0; transform: translateY(22px); animation: hoIn .75s cubic-bezier(.2,.8,.2,1) forwards; }
+    html.handoff .vsl-header { animation-delay: .45s; transform: none; }
+    html.handoff .confirm-main > *:nth-child(1) { animation-delay: .55s; }
+    html.handoff .confirm-main > *:nth-child(2) { animation-delay: .7s; }
+    html.handoff .confirm-main > *:nth-child(3) { animation-delay: .85s; }
+    html.handoff .confirm-main > *:nth-child(n+4) { animation-delay: 1s; }
+    @keyframes hoOut { to { opacity: 0; visibility: hidden; } }
+    @keyframes hoBadge { to { transform: scale(.35) translateY(-120px); opacity: 0; } }
+    @keyframes hoIn { to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { html.handoff .handoff-layer { display: none; } html.handoff .confirm-main > *, html.handoff .vsl-header { animation: none; opacity: 1; transform: none; } }
+  </style>
 </head>
 <body>
+  <div class="handoff-layer" aria-hidden="true"><div class="handoff-badge"><svg viewBox="0 0 132 132"><path d="M42 68 L59 85 L92 50"/></svg></div></div>
 
   <!-- Atmósfera oficial PEBAI -->
   <div class="bg-grid"></div>

@@ -2,7 +2,7 @@
 /*
  * PEBAI · Webhook de Cal.com (reservas de la sesión técnica).
  * Cal.com llama aquí al crear, cambiar o cancelar una cita. Se verifica la firma,
- * se actualiza la solicitud en el panel (campo oculto "solicitud") y se avisa a equipo@.
+ * se actualiza la solicitud en el panel (campo oculto "solicitud" o metadata[solicitud]).
  */
 require __DIR__ . '/_pebai_lib.php';
 
@@ -52,7 +52,7 @@ $email = mb_substr($attendee['email'] ?? $response('email'), 0, 200);
 $inicio = $p['startTime'] ?? '';
 $fin = $p['endTime'] ?? '';
 $uid = $p['uid'] ?? '';
-$solicitud = (int)preg_replace('/\D+/', '', $response('solicitud'));
+$solicitud = (int)preg_replace('/\D+/', '', $response('solicitud') ?: (string)($p['metadata']['solicitud'] ?? ''));
 
 $estados = [
     'BOOKING_CREATED' => ['cita', 'reservada', '📅 Nueva cita'],
@@ -86,38 +86,6 @@ try {
     pebai_log('CALCOM DB: ' . $e->getMessage());
 }
 
-// Aviso al equipo
-try {
-    $cuando = $inicio ? pebai_fecha(date('Y-m-d H:i:s', strtotime($inicio))) : '—';
-    $empresa = $lead['empresa'] ?? 'Sin solicitud enlazada';
-    $panel = $lead ? 'https://pebaisystems.es/panel/?id=' . (int)$lead['id'] : 'https://pebaisystems.es/panel/';
-    $color = $trigger === 'BOOKING_CANCELLED' ? '#FF5A6A' : '#B7FF3C';
-    $rows = [
-        'Cuándo' => $cuando,
-        'Empresa' => $empresa,
-        'Persona' => $nombre,
-        'Email' => $email,
-        'WhatsApp' => $lead['telefono'] ?? '—',
-        'Solicitud' => $lead ? '#' . (int)$lead['id'] : 'No enlazada (reservó sin el enlace del panel)',
-    ];
-    $trs = '';
-    foreach ($rows as $k => $v) {
-        $trs .= '<tr><td style="padding:9px 0;border-bottom:1px solid #EEF0F4;color:#6B7280;font-size:13px;width:34%">' . h($k)
-            . '</td><td style="padding:9px 0;border-bottom:1px solid #EEF0F4;color:#0B0F14;font-size:14px;font-weight:600">' . h($v) . '</td></tr>';
-    }
-    $html = '<!doctype html><html lang="es"><head><meta charset="utf-8"></head><body style="margin:0;background:#F3F4F7;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif">'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 12px"><tr><td align="center">'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border-radius:18px;overflow:hidden">'
-        . '<tr><td style="background:#0B0F14;padding:24px 26px"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:' . $color . '">' . h(mb_strtoupper($titulo)) . '</div>'
-        . '<div style="margin-top:8px;font-size:24px;font-weight:800;color:#fff">' . h($empresa) . '</div>'
-        . '<div style="margin-top:4px;font-size:15px;color:#9AA3B2">' . h($cuando) . '</div></td></tr>'
-        . '<tr><td style="padding:18px 26px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">' . $trs . '</table>'
-        . '<p style="margin:18px 0 0"><a href="' . h($panel) . '" style="display:inline-block;background:#594AF7;color:#fff;text-decoration:none;font-weight:800;padding:12px 18px;border-radius:12px">Abrir en el panel</a></p>'
-        . '</td></tr></table></td></tr></table></body></html>';
-    $text = "$titulo\n$empresa\n$cuando\n\nPersona: $nombre\nEmail: $email\nPanel: $panel\n";
-    pebai_smtp_send(pebai_config()['notify_to'], "$titulo: $empresa · $cuando", $html, $text);
-} catch (Throwable $e) {
-    pebai_log('CALCOM EMAIL: ' . $e->getMessage());
-}
+// Sin email propio: Cal.com ya avisa al organizador de cada reserva, cambio y cancelación.
 
 done(200, ['status' => 'ok', 'solicitud' => $solicitud]);
