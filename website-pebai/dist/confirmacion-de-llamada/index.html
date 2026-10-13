@@ -1073,170 +1073,11 @@
     }
 
     /* ========================================================
-       BLOQUE 3: LAS 3 DUDAS CLAVE (RESPUESTAS DE 1 SOLA LÍNEA)
-       Separadas con holgura para priorizar lo que realmente importa
-       ======================================================== */
-    .block-faqs {
-      max-width: 860px;
-      margin: 100px auto 44px;
-    }
-
-    @media (max-width: 768px) {
-      .block-faqs {
-        margin: 64px auto 36px;
-      }
-    }
-
-    .faqs-header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .faqs-heading {
-      font-size: clamp(17px, 2.2vw, 22px);
-      font-weight: 700;
-      color: var(--fg-title);
-      letter-spacing: -0.015em;
-    }
-
-    .faqs-clean-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .clean-faq-item {
-      background: var(--surface-card);
-      border: 1px solid rgba(106, 92, 255, 0.2);
-      border-radius: 16px;
-      overflow: hidden;
-      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-    }
-
-    .clean-faq-item:hover {
-      border-color: rgba(106, 92, 255, 0.4);
-      background: rgba(16, 21, 40, 0.85);
-    }
-
-    .clean-faq-item.active {
-      border-color: var(--blue-bright);
-      background: rgba(15, 20, 38, 0.94);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(106, 92, 255, 0.15);
-    }
-
-    .clean-faq-btn {
-      width: 100%;
-      background: none;
-      border: none;
-      padding: 16px 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      cursor: pointer;
-      text-align: left;
-      font-family: inherit;
-      min-height: 52px;
-      touch-action: manipulation;
-    }
-
-    .clean-faq-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .clean-faq-num {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      background: rgba(106, 92, 255, 0.14);
-      border: 1px solid rgba(106, 92, 255, 0.28);
-      font-size: 10.5px;
-      font-weight: 800;
-      color: var(--blue-bright);
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-    }
-
-    .clean-faq-item.active .clean-faq-num {
-      background: rgba(183, 255, 60, 0.15);
-      border-color: rgba(183, 255, 60, 0.35);
-      color: var(--lime);
-    }
-
-    .clean-faq-question {
-      font-size: 14.5px;
-      font-weight: 700;
-      color: #FFFFFF;
-      letter-spacing: -0.01em;
-      line-height: 1.35;
-    }
-
-    .clean-faq-chevron {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--muted);
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-      transition: transform 0.25s var(--ease-spring), color 0.2s, background 0.2s;
-    }
-
-    .clean-faq-item.active .clean-faq-chevron {
-      transform: rotate(180deg);
-      color: var(--lime);
-      background: rgba(183, 255, 60, 0.12);
-    }
-
-    .clean-faq-chevron svg {
-      width: 14px;
-      height: 14px;
-      stroke-width: 2.5;
-    }
-
-    .clean-faq-answer {
-      display: none;
-      padding: 0 22px 18px 48px;
-      font-size: 14px;
-      color: #ECEBF0;
-      line-height: 1.55;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 14px;
-      position: relative;
-    }
-
-    .clean-faq-answer::before {
-      content: '';
-      position: absolute;
-      left: 28px;
-      top: 14px;
-      bottom: 18px;
-      width: 2px;
-      background: var(--lime);
-      border-radius: 999px;
-    }
-
-    .clean-faq-item.active .clean-faq-answer {
-      display: block;
-      animation: fadeIn 0.2s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ========================================================
        PIE: ASISTENCIA RÁPIDA POR WHATSAPP (UNA SOLA BARRA DISCRETA)
        ======================================================== */
     .whatsapp-quick-bar {
       max-width: 860px;
-      margin: 0 auto;
+      margin: 28px auto 0;
       background: rgba(15, 21, 38, 0.72);
       border: 1px solid rgba(37, 211, 102, 0.25);
       border-radius: 14px;
@@ -1317,6 +1158,39 @@
       .calendar-buttons-grid { grid-template-columns: repeat(3, 1fr) !important; }
     .hosts-row { display: flex; justify-content: flex-start; margin-bottom: 16px; }
     .hosts-row .pf-hosts { box-shadow: none; }
+
+    /* MÓVIL: 3 botones de calendario sin desbordar (Google arriba a todo el ancho) */
+    @media (max-width: 520px) {
+      .calendar-buttons-grid { grid-template-columns: 1fr 1fr !important; }
+      .calendar-buttons-grid .cal-btn-google { grid-column: 1 / -1; }
+      .meta-val { white-space: normal; }
+    }
+
+    /* ESCRITORIO: sin bloque de dudas, la cita y el vídeo ocupan la pantalla */
+    @media (min-width: 960px) {
+      .confirm-main { max-width: 1320px; padding-top: 30px; padding-bottom: 56px; }
+      .confirm-hero-header { margin-bottom: 30px; }
+      .confirm-title { font-size: clamp(36px, 3.6vw, 52px); }
+      .confirm-subtitle { font-size: 18px; }
+      .above-fold-grid { gap: 48px; }
+      .appt-summary-box { padding: 30px; border-radius: 22px; }
+      .appt-meta-list { gap: 16px; padding-bottom: 22px; margin-bottom: 22px; }
+      .appt-meta-card { padding: 16px 20px; gap: 16px; }
+      .meta-icon-bubble { width: 52px; height: 52px; border-radius: 14px; }
+      .meta-icon-bubble svg { width: 24px; height: 24px; }
+      .meta-label { font-size: 11.5px; }
+      .meta-val { font-size: 18px; }
+      .meta-val.lime-val { font-size: 21px; }
+      .cal-section-label { font-size: 12px; margin-bottom: 12px; }
+      .cal-btn { min-height: 54px; font-size: 15px; }
+      .cal-btn svg { width: 20px; height: 20px; }
+      .appt-micro-note { font-size: 13.5px; }
+      .player-topbar { font-size: 12px; }
+      .topbar-right { font-size: 11.5px; }
+      .unmute-pill-btn { font-size: 16px; }
+      .whatsapp-quick-bar { max-width: 1320px; margin-top: 32px; padding: 18px 24px; font-size: 16px; }
+      .wa-link svg { width: 20px; height: 20px; }
+    }
 </style>
   <link rel="stylesheet" href="/funnel.css">
   <script>try{if(sessionStorage.getItem('pebai_handoff')){sessionStorage.removeItem('pebai_handoff');document.documentElement.classList.add('handoff')}}catch(e){}</script>
@@ -1564,66 +1438,6 @@
       </section>
 
     </div>
-
-    <!-- ========================================================
-         BLOQUE 3: LAS 3 DUDAS CLAVE (RESPUESTAS DE 1 SOLA LÍNEA)
-         Espaciado holgado para que la vista inicial sea solo la cita y el vídeo
-         ======================================================== -->
-    <section class="block-faqs" aria-label="Dudas Clave">
-      <div class="faqs-header">
-        <h2 class="faqs-heading">Dudas habituales antes de entrar</h2>
-      </div>
-
-      <div class="faqs-clean-list">
-        <!-- Duda 1 (Abierta por defecto) -->
-        <article class="clean-faq-item active" id="clean-faq-1">
-          <button class="clean-faq-btn" type="button" aria-expanded="true">
-            <div class="clean-faq-left">
-              <span class="clean-faq-num">01</span>
-              <span class="clean-faq-question">¿Sirve si mi empresa es tradicional?</span>
-            </div>
-            <span class="clean-faq-chevron">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-          </button>
-          <div class="clean-faq-answer">
-            100% compatible. No cambiamos tus programas de siempre; creamos una conexión invisible por detrás para que las tareas se hagan solas.
-          </div>
-        </article>
-
-        <!-- Duda 2 -->
-        <article class="clean-faq-item" id="clean-faq-2">
-          <button class="clean-faq-btn" type="button" aria-expanded="false">
-            <div class="clean-faq-left">
-              <span class="clean-faq-num">02</span>
-              <span class="clean-faq-question">¿Cómo y cuándo se recupera la inversión (ROI)?</span>
-            </div>
-            <span class="clean-faq-chevron">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-          </button>
-          <div class="clean-faq-answer">
-            Amortización media de 3 a 6 meses gracias a las horas recuperadas de tu equipo y al aumento de ventas por responder al instante.
-          </div>
-        </article>
-
-        <!-- Duda 3 -->
-        <article class="clean-faq-item" id="clean-faq-3">
-          <button class="clean-faq-btn" type="button" aria-expanded="false">
-            <div class="clean-faq-left">
-              <span class="clean-faq-num">03</span>
-              <span class="clean-faq-question">¿Los datos y el sistema son de mi empresa?</span>
-            </div>
-            <span class="clean-faq-chevron">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-          </button>
-          <div class="clean-faq-answer">
-            Propiedad absoluta. Todo se aloja en tus servidores y cuentas corporativas. Cero ataduras técnicas ni cuotas cautivas.
-          </div>
-        </article>
-      </div>
-    </section>
 
     <!-- ========================================================
          PIE: ASISTENCIA RÁPIDA POR WHATSAPP (UNA SOLA BARRA DISCRETA)
@@ -2086,32 +1900,6 @@
 
       document.addEventListener('fullscreenchange', updateFsIcons);
       document.addEventListener('webkitfullscreenchange', updateFsIcons);
-
-      // 3. INTERACTIVIDAD LIMPIA DE LAS 3 DUDAS
-      const cleanFaqs = document.querySelectorAll('.clean-faq-item');
-      cleanFaqs.forEach(function(item) {
-        const btn = item.querySelector('.clean-faq-btn');
-        if (btn) {
-          btn.addEventListener('click', function() {
-            const isAlreadyActive = item.classList.contains('active');
-            cleanFaqs.forEach(function(other) {
-              other.classList.remove('active');
-              const ob = other.querySelector('.clean-faq-btn');
-              if (ob) ob.setAttribute('aria-expanded', 'false');
-            });
-
-            if (!isAlreadyActive) {
-              item.classList.add('active');
-              btn.setAttribute('aria-expanded', 'true');
-            } else {
-              item.classList.remove('active');
-              btn.setAttribute('aria-expanded', 'false');
-            }
-
-            if (typeof clarity === 'function') clarity('event', 'faq_toggle_' + item.id);
-          });
-        }
-      });
 
     })();
   </script>
