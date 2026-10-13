@@ -135,7 +135,9 @@ def generate_static_landings(pages):
 <meta name="twitter:description" content="{seo_desc}">
 <meta name="twitter:image" content="https://pebaisystems.es/brand/landings/{slug}.webp">
 <title>{seo_title}</title>
-<link rel="icon" type="image/png" href="../brand/pebai-logo-03-master-transparent-v1.png">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="../brand/Manrope-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../vendor/lenis.css">
 <link rel="stylesheet" href="../styles.css?v=3.8">
