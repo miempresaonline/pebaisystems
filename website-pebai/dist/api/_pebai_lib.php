@@ -470,48 +470,51 @@ function pebai_email_icon_row(string $icon, string $label, string $value, bool $
 
 /* ------------------------------------------------------- Email del lead --- */
 
+/**
+ * Aviso al equipo: solo la empresa y un botón al panel (allí está toda la ficha).
+ * Sin imágenes: el webmail de Hostinger bloquea las externas y enseña las incrustadas como adjuntos.
+ */
 function pebai_lead_email(array $lead, int $id): array
 {
     $qualified = $lead['opcion'] === 'A';
-    $wa = 'https://wa.me/' . pebai_phone_digits($lead['telefono']);
     $panel = 'https://panel.pebaisystems.es/?id=' . $id;
+    $font = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+    $etiqueta = $qualified ? 'Con presupuesto' : 'Explorando';
+    $punto = $qualified ? '#7BC21A' : '#9AA0AE';
 
-    $badge = $qualified
-        ? '<span style="display:inline-block;padding:5px 11px;border-radius:999px;background:#B7FF3C;color:#0B0F14;font-weight:800;font-size:11px;letter-spacing:.08em">CON PRESUPUESTO</span>'
-        : '<span style="display:inline-block;padding:5px 11px;border-radius:999px;background:#EEF0F4;color:#5B6172;font-weight:800;font-size:11px;letter-spacing:.08em">EXPLORANDO</span>';
-    $origen = implode(' · ', array_filter([$lead['fuente'], $lead['medio'], $lead['palabra']], fn($v) => $v !== ''));
-    if ($origen === '') {
-        $origen = 'Directo';
-    }
+    $html = '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+        . '<meta name="color-scheme" content="light"><title>Nueva solicitud</title></head>'
+        . '<body style="margin:0;padding:0;background:#F2F3F6;font-family:' . $font . '">'
+        . '<div style="display:none;max-height:0;overflow:hidden;opacity:0">' . h($lead['empresa'] . ' · ' . $etiqueta) . '</div>'
+        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#F2F3F6" style="background:#F2F3F6">'
+        . '<tr><td align="center" style="padding:32px 14px">'
+        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="max-width:480px;background:#FFFFFF;border:1px solid #E4E6EC;border-radius:14px">'
+        // Marca en texto, con los colores del logo
+        . '<tr><td style="padding:26px 30px 0">'
+        . '<table role="presentation" cellpadding="0" cellspacing="0"><tr>'
+        . '<td width="6" height="18" bgcolor="#B7FF3C" style="background:#B7FF3C;font-size:0;line-height:0">&nbsp;</td>'
+        . '<td width="3" style="font-size:0;line-height:0">&nbsp;</td>'
+        . '<td width="6" height="18" bgcolor="#594AF7" style="background:#594AF7;font-size:0;line-height:0">&nbsp;</td>'
+        . '<td style="padding-left:10px;font-size:15px;font-weight:800;letter-spacing:.12em;color:#0B0F14">PEBAI'
+        . '<span style="font-weight:600;color:#9AA0AE"> SYSTEMS</span></td>'
+        . '</tr></table></td></tr>'
+        // Aviso
+        . '<tr><td style="padding:28px 30px 0">'
+        . '<div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#594AF7">Nueva solicitud</div>'
+        . '<div style="margin-top:8px;font-size:24px;line-height:1.25;font-weight:800;color:#0B0F14">' . h($lead['empresa']) . '</div>'
+        . '<div style="margin-top:10px;font-size:14px;color:#5B6172">'
+        . '<span style="color:' . $punto . ';font-size:16px">&#9679;</span>&nbsp;' . h($etiqueta) . ' &middot; ' . h(pebai_fecha($lead['created_at'])) . '</div>'
+        . '</td></tr>'
+        // Botón
+        . '<tr><td style="padding:26px 30px 30px">'
+        . '<table role="presentation" cellpadding="0" cellspacing="0"><tr><td bgcolor="#0B0F14" style="background:#0B0F14;border-radius:10px">'
+        . '<a href="' . h($panel) . '" style="display:inline-block;padding:14px 26px;font-size:15px;font-weight:700;color:#FFFFFF;text-decoration:none">Ver en el panel &rarr;</a>'
+        . '</td></tr></table></td></tr>'
+        . '</table>'
+        . '<div style="max-width:480px;padding:14px 0 0;font-size:12px;color:#9AA0AE">Solicitud #' . $id . ' &middot; pebaisystems.es</div>'
+        . '</td></tr></table></body></html>';
 
-    $row = function (string $k, string $v, bool $last = false): string {
-        $border = $last ? '' : 'border-bottom:1px solid #EEF0F4;';
-        return '<tr><td width="40%" valign="top" style="padding:11px 0;' . $border . 'color:#9AA0AE;font-size:13px">' . h($k) . '</td>'
-            . '<td valign="top" style="padding:11px 0;' . $border . 'color:#0B0F14;font-size:14px;font-weight:600">' . h($v !== '' ? $v : '—') . '</td></tr>';
-    };
-
-    $body = pebai_email_title('Nueva solicitud', $lead['empresa'], h(pebai_fecha($lead['created_at'])) . ' &nbsp;' . $badge)
-        . '<tr><td style="padding:18px 30px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">'
-        . $row('WhatsApp', $lead['telefono'])
-        . $row('Canal', $lead['canal'])
-        . $row('Consultas al mes', $lead['volumen'])
-        . $row('Objetivo', $lead['objetivo'])
-        . $row('Origen', $origen, true)
-        . '</table></td></tr>'
-        . '<tr><td style="padding:22px 30px 18px">'
-        . pebai_email_button($wa, 'WhatsApp', '#1FAF55')
-        . pebai_email_button($panel, 'Ver en el panel')
-        . '</td></tr>';
-
-    $footer = 'Solicitud #' . $id . ' · formulario de pebaisystems.es';
-
-    $html = pebai_email_shell('Nueva solicitud', ($qualified ? 'Con presupuesto · ' : 'Explorando · ') . $lead['telefono'], $body, $footer);
-
-    $text = "NUEVA SOLICITUD #$id — {$lead['empresa']}\n"
-        . ($qualified ? "Con presupuesto\n" : "Explorando\n")
-        . "\nWhatsApp: {$lead['telefono']} ($wa)\nCanal: {$lead['canal']}\nConsultas al mes: {$lead['volumen']}\nObjetivo: {$lead['objetivo']}\nOrigen: $origen\n"
-        . "\nPanel: $panel\n";
-
+    $text = "Nueva solicitud: {$lead['empresa']} ($etiqueta)\n\nVer en el panel: $panel\n";
     $subject = ($qualified ? '🟢 ' : '⚪ ') . 'Nueva solicitud: ' . $lead['empresa'];
 
     return [$subject, $html, $text];
