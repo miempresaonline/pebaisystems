@@ -30,7 +30,7 @@ FONT = ROOT / 'assets/brand/pebai-systems/logo-kit-v2/fonts/Manrope-latin-variab
 TEAM = ROOT / 'website-pebai/dist/team'
 
 PERSONAS = {
-    'adrian': {'nombre': 'Adrián Ballesteros', 'rol': 'Dirección de proyectos', 'foto': TEAM / 'avatar-adrian.jpg'},
+    'adrian': {'nombre': 'Adrián Ballesteros', 'rol': 'Dirección de proyectos', 'foto': HERE / 'adrian-foto.jpg'},
 }
 WHATSAPP = '624 84 27 99'
 
