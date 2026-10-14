@@ -18,6 +18,14 @@ RewriteRule ^formulario-completado/?$ formulario-completado/index.html [L]
 # Redirección 302 para /contacto y /contact hacia WhatsApp oficial
 RewriteRule ^contact(o)?/?$ "https://wa.me/34624842799?text=Hola%2C%20soy%20%5B%20x%20%5D%20vengo%20de%20la%20web%20con%20principal%20inter%C3%A9s%20en%20realizar%20una%20consultor%C3%ADa%20gratuita%20sin%20compromiso." [R=302,L]
 
+# Enlaces cortos para perfiles y mensajes: llevan al VSL con el origen ya puesto (ver docs/enlaces-y-utm.md).
+# Se puede añadir ?palabra=XXX (palabra clave de un Short) y se conserva (QSA).
+RewriteRule ^ig/?$ consultoria-gratuita/?utm_source=instagram&utm_medium=bio [R=302,L,QSA,NE]
+RewriteRule ^tt/?$ consultoria-gratuita/?utm_source=tiktok&utm_medium=bio [R=302,L,QSA,NE]
+RewriteRule ^yt/?$ consultoria-gratuita/?utm_source=youtube&utm_medium=canal [R=302,L,QSA,NE]
+RewriteRule ^li/?$ consultoria-gratuita/?utm_source=linkedin&utm_medium=perfil [R=302,L,QSA,NE]
+RewriteRule ^wa/?$ consultoria-gratuita/?utm_source=whatsapp&utm_medium=mensaje [R=302,L,QSA,NE]
+
 # Forzar HTTPS
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
