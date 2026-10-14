@@ -3,15 +3,15 @@
  * PEBAI · Recordatorios de la sesión técnica (24 h y 1 h antes) con la marca de PEBAI.
  * Cal.com gratis no envía recordatorios: este script los manda desde equipo@pebaisystems.es.
  *
- * Se ejecuta cada 15 minutos con una tarea programada de Hostinger (hPanel > Avanzado > Cron Jobs):
- *   - Tipo PHP:  domains/pebaisystems.es/public_html/api/recordatorios.php
- *   - o URL:     https://pebaisystems.es/api/recordatorios.php?token=<cron_token de private/config.php>
- * Es idempotente: cada recordatorio se marca como enviado y no se repite.
+ * Lo lanzan dos vías (es idempotente: cada recordatorio se marca como enviado y no se repite):
+ *   - GitHub Actions cada 15 min (.github/workflows/recordatorios.yml) con la cabecera X-Cron-Token.
+ *   - Respaldo: api/tick.php, que lo ejecuta con las visitas a la web como mucho cada 10 min.
  */
-require __DIR__ . '/_pebai_lib.php';
+require_once __DIR__ . '/_pebai_lib.php';
 
 $isCli = PHP_SAPI === 'cli';
-if (!$isCli) {
+$isTick = defined('PEBAI_TICK');
+if (!$isCli && !$isTick) {
     header('Content-Type: application/json; charset=utf-8');
     header('X-Robots-Tag: noindex');
     $token = (string)($_GET['token'] ?? ($_SERVER['HTTP_X_CRON_TOKEN'] ?? ''));
@@ -118,4 +118,6 @@ try {
 }
 
 $out = ['status' => 'ok', 'enviados_24h' => $enviados['24'], 'enviados_1h' => $enviados['1'], 'sesiones_auto' => $sesiones, 'errores' => $errores];
-echo $isCli ? json_encode($out) . "\n" : json_encode($out);
+if (!$isTick) {
+    echo $isCli ? json_encode($out) . "\n" : json_encode($out);
+}

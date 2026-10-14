@@ -152,4 +152,11 @@
       };
     }
   };
+
+  // Respaldo de los recordatorios de citas: el servidor los revisa como mucho cada 10 min
+  // (api/tick.php). No envía datos del visitante.
+  try {
+    if (navigator.sendBeacon) navigator.sendBeacon('/api/tick.php');
+    else fetch('/api/tick.php', { method: 'POST', keepalive: true });
+  } catch (e) {}
 })();
