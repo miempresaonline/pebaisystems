@@ -27,10 +27,7 @@ secrets.local.*
 privado/
 .agents/mcp_config.json
 
-# PHP desplegados en Hostinger que aun llevan claves dentro (pendiente de migrar a secrets.local.php)
-website-pebai/api/cron_publish.php
-website-pebai/api/send_alert.php
-website-pebai/dist/api/diagnostico.php
+# Configuración con claves que no debe versionarse
 website-pebai/dist/api/instagram-config.php
 
 # --- Datos personales, clientes y sesiones -------------------------------------
@@ -38,11 +35,6 @@ documentos/
 leads*.csv
 conversations_memory.json
 learning_metrics.json
-whatsapp-outreach-bot/session/
-whatsapp-outreach-bot/.wwebjs_*/
-social-media-engine/sessions/
-social-media-engine/data/
-social-media-engine/logs/
 commercial-engine/backups/
 assets/clients/
 

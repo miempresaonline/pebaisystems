@@ -345,8 +345,8 @@ def main():
     # 4. Obtención de API Key de Gemini
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        # Intentar cargar desde .env de whatsapp-outreach-bot si existe localmente
-        local_env = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "whatsapp-outreach-bot", ".env"))
+        # Intentar cargar desde el .env de la raíz si existe localmente
+        local_env = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
         if os.path.exists(local_env):
             try:
                 with open(local_env, "r", encoding="utf-8") as f:

@@ -834,7 +834,7 @@ def main():
     api_key = os.environ.get("GEMINI_API_KEY")
 
     if not api_key:
-        local_env = os.path.abspath(os.path.join(BASE_DIR, "..", "whatsapp-outreach-bot", ".env"))
+        local_env = os.path.abspath(os.path.join(BASE_DIR, "..", ".env"))
         if os.path.exists(local_env):
             with open(local_env, "r", encoding="utf-8") as f:
                 for line in f:

@@ -8,32 +8,29 @@ Monorepo con todos los sistemas de PEBAI Systems (pebaisystems.es).
 | Carpeta | Qué es | Dónde corre |
 |---|---|---|
 | `website-pebai/` | Web corporativa + landings SEO/GEO. `dist/` **es** la web publicada | Hostinger (`public_html`) vía SFTP |
-| `website-pebai/seo-engine/` | Generación masiva de landings, sitemap, IndexNow, sync con Sheets | Local → sube a Hostinger |
+| `website-pebai/seo-engine/` | Generación masiva de landings, sitemap e IndexNow (manual) | Local → sube a Hostinger |
 | `carousel-engine/` | Motor de carruseles (radar diario + render con Playwright) | GitHub Actions (manual) + local |
-| `whatsapp-outreach-bot/` | Bot de WhatsApp de captación y cierre (PM2 `pebai-outreach`) | Hostinger (`~/whatsapp-outreach-bot`) |
-| `social-media-engine/` | Monitor de comentarios/DMs en Instagram, TikTok, FB y X | Hostinger (`~/social-media-engine`) |
 | `commercial-engine/` | CRM Airtable + llamadas IA de voz + webhooks | Local / servidor |
-| `deploy/` | Scripts de sincronización de los bots con Hostinger | Local |
+| `deploy/` | Utilidades de servidor (p. ej. `apagar_bots_y_geo.py`) | Local |
 | `docs/` | Sistema de contenido, automatización Instagram, esquema Miro | — |
 | `ideas/` | Modelos de negocio y benchmarks | — |
 | `assets/` | Marca (logos, kit), equipo y piezas sociales | — |
 | `.agents/skills/` | Skills de los agentes (copy, SEO, carruseles, ventas…) | — |
 
-Carpetas **locales que nunca se suben**: `privado/` (accesos a servidores), `documentos/` (contratos y presupuestos), `scratch/` (pruebas, capturas, vídeos), `assets/clients/`, sesiones de navegador y datos de leads.
+Sin bots ni publicación automática de GEO desde el 14/10/2026 (eliminados a propósito).
+
+Carpetas **locales que nunca se suben**: `privado/` (accesos a servidores), `documentos/` (contratos y presupuestos), `scratch/` (pruebas, capturas, vídeos), `assets/clients/`.
 
 ## Despliegue en Hostinger
 
 Todas las credenciales se leen de `.env` en la raíz (plantilla: `.env.example`).
 
 ```bash
+# Solo lo que cambió en uno o varios commits (recomendado)
+python website-pebai/scripts/deploy_changed.py <commit>
+
 # Web completa (sube website-pebai/dist)
 python website-pebai/scripts/deploy.py
-
-# Bot de WhatsApp (sube código + .env del bot y reinicia PM2)
-python deploy/sync_whatsapp_bot.py
-
-# Motor de redes sociales
-python deploy/sync_social_engine.py
 ```
 
 ## GitHub Actions
