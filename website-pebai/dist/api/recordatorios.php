@@ -29,54 +29,71 @@ function pebai_reminder_email(array $c, string $tipo): array
     $dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
     $meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
     $hora = date('H:i', $ts);
-    $fecha = $dias[(int)date('w', $ts)] . ' ' . date('j', $ts) . ' de ' . $meses[(int)date('n', $ts) - 1];
+    $fin = date('H:i', $ts + 25 * 60);
+    $fecha = ucfirst($dias[(int)date('w', $ts)]) . ', ' . date('j', $ts) . ' de ' . $meses[(int)date('n', $ts) - 1];
     $nombre = trim(explode(' ', trim($c['nombre']))[0] ?? '');
-    $hola = $nombre !== '' ? 'Hola, ' . $nombre : 'Hola';
-    $meet = $c['meet_url'] !== '' ? $c['meet_url'] : '';
+    $hola = $nombre !== '' ? 'Hola, ' . $nombre . '.' : 'Hola.';
+    $meet = (string)($c['meet_url'] ?? '');
     $wa = 'https://wa.me/34624842799?text=' . rawurlencode('Hola PEBAI, necesito cambiar la hora de mi sesión técnica.');
 
     if ($tipo === '24') {
-        $subject = 'Mañana a las ' . $hora . ': tu sesión técnica con PEBAI';
-        $kicker = 'TU SESIÓN ES MAÑANA';
-        $titulo = ucfirst($fecha) . ' · ' . $hora . ' h';
-        $intro = $hola . '. Te recordamos la sesión técnica de 25 minutos con nuestro equipo de ingeniería.';
-        $tips = '<tr><td style="padding:6px 0;color:#C9CED8;font-size:15px">▸ Conéctate desde un <b style="color:#fff">ordenador</b>: compartiremos pantalla.</td></tr>'
-            . '<tr><td style="padding:6px 0;color:#C9CED8;font-size:15px">▸ Que asista <b style="color:#fff">quien toma las decisiones</b> en la empresa.</td></tr>'
-            . '<tr><td style="padding:6px 0;color:#C9CED8;font-size:15px">▸ Piensa en las <b style="color:#fff">2 o 3 tareas</b> que más tiempo os quitan.</td></tr>';
+        $subject = 'Mañana a las ' . $hora . ' h · Sesión técnica PEBAI';
+        $kicker = 'Recordatorio · mañana';
+        $titulo = 'Tu sesión técnica es mañana';
+        $intro = $hola . ' Te esperamos mañana para revisar los procesos de tu empresa.';
+        $prep = '';
+        foreach ([
+            ['Desde un ordenador', 'Compartiremos pantalla durante la sesión.'],
+            ['Con quien decide', 'Que asista la persona que toma las decisiones.'],
+            ['Con 2 o 3 tareas en mente', 'Las que más tiempo os quitan cada semana.'],
+        ] as $i => [$t, $d]) {
+            $prep .= '<tr><td width="34" valign="top" style="padding:8px 0">'
+                . '<div style="width:24px;height:24px;line-height:24px;border-radius:50%;background:#0B0F14;color:#B7FF3C;font-size:12px;font-weight:800;text-align:center">' . ($i + 1) . '</div></td>'
+                . '<td valign="top" style="padding:8px 0"><div style="font-size:14px;font-weight:700;color:#0B0F14">' . h($t) . '</div>'
+                . '<div style="font-size:13px;line-height:1.5;color:#6B7280">' . h($d) . '</div></td></tr>';
+        }
+        $prep = pebai_email_section('Para aprovecharla')
+            . '<tr><td style="padding:0 28px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">' . $prep . '</table></td></tr>';
     } else {
         $subject = 'Empezamos en 1 hora (' . $hora . ' h) · Sesión técnica PEBAI';
-        $kicker = 'EMPEZAMOS EN 1 HORA';
-        $titulo = 'Hoy a las ' . $hora . ' h';
-        $intro = $hola . '. En una hora empieza tu sesión técnica. Te esperamos en Google Meet.';
-        $tips = '<tr><td style="padding:6px 0;color:#C9CED8;font-size:15px">▸ Entra desde un ordenador con cámara y micrófono.</td></tr>';
+        $kicker = 'Recordatorio · hoy';
+        $titulo = 'Empezamos en 1 hora';
+        $intro = $hola . ' Tu sesión técnica empieza a las ' . $hora . ' h. Conéctate desde un ordenador con cámara y micrófono.';
+        $prep = '';
     }
 
+    $header = pebai_email_header($kicker, $titulo, '');
+
+    // Ficha de la cita
+    $dato = function (string $k, string $v): string {
+        return '<tr><td width="34%" style="padding:10px 0;border-bottom:1px solid #E6E8EE;color:#8A90A0;font-size:13px">' . h($k) . '</td>'
+            . '<td style="padding:10px 0;border-bottom:1px solid #E6E8EE;color:#0B0F14;font-size:15px;font-weight:700">' . h($v) . '</td></tr>';
+    };
+    $ficha = '<tr><td style="padding:6px 28px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">'
+        . '<tr><td bgcolor="#F5F6F9" style="background:#F5F6F9;border:1px solid #E6E8EE;border-radius:14px;padding:6px 18px">'
+        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">'
+        . $dato('Fecha', $fecha)
+        . $dato('Hora', $hora . ' – ' . $fin . ' h (Madrid)')
+        . '<tr><td width="34%" style="padding:10px 0;color:#8A90A0;font-size:13px">Lugar</td><td style="padding:10px 0;color:#0B0F14;font-size:15px;font-weight:700">Google Meet</td></tr>'
+        . '</table></td></tr></table></td></tr>';
+
     $boton = $meet !== ''
-        ? '<a href="' . h($meet) . '" style="display:inline-block;background:#B7FF3C;color:#0B0F14;text-decoration:none;font-weight:800;font-size:16px;padding:15px 26px;border-radius:12px">Entrar en Google Meet</a>'
-        : '<p style="margin:0;color:#C9CED8;font-size:15px">El enlace de Google Meet está en el email de confirmación de la reserva.</p>';
+        ? '<tr><td style="padding:20px 28px 4px">' . pebai_email_button($meet, 'Entrar en Google Meet') . '</td></tr>'
+        : '<tr><td style="padding:18px 28px 4px;font-size:14px;line-height:1.5;color:#6B7280">El enlace de Google Meet está en el email de confirmación de la reserva.</td></tr>';
 
-    $html = '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark light"></head>'
-        . '<body style="margin:0;padding:0;background:#070911;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif">'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#070911;padding:28px 12px"><tr><td align="center">'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#0E1222;border:1px solid #262E52;border-radius:20px;overflow:hidden">'
-        . '<tr><td style="padding:26px 30px 0"><img src="https://pebaisystems.es/brand/pebai-horizontal-color-mineral-cropped.png" alt="PEBAI Systems" width="130" style="display:block;border:0"></td></tr>'
-        . '<tr><td style="padding:26px 30px 0"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:#B7FF3C">' . h($kicker) . '</div>'
-        . '<div style="margin-top:10px;font-size:28px;line-height:1.2;font-weight:800;color:#FFFFFF">' . h($titulo) . '</div>'
-        . '<p style="margin:14px 0 0;font-size:16px;line-height:1.55;color:#A3A8BC">' . h($intro) . '</p></td></tr>'
-        . '<tr><td style="padding:24px 30px 6px">' . $boton . '</td></tr>'
-        . '<tr><td style="padding:16px 30px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">' . $tips . '</table></td></tr>'
-        . '<tr><td style="padding:16px 30px 0"><table role="presentation" cellpadding="0" cellspacing="0"><tr>'
-        . '<td style="padding-right:12px"><img src="https://pebaisystems.es/team/avatar-adrian.jpg" width="40" height="40" alt="Adrián" style="display:block;border-radius:50%;border:2px solid #B7FF3C"></td>'
-        . '<td style="padding-right:12px"><img src="https://pebaisystems.es/team/avatar-dani.jpg" width="40" height="40" alt="Dani" style="display:block;border-radius:50%;border:2px solid #B7FF3C"></td>'
-        . '<td style="color:#C9CED8;font-size:14px">Te atenderán <b style="color:#fff">Adrián</b> o <b style="color:#fff">Dani</b></td></tr></table></td></tr>'
-        . '<tr><td style="padding:24px 30px 28px;border-top:1px solid #1D2442;margin-top:20px;color:#6B7089;font-size:13px;line-height:1.5">'
-        . '¿Te ha surgido un imprevisto? <a href="' . h($wa) . '" style="color:#B7FF3C;font-weight:700;text-decoration:none">Avísanos por WhatsApp</a> y buscamos otra hora.'
-        . '<br>PEBAI Systems · Ingeniería de procesos e IA · <a href="https://pebaisystems.es" style="color:#6B7089">pebaisystems.es</a></td></tr>'
-        . '</table></td></tr></table></body></html>';
+    $body = '<tr><td style="padding:22px 28px 14px;font-size:15px;line-height:1.6;color:#374151">' . h($intro) . '</td></tr>'
+        . $ficha . $boton . $prep
+        . '<tr><td style="padding:16px 28px 18px;font-size:13px;line-height:1.6;color:#6B7280">¿Te ha surgido un imprevisto? '
+        . '<a href="' . h($wa) . '" style="color:#594AF7;font-weight:700;text-decoration:none">Escríbenos por WhatsApp</a> y buscamos otra hora.</td></tr>';
 
-    $text = $kicker . "\n" . $titulo . "\n\n" . $intro . "\n\n"
+    $footer = 'PEBAI Systems · Ingeniería de procesos e IA · <a href="https://pebaisystems.es" style="color:#6B7280;text-decoration:none">pebaisystems.es</a>'
+        . '<br>Recibes este email porque reservaste una sesión técnica con nosotros.';
+
+    $html = pebai_email_shell($subject, $fecha . ' · ' . $hora . ' h · Google Meet', $header, $body, $footer);
+
+    $text = $titulo . "\n" . $fecha . ' · ' . $hora . ' – ' . $fin . " h (Madrid) · Google Meet\n\n" . $intro . "\n\n"
         . ($meet !== '' ? "Entrar en Google Meet: $meet\n\n" : '')
-        . "¿Imprevisto? Avísanos por WhatsApp: $wa\n\nPEBAI Systems · pebaisystems.es\n";
+        . "¿Imprevisto? Escríbenos por WhatsApp: $wa\n\nPEBAI Systems · pebaisystems.es\n";
 
     return [$subject, $html, $text];
 }
