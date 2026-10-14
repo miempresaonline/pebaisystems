@@ -99,7 +99,7 @@
   color-scheme:light;
 }
 :root{
-  --lime:#B7FF3C;--ink:#0B0F14;--violet:#6A5CFF;
+  --lime:#B7FF3C;--ink:#0B0F14;--violet:#6A5CFF;--cta:#6A5CFF;--cta-hover:#7B6EFF;--cta-fg:#FFFFFF;
   --serif:'Instrument Serif',Georgia,'Times New Roman',serif;
   --sans:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   --r:32px;--pad:40px;--max:1600px;--ease:cubic-bezier(.2,.8,.2,1);
@@ -135,9 +135,9 @@ html.js .reveal.in{opacity:1;transform:none}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:50px;padding:0 20px 0 24px;border-radius:999px;font-size:14px;font-weight:600;white-space:nowrap;transition:transform .2s ease,filter .2s ease,background .2s ease}
-.btn-lime{background:var(--lime);color:var(--ink)}
-.btn-lime::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
-.btn-lime:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.btn-lime{background:var(--cta);color:var(--cta-fg);box-shadow:0 10px 30px rgba(106,92,255,.28)}
+.btn-lime::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--cta-fg)}
+.btn-lime:hover{background:var(--cta-hover);transform:translateY(-1px)}
 .btn-dark{background:var(--s2);color:var(--fg)}
 .btn-dark:hover{background:var(--s3)}
 .btn-light{display:inline-flex;align-items:center;gap:10px;background:var(--btnl-bg);color:var(--btnl-fg);height:42px;padding:0 18px;border-radius:16px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;transition:background .2s ease}
@@ -191,7 +191,7 @@ html.js .reveal.in{opacity:1;transform:none}
 .menu-contact small{font-size:12px;color:var(--fg-65);word-break:break-all}
 .menu-social{display:flex;gap:8px}
 .menu-social a{width:44px;height:44px;border-radius:50%;background:var(--s1);display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease}
-.menu-social a:hover{background:var(--lime);color:var(--ink)}
+.menu-social a:hover{background:var(--cta);color:var(--cta-fg)}
 body.menu-open{overflow:hidden}
 
 /* hero */
@@ -207,7 +207,7 @@ body.menu-open{overflow:hidden}
 .player video{width:100%;height:100%;object-fit:cover;background:#000}
 .player.live{transform:none}
 .sound{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:16px}
-.sound .pill{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 16px 0 14px;border-radius:999px;background:var(--lime);color:var(--ink);font-weight:700;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .2s ease}
+.sound .pill{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 16px 0 14px;border-radius:999px;background:#FFFFFF;color:var(--ink);font-weight:700;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .2s ease}
 .sound:hover .pill{transform:scale(1.05)}
 .sound.hidden{display:none}
 
@@ -217,7 +217,7 @@ body.menu-open{overflow:hidden}
 .widget .top b{display:block;font-size:15px;font-weight:600}
 .widget .top small{display:block;font-size:12px;color:var(--fg-40)}
 .arrow{margin-left:auto;width:30px;height:30px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;color:var(--fg-65);transition:background .2s ease,color .2s ease;flex:none}
-.arrow:hover{background:var(--lime);color:var(--ink)}
+.arrow:hover{background:var(--cta);color:var(--cta-fg)}
 .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .kpis div{background:var(--s2);border-radius:14px;padding:12px 11px 10px}
 .kpis b{display:block;font-family:var(--serif);font-size:30px;line-height:1;letter-spacing:-.02em;color:var(--accent);font-weight:400}
@@ -324,13 +324,13 @@ body.menu-open{overflow:hidden}
 .socials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .social{background:var(--s1);border-radius:24px;padding:20px;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;transition:background .2s ease}
 .social:hover{background:var(--s2)}
-.social:hover .ico-tile.dim{background:var(--lime);color:var(--ink)}
+.social:hover .ico-tile.dim{background:var(--cta);color:var(--cta-fg)}
 .social b{display:block;font-size:15px;font-weight:600}
 .social small{display:block;font-size:12px;color:var(--fg-65);margin-top:2px}
-.social.go{background:var(--lime);color:var(--ink)}
-.social.go small{color:rgba(11,15,20,.65)}
-.social.go .ico-tile{background:var(--ink);color:var(--lime)}
-.social.go:hover{filter:brightness(1.05)}
+.social.go{background:var(--cta);color:var(--cta-fg)}
+.social.go small{color:rgba(255,255,255,.75)}
+.social.go .ico-tile{background:#FFFFFF;color:var(--cta)}
+.social.go:hover{background:var(--cta-hover)}
 
 /* footer */
 .footer{border-top:1px solid var(--fg-10);padding:28px 0 32px}
@@ -489,7 +489,7 @@ body.menu-open .dock{opacity:0;visibility:hidden}
           <a class="btn-light" href="#metodo">Cómo trabajamos <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></a>
         </div>
         <div class="player" id="player">
-          <video id="hero-video" autoplay muted loop playsinline preload="auto" poster="/video/presentacion_poster.jpg?v=20261014" src="/video/presentacion.mp4?v=20261014"></video>
+          <video id="hero-video" autoplay muted loop playsinline preload="auto" poster="/video/presentacion_poster.jpg?v=20261014" src="/video/presentacion_bucle.mp4?v=20261014" data-full="/video/presentacion.mp4?v=20261014"></video>
           <button class="sound" id="sound-btn" type="button" aria-label="Ver el vídeo con sonido desde el principio"><span class="pill"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg>Ver con sonido</span></button>
         </div>
       </div>
@@ -707,8 +707,9 @@ body.menu-open .dock{opacity:0;visibility:hidden}
 
   /* vídeo */
   var v=document.getElementById('hero-video'),s=document.getElementById('sound-btn'),p=document.getElementById('player');
-  s.addEventListener('click',function(){v.muted=false;v.loop=false;v.controls=true;v.currentTime=0;s.classList.add('hidden');p.classList.add('live');v.play();});
-  v.addEventListener('ended',function(){v.controls=false;v.muted=true;v.loop=true;v.currentTime=0;s.classList.remove('hidden');p.classList.remove('live');v.play();});
+  var loopSrc=v.getAttribute('src');
+  s.addEventListener('click',function(){v.src=v.dataset.full;v.muted=false;v.loop=false;v.controls=true;s.classList.add('hidden');p.classList.add('live');v.play();});
+  v.addEventListener('ended',function(){if(v.loop)return;v.controls=false;v.muted=true;v.loop=true;v.src=loopSrc;s.classList.remove('hidden');p.classList.remove('live');v.play();});
 
   /* franja infinita: repite el contenido hasta cubrir la pantalla y duplica el bloque */
   var tracks=[].slice.call(document.querySelectorAll('.track'));
