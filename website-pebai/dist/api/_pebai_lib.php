@@ -74,7 +74,7 @@ function pebai_db(): PDO
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_leads_created ON leads(created_at)');
         // Columnas de la cita (Cal.com), añadidas sin perder datos existentes
         $cols = array_column($pdo->query('PRAGMA table_info(leads)')->fetchAll(), 'name');
-        foreach (['cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email'] as $col) {
+        foreach (['cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at'] as $col) {
             if (!in_array($col, $cols, true)) {
                 $pdo->exec("ALTER TABLE leads ADD COLUMN $col TEXT NOT NULL DEFAULT ''");
             }
@@ -97,6 +97,20 @@ function pebai_db(): PDO
             updated_at TEXT NOT NULL DEFAULT ""
         )');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_citas_inicio ON citas(inicio)');
+        $citaCols = array_column($pdo->query('PRAGMA table_info(citas)')->fetchAll(), 'name');
+        if (!in_array('telefono', $citaCols, true)) {
+            $pdo->exec("ALTER TABLE citas ADD COLUMN telefono TEXT NOT NULL DEFAULT ''");
+        }
+        // Historial de cada solicitud: cambios de fase (automáticos o a mano) y contactos
+        $pdo->exec('CREATE TABLE IF NOT EXISTS eventos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            lead_id INTEGER NOT NULL,
+            ts TEXT NOT NULL,
+            tipo TEXT NOT NULL,
+            detalle TEXT NOT NULL DEFAULT "",
+            auto INTEGER NOT NULL DEFAULT 1
+        )');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_eventos_lead ON eventos(lead_id)');
     }
     return $pdo;
 }
@@ -156,7 +170,7 @@ function pebai_cita_save(string $uid, array $f): ?array
     $q = $db->prepare('SELECT * FROM citas WHERE uid = ?');
     $q->execute([$uid]);
     $row = $q->fetch();
-    $allowed = ['lead_id', 'inicio', 'fin', 'nombre', 'email', 'meet_url', 'estado'];
+    $allowed = ['lead_id', 'inicio', 'fin', 'nombre', 'email', 'meet_url', 'estado', 'telefono'];
     $data = [];
     foreach ($allowed as $k) {
         if (isset($f[$k]) && $f[$k] !== '' && $f[$k] !== 0) {
@@ -197,6 +211,12 @@ function pebai_cita_sync_lead(array $cita): void
         return;
     }
     $now = date('Y-m-d H:i:s');
+    $leadId = (int)$cita['lead_id'];
+    if ($cita['estado'] === 'reservada' && $lead['cita_uid'] !== $cita['uid']) {
+        pebai_evento($leadId, $lead['cita_uid'] === '' ? 'reserva' : 'reprogramada', (string)$cita['inicio']);
+    } elseif ($cita['estado'] === 'cancelada' && $lead['cita_uid'] === $cita['uid']) {
+        pebai_evento($leadId, 'cancelada', (string)$cita['inicio']);
+    }
     if ($cita['estado'] === 'reservada') {
         // Una sesión ya hecha o un cliente no vuelven atrás por una cita nueva
         $estado = in_array($lead['estado'], ['sesion', 'cliente'], true) ? $lead['estado'] : 'cita';
@@ -210,6 +230,111 @@ function pebai_cita_sync_lead(array $cita): void
         $db->prepare('UPDATE leads SET estado = ?, cita_estado = ?, updated_at = ? WHERE id = ?')
             ->execute([$estado, 'cancelada', $now, (int)$cita['lead_id']]);
     }
+}
+
+/** Apunta un hito en el historial de la solicitud (auto = 1 si lo hizo el sistema). */
+function pebai_evento(int $leadId, string $tipo, string $detalle = '', bool $auto = true): void
+{
+    if ($leadId <= 0) {
+        return;
+    }
+    try {
+        pebai_db()->prepare('INSERT INTO eventos (lead_id, ts, tipo, detalle, auto) VALUES (?, ?, ?, ?, ?)')
+            ->execute([$leadId, date('Y-m-d H:i:s'), $tipo, mb_substr($detalle, 0, 300), $auto ? 1 : 0]);
+    } catch (Throwable $e) {
+        pebai_log('EVENTO: ' . $e->getMessage());
+    }
+}
+
+/** Pasa la solicitud a otra fase solo si va hacia delante (nunca pisa sesión, cliente ni descartado). */
+function pebai_avanzar(int $leadId, string $a, string $motivo, bool $auto = true): bool
+{
+    $orden = ['nuevo' => 1, 'contactado' => 2, 'cita' => 3, 'sesion' => 4, 'no_asistio' => 4, 'cliente' => 5, 'descartado' => 5];
+    $db = pebai_db();
+    $q = $db->prepare('SELECT estado FROM leads WHERE id = ?');
+    $q->execute([$leadId]);
+    $actual = $q->fetchColumn();
+    if ($actual === false || ($orden[$actual] ?? 0) >= ($orden[$a] ?? 0)) {
+        return false;
+    }
+    $db->prepare('UPDATE leads SET estado = ?, updated_at = ? WHERE id = ?')->execute([$a, date('Y-m-d H:i:s'), $leadId]);
+    pebai_evento($leadId, $a, $motivo, $auto);
+    return true;
+}
+
+/**
+ * Fase 4 automática: cuando termina una sesión reservada que nadie ha marcado, la cita queda
+ * "asistencia = auto" y la solicitud pasa a "Sesión hecha". El equipo puede corregirlo con
+ * "No se presentó". La llaman el cron de recordatorios y el panel al cargar datos.
+ */
+function pebai_auto_sesiones(): int
+{
+    $db = pebai_db();
+    $n = 0;
+    $q = $db->query("SELECT uid, lead_id, inicio, fin FROM citas WHERE estado = 'reservada' AND asistencia = '' AND lead_id > 0");
+    foreach ($q->fetchAll() as $c) {
+        $fin = strtotime($c['fin'] ?: '') ?: (strtotime($c['inicio']) + 25 * 60);
+        if (!$fin || $fin > time()) {
+            continue;
+        }
+        $db->prepare("UPDATE citas SET asistencia = 'auto', updated_at = ? WHERE uid = ? AND asistencia = ''")
+            ->execute([date('Y-m-d H:i:s'), $c['uid']]);
+        pebai_avanzar((int)$c['lead_id'], 'sesion', 'La hora de la sesión ya pasó');
+        $n++;
+    }
+    return $n;
+}
+
+/**
+ * Busca la solicitud de una reserva hecha sin el enlace del panel. Solo devuelve una si hay un
+ * único candidato claro: mismo teléfono, mismo email de una cita anterior, o mismo nombre en una
+ * solicitud reciente sin cita. Devuelve [id, motivo] o [0, ''].
+ */
+function pebai_match_lead(string $telefono, string $email, string $nombre): array
+{
+    $db = pebai_db();
+    $dig = substr(preg_replace('/\D+/', '', $telefono), -9);
+    if (strlen($dig) === 9) {
+        $ids = [];
+        foreach ($db->query("SELECT id, telefono FROM leads WHERE estado NOT IN ('cliente','descartado') ORDER BY id DESC LIMIT 500") as $r) {
+            if (substr(preg_replace('/\D+/', '', $r['telefono']), -9) === $dig) {
+                $ids[] = (int)$r['id'];
+            }
+        }
+        if (count($ids) === 1) {
+            return [$ids[0], 'teléfono'];
+        }
+    }
+    if ($email !== '') {
+        $q = $db->prepare('SELECT DISTINCT lead_id FROM citas WHERE lead_id > 0 AND lower(email) = lower(?)');
+        $q->execute([$email]);
+        $ids = $q->fetchAll(PDO::FETCH_COLUMN);
+        if (count($ids) === 1) {
+            return [(int)$ids[0], 'email'];
+        }
+    }
+    $norm = function (string $s): string {
+        $s = mb_strtolower(trim($s));
+        $s = strtr($s, ['á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ü' => 'u', 'ñ' => 'n']);
+        return preg_replace('/\s+/', ' ', $s);
+    };
+    $n = $norm($nombre);
+    if ($n !== '') {
+        $q = $db->prepare("SELECT id, nombre FROM leads WHERE estado IN ('nuevo','contactado') AND cita_uid = '' AND created_at >= ?");
+        $q->execute([date('Y-m-d H:i:s', time() - 45 * 86400)]);
+        $ids = [];
+        foreach ($q->fetchAll() as $r) {
+            $ln = $norm($r['nombre']);
+            // "Laura" en el formulario y "Laura Gómez" en Cal.com cuentan como la misma persona
+            if ($ln !== '' && ($ln === $n || strpos($n . ' ', $ln . ' ') === 0)) {
+                $ids[] = (int)$r['id'];
+            }
+        }
+        if (count($ids) === 1) {
+            return [$ids[0], 'nombre'];
+        }
+    }
+    return [0, ''];
 }
 
 /* ---------------------------------------------------------------- SMTP --- */

@@ -117,6 +117,7 @@ try {
     $ins->execute(array_values($lead));
     $id = (int)$db->lastInsertId();
     $saved = true;
+    pebai_evento($id, 'nuevo', 'Formulario de diagnóstico enviado');
 } catch (Throwable $e) {
     pebai_log('DB: ' . $e->getMessage());
 }

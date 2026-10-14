@@ -60,13 +60,22 @@ $datos = [
     'nombre' => mb_substr((string)($attendee['name'] ?? $response('name')), 0, 150),
     'email' => mb_substr((string)($attendee['email'] ?? $response('email')), 0, 200),
     'meet_url' => mb_substr($meet, 0, 300),
+    'telefono' => mb_substr($response('attendeePhoneNumber') ?: ($response('phone') ?: (string)($attendee['phoneNumber'] ?? '')), 0, 40),
 ];
 $anterior = (string)($p['rescheduleUid'] ?? ($p['fromReschedule'] ?? ($p['rescheduledFromUid'] ?? '')));
 
 try {
     switch ($trigger) {
         case 'BOOKING_CREATED':
-            pebai_cita_save($uid, $datos + ['estado' => 'reservada']);
+            $match = '';
+            if (!$datos['lead_id']) {
+                // Reserva sin el enlace del panel: se une sola si hay una única solicitud que encaje
+                [$datos['lead_id'], $match] = pebai_match_lead($datos['telefono'], $datos['email'], $datos['nombre']);
+            }
+            $cita = pebai_cita_save($uid, $datos + ['estado' => 'reservada']);
+            if ($match !== '' && $cita) {
+                pebai_evento((int)$cita['lead_id'], 'unida', 'Reserva unida automáticamente por ' . $match);
+            }
             break;
         case 'BOOKING_RESCHEDULED':
             if ($anterior !== '' && $anterior !== $uid) {

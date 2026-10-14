@@ -8,11 +8,17 @@ const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 
 /* ============ dominio ============ */
 const ESTADOS = {
-  nuevo: ['Nuevo', '#B7FF3C', '#0B0F14'], contactado: ['Contactado', '#6A5CFF', '#FFFFFF'], cita: ['Cita agendada', '#25D366', '#0B0F14'],
+  nuevo: ['Solicitud', '#B7FF3C', '#0B0F14'], contactado: ['En revisión', '#6A5CFF', '#FFFFFF'], cita: ['Cita agendada', '#25D366', '#0B0F14'],
   sesion: ['Sesión hecha', '#3FD5FF', '#0B0F14'], no_asistio: ['No se presentó', '#FF6B7A', '#0B0F14'], cliente: ['Cliente', '#FFB547', '#0B0F14'], descartado: ['Descartado', '#3A404D', '#C9CED8']
 };
 const PERIODOS = ['7', '30', '90', 'todo'];
-const PASOS = ['Solicitudes', 'Contactadas', 'Con cita', 'Sesiones', 'Clientes'];
+const PASOS = ['Solicitudes', 'Revisadas', 'Con cita', 'Sesiones', 'Clientes'];
+const EVENTOS = {
+  nuevo: 'Solicitud recibida', contactado: 'En revisión', cita: 'Cita agendada', sesion: 'Sesión hecha', no_asistio: 'No se presentó',
+  cliente: 'Cliente', descartado: 'Descartado', reserva: 'Reservó la sesión', reprogramada: 'Cambió la hora', cancelada: 'Canceló la cita',
+  unida: 'Reserva unida', contacto: 'Contacto',
+};
+const FASES = [['Solicitud', ['nuevo']], ['Revisión', ['contactado']], ['Reserva', ['cita', 'reserva']], ['Sesión', ['sesion']]];
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 const pad = (n) => String(n).padStart(2, '0');
@@ -34,7 +40,7 @@ const stats = (rows) => ({
 });
 
 /* ============ estado ============ */
-const S = { leads: [], citas: [], ahora: new Date(), ahoraUTC: new Date(), csrf: app.dataset.csrf, loaded: false, drawn: false };
+const S = { leads: [], citas: [], eventos: new Map(), ahora: new Date(), ahoraUTC: new Date(), csrf: app.dataset.csrf, loaded: false, drawn: false, conocidas: null };
 const ui = { page: 'resumen', periodo: '30', estado: null, fuente: null, opcion: null, q: null, dim: 'fuente', sort: { col: 'total', dir: 'desc' }, sel: null, limit: 120 };
 
 const readUrl = () => {
@@ -111,6 +117,8 @@ async function load() {
   const j = await r.json();
   if (!j.ok) throw new Error(j.error || 'Error al cargar');
   S.leads = j.leads; S.citas = j.citas; S.ahora = parse(j.ahora); S.ahoraUTC = new Date(j.ahora_utc); S.csrf = j.csrf; S.loaded = true;
+  S.eventos = d3.group(j.eventos || [], (e) => e.lead_id);
+  avisarNuevas();
 }
 async function post(action, fields) {
   const body = new URLSearchParams({ action, csrf: S.csrf, ...fields });
@@ -147,7 +155,14 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeDetail();
 });
 
-const openDetail = (id) => { $('#pb-drawer').classList.add('on'); $('#pb-veil').classList.add('on'); document.body.classList.add('pb-locked'); $('#pb-drawer').scrollTop = 0; set({ sel: id }); };
+const marcarVista = (id) => {
+  const l = S.leads.find((x) => x.id === Number(id));
+  if (!l || l.estado !== 'nuevo') return;
+  l.estado = 'contactado'; // respuesta inmediata en pantalla; el servidor lo confirma
+  post('visto', { id: l.id }).then(() => { toast(l.empresa + ' pasa a En revisión.'); draw(); }).catch(() => {});
+};
+const registrar = (id, tipo) => { post('contacto', { id, tipo }).then(draw).catch(() => {}); };
+const openDetail = (id) => { marcarVista(id); $('#pb-drawer').classList.add('on'); $('#pb-veil').classList.add('on'); document.body.classList.add('pb-locked'); $('#pb-drawer').scrollTop = 0; set({ sel: id }); };
 const closeDetail = () => { if (ui.sel == null) return; $('#pb-drawer').classList.remove('on'); $('#pb-veil').classList.remove('on'); document.body.classList.remove('pb-locked'); set({ sel: null }); };
 $('#pb-cerrar').addEventListener('click', closeDetail);
 $('#pb-veil').addEventListener('click', closeDetail);
@@ -167,8 +182,75 @@ function drawResumen(p) {
   tk.append('En ' + nombre + ': ', Object.assign(el('b'), { textContent: N(r.total) + ' solicitudes' }), ', ', Object.assign(el('b'), { textContent: N(r.citas) + ' citas' }), ' y ', Object.assign(el('b'), { textContent: N(r.clientes) + ' clientes' }), '. ');
   if (worst && worst.perdida > 0) tk.append('Donde más se pierde es entre ' + PASOS[worst.orden - 1].toLowerCase() + ' y ' + worst.paso.toLowerCase() + ': ', Object.assign(el('b'), { textContent: '−' + pct(worst.perdida) }), '.');
   else if (!r.total) tk.append('Todavía no hay solicitudes en este periodo.');
-  drawSpark(dia); drawFunnel(emb); drawRitmo(p, dia); drawOrigen(p); drawAgenda($('#pb-proximas-mini'), 'proximas', 5);
+  drawPendientes(); drawSpark(dia); drawFunnel(emb); drawRitmo(p, dia); drawOrigen(p); drawAgenda($('#pb-proximas-mini'), 'proximas', 5);
 }
+
+function pendientes() {
+  const H = 3600000, out = [];
+  const nuevas = S.leads.filter((l) => l.estado === 'nuevo');
+  const tarde = nuevas.filter((l) => S.ahora - parse(l.created_at) > 24 * H);
+  if (nuevas.length) out.push({ nivel: tarde.length ? 'bad' : 'new', n: nuevas.length, t: nuevas.length === 1 ? 'solicitud sin revisar' : 'solicitudes sin revisar',
+    d: tarde.length ? tarde.length + ' con más de 24 h: prometimos WhatsApp en 24 h' : 'Ábrelas para pasarlas a En revisión', ids: nuevas.map((l) => l.id), go: { estado: 'nuevo' } });
+  const sinReserva = S.leads.filter((l) => l.estado === 'contactado' && l.enlace_at && S.ahora - parse(l.enlace_at) > 48 * H);
+  if (sinReserva.length) out.push({ nivel: 'warn', n: sinReserva.length, t: 'con enlace enviado y sin reservar', d: 'Más de 48 h: toca el mensaje de seguimiento', ids: sinReserva.map((l) => l.id), go: { estado: 'contactado' } });
+  const atascadas = S.leads.filter((l) => l.estado === 'contactado' && !l.enlace_at && S.ahora - parse(l.visto_at || l.created_at) > 48 * H);
+  if (atascadas.length) out.push({ nivel: 'warn', n: atascadas.length, t: 'en revisión sin decisión', d: 'Más de 48 h sin enviar enlace ni descartar', ids: atascadas.map((l) => l.id), go: { estado: 'contactado' } });
+  const cl = citasClasificadas();
+  const hoy = cl.filter((c) => c.tramo === 'proximas' && c.d.toDateString() === new Date().toDateString());
+  if (hoy.length) out.push({ nivel: 'ok', n: hoy.length, t: hoy.length === 1 ? 'sesión hoy' : 'sesiones hoy', d: hoy.map((c) => pad(c.d.getHours()) + ':' + pad(c.d.getMinutes()) + ' ' + (c.lead ? c.lead.empresa : c.nombre)).join(' · '), page: 'citas' });
+  const auto = cl.filter((c) => c.asistencia === 'auto');
+  if (auto.length) out.push({ nivel: 'info', n: auto.length, t: auto.length === 1 ? 'sesión marcada sola' : 'sesiones marcadas solas', d: 'Confirma que asistieron o marca No se presentó', page: 'citas' });
+  const sueltas = cl.filter((c) => c.tramo === 'sin_vincular');
+  if (sueltas.length) out.push({ nivel: 'warn', n: sueltas.length, t: sueltas.length === 1 ? 'reserva sin solicitud' : 'reservas sin solicitud', d: 'No se pudieron unir solas: escribe su número', page: 'citas' });
+  return out;
+}
+function drawPendientes() {
+  const box = $('#pb-pendientes'), list = $('#pb-pend-list'); list.replaceChildren();
+  const items = pendientes();
+  box.classList.toggle('clear', !items.length);
+  if (!items.length) { list.append(el('div', 'pb-pend-ok', 'Todo al día. Nada pendiente ahora mismo.')); return; }
+  items.forEach((it, i) => {
+    const b = el('button', 'pb-pend ' + it.nivel + ' pb-anim'); b.type = 'button'; b.style.setProperty('--i', i);
+    const n = el('b', 'n', N(it.n)); const tx = el('div'); tx.append(el('div', 't', it.t), el('div', 'd', it.d));
+    b.append(n, tx, el('span', 'go', '→'));
+    b.addEventListener('click', () => {
+      if (it.ids && it.ids.length === 1) { openDetail(it.ids[0]); return; }
+      if (it.go) { Object.assign(ui, { estado: null, fuente: null, opcion: null, q: null }, it.go); showPage('solicitudes'); return; }
+      showPage(it.page);
+    });
+    list.append(b);
+  });
+}
+
+/* ============ avisos en directo ============ */
+const BASE_TITLE = 'Panel · PEBAI';
+function avisarNuevas() {
+  const ids = new Set(S.leads.map((l) => l.id));
+  if (S.conocidas) {
+    const nuevas = S.leads.filter((l) => !S.conocidas.has(l.id));
+    nuevas.forEach((l) => {
+      toast('Nueva solicitud: ' + l.empresa);
+      try { if (window.Notification && Notification.permission === 'granted') { const n = new Notification('Nueva solicitud · PEBAI', { body: l.empresa + (l.objetivo ? ' · ' + l.objetivo : ''), icon: BASE + 'assets/favicon-192.png', tag: 'lead-' + l.id }); n.onclick = () => { window.focus(); openDetail(l.id); }; } } catch (e) {}
+    });
+    if (nuevas.length) ping();
+  }
+  S.conocidas = ids;
+  const sinRevisar = S.leads.filter((l) => l.estado === 'nuevo').length;
+  document.title = (sinRevisar ? '(' + sinRevisar + ') ' : '') + BASE_TITLE;
+  const dot = $('#pb-leads-dot'); if (dot) dot.hidden = !sinRevisar;
+}
+function ping() {
+  try { const a = new (window.AudioContext || window.webkitAudioContext)(); const o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = 880; g.gain.setValueAtTime(.0001, a.currentTime); g.gain.exponentialRampToValueAtTime(.12, a.currentTime + .02); g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + .5); o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + .5); } catch (e) {}
+}
+const bell = $('#pb-avisos');
+const pintaBell = () => { if (!bell) return; const on = window.Notification && Notification.permission === 'granted'; bell.classList.toggle('on', !!on); bell.title = on ? 'Avisos del navegador activados' : 'Activar avisos de nuevas solicitudes'; };
+if (bell) bell.addEventListener('click', () => {
+  if (!window.Notification) { toast('Este navegador no permite avisos.', true); return; }
+  if (Notification.permission === 'granted') { toast('Los avisos ya están activados en este navegador.'); return; }
+  Notification.requestPermission().then((p) => { pintaBell(); toast(p === 'granted' ? 'Avisos activados: te avisaremos de cada solicitud nueva.' : 'Avisos bloqueados en este navegador.', p !== 'granted'); });
+});
+pintaBell();
+setInterval(() => { if (!document.hidden && S.loaded && ui.sel == null) load().then(draw).catch(() => {}); }, 60000);
 
 function drawSpark(rows) {
   const svg = d3.select('.pb-kpi .spark svg'); svg.selectAll('*').remove();
@@ -294,8 +376,10 @@ function drawSolicitudes() {
 
 /* ============ dibujo: agenda ============ */
 const recEl = (c) => { const r = el('span', 'pb-rec'); [['24 h', c.rec24], ['1 h', c.rec1]].forEach(([t, ok]) => { r.append(el('i', ok ? 'ok' : '', ok ? '✓' : '·'), t); }); return r; };
+const autoBadge = () => { const b = badge('sesion'); b.textContent = 'Sesión hecha · auto'; b.title = 'Marcada sola al pasar la hora. Confírmala o corrígela.'; return b; };
 function asistenciaBtns(c, box) {
-  [['asistio', 'Asistió', 'primary'], ['no_asistio', 'No se presentó', 'danger']].forEach(([v, lab, cls]) => {
+  const opts = c.asistencia === 'auto' ? [['asistio', 'Confirmar', 'primary'], ['no_asistio', 'No se presentó', 'danger']] : [['asistio', 'Asistió', 'primary'], ['no_asistio', 'No se presentó', 'danger']];
+  opts.forEach(([v, lab, cls]) => {
     const b = el('button', 'pb-btn ' + cls, lab); b.type = 'button'; b.addEventListener('click', () => act('asistencia', { uid: c.uid, valor: v }, v === 'asistio' ? 'Sesión marcada como hecha.' : 'Marcada como no presentada.', b)); box.append(b);
   });
 }
@@ -315,7 +399,11 @@ function drawAgenda(box, tramo, limit) {
     const sub = el('div'); sub.append(recEl(c)); if (tramo === 'proximas' && hrs < 24 && hrs > 0) sub.append(' ', el('span', 'lime', 'en ' + Math.max(1, Math.round(hrs)) + ' h')); who.append(sub);
     const acts = el('div', 'acts');
     if (tramo === 'proximas' && c.meet_url) { const a = el('a', 'pb-btn', 'Abrir Meet'); a.href = c.meet_url; a.target = '_blank'; a.rel = 'noopener'; acts.append(a); }
-    if (tramo === 'pasadas') { if (c.asistencia) acts.append(badge(c.asistencia === 'asistio' ? 'sesion' : 'no_asistio')); else asistenciaBtns(c, acts); }
+    if (tramo === 'pasadas') {
+      if (c.asistencia === 'auto') { acts.append(autoBadge()); asistenciaBtns(c, acts); }
+      else if (c.asistencia) acts.append(badge(c.asistencia === 'asistio' ? 'sesion' : 'no_asistio'));
+      else asistenciaBtns(c, acts);
+    }
     if (tramo === 'sin_vincular') {
       const inp = el('input'); inp.type = 'number'; inp.min = 1; inp.placeholder = 'Nº solicitud'; inp.setAttribute('aria-label', 'Número de solicitud');
       const b = el('button', 'pb-btn primary', 'Unir'); b.type = 'button';
@@ -332,7 +420,7 @@ function drawDetalle() {
   if (ui.sel == null) { box.replaceChildren(); return; }
   const l = S.leads.find((x) => x.id === Number(ui.sel));
   if (!l) { if (S.loaded) { box.replaceChildren(el('div', 'pb-empty', 'No existe la solicitud #' + ui.sel + '.')); } return; }
-  const focused = document.activeElement; const keepNotes = focused && focused.id === 'pb-notas' ? focused.value : null;
+  const prevTa = $('#pb-notas'); const keepNotes = prevTa && Number(prevTa.dataset.id) === l.id ? prevTa.value : null;
   box.replaceChildren();
   const kv = (pairs) => { const dl = el('dl', 'pb-kv'); pairs.forEach(([k, node]) => { dl.append(el('dt', null, k)); const dd = el('dd'); dd.append(node ?? '—'); dl.append(dd); }); return dl; };
   const card = (title, ...nodes) => { const c = el('div', 'pb-card'); if (title) c.append(el('h2', null, title)); nodes.forEach((n) => c.append(n)); return c; };
@@ -342,14 +430,26 @@ function drawDetalle() {
   const ttl = el('div', 'ttl'); const left = el('div'); left.append(el('div', 'n', l.empresa), el('div', 'm', '#' + l.id + ' · ' + fecha(parse(l.created_at)) + (l.nombre ? ' · ' + l.nombre : '')));
   const right = el('div', 'b'); right.append(badge(l.estado), el('span', 'pb-opt ' + (l.opcion || ''), 'Opción ' + (l.opcion || '—'))); ttl.append(left, right); box.append(ttl);
 
-  const orden = ['nuevo', 'contactado', 'cita', 'sesion', 'cliente']; const pos = l.estado === 'no_asistio' ? 2 : l.estado === 'descartado' ? -1 : orden.indexOf(l.estado);
+  const evs = (S.eventos.get(l.id) || []).slice().sort((a, b) => a.ts < b.ts ? -1 : 1);
+  const fase = { nuevo: 0, contactado: 1, cita: 2, sesion: 3, no_asistio: 3, cliente: 3, descartado: -1 }[l.estado];
   const tl = el('div', 'pb-timeline');
-  ['Solicitud', 'Contacto', 'Cita', 'Sesión', 'Cliente'].forEach((t, i) => { const s = el('div', i <= pos ? 'done' : ''); if (l.estado === 'no_asistio' && i === 3) s.className = 'bad'; s.append(el('i'), t); tl.append(s); });
-  box.append(card(null, tl));
+  FASES.forEach(([t, tipos], i) => {
+    const s = el('div', i <= fase ? 'done' : '');
+    if (i === fase && !['sesion', 'cliente', 'no_asistio'].includes(l.estado)) s.classList.add('now');
+    if (l.estado === 'no_asistio' && i === 3) s.className = 'bad';
+    const ev = evs.find((e) => tipos.includes(e.tipo)) || (i === 0 ? { ts: l.created_at, auto: 1 } : null);
+    s.append(el('i'), el('b', null, t));
+    if (ev && i <= fase) { const f = parse(ev.ts); s.append(el('small', null, f.getDate() + ' ' + MESES[f.getMonth()] + (ev.auto ? ' · auto' : ''))); }
+    tl.append(s);
+  });
+  const fin = { cliente: ['Cliente', 'var(--amber)'], descartado: ['Descartado', 'var(--muted)'], no_asistio: ['No se presentó', 'var(--red)'] }[l.estado];
+  const tlCard = card(null, tl);
+  if (fin) { const r = el('p', 'pb-outcome', 'Resultado: ' + fin[0]); r.style.color = fin[1]; tlCard.append(r); }
+  box.append(tlCard);
 
   const acts = el('div', 'pb-tpl');
-  const waBtn = el('a', 'pb-btn wa', 'Abrir WhatsApp · ' + l.telefono); waBtn.href = 'https://wa.me/' + tel; waBtn.target = '_blank'; waBtn.rel = 'noopener'; acts.append(waBtn);
-  const cp = el('button', 'pb-btn', 'Copiar enlace de reserva'); cp.type = 'button'; cp.addEventListener('click', () => navigator.clipboard.writeText(l.booking_url).then(() => { cp.textContent = 'Enlace copiado'; toast('Enlace de reserva copiado.'); }, () => toast('No se pudo copiar.', true))); acts.append(cp);
+  const waBtn = el('a', 'pb-btn wa', 'Abrir WhatsApp · ' + l.telefono); waBtn.href = 'https://wa.me/' + tel; waBtn.target = '_blank'; waBtn.rel = 'noopener'; waBtn.addEventListener('click', () => registrar(l.id, 'whatsapp')); acts.append(waBtn);
+  const cp = el('button', 'pb-btn', 'Copiar enlace de reserva'); cp.type = 'button'; cp.addEventListener('click', () => navigator.clipboard.writeText(l.booking_url).then(() => { cp.textContent = 'Enlace copiado'; toast('Enlace de reserva copiado.'); registrar(l.id, 'copiar'); }, () => toast('No se pudo copiar.', true))); acts.append(cp);
   const tpls = [
     ['Aceptado · enviar enlace', 'primary', 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos. Aquí podéis elegir día y hora para la sesión técnica de 25 minutos por videollamada: ' + l.booking_url],
     ['Seguimiento (no responde)', '', 'Hola de nuevo, somos PEBAI Systems. Os escribimos por vuestra solicitud de consultoría. Si os viene bien, aquí podéis elegir día y hora para la sesión técnica: ' + l.booking_url + ' ¡Cualquier duda, respondednos aquí!'],
@@ -357,7 +457,8 @@ function drawDetalle() {
     ['Plazas del mes completas', '', 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos, pero las 5 plazas gratuitas de este mes ya están cubiertas. Podemos haceros la sesión técnica igualmente como consultoría de pago, o reservaros una plaza gratuita el mes que viene. ¿Qué preferís?'],
     ['No encaja', 'danger', 'Hola, somos PEBAI Systems. Gracias por enviarnos vuestra solicitud. La hemos revisado con calma y, ahora mismo, no es el tipo de proyecto en el que podamos aportar un resultado claro. Si en el futuro cambia vuestra situación, estaremos encantados de volver a hablar. ¡Mucho éxito!'],
   ];
-  const tplBox = el('div', 'pb-tpl'); tpls.forEach(([lab, cls, txt]) => { const a = el('a', 'pb-btn ' + cls, lab); a.href = wa(txt); a.target = '_blank'; a.rel = 'noopener'; tplBox.append(a); });
+  const tipoDe = (lab) => /^Aceptado/.test(lab) ? 'enlace' : /^Seguimiento/.test(lab) ? 'seguimiento' : /reprogramar/.test(lab) ? 'reprogramar' : /^No encaja/.test(lab) ? 'no_encaja' : 'whatsapp';
+  const tplBox = el('div', 'pb-tpl'); tpls.forEach(([lab, cls, txt]) => { const a = el('a', 'pb-btn ' + cls, lab); a.href = wa(txt); a.target = '_blank'; a.rel = 'noopener'; a.addEventListener('click', () => registrar(l.id, tipoDe(lab))); tplBox.append(a); });
   const note = el('p', 'note', 'Mensajes de WhatsApp listos para enviar:'); note.style.margin = '14px 0 8px';
   box.append(card('Contacto', acts, note, tplBox));
 
@@ -367,7 +468,9 @@ function drawDetalle() {
     const cc = card('Cita', kv([['Cuándo', fechaCorta(c.d)], ['Persona', c.nombre || '—'], ['Email', c.email || '—'], ['Recordatorios', recEl(c)]])); cc.style.borderColor = c.tramo === 'proximas' ? 'var(--green)' : 'var(--line-2)';
     const a2 = el('div', 'pb-tpl'); a2.style.marginTop = '12px';
     if (c.meet_url && c.tramo === 'proximas') { const a = el('a', 'pb-btn', 'Abrir Meet'); a.href = c.meet_url; a.target = '_blank'; a.rel = 'noopener'; a2.append(a); }
-    if (c.asistencia) a2.append(badge(c.asistencia === 'asistio' ? 'sesion' : 'no_asistio')); else if (c.tramo === 'pasadas') asistenciaBtns(c, a2);
+    if (c.asistencia === 'auto') { a2.append(autoBadge()); asistenciaBtns(c, a2); }
+    else if (c.asistencia) a2.append(badge(c.asistencia === 'asistio' ? 'sesion' : 'no_asistio'));
+    else if (c.tramo === 'pasadas') asistenciaBtns(c, a2);
     cc.append(a2); colA.append(cc);
   });
   S.citas.filter((c) => c.lead_id === l.id && c.estado !== 'reservada').forEach((c) => { const cc = card('Cita (' + c.estado + ')', kv([['Cuándo', fechaCorta(parseUTC(c.inicio))], ['Persona', c.nombre || '—']])); cc.style.opacity = .7; colA.append(cc); });
@@ -376,11 +479,20 @@ function drawDetalle() {
 
   const form = card('Seguimiento');
   const sel = el('select'); sel.style.width = '100%'; sel.style.marginBottom = '10px'; Object.entries(ESTADOS).forEach(([k, v]) => sel.append(new Option(v[0], k))); sel.value = l.estado;
-  const ta = el('textarea'); ta.id = 'pb-notas'; ta.placeholder = 'Notas internas (qué se habló, próximos pasos…)'; ta.value = keepNotes ?? l.notas ?? '';
+  const ta = el('textarea'); ta.id = 'pb-notas'; ta.dataset.id = l.id; ta.placeholder = 'Notas internas (qué se habló, próximos pasos…)'; ta.value = keepNotes ?? l.notas ?? '';
   const save = el('button', 'pb-btn primary', 'Guardar'); save.type = 'button';
   const last = el('span', 'muted', l.updated_at ? 'Última edición: ' + fecha(parse(l.updated_at)) : ''); last.style.cssText = 'font-size:12px;margin-left:10px';
   save.addEventListener('click', () => act('update', { id: l.id, estado: sel.value, notas: ta.value }, 'Cambios guardados.', save));
   const p = el('p'); p.style.margin = '10px 0 0'; p.append(save, last); form.append(sel, ta, p); colA.append(form);
+  const hist = el('ol', 'pb-hist');
+  const lista = evs.length ? evs.slice().reverse() : [{ ts: l.created_at, tipo: 'nuevo', detalle: 'Formulario de diagnóstico enviado', auto: 1 }];
+  lista.forEach((e) => {
+    const li = el('li', e.auto ? 'auto' : 'manual'); const f = parse(e.ts);
+    const head = el('div', 'h'); head.append(el('b', null, e.tipo === 'contacto' ? e.detalle : (EVENTOS[e.tipo] || e.tipo)), el('span', 'tag', e.auto ? 'Automático' : 'Equipo'));
+    li.append(head, el('div', 'm', fecha(f) + (e.tipo !== 'contacto' && e.detalle ? ' · ' + (['reserva', 'reprogramada', 'cancelada'].includes(e.tipo) ? 'cita ' + fechaCorta(parseUTC(e.detalle)) : e.detalle) : '')));
+    hist.append(li);
+  });
+  colA.append(card('Historial', hist));
 
   colB.append(card('De dónde viene', kv([['Fuente', l.fuente], ['Medio', l.medio], ['Campaña', l.campana], ['Contenido', l.contenido], ['Palabra', l.palabra], ['Botón', l.cta]])));
   const toque = (json) => { let t = {}; try { t = JSON.parse(json || '{}') || {}; } catch (e) { t = {}; }

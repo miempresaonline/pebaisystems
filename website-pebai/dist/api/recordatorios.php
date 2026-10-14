@@ -71,6 +71,13 @@ function pebai_reminder_email(array $c, string $tipo): array
 
 $enviados = ['24' => 0, '1' => 0];
 $errores = 0;
+$sesiones = 0;
+try {
+    $sesiones = pebai_auto_sesiones();
+} catch (Throwable $e) {
+    pebai_log('AUTO SESIONES: ' . $e->getMessage());
+    $errores++;
+}
 try {
     $db = pebai_db();
     $now = time();
@@ -110,5 +117,5 @@ try {
     $errores++;
 }
 
-$out = ['status' => 'ok', 'enviados_24h' => $enviados['24'], 'enviados_1h' => $enviados['1'], 'errores' => $errores];
+$out = ['status' => 'ok', 'enviados_24h' => $enviados['24'], 'enviados_1h' => $enviados['1'], 'sesiones_auto' => $sesiones, 'errores' => $errores];
 echo $isCli ? json_encode($out) . "\n" : json_encode($out);

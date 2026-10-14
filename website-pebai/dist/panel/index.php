@@ -107,10 +107,38 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
     $now = date('Y-m-d H:i:s');
     switch ($_POST['action']) {
         case 'update':
+            $id = (int)($_POST['id'] ?? 0);
             $estado = in_array($_POST['estado'] ?? '', ESTADOS, true) ? $_POST['estado'] : 'nuevo';
             $notas = mb_substr(trim($_POST['notas'] ?? ''), 0, 5000);
+            $q = $db->prepare('SELECT estado FROM leads WHERE id = ?');
+            $q->execute([$id]);
+            $antes = $q->fetchColumn();
             $db->prepare('UPDATE leads SET estado = ?, notas = ?, updated_at = ? WHERE id = ?')
-                ->execute([$estado, $notas, $now, (int)($_POST['id'] ?? 0)]);
+                ->execute([$estado, $notas, $now, $id]);
+            if ($antes !== false && $antes !== $estado) {
+                pebai_evento($id, $estado, 'Cambiado a mano en el panel', false);
+            }
+            json_out(['ok' => true]);
+        case 'visto':
+            // Abrir la ficha de una solicitud nueva la pasa a "En revisión" (fase 2)
+            $id = (int)($_POST['id'] ?? 0);
+            $db->prepare("UPDATE leads SET visto_at = ? WHERE id = ? AND visto_at = ''")->execute([$now, $id]);
+            $movida = pebai_avanzar($id, 'contactado', 'Abierta en el panel');
+            json_out(['ok' => true, 'movida' => $movida]);
+        case 'contacto':
+            // Pulsar WhatsApp o copiar el enlace de reserva queda en el historial
+            $id = (int)($_POST['id'] ?? 0);
+            $tipo = (string)($_POST['tipo'] ?? '');
+            $tipos = ['whatsapp' => 'Abrió WhatsApp', 'enlace' => 'Enlace de reserva enviado', 'seguimiento' => 'Seguimiento enviado',
+                      'reprogramar' => 'Mensaje para reprogramar', 'no_encaja' => 'Mensaje de no encaja', 'copiar' => 'Copió el enlace de reserva'];
+            if (!isset($tipos[$tipo])) {
+                json_out(['ok' => false, 'error' => 'Tipo no válido.'], 400);
+            }
+            if (in_array($tipo, ['enlace', 'copiar'], true)) {
+                $db->prepare('UPDATE leads SET enlace_at = ? WHERE id = ?')->execute([$now, $id]);
+            }
+            pebai_evento($id, 'contacto', $tipos[$tipo], false);
+            pebai_avanzar($id, 'contactado', $tipos[$tipo]);
             json_out(['ok' => true]);
         case 'asistencia':
             $uid = (string)($_POST['uid'] ?? '');
@@ -122,6 +150,7 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
             if ($leadId && $valor !== '') {
                 $db->prepare("UPDATE leads SET estado = CASE WHEN estado = 'cliente' THEN estado ELSE ? END, updated_at = ? WHERE id = ?")
                     ->execute([$valor === 'asistio' ? 'sesion' : 'no_asistio', $now, $leadId]);
+                pebai_evento($leadId, $valor === 'asistio' ? 'sesion' : 'no_asistio', $valor === 'asistio' ? 'Asistencia confirmada' : 'No se presentó', false);
             }
             json_out(['ok' => true]);
         case 'vincular':
@@ -133,6 +162,7 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 json_out(['ok' => false, 'error' => 'No existe la solicitud #' . $leadId . '.'], 404);
             }
             $db->prepare('UPDATE citas SET lead_id = ?, updated_at = ? WHERE uid = ?')->execute([$leadId, $now, $uid]);
+            pebai_evento($leadId, 'unida', 'Reserva unida a mano en el panel', false);
             $q = $db->prepare('SELECT * FROM citas WHERE uid = ?');
             $q->execute([$uid]);
             if ($cita = $q->fetch()) {
@@ -163,9 +193,14 @@ if ($auth && isset($_GET['data'])) {
     if (!$db) {
         json_out(['ok' => false, 'error' => $dbError], 500);
     }
+    try {
+        pebai_auto_sesiones();
+    } catch (Throwable $e) {
+        pebai_log('AUTO SESIONES (panel): ' . $e->getMessage());
+    }
     $cols = ['id', 'created_at', 'estado', 'notas', 'empresa', 'nombre', 'telefono', 'canal', 'volumen', 'objetivo', 'presupuesto', 'opcion',
              'fuente', 'medio', 'campana', 'contenido', 'palabra', 'cta', 'primer_toque', 'ultimo_toque', 'pagina', 'dispositivo',
-             'email_enviado', 'updated_at', 'cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email'];
+             'email_enviado', 'updated_at', 'cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at'];
     $leads = $db->query('SELECT ' . implode(',', $cols) . ' FROM leads ORDER BY id DESC LIMIT 3000')->fetchAll();
     foreach ($leads as &$l) {
         $l['id'] = (int)$l['id'];
@@ -180,10 +215,16 @@ if ($auth && isset($_GET['data'])) {
         $c['rec1'] = (int)$c['rec1'];
     }
     unset($c);
-    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'ahora_utc' => gmdate('Y-m-d\TH:i:s\Z'), 'csrf' => csrf(), 'leads' => $leads, 'citas' => $citas]);
+    $eventos = $db->query('SELECT lead_id, ts, tipo, detalle, auto FROM eventos ORDER BY id DESC LIMIT 20000')->fetchAll();
+    foreach ($eventos as &$e) {
+        $e['lead_id'] = (int)$e['lead_id'];
+        $e['auto'] = (int)$e['auto'];
+    }
+    unset($e);
+    json_out(['ok' => true, 'eventos' => $eventos, 'ahora' => date('Y-m-d H:i:s'), 'ahora_utc' => gmdate('Y-m-d\TH:i:s\Z'), 'csrf' => csrf(), 'leads' => $leads, 'citas' => $citas]);
 }
 
-$v = '3';
+$v = '4';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -231,6 +272,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     <div class="pb-seg" id="pb-periodo" aria-label="Periodo">
       <button data-p="7">7 días</button><button data-p="30">30 días</button><button data-p="90">90 días</button><button data-p="todo">Todo</button>
     </div>
+    <button class="pb-btn icon" id="pb-avisos" title="Activar avisos de nuevas solicitudes" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
     <button class="pb-btn icon" id="pb-theme" title="Cambiar tema" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg></button>
     <a class="pb-btn" href="<?= BASE ?>?csv=1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Exportar CSV</a>
     <a class="pb-btn ghost" href="<?= BASE ?>?salir=1">Salir</a>
@@ -238,17 +280,21 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 
   <nav class="pb-tabs" id="pb-tabs">
     <button data-page="resumen" type="button">Resumen</button>
-    <button data-page="solicitudes" type="button">Solicitudes <em id="pb-leads-n">—</em></button>
+    <button data-page="solicitudes" type="button">Solicitudes <em id="pb-leads-n">—</em><i class="pb-dot" id="pb-leads-dot" hidden></i></button>
     <button data-page="citas" type="button">Citas <em id="pb-citas-n">—</em></button>
   </nav>
 
   <section class="pb-page" id="page-resumen" data-page="resumen">
     <h1 class="pb-h1">El embudo, <i>de un vistazo</i></h1>
     <p class="pb-lead" id="pb-takeaway">—</p>
+    <div class="pb-card pb-pendientes pb-anim" id="pb-pendientes" style="--i:0;margin-bottom:14px">
+      <div class="hd"><div><h2>Qué toca ahora</h2><p class="note">Se actualiza solo cada minuto. Las fases avanzan solas; aquí queda lo que necesita una persona.</p></div></div>
+      <div class="pb-pend-list" id="pb-pend-list"></div>
+    </div>
     <div class="pb-grid k" id="pb-kpis">
       <div class="pb-card pb-kpi hero pb-anim" style="--i:0"><div class="l">Solicitudes</div><div class="v" data-k="total">—</div><div class="d"><span class="delta" data-k="d_total">—</span><span>vs periodo anterior</span></div><div class="spark"><svg></svg></div></div>
       <div class="pb-card pb-kpi pb-anim" style="--i:1"><div class="l">Con presupuesto (A)</div><div class="v" data-k="con_presupuesto">—</div><div class="d"><span class="lime mono" data-k="p_presupuesto">—</span><span>de las solicitudes</span></div></div>
-      <div class="pb-card pb-kpi pb-anim" style="--i:2"><div class="l">Contactadas</div><div class="v" data-k="contactadas">—</div><div class="d"><span class="lime mono" data-k="p_contactadas">—</span><span>de las solicitudes</span></div></div>
+      <div class="pb-card pb-kpi pb-anim" style="--i:2"><div class="l">Revisadas</div><div class="v" data-k="contactadas">—</div><div class="d"><span class="lime mono" data-k="p_contactadas">—</span><span>de las solicitudes</span></div></div>
       <div class="pb-card pb-kpi pb-anim" style="--i:3"><div class="l">Con cita</div><div class="v" data-k="citas">—</div><div class="d"><span class="delta" data-k="d_citas">—</span><span>vs anterior</span></div></div>
       <div class="pb-card pb-kpi pb-anim" style="--i:4"><div class="l">Sesiones hechas</div><div class="v" data-k="sesiones">—</div><div class="d"><span class="lime mono" data-k="p_sesiones">—</span><span>de las citas</span></div></div>
       <div class="pb-card pb-kpi pb-anim" style="--i:5"><div class="l">Clientes</div><div class="v" data-k="clientes">—</div><div class="d"><span class="delta" data-k="d_clientes">—</span><span>vs anterior</span></div></div>
