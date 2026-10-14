@@ -1,0 +1,30 @@
+name: Recordatorios de citas
+
+# Hostinger no permite crear tareas programadas sin hPanel: GitHub llama cada 15 minutos a
+# api/recordatorios.php, que envía los recordatorios de 24 h y 1 h (es idempotente).
+# Necesita el secreto PEBAI_CRON_TOKEN (= 'cron_token' de website-pebai/private/config.php).
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: recordatorios
+  cancel-in-progress: false
+
+jobs:
+  enviar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Llamar a recordatorios.php
+        env:
+          CRON_TOKEN: ${{ secrets.PEBAI_CRON_TOKEN }}
+        run: |
+          if [ -z "$CRON_TOKEN" ]; then echo "Falta el secreto PEBAI_CRON_TOKEN"; exit 1; fi
+          resp=$(curl -sS --max-time 60 --retry 2 --retry-delay 10 \
+            -H "X-Cron-Token: $CRON_TOKEN" -H "User-Agent: pebai-recordatorios" \
+            https://pebaisystems.es/api/recordatorios.php)
+          echo "$resp"
+          echo "$resp" | grep -q '"status":"ok"'
