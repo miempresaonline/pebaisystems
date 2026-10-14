@@ -249,5 +249,7 @@ body.pb-locked{overflow:hidden}
   .pb-row{grid-template-columns:auto 1fr}.pb-row .r{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between}
   .pb-ag{grid-template-columns:56px 1fr}.pb-ag .acts{grid-column:1/-1;justify-content:flex-start}
   .pb-kpi .v{font-size:34px}
+  .pb-grid.k{grid-template-columns:1fr 1fr}
+  .pb-kpi .spark{width:40%}
   .pb-top .pb-btn:not(.icon){padding:9px 11px}
 }

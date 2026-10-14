@@ -92,6 +92,9 @@ if (isset($_GET['salir'])) {
 }
 
 $auth = !empty($_SESSION['auth']);
+if (!$auth && (isset($_GET['data']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
+    json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 401);
+}
 
 /* ------------------------------------------------------------ Acciones (JSON) --- */
 if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {

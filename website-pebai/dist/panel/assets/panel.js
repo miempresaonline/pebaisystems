@@ -115,6 +115,7 @@ async function load() {
 async function post(action, fields) {
   const body = new URLSearchParams({ action, csrf: S.csrf, ...fields });
   const r = await fetch(BASE, { method: 'POST', body, credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+  if (r.status === 401) { location.reload(); return {}; }
   let j = {}; try { j = await r.json(); } catch (e) { j = { ok: false, error: 'Respuesta inesperada del servidor.' }; }
   if (!j.ok) throw new Error(j.error || 'No se ha podido guardar.');
   await load();
@@ -274,6 +275,7 @@ function drawSolicitudes() {
   const q = (ui.q || '').toLowerCase();
   const rows = S.leads.filter((l) => (!ui.estado || l.estado === ui.estado) && (ui.fuente == null || (ui.fuente === '(directo)' ? !l.fuente : l.fuente === ui.fuente)) && (!ui.opcion || l.opcion === ui.opcion)
     && (!q || ['empresa', 'nombre', 'telefono', 'notas', 'cliente_email', 'palabra', 'campana', 'objetivo'].some((k) => String(l[k] || '').toLowerCase().includes(q)) || String(l.id) === q.replace('#', '')));
+  rows.sort((a, b) => b.id - a.id);
   if (!rows.length) { list.append(el('div', 'pb-empty', S.loaded ? 'Todavía no hay solicitudes con estos filtros.' : '')); return; }
   rows.slice(0, ui.limit).forEach((l, i) => {
     const b = el('button', 'pb-row pb-anim' + (ui.sel === l.id ? ' sel' : '')); b.type = 'button'; b.style.setProperty('--i', Math.min(i, 12));
