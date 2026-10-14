@@ -8,6 +8,8 @@ No hace falta escribir UTMs a mano. Copia el enlace de esta tabla y el panel sab
 |---|---|
 | Bio de Instagram | `pebaisystems.es/ig` |
 | Bio de TikTok | `pebaisystems.es/tt` |
+| Bio de Facebook | `pebaisystems.es/fb` |
+| Bio de X | `pebaisystems.es/x` |
 | Enlaces del canal de YouTube | `pebaisystems.es/yt` |
 | Perfil de LinkedIn | `pebaisystems.es/li` |
 

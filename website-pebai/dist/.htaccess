@@ -23,6 +23,8 @@ RewriteRule ^contact(o)?/?$ "https://wa.me/34624842799?text=Hola%2C%20soy%20%5B%
 RewriteRule ^ig/?$ consultoria-gratuita/?utm_source=instagram&utm_medium=bio [R=302,L,QSA,NE]
 RewriteRule ^tt/?$ consultoria-gratuita/?utm_source=tiktok&utm_medium=bio [R=302,L,QSA,NE]
 RewriteRule ^yt/?$ consultoria-gratuita/?utm_source=youtube&utm_medium=canal [R=302,L,QSA,NE]
+RewriteRule ^fb/?$ consultoria-gratuita/?utm_source=facebook&utm_medium=bio [R=302,L,QSA,NE]
+RewriteRule ^x/?$ consultoria-gratuita/?utm_source=x&utm_medium=bio [R=302,L,QSA,NE]
 RewriteRule ^li/?$ consultoria-gratuita/?utm_source=linkedin&utm_medium=perfil [R=302,L,QSA,NE]
 RewriteRule ^wa/?$ consultoria-gratuita/?utm_source=whatsapp&utm_medium=mensaje [R=302,L,QSA,NE]
 
