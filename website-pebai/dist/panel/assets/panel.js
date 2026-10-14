@@ -1,0 +1,413 @@
+/* PEBAI · Panel del embudo — interfaz. Los datos llegan de index.php?data=1 y las acciones se envían por POST. */
+(() => {
+'use strict';
+const app = document.getElementById('pb-app');
+const BASE = app.dataset.base;
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+/* ============ dominio ============ */
+const ESTADOS = {
+  nuevo: ['Nuevo', '#B7FF3C', '#0B0F14'], contactado: ['Contactado', '#6A5CFF', '#FFFFFF'], cita: ['Cita agendada', '#25D366', '#0B0F14'],
+  sesion: ['Sesión hecha', '#3FD5FF', '#0B0F14'], no_asistio: ['No se presentó', '#FF6B7A', '#0B0F14'], cliente: ['Cliente', '#FFB547', '#0B0F14'], descartado: ['Descartado', '#3A404D', '#C9CED8']
+};
+const PERIODOS = ['7', '30', '90', 'todo'];
+const PASOS = ['Solicitudes', 'Contactadas', 'Con cita', 'Sesiones', 'Clientes'];
+const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+const pad = (n) => String(n).padStart(2, '0');
+const parse = (s) => s ? new Date(String(s).replace(' ', 'T')) : null;
+const parseUTC = (s) => s ? new Date(String(s).replace(' ', 'T') + (/Z|[+-]\d\d:?\d\d$/.test(String(s)) ? '' : 'Z')) : null; // Cal.com guarda las citas en UTC
+const fecha = (d) => d && !isNaN(d) ? `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}` : '—';
+const fechaCorta = (d) => d && !isNaN(d) ? `${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()]} · ${pad(d.getHours())}:${pad(d.getMinutes())}` : '—';
+const pct = (x) => (x == null || isNaN(x)) ? '—' : Math.round(x * 100) + ' %';
+const N = (n) => n == null ? '—' : new Intl.NumberFormat('es-ES').format(n);
+const conCita = (l) => (l.cita_inicio && l.cita_estado !== 'cancelada') || ['cita', 'sesion', 'no_asistio', 'cliente'].includes(l.estado);
+const stats = (rows) => ({
+  total: rows.length,
+  con_presupuesto: rows.filter((l) => l.opcion === 'A').length,
+  contactadas: rows.filter((l) => l.estado !== 'nuevo').length,
+  citas: rows.filter(conCita).length,
+  sesiones: rows.filter((l) => ['sesion', 'cliente'].includes(l.estado)).length,
+  ausencias: rows.filter((l) => l.estado === 'no_asistio').length,
+  clientes: rows.filter((l) => l.estado === 'cliente').length,
+});
+
+/* ============ estado ============ */
+const S = { leads: [], citas: [], ahora: new Date(), ahoraUTC: new Date(), csrf: app.dataset.csrf, loaded: false, drawn: false };
+const ui = { page: 'resumen', periodo: '30', estado: null, fuente: null, opcion: null, q: null, dim: 'fuente', sort: { col: 'total', dir: 'desc' }, sel: null, limit: 120 };
+
+const readUrl = () => {
+  const u = new URLSearchParams(location.search);
+  if (u.get('id')) { ui.sel = Number(u.get('id')); ui.page = 'solicitudes'; }
+  else if (['resumen', 'solicitudes', 'citas'].includes(u.get('tab'))) ui.page = u.get('tab');
+  if (PERIODOS.includes(u.get('periodo'))) ui.periodo = u.get('periodo');
+  ['estado', 'fuente', 'opcion', 'q'].forEach((k) => { if (u.get(k)) ui[k] = u.get(k); });
+};
+const writeUrl = () => {
+  const u = new URLSearchParams();
+  if (ui.page !== 'resumen') u.set('tab', ui.page);
+  if (ui.periodo !== '30') u.set('periodo', ui.periodo);
+  ['estado', 'fuente', 'opcion', 'q'].forEach((k) => { if (ui[k]) u.set(k, ui[k]); });
+  if (ui.sel != null) u.set('id', ui.sel);
+  const qs = u.toString();
+  history.replaceState(null, '', BASE + (qs ? '?' + qs : ''));
+};
+const set = (patch) => { Object.assign(ui, patch); writeUrl(); draw(); };
+
+const desde = (p) => p === 'todo' ? new Date(0) : new Date(S.ahora.getTime() - Number(p) * 86400000);
+const enPeriodo = (l, p) => parse(l.created_at) >= desde(p);
+const enPrev = (l, p) => { if (p === 'todo') return false; const d = parse(l.created_at); return d >= new Date(S.ahora.getTime() - 2 * Number(p) * 86400000) && d < desde(p); };
+
+/* ============ cálculos ============ */
+const calcResumen = (p) => {
+  const cur = stats(S.leads.filter((l) => enPeriodo(l, p))), prev = stats(S.leads.filter((l) => enPrev(l, p)));
+  const delta = (k) => p === 'todo' ? null : cur[k] - prev[k], share = (a, b) => b ? a / b : null;
+  return { ...cur, d_total: delta('total'), d_citas: delta('citas'), d_clientes: delta('clientes'),
+    p_presupuesto: share(cur.con_presupuesto, cur.total), p_contactadas: share(cur.contactadas, cur.total), p_citas: share(cur.citas, cur.total),
+    p_sesiones: share(cur.sesiones, cur.citas), p_ausencias: share(cur.ausencias, cur.citas), p_clientes: share(cur.clientes, cur.total) };
+};
+const calcEmbudo = (p) => {
+  const cur = stats(S.leads.filter((l) => enPeriodo(l, p))), prev = stats(S.leads.filter((l) => enPrev(l, p)));
+  const keys = ['total', 'contactadas', 'citas', 'sesiones', 'clientes'];
+  return keys.map((k, i) => ({ orden: i, paso: PASOS[i], valor: cur[k], anterior: p === 'todo' ? null : prev[k], perdida: i && cur[keys[i - 1]] ? 1 - cur[k] / cur[keys[i - 1]] : null }));
+};
+const calcPorDia = (p) => {
+  const semanal = p === '90' || p === 'todo';
+  if (!S.leads.length) return [];
+  const d0 = p === 'todo' ? d3.min(S.leads, (l) => parse(l.created_at)) : desde(p);
+  const inter = semanal ? d3.timeMonday : d3.timeDay;
+  const buckets = inter.range(inter.floor(d0), inter.offset(inter.floor(S.ahora), 1));
+  const idx = d3.rollup(S.leads.filter((l) => parse(l.created_at) >= d0), (v) => ({ solicitudes: v.length, con_presupuesto: v.filter((l) => l.opcion === 'A').length }), (l) => +inter.floor(parse(l.created_at)));
+  return buckets.map((b) => ({ date: b, ...(idx.get(+b) || { solicitudes: 0, con_presupuesto: 0 }) }));
+};
+const KEYS = {
+  fuente: (l) => (l.fuente || 'directo') + (l.medio ? ' · ' + l.medio : ''),
+  campana: (l) => (l.campana || '(sin campaña)') + (l.contenido ? ' · ' + l.contenido : ''),
+  palabra: (l) => l.palabra || '(sin palabra)',
+};
+const calcGrupo = (dim, p) => d3.rollups(S.leads.filter((l) => enPeriodo(l, p)), (v) => stats(v), KEYS[dim]).map(([clave, s]) => ({ clave, ...s, p_cita: s.total ? s.citas / s.total : null }));
+const calcPorEstado = () => Object.fromEntries(Object.keys(ESTADOS).map((k) => [k, S.leads.filter((l) => l.estado === k).length]));
+const citasClasificadas = () => {
+  const leads = new Map(S.leads.map((l) => [l.id, l])), limite = new Date(S.ahoraUTC.getTime() - 3600000);
+  return S.citas.filter((c) => c.estado === 'reservada').map((c) => { const d = parseUTC(c.inicio); return { ...c, d, lead: leads.get(c.lead_id) || null, tramo: c.lead_id === 0 ? 'sin_vincular' : d >= limite ? 'proximas' : 'pasadas' }; });
+};
+
+/* ============ utilidades de interfaz ============ */
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const badge = (estado) => { const [l, bg, fg] = ESTADOS[estado] || ESTADOS.nuevo; const s = el('span', 'pb-badge', l); s.style.background = bg; s.style.color = fg; return s; };
+const toast = (msg, err) => { const t = $('#pb-toast'); $('span', t).textContent = msg; t.classList.toggle('err', !!err); t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2800); };
+const countUp = (node, to) => {
+  if (!to || matchMedia('(prefers-reduced-motion: reduce)').matches) { node.textContent = N(to); return; }
+  const t0 = performance.now(), dur = 900;
+  const step = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); node.textContent = N(Math.round(to * e)); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+};
+
+/* ============ datos y acciones ============ */
+async function load() {
+  const r = await fetch(BASE + '?data=1', { credentials: 'same-origin', cache: 'no-store' });
+  if (r.status === 401 || r.redirected) { location.reload(); return; }
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'Error al cargar');
+  S.leads = j.leads; S.citas = j.citas; S.ahora = parse(j.ahora); S.ahoraUTC = new Date(j.ahora_utc); S.csrf = j.csrf; S.loaded = true;
+}
+async function post(action, fields) {
+  const body = new URLSearchParams({ action, csrf: S.csrf, ...fields });
+  const r = await fetch(BASE, { method: 'POST', body, credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+  let j = {}; try { j = await r.json(); } catch (e) { j = { ok: false, error: 'Respuesta inesperada del servidor.' }; }
+  if (!j.ok) throw new Error(j.error || 'No se ha podido guardar.');
+  await load();
+  return j;
+}
+const act = async (action, fields, okMsg, btn) => {
+  if (btn) btn.disabled = true;
+  try { await post(action, fields); toast(okMsg); draw(); }
+  catch (e) { toast(e.message, true); if (btn) btn.disabled = false; }
+};
+
+/* ============ navegación ============ */
+const showPage = (p) => { $$('.pb-page').forEach((s) => s.classList.toggle('on', s.dataset.page === p)); $$('#pb-tabs button').forEach((b) => b.classList.toggle('on', b.dataset.page === p)); set({ page: p }); };
+$('#pb-tabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) showPage(b.dataset.page); });
+$$('[data-go]').forEach((b) => b.addEventListener('click', () => showPage(b.dataset.go)));
+$('#pb-periodo').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) set({ periodo: b.dataset.p }); });
+$('#pb-dim').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; $$('#pb-dim button').forEach((x) => x.classList.toggle('on', x === b)); set({ dim: b.dataset.d }); });
+$('#pb-theme').addEventListener('click', () => { const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; document.documentElement.dataset.theme = t; try { localStorage.setItem('pebai-panel-theme', t); } catch (e) {} draw(); });
+
+const fEstado = $('#pb-f-estado'), fFuente = $('#pb-f-fuente'), fOpcion = $('#pb-f-opcion'), fQ = $('#pb-q');
+Object.entries(ESTADOS).forEach(([k, v]) => fEstado.append(new Option(v[0], k)));
+fEstado.addEventListener('change', () => set({ estado: fEstado.value || null, limit: 120 }));
+fFuente.addEventListener('change', () => set({ fuente: fFuente.value || null, limit: 120 }));
+fOpcion.addEventListener('change', () => set({ opcion: fOpcion.value || null, limit: 120 }));
+fQ.addEventListener('input', () => { clearTimeout(fQ.h); fQ.h = setTimeout(() => set({ q: fQ.value.trim() || null, limit: 120 }), 160); });
+$('#pb-limpiar').addEventListener('click', () => { fQ.value = ''; set({ estado: null, fuente: null, opcion: null, q: null, limit: 120 }); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement !== fQ && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && ui.sel == null) { e.preventDefault(); showPage('solicitudes'); fQ.focus(); }
+  if (e.key === 'Escape') closeDetail();
+});
+
+const openDetail = (id) => { $('#pb-drawer').classList.add('on'); $('#pb-veil').classList.add('on'); document.body.classList.add('pb-locked'); $('#pb-drawer').scrollTop = 0; set({ sel: id }); };
+const closeDetail = () => { if (ui.sel == null) return; $('#pb-drawer').classList.remove('on'); $('#pb-veil').classList.remove('on'); document.body.classList.remove('pb-locked'); set({ sel: null }); };
+$('#pb-cerrar').addEventListener('click', closeDetail);
+$('#pb-veil').addEventListener('click', closeDetail);
+
+/* ============ dibujo: resumen ============ */
+const deltaEl = (e, v) => { e.classList.remove('up', 'down', 'flat'); if (v == null) { e.textContent = '—'; e.classList.add('flat'); return; } e.textContent = (v > 0 ? '+' : '') + N(v); e.classList.add(v > 0 ? 'up' : v < 0 ? 'down' : 'flat'); };
+
+function drawResumen(p) {
+  const r = calcResumen(p), emb = calcEmbudo(p), dia = calcPorDia(p);
+  $$('#pb-kpis [data-k]').forEach((e) => {
+    const f = e.dataset.k; e.classList.remove('pb-skel');
+    if (f.startsWith('d_')) deltaEl(e, r[f]); else if (f.startsWith('p_')) e.textContent = pct(r[f]); else if (!S.drawn) countUp(e, r[f]); else e.textContent = N(r[f]);
+  });
+  const tk = $('#pb-takeaway'); tk.replaceChildren();
+  const nombre = { 7: 'los últimos 7 días', 30: 'los últimos 30 días', 90: 'los últimos 90 días', todo: 'todo el histórico' }[p];
+  const worst = emb.filter((x) => x.perdida != null).sort((a, b) => b.perdida - a.perdida)[0];
+  tk.append('En ' + nombre + ': ', Object.assign(el('b'), { textContent: N(r.total) + ' solicitudes' }), ', ', Object.assign(el('b'), { textContent: N(r.citas) + ' citas' }), ' y ', Object.assign(el('b'), { textContent: N(r.clientes) + ' clientes' }), '. ');
+  if (worst && worst.perdida > 0) tk.append('Donde más se pierde es entre ' + PASOS[worst.orden - 1].toLowerCase() + ' y ' + worst.paso.toLowerCase() + ': ', Object.assign(el('b'), { textContent: '−' + pct(worst.perdida) }), '.');
+  else if (!r.total) tk.append('Todavía no hay solicitudes en este periodo.');
+  drawSpark(dia); drawFunnel(emb); drawRitmo(p, dia); drawOrigen(p); drawAgenda($('#pb-proximas-mini'), 'proximas', 5);
+}
+
+function drawSpark(rows) {
+  const svg = d3.select('.pb-kpi .spark svg'); svg.selectAll('*').remove();
+  if (rows.length < 2) return;
+  const w = 200, h = 46;
+  svg.attr('viewBox', `0 0 ${w} ${h}`).attr('preserveAspectRatio', 'none');
+  const x = d3.scaleLinear([0, rows.length - 1], [0, w]), y = d3.scaleLinear([0, d3.max(rows, (d) => d.solicitudes) || 1], [h - 2, 6]);
+  const area = d3.area().x((d, i) => x(i)).y0(h).y1((d) => y(d.solicitudes)).curve(d3.curveMonotoneX);
+  const line = d3.line().x((d, i) => x(i)).y((d) => y(d.solicitudes)).curve(d3.curveMonotoneX);
+  const g = svg.append('defs').append('linearGradient').attr('id', 'pb-sg').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', 1);
+  [[0, .35], [1, 0]].forEach(([o, a]) => g.append('stop').attr('offset', o).attr('stop-color', '#B7FF3C').attr('stop-opacity', a));
+  svg.append('path').attr('d', area(rows)).attr('fill', 'url(#pb-sg)');
+  svg.append('path').attr('d', line(rows)).attr('fill', 'none').attr('stroke', '#B7FF3C').attr('stroke-width', 1.5).attr('stroke-linejoin', 'round');
+}
+
+function drawFunnel(rows) {
+  const box = $('#pb-embudo'), sel = d3.select(box); sel.selectAll('*').remove();
+  const W = Math.max(280, box.clientWidth), rowH = 50, M = { l: 110, r: 80, t: 6, b: 6 }, H = rows.length * rowH + M.t + M.b;
+  const max = d3.max(rows, (d) => Math.max(d.valor, d.anterior || 0)) || 1;
+  const x = d3.scaleLinear([0, max], [0, W - M.l - M.r]);
+  const svg = sel.append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%');
+  const worst = rows.filter((d) => d.perdida != null).sort((a, b) => b.perdida - a.perdida)[0];
+  const g = svg.selectAll('g').data(rows).join('g').attr('transform', (d, i) => `translate(${M.l},${M.t + i * rowH})`);
+  g.append('text').attr('x', -12).attr('y', rowH / 2 - 2).attr('text-anchor', 'end').attr('dominant-baseline', 'middle').attr('fill', 'var(--fg)').attr('font-size', 13).attr('font-weight', 600).text((d) => d.paso);
+  g.filter((d) => d.anterior != null).append('rect').attr('y', rowH / 2 + 10).attr('height', 4).attr('rx', 2).attr('width', (d) => x(d.anterior)).attr('fill', 'var(--line-2)');
+  g.append('rect').attr('class', 'cur').attr('y', rowH / 2 - 16).attr('height', 26).attr('rx', 7).attr('width', S.drawn ? (d) => Math.max(x(d.valor), d.valor ? 6 : 0) : 0)
+    .attr('fill', (d) => d === worst && d.perdida > 0 ? 'var(--red)' : d.orden === 4 ? 'var(--lime)' : 'var(--violet)').attr('opacity', (d) => d.orden === 4 ? 1 : .92);
+  g.append('text').attr('class', 'val').attr('y', rowH / 2 - 3).attr('dominant-baseline', 'middle').attr('fill', 'var(--fg-strong)').attr('font-size', 14).attr('font-weight', 700).attr('x', (d) => x(d.valor) + 10).text((d) => N(d.valor));
+  g.filter((d) => d.perdida != null && d.perdida > 0).append('text').attr('class', 'loss').attr('y', rowH / 2 - 3).attr('dominant-baseline', 'middle').attr('font-size', 11).attr('font-weight', 600)
+    .attr('fill', (d) => d === worst ? 'var(--red)' : 'var(--muted)').text((d) => '−' + pct(d.perdida));
+  g.each(function (d) { const v = d3.select(this).select('text.val').node(); const w = v ? v.getComputedTextLength() : 0; d3.select(this).select('text.loss').attr('x', x(d.valor) + 10 + w + 8); });
+  if (!S.drawn) requestAnimationFrame(() => svg.selectAll('rect.cur').attr('width', (d) => Math.max(x(d.valor), d.valor ? 6 : 0)));
+}
+
+function drawRitmo(p, rows) {
+  const box = $('#pb-ritmo'), tip = $('#pb-tip'), sel = d3.select(box); sel.selectAll('svg').remove();
+  $('#pb-ritmo-note').textContent = (p === '90' || p === 'todo') ? 'Solicitudes por semana y cuántas llevan presupuesto.' : 'Solicitudes por día y cuántas llevan presupuesto.';
+  if (!rows.length) { return; }
+  const W = Math.max(280, box.clientWidth), H = 240, M = { l: 28, r: 8, t: 10, b: 26 };
+  const svg = sel.insert('svg', '.pb-tip').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%');
+  const x = d3.scaleBand(rows.map((d) => +d.date), [M.l, W - M.r]).paddingInner(.3).paddingOuter(.1);
+  const y = d3.scaleLinear([0, Math.max(3, d3.max(rows, (d) => d.solicitudes) || 0)], [H - M.b, M.t]).nice();
+  const ticksY = y.ticks(Math.min(4, y.domain()[1]));
+  svg.append('g').selectAll('line').data(ticksY).join('line').attr('x1', M.l).attr('x2', W - M.r).attr('y1', y).attr('y2', y).attr('stroke', 'var(--line)');
+  svg.append('g').selectAll('text').data(ticksY).join('text').attr('x', M.l - 8).attr('y', y).attr('text-anchor', 'end').attr('dominant-baseline', 'middle').attr('font-size', 11).attr('fill', 'var(--muted)').text((d) => N(d));
+  const every = Math.ceil(rows.length / Math.max(3, Math.floor((W - M.l) / 64)));
+  svg.append('g').selectAll('text').data(rows.filter((d, i) => i % every === 0)).join('text').attr('x', (d) => x(+d.date) + x.bandwidth() / 2).attr('y', H - 8).attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', 'var(--muted)').text((d) => d.date.getDate() + ' ' + MESES[d.date.getMonth()]);
+  const bw = Math.min(32, x.bandwidth());
+  const bars = svg.append('g').selectAll('g').data(rows).join('g').attr('transform', (d) => `translate(${x(+d.date) + (x.bandwidth() - bw) / 2},0)`);
+  bars.append('rect').attr('class', 'pb-b1').attr('width', bw).attr('rx', Math.min(4, bw / 2)).attr('y', (d) => y(d.solicitudes)).attr('height', (d) => y(0) - y(d.solicitudes)).attr('fill', 'var(--violet)').attr('opacity', .85);
+  bars.append('rect').attr('width', bw).attr('rx', Math.min(4, bw / 2)).attr('y', (d) => y(d.con_presupuesto)).attr('height', (d) => y(0) - y(d.con_presupuesto)).attr('fill', 'var(--lime)');
+  bars.append('rect').attr('width', x.bandwidth()).attr('x', -(x.bandwidth() - bw) / 2).attr('y', M.t).attr('height', H - M.t - M.b).attr('fill', 'transparent')
+    .on('mousemove', (ev, d) => {
+      tip.replaceChildren(el('div', 'h', d.date.getDate() + ' ' + MESES[d.date.getMonth()] + ' ' + d.date.getFullYear()));
+      [['var(--violet)', 'Solicitudes', d.solicitudes], ['var(--lime)', 'Con presupuesto', d.con_presupuesto]].forEach(([c, n, v]) => { const r = el('div', 'r'); const i = el('i'); i.style.background = c; r.append(i, n + ': ', Object.assign(el('b'), { textContent: N(v) })); tip.append(r); });
+      const bx = box.getBoundingClientRect(); let lx = ev.clientX - bx.left + 12, ly = ev.clientY - bx.top - 10;
+      if (lx + 170 > bx.width) lx -= 190; tip.style.left = lx + 'px'; tip.style.top = ly + 'px'; tip.classList.add('on');
+      bars.selectAll('.pb-b1').attr('opacity', (e) => e === d ? 1 : .55);
+    })
+    .on('mouseleave', () => { tip.classList.remove('on'); bars.selectAll('.pb-b1').attr('opacity', .85); });
+}
+
+function drawOrigen(p) {
+  const table = $('#pb-origen'), tb = $('tbody', table);
+  $('th[data-field=clave]', table).textContent = { fuente: 'Fuente · medio', campana: 'Campaña · contenido', palabra: 'Palabra clave' }[ui.dim];
+  $$('th', table).forEach((th) => th.setAttribute('aria-sort', th.dataset.field === ui.sort.col ? (ui.sort.dir === 'desc' ? 'descending' : 'ascending') : 'none'));
+  tb.replaceChildren();
+  const { col, dir } = ui.sort;
+  const rows = calcGrupo(ui.dim, p).sort((a, b) => { const va = a[col], vb = b[col]; const c = col === 'clave' ? String(va).localeCompare(String(vb)) : (va ?? -1) - (vb ?? -1); return dir === 'desc' ? -c : c; });
+  if (!rows.length) { const tr = el('tr'); const td = el('td', 'pb-empty', 'Todavía no hay solicitudes en este periodo.'); td.colSpan = 7; tr.append(td); tb.append(tr); return; }
+  const max = d3.max(rows, (r) => r.total) || 1;
+  rows.forEach((r) => {
+    const tr = el('tr'); tr.dataset.clave = r.clave;
+    const k = el('td', 'k'); k.append(r.clave); const bar = el('div', 'pb-bar'); const sp = el('span'); bar.append(sp); k.append(bar); tr.append(k);
+    ['total', 'con_presupuesto', 'citas', 'sesiones', 'clientes'].forEach((c) => tr.append(el('td', 'n', N(r[c]))));
+    tr.append(el('td', 'n', pct(r.p_cita))); tb.append(tr);
+    requestAnimationFrame(() => { sp.style.width = Math.round(r.total * 100 / max) + '%'; });
+  });
+}
+$('#pb-origen thead').addEventListener('click', (e) => { const th = e.target.closest('th'); if (!th) return; const c = th.dataset.field; set({ sort: { col: c, dir: ui.sort.col === c && ui.sort.dir === 'desc' ? 'asc' : 'desc' } }); });
+$('#pb-origen tbody').addEventListener('click', (e) => {
+  const tr = e.target.closest('tr[data-clave]'); if (!tr) return;
+  const clave = tr.dataset.clave;
+  fQ.value = '';
+  if (ui.dim === 'fuente') { const f = clave.split(' · ')[0]; Object.assign(ui, { fuente: f === 'directo' ? '(directo)' : f, estado: null, opcion: null, q: null }); }
+  else { const q = clave.split(' · ')[0].replace(/[()]/g, ''); Object.assign(ui, { q, fuente: null, estado: null, opcion: null }); fQ.value = q; }
+  showPage('solicitudes');
+});
+
+/* ============ dibujo: solicitudes ============ */
+function drawSolicitudes() {
+  const porEstado = calcPorEstado();
+  const chips = $('#pb-chips'); chips.replaceChildren();
+  Object.entries(ESTADOS).forEach(([k, v]) => {
+    const b = el('button', 'pb-chip' + (ui.estado === k ? ' on' : '')); b.type = 'button'; const i = el('i'); i.style.background = v[1];
+    b.append(i, el('b', null, N(porEstado[k])), el('small', null, v[0])); b.addEventListener('click', () => set({ estado: ui.estado === k ? null : k, limit: 120 })); chips.append(b);
+  });
+  fEstado.value = ui.estado ?? '';
+  const fuentes = d3.rollups(S.leads, (v) => v.length, (l) => l.fuente).sort((a, b) => b[1] - a[1]);
+  fFuente.replaceChildren(new Option('Todas las fuentes', ''), ...fuentes.map(([f, c]) => new Option((f || 'directo') + ' (' + c + ')', f || '(directo)')));
+  fFuente.value = ui.fuente ?? ''; fOpcion.value = ui.opcion ?? '';
+  if (fQ !== document.activeElement) fQ.value = ui.q ?? '';
+  const list = $('#pb-leads'); list.replaceChildren();
+  const q = (ui.q || '').toLowerCase();
+  const rows = S.leads.filter((l) => (!ui.estado || l.estado === ui.estado) && (ui.fuente == null || (ui.fuente === '(directo)' ? !l.fuente : l.fuente === ui.fuente)) && (!ui.opcion || l.opcion === ui.opcion)
+    && (!q || ['empresa', 'nombre', 'telefono', 'notas', 'cliente_email', 'palabra', 'campana', 'objetivo'].some((k) => String(l[k] || '').toLowerCase().includes(q)) || String(l.id) === q.replace('#', '')));
+  if (!rows.length) { list.append(el('div', 'pb-empty', S.loaded ? 'Todavía no hay solicitudes con estos filtros.' : '')); return; }
+  rows.slice(0, ui.limit).forEach((l, i) => {
+    const b = el('button', 'pb-row pb-anim' + (ui.sel === l.id ? ' sel' : '')); b.type = 'button'; b.style.setProperty('--i', Math.min(i, 12));
+    const av = el('div', 'pb-avatar ' + (l.opcion || ''), l.opcion || '·'); av.title = l.opcion === 'A' ? 'Opción A · con presupuesto' : 'Opción B · explorando';
+    const mid = el('div'); const emp = el('div', 'emp'); emp.append(l.empresa, el('span', null, '#' + l.id + ' · ' + l.telefono)); mid.append(emp);
+    const meta = el('div', 'meta'); const parts = [fecha(parse(l.created_at)), l.fuente || 'sin fuente']; if (l.palabra) parts.push(l.palabra); if (l.objetivo) parts.push(l.objetivo);
+    parts.forEach((t, j) => { if (j) meta.append(el('span', 'sep', '·')); meta.append(el('span', null, t)); });
+    if (l.cita_inicio && l.cita_estado !== 'cancelada') { meta.append(el('span', 'sep', '·')); meta.append(el('span', 'cita', 'Cita ' + fechaCorta(parseUTC(l.cita_inicio)))); }
+    mid.append(meta);
+    const r = el('div', 'r'); r.append(badge(l.estado));
+    const dias = Math.floor((S.ahora - parse(l.created_at)) / 86400000); r.append(el('span', 'age', dias <= 0 ? 'hoy' : 'hace ' + dias + ' d'));
+    b.append(av, mid, r); b.addEventListener('click', () => openDetail(l.id)); list.append(b);
+  });
+  if (rows.length > ui.limit) { const m = el('div', 'pb-more'); const b = el('button', 'pb-btn', 'Ver ' + N(rows.length - ui.limit) + ' más'); b.type = 'button'; b.addEventListener('click', () => set({ limit: ui.limit + 200 })); m.append(b); list.append(m); }
+}
+
+/* ============ dibujo: agenda ============ */
+const recEl = (c) => { const r = el('span', 'pb-rec'); [['24 h', c.rec24], ['1 h', c.rec1]].forEach(([t, ok]) => { r.append(el('i', ok ? 'ok' : '', ok ? '✓' : '·'), t); }); return r; };
+function asistenciaBtns(c, box) {
+  [['asistio', 'Asistió', 'primary'], ['no_asistio', 'No se presentó', 'danger']].forEach(([v, lab, cls]) => {
+    const b = el('button', 'pb-btn ' + cls, lab); b.type = 'button'; b.addEventListener('click', () => act('asistencia', { uid: c.uid, valor: v }, v === 'asistio' ? 'Sesión marcada como hecha.' : 'Marcada como no presentada.', b)); box.append(b);
+  });
+}
+function drawAgenda(box, tramo, limit) {
+  box.replaceChildren();
+  let rows = citasClasificadas().filter((c) => c.tramo === tramo);
+  rows.sort((a, b) => tramo === 'pasadas' ? b.d - a.d : a.d - b.d);
+  if (limit) rows = rows.slice(0, limit); else if (tramo === 'pasadas') rows = rows.slice(0, 80);
+  if (!rows.length) { box.append(el('div', 'pb-empty', { proximas: 'No hay citas próximas.', pasadas: 'Aún no hay citas pasadas.', sin_vincular: 'Todas las reservas están unidas a su solicitud.' }[tramo])); return; }
+  rows.forEach((c, i) => {
+    const row = el('div', 'pb-ag pb-anim'); row.style.setProperty('--i', Math.min(i, 10));
+    const hrs = (c.d - S.ahoraUTC) / 3600000; if (tramo === 'proximas' && hrs < 24) row.classList.add('soon');
+    const when = el('div', 'when'); when.append(el('b', null, String(c.d.getDate())), el('small', null, MESES[c.d.getMonth()]), el('em', null, pad(c.d.getHours()) + ':' + pad(c.d.getMinutes())));
+    const who = el('div', 'who'); const t = el('b');
+    if (c.lead) { const a = el('a', null, c.lead.empresa); a.href = BASE + '?id=' + c.lead.id; a.addEventListener('click', (e) => { e.preventDefault(); openDetail(c.lead.id); }); t.append(a); } else t.append(el('span', 'warn', 'Sin solicitud'));
+    who.append(t, el('div', null, DIAS[c.d.getDay()] + ' · ' + (c.nombre || '—') + ' · ' + (c.email || '—')));
+    const sub = el('div'); sub.append(recEl(c)); if (tramo === 'proximas' && hrs < 24 && hrs > 0) sub.append(' ', el('span', 'lime', 'en ' + Math.max(1, Math.round(hrs)) + ' h')); who.append(sub);
+    const acts = el('div', 'acts');
+    if (tramo === 'proximas' && c.meet_url) { const a = el('a', 'pb-btn', 'Abrir Meet'); a.href = c.meet_url; a.target = '_blank'; a.rel = 'noopener'; acts.append(a); }
+    if (tramo === 'pasadas') { if (c.asistencia) acts.append(badge(c.asistencia === 'asistio' ? 'sesion' : 'no_asistio')); else asistenciaBtns(c, acts); }
+    if (tramo === 'sin_vincular') {
+      const inp = el('input'); inp.type = 'number'; inp.min = 1; inp.placeholder = 'Nº solicitud'; inp.setAttribute('aria-label', 'Número de solicitud');
+      const b = el('button', 'pb-btn primary', 'Unir'); b.type = 'button';
+      const go = () => { if (!inp.value) { toast('Escribe el número de solicitud.', true); inp.focus(); return; } act('vincular', { uid: c.uid, lead_id: inp.value }, 'Reserva unida a la solicitud #' + inp.value + '.', b); };
+      b.addEventListener('click', go); inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); }); acts.append(inp, b);
+    }
+    row.append(when, who, acts); box.append(row);
+  });
+}
+
+/* ============ dibujo: ficha ============ */
+function drawDetalle() {
+  const box = $('#pb-detalle');
+  if (ui.sel == null) { box.replaceChildren(); return; }
+  const l = S.leads.find((x) => x.id === Number(ui.sel));
+  if (!l) { if (S.loaded) { box.replaceChildren(el('div', 'pb-empty', 'No existe la solicitud #' + ui.sel + '.')); } return; }
+  const focused = document.activeElement; const keepNotes = focused && focused.id === 'pb-notas' ? focused.value : null;
+  box.replaceChildren();
+  const kv = (pairs) => { const dl = el('dl', 'pb-kv'); pairs.forEach(([k, node]) => { dl.append(el('dt', null, k)); const dd = el('dd'); dd.append(node ?? '—'); dl.append(dd); }); return dl; };
+  const card = (title, ...nodes) => { const c = el('div', 'pb-card'); if (title) c.append(el('h2', null, title)); nodes.forEach((n) => c.append(n)); return c; };
+  const tel = String(l.telefono).replace(/\D/g, '');
+  const wa = (text) => 'https://wa.me/' + tel + '?text=' + encodeURIComponent(text);
+
+  const ttl = el('div', 'ttl'); const left = el('div'); left.append(el('div', 'n', l.empresa), el('div', 'm', '#' + l.id + ' · ' + fecha(parse(l.created_at)) + (l.nombre ? ' · ' + l.nombre : '')));
+  const right = el('div', 'b'); right.append(badge(l.estado), el('span', 'pb-opt ' + (l.opcion || ''), 'Opción ' + (l.opcion || '—'))); ttl.append(left, right); box.append(ttl);
+
+  const orden = ['nuevo', 'contactado', 'cita', 'sesion', 'cliente']; const pos = l.estado === 'no_asistio' ? 2 : l.estado === 'descartado' ? -1 : orden.indexOf(l.estado);
+  const tl = el('div', 'pb-timeline');
+  ['Solicitud', 'Contacto', 'Cita', 'Sesión', 'Cliente'].forEach((t, i) => { const s = el('div', i <= pos ? 'done' : ''); if (l.estado === 'no_asistio' && i === 3) s.className = 'bad'; s.append(el('i'), t); tl.append(s); });
+  box.append(card(null, tl));
+
+  const acts = el('div', 'pb-tpl');
+  const waBtn = el('a', 'pb-btn wa', 'Abrir WhatsApp · ' + l.telefono); waBtn.href = 'https://wa.me/' + tel; waBtn.target = '_blank'; waBtn.rel = 'noopener'; acts.append(waBtn);
+  const cp = el('button', 'pb-btn', 'Copiar enlace de reserva'); cp.type = 'button'; cp.addEventListener('click', () => navigator.clipboard.writeText(l.booking_url).then(() => { cp.textContent = 'Enlace copiado'; toast('Enlace de reserva copiado.'); }, () => toast('No se pudo copiar.', true))); acts.append(cp);
+  const tpls = [
+    ['Aceptado · enviar enlace', 'primary', 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos. Aquí podéis elegir día y hora para la sesión técnica de 25 minutos por videollamada: ' + l.booking_url],
+    ['Seguimiento (no responde)', '', 'Hola de nuevo, somos PEBAI Systems. Os escribimos por vuestra solicitud de consultoría. Si os viene bien, aquí podéis elegir día y hora para la sesión técnica: ' + l.booking_url + ' ¡Cualquier duda, respondednos aquí!'],
+    ['No se presentó · reprogramar', '', 'Hola, somos PEBAI Systems. Hoy no pudimos coincidir en la sesión técnica. Si seguís interesados, podéis elegir otro día y hora aquí: ' + l.booking_url],
+    ['No encaja', 'danger', 'Hola, somos PEBAI Systems. Gracias por enviarnos vuestra solicitud. La hemos revisado con calma y, ahora mismo, no es el tipo de proyecto en el que podamos aportar un resultado claro. Si en el futuro cambia vuestra situación, estaremos encantados de volver a hablar. ¡Mucho éxito!'],
+  ];
+  const tplBox = el('div', 'pb-tpl'); tpls.forEach(([lab, cls, txt]) => { const a = el('a', 'pb-btn ' + cls, lab); a.href = wa(txt); a.target = '_blank'; a.rel = 'noopener'; tplBox.append(a); });
+  const note = el('p', 'note', 'Mensajes de WhatsApp listos para enviar:'); note.style.margin = '14px 0 8px';
+  box.append(card('Contacto', acts, note, tplBox));
+
+  const two = el('div', 'pb-two'); const colA = el('div'), colB = el('div'); two.append(colA, colB); box.append(two);
+
+  citasClasificadas().filter((c) => c.lead_id === l.id).sort((a, b) => b.d - a.d).forEach((c) => {
+    const cc = card('Cita', kv([['Cuándo', fechaCorta(c.d)], ['Persona', c.nombre || '—'], ['Email', c.email || '—'], ['Recordatorios', recEl(c)]])); cc.style.borderColor = c.tramo === 'proximas' ? 'var(--green)' : 'var(--line-2)';
+    const a2 = el('div', 'pb-tpl'); a2.style.marginTop = '12px';
+    if (c.meet_url && c.tramo === 'proximas') { const a = el('a', 'pb-btn', 'Abrir Meet'); a.href = c.meet_url; a.target = '_blank'; a.rel = 'noopener'; a2.append(a); }
+    if (c.asistencia) a2.append(badge(c.asistencia === 'asistio' ? 'sesion' : 'no_asistio')); else if (c.tramo === 'pasadas') asistenciaBtns(c, a2);
+    cc.append(a2); colA.append(cc);
+  });
+  S.citas.filter((c) => c.lead_id === l.id && c.estado !== 'reservada').forEach((c) => { const cc = card('Cita (' + c.estado + ')', kv([['Cuándo', fechaCorta(parseUTC(c.inicio))], ['Persona', c.nombre || '—']])); cc.style.opacity = .7; colA.append(cc); });
+
+  colA.append(card('Respuestas del diagnóstico', kv([['Canal', l.canal], ['Consultas/mes', l.volumen], ['Objetivo', l.objetivo], ['Presupuesto', l.presupuesto]])));
+
+  const form = card('Seguimiento');
+  const sel = el('select'); sel.style.width = '100%'; sel.style.marginBottom = '10px'; Object.entries(ESTADOS).forEach(([k, v]) => sel.append(new Option(v[0], k))); sel.value = l.estado;
+  const ta = el('textarea'); ta.id = 'pb-notas'; ta.placeholder = 'Notas internas (qué se habló, próximos pasos…)'; ta.value = keepNotes ?? l.notas ?? '';
+  const save = el('button', 'pb-btn primary', 'Guardar'); save.type = 'button';
+  const last = el('span', 'muted', l.updated_at ? 'Última edición: ' + fecha(parse(l.updated_at)) : ''); last.style.cssText = 'font-size:12px;margin-left:10px';
+  save.addEventListener('click', () => act('update', { id: l.id, estado: sel.value, notas: ta.value }, 'Cambios guardados.', save));
+  const p = el('p'); p.style.margin = '10px 0 0'; p.append(save, last); form.append(sel, ta, p); colA.append(form);
+
+  colB.append(card('De dónde viene', kv([['Fuente', l.fuente], ['Medio', l.medio], ['Campaña', l.campana], ['Contenido', l.contenido], ['Palabra', l.palabra], ['Botón', l.cta]])));
+  const toque = (json) => { let t = {}; try { t = JSON.parse(json || '{}') || {}; } catch (e) { t = {}; }
+    const labels = { utm_source: 'Fuente', utm_medium: 'Medio', utm_campaign: 'Campaña', utm_content: 'Contenido', utm_term: 'Término', palabra: 'Palabra', landing: 'Página de entrada', referrer: 'Referente', ts: 'Fecha' };
+    const pairs = Object.entries(labels).filter(([k]) => t[k]).map(([k, lab]) => [lab, k === 'ts' ? fecha(new Date(t[k])) : String(t[k])]); return pairs.length ? kv(pairs) : el('p', 'muted', 'Sin datos'); };
+  colB.append(card('Último toque', toque(l.ultimo_toque)), card('Primer toque', toque(l.primer_toque)));
+  colB.append(card('Técnico', kv([['Formulario', l.pagina], ['Dispositivo', l.dispositivo], ['Email enviado', l.email_enviado ? 'Sí' : 'No']])));
+}
+
+/* ============ ciclo de dibujo ============ */
+function draw() {
+  $$('#pb-periodo button').forEach((b) => b.classList.toggle('on', b.dataset.p === ui.periodo));
+  $('#pb-leads-n').textContent = S.loaded ? N(S.leads.length) : '—';
+  $('#pb-citas-n').textContent = S.loaded ? N(citasClasificadas().filter((x) => x.tramo === 'proximas').length) : '—';
+  if (!S.loaded) return;
+  if (ui.page === 'resumen') drawResumen(ui.periodo);
+  if (ui.page === 'solicitudes') drawSolicitudes();
+  if (ui.page === 'citas') { drawAgenda($('#pb-proximas'), 'proximas'); drawAgenda($('#pb-pasadas'), 'pasadas'); drawAgenda($('#pb-sinvincular'), 'sin_vincular'); }
+  drawDetalle();
+  if (!S.drawn) { S.drawn = true; document.body.classList.add('pb-in'); }
+}
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 120); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.loaded) load().then(draw).catch(() => {}); });
+
+/* ============ arranque ============ */
+readUrl();
+$$('#pb-kpis .v').forEach((e) => e.classList.add('pb-skel'));
+$$('.pb-page').forEach((s) => s.classList.toggle('on', s.dataset.page === ui.page)); $$('#pb-tabs button').forEach((b) => b.classList.toggle('on', b.dataset.page === ui.page));
+fQ.value = ui.q || '';
+if (ui.sel != null) { $('#pb-drawer').classList.add('on'); $('#pb-veil').classList.add('on'); document.body.classList.add('pb-locked'); }
+writeUrl(); draw();
+load().then(draw).catch((e) => { toast(e.message || 'No se han podido cargar los datos.', true); $$('.pb-skel').forEach((x) => x.classList.remove('pb-skel')); });
+})();
