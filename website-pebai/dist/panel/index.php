@@ -224,7 +224,7 @@ if ($auth && isset($_GET['data'])) {
     json_out(['ok' => true, 'eventos' => $eventos, 'ahora' => date('Y-m-d H:i:s'), 'ahora_utc' => gmdate('Y-m-d\TH:i:s\Z'), 'csrf' => csrf(), 'leads' => $leads, 'citas' => $citas]);
 }
 
-$v = '4';
+$v = '5';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -358,13 +358,14 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <div class="pb-veil" id="pb-veil"></div>
 <aside class="pb-drawer" id="pb-drawer" aria-label="Ficha de la solicitud">
   <div class="in">
-    <div class="top"><button class="pb-btn ghost" id="pb-cerrar" type="button">← Volver a la lista</button><div class="muted" style="font-size:12px">Esc para cerrar</div></div>
+    <div class="top"><button class="pb-btn ghost" id="pb-cerrar" type="button">← Volver</button><div class="nav"><span class="muted">↑ ↓ para cambiar · Esc para cerrar</span><button class="pb-btn icon" id="pb-prev" type="button" title="Solicitud anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m18 15-6-6-6 6"/></svg></button><button class="pb-btn icon" id="pb-next" type="button" title="Solicitud siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button></div></div>
     <div id="pb-detalle"></div>
   </div>
 </aside>
 <div class="pb-toast" id="pb-toast"><i></i><span></span></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>
+<script src="<?= BASE ?>assets/icons.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/panel.js?v=<?= $v ?>" defer></script>
 <?php endif; ?>
 </body>

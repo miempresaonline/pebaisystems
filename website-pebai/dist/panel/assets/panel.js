@@ -358,6 +358,7 @@ function drawSolicitudes() {
   const rows = S.leads.filter((l) => (!ui.estado || l.estado === ui.estado) && (ui.fuente == null || (ui.fuente === '(directo)' ? !l.fuente : l.fuente === ui.fuente)) && (!ui.opcion || l.opcion === ui.opcion)
     && (!q || ['empresa', 'nombre', 'telefono', 'notas', 'cliente_email', 'palabra', 'campana', 'objetivo'].some((k) => String(l[k] || '').toLowerCase().includes(q)) || String(l.id) === q.replace('#', '')));
   rows.sort((a, b) => b.id - a.id);
+  ui.orden = rows.map((l) => l.id);
   if (!rows.length) { list.append(el('div', 'pb-empty', S.loaded ? 'Todavía no hay solicitudes con estos filtros.' : '')); return; }
   rows.slice(0, ui.limit).forEach((l, i) => {
     const b = el('button', 'pb-row pb-anim' + (ui.sel === l.id ? ' sel' : '')); b.type = 'button'; b.style.setProperty('--i', Math.min(i, 12));
@@ -415,75 +416,248 @@ function drawAgenda(box, tramo, limit) {
 }
 
 /* ============ dibujo: ficha ============ */
+/* ============ ficha de la solicitud ============ */
+const SVGNS = 'http://www.w3.org/2000/svg';
+const ICONS = window.PB_ICONS || { brands: {}, ui: {} };
+const icon = (name, cls) => {
+  const svg = document.createElementNS(SVGNS, 'svg'); svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('class', 'pb-i' + (cls ? ' ' + cls : ''));
+  (ICONS.ui[name] || ICONS.ui.globe || '').split('|').forEach((part) => {
+    const [t, v] = [part.slice(0, 1), part.slice(2)];
+    let n;
+    if (t === 'p') { n = document.createElementNS(SVGNS, 'path'); n.setAttribute('d', v); }
+    if (t === 'c') { const [cx, cy, r] = v.split(','); n = document.createElementNS(SVGNS, 'circle'); n.setAttribute('cx', cx); n.setAttribute('cy', cy); n.setAttribute('r', r); }
+    if (t === 'r') { const [x, y, w, h, rx] = v.split(','); n = document.createElementNS(SVGNS, 'rect'); n.setAttribute('x', x); n.setAttribute('y', y); n.setAttribute('width', w); n.setAttribute('height', h); n.setAttribute('rx', rx); }
+    if (n) svg.append(n);
+  });
+  return svg;
+};
+const brandSvg = (key) => {
+  const b = ICONS.brands[key]; if (!b) return null;
+  const svg = document.createElementNS(SVGNS, 'svg'); svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true');
+  const p = document.createElementNS(SVGNS, 'path'); p.setAttribute('d', b.d); p.setAttribute('fill', '#fff'); svg.append(p); return svg;
+};
+/* Origen del tráfico (utm_source o el nombre que pone utm.js a partir del referente) */
+const ORIGEN = (raw) => {
+  const s = String(raw || '').toLowerCase().trim();
+  const alias = [[/insta|^ig$/, 'instagram'], [/youtu|^yt$/, 'youtube'], [/facebook|^fb$|^meta$/, 'facebook'], [/tiktok/, 'tiktok'], [/linkedin|lnkd/, 'linkedin'],
+    [/^x$|twitter|^t\.co$/, 'x'], [/chatgpt|openai/, 'openai'], [/perplexity/, 'perplexity'], [/gemini/, 'googlegemini'], [/maps/, 'googlemaps'], [/google/, 'google'],
+    [/whatsapp|^wa$/, 'whatsapp'], [/mail|newsletter/, 'gmail']];
+  const hit = alias.find(([re]) => re.test(s));
+  if (hit) return { key: hit[1], ...ICONS.brands[hit[1]] };
+  if (!s || s === 'directo' || s === '(direct)' || s === 'desconocido') return { key: '', label: 'Directo', bg: 'linear-gradient(135deg,#6A5CFF,#7E73FF)', ui: 'globe' };
+  return { key: '', label: s === 'bing' ? 'Bing' : s.charAt(0).toUpperCase() + s.slice(1), bg: 'linear-gradient(135deg,#3A404D,#5A6172)', ui: 'globe' };
+};
+const MEDIO = (m) => ({ social: 'Publicación en redes', organic: 'Búsqueda orgánica', cpc: 'Anuncio', paid: 'Anuncio', ads: 'Anuncio', ppc: 'Anuncio', referral: 'Enlace desde otra web', video: 'Vídeo', email: 'Email', bio: 'Enlace de la bio', dm: 'Mensaje directo', story: 'Historia', comment: 'Comentario' })[String(m || '').toLowerCase()] || m || '';
+const tile = (o, size) => {
+  const t = el('span', 'pb-tile' + (size ? ' ' + size : '')); t.style.background = o.bg; t.title = o.label;
+  t.append(o.key ? brandSvg(o.key) : icon(o.ui || 'globe')); return t;
+};
+const hace = (d) => {
+  if (!d || isNaN(d)) return '';
+  const m = Math.round((S.ahora - d) / 60000);
+  if (m < 1) return 'ahora mismo'; if (m < 60) return 'hace ' + m + ' min';
+  const h = Math.round(m / 60); if (h < 24) return 'hace ' + h + ' h';
+  const dd = Math.round(h / 24); return dd === 1 ? 'ayer' : 'hace ' + dd + ' días';
+};
+const dispositivo = (ua) => {
+  ua = String(ua || '');
+  const movil = /Mobi|Android|iPhone|iPad/i.test(ua);
+  const so = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac OS X|Macintosh/.test(ua) ? 'Mac' : /Linux/.test(ua) ? 'Linux' : '';
+  const app = /Instagram/.test(ua) ? 'navegador de Instagram' : /FBAN|FBAV/.test(ua) ? 'navegador de Facebook' : /musical_ly|BytedanceWebview|TikTok/i.test(ua) ? 'navegador de TikTok' : /LinkedInApp/.test(ua) ? 'navegador de LinkedIn'
+    : /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Firefox\//.test(ua) ? 'Firefox' : /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : '';
+  const txt = ua ? [movil ? 'Móvil' : 'Ordenador', so, app].filter(Boolean).join(' · ') : (ua === '' ? '' : ua);
+  return { movil, txt: txt || 'Desconocido' };
+};
+const respuestas = (l) => {
+  const c = l.canal || '', v = l.volumen || '', o = l.objetivo || '';
+  const canal = /boca|referid/i.test(c) ? { ui: 'users' } : /maps|local/i.test(c) ? { brand: 'googlemaps' } : /redes/i.test(c) ? { redes: true } : /publicidad|ads/i.test(c) ? { ui: 'megaphone' } : { ui: 'globe' };
+  const nivel = /menos de 20/i.test(v) ? 1 : /20 y 80/i.test(v) ? 2 : /más de 80/i.test(v) ? 3 : 0;
+  const obj = /respond|rápido/i.test(o) ? 'zap' : /automati|proceso/i.test(o) ? 'flow' : /GEO|recomendaciones/i.test(o) ? 'sparkles' : /form/i.test(o) ? 'cap' : 'target';
+  return { canal, nivel, obj };
+};
+const TPL = (l) => ({
+  enlace: ['Aceptado · enviar enlace', 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos. Aquí podéis elegir día y hora para la sesión técnica de 25 minutos por videollamada: ' + l.booking_url],
+  seguimiento: ['Seguimiento (no responde)', 'Hola de nuevo, somos PEBAI Systems. Os escribimos por vuestra solicitud de consultoría. Si os viene bien, aquí podéis elegir día y hora para la sesión técnica: ' + l.booking_url + ' ¡Cualquier duda, respondednos aquí!'],
+  reprogramar: ['No se presentó · reprogramar', 'Hola, somos PEBAI Systems. Hoy no pudimos coincidir en la sesión técnica. Si seguís interesados, podéis elegir otro día y hora aquí: ' + l.booking_url],
+  plazas: ['Plazas del mes completas', 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos, pero las 5 plazas gratuitas de este mes ya están cubiertas. Podemos haceros la sesión técnica igualmente como consultoría de pago, o reservaros una plaza gratuita el mes que viene. ¿Qué preferís?'],
+  no_encaja: ['No encaja', 'Hola, somos PEBAI Systems. Gracias por enviarnos vuestra solicitud. La hemos revisado con calma y, ahora mismo, no es el tipo de proyecto en el que podamos aportar un resultado claro. Si en el futuro cambia vuestra situación, estaremos encantados de volver a hablar. ¡Mucho éxito!'],
+});
+const postQuiet = async (action, fields) => {
+  const r = await fetch(BASE, { method: 'POST', body: new URLSearchParams({ action, csrf: S.csrf, ...fields }), credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+  const j = await r.json().catch(() => ({ ok: false }));
+  if (!j.ok) throw new Error(j.error || 'No se ha podido guardar.');
+};
+
+let fichaFirma = '';
 function drawDetalle() {
   const box = $('#pb-detalle');
-  if (ui.sel == null) { box.replaceChildren(); return; }
+  if (ui.sel == null) { box.replaceChildren(); fichaFirma = ''; return; }
   const l = S.leads.find((x) => x.id === Number(ui.sel));
   if (!l) { if (S.loaded) { box.replaceChildren(el('div', 'pb-empty', 'No existe la solicitud #' + ui.sel + '.')); } return; }
-  const prevTa = $('#pb-notas'); const keepNotes = prevTa && Number(prevTa.dataset.id) === l.id ? prevTa.value : null;
-  box.replaceChildren();
-  const kv = (pairs) => { const dl = el('dl', 'pb-kv'); pairs.forEach(([k, node]) => { dl.append(el('dt', null, k)); const dd = el('dd'); dd.append(node ?? '—'); dl.append(dd); }); return dl; };
-  const card = (title, ...nodes) => { const c = el('div', 'pb-card'); if (title) c.append(el('h2', null, title)); nodes.forEach((n) => c.append(n)); return c; };
-  const tel = String(l.telefono).replace(/\D/g, '');
-  const wa = (text) => 'https://wa.me/' + tel + '?text=' + encodeURIComponent(text);
-
-  const ttl = el('div', 'ttl'); const left = el('div'); left.append(el('div', 'n', l.empresa), el('div', 'm', '#' + l.id + ' · ' + fecha(parse(l.created_at)) + (l.nombre ? ' · ' + l.nombre : '')));
-  const right = el('div', 'b'); right.append(badge(l.estado), el('span', 'pb-opt ' + (l.opcion || ''), 'Opción ' + (l.opcion || '—'))); ttl.append(left, right); box.append(ttl);
-
   const evs = (S.eventos.get(l.id) || []).slice().sort((a, b) => a.ts < b.ts ? -1 : 1);
+  const citas = S.citas.filter((c) => c.lead_id === l.id);
+  // Solo se vuelve a pintar si cambió algo de esta solicitud: así no se pierde el foco al escribir notas
+  const firma = JSON.stringify([l, evs.length, citas, document.documentElement.dataset.theme]);
+  if (firma === fichaFirma && box.childElementCount) return;
+  const prevTa = $('#pb-notas'); const keepNotes = prevTa && Number(prevTa.dataset.id) === l.id ? prevTa.value : null;
+  fichaFirma = firma;
+  box.replaceChildren();
+
+  const tel = String(l.telefono).replace(/\D/g, '');
+  const wa = (text) => 'https://wa.me/' + tel + (text ? '?text=' + encodeURIComponent(text) : '');
+  const tpl = TPL(l);
+  const btn = (cls, ico, text, onClick) => { const b = el('button', 'pb-btn ' + cls); b.type = 'button'; if (ico) b.append(ico); b.append(text); if (onClick) b.addEventListener('click', onClick); return b; };
+  const link = (cls, ico, text, href, onClick) => { const a = el('a', 'pb-btn ' + cls); if (ico) a.append(ico); a.append(text); a.href = href; a.target = '_blank'; a.rel = 'noopener'; if (onClick) a.addEventListener('click', onClick); return a; };
+  const waTpl = (key, cls) => link(cls, key === 'enlace' || key === 'seguimiento' || key === 'reprogramar' ? brandSvg('whatsapp') : null, tpl[key][0], wa(tpl[key][1]), () => registrar(l.id, ['enlace', 'seguimiento', 'reprogramar', 'no_encaja'].includes(key) ? key : 'whatsapp'));
+  const section = (title, ico, ...nodes) => { const s = el('section', 'pb-fsec'); const h = el('h3'); h.append(icon(ico), title); s.append(h, ...nodes); return s; };
+  const origen = ORIGEN(l.fuente);
+
+  /* ---------- cabecera ---------- */
+  const hero = el('header', 'pb-hero');
+  hero.style.setProperty('--brand', /gradient/.test(origen.bg) ? '#6A5CFF' : origen.bg);
+  const idRow = el('div', 'pb-hero-top');
+  idRow.append(tile(origen, 'lg'));
+  const who = el('div', 'who');
+  who.append(el('div', 'k', '#' + l.id + ' · llegó ' + hace(parse(l.created_at)) + ' · ' + fecha(parse(l.created_at))), el('h2', 'n', l.empresa));
+  const line = el('div', 'p');
+  if (l.nombre) { const s = el('span'); s.append(icon('user'), l.nombre); line.append(s); }
+  const ph = el('a'); ph.href = 'tel:' + tel; ph.append(icon('phone'), l.telefono); line.append(ph);
+  if (l.cliente_email) { const m = el('a'); m.href = 'mailto:' + l.cliente_email; m.append(icon('mail'), l.cliente_email); line.append(m); }
+  who.append(line);
+  const tags = el('div', 'tags');
+  tags.append(badge(l.estado));
+  const opt = el('span', 'pb-pill ' + (l.opcion === 'A' ? 'a' : 'b')); opt.append(icon('euro'), l.opcion === 'A' ? 'Con presupuesto' : l.opcion === 'B' ? 'Explorando' : 'Sin dato'); tags.append(opt);
+  idRow.append(who, tags);
+  hero.append(idRow);
+
+  // Las 4 fases de la web, con su fecha
   const fase = { nuevo: 0, contactado: 1, cita: 2, sesion: 3, no_asistio: 3, cliente: 3, descartado: -1 }[l.estado];
-  const tl = el('div', 'pb-timeline');
+  const steps = el('ol', 'pb-steps');
   FASES.forEach(([t, tipos], i) => {
-    const s = el('div', i <= fase ? 'done' : '');
-    if (i === fase && !['sesion', 'cliente', 'no_asistio'].includes(l.estado)) s.classList.add('now');
-    if (l.estado === 'no_asistio' && i === 3) s.className = 'bad';
+    const li = el('li', i < fase ? 'done' : i === fase ? (l.estado === 'no_asistio' ? 'bad' : ['sesion', 'cliente'].includes(l.estado) ? 'done' : 'now') : '');
     const ev = evs.find((e) => tipos.includes(e.tipo)) || (i === 0 ? { ts: l.created_at, auto: 1 } : null);
-    s.append(el('i'), el('b', null, t));
-    if (ev && i <= fase) { const f = parse(ev.ts); s.append(el('small', null, f.getDate() + ' ' + MESES[f.getMonth()] + (ev.auto ? ' · auto' : ''))); }
-    tl.append(s);
+    const dot = el('span', 'dot'); if (li.classList.contains('done')) dot.append(icon('check')); else if (li.classList.contains('bad')) dot.append(icon('x')); else dot.textContent = String(i + 1);
+    li.append(dot, el('b', null, t));
+    li.append(el('small', null, ev && i <= fase ? (() => { const f = parse(ev.ts); return f.getDate() + ' ' + MESES[f.getMonth()] + (ev.auto ? ' · auto' : ''); })() : i === fase + 1 ? 'Siguiente' : ''));
+    steps.append(li);
   });
-  const fin = { cliente: ['Cliente', 'var(--amber)'], descartado: ['Descartado', 'var(--muted)'], no_asistio: ['No se presentó', 'var(--red)'] }[l.estado];
-  const tlCard = card(null, tl);
-  if (fin) { const r = el('p', 'pb-outcome', 'Resultado: ' + fin[0]); r.style.color = fin[1]; tlCard.append(r); }
-  box.append(tlCard);
+  steps.style.setProperty('--prog', Math.max(0, Math.min(3, fase)) / 3);
+  hero.append(steps);
+  box.append(hero);
 
-  const acts = el('div', 'pb-tpl');
-  const waBtn = el('a', 'pb-btn wa', 'Abrir WhatsApp · ' + l.telefono); waBtn.href = 'https://wa.me/' + tel; waBtn.target = '_blank'; waBtn.rel = 'noopener'; waBtn.addEventListener('click', () => registrar(l.id, 'whatsapp')); acts.append(waBtn);
-  const cp = el('button', 'pb-btn', 'Copiar enlace de reserva'); cp.type = 'button'; cp.addEventListener('click', () => navigator.clipboard.writeText(l.booking_url).then(() => { cp.textContent = 'Enlace copiado'; toast('Enlace de reserva copiado.'); registrar(l.id, 'copiar'); }, () => toast('No se pudo copiar.', true))); acts.append(cp);
-  const tpls = [
-    ['Aceptado · enviar enlace', 'primary', 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos. Aquí podéis elegir día y hora para la sesión técnica de 25 minutos por videollamada: ' + l.booking_url],
-    ['Seguimiento (no responde)', '', 'Hola de nuevo, somos PEBAI Systems. Os escribimos por vuestra solicitud de consultoría. Si os viene bien, aquí podéis elegir día y hora para la sesión técnica: ' + l.booking_url + ' ¡Cualquier duda, respondednos aquí!'],
-    ['No se presentó · reprogramar', '', 'Hola, somos PEBAI Systems. Hoy no pudimos coincidir en la sesión técnica. Si seguís interesados, podéis elegir otro día y hora aquí: ' + l.booking_url],
-    ['Plazas del mes completas', '', 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos, pero las 5 plazas gratuitas de este mes ya están cubiertas. Podemos haceros la sesión técnica igualmente como consultoría de pago, o reservaros una plaza gratuita el mes que viene. ¿Qué preferís?'],
-    ['No encaja', 'danger', 'Hola, somos PEBAI Systems. Gracias por enviarnos vuestra solicitud. La hemos revisado con calma y, ahora mismo, no es el tipo de proyecto en el que podamos aportar un resultado claro. Si en el futuro cambia vuestra situación, estaremos encantados de volver a hablar. ¡Mucho éxito!'],
-  ];
-  const tipoDe = (lab) => /^Aceptado/.test(lab) ? 'enlace' : /^Seguimiento/.test(lab) ? 'seguimiento' : /reprogramar/.test(lab) ? 'reprogramar' : /^No encaja/.test(lab) ? 'no_encaja' : 'whatsapp';
-  const tplBox = el('div', 'pb-tpl'); tpls.forEach(([lab, cls, txt]) => { const a = el('a', 'pb-btn ' + cls, lab); a.href = wa(txt); a.target = '_blank'; a.rel = 'noopener'; a.addEventListener('click', () => registrar(l.id, tipoDe(lab))); tplBox.append(a); });
-  const note = el('p', 'note', 'Mensajes de WhatsApp listos para enviar:'); note.style.margin = '14px 0 8px';
-  box.append(card('Contacto', acts, note, tplBox));
+  /* ---------- siguiente paso ---------- */
+  const next = el('section', 'pb-next');
+  const nh = el('div', 'nh'); const nt = el('div'); const na = el('div', 'na'); const nq = el('div', 'nq');
+  const setNext = (tono, titulo, texto) => { next.dataset.tono = tono; nt.append(el('div', 'eyebrow', 'Siguiente paso'), el('h3', null, titulo)); if (texto) nt.append(el('p', null, texto)); };
+  const cita = citasClasificadas().filter((c) => c.lead_id === l.id).sort((a, b) => b.d - a.d)[0];
+  const edad = (S.ahora - parse(l.created_at)) / 3600000;
+  if (['nuevo', 'contactado'].includes(l.estado) && !l.enlace_at) {
+    setNext(edad > 24 ? 'bad' : 'go', 'Revisar y enviar el enlace de reserva', 'Llegó ' + hace(parse(l.created_at)) + '. ' + (edad > 24 ? 'Ya pasaron las 24 h que prometemos para escribir por WhatsApp.' : 'Prometemos escribir por WhatsApp en menos de 24 h.'));
+    na.append(waTpl('enlace', 'primary big'), waTpl('plazas', ''), waTpl('no_encaja', 'danger'));
+  } else if (['nuevo', 'contactado'].includes(l.estado)) {
+    const h = (S.ahora - parse(l.enlace_at)) / 3600000;
+    setNext(h > 48 ? 'warn' : 'wait', h > 48 ? 'Toca hacer seguimiento' : 'Esperando su reserva', 'Enlace enviado ' + hace(parse(l.enlace_at)) + '. ' + (h > 48 ? 'Aún no ha reservado.' : 'La fase pasa sola a Reserva cuando elija hora.'));
+    na.append(waTpl('seguimiento', h > 48 ? 'primary big' : ''), btn('', icon('link'), 'Copiar enlace', copiar), waTpl('no_encaja', 'danger'));
+  } else if (l.estado === 'cita' && cita) {
+    const hrs = (cita.d - S.ahoraUTC) / 3600000;
+    setNext('ok', 'Sesión técnica ' + (hrs < 24 && hrs > 0 ? 'en ' + Math.max(1, Math.round(hrs)) + ' h' : fechaCorta(cita.d)), 'Reservada por ' + (cita.nombre || '—') + (cita.email ? ' · ' + cita.email : '') + '. Al terminar pasa sola a Sesión hecha.');
+    const cal = el('div', 'pb-cal'); cal.append(el('small', null, MESES[cita.d.getMonth()]), el('b', null, String(cita.d.getDate())), el('em', null, pad(cita.d.getHours()) + ':' + pad(cita.d.getMinutes())));
+    nh.append(cal);
+    if (cita.meet_url) na.append(link('primary big', icon('video'), 'Abrir Google Meet', cita.meet_url));
+    const rec = el('span', 'pb-chiprow'); [['Recordatorio 24 h', cita.rec24], ['Recordatorio 1 h', cita.rec1]].forEach(([t, ok]) => { const c = el('span', 'pb-chip2' + (ok ? ' ok' : '')); c.append(icon(ok ? 'check' : 'clock'), t + (ok ? ' enviado' : ' pendiente')); rec.append(c); });
+    nq.append(rec);
+  } else if (l.estado === 'sesion' && cita && cita.asistencia === 'auto') {
+    setNext('info', '¿Asistió a la sesión?', 'La sesión del ' + fechaCorta(cita.d) + ' se marcó sola al pasar la hora. Confírmalo o corrígelo.');
+    asistenciaBtns(cita, na);
+  } else if (l.estado === 'sesion') {
+    setNext('go', '¿Cómo terminó?', 'Sesión hecha. Marca el resultado para cerrar el embudo.');
+    na.append(btn('primary big', icon('trophy'), 'Es cliente', (e) => cambiaEstado('cliente', e.currentTarget)), btn('danger', icon('x'), 'Descartar', (e) => cambiaEstado('descartado', e.currentTarget)));
+  } else if (l.estado === 'no_asistio') {
+    setNext('bad', 'No se presentó', 'Ofrécele otra hora con el mismo enlace.');
+    na.append(waTpl('reprogramar', 'primary big'), btn('danger', icon('x'), 'Descartar', (e) => cambiaEstado('descartado', e.currentTarget)));
+  } else if (l.estado === 'cliente') {
+    setNext('win', 'Ya es cliente', 'Embudo completado.');
+  } else {
+    setNext('muted', 'Solicitud descartada', 'Si vuelve a interesarse, puedes reabrirla.');
+    na.append(btn('', icon('undo'), 'Reabrir', (e) => cambiaEstado('contactado', e.currentTarget)));
+  }
+  nh.prepend(nt); next.append(nh, na); if (nq.childElementCount) next.append(nq);
+  // Acciones rápidas siempre a mano
+  const quick = el('div', 'pb-quick');
+  quick.append(link('wa', brandSvg('whatsapp'), 'WhatsApp', wa(''), () => registrar(l.id, 'whatsapp')));
+  const call = el('a', 'pb-btn'); call.href = 'tel:' + tel; call.append(icon('phone'), 'Llamar'); quick.append(call);
+  function copiar(e) { const b = e.currentTarget; navigator.clipboard.writeText(l.booking_url).then(() => { b.lastChild.textContent = 'Copiado'; toast('Enlace de reserva copiado.'); registrar(l.id, 'copiar'); }, () => toast('No se pudo copiar.', true)); }
+  quick.append(btn('', icon('link'), 'Copiar enlace de reserva', copiar));
+  const more = el('details', 'pb-msgs'); const sum = el('summary'); sum.append(icon('msg'), 'Más mensajes'); more.append(sum);
+  const ml = el('div', 'list'); Object.keys(tpl).forEach((k) => { const a = waTpl(k, 'ghost'); a.title = tpl[k][1]; ml.append(a); }); more.append(ml);
+  quick.append(more);
+  next.append(quick);
+  box.append(next);
 
-  const two = el('div', 'pb-two'); const colA = el('div'), colB = el('div'); two.append(colA, colB); box.append(two);
+  function cambiaEstado(estado, b) { const ta = $('#pb-notas'); act('update', { id: l.id, estado, notas: ta ? ta.value : l.notas }, 'Fase actualizada: ' + ESTADOS[estado][0] + '.', b); }
 
-  citasClasificadas().filter((c) => c.lead_id === l.id).sort((a, b) => b.d - a.d).forEach((c) => {
-    const cc = card('Cita', kv([['Cuándo', fechaCorta(c.d)], ['Persona', c.nombre || '—'], ['Email', c.email || '—'], ['Recordatorios', recEl(c)]])); cc.style.borderColor = c.tramo === 'proximas' ? 'var(--green)' : 'var(--line-2)';
-    const a2 = el('div', 'pb-tpl'); a2.style.marginTop = '12px';
-    if (c.meet_url && c.tramo === 'proximas') { const a = el('a', 'pb-btn', 'Abrir Meet'); a.href = c.meet_url; a.target = '_blank'; a.rel = 'noopener'; a2.append(a); }
-    if (c.asistencia === 'auto') { a2.append(autoBadge()); asistenciaBtns(c, a2); }
-    else if (c.asistencia) a2.append(badge(c.asistencia === 'asistio' ? 'sesion' : 'no_asistio'));
-    else if (c.tramo === 'pasadas') asistenciaBtns(c, a2);
-    cc.append(a2); colA.append(cc);
+  /* ---------- lo que nos contó ---------- */
+  const r = respuestas(l);
+  const grid = el('div', 'pb-answers');
+  const ans = (label, visual, value, extra) => { const a = el('div', 'pb-ans'); const v = el('div', 'vis'); v.append(visual); a.append(v, el('small', null, label), el('b', null, value || '—')); if (extra) a.append(extra); grid.append(a); };
+  let canalVis;
+  if (r.canal.redes) { canalVis = el('span', 'pb-stack'); ['instagram', 'tiktok', 'facebook'].forEach((k) => canalVis.append(tile({ key: k, ...ICONS.brands[k] }, 'sm'))); }
+  else if (r.canal.brand) canalVis = tile({ key: r.canal.brand, ...ICONS.brands[r.canal.brand] });
+  else canalVis = el('span', 'pb-ico'), canalVis.append(icon(r.canal.ui));
+  ans('Sus clientes llegan por', canalVis, l.canal);
+  const meter = el('span', 'pb-meter'); [1, 2, 3].forEach((n) => meter.append(el('i', n <= r.nivel ? 'on' : ''))); if (!r.nivel) { meter.replaceChildren(); meter.className = 'pb-ico'; meter.append(icon('bars')); }
+  ans('Consultas al mes', meter, l.volumen);
+  const ob = el('span', 'pb-ico'); ob.append(icon(r.obj)); ans('Objetivo a 3 meses', ob, l.objetivo);
+  const pr = el('span', 'pb-ico ' + (l.opcion === 'A' ? 'lime' : '')); pr.append(icon('euro'));
+  ans('Presupuesto', pr, l.opcion === 'A' ? 'Sí, con presupuesto' : l.opcion === 'B' ? 'De momento explorando' : l.presupuesto);
+  box.append(section('Lo que nos contó', 'msg', grid));
+
+  /* ---------- de dónde viene ---------- */
+  const leer = (json) => { try { return JSON.parse(json || '{}') || {}; } catch (e) { return {}; } };
+  const t1 = leer(l.primer_toque), t2 = leer(l.ultimo_toque);
+  const src = el('div', 'pb-src');
+  const srcMain = el('div', 'main'); srcMain.append(tile(origen, 'xl'));
+  const st = el('div'); st.append(el('b', null, origen.label));
+  const sub = [MEDIO(l.medio), l.campana && 'campaña ' + l.campana, l.contenido].filter(Boolean).join(' · ');
+  st.append(el('span', null, sub || 'Sin campaña'));
+  srcMain.append(st);
+  if (l.palabra) { const k = el('div', 'kw'); k.append(el('small', null, 'Palabra clave'), el('b', null, l.palabra)); srcMain.append(k); }
+  src.append(srcMain);
+  const paso = (t, titulo) => {
+    const o = ORIGEN(t.utm_source || t.origen); const p = el('div', 'stop');
+    p.append(tile(o, 'sm')); const tx = el('div'); tx.append(el('small', null, titulo), el('b', null, o.label + (t.utm_medium ? ' · ' + MEDIO(t.utm_medium) : '')));
+    const extra = [t.landing && 'entró por ' + t.landing, t.ts && fechaCorta(new Date(t.ts))].filter(Boolean).join(' · '); if (extra) tx.append(el('span', null, extra));
+    p.append(tx); return p;
+  };
+  const camino = el('div', 'pb-path');
+  const mismo = JSON.stringify(t1) === JSON.stringify(t2);
+  if (Object.keys(t1).length) camino.append(paso(t1, mismo ? 'Primera y última visita' : 'Primera visita'));
+  if (Object.keys(t2).length && !mismo) { camino.append(el('i', 'arrow')); camino.append(paso(t2, 'Última visita')); }
+  const fin = el('div', 'stop end'); const ft = el('span', 'pb-tile sm'); ft.style.background = 'var(--lime)'; ft.append(icon('send')); fin.append(ft);
+  const fx = el('div'); fx.append(el('small', null, 'Envió el formulario'), el('b', null, (l.pagina || '/diagnostico/').replace(/^https?:\/\/[^/]+/, '')), el('span', null, l.cta ? 'botón ' + l.cta : fecha(parse(l.created_at)))); fin.append(fx);
+  camino.append(el('i', 'arrow')); camino.append(fin);
+  src.append(camino);
+  box.append(section('De dónde viene', 'pin', src));
+
+  /* ---------- notas y fase ---------- */
+  const notes = el('div', 'pb-notes');
+  const ta = el('textarea'); ta.id = 'pb-notas'; ta.dataset.id = l.id; ta.placeholder = 'Qué se habló, próximos pasos, dudas del cliente…'; ta.value = keepNotes ?? l.notas ?? '';
+  const status = el('span', 'saved', l.updated_at ? 'Guardado · ' + fecha(parse(l.updated_at)) : 'Se guarda solo mientras escribes');
+  let tmr;
+  ta.addEventListener('input', () => {
+    clearTimeout(tmr); status.textContent = 'Escribiendo…'; status.className = 'saved typing';
+    tmr = setTimeout(() => postQuiet('update', { id: l.id, estado: l.estado, notas: ta.value })
+      .then(() => { l.notas = ta.value; fichaFirma = JSON.stringify([l, evs.length, citas, document.documentElement.dataset.theme]); status.textContent = 'Guardado'; status.className = 'saved ok'; })
+      .catch((e) => { status.textContent = e.message; status.className = 'saved err'; }), 900);
   });
-  S.citas.filter((c) => c.lead_id === l.id && c.estado !== 'reservada').forEach((c) => { const cc = card('Cita (' + c.estado + ')', kv([['Cuándo', fechaCorta(parseUTC(c.inicio))], ['Persona', c.nombre || '—']])); cc.style.opacity = .7; colA.append(cc); });
+  const sel = el('select'); sel.setAttribute('aria-label', 'Mover a otra fase'); Object.entries(ESTADOS).forEach(([k, v]) => sel.append(new Option(v[0], k))); sel.value = l.estado;
+  sel.addEventListener('change', () => cambiaEstado(sel.value, null));
+  const nf = el('div', 'foot'); const mv = el('label'); mv.append('Mover a', sel); nf.append(status, mv);
+  notes.append(ta, nf);
+  box.append(section('Notas del equipo', 'pencil', notes));
 
-  colA.append(card('Respuestas del diagnóstico', kv([['Canal', l.canal], ['Consultas/mes', l.volumen], ['Objetivo', l.objetivo], ['Presupuesto', l.presupuesto]])));
-
-  const form = card('Seguimiento');
-  const sel = el('select'); sel.style.width = '100%'; sel.style.marginBottom = '10px'; Object.entries(ESTADOS).forEach(([k, v]) => sel.append(new Option(v[0], k))); sel.value = l.estado;
-  const ta = el('textarea'); ta.id = 'pb-notas'; ta.dataset.id = l.id; ta.placeholder = 'Notas internas (qué se habló, próximos pasos…)'; ta.value = keepNotes ?? l.notas ?? '';
-  const save = el('button', 'pb-btn primary', 'Guardar'); save.type = 'button';
-  const last = el('span', 'muted', l.updated_at ? 'Última edición: ' + fecha(parse(l.updated_at)) : ''); last.style.cssText = 'font-size:12px;margin-left:10px';
-  save.addEventListener('click', () => act('update', { id: l.id, estado: sel.value, notas: ta.value }, 'Cambios guardados.', save));
-  const p = el('p'); p.style.margin = '10px 0 0'; p.append(save, last); form.append(sel, ta, p); colA.append(form);
+  /* ---------- historial ---------- */
+  const hd = el('details', 'pb-histbox'); const hs = el('summary'); hs.append(icon('history'), 'Historial', el('em', null, String(Math.max(1, evs.length)))); hd.append(hs);
   const hist = el('ol', 'pb-hist');
   const lista = evs.length ? evs.slice().reverse() : [{ ts: l.created_at, tipo: 'nuevo', detalle: 'Formulario de diagnóstico enviado', auto: 1 }];
   lista.forEach((e) => {
@@ -492,15 +666,29 @@ function drawDetalle() {
     li.append(head, el('div', 'm', fecha(f) + (e.tipo !== 'contacto' && e.detalle ? ' · ' + (['reserva', 'reprogramada', 'cancelada'].includes(e.tipo) ? 'cita ' + fechaCorta(parseUTC(e.detalle)) : e.detalle) : '')));
     hist.append(li);
   });
-  colA.append(card('Historial', hist));
+  hd.append(hist);
+  box.append(hd);
 
-  colB.append(card('De dónde viene', kv([['Fuente', l.fuente], ['Medio', l.medio], ['Campaña', l.campana], ['Contenido', l.contenido], ['Palabra', l.palabra], ['Botón', l.cta]])));
-  const toque = (json) => { let t = {}; try { t = JSON.parse(json || '{}') || {}; } catch (e) { t = {}; }
-    const labels = { utm_source: 'Fuente', utm_medium: 'Medio', utm_campaign: 'Campaña', utm_content: 'Contenido', utm_term: 'Término', palabra: 'Palabra', landing: 'Página de entrada', referrer: 'Referente', ts: 'Fecha' };
-    const pairs = Object.entries(labels).filter(([k]) => t[k]).map(([k, lab]) => [lab, k === 'ts' ? fecha(new Date(t[k])) : String(t[k])]); return pairs.length ? kv(pairs) : el('p', 'muted', 'Sin datos'); };
-  colB.append(card('Último toque', toque(l.ultimo_toque)), card('Primer toque', toque(l.primer_toque)));
-  colB.append(card('Técnico', kv([['Formulario', l.pagina], ['Dispositivo', l.dispositivo], ['Email enviado', l.email_enviado ? 'Sí' : 'No']])));
+  /* ---------- pie técnico ---------- */
+  const dv = dispositivo(l.dispositivo);
+  const foot = el('div', 'pb-tech');
+  const f1 = el('span'); f1.append(icon(dv.movil ? 'mobile' : 'desktop'), dv.txt); f1.title = l.dispositivo || '';
+  const f2 = el('span'); f2.append(icon('mail'), l.email_enviado ? 'Aviso enviado a equipo@' : 'Aviso por email no enviado');
+  if (!l.email_enviado) f2.className = 'warn';
+  foot.append(f1, f2);
+  box.append(foot);
 }
+
+/* Navegar entre solicitudes sin cerrar la ficha */
+const ordenFicha = () => (ui.orden && ui.orden.length ? ui.orden : S.leads.map((l) => l.id).sort((a, b) => b - a));
+const moverFicha = (paso) => { const o = ordenFicha(); const i = o.indexOf(Number(ui.sel)); const n = o[i + paso]; if (n != null) openDetail(n); };
+$('#pb-prev').addEventListener('click', () => moverFicha(-1));
+$('#pb-next').addEventListener('click', () => moverFicha(1));
+document.addEventListener('keydown', (e) => {
+  if (ui.sel == null || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); moverFicha(-1); }
+  if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); moverFicha(1); }
+});
 
 /* ============ ciclo de dibujo ============ */
 function draw() {
@@ -524,5 +712,5 @@ $$('.pb-page').forEach((s) => s.classList.toggle('on', s.dataset.page === ui.pag
 fQ.value = ui.q || '';
 if (ui.sel != null) { $('#pb-drawer').classList.add('on'); $('#pb-veil').classList.add('on'); document.body.classList.add('pb-locked'); }
 writeUrl(); draw();
-load().then(draw).catch((e) => { toast(e.message || 'No se han podido cargar los datos.', true); $$('.pb-skel').forEach((x) => x.classList.remove('pb-skel')); });
+load().then(() => { draw(); if (ui.sel != null) marcarVista(ui.sel); }).catch((e) => { toast(e.message || 'No se han podido cargar los datos.', true); $$('.pb-skel').forEach((x) => x.classList.remove('pb-skel')); });
 })();
