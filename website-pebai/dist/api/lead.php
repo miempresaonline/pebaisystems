@@ -85,6 +85,7 @@ $lead = [
     'telefono' => $telefono,
     'canal' => $str($data['canal'] ?? '', 150),
     'volumen' => $str($data['volumen'] ?? '', 150),
+    'equipo' => $str($data['equipo'] ?? '', 80),
     'objetivo' => $str($data['objetivo'] ?? '', 500),
     'presupuesto' => $str($data['presupuesto'] ?? '', 150),
     'opcion' => in_array($opcion, ['A', 'B'], true) ? $opcion : '',

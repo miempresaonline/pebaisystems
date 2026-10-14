@@ -178,7 +178,7 @@ if ($auth && $db && isset($_GET['csv'])) {
     header('Content-Disposition: attachment; filename="solicitudes-pebai-' . date('Y-m-d') . '.csv"');
     $out = fopen('php://output', 'w');
     fwrite($out, "\xEF\xBB\xBF");
-    $cols = ['id', 'created_at', 'estado', 'empresa', 'nombre', 'telefono', 'canal', 'volumen', 'objetivo', 'presupuesto',
+    $cols = ['id', 'created_at', 'estado', 'empresa', 'nombre', 'telefono', 'equipo', 'canal', 'volumen', 'objetivo', 'presupuesto',
              'opcion', 'fuente', 'medio', 'campana', 'contenido', 'palabra', 'cta', 'cita_inicio', 'cliente_email', 'notas'];
     fputcsv($out, $cols, ';');
     foreach ($db->query('SELECT ' . implode(',', $cols) . ' FROM leads ORDER BY id DESC') as $r) {
@@ -197,7 +197,7 @@ if ($auth && isset($_GET['data'])) {
     } catch (Throwable $e) {
         pebai_log('AUTO SESIONES (panel): ' . $e->getMessage());
     }
-    $cols = ['id', 'created_at', 'estado', 'notas', 'empresa', 'nombre', 'telefono', 'canal', 'volumen', 'objetivo', 'presupuesto', 'opcion',
+    $cols = ['id', 'created_at', 'estado', 'notas', 'empresa', 'nombre', 'telefono', 'equipo', 'canal', 'volumen', 'objetivo', 'presupuesto', 'opcion',
              'fuente', 'medio', 'campana', 'contenido', 'palabra', 'cta', 'primer_toque', 'ultimo_toque', 'pagina', 'dispositivo',
              'email_enviado', 'updated_at', 'cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at'];
     $leads = $db->query('SELECT ' . implode(',', $cols) . ' FROM leads ORDER BY id DESC LIMIT 3000')->fetchAll();
@@ -223,7 +223,7 @@ if ($auth && isset($_GET['data'])) {
     json_out(['ok' => true, 'eventos' => $eventos, 'ahora' => date('Y-m-d H:i:s'), 'ahora_utc' => gmdate('Y-m-d\TH:i:s\Z'), 'csrf' => csrf(), 'leads' => $leads, 'citas' => $citas]);
 }
 
-$v = '5';
+$v = '6';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">

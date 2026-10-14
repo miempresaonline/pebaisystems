@@ -475,13 +475,13 @@ const respuestas = (l) => {
   const obj = /respond|rápido/i.test(o) ? 'zap' : /automati|proceso/i.test(o) ? 'flow' : /GEO|recomendaciones/i.test(o) ? 'sparkles' : /form/i.test(o) ? 'cap' : 'target';
   return { canal, nivel, obj };
 };
-const TPL = (l) => ({
-  enlace: ['Aceptado · enviar enlace', 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos. Aquí podéis elegir día y hora para la sesión técnica de 25 minutos por videollamada: ' + l.booking_url],
-  seguimiento: ['Seguimiento (no responde)', 'Hola de nuevo, somos PEBAI Systems. Os escribimos por vuestra solicitud de consultoría. Si os viene bien, aquí podéis elegir día y hora para la sesión técnica: ' + l.booking_url + ' ¡Cualquier duda, respondednos aquí!'],
-  reprogramar: ['No se presentó · reprogramar', 'Hola, somos PEBAI Systems. Hoy no pudimos coincidir en la sesión técnica. Si seguís interesados, podéis elegir otro día y hora aquí: ' + l.booking_url],
-  plazas: ['Plazas del mes completas', 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos, pero las 5 plazas gratuitas de este mes ya están cubiertas. Podemos haceros la sesión técnica igualmente como consultoría de pago, o reservaros una plaza gratuita el mes que viene. ¿Qué preferís?'],
-  no_encaja: ['No encaja', 'Hola, somos PEBAI Systems. Gracias por enviarnos vuestra solicitud. La hemos revisado con calma y, ahora mismo, no es el tipo de proyecto en el que podamos aportar un resultado claro. Si en el futuro cambia vuestra situación, estaremos encantados de volver a hablar. ¡Mucho éxito!'],
-});
+const TPL = (l) => { const nom = (l.nombre || '').trim().split(/\s+/)[0]; const hola = nom ? 'Hola, ' + nom + '. Somos' : 'Hola, somos'; return {
+  enlace: ['Aceptado · enviar enlace', hola + ' PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos. Aquí podéis elegir día y hora para la sesión técnica de 25 minutos por videollamada: ' + l.booking_url],
+  seguimiento: ['Seguimiento (no responde)', (nom ? 'Hola de nuevo, ' + nom + '. Somos' : 'Hola de nuevo, somos') + ' PEBAI Systems. Os escribimos por vuestra solicitud de consultoría. Si os viene bien, aquí podéis elegir día y hora para la sesión técnica: ' + l.booking_url + ' ¡Cualquier duda, respondednos aquí!'],
+  reprogramar: ['No se presentó · reprogramar', hola + ' PEBAI Systems. Hoy no pudimos coincidir en la sesión técnica. Si seguís interesados, podéis elegir otro día y hora aquí: ' + l.booking_url],
+  plazas: ['Plazas del mes completas', hola + ' PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos, pero las 5 plazas gratuitas de este mes ya están cubiertas. Podemos haceros la sesión técnica igualmente como consultoría de pago, o reservaros una plaza gratuita el mes que viene. ¿Qué preferís?'],
+  no_encaja: ['No encaja', hola + ' PEBAI Systems. Gracias por enviarnos vuestra solicitud. La hemos revisado con calma y, ahora mismo, no es el tipo de proyecto en el que podamos aportar un resultado claro. Si en el futuro cambia vuestra situación, estaremos encantados de volver a hablar. ¡Mucho éxito!'],
+}; };
 const postQuiet = async (action, fields) => {
   const r = await fetch(BASE, { method: 'POST', body: new URLSearchParams({ action, csrf: S.csrf, ...fields }), credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
   const j = await r.json().catch(() => ({ ok: false }));
@@ -604,9 +604,10 @@ function drawDetalle() {
   if (r.canal.redes) { canalVis = el('span', 'pb-stack'); ['instagram', 'tiktok', 'facebook'].forEach((k) => canalVis.append(tile({ key: k, ...ICONS.brands[k] }, 'sm'))); }
   else if (r.canal.brand) canalVis = tile({ key: r.canal.brand, ...ICONS.brands[r.canal.brand] });
   else canalVis = el('span', 'pb-ico'), canalVis.append(icon(r.canal.ui));
-  ans('Sus clientes llegan por', canalVis, l.canal);
+  if (l.equipo) { const eq = el('span', 'pb-ico'); eq.append(icon('users')); ans('Personas en la empresa', eq, l.equipo); }
+  if (l.canal) ans('Sus clientes llegan por', canalVis, l.canal);
   const meter = el('span', 'pb-meter'); [1, 2, 3].forEach((n) => meter.append(el('i', n <= r.nivel ? 'on' : ''))); if (!r.nivel) { meter.replaceChildren(); meter.className = 'pb-ico'; meter.append(icon('bars')); }
-  ans('Consultas al mes', meter, l.volumen);
+  if (l.volumen) ans('Consultas al mes', meter, l.volumen);
   const ob = el('span', 'pb-ico'); ob.append(icon(r.obj)); ans('Objetivo a 3 meses', ob, l.objetivo);
   const pr = el('span', 'pb-ico ' + (l.opcion === 'A' ? 'lime' : '')); pr.append(icon('euro'));
   ans('Presupuesto', pr, l.opcion === 'A' ? 'Sí, con presupuesto' : l.opcion === 'B' ? 'De momento explorando' : l.presupuesto);
