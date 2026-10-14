@@ -51,7 +51,7 @@
         "@type": "OfferCatalog",
         "name": "Servicios",
         "itemListElement": [
-          { "@type": "Offer", "price": "0", "priceCurrency": "EUR", "itemOffered": { "@type": "Service", "name": "Consultoría gratuita de procesos e IA", "description": "Sesión de 25 minutos por videollamada con un mapa técnico de optimización y una estimación de ahorro. Gratuita para cinco empresas al mes, por tiempo limitado." } },
+          { "@type": "Offer", "price": "0", "priceCurrency": "EUR", "itemOffered": { "@type": "Service", "name": "Consultoría gratuita de procesos e IA", "description": "Sesión de 25 minutos por videollamada con un mapa técnico de optimización y una estimación de ahorro. Gratuita para cinco empresas al mes; después, de pago." } },
           { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Software operativo a medida" } },
           { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Chatbots con IA conectados a la empresa" } },
           { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Agentes de voz con IA" } },
@@ -504,7 +504,7 @@ body.menu-open .dock{opacity:0;visibility:hidden}
     <aside class="widget reveal" style="--d:.3s" aria-label="Consultoría gratuita">
       <div class="top"><span class="ico"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b>Consultoría gratuita</b><small>Veinticinco minutos por videollamada</small></div><a class="arrow" href="/consultoria-gratuita/?origen=web_widget" data-event="click_consultoria_widget" aria-label="Solicitar consultoría gratuita"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a></div>
       <div class="kpis"><div><b>0 €</b><small>la sesión</small></div><div><b>5</b><small>plazas al mes</small></div><div><b>&lt;24 h</b><small>respuesta</small></div></div>
-      <p class="limit">Gratis para las cinco empresas seleccionadas cada mes, por tiempo limitado.</p>
+      <p class="limit">Gratis para las cinco empresas seleccionadas cada mes. Cuando se completan, la consultoría pasa a ser de pago.</p>
       <ul class="gets">
         <span>Te llevas gratis y sin compromiso</span>
         <li><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>Mapa técnico de optimización</li>
@@ -772,9 +772,9 @@ body.menu-open .dock{opacity:0;visibility:hidden}
   items.forEach(function(el){io.observe(el);});
 })();
 </script>
-<script src="/config.js?v=4.4" defer></script>
-<script src="/geo-tracker.js" defer></script>
+<script src="/config.js?v=4.5" defer></script>
+<script src="/geo-tracker.js?v=2" defer></script>
 <script src="/utm.js?v=2" defer></script>
-<script src="/consent.js?v=2" defer></script>
+<script src="/consent.js?v=3" defer></script>
 </body>
 </html>

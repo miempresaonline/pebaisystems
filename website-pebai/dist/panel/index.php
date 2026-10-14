@@ -183,7 +183,7 @@ if ($auth && isset($_GET['data'])) {
     json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'ahora_utc' => gmdate('Y-m-d\TH:i:s\Z'), 'csrf' => csrf(), 'leads' => $leads, 'citas' => $citas]);
 }
 
-$v = '2';
+$v = '3';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">

@@ -354,6 +354,7 @@ function drawDetalle() {
     ['Aceptado · enviar enlace', 'primary', 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos. Aquí podéis elegir día y hora para la sesión técnica de 25 minutos por videollamada: ' + l.booking_url],
     ['Seguimiento (no responde)', '', 'Hola de nuevo, somos PEBAI Systems. Os escribimos por vuestra solicitud de consultoría. Si os viene bien, aquí podéis elegir día y hora para la sesión técnica: ' + l.booking_url + ' ¡Cualquier duda, respondednos aquí!'],
     ['No se presentó · reprogramar', '', 'Hola, somos PEBAI Systems. Hoy no pudimos coincidir en la sesión técnica. Si seguís interesados, podéis elegir otro día y hora aquí: ' + l.booking_url],
+    ['Plazas del mes completas', '', 'Hola, somos PEBAI Systems. Hemos revisado vuestra solicitud y encaja con lo que hacemos, pero las 5 plazas gratuitas de este mes ya están cubiertas. Podemos haceros la sesión técnica igualmente como consultoría de pago, o reservaros una plaza gratuita el mes que viene. ¿Qué preferís?'],
     ['No encaja', 'danger', 'Hola, somos PEBAI Systems. Gracias por enviarnos vuestra solicitud. La hemos revisado con calma y, ahora mismo, no es el tipo de proyecto en el que podamos aportar un resultado claro. Si en el futuro cambia vuestra situación, estaremos encantados de volver a hablar. ¡Mucho éxito!'],
   ];
   const tplBox = el('div', 'pb-tpl'); tpls.forEach(([lab, cls, txt]) => { const a = el('a', 'pb-btn ' + cls, lab); a.href = wa(txt); a.target = '_blank'; a.rel = 'noopener'; tplBox.append(a); });
