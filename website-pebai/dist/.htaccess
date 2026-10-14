@@ -32,6 +32,10 @@ RewriteRule ^yt/?$ consultoria-gratuita/?utm_source=youtube&utm_medium=canal [R=
 RewriteRule ^fb/?$ consultoria-gratuita/?utm_source=facebook&utm_medium=bio [R=302,L,QSA,NE]
 RewriteRule ^x/?$ consultoria-gratuita/?utm_source=x&utm_medium=bio [R=302,L,QSA,NE]
 RewriteRule ^li/?$ consultoria-gratuita/?utm_source=linkedin&utm_medium=perfil [R=302,L,QSA,NE]
+# Tarjetas de visita (QR) para puerta fría: /t/adrian, /t/dani (ver assets/brand/pebai-systems/tarjetas/)
+RewriteRule ^t/([a-z0-9-]+)/?$ consultoria-gratuita/?utm_source=tarjeta&utm_medium=puerta_fria&utm_content=$1 [R=302,L,NE]
+RewriteRule ^t/?$ consultoria-gratuita/?utm_source=tarjeta&utm_medium=puerta_fria [R=302,L,NE]
+
 # Vídeos largos de YouTube: /v/nombre-del-video (añade ?c=comentario para el comentario fijado)
 RewriteCond %{QUERY_STRING} (^|&)c=comentario(&|$)
 RewriteRule ^v/([a-z0-9-]+)/?$ consultoria-gratuita/?utm_source=youtube&utm_medium=video_largo&utm_campaign=$1&utm_content=comentario_fijado [R=302,L,NE]
