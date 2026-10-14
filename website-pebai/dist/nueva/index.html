@@ -162,12 +162,12 @@ html.js .reveal.in{opacity:1;transform:none}
 .menu-btn[aria-expanded="true"] span::after{top:0;transform:rotate(-45deg)}
 
 /* menu */
-.menu{position:fixed;inset:0;z-index:30;background:var(--overlay);visibility:hidden;clip-path:inset(0 0 100% 0);transition:clip-path .7s var(--ease),visibility 0s linear .7s;overflow-x:hidden;overflow-y:auto}
+.menu{position:fixed;inset:0;z-index:30;background:var(--overlay);visibility:hidden;clip-path:inset(0 0 100% 0);transition:clip-path .7s var(--ease),visibility 0s linear .7s;overflow-x:hidden;overflow-x:clip;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y}
 .menu.open{visibility:visible;clip-path:inset(0 0 0 0);transition:clip-path .7s var(--ease),visibility 0s}
-.menu::before{content:"";position:absolute;right:-200px;top:-200px;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,var(--glow-1),transparent 60%);pointer-events:none}
-.menu-in{position:relative;max-width:var(--max);margin:0 auto;padding:110px var(--pad) 56px;min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:56px;align-items:center;align-content:center}
+.menu::before{content:"";position:absolute;inset:0;background:radial-gradient(700px 600px at 100% 0%,var(--glow-1),transparent 65%);pointer-events:none}
+.menu-in{position:relative;width:100%;max-width:var(--max);margin:0 auto;padding:110px var(--pad) 56px;min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:56px;align-items:center;align-content:center}
 .menu-links{display:flex;flex-direction:column}
-.menu-links li{overflow:hidden;border-bottom:1px solid var(--fg-10)}
+.menu-links li{overflow:hidden;border-bottom:1px solid var(--fg-10);min-width:0}
 .menu-links a{display:flex;align-items:baseline;justify-content:space-between;gap:20px;padding:10px 0 8px;font-family:var(--serif);font-size:clamp(40px,5.6vw,84px);line-height:1;letter-spacing:-.025em;transform:translateY(105%);transition:transform .8s var(--ease),color .2s ease}
 .menu-links a small{font-family:var(--sans);font-size:13px;letter-spacing:0;color:var(--fg-40);transition:color .2s ease}
 .menu-links a:hover{color:var(--accent)}
@@ -410,8 +410,14 @@ body.menu-open .dock{opacity:0;visibility:hidden}
   .socials{grid-template-columns:repeat(2,minmax(0,1fr))}
   .social{min-height:116px;padding:18px}
   .footer .wrap{flex-direction:column;align-items:flex-start}
-  .menu-in{padding-top:96px;padding-bottom:40px}
-  .menu-links a{font-size:44px}
+  .menu-in{padding-top:92px;padding-bottom:28px;gap:24px;align-content:start;min-height:0}
+  .menu-links a{font-size:34px;padding:8px 0 7px}
+  .menu-links a small{display:none}
+  .menu-card{padding:16px;gap:12px;border-radius:20px}
+  .menu-card .kpis b{font-size:24px}
+  .menu-card .btn-lime{height:46px}
+  .menu-contact a{padding:12px 14px;border-radius:16px}
+  .menu-social a{width:42px;height:42px}
   .dock{left:12px;right:12px;width:auto;bottom:calc(12px + env(safe-area-inset-bottom))}
 }
 @media (max-width:420px){
@@ -500,7 +506,7 @@ body.menu-open .dock{opacity:0;visibility:hidden}
       <div class="kpis"><div><b>0 €</b><small>la sesión</small></div><div><b>5</b><small>plazas al mes</small></div><div><b>&lt;24 h</b><small>respuesta</small></div></div>
       <p class="limit">Gratis para las cinco empresas seleccionadas cada mes, por tiempo limitado.</p>
       <ul class="gets">
-        <span>Te llevas</span>
+        <span>Te llevas gratis y sin compromiso</span>
         <li><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>Mapa técnico de optimización</li>
         <li><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>Estimación de ahorro para tu negocio</li>
         <li><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>Esquema técnico de procesos</li>
