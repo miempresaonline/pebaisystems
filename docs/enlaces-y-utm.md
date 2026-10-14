@@ -27,7 +27,12 @@ En el panel, pestaña Resumen → "De dónde vienen" → "Palabra", verás qué 
 
 ## Vídeos largos de YouTube (descripción y comentario fijado)
 
-Siguen los enlaces largos de cada vídeo (`utm_medium=video_largo` / `comentario_fijado`), porque distinguen qué vídeo trae a cada cliente.
+Cada vídeo largo tiene su enlace corto con su nombre, para saber qué vídeo trae a cada cliente:
+
+- Descripción: `https://pebaisystems.es/v/presentacion`
+- Comentario fijado: `https://pebaisystems.es/v/presentacion?c=comentario`
+
+Para un vídeo nuevo, cambia `presentacion` por un nombre corto en minúsculas y con guiones (`agentes-voz`).
 
 ## Si se te olvida
 

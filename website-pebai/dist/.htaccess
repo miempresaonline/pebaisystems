@@ -32,6 +32,10 @@ RewriteRule ^yt/?$ consultoria-gratuita/?utm_source=youtube&utm_medium=canal [R=
 RewriteRule ^fb/?$ consultoria-gratuita/?utm_source=facebook&utm_medium=bio [R=302,L,QSA,NE]
 RewriteRule ^x/?$ consultoria-gratuita/?utm_source=x&utm_medium=bio [R=302,L,QSA,NE]
 RewriteRule ^li/?$ consultoria-gratuita/?utm_source=linkedin&utm_medium=perfil [R=302,L,QSA,NE]
+# Vídeos largos de YouTube: /v/nombre-del-video (añade ?c=comentario para el comentario fijado)
+RewriteCond %{QUERY_STRING} (^|&)c=comentario(&|$)
+RewriteRule ^v/([a-z0-9-]+)/?$ consultoria-gratuita/?utm_source=youtube&utm_medium=video_largo&utm_campaign=$1&utm_content=comentario_fijado [R=302,L,NE]
+RewriteRule ^v/([a-z0-9-]+)/?$ consultoria-gratuita/?utm_source=youtube&utm_medium=video_largo&utm_campaign=$1&utm_content=descripcion [R=302,L,NE]
 RewriteRule ^wa/?$ consultoria-gratuita/?utm_source=whatsapp&utm_medium=mensaje [R=302,L,QSA,NE]
 
 # Forzar HTTPS
