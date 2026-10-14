@@ -474,7 +474,7 @@ function pebai_lead_email(array $lead, int $id): array
 {
     $qualified = $lead['opcion'] === 'A';
     $wa = 'https://wa.me/' . pebai_phone_digits($lead['telefono']);
-    $panel = 'https://pebaisystems.es/panel/?id=' . $id;
+    $panel = 'https://panel.pebaisystems.es/?id=' . $id;
 
     $badge = $qualified
         ? '<span style="display:inline-block;padding:5px 11px;border-radius:999px;background:#B7FF3C;color:#0B0F14;font-weight:800;font-size:11px;letter-spacing:.08em">CON PRESUPUESTO</span>'

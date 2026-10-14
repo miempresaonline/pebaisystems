@@ -20,9 +20,8 @@ const PANEL_HOST = 'panel.pebaisystems.es';
 $host = strtolower($_SERVER['HTTP_HOST'] ?? '');
 define('BASE', $host === PANEL_HOST ? '/' : '/panel/');
 
-// Cuando el subdominio ya resuelve, la ruta antigua /panel/ redirige a él (los emails enlazan a /panel/?id=N).
-if (BASE !== '/' && $_SERVER['REQUEST_METHOD'] === 'GET' && in_array($host, ['pebaisystems.es', 'www.pebaisystems.es'], true)
-    && gethostbyname(PANEL_HOST) !== PANEL_HOST) {
+// El panel vive en panel.pebaisystems.es (activo desde el 14/10/2026): la ruta antigua /panel/ redirige allí.
+if (BASE !== '/' && $_SERVER['REQUEST_METHOD'] === 'GET' && in_array($host, ['pebaisystems.es', 'www.pebaisystems.es'], true)) {
     header('Location: https://' . PANEL_HOST . '/' . (($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : ''), true, 302);
     exit;
 }
