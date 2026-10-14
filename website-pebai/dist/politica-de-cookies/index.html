@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#070911">
+  <meta name="robots" content="noindex, follow">
+  <title>Política de cookies | PEBAI Systems</title>
+  <meta name="description" content="Qué cookies y almacenamiento local usa la web de PEBAI Systems, para qué sirven y cómo cambiar tu elección.">
+  <link rel="canonical" href="https://pebaisystems.es/politica-de-cookies/">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="preload" href="../brand/Manrope-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+    @font-face {
+      font-family: 'Manrope';
+      src: url('../brand/Manrope-latin-variable.woff2') format('woff2');
+      font-style: normal;
+      font-weight: 200 800;
+      font-display: swap;
+    }
+    :root {
+      color-scheme: dark;
+      --bg: #070911;
+      --surface: #0E1222;
+      --line: rgba(236, 235, 240, 0.10);
+      --text: #ECEBF0;
+      --muted: #A3A8BC;
+      --lime: #B7FF3C;
+      --violet: #6A5CFF;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    body {
+      margin: 0;
+      background: var(--bg);
+      background-image: radial-gradient(900px 420px at 50% -120px, rgba(106, 92, 255, 0.16), transparent 70%);
+      background-repeat: no-repeat;
+      color: var(--muted);
+      font: 400 16px/1.7 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      overflow-x: hidden;
+    }
+    a { color: var(--lime); text-underline-offset: 3px; }
+    a:hover { color: #d4ff8a; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; border-radius: 4px; }
+    .site-header {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(7, 9, 17, 0.82);
+      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .header-inner { max-width: 1100px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; }
+    .brand-logo-img { display: block; height: 40px; width: auto; max-width: 170px; object-fit: contain; }
+    main { max-width: 760px; margin: 0 auto; padding: 56px 24px 72px; }
+    .eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--lime); margin-bottom: 14px; }
+    h1 { color: var(--text); font-size: clamp(30px, 6vw, 44px); line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 12px; }
+    .updated { font-size: 14px; margin: 0 0 32px; }
+    .lead { font-size: 17px; color: var(--text); opacity: .9; }
+    nav.toc {
+      background: var(--surface); border: 1px solid rgba(106, 92, 255, 0.28); border-radius: 14px;
+      padding: 18px 22px; margin: 28px 0 44px;
+    }
+    nav.toc h2 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--text); margin: 0 0 10px; }
+    nav.toc ol { margin: 0; padding-left: 20px; }
+    nav.toc li { margin: 4px 0; }
+    nav.toc a { color: var(--muted); text-decoration: none; }
+    nav.toc a:hover { color: var(--lime); text-decoration: underline; }
+    section { scroll-margin-top: 90px; margin-top: 40px; }
+    h2 { color: var(--text); font-size: 22px; line-height: 1.3; font-weight: 700; margin: 0 0 12px; }
+    h2 .n { color: var(--violet); margin-right: 8px; }
+    h3 { color: var(--text); font-size: 17px; font-weight: 600; margin: 22px 0 6px; }
+    p, ul, ol { margin: 0 0 14px; }
+    ul { padding-left: 22px; }
+    li { margin: 5px 0; }
+    strong { color: var(--text); font-weight: 600; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 22px; margin: 0 0 16px; }
+    .card p:last-child { margin-bottom: 0; }
+    dl.id { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0; }
+    dl.id dt { color: var(--text); font-weight: 600; }
+    dl.id dd { margin: 0; overflow-wrap: anywhere; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 0 16px; border: 1px solid var(--line); border-radius: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 620px; }
+    th, td { text-align: left; vertical-align: top; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+    th { color: var(--text); font-weight: 600; background: rgba(106, 92, 255, 0.10); }
+    tr:last-child td { border-bottom: 0; }
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .9em; color: var(--text); background: rgba(255,255,255,.06); padding: 1px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 20px;
+      font: 600 15px/1.2 'Manrope', system-ui, sans-serif; color: #070911; background: var(--lime);
+      border: 0; border-radius: 10px; cursor: pointer;
+    }
+    .btn:hover { background: #c9ff6a; }
+    .site-footer { border-top: 1px solid var(--line); padding: 28px 24px 40px; }
+    .footer-inner { max-width: 760px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; font-size: 14px; }
+    .footer-inner a, .footer-inner button { color: var(--muted); text-decoration: none; }
+    .footer-inner a:hover, .footer-inner button:hover { color: var(--lime); }
+    .footer-inner a[aria-current="page"] { color: var(--text); }
+    .footer-inner button { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+    .footer-inner small { flex-basis: 100%; color: #6B7088; font-size: 13px; margin-top: 6px; }
+    @media (max-width: 640px) {
+      .header-inner { padding: 12px 16px; }
+      .brand-logo-img { height: 32px; max-width: 130px; }
+      main { padding: 36px 16px 56px; }
+      nav.toc { padding: 16px 16px; }
+      .card { padding: 16px; }
+      dl.id { grid-template-columns: 1fr; gap: 2px; }
+      dl.id dd { margin-bottom: 8px; }
+      .site-footer { padding: 24px 16px 36px; }
+      body { font-size: 15.5px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="https://pebaisystems.es" aria-label="PEBAI Systems, ir a la página principal">
+        <img class="brand-logo-img" src="../brand/pebai-horizontal-color-mineral-cropped.png" alt="PEBAI Systems" width="162" height="47">
+      </a>
+    </div>
+  </header>
+  <main id="contenido">
+    <span class="eyebrow">Información legal</span>
+    <h1>Política de cookies</h1>
+    <p class="updated">Última actualización: 14 de octubre de 2026</p>
+    <p class="lead">Te explicamos qué cookies y tecnologías similares usa pebaisystems.es y cómo puedes aceptarlas, rechazarlas o borrarlas.</p>
+    <nav class="toc" aria-label="Índice">
+      <h2>Índice</h2>
+      <ol>
+        <li><a href="#que-son">Qué son las cookies</a></li>
+        <li><a href="#cuales">Qué cookies usa esta web</a></li>
+        <li><a href="#cambiar">Cómo cambiar tu elección</a></li>
+        <li><a href="#borrar">Cómo borrarlas desde el navegador</a></li>
+        <li><a href="#actualizaciones">Actualizaciones</a></li>
+      </ol>
+    </nav>
+    <section id="que-son">
+      <h2><span class="n">1.</span>Qué son las cookies</h2>
+      <p>Las cookies son pequeños archivos que una web guarda en tu navegador. Hay tecnologías parecidas, como el almacenamiento local (<em>localStorage</em>) o de sesión (<em>sessionStorage</em>) del navegador, que funcionan de forma similar. En esta política usamos «cookies» para referirnos a todas ellas.</p>
+      <p>Algunas son <strong>técnicas</strong> (necesarias para que la web funcione o para recordar lo que eliges) y no requieren tu consentimiento. Otras son de <strong>analítica</strong> y solo las usamos si las aceptas.</p>
+    </section>
+    <section id="cuales">
+      <h2><span class="n">2.</span>Qué cookies usa esta web</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">Nombre</th><th scope="col">Titular</th><th scope="col">Tipo y finalidad</th><th scope="col">Duración</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>pebai_consent</code></td><td>Propia</td><td>Técnica (localStorage). Guarda si has aceptado o rechazado la analítica, para no volver a preguntarte.</td><td>12 meses</td></tr>
+            <tr><td><code>pebai_handoff</code></td><td>Propia</td><td>Técnica (sessionStorage). Permite la animación de transición entre páginas del proceso de solicitud.</td><td>Sesión</td></tr>
+            <tr><td><code>pebai-theme</code></td><td>Propia</td><td>Técnica (localStorage). Recuerda si prefieres el modo claro u oscuro en la página principal.</td><td>Hasta que la borres</td></tr>
+            <tr><td><code>pebai_attr_v1</code></td><td>Propia</td><td>Analítica (localStorage). Recuerda el origen de tu visita (campaña, red social o buscador y página de entrada) para saber por qué canal nos conoces. <strong>Solo con tu consentimiento.</strong></td><td>12 meses</td></tr>
+            <tr><td><code>pebai_geo_origin</code></td><td>Propia</td><td>Analítica (sessionStorage). Recuerda durante la visita si llegaste desde un buscador o asistente de IA. <strong>Solo con tu consentimiento.</strong></td><td>Sesión</td></tr>
+            <tr><td><code>_clck</code>, <code>_clsk</code>, <code>CLID</code>, <code>ANONCHK</code>, <code>MR</code>, <code>MUID</code>, <code>SM</code></td><td>Microsoft Clarity (tercero)</td><td>Analítica. Miden cómo se usa la web (clics, desplazamiento, páginas vistas) para mejorarla. <strong>Solo con tu consentimiento.</strong></td><td>Desde la sesión hasta 1 año</td></tr>
+            <tr><td><code>_ga</code>, <code>_ga_&lt;ID&gt;</code></td><td>Google Analytics (tercero)</td><td>Analítica. Distinguen visitas y miden el uso de la web de forma agregada. <strong>Solo con tu consentimiento.</strong></td><td>1 año</td></tr>
+            <tr><td>Cookies de Cal.com</td><td>Cal.com (tercero)</td><td>Técnicas. Solo en la página de reserva (<code>/reservar/</code>), necesarias para que funcione el calendario de reservas integrado.</td><td>Según Cal.com</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Puedes consultar cómo tratan los datos estos terceros en sus propias políticas: <a href="https://privacy.microsoft.com/es-es/privacystatement" target="_blank" rel="noopener">Microsoft</a>, <a href="https://policies.google.com/privacy?hl=es" target="_blank" rel="noopener">Google</a> y <a href="https://cal.com/privacy" target="_blank" rel="noopener">Cal.com</a>. Algunos de ellos pueden tratar datos en EE. UU.; más información en la <a href="/privacidad/#transferencias">política de privacidad</a>.</p>
+    </section>
+    <section id="cambiar">
+      <h2><span class="n">3.</span>Cómo cambiar tu elección</h2>
+      <p>Puedes aceptar o rechazar la analítica en cualquier momento. Si la rechazas después de haberla aceptado, dejamos de medir y borramos las cookies de analítica que podamos borrar desde la web.</p>
+      <p><button type="button" class="btn" onclick="window.PEBAI_CONSENT && PEBAI_CONSENT.open()">Configurar cookies</button></p>
+      <p>Tu elección se guarda durante 12 meses. Pasado ese tiempo, te volveremos a preguntar.</p>
+    </section>
+    <section id="borrar">
+      <h2><span class="n">4.</span>Cómo borrarlas desde el navegador</h2>
+      <p>También puedes bloquear o borrar las cookies y los datos de sitios web desde la configuración de tu navegador. Si bloqueas todas las cookies, puede que alguna parte de la web, como la reserva de la sesión, no funcione bien.</p>
+      <ul>
+        <li><a href="https://support.google.com/chrome/answer/95647?hl=es" target="_blank" rel="noopener">Google Chrome</a></li>
+        <li><a href="https://support.mozilla.org/es/kb/Borrar%20cookies" target="_blank" rel="noopener">Mozilla Firefox</a></li>
+        <li><a href="https://support.apple.com/es-es/HT201265" target="_blank" rel="noopener">Safari (iPhone y iPad)</a> y <a href="https://support.apple.com/es-es/guide/safari/sfri11471/mac" target="_blank" rel="noopener">Safari (Mac)</a></li>
+        <li><a href="https://support.microsoft.com/es-es/microsoft-edge/eliminar-las-cookies-en-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener">Microsoft Edge</a></li>
+      </ul>
+    </section>
+    <section id="actualizaciones">
+      <h2><span class="n">5.</span>Actualizaciones</h2>
+      <p>Revisaremos esta política cuando cambien las herramientas que usa la web. Publicaremos siempre la versión vigente en esta página con su fecha. Para cualquier duda, escríbenos a <a href="mailto:equipo@pebaisystems.es">equipo@pebaisystems.es</a>.</p>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a href="/privacidad/">Política de privacidad</a>
+      <a href="/aviso-legal/">Aviso legal</a>
+      <a href="/politica-de-cookies/" aria-current="page">Política de cookies</a>
+      <button type="button" onclick="window.PEBAI_CONSENT && PEBAI_CONSENT.open()">Configurar cookies</button>
+      <small>© 2026 PEBAI Systems · Daniel Peñuela Ruiz</small>
+    </div>
+  </footer>
+  <script src="/consent.js?v=1" defer></script>
+</body>
+</html>

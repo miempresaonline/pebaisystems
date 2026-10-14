@@ -273,27 +273,10 @@
     }
   });
 
-  const cookieBanner = $('#cookie-banner');
-  const cookiePanel = $('#cookie-panel');
-  const cookieOpens = all('.cookie-open');
-  const cookieAccept = $('.cookie-accept');
-  const saveCookiePreference = () => {
-    try {
-      localStorage.setItem('pebai-cookie-preferences', 'technical');
-      document.cookie = 'pebai_cookie_preferences=technical; Max-Age=31536000; Path=/; SameSite=Lax';
-    } catch {}
-    if (cookieBanner) cookieBanner.hidden = true;
-  };
-  let cookiePreferenceSaved = false;
-  try { cookiePreferenceSaved = localStorage.getItem('pebai-cookie-preferences') === 'technical'; } catch {}
-  if (cookieBanner && !cookiePreferenceSaved) {
-    window.setTimeout(() => { cookieBanner.hidden = false; }, 850);
-  }
-  cookieOpens.forEach((button) => button.addEventListener('click', () => {
-    if (cookiePanel?.showModal && !cookiePanel.open) cookiePanel.showModal();
+  // Preferencias de cookies: las gestiona /consent.js (banner y reapertura).
+  all('.cookie-open').forEach((button) => button.addEventListener('click', () => {
+    if (window.PEBAI_CONSENT) window.PEBAI_CONSENT.open();
   }));
-  cookieAccept?.addEventListener('click', saveCookiePreference);
-  cookiePanel?.addEventListener('close', () => saveCookiePreference());
 
   const hero = $('.hero'), pointer = $('.hero-mark-pointer');
   const floatingCta = $('.floating-cta');
@@ -503,44 +486,7 @@
     }
   }, { passive: true });
 
-  // Carga diferida inteligente de Microsoft Clarity y GA4 tras primera interacción (Zero TBT)
-  let thirdPartyLoaded = false;
-  function loadDeferredAnalytics() {
-    if (thirdPartyLoaded) return;
-    thirdPartyLoaded = true;
-
-    ['scroll', 'keydown', 'mousemove', 'touchstart', 'click'].forEach(evt => {
-      window.removeEventListener(evt, loadDeferredAnalytics, { passive: true });
-    });
-
-    // Cargar Microsoft Clarity (si no está ya en el DOM)
-    const clarityId = analyticsCfg.clarityId;
-    if (clarityId && !document.querySelector('script[src*="clarity.ms"]')) {
-      (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-      })(window, document, "clarity", "script", clarityId);
-    }
-
-    // Cargar GA4 si está configurado
-    const ga4Id = analyticsCfg.ga4Id;
-    if (ga4Id && !document.querySelector('script[src*="googletagmanager.com"]')) {
-      const gaScript = document.createElement('script');
-      gaScript.async = true;
-      gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
-      document.head.appendChild(gaScript);
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){ window.dataLayer.push(arguments); }
-      window.gtag = gtag;
-      gtag('js', new Date());
-      gtag('config', ga4Id, { send_page_view: true });
-    }
-  }
-
-  ['scroll', 'keydown', 'mousemove', 'touchstart', 'click'].forEach(evt => {
-    window.addEventListener(evt, loadDeferredAnalytics, { passive: true, once: true });
-  });
+  // Microsoft Clarity y GA4 los carga /consent.js, solo si el visitante acepta la analítica.
 
   window.pebaiTrackEvent = pebaiTrackEvent;
 })();

@@ -14,8 +14,7 @@ window.PEBAI_CONFIG = {
   },
   // Analítica, CRO y Telemetría Server-Side
   analytics: {
-    clarityId: 'yjwe6ir50h', // Microsoft Clarity Oficial PEBAI
-    ga4Id: 'G-2QFM6HCTWV',     // GA4 Measurement ID Oficial
+    // Clarity y GA4 se cargan desde /consent.js (solo con consentimiento)
     telemetryEndpoint: '/api/telemetry.php',
     wpTelemetryEndpoint: '/wp-json/pebai/v1/telemetry',
     leadValueEUR: 50.00

@@ -1,7 +1,10 @@
 /*
  * PEBAI · Atribución de tráfico
- * Guarda de dónde viene cada visitante (primer y último toque externo) y lo
- * propaga a los enlaces internos hacia el embudo para que llegue al formulario.
+ * Detecta de dónde viene cada visitante y propaga los parámetros de origen a
+ * los enlaces internos hacia el embudo para que lleguen al formulario.
+ * Solo guarda el historial (primer y último toque externo) en
+ * localStorage['pebai_attr_v1'] si el visitante ha aceptado la analítica
+ * (ver /consent.js). Sin consentimiento trabaja solo con la URL actual.
  * API: window.PEBAI_ATTR.get() -> { first, last, cta }
  */
 (function () {
@@ -13,10 +16,26 @@
   var PASS_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'origen', 'palabra'];
   var FUNNEL_PATHS = ['/consultoria-gratuita', '/diagnostico'];
 
+  // Consentimiento de analítica. consent.js puede no haberse cargado aún
+  // (diagnostico carga este script en el <head>), así que se lee directamente.
+  function consentGiven() {
+    try {
+      if (window.PEBAI_CONSENT && typeof window.PEBAI_CONSENT.analyticsAllowed === 'function') {
+        return !!window.PEBAI_CONSENT.analyticsAllowed();
+      }
+      var c = JSON.parse(localStorage.getItem('pebai_consent'));
+      if (!c || c.v !== 1 || c.analytics !== true) return false;
+      var t = Date.parse(c.ts);
+      return !!t && Date.now() - t <= 365 * 24 * 60 * 60 * 1000;
+    } catch (e) { return false; }
+  }
+
   function load() {
+    if (!consentGiven()) return {};
     try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; }
   }
   function save(data) {
+    if (!consentGiven()) return;
     try { localStorage.setItem(STORE, JSON.stringify(data)); } catch (e) {}
   }
 
@@ -50,36 +69,55 @@
   if (!touch.utm_term && touch.palabra) touch.utm_term = touch.palabra;
 
   var data = load();
+  var stored = !!(data.first || data.last);
 
-  // Solo cuenta como "toque" una llegada desde fuera de la web (o directa).
-  if (!internal) {
-    if (!touch.utm_source) {
-      if (referrer) {
-        touch.utm_source = sourceFromReferrer(referrer);
-        touch.utm_medium = touch.utm_medium || 'referral';
-      } else if (!data.first) {
-        touch.utm_source = 'directo';
-      }
+  // Toque de esta visita: llegada desde fuera (o directa), o parámetros de
+  // origen explícitos en la URL (p. ej. propagados desde otra página).
+  var current = null;
+  if (!internal && !touch.utm_source) {
+    if (referrer) {
+      touch.utm_source = sourceFromReferrer(referrer);
+      touch.utm_medium = touch.utm_medium || 'referral';
+    } else if (!data.first) {
+      touch.utm_source = 'directo';
     }
-    if (touch.utm_source) {
-      touch.landing = window.location.pathname;
-      touch.referrer = referrer.slice(0, 300);
-      touch.ts = new Date().toISOString();
-      if (!data.first) data.first = touch;
-      data.last = touch;
-      save(data);
-    }
+  }
+  if (touch.utm_source) {
+    touch.landing = window.location.pathname;
+    touch.referrer = referrer.slice(0, 300);
+    touch.ts = new Date().toISOString();
+    current = touch;
   }
 
   // Botón concreto que trajo al visitante al formulario (p. ej. cta=vsl_principal)
   var cta = params.get('cta');
-  if (cta) {
-    data.cta = cta.slice(0, 80);
-    save(data);
+  cta = cta ? cta.slice(0, 80) : '';
+
+  // Guarda el toque de la visita actual (solo con consentimiento).
+  function persist() {
+    if (!consentGiven()) return;
+    var d = load();
+    // Solo cuenta como "toque" guardado una llegada desde fuera de la web (o directa).
+    if (current && !internal) {
+      if (!d.first) d.first = current;
+      d.last = current;
+    } else if (current && !d.first) {
+      d.first = current;
+      d.last = current;
+    }
+    if (cta) d.cta = cta;
+    if (d.first || d.last || d.cta) save(d);
+    data = d;
   }
+  persist();
+
+  document.addEventListener('pebai:consent', function (e) {
+    if (e && e.detail && e.detail.analytics) persist();
+    else data = {};
+  });
 
   function decorate() {
-    var last = data.last || {};
+    var last = (stored && data.last) || current || data.last || {};
     var extra = {};
     PASS_KEYS.forEach(function (k) { if (last[k]) extra[k] = last[k]; });
     if (!Object.keys(extra).length) return;
@@ -107,7 +145,11 @@
   window.PEBAI_ATTR = {
     get: function () {
       var d = load();
-      return { first: d.first || data.first || null, last: d.last || data.last || null, cta: d.cta || data.cta || '' };
+      return {
+        first: d.first || current || null,
+        last: d.last || current || null,
+        cta: d.cta || cta || ''
+      };
     }
   };
 })();

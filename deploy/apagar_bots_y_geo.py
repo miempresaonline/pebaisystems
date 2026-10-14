@@ -4,8 +4,9 @@ Qué hace (una sola conexión SSH):
   1. Para y borra de PM2 los bots `pebai-outreach` (WhatsApp) y `pebai-social-engine` (redes).
   2. Quita del crontab cualquier tarea de esos bots o del publicador GEO (cron_publish.php).
   3. Borra las carpetas de los bots (código, sesiones iniciadas y .env) del servidor.
-  4. Borra el publicador GEO y su relay de emails de la web: api/cron_publish.php,
-     api/send_alert.php y api/cron_execution.log.
+  4. Borra de la web el publicador GEO (api/cron_publish.php, api/send_alert.php, su log),
+     el bot de Instagram (api/instagram-webhook.php y su config) y restos del sistema antiguo
+     (api/diagnostico.php, api/submissions.json, api/service_account.json).
 
 Uso:
   python deploy/apagar_bots_y_geo.py              -> solo muestra lo que encuentra (no cambia nada)
@@ -28,7 +29,10 @@ HOME = f'/home/{USER}'
 WEB_API = f'{HOME}/domains/pebaisystems.es/public_html/api'
 PM2_NAMES = ['pebai-outreach', 'pebai-social-engine']
 BOT_DIRS = [f'{HOME}/whatsapp-outreach-bot', f'{HOME}/social-media-engine']
-GEO_FILES = [f'{WEB_API}/cron_publish.php', f'{WEB_API}/send_alert.php', f'{WEB_API}/cron_execution.log']
+GEO_FILES = [f'{WEB_API}/cron_publish.php', f'{WEB_API}/send_alert.php', f'{WEB_API}/cron_execution.log',
+             # bot de Instagram y restos del sistema antiguo (clave de Google incluida)
+             f'{WEB_API}/instagram-webhook.php', f'{WEB_API}/instagram-config.php', f'{WEB_API}/instagram-events.log',
+             f'{WEB_API}/service_account.json', f'{WEB_API}/diagnostico.php', f'{WEB_API}/submissions.json']
 CRON_PATTERN = 'cron_publish|whatsapp-outreach|social-media-engine|pebai-outreach|pebai-social'
 PATH = 'export PATH=/usr/local/bin:/usr/bin:/bin:/opt/alt/alt-nodejs22/root/usr/bin:~/.npm-global/bin:$PATH; '
 

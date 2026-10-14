@@ -28,7 +28,17 @@
   }
 
   // Persistir la fuente GEO en sessionStorage para atribuir toda la sesión
-  if (detectedSource) {
+  // Solo con consentimiento de analítica (ver /consent.js).
+  var analyticsOk = false;
+  try {
+    if (window.PEBAI_CONSENT) {
+      analyticsOk = !!window.PEBAI_CONSENT.analyticsAllowed();
+    } else {
+      var cc = JSON.parse(localStorage.getItem('pebai_consent'));
+      analyticsOk = !!(cc && cc.v === 1 && cc.analytics === true && Date.now() - Date.parse(cc.ts) <= 31536000000);
+    }
+  } catch(e) {}
+  if (detectedSource && analyticsOk) {
     try {
       sessionStorage.setItem('pebai_geo_origin', detectedSource);
     } catch(e) {}
