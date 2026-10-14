@@ -31,7 +31,6 @@ TEAM = ROOT / 'website-pebai/dist/team'
 
 PERSONAS = {
     'adrian': {'nombre': 'Adrián Ballesteros', 'rol': 'Dirección de proyectos', 'foto': TEAM / 'avatar-adrian.jpg'},
-    'dani': {'nombre': 'Daniel Peñuela', 'rol': 'Ingeniería de procesos', 'foto': TEAM / 'avatar-dani.jpg'},
 }
 WHATSAPP = '624 84 27 99'
 
@@ -119,8 +118,8 @@ def html_for(key: str, p: dict, cara: str) -> str:
     <div class="left">
       <div class="kicker">CONSULTORÍA GRATUITA</div>
       <h2 class="serif">¿Cuántas horas pierde tu equipo <i>cada semana?</i></h2>
-      <p>Te lo decimos en una videollamada de 25 minutos, con un mapa de lo que se puede automatizar.</p>
-      <div class="chips"><span class="lime">0 €</span><span>25 min</span><span>5 plazas al mes</span></div>
+      <p>Te lo decimos gratis en una videollamada de 25 minutos.</p>
+      <div class="chips"><span class="lime">0 €</span><span>25 min</span><span>Solo 5 plazas al mes</span></div>
     </div>
     <div class="right">
       <div class="qr">{qr_svg('https://' + url_short)}</div>
@@ -156,7 +155,8 @@ def main():
         browser.close()
     # Hoja de revisión (RGB): A y B de cada persona, con la línea de corte marcada
     gap = 40
-    sheet = Image.new('RGB', (PX_W * 2 + gap * 3, PX_H * 2 + gap * 3), (42, 42, 46))
+    rows = (len(previews) + 1) // 2
+    sheet = Image.new('RGB', (PX_W * 2 + gap * 3, PX_H * rows + gap * (rows + 1)), (42, 42, 46))
     for i, im in enumerate(previews):
         sheet.paste(im, (gap + (i % 2) * (PX_W + gap), gap + (i // 2) * (PX_H + gap)))
     sheet.save(HERE / 'vista-previa.png')
