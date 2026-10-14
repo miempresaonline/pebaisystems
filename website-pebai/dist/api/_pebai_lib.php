@@ -370,27 +370,7 @@ function pebai_smtp_send(string $to, string $subject, string $html, string $text
     };
 
     $boundary = 'pebai_' . bin2hex(random_bytes(8));
-    $related = 'pebai_rel_' . bin2hex(random_bytes(8));
     $from = $cfg['user'];
-
-    // El logo y los iconos van dentro del correo (cid:), no enlazados: así se ven aunque el
-    // programa de correo bloquee las imágenes externas (webmail de Hostinger, Outlook…).
-    $inline = '';
-    $dir = dirname(__DIR__) . '/brand/email/';
-    $html = preg_replace_callback('#' . preg_quote(PEBAI_EMAIL_ASSETS, '#') . '([a-z0-9-]+\.png)(\?v=\d+)?#',
-        function (array $m) use ($dir, $related, &$inline): string {
-            $file = $dir . $m[1];
-            if (!is_file($file)) {
-                return $m[0];
-            }
-            $cid = $m[1] . '@pebaisystems.es';
-            if (strpos($inline, '<' . $cid . '>') === false) {
-                $inline .= "--$related\r\nContent-Type: image/png; name=\"{$m[1]}\"\r\nContent-Transfer-Encoding: base64\r\n"
-                    . "Content-ID: <$cid>\r\nContent-Disposition: inline; filename=\"{$m[1]}\"\r\n\r\n"
-                    . chunk_split(base64_encode((string)file_get_contents($file))) . "\r\n";
-            }
-            return 'cid:' . $cid;
-        }, $html);
     $headers = [
         'Date: ' . date('r'),
         'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $from . '>',
@@ -404,11 +384,8 @@ function pebai_smtp_send(string $to, string $subject, string $html, string $text
     $body = implode("\r\n", $headers) . "\r\n\r\n"
         . "--$boundary\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
         . chunk_split(base64_encode($text)) . "\r\n"
-        . "--$boundary\r\nContent-Type: multipart/related; boundary=\"$related\"\r\n\r\n"
-        . "--$related\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
+        . "--$boundary\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
         . chunk_split(base64_encode($html)) . "\r\n"
-        . $inline
-        . "--$related--\r\n"
         . "--$boundary--\r\n";
 
     try {
