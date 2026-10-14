@@ -118,6 +118,9 @@ try {
 }
 
 $out = ['status' => 'ok', 'enviados_24h' => $enviados['24'], 'enviados_1h' => $enviados['1'], 'sesiones_auto' => $sesiones, 'errores' => $errores];
+// Última ejecución de cada vía (cron de hPanel, GitHub/URL o visitas) para comprobar que funcionan
+@file_put_contents(pebai_private_dir() . '/recordatorios-' . ($isCli ? 'cron' : ($isTick ? 'visitas' : 'url')) . '.last',
+    date('Y-m-d H:i:s') . ' ' . json_encode($out) . "\n");
 if (!$isTick) {
     echo $isCli ? json_encode($out) . "\n" : json_encode($out);
 }
