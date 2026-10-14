@@ -515,7 +515,7 @@ function pebai_lead_email(array $lead, int $id): array
         . '</td></tr></table></body></html>';
 
     $text = "Nueva solicitud: {$lead['empresa']} ($etiqueta)\n\nVer en el panel: $panel\n";
-    $subject = ($qualified ? '🟢 ' : '⚪ ') . 'Nueva solicitud: ' . $lead['empresa'];
+    $subject = 'Nueva solicitud: ' . $lead['empresa'] . ($qualified ? ' · con presupuesto' : '');
 
     return [$subject, $html, $text];
 }
