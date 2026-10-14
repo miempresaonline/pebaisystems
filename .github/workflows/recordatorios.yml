@@ -1,13 +1,10 @@
 name: Recordatorios de citas
 
-# Hostinger no permite crear tareas programadas sin hPanel: GitHub llama cada 15 minutos a
-# api/recordatorios.php, que envía los recordatorios de 24 h y 1 h (es idempotente).
+# Solo manual: los recordatorios los lanza el cron de hPanel cada 15 min (desde el 14/10/2026)
+# y, de respaldo, api/tick.php con las visitas. Esto sirve para forzar una pasada desde GitHub.
 # Necesita el secreto PEBAI_CRON_TOKEN (= 'cron_token' de website-pebai/private/config.php).
 
 on:
-  schedule:
-    # Minutos desfasados: GitHub retrasa o salta las tareas en punto (:00, :15...)
-    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
 
 concurrency:
