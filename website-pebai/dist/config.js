@@ -9,8 +9,8 @@ window.PEBAI_CONFIG = {
     // Enlace directo al Embudo de Diagnóstico Técnico
     diagnostico: './diagnostico/',
     instagram: 'https://www.instagram.com/pebaisystems/',
-    tiktok: 'https://www.tiktok.com/',
-    youtube: 'https://www.youtube.com/'
+    tiktok: 'https://www.tiktok.com/@pebaisystems',
+    youtube: 'https://www.youtube.com/@pebaisystems'
   },
   // Analítica, CRO y Telemetría Server-Side
   analytics: {
