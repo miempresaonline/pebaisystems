@@ -80,6 +80,23 @@ function pebai_db(): PDO
             }
         }
         $pdo->exec('CREATE TABLE IF NOT EXISTS login_attempts (ip_hash TEXT NOT NULL, ts INTEGER NOT NULL)');
+        // Citas de Cal.com (una fila por reserva; un cambio de hora crea una fila nueva)
+        $pdo->exec('CREATE TABLE IF NOT EXISTS citas (
+            uid TEXT PRIMARY KEY,
+            lead_id INTEGER NOT NULL DEFAULT 0,
+            inicio TEXT NOT NULL DEFAULT "",
+            fin TEXT NOT NULL DEFAULT "",
+            nombre TEXT NOT NULL DEFAULT "",
+            email TEXT NOT NULL DEFAULT "",
+            meet_url TEXT NOT NULL DEFAULT "",
+            estado TEXT NOT NULL DEFAULT "reservada",
+            asistencia TEXT NOT NULL DEFAULT "",
+            rec24 INTEGER NOT NULL DEFAULT 0,
+            rec1 INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT "",
+            updated_at TEXT NOT NULL DEFAULT ""
+        )');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_citas_inicio ON citas(inicio)');
     }
     return $pdo;
 }
@@ -123,11 +140,84 @@ function pebai_phone_digits(string $tel): string
     return $d;
 }
 
+/* --------------------------------------------------------------- Citas --- */
+
+/**
+ * Crea o actualiza una cita por su uid de Cal.com. Solo sobrescribe los campos que llegan
+ * con valor, así el webhook y la página de reserva pueden completar la misma fila en cualquier orden.
+ */
+function pebai_cita_save(string $uid, array $f): ?array
+{
+    if ($uid === '') {
+        return null;
+    }
+    $db = pebai_db();
+    $now = date('Y-m-d H:i:s');
+    $q = $db->prepare('SELECT * FROM citas WHERE uid = ?');
+    $q->execute([$uid]);
+    $row = $q->fetch();
+    $allowed = ['lead_id', 'inicio', 'fin', 'nombre', 'email', 'meet_url', 'estado'];
+    $data = [];
+    foreach ($allowed as $k) {
+        if (isset($f[$k]) && $f[$k] !== '' && $f[$k] !== 0) {
+            $data[$k] = $f[$k];
+        }
+    }
+    if ($row) {
+        if (!empty($row['lead_id'])) {
+            unset($data['lead_id']);  // una cita ya unida no cambia de solicitud
+        }
+        if ($data) {
+            $set = implode(', ', array_map(fn($k) => "$k = ?", array_keys($data)));
+            $db->prepare("UPDATE citas SET $set, updated_at = ? WHERE uid = ?")
+                ->execute(array_merge(array_values($data), [$now, $uid]));
+        }
+    } else {
+        $data += ['uid' => $uid, 'created_at' => $now, 'updated_at' => $now];
+        $cols = array_keys($data);
+        $db->prepare('INSERT INTO citas (' . implode(',', $cols) . ') VALUES (' . implode(',', array_fill(0, count($cols), '?')) . ')')
+            ->execute(array_values($data));
+    }
+    $q->execute([$uid]);
+    $cita = $q->fetch();
+    if ($cita && !empty($cita['lead_id'])) {
+        pebai_cita_sync_lead($cita);
+    }
+    return $cita ?: null;
+}
+
+/** Refleja la cita en la solicitud (estado y datos visibles en el panel). */
+function pebai_cita_sync_lead(array $cita): void
+{
+    $db = pebai_db();
+    $q = $db->prepare('SELECT estado, cita_uid FROM leads WHERE id = ?');
+    $q->execute([(int)$cita['lead_id']]);
+    $lead = $q->fetch();
+    if (!$lead) {
+        return;
+    }
+    $now = date('Y-m-d H:i:s');
+    if ($cita['estado'] === 'reservada') {
+        // Una sesión ya hecha o un cliente no vuelven atrás por una cita nueva
+        $estado = in_array($lead['estado'], ['sesion', 'cliente'], true) ? $lead['estado'] : 'cita';
+        $db->prepare('UPDATE leads SET estado = ?, cita_uid = ?, cita_inicio = ?, cita_fin = ?, cita_estado = ?,
+                      cliente_nombre = CASE WHEN ? <> "" THEN ? ELSE cliente_nombre END,
+                      cliente_email = CASE WHEN ? <> "" THEN ? ELSE cliente_email END, updated_at = ? WHERE id = ?')
+            ->execute([$estado, $cita['uid'], $cita['inicio'], $cita['fin'], 'reservada',
+                       $cita['nombre'], $cita['nombre'], $cita['email'], $cita['email'], $now, (int)$cita['lead_id']]);
+    } elseif ($cita['estado'] === 'cancelada' && $lead['cita_uid'] === $cita['uid']) {
+        $estado = $lead['estado'] === 'cita' ? 'contactado' : $lead['estado'];
+        $db->prepare('UPDATE leads SET estado = ?, cita_estado = ?, updated_at = ? WHERE id = ?')
+            ->execute([$estado, 'cancelada', $now, (int)$cita['lead_id']]);
+    }
+}
+
 /* ---------------------------------------------------------------- SMTP --- */
 
-function pebai_smtp_send(string $to, string $subject, string $html, string $text): void
+function pebai_smtp_send(string $to, string $subject, string $html, string $text, ?string $fromName = null): void
 {
     $cfg = pebai_config()['smtp'];
+    $fromName = $fromName ?? $cfg['from_name'];
     $fp = @stream_socket_client('ssl://' . $cfg['host'] . ':' . $cfg['port'], $errno, $errstr, 15);
     if (!$fp) {
         throw new RuntimeException("SMTP connect: $errstr ($errno)");
@@ -158,7 +248,8 @@ function pebai_smtp_send(string $to, string $subject, string $html, string $text
     $from = $cfg['user'];
     $headers = [
         'Date: ' . date('r'),
-        'From: =?UTF-8?B?' . base64_encode($cfg['from_name']) . '?= <' . $from . '>',
+        'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $from . '>',
+        'Reply-To: <' . $from . '>',
         'To: <' . $to . '>',
         'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
         'Message-ID: <' . bin2hex(random_bytes(12)) . '@pebaisystems.es>',

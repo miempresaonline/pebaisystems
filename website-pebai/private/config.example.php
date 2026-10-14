@@ -14,5 +14,7 @@ return [
     'panel_password_hash' => '',
     // Secreto del webhook de Cal.com (mismo valor en Cal.com)
     'calcom_webhook_secret' => '',
+    // Token para lanzar api/recordatorios.php por URL desde el cron de Hostinger
+    'cron_token' => '',
     'salt' => '',
 ];

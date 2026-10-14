@@ -45,11 +45,15 @@ if ($inicio === '' || strtotime($inicio) === false) {
 $estadoCita = !empty($data['reschedule']) ? 'cambiada' : 'reservada';
 
 try {
+    if ($uid !== '') {
+        $cita = pebai_cita_save($uid, ['lead_id' => $id, 'inicio' => $inicio, 'fin' => $fin, 'estado' => 'reservada']);
+        out(200, ['status' => 'ok', 'cita' => (bool)$cita]);
+    }
+    // Sin uid (navegador antiguo): al menos se marca la solicitud
     $db = pebai_db();
-    $q = $db->prepare('UPDATE leads SET estado = ?, cita_inicio = ?, cita_fin = ?, cita_uid = CASE WHEN ? <> "" THEN ? ELSE cita_uid END,
-                       cita_estado = ?, updated_at = ? WHERE id = ?');
-    $q->execute(['cita', $inicio, $fin, $uid, $uid, $estadoCita, date('Y-m-d H:i:s'), $id]);
-    out(200, ['status' => 'ok', 'updated' => $q->rowCount()]);
+    $db->prepare('UPDATE leads SET estado = ?, cita_inicio = ?, cita_fin = ?, cita_estado = ?, updated_at = ? WHERE id = ?')
+        ->execute(['cita', $inicio, $fin, $estadoCita, date('Y-m-d H:i:s'), $id]);
+    out(200, ['status' => 'ok']);
 } catch (Throwable $e) {
     pebai_log('LINK BOOKING: ' . $e->getMessage());
     out(500, ['status' => 'error']);

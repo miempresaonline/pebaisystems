@@ -47,45 +47,47 @@ $response = function (string $slug) use ($p): string {
 };
 
 $attendee = $p['attendees'][0] ?? [];
-$nombre = mb_substr($attendee['name'] ?? $response('name'), 0, 150);
-$email = mb_substr($attendee['email'] ?? $response('email'), 0, 200);
-$inicio = $p['startTime'] ?? '';
-$fin = $p['endTime'] ?? '';
-$uid = $p['uid'] ?? '';
+$uid = (string)($p['uid'] ?? '');
 $solicitud = (int)preg_replace('/\D+/', '', $response('solicitud') ?: (string)($p['metadata']['solicitud'] ?? ''));
-
-$estados = [
-    'BOOKING_CREATED' => ['cita', 'reservada', '📅 Nueva cita'],
-    'BOOKING_RESCHEDULED' => ['cita', 'cambiada', '🔁 Cita cambiada'],
-    'BOOKING_CANCELLED' => ['contactado', 'cancelada', '❌ Cita cancelada'],
-];
-if (!isset($estados[$trigger])) {
-    done(200, ['status' => 'ignored', 'trigger' => $trigger]);
+$meet = (string)($p['metadata']['videoCallUrl'] ?? ($p['videoCallData']['url'] ?? ''));
+if ($meet === '' && preg_match('#^https?://#', (string)($p['location'] ?? ''))) {
+    $meet = (string)$p['location'];
 }
-[$estadoLead, $estadoCita, $titulo] = $estados[$trigger];
+$datos = [
+    'lead_id' => $solicitud,
+    'inicio' => (string)($p['startTime'] ?? ''),
+    'fin' => (string)($p['endTime'] ?? ''),
+    'nombre' => mb_substr((string)($attendee['name'] ?? $response('name')), 0, 150),
+    'email' => mb_substr((string)($attendee['email'] ?? $response('email')), 0, 200),
+    'meet_url' => mb_substr($meet, 0, 300),
+];
+$anterior = (string)($p['rescheduleUid'] ?? ($p['fromReschedule'] ?? ($p['rescheduledFromUid'] ?? '')));
 
-$lead = null;
 try {
-    $db = pebai_db();
-    if (!$solicitud && $uid) {
-        // Cambios y cancelaciones pueden no traer el campo oculto: se busca por la cita anterior
-        $prev = $p['rescheduleUid'] ?? ($p['fromReschedule'] ?? ($p['rescheduledFromUid'] ?? $uid));
-        $q = $db->prepare('SELECT id FROM leads WHERE cita_uid IN (?, ?) LIMIT 1');
-        $q->execute([$uid, $prev]);
-        $solicitud = (int)$q->fetchColumn();
-    }
-    if ($solicitud) {
-        $db->prepare('UPDATE leads SET estado = ?, cita_inicio = ?, cita_fin = ?, cita_uid = ?, cita_estado = ?,
-                      cliente_nombre = ?, cliente_email = ?, updated_at = ? WHERE id = ?')
-            ->execute([$estadoLead, $inicio, $fin, $uid, $estadoCita, $nombre, $email, date('Y-m-d H:i:s'), $solicitud]);
-        $q = $db->prepare('SELECT * FROM leads WHERE id = ?');
-        $q->execute([$solicitud]);
-        $lead = $q->fetch() ?: null;
+    switch ($trigger) {
+        case 'BOOKING_CREATED':
+            pebai_cita_save($uid, $datos + ['estado' => 'reservada']);
+            break;
+        case 'BOOKING_RESCHEDULED':
+            if ($anterior !== '' && $anterior !== $uid) {
+                // La cita anterior queda "cambiada" y la nueva hereda su solicitud
+                $old = pebai_cita_save($anterior, ['estado' => 'cambiada']);
+                if ($old && !$datos['lead_id']) {
+                    $datos['lead_id'] = (int)$old['lead_id'];
+                }
+            }
+            pebai_cita_save($uid, $datos + ['estado' => 'reservada']);
+            break;
+        case 'BOOKING_CANCELLED':
+            pebai_cita_save($uid, ['estado' => 'cancelada']);
+            break;
+        default:
+            done(200, ['status' => 'ignored', 'trigger' => $trigger]);
     }
 } catch (Throwable $e) {
-    pebai_log('CALCOM DB: ' . $e->getMessage());
+    pebai_log('CALCOM: ' . $e->getMessage());
+    done(500, ['status' => 'error']);
 }
 
-// Sin email propio: Cal.com ya avisa al organizador de cada reserva, cambio y cancelación.
-
-done(200, ['status' => 'ok', 'solicitud' => $solicitud]);
+// Sin email propio aquí: Cal.com ya avisa al organizador. Los recordatorios al cliente los manda api/recordatorios.php.
+done(200, ['status' => 'ok']);
