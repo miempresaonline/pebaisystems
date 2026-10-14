@@ -6,6 +6,9 @@
 # 0. Índice por defecto y resolución canónica de directorios
 DirectoryIndex index.html index.php
 
+# Página de error propia (en vez de la genérica de Hostinger en inglés)
+ErrorDocument 404 /404.html
+
 # 1. Redirecciones de Conversión Directa a WhatsApp (+34 624 84 27 99)
 RewriteEngine On
 RewriteBase /
@@ -37,9 +40,10 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # 2. Cabeceras de Rendimiento Extremo y Edge Caching
 <IfModule mod_headers.c>
-    # Cache-Control optimizado para Cloudflare Edge y navegadores (Edge Cache 30ms)
+    # Las páginas se comprueban siempre con el servidor (responde 304 si no han cambiado),
+    # para que nadie se quede con una versión vieja o con un error tras un despliegue.
     <FilesMatch "\.(html|htm)$">
-        Header set Cache-Control "public, max-age=3600, stale-while-revalidate=86400"
+        Header set Cache-Control "no-cache"
     </FilesMatch>
 
     <FilesMatch "\.(css|js|woff2|woff|ttf|png|jpg|jpeg|svg|webp|ico)$">
