@@ -19,9 +19,10 @@
   var CLARITY_ID = 'yjwe6ir50h';
   var GA4_ID = 'G-2QFM6HCTWV';
   var POLICY_URL = '/politica-de-cookies/';
+  var SHOW_DELAY_MS = 6000;
   var ANALYTICS_COOKIES = ['_clck', '_clsk', 'CLID', 'ANONCHK', 'MR', 'MUID', 'SM', '_ga', '_gid', '_gat'];
 
-  var isPanel = /^\/panel(\/|$)/.test(window.location.pathname);
+  var isPanel = /^\/panel(\/|$)/.test(window.location.pathname) || /^panel\./.test(window.location.hostname);
   var loaded = false;
   var banner = null;
   var lastFocus = null;
@@ -106,33 +107,26 @@
     } catch (e) {}
   }
 
+  // Aviso compacto y no bloqueante: una tarjeta pequeña abajo que no tapa el vídeo ni los botones.
   var CSS = '' +
-    '.pebai-cc{position:fixed;z-index:2147483000;left:50%;bottom:20px;transform:translateX(-50%);' +
-    'width:calc(100% - 40px);max-width:620px;box-sizing:border-box;padding:18px 20px;' +
-    'background:rgba(11,14,25,.96);color:#ECEBF0;border:1px solid rgba(106,92,255,.38);border-radius:16px;' +
-    'box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.03) inset;' +
-    '-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);' +
-    "font:400 14px/1.55 Manrope,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;" +
-    'display:flex;align-items:center;gap:18px;text-align:left;animation:pebai-cc-in .35s cubic-bezier(.2,.8,.2,1)}' +
+    '.pebai-cc{position:fixed;z-index:2147483000;left:20px;bottom:20px;width:380px;max-width:calc(100% - 40px);box-sizing:border-box;' +
+    'padding:12px 12px 12px 16px;background:rgba(11,14,25,.94);color:#ECEBF0;border:1px solid rgba(255,255,255,.1);border-radius:14px;' +
+    'box-shadow:0 12px 34px rgba(0,0,0,.45);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);' +
+    "font:400 13px/1.45 Manrope,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;" +
+    'display:flex;align-items:center;gap:12px;text-align:left;animation:pebai-cc-in .35s cubic-bezier(.2,.8,.2,1)}' +
     '.pebai-cc[hidden]{display:none}' +
     '.pebai-cc *{box-sizing:border-box}' +
-    '.pebai-cc p{margin:0;flex:1 1 auto;color:#A3A8BC;font-size:13.5px}' +
-    '.pebai-cc p strong{color:#ECEBF0;font-weight:600}' +
-    '.pebai-cc a{color:#B7FF3C;text-decoration:underline;text-underline-offset:2px}' +
-    '.pebai-cc a:hover{color:#d4ff8a}' +
-    '.pebai-cc-actions{display:flex;gap:10px;flex:0 0 auto}' +
-    '.pebai-cc button{all:unset;box-sizing:border-box;cursor:pointer;min-width:104px;min-height:40px;padding:9px 18px;' +
-    'border-radius:10px;text-align:center;font:600 14px/1.2 Manrope,system-ui,-apple-system,sans-serif;' +
-    'color:#ECEBF0;background:rgba(255,255,255,.07);border:1px solid rgba(236,235,240,.28);' +
-    'transition:background .15s ease,border-color .15s ease}' +
-    '.pebai-cc button:hover{background:rgba(255,255,255,.13);border-color:rgba(236,235,240,.5)}' +
+    '.pebai-cc p{margin:0;flex:1 1 auto;color:#A3A8BC;font-size:12.5px}' +
+    '.pebai-cc a{color:#ECEBF0;text-decoration:underline;text-underline-offset:2px}' +
+    '.pebai-cc-actions{display:flex;gap:6px;flex:0 0 auto}' +
+    '.pebai-cc button{all:unset;box-sizing:border-box;cursor:pointer;min-height:34px;padding:7px 12px;' +
+    'border-radius:9px;text-align:center;font:600 12.5px/1.2 Manrope,system-ui,-apple-system,sans-serif;' +
+    'color:#ECEBF0;background:rgba(255,255,255,.08);border:1px solid rgba(236,235,240,.22);transition:background .15s ease}' +
+    '.pebai-cc button:hover{background:rgba(255,255,255,.15)}' +
     '.pebai-cc button:focus-visible,.pebai-cc a:focus-visible{outline:2px solid #B7FF3C;outline-offset:2px}' +
-    '@keyframes pebai-cc-in{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}' +
-    '@media (max-width:640px){.pebai-cc{left:12px;right:12px;bottom:12px;width:auto;max-width:none;transform:none;' +
-    'flex-direction:column;align-items:stretch;gap:12px;padding:14px 14px 12px;max-height:35vh;max-height:35dvh;overflow-y:auto;' +
-    'animation-name:pebai-cc-in-m}' +
-    '.pebai-cc p{font-size:13px}.pebai-cc-actions{width:100%}.pebai-cc button{flex:1 1 0;min-height:44px;min-width:0}}' +
-    '@keyframes pebai-cc-in-m{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}' +
+    '@keyframes pebai-cc-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}' +
+    '@media (max-width:640px){.pebai-cc{left:10px;right:10px;bottom:10px;width:auto;max-width:none;padding:10px 10px 10px 14px;gap:10px}' +
+    '.pebai-cc p{font-size:12px}}' +
     '@media (prefers-reduced-motion:reduce){.pebai-cc{animation:none}}' +
     '@media print{.pebai-cc{display:none!important}}';
 
@@ -151,8 +145,7 @@
     banner.setAttribute('aria-describedby', 'pebai-cc-text');
     banner.hidden = true;
     banner.innerHTML =
-      '<p id="pebai-cc-text">Usamos cookies de analítica (Microsoft Clarity y Google Analytics) para entender cómo se usa la web y mejorarla. ' +
-      'Puedes aceptarlas o rechazarlas. <a href="' + POLICY_URL + '">Política de cookies</a></p>' +
+      '<p id="pebai-cc-text">Usamos cookies de analítica para mejorar la web. <a href="' + POLICY_URL + '">Más info</a></p>' +
       '<div class="pebai-cc-actions">' +
       '<button type="button" data-cc="reject">Rechazar</button>' +
       '<button type="button" data-cc="accept">Aceptar</button>' +
@@ -205,7 +198,9 @@
     if (c) {
       if (c.analytics) loadAnalytics();
     } else {
-      show(false);
+      // No se carga nada sin consentimiento, así que el aviso puede esperar unos segundos
+      // y no interrumpe la primera impresión de la página.
+      setTimeout(function () { if (!read()) show(false); }, SHOW_DELAY_MS);
     }
   }
 

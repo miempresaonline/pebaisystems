@@ -1555,7 +1555,7 @@
       margin-top: 4px;
     }
 
-    .footer-links-line button {
+    .footer-links-line a, .footer-links-line button {
       background: none;
       border: none;
       color: var(--muted);
@@ -1569,7 +1569,7 @@
       align-items: center;
     }
 
-    .footer-links-line button:hover {
+    .footer-links-line a:hover, .footer-links-line button:hover {
       color: #FFF;
     }
 
@@ -1926,9 +1926,11 @@
         Operativa confidencial conforme al RGPD y AI Act europeo. Sede en Valencia & Madrid, España.
       </p>
       <div class="footer-links-line">
-        <button type="button" id="privacy-btn">Privacidad y Protección de Datos</button>
+        <a href="/privacidad/">Privacidad</a>
         <span>·</span>
-        <button type="button" id="legal-btn">Aviso Legal y Confidencialidad</button>
+        <a href="/aviso-legal/">Aviso legal</a>
+        <span>·</span>
+        <a href="/politica-de-cookies/" onclick="if(window.PEBAI_CONSENT){event.preventDefault();PEBAI_CONSENT.open()}">Cookies</a>
       </div>
       <p style="margin-top: 4px; font-size: 10px; color: #3E4254;">
         © 2026 PEBAI Systems. Todos los derechos reservados.
@@ -2286,6 +2288,6 @@
     })();
   </script>
 <script src="/utm.js?v=2" defer></script>
-  <script src="/consent.js?v=1" defer></script>
+  <script src="/consent.js?v=2" defer></script>
 </body>
 </html>
