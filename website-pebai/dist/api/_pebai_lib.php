@@ -282,11 +282,15 @@ function pebai_smtp_send(string $to, string $subject, string $html, string $text
 
 /* ------------------------------------------------------ Plantilla común --- */
 
+const PEBAI_EMAIL_ASSETS = 'https://pebaisystems.es/brand/email/';
+const PEBAI_EMAIL_V = '?v=2';
+
 /**
- * Esqueleto de todos los emails de PEBAI: cabecera oscura con el logo (PNG opaco, se ve igual en
- * modo claro y oscuro), cuerpo blanco y pie. $header y $body son filas <tr> ya montadas.
+ * Esqueleto de todos los emails de PEBAI: tarjeta blanca con el logo (PNG con fondo blanco opaco,
+ * se lee igual en modo claro y oscuro), una franja con los colores de la marca, cuerpo y pie.
+ * $body son filas <tr> ya montadas.
  */
-function pebai_email_shell(string $title, string $preheader, string $header, string $body, string $footer): string
+function pebai_email_shell(string $title, string $preheader, string $body, string $footer): string
 {
     $font = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -294,51 +298,49 @@ function pebai_email_shell(string $title, string $preheader, string $header, str
         . '<body style="margin:0;padding:0;background:#EEF0F4;font-family:' . $font . ';-webkit-text-size-adjust:100%">'
         . '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#EEF0F4">' . h($preheader) . '</div>'
         . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#EEF0F4" style="background:#EEF0F4"><tr><td align="center" style="padding:28px 12px">'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;border-collapse:separate">'
-        // Cabecera
-        . '<tr><td bgcolor="#0B0F14" style="background:#0B0F14;border-radius:16px 16px 0 0;padding:22px 28px 0">'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
-        . '<td><img src="https://pebaisystems.es/brand/email/logo-email.png" width="150" height="44" alt="PEBAI Systems" style="display:block;border:0"></td>'
+        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="max-width:560px;background:#FFFFFF;border-radius:18px;overflow:hidden">'
+        . '<tr><td style="padding:26px 30px 22px"><img src="' . PEBAI_EMAIL_ASSETS . 'logo-email.png' . PEBAI_EMAIL_V . '" width="140" height="41" alt="PEBAI Systems" style="display:block;border:0"></td></tr>'
+        . '<tr><td style="padding:0;font-size:0;line-height:0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
+        . '<td width="50%" height="3" bgcolor="#B7FF3C" style="background:#B7FF3C;font-size:0;line-height:0">&nbsp;</td>'
+        . '<td width="50%" height="3" bgcolor="#594AF7" style="background:#594AF7;font-size:0;line-height:0">&nbsp;</td>'
         . '</tr></table></td></tr>'
-        . $header
-        . '<tr><td bgcolor="#0B0F14" style="background:#0B0F14;padding:0;font-size:0;line-height:0;height:4px">'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
-        . '<td width="50%" height="4" bgcolor="#B7FF3C" style="background:#B7FF3C;font-size:0;line-height:0">&nbsp;</td>'
-        . '<td width="50%" height="4" bgcolor="#594AF7" style="background:#594AF7;font-size:0;line-height:0">&nbsp;</td>'
-        . '</tr></table></td></tr>'
-        // Cuerpo
-        . '<tr><td bgcolor="#FFFFFF" style="background:#FFFFFF;padding:8px 0 4px">'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">' . $body . '</table></td></tr>'
-        // Pie
-        . '<tr><td bgcolor="#F7F8FA" style="background:#F7F8FA;border-top:1px solid #E6E8EE;border-radius:0 0 16px 16px;padding:18px 28px;color:#6B7280;font-size:12px;line-height:1.6">'
-        . $footer . '</td></tr>'
+        . $body
+        . '<tr><td style="padding:18px 30px 22px;border-top:1px solid #EEF0F4;color:#9AA0AE;font-size:12px;line-height:1.6">' . $footer . '</td></tr>'
         . '</table></td></tr></table></body></html>';
 }
 
-/** Bloque de cabecera: etiqueta pequeña, título grande y subtítulo, sobre fondo oscuro. */
-function pebai_email_header(string $kicker, string $title, string $sub, string $extra = ''): string
+/** Etiqueta pequeña y título grande. */
+function pebai_email_title(string $kicker, string $title, string $sub = ''): string
 {
-    return '<tr><td bgcolor="#0B0F14" style="background:#0B0F14;padding:26px 28px 26px">'
-        . '<div style="font-size:11px;font-weight:800;letter-spacing:.16em;color:#B7FF3C;text-transform:uppercase">' . h($kicker) . '</div>'
-        . '<div style="margin-top:8px;font-size:26px;line-height:1.2;font-weight:800;color:#FFFFFF">' . h($title) . '</div>'
-        . ($sub !== '' ? '<div style="margin-top:6px;font-size:14px;line-height:1.5;color:#9AA3B2">' . $sub . '</div>' : '')
-        . $extra . '</td></tr>';
+    return '<tr><td style="padding:28px 30px 0">'
+        . '<div style="font-size:11px;font-weight:800;letter-spacing:.16em;color:#594AF7;text-transform:uppercase">' . h($kicker) . '</div>'
+        . '<div style="margin-top:8px;font-size:26px;line-height:1.2;font-weight:800;color:#0B0F14">' . h($title) . '</div>'
+        . ($sub !== '' ? '<div style="margin-top:8px;font-size:15px;line-height:1.55;color:#5B6172">' . $sub . '</div>' : '')
+        . '</td></tr>';
 }
 
-/** Botón (tabla para que Outlook respete el fondo). */
-function pebai_email_button(string $href, string $label, string $bg = '#0B0F14', string $color = '#FFFFFF'): string
+/** Botón (tabla para que Outlook respete el fondo), con icono PNG opcional. */
+function pebai_email_button(string $href, string $label, string $bg = '#0B0F14', string $icon = ''): string
 {
+    $img = $icon !== ''
+        ? '<img src="' . PEBAI_EMAIL_ASSETS . $icon . PEBAI_EMAIL_V . '" width="20" height="20" alt="" style="display:inline-block;vertical-align:middle;border:0;margin-right:10px">'
+        : '';
     return '<table role="presentation" cellpadding="0" cellspacing="0" style="display:inline-table;margin:0 8px 8px 0"><tr>'
-        . '<td bgcolor="' . $bg . '" style="background:' . $bg . ';border-radius:10px">'
-        . '<a href="' . h($href) . '" style="display:inline-block;padding:13px 22px;color:' . $color . ';text-decoration:none;font-weight:700;font-size:15px;line-height:1">' . h($label) . '</a>'
+        . '<td bgcolor="' . $bg . '" style="background:' . $bg . ';border-radius:12px">'
+        . '<a href="' . h($href) . '" style="display:inline-block;padding:14px 24px;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:15px;line-height:20px">'
+        . $img . '<span style="vertical-align:middle">' . h($label) . '</span></a>'
         . '</td></tr></table>';
 }
 
-/** Título de sección del cuerpo. */
-function pebai_email_section(string $title): string
+/** Fila con icono en cuadrado lila + texto (ficha de la cita). */
+function pebai_email_icon_row(string $icon, string $label, string $value, bool $last = false): string
 {
-    return '<tr><td style="padding:22px 28px 8px"><div style="font-size:11px;font-weight:800;letter-spacing:.14em;color:#594AF7;text-transform:uppercase">'
-        . h($title) . '</div></td></tr>';
+    $border = $last ? '' : 'border-bottom:1px solid #EEF0F4;';
+    return '<tr><td width="56" valign="middle" style="padding:12px 0;' . $border . '">'
+        . '<img src="' . PEBAI_EMAIL_ASSETS . 'ic-' . $icon . '-tile.png' . PEBAI_EMAIL_V . '" width="40" height="40" alt="" style="display:block;border:0"></td>'
+        . '<td valign="middle" style="padding:12px 0;' . $border . '">'
+        . '<div style="font-size:12px;color:#9AA0AE">' . h($label) . '</div>'
+        . '<div style="margin-top:2px;font-size:16px;font-weight:700;color:#0B0F14">' . h($value) . '</div></td></tr>';
 }
 
 /* ------------------------------------------------------- Email del lead --- */
@@ -348,105 +350,44 @@ function pebai_lead_email(array $lead, int $id): array
     $qualified = $lead['opcion'] === 'A';
     $wa = 'https://wa.me/' . pebai_phone_digits($lead['telefono']);
     $panel = 'https://pebaisystems.es/panel/?id=' . $id;
-    $first = json_decode($lead['primer_toque'], true) ?: [];
-    $last = json_decode($lead['ultimo_toque'], true) ?: [];
 
     $badge = $qualified
-        ? '<span style="display:inline-block;padding:6px 12px;border-radius:999px;background:#B7FF3C;color:#0B0F14;font-weight:800;font-size:11px;letter-spacing:.08em">CON PRESUPUESTO</span>'
-        : '<span style="display:inline-block;padding:6px 12px;border-radius:999px;background:#262B36;color:#C9CED8;font-weight:800;font-size:11px;letter-spacing:.08em">EXPLORANDO</span>';
-    $origen = trim($lead['fuente'] . ($lead['medio'] !== '' ? ' · ' . $lead['medio'] : ''));
+        ? '<span style="display:inline-block;padding:5px 11px;border-radius:999px;background:#B7FF3C;color:#0B0F14;font-weight:800;font-size:11px;letter-spacing:.08em">CON PRESUPUESTO</span>'
+        : '<span style="display:inline-block;padding:5px 11px;border-radius:999px;background:#EEF0F4;color:#5B6172;font-weight:800;font-size:11px;letter-spacing:.08em">EXPLORANDO</span>';
+    $origen = implode(' · ', array_filter([$lead['fuente'], $lead['medio'], $lead['palabra']], fn($v) => $v !== ''));
     if ($origen === '') {
-        $origen = 'directo';
-    }
-    $header = pebai_email_header(
-        'Nueva solicitud · #' . $id,
-        $lead['empresa'],
-        h(pebai_fecha($lead['created_at'])) . ' · desde <b style="color:#FFFFFF">' . h($origen) . '</b>',
-        '<div style="margin-top:16px">' . $badge . '</div>'
-    );
-
-    // Respuestas del diagnóstico: fichas de 2 columnas
-    $tile = function (string $k, string $v): string {
-        return '<td width="50%" valign="top" style="padding:5px">'
-            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td bgcolor="#F5F6F9" style="background:#F5F6F9;border:1px solid #E6E8EE;border-radius:12px;padding:12px 14px">'
-            . '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#8A90A0;text-transform:uppercase">' . h($k) . '</div>'
-            . '<div style="margin-top:5px;font-size:14px;line-height:1.4;font-weight:700;color:#0B0F14">' . h($v !== '' ? $v : '—') . '</div>'
-            . '</td></tr></table></td>';
-    };
-    $presupuesto = $qualified ? 'Sí, con presupuesto (desde 1.500 €)' : 'Aún no, está explorando';
-    $tiles = '<tr><td style="padding:0 23px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">'
-        . '<tr>' . $tile('Canal principal', $lead['canal']) . $tile('Consultas al mes', $lead['volumen']) . '</tr>'
-        . '<tr>' . $tile('Objetivo a 3 meses', $lead['objetivo']) . $tile('Presupuesto', $presupuesto) . '</tr>'
-        . '</table></td></tr>';
-
-    // Filas clave/valor; las vacías no se muestran
-    $row = function (string $k, string $v): string {
-        if (trim($v) === '') {
-            return '';
-        }
-        return '<tr><td width="38%" valign="top" style="padding:9px 0;border-bottom:1px solid #EEF0F4;color:#8A90A0;font-size:13px">' . h($k) . '</td>'
-            . '<td valign="top" style="padding:9px 0;border-bottom:1px solid #EEF0F4;color:#0B0F14;font-size:14px;font-weight:600;word-break:break-word">' . h($v) . '</td></tr>';
-    };
-    $list = function (string $rows): string {
-        return '<tr><td style="padding:0 28px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">' . $rows . '</table></td></tr>';
-    };
-
-    $contacto = $row('Empresa', $lead['empresa']) . $row('Nombre', $lead['nombre']) . $row('WhatsApp', $lead['telefono']);
-
-    $atribucion = $row('Fuente', $lead['fuente']) . $row('Medio', $lead['medio']) . $row('Campaña', $lead['campana'])
-        . $row('Contenido', $lead['contenido']) . $row('Palabra clave', $lead['palabra']) . $row('Botón pulsado', $lead['cta']);
-    if ($atribucion === '') {
-        $atribucion = $row('Origen', 'Tráfico directo (sin UTM)');
+        $origen = 'Directo';
     }
 
-    // Primer y último toque, lado a lado
-    $touch = function (array $t): string {
-        if (!$t) {
-            return '—';
-        }
-        $src = trim(($t['utm_source'] ?? '') . (($t['utm_medium'] ?? '') !== '' ? ' / ' . $t['utm_medium'] : ''));
-        $parts = [];
-        $parts[] = '<b style="color:#0B0F14">' . h($src !== '' ? $src : 'directo') . '</b>';
-        foreach (['utm_campaign' => 'Campaña', 'utm_content' => 'Contenido', 'utm_term' => 'Término', 'landing' => 'Entrada', 'referrer' => 'Referente'] as $key => $label) {
-            if (!empty($t[$key])) {
-                $parts[] = h($label) . ': ' . h((string)$t[$key]);
-            }
-        }
-        if (!empty($t['ts'])) {
-            $parts[] = '<span style="color:#8A90A0">' . h(date('d/m/Y H:i', strtotime($t['ts']))) . '</span>';
-        }
-        return implode('<br>', $parts);
+    $row = function (string $k, string $v, bool $last = false): string {
+        $border = $last ? '' : 'border-bottom:1px solid #EEF0F4;';
+        return '<tr><td width="40%" valign="top" style="padding:11px 0;' . $border . 'color:#9AA0AE;font-size:13px">' . h($k) . '</td>'
+            . '<td valign="top" style="padding:11px 0;' . $border . 'color:#0B0F14;font-size:14px;font-weight:600">' . h($v !== '' ? $v : '—') . '</td></tr>';
     };
-    $toques = '<tr><td style="padding:4px 28px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
-        . '<td width="50%" valign="top" style="padding:0 10px 0 0;font-size:13px;line-height:1.6;color:#4B5263;word-break:break-word">'
-        . '<div style="font-size:11px;font-weight:700;color:#8A90A0;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Primera visita</div>' . $touch($first) . '</td>'
-        . '<td width="50%" valign="top" style="padding:0 0 0 10px;border-left:1px solid #EEF0F4;font-size:13px;line-height:1.6;color:#4B5263;word-break:break-word">'
-        . '<div style="font-size:11px;font-weight:700;color:#8A90A0;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Antes de enviar</div>' . $touch($last) . '</td>'
-        . '</tr></table></td></tr>';
 
-    $body = '<tr><td style="padding:22px 28px 4px">'
-        . pebai_email_button($wa, 'Escribir por WhatsApp', '#25D366')
-        . pebai_email_button($panel, 'Abrir en el panel')
-        . '</td></tr>'
-        . pebai_email_section('Diagnóstico') . $tiles
-        . pebai_email_section('Contacto') . $list($contacto)
-        . pebai_email_section('Origen') . $list($atribucion) . $toques
-        . '<tr><td style="padding:20px 28px 18px;font-size:12px;color:#8A90A0">'
-        . h(trim($lead['dispositivo'] . ($lead['pagina'] !== '' ? ' · ' . $lead['pagina'] : ''), ' ·')) . '</td></tr>';
+    $body = pebai_email_title('Nueva solicitud', $lead['empresa'], h(pebai_fecha($lead['created_at'])) . ' &nbsp;' . $badge)
+        . '<tr><td style="padding:18px 30px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">'
+        . $row('WhatsApp', $lead['telefono'])
+        . $row('Canal', $lead['canal'])
+        . $row('Consultas al mes', $lead['volumen'])
+        . $row('Objetivo', $lead['objetivo'])
+        . $row('Origen', $origen, true)
+        . '</table></td></tr>'
+        . '<tr><td style="padding:22px 30px 18px">'
+        . pebai_email_button($wa, 'WhatsApp', '#1FAF55')
+        . pebai_email_button($panel, 'Ver en el panel')
+        . '</td></tr>';
 
-    $footer = 'Aviso automático del formulario de pebaisystems.es. Toda la ficha y su seguimiento están en el <a href="' . h($panel) . '" style="color:#594AF7;text-decoration:none;font-weight:700">panel</a>.';
+    $footer = 'Solicitud #' . $id . ' · formulario de pebaisystems.es';
 
-    $html = pebai_email_shell('Nueva solicitud', ($qualified ? 'Con presupuesto · ' : 'Explorando · ') . $lead['canal'] . ' · ' . $lead['volumen'], $header, $body, $footer);
+    $html = pebai_email_shell('Nueva solicitud', ($qualified ? 'Con presupuesto · ' : 'Explorando · ') . $lead['telefono'], $body, $footer);
 
     $text = "NUEVA SOLICITUD #$id — {$lead['empresa']}\n"
         . ($qualified ? "Con presupuesto\n" : "Explorando\n")
-        . "\nWhatsApp: {$lead['telefono']} ($wa)\nNombre: {$lead['nombre']}\n"
-        . "\nCanal: {$lead['canal']}\nConsultas al mes: {$lead['volumen']}\nObjetivo: {$lead['objetivo']}\nPresupuesto: {$lead['presupuesto']}\n"
-        . "\nFuente: {$lead['fuente']}\nMedio: {$lead['medio']}\nCampaña: {$lead['campana']}\nContenido: {$lead['contenido']}\nPalabra: {$lead['palabra']}\nBotón: {$lead['cta']}\n"
+        . "\nWhatsApp: {$lead['telefono']} ($wa)\nCanal: {$lead['canal']}\nConsultas al mes: {$lead['volumen']}\nObjetivo: {$lead['objetivo']}\nOrigen: $origen\n"
         . "\nPanel: $panel\n";
 
-    $subject = ($qualified ? '🟢 ' : '⚪ ') . 'Nueva solicitud: ' . $lead['empresa']
-        . ($lead['fuente'] !== '' ? ' · ' . $lead['fuente'] : '');
+    $subject = ($qualified ? '🟢 ' : '⚪ ') . 'Nueva solicitud: ' . $lead['empresa'];
 
     return [$subject, $html, $text];
 }

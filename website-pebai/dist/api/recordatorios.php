@@ -32,68 +32,39 @@ function pebai_reminder_email(array $c, string $tipo): array
     $fin = date('H:i', $ts + 25 * 60);
     $fecha = ucfirst($dias[(int)date('w', $ts)]) . ', ' . date('j', $ts) . ' de ' . $meses[(int)date('n', $ts) - 1];
     $nombre = trim(explode(' ', trim($c['nombre']))[0] ?? '');
-    $hola = $nombre !== '' ? 'Hola, ' . $nombre . '.' : 'Hola.';
+    $hola = $nombre !== '' ? 'Hola, ' . $nombre . '. ' : '';
     $meet = (string)($c['meet_url'] ?? '');
-    $wa = 'https://wa.me/34624842799?text=' . rawurlencode('Hola PEBAI, necesito cambiar la hora de mi sesión técnica.');
 
     if ($tipo === '24') {
         $subject = 'Mañana a las ' . $hora . ' h · Sesión técnica PEBAI';
-        $kicker = 'Recordatorio · mañana';
+        $kicker = 'Recordatorio';
         $titulo = 'Tu sesión técnica es mañana';
-        $intro = $hola . ' Te esperamos mañana para revisar los procesos de tu empresa.';
-        $prep = '';
-        foreach ([
-            ['Desde un ordenador', 'Compartiremos pantalla durante la sesión.'],
-            ['Con quien decide', 'Que asista la persona que toma las decisiones.'],
-            ['Con 2 o 3 tareas en mente', 'Las que más tiempo os quitan cada semana.'],
-        ] as $i => [$t, $d]) {
-            $prep .= '<tr><td width="34" valign="top" style="padding:8px 0">'
-                . '<div style="width:24px;height:24px;line-height:24px;border-radius:50%;background:#0B0F14;color:#B7FF3C;font-size:12px;font-weight:800;text-align:center">' . ($i + 1) . '</div></td>'
-                . '<td valign="top" style="padding:8px 0"><div style="font-size:14px;font-weight:700;color:#0B0F14">' . h($t) . '</div>'
-                . '<div style="font-size:13px;line-height:1.5;color:#6B7280">' . h($d) . '</div></td></tr>';
-        }
-        $prep = pebai_email_section('Para aprovecharla')
-            . '<tr><td style="padding:0 28px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">' . $prep . '</table></td></tr>';
+        $intro = $hola . 'Te esperamos para revisar los procesos de tu empresa.';
     } else {
         $subject = 'Empezamos en 1 hora (' . $hora . ' h) · Sesión técnica PEBAI';
-        $kicker = 'Recordatorio · hoy';
+        $kicker = 'Hoy';
         $titulo = 'Empezamos en 1 hora';
-        $intro = $hola . ' Tu sesión técnica empieza a las ' . $hora . ' h. Conéctate desde un ordenador con cámara y micrófono.';
-        $prep = '';
+        $intro = $hola . 'Conéctate desde un ordenador con cámara y micrófono.';
     }
 
-    $header = pebai_email_header($kicker, $titulo, '');
-
-    // Ficha de la cita
-    $dato = function (string $k, string $v): string {
-        return '<tr><td width="34%" style="padding:10px 0;border-bottom:1px solid #E6E8EE;color:#8A90A0;font-size:13px">' . h($k) . '</td>'
-            . '<td style="padding:10px 0;border-bottom:1px solid #E6E8EE;color:#0B0F14;font-size:15px;font-weight:700">' . h($v) . '</td></tr>';
-    };
-    $ficha = '<tr><td style="padding:6px 28px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">'
-        . '<tr><td bgcolor="#F5F6F9" style="background:#F5F6F9;border:1px solid #E6E8EE;border-radius:14px;padding:6px 18px">'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">'
-        . $dato('Fecha', $fecha)
-        . $dato('Hora', $hora . ' – ' . $fin . ' h (Madrid)')
-        . '<tr><td width="34%" style="padding:10px 0;color:#8A90A0;font-size:13px">Lugar</td><td style="padding:10px 0;color:#0B0F14;font-size:15px;font-weight:700">Google Meet</td></tr>'
-        . '</table></td></tr></table></td></tr>';
+    $ficha = '<tr><td style="padding:16px 30px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">'
+        . pebai_email_icon_row('calendar', 'Fecha', $fecha)
+        . pebai_email_icon_row('clock', 'Hora (Madrid)', $hora . ' – ' . $fin . ' h')
+        . pebai_email_icon_row('video', 'Dónde', 'Google Meet', true)
+        . '</table></td></tr>';
 
     $boton = $meet !== ''
-        ? '<tr><td style="padding:20px 28px 4px">' . pebai_email_button($meet, 'Entrar en Google Meet') . '</td></tr>'
-        : '<tr><td style="padding:18px 28px 4px;font-size:14px;line-height:1.5;color:#6B7280">El enlace de Google Meet está en el email de confirmación de la reserva.</td></tr>';
+        ? '<tr><td style="padding:22px 30px 24px">' . pebai_email_button($meet, 'Entrar en Google Meet', '#0B0F14', 'ic-video-white.png') . '</td></tr>'
+        : '<tr><td style="padding:18px 30px 24px;font-size:14px;line-height:1.5;color:#5B6172">El enlace de Google Meet está en el email de confirmación de la reserva.</td></tr>';
 
-    $body = '<tr><td style="padding:22px 28px 14px;font-size:15px;line-height:1.6;color:#374151">' . h($intro) . '</td></tr>'
-        . $ficha . $boton . $prep
-        . '<tr><td style="padding:16px 28px 18px;font-size:13px;line-height:1.6;color:#6B7280">¿Te ha surgido un imprevisto? '
-        . '<a href="' . h($wa) . '" style="color:#594AF7;font-weight:700;text-decoration:none">Escríbenos por WhatsApp</a> y buscamos otra hora.</td></tr>';
+    $body = pebai_email_title($kicker, $titulo, h($intro)) . $ficha . $boton;
+    $footer = 'PEBAI Systems · <a href="https://pebaisystems.es" style="color:#9AA0AE;text-decoration:none">pebaisystems.es</a>';
 
-    $footer = 'PEBAI Systems · Ingeniería de procesos e IA · <a href="https://pebaisystems.es" style="color:#6B7280;text-decoration:none">pebaisystems.es</a>'
-        . '<br>Recibes este email porque reservaste una sesión técnica con nosotros.';
-
-    $html = pebai_email_shell($subject, $fecha . ' · ' . $hora . ' h · Google Meet', $header, $body, $footer);
+    $html = pebai_email_shell($subject, $fecha . ' · ' . $hora . ' h · Google Meet', $body, $footer);
 
     $text = $titulo . "\n" . $fecha . ' · ' . $hora . ' – ' . $fin . " h (Madrid) · Google Meet\n\n" . $intro . "\n\n"
         . ($meet !== '' ? "Entrar en Google Meet: $meet\n\n" : '')
-        . "¿Imprevisto? Escríbenos por WhatsApp: $wa\n\nPEBAI Systems · pebaisystems.es\n";
+        . "PEBAI Systems · pebaisystems.es\n";
 
     return [$subject, $html, $text];
 }
