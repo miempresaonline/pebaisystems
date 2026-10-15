@@ -96,7 +96,7 @@ function draw() {
   $('#pb-cj-next').disabled = ui.mes >= mesDe(S.hoy);
   $('#pb-cj-hoy').style.visibility = ui.mes === mesDe(S.hoy) ? 'hidden' : '';
   const foco = document.activeElement && document.activeElement.id === 'pb-cj-q';
-  box.replaceChildren(kpis(), grafico(), desgloses(), suscripciones(), movimientos());
+  box.replaceChildren(kpis(), flujo(), grafico(), desgloses(), suscripciones(), movimientos());
   if (foco) { const q = $('#pb-cj-q'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
 }
 
@@ -106,24 +106,55 @@ function kpis() {
   const saldo = saldoHasta(ui.mes >= mesDe(S.hoy) ? S.hoy : finDeMes(ui.mes));
   const k = (cls, label, valor, sub, i) => { const c = el('div', 'pb-card pb-kpi pb-anim ' + cls); c.style.setProperty('--i', i); c.append(el('div', 'l', label), el('div', 'v', valor)); if (sub) c.append(sub); row.append(c); return c; };
   const sub = (...n) => { const d = el('div', 'd'); d.append(...n); return d; };
-  const delta = (a, b, bueno) => { const s = el('span', 'delta'); const d = a - b; if (!b && !a) { s.textContent = '—'; s.classList.add('flat'); return s; } s.textContent = (d > 0 ? '+' : d < 0 ? '−' : '') + E0(Math.abs(d)); s.classList.add(d === 0 ? 'flat' : (d > 0) === bueno ? 'up' : 'down'); return s; };
+  const hayPrev = delMes(sumaMes(ui.mes, -1)).length > 0;
+  const delta = (a, b, bueno) => { const s = el('span', 'delta'); const d = a - b; if (!hayPrev) { s.textContent = 'Primer mes'; s.classList.add('flat'); return s; } if (!b && !a) { s.textContent = '—'; s.classList.add('flat'); return s; } s.textContent = (d > 0 ? '+' : d < 0 ? '−' : '') + E0(Math.abs(d)); s.classList.add(d === 0 ? 'flat' : (d > 0) === bueno ? 'up' : 'down'); return s; };
   const hero = k('hero', ui.mes >= mesDe(S.hoy) ? 'Saldo en caja hoy' : 'Saldo a final de mes', E0(saldo), null, 0);
-  if (!S.saldo_fecha) { const b = btn('ghost', null, 'Poner saldo inicial', abrirSaldo); b.classList.add('pb-cj-mini'); hero.append(sub(el('span', null, 'Cuenta desde cero.'), b)); }
+  if (!S.saldo_fecha) { hero.classList.add('sin-saldo'); const b = btn('primary', null, 'Poner saldo inicial', abrirSaldo); b.classList.add('pb-cj-mini'); hero.append(sub(el('span', null, 'Cuenta desde 0 €: falta lo que había en caja.'), b)); }
   else { const b = btn('ghost', null, 'Ajustar', abrirSaldo); b.classList.add('pb-cj-mini'); hero.append(sub(el('span', null, 'Desde ' + E0(S.saldo_inicial) + ' el ' + new Date(S.saldo_fecha + 'T12:00:00').toLocaleDateString('es-ES')), b)); }
   if (saldo < 0) hero.classList.add('neg');
-  k('ing', 'Ingresos del mes', E0(t.ingresos), sub(delta(t.ingresos, prev.ingresos, true), el('span', null, 'vs ' + MES3[Number(sumaMes(ui.mes, -1).slice(5)) - 1])), 1);
-  k('gas', 'Gastos del mes', E0(t.gastos), sub(delta(t.gastos, prev.gastos, false), el('span', null, 'vs ' + MES3[Number(sumaMes(ui.mes, -1).slice(5)) - 1])), 2);
+  k('ing', 'Ingresos del mes', E0(t.ingresos), sub(delta(t.ingresos, prev.ingresos, true), el('span', null, hayPrev ? 'vs ' + MES3[Number(sumaMes(ui.mes, -1).slice(5)) - 1] : '')), 1);
+  k('gas', 'Gastos del mes', E0(t.gastos), sub(delta(t.gastos, prev.gastos, false), el('span', null, hayPrev ? 'vs ' + MES3[Number(sumaMes(ui.mes, -1).slice(5)) - 1] : '')), 2);
   const bc = k(t.beneficio >= 0 ? 'ben' : 'ben neg', 'Beneficio del mes', (t.beneficio < 0 ? '−' : '') + E0(Math.abs(t.beneficio)), sub(el('span', null, t.ingresos ? Math.round(t.beneficio / t.ingresos * 100) + ' % de lo ingresado' : 'Sin ingresos este mes')), 3);
   const pc = k('pend', 'Pendiente de cobro', E0(t.pendiente), sub(el('span', null, t.nPend ? t.nPend + (t.nPend === 1 ? ' ingreso por cobrar' : ' ingresos por cobrar') : 'Todo cobrado')), 4);
   if (t.nPend) { pc.classList.add('click'); pc.addEventListener('click', () => { ui.filtro = 'pendiente'; draw(); $('#pb-cj-movs').scrollIntoView({ behavior: 'smooth', block: 'start' }); }); }
   return row;
 }
 
+function flujo() {
+  const rows = delMes(ui.mes), t = totales(rows);
+  const nombre = MESES[Number(ui.mes.slice(5)) - 1];
+  const c = el('div', 'pb-card pb-cj-flujo pb-anim'); c.style.setProperty('--i', 5);
+  const frase = el('p', 'frase');
+  const b = (txt, cls) => el('b', cls || null, txt);
+  if (!rows.length) { frase.append('En ' + nombre + ' todavía no hay nada apuntado.'); c.append(frase); return c; }
+  frase.append('En ' + nombre + ' han entrado ', b(E(t.ingresos), 'ing'), ' y han salido ', b(E(t.gastos), 'gas'), '. ');
+  if (t.beneficio >= 0) frase.append('Quedan ', b(E(t.beneficio), 'ben'), t.ingresos ? ', el ' + Math.round(t.beneficio / t.ingresos * 100) + ' % de lo que entró.' : '.');
+  else frase.append('Se ha gastado ', b(E(-t.beneficio), 'neg'), ' más de lo que ha entrado.');
+  if (t.pendiente) frase.append(' Faltan por cobrar ', b(E(t.pendiente), 'pend'), '.');
+  c.append(frase);
+  // Cada euro que entra: en qué se va y cuánto queda
+  const cats = d3.rollups(rows.filter((x) => x.tipo === 'gasto'), (v) => d3.sum(v, (x) => x.importe), (x) => x.categoria || 'Otros').sort((a, b2) => b2[1] - a[1]);
+  const base = Math.max(t.ingresos, t.gastos) || 1;
+  const bar = el('div', 'bar'); const leg = el('div', 'leg');
+  const seg = (valor, color, label, cls) => {
+    const sgm = el('span', 'seg' + (cls ? ' ' + cls : '')); sgm.style.background = color; const w = (valor / base * 100) + '%'; requestAnimationFrame(() => requestAnimationFrame(() => { sgm.style.width = w; })); sgm.title = label + ': ' + E(valor);
+    bar.append(sgm);
+    const it = el('span', 'it'); const dot = el('i'); dot.style.background = color; it.append(dot, label + ' ', el('b', null, E(valor))); leg.append(it);
+  };
+  cats.forEach(([cat, v], i) => seg(v, PALETA[[0, 2, 3, 6, 4, 7, 5, 1][i % 8]], cat));
+  if (t.beneficio > 0) seg(t.beneficio, 'var(--lime)', 'Queda', 'queda');
+  c.append(bar, leg);
+  return c;
+}
+
 function grafico() {
-  const c = card('Últimos 12 meses', 'Ingresos cobrados y gastos de cada mes, con el saldo de la caja. Pulsa un mes para verlo.');
+  const primero = d3.min(S.movimientos, (x) => mesDe(x.fecha)) || mesDe(S.hoy);
+  const [py, pm] = primero.split('-').map(Number), [hy, hm] = mesDe(S.hoy).split('-').map(Number);
+  const nMeses = Math.max(6, Math.min(12, (hy - py) * 12 + (hm - pm) + 1));
+  const c = card(nMeses === 12 ? 'Últimos 12 meses' : 'Mes a mes', 'Ingresos cobrados, gastos y saldo de la caja. Pulsa un mes para verlo.');
   const box = el('div', 'pb-chart pb-cj-chart'); const tip = el('div', 'pb-tip'); box.append(tip); c.append(box);
   const leg = el('div', 'pb-legend'); [['var(--lime)', 'Ingresos'], ['var(--violet)', 'Gastos'], ['var(--cyan)', 'Saldo']].forEach(([col, t]) => { const s = el('span'); const i = el('i'); i.style.background = col; s.append(i, t); leg.append(s); }); c.append(leg);
-  const meses = d3.range(11, -1, -1).map((d) => sumaMes(mesDe(S.hoy), -d));
+  const meses = d3.range(nMeses - 1, -1, -1).map((d) => sumaMes(mesDe(S.hoy), -d));
   const datos = meses.map((m) => ({ m, ...totales(delMes(m)), saldo: saldoHasta(m === mesDe(S.hoy) ? S.hoy : finDeMes(m)) }));
   requestAnimationFrame(() => {
     const W = Math.max(300, box.clientWidth), H = 250, M = { l: 54, r: 10, t: 12, b: 26 };
@@ -140,7 +171,7 @@ function grafico() {
       .attr('fill', (m) => m === ui.mes ? 'var(--fg-strong)' : 'var(--muted)').attr('font-weight', (m) => m === ui.mes ? 700 : 400).text((m) => MES3[Number(m.slice(5)) - 1]);
     s.append('rect').attr('x', x0(ui.mes) - 4).attr('width', x0.bandwidth() + 8).attr('y', M.t - 6).attr('height', H - M.t - M.b + 6).attr('rx', 10).attr('fill', 'var(--violet-glow)').attr('opacity', .45);
     const g = s.append('g').selectAll('g').data(datos).join('g').attr('transform', (d) => `translate(${x0(d.m)},0)`);
-    const bw = Math.min(26, x1.bandwidth());
+    const bw = Math.min(nMeses <= 6 ? 34 : 26, x1.bandwidth());
     const bar = (key, col, k) => g.append('rect').attr('class', 'pb-cj-b').attr('x', x1(key) + (x1.bandwidth() - bw) / 2).attr('width', bw).attr('rx', Math.min(5, bw / 2)).attr('fill', col)
       .attr('y', y(0)).attr('height', 0).transition().duration(800).delay((d, i) => i * 35).ease(d3.easeCubicOut).attr('y', (d) => y(d[k])).attr('height', (d) => Math.max(0, y(0) - y(d[k])));
     bar('i', 'var(--lime)', 'ingresos'); bar('g', 'var(--violet)', 'gastos');
@@ -225,7 +256,6 @@ function movimientos() {
   const c = card('Movimientos de ' + MESES[Number(ui.mes.slice(5)) - 1], null);
   c.id = 'pb-cj-movs';
   const hd = c.querySelector('.hd');
-  hd.append(btn('ghost', I.dl(), 'Exportar', exportar, 'Descargar los movimientos del mes en CSV'));
   const bar = el('div', 'pb-filters');
   const g = el('div', 'grow'); g.append(I.search()); const q = el('input'); q.id = 'pb-cj-q'; q.type = 'search'; q.placeholder = 'Buscar concepto, cliente, servicio…'; q.value = ui.q;
   q.addEventListener('input', () => { ui.q = q.value; draw(); }); g.append(q); bar.append(g);
