@@ -48,6 +48,7 @@ function montar() {
   }
   const soon = $$('#page-agentes .pb-soon').find((c) => /email/i.test(c.textContent));
   if (soon && !$('#pe-agente')) { const d = el('div'); d.id = 'pe-agente'; soon.replaceWith(d); }
+  if ($('#pe-agente') && !$('#pe-prospeccion')) { const d = el('div'); d.id = 'pe-prospeccion'; $('#pe-agente').after(d); }
 }
 
 /* ============ datos ============ */
@@ -297,6 +298,38 @@ function registro() {
   w.append(chips, list); return w;
 }
 
+/* ============ tarjeta del agente de prospección (scraper) ============ */
+function tarjetaProspeccion() {
+  const box = $('#pe-prospeccion'); if (!box || !S.prospeccion) return; box.textContent = '';
+  const act = S.prospeccion.actividad || [];
+  const ult = act[0];
+  const card = el('div', 'pb-card pe-agent');
+  const top = el('div', 'pe-agent-top'); const info = el('div');
+  info.append(el('b', 'pe-nm', 'Agente de prospección'));
+  const st = el('div', 'pe-st'); const dot = el('i', 'pb-live');
+  const reciente = ult && (S.ahora - parse(ult.ts)) < 7 * 86400000; dot.dataset.s = ult ? (reciente ? 'ok' : 'warn') : 'off';
+  const pill = el('span', 'pe-state'); pill.append(dot, ult ? 'Última tirada ' + hace(parse(ult.ts)) : 'Sin tiradas registradas'); st.append(pill);
+  info.append(st);
+  top.append(info);
+  const p = el('p', 'pe-que');
+  p.textContent = 'Busca empresas del nicho (Google Maps, censos oficiales, su propia web), saca sus contactos publicados y un motivo real para escribirles, quita a quien ya está en el panel o pidió la baja, y entrega la lista a WhatsApp o email. Cada tirada queda apuntada aquí.';
+  // Volumen por día: empresas entregadas (se leen del resumen de cada tirada: «… M entregadas …»)
+  const porDia = {}; act.forEach((a) => { const m = /(\d+)\s+entregad/i.exec(a.resumen || ''); const d = (a.ts || '').slice(0, 10); if (m) porDia[d] = (porDia[d] || 0) + Number(m[1]); });
+  const dias = []; for (let i = 29; i >= 0; i--) { const d = new Date(S.ahora); d.setDate(d.getDate() - i); dias.push(d); }
+  const k = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const max = Math.max(10, ...dias.map((d) => porDia[k(d)] || 0));
+  const vol = el('div', 'pe-vol'); vol.append(el('h2', null, 'Empresas entregadas por día · 30 días'));
+  const bars = el('div', 'pb-bars');
+  dias.forEach((d, i) => { const n = porDia[k(d)] || 0; const c = el('div', i === 29 ? 'hoy' : ''); c.dataset.t = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}: ${n} empresas entregadas`; const b = el('i'); b.style.height = n ? (n / max * 100) + '%' : '2px'; b.style.background = 'var(--green)'; if (!n) b.style.opacity = '.25'; c.append(b); bars.append(c); });
+  vol.append(bars);
+  const reg = el('div', 'pe-reg'); reg.append(el('h2', null, 'Registro de tiradas'));
+  const list = el('div', 'pe-log');
+  if (!act.length) list.append(el('div', 'pb-empty', 'El scraper aún no ha apuntado ninguna tirada en el servidor.'));
+  act.slice(0, 60).forEach((a) => { const [l, color] = TIPO_ACT[a.tipo] || [a.tipo, 'var(--muted)']; const d = el('details', 'pe-log-i'); const s = el('summary'); const chip = el('em', null, l); chip.style.setProperty('--c', color); s.append(el('time', null, fecha(parse(a.ts))), chip, el('span', null, a.resumen)); d.append(s); if (a.detalle) d.append(el('pre', 'pe-pre', a.detalle)); list.append(d); });
+  reg.append(list);
+  card.append(top, p, vol, reg); box.append(card);
+}
+
 /* ============ ciclo ============ */
 const pagina = () => document.body.dataset.page || '';
 function crumb() { const c = $('#pb-crumb'); if (c && pagina() === 'email') { c.textContent = ''; c.append(el('span', null, 'Captación'), el('b', null, 'Email')); } }
@@ -304,6 +337,7 @@ function draw() {
   if (!S.loaded) return;
   const n = $('#pb-email-n'); if (n) n.textContent = N(S.prospectos.filter((p) => p.estado === 'pendiente').length);
   tarjetaAgente();
+  tarjetaProspeccion();
   if (pagina() === 'email') {
     const abierto = $$('#pe-cuerpo details').map((d) => d.open);
     const foco = document.activeElement && $('#pe-cuerpo') && $('#pe-cuerpo').contains(document.activeElement) && document.activeElement.matches('input,textarea,select');

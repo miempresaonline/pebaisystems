@@ -182,6 +182,8 @@ if ($auth && $db && isset($_GET['email'])) {
         }
     }
     json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'prospectos' => $pros, 'mensajes' => $msgs, 'volumen' => $volumen, 'actividad' => pebai_actividad_ultimas('email', 200),
+        // Agente de prospección (el scraper apunta cada tirada en api/actividad.php): se pinta en Agentes › Captación.
+        'prospeccion' => ['actividad' => pebai_actividad_ultimas('prospeccion', 100), 'por_dia' => pebai_actividad_por_dia('prospeccion', 30)],
         'salud7' => pebai_email_salud(7), 'salud30' => pebai_email_salud(30), 'senales' => PEBAI_EMAIL_SENALES, 'escalones' => PEBAI_EMAIL_ESCALONES,
         'agente' => ['estado' => $a['estado'], 'latido_at' => $a['latido_at'], 'detalle' => $a['detalle'], 'pausado' => (int)$a['pausado'],
                      'buzon' => $b ? $b['user'] : '', 'avisar_a' => $b ? (string)$b['avisar_a'] : '', 'enviados_hoy' => pebai_email_enviados_hoy(), 'limite' => pebai_email_limite($cfg),
