@@ -20,11 +20,12 @@ from .motor import COLS, HOY, SALIDA, apunta, enriquece, guarda, raices
 NICHOS = {
     'energia': {
         'sector': 'Instaladores energía',
+        'lote': 'Energía',
         'busquedas': ['instalador de placas solares', 'instalación fotovoltaica autoconsumo', 'aerotermia instalador',
                       'empresa de climatización y aerotermia', 'electricista instalador placas solares'],
         'palabras': 'placas solares fotovoltaica autoconsumo paneles solar aerotermia bomba calor climatización renovables energía',
         # Revisión del 15/10: un 30 % no hacía ni solar ni aerotermia (electricistas, fontaneros, tiendas de aire) y había autónomos
-        'reglas': {'requiere_hace': True, 'sin_autonomos': True},
+        'reglas': {'requiere_hace': True, 'sin_autonomos': True, 'dedicacion': True, 'solo_activas': True},
     },
     # Nicho B por email: operadores locales de internet (fibra/radio) de pueblos y comarcas
     'fibra': {
@@ -143,8 +144,24 @@ def provincia(nicho: str, prov: str) -> Path | None:
         guarda(nombre, enriquece(cands, raices(cfg['sector'] + ' ' + cfg['palabras'])), 100000)
     finally:
         m.SALIDA = antes
+    importar_panel(destino / f'{nombre}_whatsapp.csv', f'{cfg.get("lote", cfg["sector"])} · {prov}', cfg)
     print(f'  {prov} hecha en {(time.time() - t0) / 60:.0f} min')
     return hecho
+
+
+def importar_panel(csv_whatsapp: Path, lote: str, cfg: dict) -> None:
+    """En el servidor: las empresas con móvil que pasan todos los filtros entran solas en la cola del agente de WhatsApp.
+    En el PC no hace nada (no hay panel local): se importan después."""
+    import os
+    import subprocess
+    if 'nicho_email' in cfg or not csv_whatsapp.exists():
+        return   # el nicho B va por email: lo importa el chat de Email
+    script = Path(__file__).resolve().parent.parent / 'importar_panel.php'
+    if not (Path.home() / 'domains' / 'pebaisystems.es').exists() or not script.exists():
+        return
+    r = subprocess.run(['/usr/bin/php', str(script), str(csv_whatsapp), lote], capture_output=True, text=True, timeout=300)
+    print('  importadas en el panel:', (r.stdout or r.stderr).strip()[:200])
+    apunta(f'{lote}: importadas en el panel', 'Entran en la cola del agente de WhatsApp. ' + (r.stdout or r.stderr).strip()[:500], csv_whatsapp.stem)
 
 
 def unir(nicho: str) -> None:

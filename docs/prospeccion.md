@@ -92,3 +92,16 @@ Descartados en A: 33 sin señales de actividad (sobre todo sin web), 16 de fuera
 - Arranque: `~/prospeccion/correr.sh <nicho>`. Una sola tanda a la vez (flock); es reanudable y salta las provincias hechas y las búsquedas de Maps ya guardadas. Toma el token de `~/agente-whatsapp/.env`.
 - Cron de hPanel (red de seguridad, cada 30 min): `$HOME/prospeccion/correr.sh energia`. Si la tanda ya corre, sale al momento.
 - Medido: Soria 2 min en el servidor (4 en el PC); Madrid y Barcelona, unos 10 min en el PC.
+
+## Calidad sin revisión manual (15/10/2026)
+
+Daniel no revisa listas: lo que entrega el scraper tiene que ser bueno. Reglas del nicho energía (en `tanda.py` → `reglas`):
+- `requiere_hace`: su web habla de solar o aerotermia.
+- `dedicacion`: **se dedica** a ello. Lo dice en su cabecera (título, h1/h2, menú, descripción) o lo repite al menos 4 veces por la web; no vale nombrarlo de pasada en un post.
+- `solo_activas`: actividad `activa` (las `probable` no se entregan).
+- `sin_autonomos`: fuera las de una sola persona (menos de 5 reseñas y sin señales de equipo).
+- Siempre: fuera tiendas, distribuidores, mayoristas, fabricantes, marcas nacionales, comparadores, cadenas, bajas y ya contactadas.
+
+En el servidor, al terminar cada provincia, `importar_panel.php` mete las que tienen móvil **directamente en la cola** del agente de WhatsApp (lote «Energía · <provincia>»). El estado `revision` del panel queda para listas que alguien suba a mano sin verificar.
+
+Primera tanda (6 provincias): 1.381 → 923 tras la revisión → 705 con móvil → **543 verificadas en la cola** (162 descartadas: 103 actividad no segura, 55 no se dedican a ello, 4 web caída).

@@ -187,6 +187,8 @@ def enriquece(cands: list[dict], nicho: set[str]) -> list[dict]:
             'whatsapp_web': w.get('whatsapp', ''), 'redes': ' '.join(w.get('redes', {}).values())[:300],
             'senales': ' '.join(sorted(w.get('senales', []))), 'web_final': w.get('url_final') or c['web'],
             'titulo_web': w.get('titulo', ''),
+            # Se dedica de verdad (no lo nombra en un post): lo dice en su cabecera o lo repite por la web
+            'se_dedica': bool(w.get('nicho_cabecera') or (w.get('n_solar', 0) + w.get('n_aerotermia', 0)) >= 4),
             'del_nicho': bool(c['nicho'] & raices(' '.join([c['empresa'], w.get('titulo', ''), w.get('descripcion', ''), w.get('h1', '')]))),
             'cadena': bool(CADENAS.search(c['empresa'] + ' ' + dom) or (c['fuente'] == 'google_maps' and dom and dom_count[dom] > 2)),
             # De dónde sale cada contacto (lo exige la ley y el panel)
@@ -271,6 +273,10 @@ def descarta(c: dict, vistos_tel: set, vistos_dom: set, excl: dict | None = None
     reglas = c.get('reglas') or {}
     if reglas.get('requiere_hace') and not c['hace']:
         return 'no hace solar ni aerotermia (según su web)'
+    if reglas.get('dedicacion') and not c.get('se_dedica'):
+        return 'lo nombra de pasada, no se dedica a ello'
+    if reglas.get('solo_activas') and c['actividad'] != 'activa':
+        return 'actividad no segura (probable)'
     if reglas.get('sin_autonomos') and c['tamano'] == 'posible autónomo':
         return 'parece autónomo de una persona'
     if NO_CLIENTE.search(' '.join([c['empresa'], c.get('titulo_web', ''), c['web_final']])):

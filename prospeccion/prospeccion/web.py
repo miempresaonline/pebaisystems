@@ -80,10 +80,20 @@ def _analiza(html: str, base: str, res: dict) -> list[str]:
         res['senales'].add('chat_web')
     t = texto.lower()
     # Qué hace (nicho energía) y señales de tamaño: más de 1–2 personas
-    if re.search(r'fotovoltai|placas solares|paneles solares|autoconsumo', t):
+    n_sol = len(re.findall(r'fotovoltai|placas? solares?|paneles? solares?|autoconsumo|energ[ií]a solar', t))
+    n_aer = len(re.findall(r'aerotermia|bombas? de calor', t))
+    res['n_solar'] += n_sol
+    res['n_aerotermia'] += n_aer
+    if n_sol:
         res['senales'].add('hace_solar')
-    if re.search(r'aerotermia|bomba(?:s)? de calor', t):
+    if n_aer:
         res['senales'].add('hace_aerotermia')
+    # Lo que dice de sí mismo en la cabecera (título, descripción, h1, menú): ahí se ve a qué se dedica de verdad
+    cab = ' '.join(x.text(separator=' ') for x in tree.css('title, h1, h2, nav, header'))
+    d = tree.css_first('meta[name=description]')
+    cab = (cab + ' ' + ((d.attributes.get('content') if d else '') or '')).lower()
+    if re.search(r'fotovoltai|solar|autoconsumo|aerotermia|bombas? de calor|renovable', cab):
+        res['nicho_cabecera'] = True
     if re.search(r'nuestro equipo|equipo de (?:\d+|profesionales|t[eé]cnicos|instaladores)|m[aá]s de \d+ (?:profesionales|t[eé]cnicos|empleados|trabajadores|instaladores)|'
                  r'delegaci[oó]n|delegaciones|nuestras (?:oficinas|sedes|tiendas)|sede central', t):
         res['senales'].add('equipo')
@@ -121,7 +131,7 @@ async def _sitemap_reciente(cli: httpx.AsyncClient, base: str) -> str:
 
 
 async def rastrea(url: str, cli: httpx.AsyncClient, max_paginas: int = 5) -> dict:
-    res = {'url': url, 'url_final': '', 'ok': False, 'status': 0, 'emails': [], 'email_origen': {}, 'tels': [], 'whatsapp': '', 'redes': {},
+    res = {'url': url, 'url_final': '', 'ok': False, 'status': 0, 'emails': [], 'email_origen': {}, 'tels': [], 'n_solar': 0, 'n_aerotermia': 0, 'nicho_cabecera': False, 'whatsapp': '', 'redes': {},
            'senales': set(), 'anyo_web': 0, 'sitemap_lastmod': '', 'aparcado': False, 'titulo': '', 'nombre_web': '', 'descripcion': '', 'h1': '', 'error': '', 'paginas': []}
     if not url:
         res['error'] = 'sin web'

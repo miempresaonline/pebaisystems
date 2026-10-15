@@ -96,8 +96,11 @@ def google_maps(busquedas: list[str], ciudad: str, sector: str, max_puntos: int 
                     continue
                 nuevos += 1
                 ciu, prov = ciudad_provincia(x.get('address') or '')
+                web = x.get('web_site') or ''
+                if web and _NO_NEGOCIO.search(dominio(web)):
+                    web = ''   # su «web» en Maps es un directorio (Páginas Amarillas…), no la suya
                 out[cid] = {
-                    'empresa': (x.get('title') or '').strip(), 'web': x.get('web_site') or '', 'telefono': normaliza_tel(x.get('phone') or ''),
+                    'empresa': (x.get('title') or '').strip(), 'web': web, 'telefono': normaliza_tel(x.get('phone') or ''),
                     'sector': sector, 'ciudad': ciu or ciudad, 'provincia': prov, 'direccion': x.get('address') or '',
                     'resenas': int(x.get('review_count') or 0), 'valoracion': float(x.get('review_rating') or 0),
                     'fuente': 'google_maps', 'origen_dato': 'Google Maps · ficha pública del negocio',
