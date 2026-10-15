@@ -12,6 +12,10 @@
  *   - Comprobación antes de CADA envío (pebai_email_qa) y frenos automáticos (rebotes, quejas, errores SMTP).
  *   - Las bajas son para siempre y se comparten con WhatsApp (tabla `bajas` por teléfono).
  * Compatible con PHP 8.0 (el del cron de Hostinger).
+ *
+ * OJO: Automático › Oficina (panel/_oficina_panel.php, función of_email) lee estas funciones y tablas. No renombrarlas
+ * sin avisar al chat del Panel: pebai_agente('email'), pebai_email_cfg(), pebai_email_limite(), pebai_email_enviados_hoy(),
+ * pebai_email_ventana(), pebai_email_salud(), email_prospectos.estado y agente_actividad (agente 'email').
  */
 if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
     http_response_code(404);
