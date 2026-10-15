@@ -34,7 +34,10 @@ CADENAS = re.compile(r'asisa|sanitas|caser|adeslas|vitaldent|dentix|ikea|leroy|b
 # Webs que no son el cliente final: administraciones, directorios y comparadores (venden leads, no los atienden), formación, software
 NO_CLIENTE = re.compile(r'junta de |gobierno|ayuntamiento|diputaci|consejer|ministerio|generalitat|xunta|\.gob\.|gencat|gva\.es|juntadeandalucia|madrid\.org|'
                         r'directorio|comparador|compara |mejores instaladores|evaluador|portal para|presupuestos? de .* gratis|'
-                        r'school|escuela|máster|master en|curso|formación online|software|saas|solar design', re.I)
+                        r'school|escuela|máster|master en|curso|formación online|software|saas|solar design|'
+                        # Tiendas, distribuidores, mayoristas y fabricantes: venden material, no instalan (revisión del 15/10)
+                        r'tienda|mayorista|distribuci[oó]n|distribuidor|suministros|material (?:de|el[eé]ctrico)|recambios|repuestos|almac[eé]n|'
+                        r'fabricante|outlet|midea|saltoki|climamania|universo instalador|macro-?tubo', re.I)
 
 # Nicho B (email): Ley 10/2025 de atención a la clientela. Texto acordado con el chat de Email (docs/captacion-email.md §4.5)
 LEY_URL = 'https://www.boe.es/buscar/act.php?id=BOE-A-2025-26698'
@@ -265,6 +268,11 @@ def descarta(c: dict, vistos_tel: set, vistos_dom: set, excl: dict | None = None
         return 'cadena o franquicia'
     if not c['del_nicho']:
         return 'no es del nicho'
+    reglas = c.get('reglas') or {}
+    if reglas.get('requiere_hace') and not c['hace']:
+        return 'no hace solar ni aerotermia (según su web)'
+    if reglas.get('sin_autonomos') and c['tamano'] == 'posible autónomo':
+        return 'parece autónomo de una persona'
     if NO_CLIENTE.search(' '.join([c['empresa'], c.get('titulo_web', ''), c['web_final']])):
         return 'administración, directorio o formación'
     if c['fuente'] == 'buscador' and not (dominio(c['web_final']).endswith('.es') or c['movil'] or c['fijo']):

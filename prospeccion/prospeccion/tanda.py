@@ -23,6 +23,8 @@ NICHOS = {
         'busquedas': ['instalador de placas solares', 'instalación fotovoltaica autoconsumo', 'aerotermia instalador',
                       'empresa de climatización y aerotermia', 'electricista instalador placas solares'],
         'palabras': 'placas solares fotovoltaica autoconsumo paneles solar aerotermia bomba calor climatización renovables energía',
+        # Revisión del 15/10: un 30 % no hacía ni solar ni aerotermia (electricistas, fontaneros, tiendas de aire) y había autónomos
+        'reglas': {'requiere_hace': True, 'sin_autonomos': True},
     },
     # Nicho B por email: operadores locales de internet (fibra/radio) de pueblos y comarcas
     'fibra': {
@@ -82,41 +84,22 @@ ORDEN = ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Alicante', 'Málaga', 'M
 
 
 def zonas(provincia: str, max_pueblos: int = 30) -> tuple[list, list]:
-    """Dónde buscar: la capital en detalle (9 zonas de 3 km) y los municipios con más población DENTRO del límite de la provincia
-    (OpenStreetMap, gratis). Una rejilla por toda la provincia caía en campo y monte y devolvía 0."""
+    """Dónde buscar: la ciudad más grande de la provincia en detalle (cuadrícula de 3×3 zonas de 3 km alrededor de su
+    centro) y los siguientes municipios por población (≥ 5.000 hab.). Tabla fija sacada de GeoNames (municipios_es.json):
+    OpenStreetMap fallaba según la provincia (Málaga devolvía 0 municipios) y la caja de Nominatim descentraba la capital."""
     import json
-    cache = SALIDA / 'tandas' / 'municipios' / f'{provincia}.json'
-    if cache.exists():   # ya se pidieron: no se vuelve a molestar a OpenStreetMap
-        d = json.loads(cache.read_text(encoding='utf-8'))
-        return [tuple(p) for p in d['capital']], [tuple(p) for p in d['pueblos']]
-    capital = CAPITALES.get(provincia, provincia)
-    _, _, caja_cap = geocodifica(f'{capital}, {provincia}')
-    filtro = '(node["place"~"^(city|town)$"](area.a);node["place"="village"]["population"](area.a););out body;'
-    pueblos = None
-    for code in ISO.get(provincia, []):
-        pueblos = _overpass(f'[out:json][timeout:120];area["ISO3166-2"="{code}"]->.a;' + filtro)
-        if pueblos:
-            break
-    if not pueblos:   # último recurso: la caja de la provincia (puede traer municipios vecinos; luego se filtran por código postal)
-        _, _, (s, n, w, e) = geocodifica(_OSM.get(provincia, f'Provincia de {provincia}'))
-        pueblos = _overpass(f'[out:json][timeout:120];(node["place"~"^(city|town)$"]({s},{w},{n},{e});'
-                            f'node["place"="village"]["population"]({s},{w},{n},{e}););out body;') or []
-    pob = lambda x: int(''.join(ch for ch in (x.get('tags', {}).get('population') or '0') if ch.isdigit()) or 0)
-    pueblos = [x for x in sorted(pueblos, key=pob, reverse=True) if 'lat' in x and (pob(x) >= 2500 or x['tags'].get('place') in ('city', 'town'))]
-    s_, n_, w_, e_ = caja_cap
-    # Los municipios dentro de la capital ya los cubren sus 9 zonas
-    clat0, clon0 = (s_ + n_) / 2, (w_ + e_) / 2
-    cerca = lambda x: math.hypot((x['lat'] - clat0) * 111, (x['lon'] - clon0) * 111 * math.cos(math.radians(clat0))) < 6
-    pts = [(x['lat'], x['lon']) for x in pueblos if not cerca(x)][:max_pueblos]
-    # Capital: cuadrícula fija de 3×3 zonas de 3 km alrededor de su centro (la caja de OpenStreetMap a veces es un punto)
-    clat, clon = (s_ + n_) / 2, (w_ + e_) / 2
+    tabla = json.loads((Path(__file__).with_name('municipios_es.json')).read_text(encoding='utf-8'))['provincias']
+    munis = tabla.get(provincia) or []
+    if not munis:
+        lat, lon, _ = geocodifica(provincia)
+        munis = [[provincia, lat, lon, 0]]
+    _, clat, clon, _ = munis[0]
     dlat, dlon = 3 / 111, 3 / (111 * math.cos(math.radians(clat)))
     cap = [(round(clat + i * dlat, 5), round(clon + j * dlon, 5)) for i in (0, -1, 1) for j in (0, -1, 1)]
-    if pts:
-        cache.parent.mkdir(parents=True, exist_ok=True)
-        cache.write_text(json.dumps({'capital': cap, 'pueblos': pts}), encoding='utf-8')
-    print(f'  municipios: {len(pts)} (OpenStreetMap)' if pts else '  ⚠ OpenStreetMap no respondió: solo la capital')
-    return cap, pts
+    cerca = lambda la, lo: math.hypot((la - clat) * 111, (lo - clon) * 111 * math.cos(math.radians(clat))) < 6
+    pueblos = [(la, lo) for _, la, lo, _ in munis[1:] if not cerca(la, lo)][:max_pueblos]
+    print(f'  zonas: {munis[0][0]} (9) + {len(pueblos)} municipios')
+    return cap, pueblos
 
 
 def provincia(nicho: str, prov: str) -> Path | None:
@@ -150,6 +133,7 @@ def provincia(nicho: str, prov: str) -> Path | None:
         c['provincia'], c['lote'] = prov, f'{cfg["sector"]} · {prov}'
         if cfg.get('nicho_email'):
             c['nicho_email'] = cfg['nicho_email']
+        c['reglas'] = cfg.get('reglas', {})
     print(f'  {len(cands)} candidatos de {prov} ({len(fuera)} de otras provincias, se buscan en la suya)')
     destino.mkdir(parents=True, exist_ok=True)
     import prospeccion.motor as m
