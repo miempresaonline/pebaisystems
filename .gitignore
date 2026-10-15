@@ -41,6 +41,9 @@ assets/clients/
 agente-whatsapp/sesion/
 agente-whatsapp/contactados.json
 agente-whatsapp/agente.pid
+# Prospección: binarios descargados (scraper de gosom) y caché local
+prospeccion/bin/
+prospeccion/.cache/
 
 # --- Zona de pruebas y material de terceros ------------------------------------
 scratch/

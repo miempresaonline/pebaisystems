@@ -11,6 +11,7 @@ Monorepo con todos los sistemas de PEBAI Systems (pebaisystems.es).
 | `website-pebai/seo-engine/` | Generación masiva de landings, sitemap e IndexNow (manual) | Local → sube a Hostinger |
 | `carousel-engine/` | Motor de carruseles (radar diario + render con Playwright) | GitHub Actions (manual) + local |
 | `agente-whatsapp/` | Agente de captación por WhatsApp (Node + Baileys). Lo controla el panel; ver `docs/agente-whatsapp.md` | Hostinger 24/7 (PM2) vía `deploy/desplegar_agente_whatsapp.py` |
+| `prospeccion/` | Motor de prospección gratuito: Google Maps (gosom) + buscador + rastreo de webs → empresas activas con móvil, email y fijo. Ver `docs/prospeccion.md` | Local (luego GitHub Actions) |
 | `deploy/` | Utilidades de servidor (p. ej. `apagar_bots_y_geo.py`) | Local |
 | `docs/` | Sistema de contenido, automatización Instagram, esquema Miro | — |
 | `ideas/` | Modelos de negocio y benchmarks | — |
