@@ -12,11 +12,11 @@ const ui = { estado: '', q: '', lote: '', limit: 150, act: '' };
 
 /* ============ dominio ============ */
 const PE = {
-  pendiente: ['En cola', '#3A404D', '#C9CED8'], enviando: ['Enviando…', '#6A5CFF', '#FFFFFF'], enviado: ['Enviado', '#6A5CFF', '#FFFFFF'],
+  revision: ['En revisión', '#FFB547', '#0B0F14'], pendiente: ['En cola', '#3A404D', '#C9CED8'], enviando: ['Enviando…', '#6A5CFF', '#FFFFFF'], enviado: ['Enviado', '#6A5CFF', '#FFFFFF'],
   respondio: ['Respondió', '#25D366', '#0B0F14'], baja: ['Baja', '#FF6B7A', '#0B0F14'], sin_whatsapp: ['Sin WhatsApp', '#3A404D', '#C9CED8'],
   error: ['Revisar', '#FFB547', '#0B0F14'], descartado: ['Descartado', '#3A404D', '#C9CED8'],
 };
-const CHIPS = [['', 'Todos', '#EFEDE7'], ['pendiente', 'En cola', '#9A9CB0'], ['enviado', 'Sin respuesta aún', '#6A5CFF'], ['respondio', 'Respondieron', '#25D366'],
+const CHIPS = [['', 'Todos', '#EFEDE7'], ['revision', 'En revisión', '#FFB547'], ['pendiente', 'En cola', '#9A9CB0'], ['enviado', 'Sin respuesta aún', '#6A5CFF'], ['respondio', 'Respondieron', '#25D366'],
   ['error', 'Revisar', '#FFB547'], ['baja', 'Bajas', '#FF6B7A'], ['sin_whatsapp', 'Sin WhatsApp', '#3A404D'], ['descartado', 'Descartados', '#3A404D']];
 const PAGINAS = { resumen: ['Embudo', 'Resumen'], solicitudes: ['Embudo', 'Solicitudes'], citas: ['Embudo', 'Citas'], prospectos: ['Captación', 'Prospectos'], agentes: ['Automático', 'Agentes'], caja: ['Empresa', 'Caja'] };
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -131,6 +131,17 @@ function drawProspectos() {
     && (!ui.lote || p.lote === ui.lote)
     && (!q || [p.empresa, p.nombre, p.telefono, p.sector, p.ciudad, p.notas].join(' ').toLowerCase().includes(q)));
   const list = $('#pb-pros-list'); list.textContent = '';
+  // En revisión: el agente no les escribe. Se aprueban una a una o todas las del lote/filtro de golpe.
+  const enRev = rows.filter((p) => p.estado === 'revision').length;
+  if (enRev) {
+    const bar = el('div', 'pb-card'); bar.style.cssText = 'display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px;border-color:color-mix(in srgb,var(--amber) 50%,var(--line))';
+    bar.append(el('div', null, N(enRev) + ' en revisión' + (ui.lote ? ' en el lote «' + ui.lote + '»' : '') + ': el agente no les escribe hasta que las apruebes.'));
+    bar.append(btn('primary', null, 'Aprobar ' + (ui.lote ? 'las del lote' : 'todas') + ' (' + N(enRev) + ')', (e) => {
+      if (!confirm('¿Pasar ' + enRev + ' empresas a la cola del agente de WhatsApp? Empezará a escribirles en su horario, a su ritmo diario.')) return;
+      post('prospectos_aprobar', { lote: ui.lote || '' }, e.currentTarget).then((j) => { toast(N(j.aprobados) + ' aprobadas: ya están en la cola.'); }).catch((er) => toast(er.message, true));
+    }));
+    list.append(bar);
+  }
   if (!rows.length) {
     const e = el('div', 'pb-card pb-empty');
     e.textContent = P.length ? 'Nada con estos filtros.' : 'Aún no hay prospectos. Pulsa «Añadir prospectos» y sube la primera lista: el agente empieza a escribir en el siguiente tramo de horario.';
@@ -161,11 +172,15 @@ function filaProspecto(p) {
   if (['enviado', 'respondio', 'error'].includes(p.estado)) {
     const a = el('a', 'pb-btn wa'); a.href = 'https://wa.me/' + p.telefono; a.target = '_blank'; a.rel = 'noopener'; a.append(ICO.chat(), 'Abrir chat'); acts.append(a);
   }
-  if (['pendiente', 'error'].includes(p.estado)) acts.append(btn('ghost', null, 'Descartar', (e) => cambia(p, 'descartado', e.currentTarget)));
+  if (p.estado === 'revision') acts.append(btn('primary', null, 'Aprobar', (e) => cambia(p, 'pendiente', e.currentTarget)));
+  if (p.web) { const a = el('a', 'pb-btn ghost'); a.href = p.web; a.target = '_blank'; a.rel = 'noopener'; a.append('Ver web'); acts.append(a); }
+  if (['pendiente', 'error', 'revision'].includes(p.estado)) acts.append(btn('ghost', null, 'Descartar', (e) => cambia(p, 'descartado', e.currentTarget)));
   if (['descartado', 'error', 'sin_whatsapp'].includes(p.estado)) acts.append(btn('ghost', ICO.back(), 'A la cola', (e) => cambia(p, 'pendiente', e.currentTarget)));
   if (p.estado !== 'baja') acts.append(btn('danger', null, 'Baja', (e) => { if (confirm('¿Dar de baja a ' + (p.empresa || telBonito(p.telefono)) + '? No se le volverá a escribir nunca.')) cambia(p, 'baja', e.currentTarget); }, 'Pidió no recibir más mensajes'));
   r.append(acts);
   row.append(av, who, r);
+  // En revisión se ve lo que dice el scraper de ella (qué hace, tamaño, por qué está activa) para decidir
+  if (p.estado === 'revision' && p.notas) row.append(el('div', 'msg', p.notas));
   const msgs = (S.porProspecto.get(p.id) || []);
   const ult = msgs.find((m) => m.sentido === 'entra') || msgs[0];
   if (ult) { const m = el('div', 'msg' + (ult.sentido === 'entra' ? ' in' : ''), (ult.sentido === 'entra' ? '↩ ' : '→ ') + ult.texto); row.append(m); }
@@ -188,10 +203,10 @@ $('#pb-imp-form').addEventListener('submit', (e) => {
   const f = e.currentTarget; const b = $('button[type=submit]', f);
   post('prospectos_importar', new FormData(f), b).then((j) => {
     const r = j.res || {};
-    const partes = [N(r.nuevos) + ' nuevos en cola'];
+    const partes = [N(r.nuevos) + (r.revision ? ' nuevos en revisión' : ' nuevos en cola')];
     if (r.repetidos) partes.push(N(r.repetidos) + ' ya estaban'); if (r.invalidos) partes.push(N(r.invalidos) + ' sin móvil válido');
     if (r.bajas) partes.push(N(r.bajas) + ' con baja'); if (r.embudo) partes.push(N(r.embudo) + ' ya son solicitudes');
-    toast(partes.join(' · ') + '.'); f.reset(); fichero(); imp.hidden = true; ui.estado = 'pendiente';
+    toast(partes.join(' · ') + '.'); f.reset(); fichero(); imp.hidden = true; ui.estado = r.revision ? 'revision' : 'pendiente';
   }).catch((er) => toast(er.message, true));
 });
 let qt; $('#pb-pros-q').addEventListener('input', (e) => { clearTimeout(qt); qt = setTimeout(() => { ui.q = e.target.value.trim(); ui.limit = 150; drawProspectos(); }, 150); });

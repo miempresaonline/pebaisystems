@@ -218,9 +218,18 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 json_out(['ok' => false, 'error' => 'Indica de dónde salen los números (p. ej. «Google Maps, ficha pública»).'], 400);
             }
             $lote = mb_substr(trim((string)($_POST['lote'] ?? '')), 0, 80) ?: date('d/m H:i');
-            $res = pebai_prospectos_importar($raw, $origen, $lote);
+            $enRevision = ($_POST['revision'] ?? '') === '1';
+            $res = pebai_prospectos_importar($raw, $origen, $lote, $enRevision ? 'revision' : 'pendiente');
+            $res['revision'] = $enRevision;
             pebai_actividad('whatsapp', 'cambio', 'Importados ' . $res['nuevos'] . ' prospectos nuevos (lote ' . $lote . ')', json_encode($res, JSON_UNESCAPED_UNICODE));
             json_out(['ok' => true, 'res' => $res]);
+        case 'prospectos_aprobar':
+            // Aprueba de golpe las que están en revisión (todas o las de un lote): pasan a la cola del agente
+            $lote = (string)($_POST['lote'] ?? '');
+            $q = pebai_agentes_db()->prepare("UPDATE prospectos SET estado = 'pendiente', updated_at = ? WHERE estado = 'revision'" . ($lote !== '' ? ' AND lote = ?' : ''));
+            $q->execute($lote !== '' ? [$now, $lote] : [$now]);
+            pebai_actividad('whatsapp', 'cambio', 'Aprobados ' . $q->rowCount() . ' prospectos en revisión' . ($lote !== '' ? ' (lote ' . $lote . ')' : ''));
+            json_out(['ok' => true, 'aprobados' => $q->rowCount()]);
         case 'prospecto_estado':
             $id = (int)($_POST['id'] ?? 0);
             $estado = (string)($_POST['estado'] ?? '');
@@ -513,7 +522,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '17';
+$v = '18';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -688,6 +697,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
         <textarea name="texto" placeholder="…o pega la lista:&#10;empresa;telefono;sector;ciudad&#10;Clínica Dental Sonrisa;612345678;Clínicas;Valencia"></textarea>
         <label class="pb-field"><span>De dónde salen los números <em class="req">obligatorio</em></span><input name="origen" required placeholder="Google Maps · ficha pública del negocio" value="Google Maps · ficha pública del negocio"></label>
         <label class="pb-field"><span>Nombre del lote</span><input name="lote" placeholder="Clínicas Valencia, octubre"></label>
+        <label class="pb-check" style="grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;font-size:13.5px"><input type="checkbox" name="revision" value="1" checked style="width:auto;margin-top:3px"><span><b>Entrar en revisión</b> · el agente no les escribe hasta que las apruebes aquí (botón «Aprobar» o «Aprobar todas»). Desmárcalo solo si la lista ya está revisada.</span></label>
         <div class="pb-imp-foot"><p class="note">Solo números publicados por la empresa como contacto comercial. Se guarda el origen de cada uno por si alguien pregunta de dónde lo sacamos.</p><button class="pb-btn primary" type="submit">Importar</button></div>
       </form>
     </div>

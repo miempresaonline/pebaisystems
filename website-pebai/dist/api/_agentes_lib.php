@@ -17,7 +17,7 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
 require_once __DIR__ . '/_pebai_lib.php';
 require_once __DIR__ . '/_actividad_lib.php';
 
-const PEBAI_PROSPECTO_ESTADOS = ['pendiente', 'enviando', 'enviado', 'respondio', 'baja', 'sin_whatsapp', 'error', 'descartado'];
+const PEBAI_PROSPECTO_ESTADOS = ['revision', 'pendiente', 'enviando', 'enviado', 'respondio', 'baja', 'sin_whatsapp', 'error', 'descartado'];
 
 // Primer mensaje por nicho (docs/agente-whatsapp-mensajes.md). [saludo] = Buenos días / Buenas tardes,
 // [nombre] = ", Ana" o nada, [empresa]. {a|b} elige una variante al azar: ningún mensaje sale idéntico a otro.
@@ -297,7 +297,8 @@ function pebai_wa_movil(string $tel): string
  * empresa, nombre, telefono, sector, ciudad, web, origen (de dónde sale el número), notas.
  * Sin cabecera: empresa;telefono;sector;ciudad. Devuelve el resumen de lo que ha pasado.
  */
-function pebai_prospectos_importar(string $raw, string $origenDefecto, string $lote): array
+/** $estadoInicial = 'revision': entran sin que el agente las toque hasta que alguien las aprueba en el panel (pasan a 'pendiente'). */
+function pebai_prospectos_importar(string $raw, string $origenDefecto, string $lote, string $estadoInicial = 'pendiente'): array
 {
     $db = pebai_agentes_db();
     $raw = preg_replace('/^\xEF\xBB\xBF/', '', str_replace(["\r\n", "\r"], "\n", $raw));
@@ -340,7 +341,7 @@ function pebai_prospectos_importar(string $raw, string $origenDefecto, string $l
             $res['invalidos']++;
             continue;
         }
-        $estado = 'pendiente';
+        $estado = $estadoInicial === 'revision' ? 'revision' : 'pendiente';
         if (isset($bajas[$tel])) {
             $estado = 'baja';
             $res['bajas']++;
@@ -351,7 +352,7 @@ function pebai_prospectos_importar(string $raw, string $origenDefecto, string $l
         $ins->execute([$now, $now, $get('empresa'), $get('nombre'), $tel, $get('sector'), $get('ciudad'), $get('web'),
                        $get('origen_dato') ?: $origenDefecto, $lote, $get('notas'), $estado]);
         if ($ins->rowCount()) {
-            if ($estado === 'pendiente') {
+            if (in_array($estado, ['pendiente', 'revision'], true)) {
                 $res['nuevos']++;
             }
         } else {
