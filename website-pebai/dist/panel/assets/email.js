@@ -54,7 +54,8 @@ function montar() {
 async function load() {
   const r = await fetch(BASE + '?email=1', { credentials: 'same-origin', cache: 'no-store' });
   if (r.status === 401) { location.reload(); return; }
-  let j; try { j = await r.json(); } catch (e) { location.reload(); return; }
+  // Nunca recargar si la respuesta no es JSON: si falta _email_panel.php o PHP falla, recargar crearía un bucle infinito.
+  let j; try { j = await r.json(); } catch (e) { S.caido = true; throw new Error('No se han podido cargar los datos del email. Si la sesión ha caducado, recarga la página.'); }
   if (!j.ok) throw new Error(j.error || 'Error al cargar');
   Object.assign(S, j, { ahora: parse(j.ahora), loaded: true });
   S.porP = new Map(); (j.mensajes || []).forEach((m) => { if (!S.porP.has(m.prospecto_id)) S.porP.set(m.prospecto_id, []); S.porP.get(m.prospecto_id).push(m); });
