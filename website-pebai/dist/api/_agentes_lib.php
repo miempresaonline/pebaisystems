@@ -188,11 +188,32 @@ function pebai_wa_enviados_hoy(): int
     return (int)$q->fetchColumn();
 }
 
+/**
+ * Nombre de empresa como lo escribiría una persona. Los nombres de Google Maps vienen con relleno
+ * ("Marca - Empresa de instalaciones…", "Marca | Aire acondicionado en X", emojis, MAYÚSCULAS, "SLU").
+ * Si después de limpiar sigue siendo una frase larga, se devuelve '' y el mensaje dice "vuestro negocio".
+ */
+function pebai_wa_empresa_corta(string $empresa): string
+{
+    $e = preg_replace('/[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{FE0F}\x{200D}]/u', ' ', $empresa);
+    $e = preg_split('/\s+[-–—|·:]\s+|\s*\|\s*|\s*\(/u', $e)[0];
+    $e = trim(preg_replace('/[,\s]+(s\.?\s?l\.?\s?u|s\.?\s?l\.?\s?l|s\.?\s?l\.?\s?p|s\.?\s?l|s\.?\s?a\.?\s?u|s\.?\s?a|s\.?\s?c\.?\s?p|s\.?\s?c|c\.?\s?b)\.?$/iu', '', trim($e)));
+    if (preg_match('/\p{L}/u', $e) && mb_strtoupper($e) === $e) {
+        // Todo en mayúsculas: se escribe normal, con "de", "y", "en"… en minúscula
+        $e = preg_replace_callback('/\b(De|Del|La|Las|Los|El|Y|E|En|A)\b/u', static fn($m) => mb_strtolower($m[1]), mb_convert_case($e, MB_CASE_TITLE));
+        $e = mb_strtoupper(mb_substr($e, 0, 1)) . mb_substr($e, 1);
+    } else {
+        $e = preg_replace_callback('/\b(\p{Lu}{4,})\b/u', static fn($m) => mb_convert_case($m[1], MB_CASE_TITLE), $e);
+    }
+    $e = trim(preg_replace('/\s+/u', ' ', $e), " \t.,;-");
+    return ($e === '' || count(explode(' ', $e)) > 4) ? '' : $e;
+}
+
 function pebai_wa_render(string $plantilla, array $p, ?int $now = null): string
 {
     $now = $now ?? time();
     $nombre = trim(explode(' ', trim($p['nombre'] ?? ''))[0] ?? '');
-    $empresa = trim(preg_replace('/[,\s]+(s\.?\s?l\.?u?|s\.?\s?a\.?|s\.?\s?l\.?\s?p\.?|s\.?\s?c\.?)\.?$/iu', '', trim($p['empresa'] ?? '')));
+    $empresa = pebai_wa_empresa_corta((string)($p['empresa'] ?? ''));
     $txt = strtr($plantilla, [
         '[saludo]' => (int)date('G', $now) < 14 ? 'Buenos días' : 'Buenas tardes',
         '[nombre]' => $nombre !== '' ? ', ' . mb_convert_case($nombre, MB_CASE_TITLE) : '',
