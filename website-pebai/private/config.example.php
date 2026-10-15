@@ -18,5 +18,16 @@ return [
     'cron_token' => '',
     // Token del agente de WhatsApp (agente-whatsapp/): el mismo valor que AGENT_TOKEN en su .env
     'agent_token' => '',
+    // Agente de email en frío (api/email-cron.php). Buzón SOLO para el frío, nunca el del embudo (smtp.user).
+    // Mejor en un subdominio (p. ej. daniel@hola.pebaisystems.es). Sin user/pass el agente no envía nada.
+    'email_frio' => [
+        'user' => '',
+        'pass' => '',
+        'from_name' => 'Daniel · PEBAI Systems',
+        'smtp_host' => 'smtp.hostinger.com', 'smtp_port' => 465, 'smtp_secure' => 'ssl',
+        'imap' => '{imap.hostinger.com:993/imap/ssl}',
+        'enviados' => 'INBOX.Sent',     // carpeta de enviados (para ver el hilo completo en el buzón); '' = no guardar copia
+        'avisar_a' => '',               // dónde avisar al momento de cada respuesta (p. ej. el email de Daniel)
+    ],
     'salt' => '',
 ];
