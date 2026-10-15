@@ -20,6 +20,23 @@ from .web import UA, dominio
 GMAPS = Path(__file__).resolve().parent.parent / 'bin' / ('gmaps.exe' if os.name == 'nt' else 'gmaps')
 
 
+# Provincia por los dos primeros dígitos del código postal (INE)
+PROVINCIAS_CP = {'01': 'Álava', '02': 'Albacete', '03': 'Alicante', '04': 'Almería', '05': 'Ávila', '06': 'Badajoz', '07': 'Illes Balears',
+    '08': 'Barcelona', '09': 'Burgos', '10': 'Cáceres', '11': 'Cádiz', '12': 'Castellón', '13': 'Ciudad Real', '14': 'Córdoba', '15': 'A Coruña',
+    '16': 'Cuenca', '17': 'Girona', '18': 'Granada', '19': 'Guadalajara', '20': 'Gipuzkoa', '21': 'Huelva', '22': 'Huesca', '23': 'Jaén',
+    '24': 'León', '25': 'Lleida', '26': 'La Rioja', '27': 'Lugo', '28': 'Madrid', '29': 'Málaga', '30': 'Murcia', '31': 'Navarra', '32': 'Ourense',
+    '33': 'Asturias', '34': 'Palencia', '35': 'Las Palmas', '36': 'Pontevedra', '37': 'Salamanca', '38': 'Santa Cruz de Tenerife', '39': 'Cantabria',
+    '40': 'Segovia', '41': 'Sevilla', '42': 'Soria', '43': 'Tarragona', '44': 'Teruel', '45': 'Toledo', '46': 'Valencia', '47': 'Valladolid',
+    '48': 'Bizkaia', '49': 'Zamora', '50': 'Zaragoza', '51': 'Ceuta', '52': 'Melilla'}
+
+
+def ciudad_provincia(direccion: str) -> tuple[str, str]:
+    """«Carrer de Colón, 21, 46004 València, Valencia» → ('València', 'Valencia')."""
+    m = re.search(r'\b(\d{5})\s+([^,]+)', direccion or '')
+    if not m:
+        return '', ''
+    return m.group(2).strip(), PROVINCIAS_CP.get(m.group(1)[:2], '')
+
 def geocodifica(lugar: str) -> tuple[float, float, list[float]]:
     """Centro y caja de una ciudad o provincia con OpenStreetMap (Nominatim: gratis, 1 petición/s)."""
     r = httpx.get('https://nominatim.openstreetmap.org/search', params={'q': lugar + ', España', 'format': 'json', 'limit': 1},
@@ -43,12 +60,14 @@ def rejilla(caja: list[float], paso_km: float, max_puntos: int) -> list[tuple[fl
     return pts[:max_puntos]
 
 
-def google_maps(busquedas: list[str], ciudad: str, sector: str, max_puntos: int = 12, paso_km: float = 3.0) -> list[dict]:
+def google_maps(busquedas: list[str], ciudad: str, sector: str, max_puntos: int = 12, paso_km: float = 3.0, zoom: int = 14,
+                puntos: list[tuple[float, float]] | None = None) -> list[dict]:
     """Google Maps con gosom/google-maps-scraper en modo rápido (el modo normal está roto desde el 01/10/2026, issue #338).
     Maps devuelve ~20 negocios por búsqueda y zona: se barre la ciudad por zonas y con varias formas de buscar el nicho.
     La búsqueda va SIN el nombre de la ciudad: con él, Google ignora la zona y devuelve el centro (o nada)."""
-    _, _, caja = geocodifica(ciudad)
-    puntos = rejilla(caja, paso_km, max_puntos)
+    if puntos is None:
+        _, _, caja = geocodifica(ciudad)
+        puntos = rejilla(caja, paso_km, max_puntos)
     out: dict[str, dict] = {}
     with tempfile.TemporaryDirectory() as tmp:
         for i, (lat, lon) in enumerate(puntos, 1):
@@ -56,7 +75,7 @@ def google_maps(busquedas: list[str], ciudad: str, sector: str, max_puntos: int 
             q.write_text('\n'.join(busquedas) + '\n', encoding='utf-8')
             res = Path(tmp) / f'r{i}.json'
             subprocess.run([str(GMAPS), '-input', str(q), '-results', str(res), '-json', '-lang', 'es', '-fast-mode',
-                            '-geo', f'{lat},{lon}', '-zoom', '14', '-radius', str(int(paso_km * 1000)), '-c', '1',
+                            '-geo', f'{lat},{lon}', '-zoom', str(zoom), '-radius', str(int(paso_km * 1000)), '-c', '1',
                             '-exit-on-inactivity', '1m'], capture_output=True, timeout=600)
             filas = []
             if res.exists() and res.stat().st_size:
@@ -76,9 +95,10 @@ def google_maps(busquedas: list[str], ciudad: str, sector: str, max_puntos: int 
                 if cid in out:
                     continue
                 nuevos += 1
+                ciu, prov = ciudad_provincia(x.get('address') or '')
                 out[cid] = {
                     'empresa': (x.get('title') or '').strip(), 'web': x.get('web_site') or '', 'telefono': normaliza_tel(x.get('phone') or ''),
-                    'sector': sector, 'ciudad': ciudad, 'direccion': x.get('address') or '',
+                    'sector': sector, 'ciudad': ciu or ciudad, 'provincia': prov, 'direccion': x.get('address') or '',
                     'resenas': int(x.get('review_count') or 0), 'valoracion': float(x.get('review_rating') or 0),
                     'fuente': 'google_maps', 'origen_dato': 'Google Maps · ficha pública del negocio',
                     'extra': {'maps': x.get('link') or '', 'estado_maps': x.get('status') or '', 'horario': x.get('open_hours') or {}},

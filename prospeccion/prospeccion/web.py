@@ -78,6 +78,15 @@ def _analiza(html: str, base: str, res: dict) -> list[str]:
         res['senales'].add('pixel_meta')
     if re.search(r'tawk\.to|crisp\.chat|intercom|tidio|livechat|zendesk|hubspot|whatsapp-widget|joinchat|getbutton', low):
         res['senales'].add('chat_web')
+    t = texto.lower()
+    # Qué hace (nicho energía) y señales de tamaño: más de 1–2 personas
+    if re.search(r'fotovoltai|placas solares|paneles solares|autoconsumo', t):
+        res['senales'].add('hace_solar')
+    if re.search(r'aerotermia|bomba(?:s)? de calor', t):
+        res['senales'].add('hace_aerotermia')
+    if re.search(r'nuestro equipo|equipo de (?:\d+|profesionales|t[eé]cnicos|instaladores)|m[aá]s de \d+ (?:profesionales|t[eé]cnicos|empleados|trabajadores|instaladores)|'
+                 r'delegaci[oó]n|delegaciones|nuestras (?:oficinas|sedes|tiendas)|sede central', t):
+        res['senales'].add('equipo')
     if re.search(r'calendly|cal\.com|reservar cita|pide cita|pedir cita|booking', low):
         res['senales'].add('reservas_online')
     for y in _ANYO.findall(html):

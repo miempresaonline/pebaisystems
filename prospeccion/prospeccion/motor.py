@@ -23,7 +23,10 @@ SALIDA = Path(__file__).resolve().parents[2] / 'scratch' / 'prospeccion'
 HOY = dt.date.today()
 # Cadenas y franquicias: no deciden en local, no son nuestro cliente
 CADENAS = re.compile(r'asisa|sanitas|caser|adeslas|vitaldent|dentix|ikea|leroy|bricomart|obramat|iberdrola|endesa|repsol|naturgy|holaluz|'
-                     r'securitas|prosegur|carrefour|mercadona|el corte ingl|schmidt|leroy merlin|porcelanosa|bauhaus', re.I)
+                     r'securitas|prosegur|carrefour|mercadona|el corte ingl|schmidt|leroy merlin|porcelanosa|bauhaus|'
+                     # Energía: marcas nacionales, comercializadoras y plataformas (no son la instaladora local)
+                     r'sotysolar|enchufesolar|solarprofit|otovo|svea|totalenergies|engie|edp|e\.on|autosolar|cambio energ[eé]tico|tesla|'
+                     r'saunier|daikin|mitsubishi electric|bosch|vaillant|baxi|ferroli|junkers|leroymerlin|ikea', re.I)
 
 # Webs que no son el cliente final: administraciones, directorios y comparadores (venden leads, no los atienden), formación, software
 NO_CLIENTE = re.compile(r'junta de |gobierno|ayuntamiento|diputaci|consejer|ministerio|generalitat|xunta|\.gob\.|gencat|gva\.es|juntadeandalucia|madrid\.org|'
@@ -128,6 +131,12 @@ def puntua(c: dict, w: dict) -> None:
         enc += 1; em.append('sin chat automático')
     if c['resenas'] >= 50:
         enc += 1; em.append('volumen de clientes')
+    hace = ('ambas' if {'hace_solar', 'hace_aerotermia'} <= s else 'solar' if 'hace_solar' in s else 'aerotermia' if 'hace_aerotermia' in s else '')
+    tam = 'equipo' if ('equipo' in s or c['resenas'] >= 30) else 'posible autónomo' if c['resenas'] < 5 else 'pequeña'
+    anuncios = bool(s & {'anuncios_google', 'pixel_meta'})
+    c['hace'], c['tamano'], c['anuncia'] = hace, tam, anuncios
+    # Orden del CSV (encargo de WhatsApp): primero hacen ambas cosas, tienen equipo y anuncian
+    c['prioridad'] = (2 if hace == 'ambas' else 1 if hace else 0) + (2 if tam == 'equipo' else 0 if tam == 'pequeña' else -1) + (1 if anuncios else 0)
     c['encaje_puntos'] = enc
     c['encaje'] = 'alto' if enc >= 4 else 'medio' if enc >= 2 else 'bajo'
     c['encaje_motivos'] = ', '.join(em)
@@ -259,17 +268,20 @@ def descarta(c: dict, vistos_tel: set, vistos_dom: set, excl: dict | None = None
     return ''
 
 
-COLS = ['empresa', 'telefono', 'telefono_fijo', 'email', 'nombre', 'sector', 'ciudad', 'web', 'origen', 'notas',
+COLS = ['empresa', 'telefono', 'telefono_fijo', 'email', 'nombre', 'sector', 'ciudad', 'provincia', 'lote', 'hace', 'tamano', 'web', 'origen', 'notas',
         'tipo_email', 'origen_email', 'mx_ok', 'motivo', 'senal', 'motivo_fuente', 'motivo_fecha', 'anuncios_activos', 'canales',
         'actividad', 'encaje', 'emails_extra', 'moviles_extra', 'redes', 'resenas', 'valoracion', 'senales', 'fuente']
 
 
 def fila(c: dict) -> dict:
-    notas = f'Actividad {c["actividad"]}: {c["actividad_motivos"]}. Encaje {c["encaje"]}: {c["encaje_motivos"]}.'
+    etiquetas = [f'hace_{c["hace"]}' if c['hace'] else '', f'tamaño: {c["tamano"]}', 'anuncia (etiquetas de Google Ads/Meta en su web)' if c['anuncia'] else '',
+                 f'fijo {c["fijo"]}' if c['fijo'] and c['movil'] else '']
+    notas = ' · '.join(e for e in etiquetas if e) + f'. Actividad {c["actividad"]}: {c["actividad_motivos"]}. Encaje {c["encaje"]}: {c["encaje_motivos"]}.'
     if c['email_personal']:
         notas += ' Email personal (gmail/hotmail…).'
     return {'empresa': c['empresa'], 'telefono': c['movil'], 'telefono_fijo': c['fijo'], 'email': c['email'], 'nombre': '',
-            'sector': c['sector'], 'ciudad': c['ciudad'], 'web': c['web_final'], 'origen': c['origen_contacto'], 'notas': notas,
+            'sector': c['sector'], 'ciudad': c['ciudad'], 'provincia': c.get('provincia', ''), 'lote': c.get('lote', ''),
+            'hace': c['hace'], 'tamano': c['tamano'], 'web': c['web_final'], 'origen': c['origen_contacto'], 'notas': notas,
             'tipo_email': c['tipo_email'], 'origen_email': c['origen_email'], 'mx_ok': 'si' if c['mx_ok'] else '',
             'motivo': c['motivo'], 'senal': c['senal'], 'motivo_fuente': c['motivo_fuente'], 'motivo_fecha': c['motivo_fecha'], 'anuncios_activos': c['anuncios_activos'],
             # Canales posibles; el panel decide cuál usa (uno solo a la vez)
@@ -284,7 +296,7 @@ def guarda(nombre: str, cands: list[dict], limite: int) -> None:
     excl = exclusiones()
     buenos, motivos = [], Counter()
     # Primero los que más encajan y más activos están
-    for c in sorted(cands, key=lambda c: (-c['encaje_puntos'], not c['motivo'], -c['actividad_puntos'])):
+    for c in sorted(cands, key=lambda c: (-c['prioridad'], -c['encaje_puntos'], not c['motivo'], -c['actividad_puntos'])):
         m = descarta(c, vt, vd, excl)
         if m:
             motivos[m] += 1
