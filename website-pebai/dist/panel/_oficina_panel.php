@@ -226,14 +226,18 @@ function of_scraper(): array
         $mail += (int)$m[4];
     }
     $a['hoy'] = $ent;
-    $ult = $a['actividad'][0]['ts'] ?? '';
-    $reciente = $ult !== '' && strtotime($ult) > time() - 900;
-    $a['st'] = $a['errores'] ? 'error' : ($reciente ? 'trabajando' : 'dormido');
+    $ult = $a['actividad'][0] ?? null;
+    // "Trabajando" solo si lo último fue un lote de empresas hace menos de 15 min. Un "Parado…" (tipo espera) es pausa, no trabajo.
+    $esLote = $ult && preg_match('/empresas encontradas/u', $ult['txt']);
+    $reciente = $esLote && strtotime($ult['ts']) > time() - 900;
+    $parado = $ult && $ult['tipo'] === 'espera';
+    $a['st'] = $a['errores'] ? 'error' : ($reciente ? 'trabajando' : ($parado ? 'pausado' : 'dormido'));
     $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
-        : ($reciente ? 'Está subiendo lotes ahora mismo.' : 'Corre en el ordenador del equipo y se activa cuando lanzáis una búsqueda.' . ($ult ? ' Último lote ' . of_hace($ult) . '.' : ''));
-    $a['proxima'] = 'Cuando lancéis la siguiente búsqueda';
+        : ($reciente ? 'Está buscando empresas ahora mismo.' : ($parado ? $ult['txt'] . ' (desde ' . of_hace($ult['ts']) . ').' : 'Corre en el servidor y busca cuando la cola de WhatsApp baja de 150.'));
+    $a['proxima'] = $parado ? 'Cuando la cola baje de 150 o haya un nicho nuevo' : 'Cuando la cola baje de 150';
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
-    $a['datos'] = [['Encontradas hoy', (string)$enc], ['Útiles (con contacto)', (string)$ent], ['Con móvil', (string)$mov], ['Con email', (string)$mail]];
+    $cola = (int)pebai_db()->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente'")->fetchColumn();
+    $a['datos'] = [['En cola de WhatsApp', (string)$cola], ['Encontradas hoy', (string)$enc], ['Útiles hoy', (string)$ent], ['Con móvil hoy', (string)$mov]];
     $a['acciones'] = ['ir' => 'prospectos'];
     foreach ($a['actividad'] as &$e) {
         $e['txt'] = of_lote_bonito($e['txt']);
