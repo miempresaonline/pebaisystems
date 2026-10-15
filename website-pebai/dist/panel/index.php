@@ -508,13 +508,12 @@ if ($auth && isset($_GET['agentes'])) {
     json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'prospectos' => $pros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
               'bajas' => (int)$adb->query('SELECT COUNT(*) FROM bajas')->fetchColumn(),
               'nichos' => $nichosOut, 'stats' => pebai_wa_stats(), 'actividad' => pebai_actividad_ultimas('whatsapp', 150),
-              'prospeccion' => ['actividad' => pebai_actividad_ultimas('prospeccion', 80)],
               'whatsapp' => ['estado' => $wa['estado'], 'latido_at' => $wa['latido_at'], 'detalle' => $wa['detalle'], 'codigo' => $wa['codigo'], 'pausado' => (int)$wa['pausado'],
                              'enviados_hoy' => pebai_wa_enviados_hoy(), 'limite_dia' => $cfg['limite_dia'], 'ventanas' => $cfg['ventanas'],
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '15';
+$v = '16';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -746,7 +745,6 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     <div class="pb-dept">
       <div class="pb-dept-h"><span class="pb-ico lime"><svg class="pb-i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><div><h2>Captación</h2><p>Primer contacto con empresas nuevas</p></div></div>
       <div id="pb-ag-wa"></div>
-      <div id="pb-ag-pro"></div>
       <div class="pb-grid two pb-soon-row">
         <div class="pb-card pb-soon"><span class="pb-tile" style="background:linear-gradient(135deg,#6A5CFF,#3FD5FF)"><svg class="pb-i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><div><b>Agente de email</b><small>Secuencias en frío · próximamente</small></div></div>
       </div>

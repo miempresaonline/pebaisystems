@@ -333,33 +333,6 @@ function registroCard() {
   });
   c.append(chips, list); return c;
 }
-/* Agente de prospección (scraper en el servidor): cada tirada apunta qué encontró, qué entregó y qué descartó y por qué. */
-function drawProspeccion() {
-  const box = $('#pb-ag-pro'); if (!box) return; box.textContent = '';
-  const acts = ((S.prospeccion || {}).actividad || []);
-  const ult = acts[0];
-  const card = el('div', 'pb-card pb-agent'); card.dataset.s = !ult ? 'off' : acts.some((a) => a.tipo === 'error' && a.ts === ult.ts) ? 'bad' : 'ok';
-  const top = el('div', 'pb-agent-top');
-  const tile = el('span', 'pb-tile xl'); tile.style.background = 'linear-gradient(135deg,#B7FF3C,#3FD5FF)';
-  tile.append(svg('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/><path d="M8 11h6M11 8v6"/>'));
-  const info = el('div'); info.append(el('div', 'nm', 'Agente de prospección'));
-  const st = el('div', 'st'); const pill = el('span', 'state'); const dot = el('i', 'pb-live'); dot.dataset.s = card.dataset.s;
-  pill.append(dot, ult ? 'Última tirada ' + hace(parse(ult.ts)) : 'Sin tiradas todavía'); st.append(pill);
-  st.append(el('span', null, 'Busca empresas en Google Maps y revisa su web: solo activas y del nicho, con su móvil, email y fijo'));
-  info.append(st);
-  top.append(tile, info); card.append(top);
-  const reg = el('div'); reg.style.cssText = 'padding:0 22px 20px';
-  const list = el('div', 'pw-log');
-  if (!acts.length) list.append(el('div', 'pb-empty', 'Cuando el scraper termine una provincia o una lista aparecerá aquí: cuántas encontró, cuántas entregó y por qué descartó las demás.'));
-  acts.slice(0, 40).forEach((a) => {
-    const [l, color] = TIPO_ACT[a.tipo] || [a.tipo, 'var(--muted)'];
-    const d = el('details', 'pw-log-i'); const sm = el('summary'); const chip = el('em', null, a.tipo === 'hito' ? 'Tirada' : l); chip.style.setProperty('--c', color);
-    sm.append(el('time', null, cuando(parse(a.ts))), chip, el('span', null, a.resumen));
-    d.append(sm); if (a.detalle) d.append(el('pre', 'pw-pre', a.detalle));
-    list.append(d);
-  });
-  reg.append(list); card.append(reg); box.append(card);
-}
 function configCard(w) {
   const d = el('details', 'pb-histbox pb-config');
   const s = el('summary'); s.append(svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'), 'Ajustes del agente', el('em', null, (w.limite_dia || 0) + '/día · ' + (w.ventanas || []).map((v) => v.join('–')).join(', ')));
@@ -400,7 +373,6 @@ function draw() {
     // No repintar mientras se editan los ajustes (se perdería lo escrito)
     const cfg = $('#pb-ag-wa .pb-config'); if (cfg && cfg.contains(document.activeElement)) return;
     drawAgentes();
-    drawProspeccion();
   }
   // Las animaciones de entrada solo la primera vez: el refresco de cada minuto no hace parpadear nada
   if (sec && ['prospectos', 'agentes'].includes(p)) requestAnimationFrame(() => setTimeout(() => sec.classList.add('pb-quiet'), 1200));
