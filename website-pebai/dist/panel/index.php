@@ -534,7 +534,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '26';
+$v = '27';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -766,7 +766,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 
   <section class="pb-page" id="page-agentes" data-page="agentes">
     <div class="pb-of-wrap" id="pb-of">
-      <div class="pb-of-load" id="pb-of-load">Montando la oficina…</div>
+      <div class="pb-of-load" id="pb-of-load"><img src="<?= BASE ?>assets/pebai-mark.png" alt=""><span>Conectando con los agentes…</span></div>
       <div class="pb-of-hud" id="pb-of-hud"></div>
       <aside class="pb-of-side" id="pb-of-side"><button class="x" id="pb-of-x" type="button" aria-label="Cerrar">×</button><div id="pb-of-sidein"></div></aside>
       <div class="pb-of-ask" id="pb-of-ask">

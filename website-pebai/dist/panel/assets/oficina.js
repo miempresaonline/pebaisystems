@@ -42,7 +42,7 @@ async function cargar() {
   let j; try { j = await r.json(); } catch (e) { throw new Error('La oficina no ha respondido bien.'); }
   if (!j.ok) throw new Error(j.error || 'No se ha podido cargar la oficina.');
   /* en la oficina solo salen los bots de verdad (los de los departamentos con agentes) */
-  S.agentes = j.agentes.filter((a) => DEPTS.some((d) => d.activo && d.id === a.dept)); S.autos = j.agentes.filter((a) => a.dept === 'embudo'); S.csrf = j.csrf; return true;
+  S.agentes = j.agentes.filter((a) => DEPTS.some((d) => d.activo && d.id === a.dept)); S.autos = j.agentes.filter((a) => a.dept === 'embudo'); S.csrf = j.csrf; S.cargado = Date.now(); return true;
 }
 async function accion(action, fields, ok, btn) {
   if (btn) btn.disabled = true;
@@ -73,21 +73,24 @@ function tileHtml(a, cls) {
     : `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${GLIFOS[a.glifo] || GLIFOS.flow}"/></svg>`) + '</span>';
 }
 function pintaHud() {
-  const pend = pendientes();
+  const pend = pendientes(), err = pend.filter((p) => p.err).length;
+  const abierto = !!hud.querySelector('.pb-of-todo.abierto');
   hud.replaceChildren();
-  if (!pend.length) { hud.innerHTML = '<div class="pb-of-todo ok"><i></i><span>Todo en orden. Nada espera por vosotros.</span></div>'; return; }
-  const c = document.createElement('div'); c.className = 'pb-of-todo';
-  const err = pend.filter((p) => p.err).length;
-  c.innerHTML = `<div class="h"><span class="n ${err ? 'err' : ''}">${pend.length}</span><b>${pend.length === 1 ? 'Necesita a una persona' : 'Necesitan a una persona'}</b><svg class="pl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></div>`;
-  c.querySelector('.h').onclick = (ev) => { ev.stopPropagation(); c.classList.toggle('abierto'); };
-  pend.slice(0, 4).forEach(({ a, txt, err: e }) => {
+  const c = document.createElement('div'); c.className = 'pb-of-todo' + (pend.length ? '' : ' ok') + (abierto && pend.length ? ' abierto' : '');
+  const col = err ? '#FF5E6C' : pend.length ? '#FFB547' : '#3DDC84';
+  c.innerHTML = `<button type="button" class="h"><i class="vivo"></i><span class="dir">En directo</span><span class="sep"></span><span class="est" style="--c:${col}"><i></i>${pend.length ? (pend.length === 1 ? '1 aviso' : pend.length + ' avisos') : 'Todo en orden'}</span>${pend.length ? '<svg class="pl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>' : ''}</button><div class="lista"></div>`;
+  const lista = c.querySelector('.lista');
+  if (pend.length) c.querySelector('.h').onclick = (ev) => { ev.stopPropagation(); c.classList.toggle('abierto'); };
+  pend.slice(0, 5).forEach(({ a, txt, err: e }) => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'it' + (e ? ' err' : '');
     b.innerHTML = tileHtml(a, 't') + `<span class="x"><b>${esc(a.nombre)}</b><span>${esc(txt)}</span></span><svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>`;
-    b.onclick = (ev) => { ev.stopPropagation(); abrirAgente(a.id); }; c.append(b);
+    b.onclick = (ev) => { ev.stopPropagation(); c.classList.remove('abierto'); abrirAgente(a.id); }; lista.append(b);
   });
-  if (pend.length > 4) { const m = document.createElement('div'); m.className = 'mas'; m.textContent = `y ${pend.length - 4} más`; c.append(m); }
-  hud.append(c);
+  hud.append(c); horaHud();
 }
+/* "Actualizado hace…" al pasar el ratón por la píldora */
+function horaHud() { const sg = Math.round((Date.now() - (S.cargado || Date.now())) / 1000); hud.title = 'Datos de ahora mismo · actualizado ' + (sg < 10 ? 'hace un momento' : sg < 60 ? `hace ${sg} s` : `hace ${Math.round(sg / 60)} min`); }
+setInterval(horaHud, 10000);
 
 const q = (t, cuerpo) => `<div class="pb-of-q"><h4>${t}</h4>${cuerpo}</div>`;
 function abrirAgente(id) {
@@ -96,7 +99,8 @@ function abrirAgente(id) {
   const [c, txt] = ST[a.st] || ST.espera;
   const pct = a.cupo ? Math.min(100, Math.round(a.hoy / a.cupo * 100)) : 0;
   const hist = (a.actividad || []).slice(0, S.verTodo ? 30 : 6);
-  sideIn.innerHTML = `<div class="k">${esc(d.nombre)}</div><h2>${tileHtml(a)}${esc(a.nombre)}</h2><div class="rol">${esc(a.rol || '')}</div>
+  sideIn.innerHTML = (S.agentes.length > 1 ? '<div class="pb-of-nav"><button type="button" data-d="-1" aria-label="Agente anterior" title="Anterior (←)">‹</button><button type="button" data-d="1" aria-label="Agente siguiente" title="Siguiente (→)">›</button></div>' : '')
+    + `<div class="k">${esc(d.nombre)}</div><h2>${tileHtml(a)}${esc(a.nombre)}</h2><div class="rol">${esc(a.rol || '')}</div>
     <div class="pb-of-state" style="--c:${c}"><i></i><div><b>${txt}</b><span>${esc(a.motivo)}</span></div></div>
     <div class="pb-of-acts" id="pb-of-acts"></div>
     ${a.codigo ? `<div class="pb-of-code"><small>Código para vincular WhatsApp</small><b>${esc(String(a.codigo).replace(/[^A-Z0-9]/gi, '').toUpperCase().replace(/(.{4})(?=.)/g, '$1-'))}</b><span>En el móvil: WhatsApp › Dispositivos vinculados › Vincular con el número de teléfono.</span></div>` : ''}
@@ -116,6 +120,7 @@ function abrirAgente(id) {
   if (A.ajustes) boton('ghost', 'Horario, cupo y mensajes', () => { document.body.classList.add('pb-ag-ajustes'); document.dispatchEvent(new CustomEvent('pb:agview')); setTimeout(() => { const t = document.getElementById('pb-ag-wa'); if (t) t.scrollIntoView({ behavior: 'smooth' }); }, 60); });
   if (A.ir) boton('ghost', A.ir === 'email' ? 'Ver su lista de empresas' : 'Ver las empresas', () => { const b = document.querySelector(`#pb-tabs button[data-page="${A.ir}"]`); if (b) b.click(); });
   if (!acts.childElementCount) acts.remove();
+  sideIn.querySelectorAll('.pb-of-nav button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); vecino(+b.dataset.d); }; });
   const more = $('#pb-of-more'); if (more) more.onclick = (e) => { e.stopPropagation(); S.verTodo = !S.verTodo; abrirAgente(a.id); };
   mostrar();
 }
@@ -155,9 +160,43 @@ function abrirNucleo() {
   $('#pb-of-preg').onclick = (e) => { e.stopPropagation(); qIn.focus(); };
   mostrar();
 }
+function vecino(dir) {
+  if (!foco || !foco.agente || S.agentes.length < 2) return;
+  const i = S.agentes.findIndex((a) => a.id === foco.agente);
+  abrirAgente(S.agentes[(i + dir + S.agentes.length) % S.agentes.length].id);
+}
 function mostrar() { side.classList.add('on'); side.scrollTop = 0; setTimeout(() => side.querySelectorAll('.bar i').forEach((b) => { b.style.width = b.dataset.w; }), 300); }
 function cerrar() { side.classList.remove('on'); foco = null; S.verTodo = false; wrap.classList.remove('foco'); if (G) G.volar(G.HOME.p, G.HOME.t); }
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && enPagina() && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) cerrar(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && enPagina() && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { if (cine) alternarCine(); else cerrar(); } });
+const ayuda = document.createElement('div'); ayuda.className = 'pb-of-ayuda';
+ayuda.innerHTML = '<button type="button" class="b" aria-label="Atajos y leyenda" title="Atajos y leyenda (?)">?</button><div class="c">'
+  + '<h5>Colores</h5>' + ['trabajando', 'espera', 'dormido', 'error', 'apagado'].map((k) => `<div class="l"><i style="background:${ST[k][0]}"></i>${ST[k][1]}</div>`).join('')
+  + '<h5>Atajos</h5>' + [['1 – 4', 'Ir a cada sala'], ['P', 'El núcleo'], ['← →', 'Agente anterior / siguiente'], ['/', 'Preguntar a PEBAI'], ['Esc', 'Volver a la vista general'], ['H', 'Ocultar la interfaz'], ['C', 'Modo cine (para grabar)']].map(([k, t]) => `<div class="k"><kbd>${k}</kbd><span>${t}</span></div>`).join('')
+  + '</div>';
+wrap.append(ayuda);
+ayuda.addEventListener('click', (e) => e.stopPropagation());
+ayuda.querySelector('.b').onclick = () => ayuda.classList.toggle('on');
+function alternarCine() {
+  cine = !cine; cineAng = 0; wrap.classList.toggle('cine', cine); document.body.classList.toggle('pb-of-cine', cine);
+  if (cine) { side.classList.remove('on'); foco = null; wrap.classList.remove('foco'); ayuda.classList.remove('on'); toast('Modo cine: pulsa C o Esc para salir'); }
+  else if (G) G.volar(G.HOME.p, G.HOME.t);
+}
+document.addEventListener('keydown', (e) => {
+  if (!enPagina() || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || e.ctrlKey || e.metaKey || e.altKey) return;
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  if (cine && k !== 'c' && k !== 'Escape') { alternarCine(); return; }
+  if (/^[1-9]$/.test(k) && DEPTS[+k - 1]) abrirSala(DEPTS[+k - 1]);
+  else if (k === '0') cerrar();
+  else if (k === 'p') abrirNucleo();
+  else if (k === '/') { e.preventDefault(); e.stopImmediatePropagation(); abrirAsk(); }
+  else if (k === 'ArrowRight') vecino(1);
+  else if (k === 'ArrowLeft') vecino(-1);
+  else if (k === 'h') { const l = wrap.classList.toggle('limpio'); if (l) toast('Interfaz oculta: pulsa H para verla'); }
+  else if (k === 'c') alternarCine();
+  else if (k === '?') ayuda.classList.toggle('on');
+  else return;
+  e.stopImmediatePropagation();
+}, true); /* en captura: en la oficina estos atajos van antes que los generales del panel (p. ej. "/" busca en Solicitudes) */
 
 /* ============ pregunta a PEBAI ============ */
 const ans = $('#pb-of-ans'), qIn = $('#pb-of-q'), qBtn = $('#pb-of-askf button[type=submit]'), sug = $('#pb-of-sug');
@@ -219,10 +258,21 @@ async function preguntar(t) {
   pensando = false; ans.classList.remove('pensando'); qBtn.disabled = false;
 }
 $('#pb-of-askf').addEventListener('submit', (e) => { e.preventDefault(); preguntar(qIn.value); });
+const askW = $('#pb-of-ask'), askF = $('#pb-of-askf');
+const kbd = document.createElement('kbd'); kbd.textContent = '/'; kbd.title = 'Pulsa / para preguntar'; askF.append(kbd);
+const PH = qIn.placeholder;
+const abrirAsk = () => { askW.classList.add('abierta'); qIn.placeholder = PH; qIn.focus(); };
+const cerrarAsk = () => { if (qIn.value.trim() || ans.classList.contains('on') || document.activeElement === qIn) return; askW.classList.remove('abierta'); qIn.placeholder = 'Pregunta a PEBAI'; };
+qIn.placeholder = 'Pregunta a PEBAI';
+askF.addEventListener('click', () => { if (!askW.classList.contains('abierta')) abrirAsk(); });
+qIn.addEventListener('focus', () => { askW.classList.add('abierta'); qIn.placeholder = PH; });
+qIn.addEventListener('blur', () => setTimeout(cerrarAsk, 180));
+new MutationObserver(() => setTimeout(cerrarAsk, 0)).observe(ans, { attributes: true, attributeFilter: ['class'] });
 ['pb-of-ask', 'pb-of-hud', 'pb-of-side'].forEach((id) => { const n = document.getElementById(id); if (n) n.addEventListener('click', (e) => e.stopPropagation()); });
 
 /* ============ escena 3D ============ */
-let G = null, foco = null, pensando = false;
+let G = null, foco = null, pensando = false, cine = false, cineAng = 0, salaHover = null;
+const calma = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 function enfocarSala(d) {
   foco = { sala: d.id }; wrap.classList.add('foco'); if (!G) return;
   const s = G.salas.get(d.id); if (!s) return;
@@ -267,7 +317,8 @@ async function montar() {
   composer.addPass(new RenderPass(scene, camera));
   composer.addPass(new UnrealBloomPass(new THREE.Vector2(W0() / 2, H0() / 2), .55, .45, .88)); composer.addPass(new OutputPass());
 
-  scene.add(new THREE.HemisphereLight(0xcfd2ff, 0x14162a, 1));
+  const hemi = new THREE.HemisphereLight(0xcfd2ff, 0x14162a, 1); scene.add(hemi);
+  const lamparas = [];
   const sun = new THREE.DirectionalLight(0xffffff, 1.35); sun.position.set(-12, 26, 16); sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024); sun.shadow.bias = -.0004; scene.add(sun);
 
@@ -277,7 +328,7 @@ async function montar() {
   brillo.colorSpace = THREE.NoColorSpace;
 
   /* ---------- suelo general ---------- */
-  const floorTex = canvasTex(512, 512, (g) => { g.fillStyle = '#0b0c18'; g.fillRect(0, 0, 512, 512); g.strokeStyle = 'rgba(126,115,255,.06)'; g.lineWidth = 2; for (let i = 0; i <= 512; i += 64) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 512); g.stroke(); g.beginPath(); g.moveTo(0, i); g.lineTo(512, i); g.stroke(); } g.fillStyle = 'rgba(126,115,255,.12)'; for (let i = 0; i <= 512; i += 64) for (let j = 0; j <= 512; j += 64) g.fillRect(i - 2, j - 2, 4, 4); });
+  const floorTex = canvasTex(512, 512, (g) => { g.fillStyle = '#0b0c18'; g.fillRect(0, 0, 512, 512); g.strokeStyle = 'rgba(126,115,255,.04)'; g.lineWidth = 2; for (let i = 0; i <= 512; i += 64) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 512); g.stroke(); g.beginPath(); g.moveTo(0, i); g.lineTo(512, i); g.stroke(); } g.fillStyle = 'rgba(126,115,255,.07)'; for (let i = 0; i <= 512; i += 64) for (let j = 0; j <= 512; j += 64) g.fillRect(i - 2, j - 2, 4, 4); });
   floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping; floorTex.repeat.set(20, 20);
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(170, 170), new THREE.MeshStandardMaterial({ map: floorTex, roughness: .55, metalness: .35 }));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
@@ -357,14 +408,14 @@ async function montar() {
     return o;
   });
   /* ondas que salen del núcleo por el suelo, como un latido */
-  const ondas = [0, 1, 2].map((i) => { const m = new THREE.Mesh(new THREE.RingGeometry(.97, 1, 128), new THREE.MeshBasicMaterial({ color: 0x9C93FF, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false })); m.rotation.x = -Math.PI / 2; m.position.y = .115; scene.add(m); return { m, k: i / 3 }; });
+  const ondas = [0, 1].map((i) => { const m = new THREE.Mesh(new THREE.RingGeometry(.97, 1, 128), new THREE.MeshBasicMaterial({ color: 0x9C93FF, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false })); m.rotation.x = -Math.PI / 2; m.position.y = .115; scene.add(m); return { m, k: i / 2 }; });
   const columna = new THREE.Mesh(new THREE.CylinderGeometry(.55, .9, 24, 40, 1, true), new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, uniforms: { uT: { value: 0 } },
     vertexShader: 'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
     fragmentShader: 'varying vec2 vUv;uniform float uT;void main(){float f=pow(1.-vUv.y,3.);float r=.5+.5*sin(vUv.y*40.-uT*2.);gl_FragColor=vec4(vec3(.55,.5,1.)*(.6+r*.4),f*.075);}',
   }));
   columna.position.set(0, NUC.y + 13.2, 0); scene.add(columna);
-  const polvo = (() => { const n = 260, pos = new Float32Array(n * 3); for (let i = 0; i < n; i++) pos.set([(Math.random() - .5) * 44, Math.random() * 9, (Math.random() - .5) * 26], i * 3); const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); const pt = new THREE.Points(geo, new THREE.PointsMaterial({ map: brillo, color: 0x8e84ff, size: .07, transparent: true, opacity: .5, depthWrite: false, blending: THREE.AdditiveBlending })); scene.add(pt); return pt; })();
+  const polvo = (() => { const n = 140, pos = new Float32Array(n * 3); for (let i = 0; i < n; i++) pos.set([(Math.random() - .5) * 44, Math.random() * 9, (Math.random() - .5) * 26], i * 3); const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); const pt = new THREE.Points(geo, new THREE.PointsMaterial({ map: brillo, color: 0x8e84ff, size: .07, transparent: true, opacity: .32, depthWrite: false, blending: THREE.AdditiveBlending })); scene.add(pt); return pt; })();
   const coreLight = new THREE.PointLight(0x8e84ff, 8, 12); coreLight.position.copy(NUC).add(new THREE.Vector3(0, 0, 1.4)); scene.add(coreLight);
 
   /* ---------- pantallas animadas y carteles ---------- */
@@ -463,6 +514,7 @@ async function montar() {
     const pant = new THREE.Mesh(new THREE.CylinderGeometry(.16, .24, .3, 24, 1, true), new THREE.MeshStandardMaterial({ color: 0x3a3550, roughness: .8, side: THREE.DoubleSide, emissive: 0xffb866, emissiveIntensity: .12 })); pant.position.y = 1.58; p.add(pant);
     en(p, new THREE.Mesh(new THREE.SphereGeometry(.06, 12, 12), M.luzCalida), 0, 1.52, 0);
     const charco = new THREE.Mesh(new THREE.CircleGeometry(.75, 32), new THREE.MeshBasicMaterial({ map: brillo, color: 0xffc78a, transparent: true, opacity: .22, depthWrite: false, blending: THREE.AdditiveBlending })); charco.rotation.x = -Math.PI / 2; charco.position.y = .01; p.add(charco);
+    lamparas.push({ pant: pant.material, charco: charco.material });
   }
   function estanteria(g, x, z, ry, conCajas) {
     const p = new THREE.Group(); p.position.set(x, 0, z); p.rotation.y = ry; g.add(p);
@@ -592,7 +644,7 @@ async function montar() {
   const PLAZA = 4.6;
   const plazaTex = canvasTex(1024, 1024, (c) => {
     c.fillStyle = '#0d0f20'; c.fillRect(0, 0, 1024, 1024);
-    c.strokeStyle = 'rgba(156,147,255,.14)'; c.lineWidth = 2;
+    c.strokeStyle = 'rgba(156,147,255,.09)'; c.lineWidth = 2;
     [180, 300, 420, 500].forEach((r) => { c.beginPath(); c.arc(512, 512, r, 0, Math.PI * 2); c.stroke(); });
     for (let i = 0; i < 48; i++) { const a = i / 48 * Math.PI * 2; c.beginPath(); c.moveTo(512 + Math.cos(a) * 300, 512 + Math.sin(a) * 300); c.lineTo(512 + Math.cos(a) * (i % 4 ? 420 : 500), 512 + Math.sin(a) * (i % 4 ? 420 : 500)); c.stroke(); }
   });
@@ -624,7 +676,7 @@ async function montar() {
     /* resplandor en el suelo bajo la plataforma: separa cada sala del resto */
     const res = new THREE.Mesh(new THREE.PlaneGeometry(W + 4, D + 4), new THREE.MeshBasicMaterial({ map: luzSuelo, color: col, transparent: true, opacity: on ? .07 : .045, depthWrite: false, blending: THREE.AdditiveBlending })); res.rotation.x = -Math.PI / 2; res.position.set(x, .012, z); scene.add(res);
     const plat = new THREE.Mesh(new RoundedBoxGeometry(W, ALTO, D, 3, .08), new THREE.MeshStandardMaterial({ color: on ? 0x191d3a : 0x181b33, roughness: .5, metalness: .3 })); plat.position.set(x, ALTO / 2, z); plat.receiveShadow = true; plat.castShadow = true; scene.add(plat);
-    const banda = new THREE.Mesh(new THREE.BoxGeometry(W + .02, .03, D + .02), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: on ? .85 : .25, toneMapped: false })); banda.position.set(x, ALTO - .06, z); scene.add(banda);
+    const banda = new THREE.Mesh(new THREE.BoxGeometry(W + .02, .03, D + .02), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: on ? .85 : .25, toneMapped: false })); banda.position.set(x, ALTO - .06, z); scene.add(banda); const bandaBase = on ? .85 : .25;
     const g = new THREE.Group(); g.position.set(x, ALTO, z); scene.add(g);
     pasillo(d, new THREE.Vector3(x + IN * W / 2, 0, z + .9));
     const losas = losasTex.clone(); losas.wrapS = losas.wrapT = THREE.RepeatWrapping; losas.repeat.set(W / 1.1, D / 1.1); losas.needsUpdate = true;
@@ -714,7 +766,7 @@ async function montar() {
       const rf = new THREE.Mesh(new THREE.TorusGeometry(.32, .025, 8, 48), M.marco); rf.position.copy(rm.position); g.add(rf);
       reloj = { cv, rt };
     }
-    const s = { d, g, sign, W, tronco, ledsSala, reloj, bus: null };
+    const s = { d, g, sign, W, tronco, ledsSala, reloj, bus: null, banda, bandaBase };
     salas.set(d.id, s);
     /* bots y sus líneas de luz empotradas en el suelo: del servidor a cada mesa, sin tapar nada */
     const Y = ALTO + .012, frente2 = 1.75;
@@ -739,7 +791,7 @@ async function montar() {
     const vf = THREE.MathUtils.degToRad(camera.fov), hf = 2 * Math.atan(Math.tan(vf / 2) * camera.aspect);
     const dist = Math.max((size.x * 1.14) / (2 * Math.tan(hf / 2)), (size.z * .9) / (2 * Math.tan(vf / 2))) + 1.5;
     /* un poco a la derecha, para que la tarjeta de avisos de arriba a la izquierda no tape ninguna sala */
-    const dx = W0() > 900 ? -.8 : 0;
+    const dx = 0;
     /* en vertical (móvil) la vista es más cenital, para aprovechar el alto de la pantalla */
     if (camera.aspect < .9) { HOME.t.set(c.x, 0, c.z - .6); HOME.p.set(c.x, dist * .93, c.z + dist * .38); }
     else { HOME.t.set(c.x + dx, 0, c.z - 2.4); HOME.p.set(c.x + dx, dist * .76, c.z + dist * .66); }
@@ -765,6 +817,19 @@ async function montar() {
     o.tx.needsUpdate = true;
   }
   const ag2 = (id) => S.autos.find((a) => a.id === id);
+  /* de noche la oficina se oscurece y se encienden las lámparas (hora del ordenador de quien mira) */
+  function luzDelDia() {
+    const ah = new Date(), h = ah.getHours() + ah.getMinutes() / 60;
+    const noche = h < 7 || h >= 21 ? 1 : h < 8.5 ? (8.5 - h) / 1.5 : h > 19.5 ? (h - 19.5) / 1.5 : 0;
+    hemi.intensity = 1 - .38 * noche; sun.intensity = 1.35 - .75 * noche; renderer.toneMappingExposure = 1.2 - .1 * noche;
+    lamparas.forEach((l) => { l.pant.emissiveIntensity = .12 + .55 * noche; l.charco.opacity = .18 + .3 * noche; });
+  }
+  const flotantes = [];
+  function flotar(o, n) {
+    const t2 = canvasTex(320, 110, (c) => { c.font = '800 76px Manrope, sans-serif'; c.textAlign = 'center'; c.lineWidth = 10; c.strokeStyle = 'rgba(6,7,13,.85)'; c.strokeText('+' + N(n), 160, 82); c.fillStyle = o.col; c.fillText('+' + N(n), 160, 82); });
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t2, transparent: true, depthWrite: false })); sp.scale.set(2, .69, 1);
+    o.logo.getWorldPosition(sp.position); sp.position.y += .55; scene.add(sp); flotantes.push({ sp, k: 0 });
+  }
   const pintaReloj = () => salas.forEach((s) => {
     if (!s.reloj) return; const g = s.reloj.cv.getContext('2d'), now = new Date();
     g.fillStyle = '#EFEDE7'; g.beginPath(); g.arc(100, 100, 100, 0, 7); g.fill();
@@ -780,6 +845,8 @@ async function montar() {
   function refrescarEscena() {
     puestos.forEach((o) => {
       const a = ag(o.a.id); if (!a) return; o.a = a;
+      if (o.prevHoy !== undefined && a.hoy > o.prevHoy) flotar(o, a.hoy - o.prevHoy);
+      o.prevHoy = a.hoy;
       o.rb.r.visible = a.st !== 'apagado';
       const v = vis(a.st);
       o.rb.ojoMat.color.set(v === 'error' ? '#FF5E6C' : v === 'espera' ? '#FFB547' : v === 'dormido' ? '#2a2d3e' : o.col);
@@ -807,15 +874,15 @@ async function montar() {
       if (s.sign.material.map) s.sign.material.map.dispose(); s.sign.material.map = cartel(d, partes); s.sign.material.needsUpdate = true;
     });
     orbeMat.uniforms.uErr.value = pendientes().some((p) => p.err) ? .55 : 0;
-    pintaReloj(); autosPared.forEach(dibujaAuto);
+    pintaReloj(); luzDelDia(); autosPared.forEach(dibujaAuto);
     renderer.shadowMap.needsUpdate = true;
   }
 
   /* ---------- cámara con clics ---------- */
-  let fly = null, intro = { k: 0 }, deriva = 0;
+  let fly = null, intro = calma ? null : { k: 0 }, deriva = 0;
   const volar = (p, t) => { intro = null; if (!Number.isFinite(camera.position.x)) { camera.position.copy(p); target.copy(t); } fly = { p0: camera.position.clone(), t0: target.clone(), p1: p.clone(), t1: t.clone(), k: 0 }; };
   const enIntro = (e) => { const off = HOME.p.clone().sub(HOME.t), ang = (1 - e) * 1.1; off.applyAxisAngle(new THREE.Vector3(0, 1, 0), ang).multiplyScalar(1 + (1 - e) * .35); camera.position.copy(HOME.t).add(off); camera.position.y += (1 - e) * 6; target.copy(HOME.t).add(new THREE.Vector3(0, (1 - e) * 2, 0)); };
-  enIntro(0);
+  if (intro) enIntro(0); else { camera.position.copy(HOME.p); target.copy(HOME.t); }
   const ray = new THREE.Raycaster(), m2 = new THREE.Vector2();
   const tocar = (e) => { const r = renderer.domElement.getBoundingClientRect(); m2.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(m2, camera); return ray.intersectObjects(clicables, false)[0]; };
   let hover = null, ultimoMov = 0;
@@ -836,10 +903,11 @@ async function montar() {
     const f = foco ? null : fichaDe(h);
     renderer.domElement.style.cursor = h && (o || h.object.userData.sala || h.object.userData.nucleo) ? 'pointer' : 'default';
     if (f) { ficha.innerHTML = `<small>${esc(f.k)}</small><b>${esc(f.b)}</b><span><i style="background:${f.c}"></i>${esc(f.txt)}</span>` + (f.m ? `<em>${esc(f.m)}</em>` : ''); ficha.classList.add('on'); } else ficha.classList.remove('on');
-    hover = o;
+    hover = o; salaHover = o ? o.d.id : h && h.object.userData.sala ? h.object.userData.sala.id : null;
   });
-  renderer.domElement.addEventListener('pointerleave', () => { ficha.classList.remove('on'); hover = null; });
+  renderer.domElement.addEventListener('pointerleave', () => { ficha.classList.remove('on'); hover = null; salaHover = null; });
   renderer.domElement.addEventListener('click', (e) => {
+    if (cine) { alternarCine(); return; }
     const h = tocar(e);
     ficha.classList.remove('on');
     if (h && h.object.userData.puesto) { abrirAgente(h.object.userData.puesto.a.id); return; }
@@ -873,6 +941,7 @@ async function montar() {
     orbitas.forEach((o, i) => { o.position.y = y; o.rotation.z += dt * (.45 + i * .2) * k * (i % 2 ? -1 : 1); });
     corona.rotation.y -= dt * .15 * k;
     /* con una sala o un bot abierto, los carteles de las demás salas se apagan para no tapar */
+    salas.forEach((sa) => { const obj = Math.min(1, sa.bandaBase + (salaHover === sa.d.id ? .45 : 0)); sa.banda.material.opacity += (obj - sa.banda.material.opacity) * .15; });
     const salaFoco = foco ? (foco.sala || (foco.agente && puestos.get(foco.agente) && puestos.get(foco.agente).d.id) || null) : null;
     salas.forEach((sa) => { const obj = !salaFoco || salaFoco === sa.d.id ? 1 : .08; sa.sign.material.opacity += (obj - sa.sign.material.opacity) * .12; });
     columna.material.uniforms.uT.value = t; polvo.rotation.y = t * .01; polvo.position.y = Math.sin(t * .2) * .3;
@@ -888,12 +957,13 @@ async function montar() {
       p.c.curva.getPointAt(p.dir > 0 ? p.k : 1 - p.k, p.sp.position);
       p.sp.material.opacity = Math.sin(p.k * Math.PI) * (p.c.on > .5 ? 1 : .5);
     });
+    for (let i = flotantes.length - 1; i >= 0; i--) { const f = flotantes[i]; f.k += dtReal / 2.8; f.sp.position.y += dtReal * .5; f.sp.material.opacity = f.k < .15 ? f.k / .15 : 1 - Math.pow((f.k - .15) / .85, 2); if (f.k >= 1) { scene.remove(f.sp); f.sp.material.map.dispose(); f.sp.material.dispose(); flotantes.splice(i, 1); } }
     /* luces de los servidores y relojes */
     if (Math.floor(t * 5) !== ledPaso) {
       ledPaso = Math.floor(t * 5);
       salas.forEach((s) => { const trab = s.d.activo && agsDe(s.d.id).some((a) => a.st === 'trabajando'); s.ledsSala.forEach((l, i) => { l.material = !s.d.activo ? (i % 9 === 0 ? ledMat[0] : ledMat[1]) : trab ? (Math.random() > .4 ? (i % 4 === 3 ? ledMat[2] : ledMat[0]) : ledMat[1]) : (i % 4 === 0 ? ledMat[0] : ledMat[1]); }); });
     }
-    if (new Date().getMinutes() !== minuto) { minuto = new Date().getMinutes(); pintaReloj(); }
+    if (new Date().getMinutes() !== minuto) { minuto = new Date().getMinutes(); pintaReloj(); luzDelDia(); }
     /* robots */
     const animPant = t - ultPantalla > .12; if (animPant) ultPantalla = t;
     puestos.forEach((o) => {
@@ -928,7 +998,8 @@ async function montar() {
     });
     if (intro) { intro.k = Math.min(1, intro.k + dtReal / 3.2); const e = intro.k < .5 ? 4 * intro.k ** 3 : 1 - Math.pow(-2 * intro.k + 2, 3) / 2; enIntro(e); if (intro.k >= 1) { intro = null; deriva = 0; } }
     if (fly) { fly.k = Math.min(1, fly.k + dtReal / 1.1); const e = 1 - Math.pow(1 - fly.k, 3); camera.position.lerpVectors(fly.p0, fly.p1, e); target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) { fly = null; deriva = 0; } }
-    if (!fly && !intro && !foco) { deriva = Math.min(1, deriva + dt / 2.5); const off = HOME.p.clone().sub(HOME.t).applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.sin(t * .11) * .045 * deriva); camera.position.copy(HOME.t).add(off); camera.position.y += Math.sin(t * .17) * .25 * deriva; target.copy(HOME.t); }
+    if (cine) { cineAng += dtReal * .07; const off = HOME.p.clone().sub(HOME.t).applyAxisAngle(new THREE.Vector3(0, 1, 0), cineAng).multiplyScalar(.82); camera.position.copy(HOME.t).add(off); camera.position.y += Math.sin(t * .2) * .6; target.copy(HOME.t).add(new THREE.Vector3(0, .6, 0)); fly = null; intro = null; }
+    else if (!fly && !intro && !foco && !calma) { deriva = Math.min(1, deriva + dt / 2.5); const off = HOME.p.clone().sub(HOME.t).applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.sin(t * .11) * .045 * deriva); camera.position.copy(HOME.t).add(off); camera.position.y += Math.sin(t * .17) * .25 * deriva; target.copy(HOME.t); }
     camera.lookAt(target);
     composer.render(); labels.render(scene, camera);
   }
