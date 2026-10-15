@@ -513,7 +513,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '16';
+$v = '17';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -574,7 +574,6 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
       <button data-page="caja" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 13h.01"/><path d="M2 10h20"/><path d="M6 6V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg><span>Caja</span></button>
     </div>
     <div class="grp"><small>Automático</small>
-      <button data-page="oficina" type="button"><svg class="pb-i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="4.5" cy="6" r="1.8"/><circle cx="19.5" cy="6" r="1.8"/><circle cx="4.5" cy="18" r="1.8"/><circle cx="19.5" cy="18" r="1.8"/><path d="m6 7 3.6 3M18 7l-3.6 3M6 17l3.6-3M18 17l-3.6-3"/></svg><span>Oficina</span></button>
       <button data-page="agentes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg><span>Agentes</span><i class="pb-live" id="pb-ag-live" title="Estado de los agentes"></i></button>
     </div>
   </nav>
@@ -721,20 +720,20 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     <div id="pb-cj"></div>
   </section>
 
-  <section class="pb-page" id="page-oficina" data-page="oficina">
+  <section class="pb-page" id="page-agentes" data-page="agentes">
     <div class="pb-of-wrap" id="pb-of">
       <div class="pb-of-load" id="pb-of-load">Montando la oficina…</div>
-      <div class="pb-of-top" id="pb-of-top"></div>
+      <div class="pb-of-hud" id="pb-of-hud"></div>
+      <button class="pb-of-ajustes" id="pb-of-ajustes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Ajustes de los agentes</button>
       <aside class="pb-of-side" id="pb-of-side"><button class="x" id="pb-of-x" type="button" aria-label="Cerrar">×</button><div id="pb-of-sidein"></div></aside>
-      <div class="pb-of-ask">
+      <div class="pb-of-ask" id="pb-of-ask">
         <div class="pb-of-ans" id="pb-of-ans"></div>
         <div class="pb-of-sug" id="pb-of-sug"></div>
         <form class="pb-of-box" id="pb-of-askf"><img src="<?= BASE ?>assets/pebai-mark.png" alt=""><input id="pb-of-q" placeholder="Pregunta a PEBAI sobre cualquier departamento…" autocomplete="off" maxlength="500"><button type="submit">Preguntar</button></form>
       </div>
     </div>
-  </section>
-
-  <section class="pb-page" id="page-agentes" data-page="agentes">
+    <div class="pb-ag-ajustes-v" id="pb-ag-ajustes">
+      <button class="pb-btn ghost pb-of-volver" id="pb-of-volver" type="button">← Volver a la oficina</button>
     <div class="pb-pagehead">
       <div>
         <div class="pb-eyebrow">Automático · 24/7 en el servidor</div>
@@ -754,6 +753,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
       <div class="pb-grid two pb-soon-row">
         <div class="pb-card pb-soon"><span class="pb-tile" style="background:linear-gradient(45deg,#F58529,#DD2A7B 45%,#8134AF 75%,#515BD4)"><svg class="pb-i" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="14" rx="2"/><path d="M6 2h14a2 2 0 0 1 2 2v14"/></svg></span><div><b>Agente de carruseles</b><small>Radar diario y diseño automático · próximamente</small></div></div>
       </div>
+    </div>
     </div>
   </section>
 </main>
@@ -776,6 +776,15 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <script src="<?= BASE ?>assets/caja.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/email.js?v=<?= $v ?>" defer></script>
 <script type="module" src="<?= BASE ?>assets/oficina.js?v=<?= $v ?>"></script>
+<script>
+(() => {
+  const vista = (ajustes) => { document.body.classList.toggle('pb-ag-ajustes', ajustes); try { sessionStorage.setItem('pb-ag-vista', ajustes ? 'ajustes' : 'oficina'); } catch (e) {} document.dispatchEvent(new CustomEvent('pb:agview')); window.scrollTo({ top: 0 }); };
+  const ir = document.getElementById('pb-of-ajustes'), vuelve = document.getElementById('pb-of-volver');
+  if (ir) ir.addEventListener('click', (e) => { e.stopPropagation(); vista(true); });
+  if (vuelve) vuelve.addEventListener('click', () => vista(false));
+  try { if (sessionStorage.getItem('pb-ag-vista') === 'ajustes') document.body.classList.add('pb-ag-ajustes'); } catch (e) {}
+})();
+</script>
 <?php endif; ?>
 </body>
 </html>

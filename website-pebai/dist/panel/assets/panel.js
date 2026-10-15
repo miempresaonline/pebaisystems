@@ -50,7 +50,7 @@ const ui = { page: 'resumen', periodo: '30', estado: null, fuente: null, opcion:
 const readUrl = () => {
   const u = new URLSearchParams(location.search);
   if (u.get('id')) { ui.sel = Number(u.get('id')); ui.page = 'solicitudes'; }
-  else if (['resumen', 'solicitudes', 'citas', 'prospectos', 'agentes', 'caja', 'oficina'].includes(u.get('tab'))) ui.page = u.get('tab');
+  else if (['resumen', 'solicitudes', 'citas', 'prospectos', 'agentes', 'caja'].includes(u.get('tab'))) ui.page = u.get('tab');
   if (PERIODOS.includes(u.get('periodo'))) ui.periodo = u.get('periodo');
   ['estado', 'fuente', 'opcion', 'canal', 'q'].forEach((k) => { if (u.get(k)) ui[k] = u.get(k); });
 };

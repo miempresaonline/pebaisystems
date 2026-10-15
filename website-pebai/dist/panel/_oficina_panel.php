@@ -343,13 +343,31 @@ if ($auth && ($_POST['action'] ?? '') === 'oficina_preguntar') {
     }
     $db = pebai_db();
     $embudo = $db->query("SELECT estado, COUNT(*) n FROM leads GROUP BY estado")->fetchAll(PDO::FETCH_KEY_PAIR);
-    $sys = "Eres PEBAI, el centro de control de los agentes automáticos de la empresa PEBAI Systems (consultoría de procesos e Inteligencia Artificial en España). "
-         . "Responde en español, con tuteo, claro y breve (máximo 4 frases o una lista corta). Usa SOLO los datos que te doy; si algo no está en los datos, dilo. "
-         . "Nada de inventar cifras. Si algo necesita a una persona, dilo primero. Fecha y hora actual: " . date('d/m/Y H:i') . ".";
+    $datos = json_encode(['agentes' => $ctx, 'solicitudes_por_fase' => $embudo], JSON_UNESCAPED_UNICODE);
+    $sys = "Eres PEBAI, el centro de control de los agentes automáticos de PEBAI Systems, una consultora española de procesos e Inteligencia Artificial. "
+         . "Hablas con Adrián o Daniel, los dueños. Responde en español de España, con tuteo, como un compañero que conoce bien la oficina.\n"
+         . "Reglas:\n"
+         . "1. Contesta exactamente a lo que te preguntan, primero la respuesta directa en una frase. No repitas la lista de tareas pendientes si no la piden o si no tiene que ver.\n"
+         . "2. Si es un saludo, un 'todo bien', un 'gracias' o una charla corta, contesta con naturalidad en una o dos frases; solo si hay algo urgente (un error) menciónalo de pasada.\n"
+         . "3. Usa SOLO los datos de abajo. Da cifras, nombres de agentes y cuándo ('hace 10 min', 'mañana a las 9:00'). Si algo no está en los datos, dilo claro y no lo inventes.\n"
+         . "4. Explica los estados en palabras normales: trabajando, en espera (dentro de horario sin nada que hacer), durmiendo (fuera de horario o sin cola), apagado (falta configurarlo), error, en pausa.\n"
+         . "5. Breve: máximo 5 frases. Usa una lista con guiones solo si hay 3 cosas o más. Negrita con **...** solo para lo más importante.\n"
+         . "Fecha y hora actual: " . date('d/m/Y H:i') . ".\n\nDATOS DE LA OFICINA (JSON):\n" . $datos;
+    // Conversación: las últimas preguntas y respuestas, para entender "¿y el email?" o "¿por qué?"
+    $contents = [];
+    $hist = json_decode((string)($_POST['h'] ?? '[]'), true);
+    foreach (array_slice(is_array($hist) ? $hist : [], -4) as $t) {
+        if (!is_array($t) || !isset($t['q'], $t['a'])) {
+            continue;
+        }
+        $contents[] = ['role' => 'user', 'parts' => [['text' => mb_substr((string)$t['q'], 0, 500)]]];
+        $contents[] = ['role' => 'model', 'parts' => [['text' => mb_substr((string)$t['a'], 0, 1500)]]];
+    }
+    $contents[] = ['role' => 'user', 'parts' => [['text' => $pregunta]]];
     $body = json_encode([
         'systemInstruction' => ['parts' => [['text' => $sys]]],
-        'contents' => [['role' => 'user', 'parts' => [['text' => "DATOS DE LA OFICINA (JSON):\n" . json_encode(['agentes' => $ctx, 'solicitudes_por_fase' => $embudo], JSON_UNESCAPED_UNICODE) . "\n\nPREGUNTA: " . $pregunta]]]],
-        'generationConfig' => ['temperature' => 0.3, 'maxOutputTokens' => 600],
+        'contents' => $contents,
+        'generationConfig' => ['temperature' => 0.4, 'maxOutputTokens' => 2048],
     ], JSON_UNESCAPED_UNICODE);
     // Si un modelo está saturado o no existe, prueba el siguiente (el gratuito se satura a ratos)
     $txt = '';
