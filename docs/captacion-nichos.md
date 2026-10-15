@@ -96,16 +96,35 @@ Lo que cambia:
 - **Inmobiliarias, hipotecas, estética y dentales** pagan muchísimo, pero son los más bombardeados por agencias.
 - Reformas, placas y aerotermia están en la zona media.
 
+### Dato real: cuánto les venden ya (saturación)
+
+Pagar mucho por captar no basta: si ya les escriben 50 agencias, nuestro mensaje es uno más. Para medirlo se cuentan los anuncios activos dirigidos **a** cada sector ("para inmobiliarias", "para academias"…), que son los que les venden CRM, leads, chatbots o agencias. **Ratio = lo que gastan en captar ÷ lo que les venden.** Cuanto más alto, más demanda y menos competencia.
+
+| Sector | Gastan en captar | Les venden ("para …") | Ratio |
+|---|---|---|---|
+| Autoescuelas | ~480 | ~6 | **80** |
+| Academias de oposiciones | ~2.800 | ~38 | **74** |
+| Inmobiliarias | ~4.900 | ~76 | **64** |
+| Instaladores (placas + aerotermia) | ~1.810 | ~76 | **24** |
+| Reformas | ~800 | ~54 | **15** |
+| Clínicas (implantes + estética) | ~6.500 | ~550 | **12** |
+| Abogados (Segunda Oportunidad) | ~2.500 | ~270 | **9** |
+
+Limitaciones: solo mide Meta. A las inmobiliarias se les vende sobre todo por email, portales y llamadas, así que su ratio está inflado; las clínicas y los abogados salen saturados también aquí. Las autoescuelas tienen el mejor ratio, pero cada alumno vale poco (unos cientos de euros): compensa por volumen, no por ticket.
+
+**Conclusión con datos:** las **academias de oposiciones** son las únicas que salen bien en todo: pagan mucho por captar, casi nadie les vende, el alumno vale 2.000–4.000 € y llevan picos de consultas con cada convocatoria. Segunda Oportunidad baja: los abogados están más trabajados de lo que parecía.
+
 ## 3. La prueba real (antes de grabar vídeos)
 
-1. **Cuatro nichos de cuatro tipos distintos**, unos **75 mensajes de texto por nicho** (unos 300, dos semanas al cupo actual):
-   - **Reformas integrales**, por la obra con presupuesto: primero en el análisis a ciegas y nosotros tenemos experiencia.
-   - **Fincas para bodas**, por los eventos: alto en los dos análisis, poco trabajado y su temporada empieza ya.
-   - **Inmobiliarias**, por los contactos de portales: segundo en el análisis a ciegas, muchísimas empresas.
-   - **Academias de oposiciones**, por la formación: el nicho poco trabajado con menos riesgo legal (Segunda Oportunidad trata deudas).
+1. **Los cuatro con mejor ratio**, unos **75 mensajes de texto por nicho** (unos 300, dos semanas al cupo actual):
+   - **Academias de oposiciones:** la única que sale bien en todo.
+   - **Autoescuelas:** el mejor ratio; es la apuesta de volumen (ticket bajo).
+   - **Inmobiliarias:** muchísima demanda. Sirve para comprobar si de verdad están quemadas (en Meta no lo parece; por email sí puede).
+   - **Instaladores de energía** (placas y aerotermia): el mejor del tipo "obra con presupuesto", con ticket alto.
+   - Reformas y Segunda Oportunidad quedan en reserva; fincas para bodas también (su dato de anuncios tiene demasiado ruido para medirla).
 2. Mismo tipo de mensaje en todos (pregunta de dolor), adaptado a cada nicho. No se cambia el texto durante la prueba.
 3. **Se mide por nicho:** respuestas, respuestas con interés (piden información o el vídeo), bajas y diagnósticos. Se decide por las respuestas con interés.
-4. Los **tres mejores** son los nichos del mes: guiones y vídeos solo para ellos. Si gana reformas, sus vecinos (placas, aerotermia, cocinas, casas modulares) entran después con el mismo enfoque.
+4. Los **tres mejores** son los nichos del mes: guiones y vídeos solo para ellos.
 5. Con 75 por nicho solo se distinguen diferencias claras (del tipo 4 % frente a 12 %). Sirve para elegir; los elegidos siguen midiéndose cada mes.
 
 Necesita del chat del Scraper unos 80 prospectos de cada uno de esos 4 nichos, con el origen de cada número.
