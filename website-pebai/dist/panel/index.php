@@ -98,6 +98,11 @@ if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || (isset($_POST['ac
     json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 401);
 }
 
+// Captación › Email (todo lo del email vive en ese archivo). Condicional: si aún no está subido, el panel sigue funcionando.
+if (is_file(__DIR__ . '/_email_panel.php')) {
+    require __DIR__ . '/_email_panel.php';
+}
+
 /* ------------------------------------------------------------ Acciones (JSON) --- */
 if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
     if (!$db) {
@@ -496,6 +501,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= BASE ?>assets/panel.css?v=<?= $v ?>">
+<link rel="stylesheet" href="<?= BASE ?>assets/email.css?v=<?= $v ?>">
 <script>try{var t=localStorage.getItem('pebai-panel-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
@@ -717,8 +723,10 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>
 <script src="<?= BASE ?>assets/icons.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/panel.js?v=<?= $v ?>" defer></script>
+<script>window.PB_TAB = new URLSearchParams(location.search).get('tab');</script>
 <script src="<?= BASE ?>assets/agentes.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/caja.js?v=<?= $v ?>" defer></script>
+<script src="<?= BASE ?>assets/email.js?v=<?= $v ?>" defer></script>
 <?php endif; ?>
 </body>
 </html>
