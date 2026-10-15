@@ -208,7 +208,13 @@ def main():
     if not a.unir:
         lista = a.provincias or ORDEN
         hechas = 0
+        carpeta = SALIDA / 'tandas' / a.nicho
+        pendientes = [p for p in lista if not (carpeta / f'{a.nicho}_{p.lower().replace(" ", "-")}.csv').exists()]
         for p in lista:
+            if p in pendientes:
+                # Aviso al empezar: el panel (Oficina) muestra al scraper «trabajando» mientras lo último empiece por «Buscando»
+                apunta(f'Buscando {NICHOS[a.nicho]["sector"].lower()} en {p} ({pendientes.index(p) + 1} de {len(pendientes)})',
+                       'Tirada en curso en el servidor: Google Maps por zonas y municipios, y después la web de cada empresa.', f'{a.nicho}_{p}', tipo='espera')
             try:
                 provincia(a.nicho, p)
                 hechas += 1
