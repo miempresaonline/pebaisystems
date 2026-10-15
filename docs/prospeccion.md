@@ -25,6 +25,16 @@ Directorios del sector (fase 3)  ─┘  anuncios, fecha de la web       contact
 
 **¿Encaja con PEBAI? (encaje)** Puntos por lo que dice que reciben y pagan por clientes: anuncios en Google o Meta, formularios o botón de WhatsApp, sin chat automático y volumen de reseñas. Se ordena primero por encaje: a los mejores se les escribe antes.
 
+**Columnas para el agente de email** (acordadas con el chat de Email):
+- `tipo_email`: generico / nominativo / gratuito.
+- `origen_email`: URL exacta donde la empresa publica ese email.
+- `mx_ok`.
+- `motivo`: una frase verdadera y comprobable para la primera línea, con `motivo_fuente` (URL) y `motivo_fecha`.
+- `anuncios_activos`.
+- `canales`: whatsapp, email, llamada. El panel decide uno solo a la vez.
+
+Motivos por orden de valor: anuncios activos en Meta (fase 2) > oferta de empleo de atención al cliente (fase 3) > reseñas que dicen que cuesta contactar, solo en agregado (fase 3) > auditoría de la web y horario de la ficha (**ya activo**) > apertura reciente, por el BORME (fase 3).
+
 **Calidad del contacto:**
 - Se descarta el email de la agencia que hizo la web, los de relleno (`info@sitio.com`) y los de RR. HH.
 - Solo se aceptan emails cuyo dominio recibe correo (registros MX). Así se evitan rebotes, que hunden la reputación del envío.

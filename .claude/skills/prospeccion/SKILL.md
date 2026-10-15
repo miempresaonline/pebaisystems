@@ -11,7 +11,8 @@ Motor en `prospeccion/` (documentación completa en `docs/prospeccion.md`). Regl
 2. **Se guarda todo contacto de empresa:** móvil → WhatsApp, email → email, fijo → llamadas. Un negocio sin móvil pero con email o fijo **sí** se entrega.
 3. **Cada contacto lleva su origen** (columna `origen`). Solo datos publicados por la empresa. Nada de listas compradas ni de datos personales de administradores.
 4. **Los CSV con datos reales van a `scratch/prospeccion/`** (o a `documentos/`), nunca al repo, que es público.
-5. Nichos del equipo: online con dinero (placas solares/autoconsumo, piscinas prefabricadas, casas prefabricadas) y reformas. No clínicas ni asesorías típicas, salvo que lo pidan.
+5. **Los nichos aún no están decididos** (15/10/2026): pregúntalos antes de una tirada grande. Las pruebas se hicieron con reformas y placas solares.
+6. **Para el agente de email** cada fila lleva `tipo_email` (generico/nominativo/gratuito), `origen_email` (URL exacta), `mx_ok`, `motivo` + `motivo_fuente` + `motivo_fecha` (una frase verdadera y comprobable) y `canales`. Sin motivo verificable la empresa vale igual, pero va detrás. Nunca inventes un motivo.
 
 ## Antes de ejecutar
 

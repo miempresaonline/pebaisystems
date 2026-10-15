@@ -42,6 +42,7 @@ def _analiza(html: str, base: str, res: dict) -> list[str]:
             e = limpia_email(href[7:])
             if e and e not in res['emails']:
                 res['emails'].append(e)
+                res['email_origen'][e] = base   # URL exacta donde la empresa publica el email
         elif low.startswith('tel:'):
             n = normaliza_tel(href[4:])
             if n and n not in res['tels']:
@@ -64,6 +65,7 @@ def _analiza(html: str, base: str, res: dict) -> list[str]:
     for e in emails_en_texto(texto + ' ' + html[:200000]):
         if e not in res['emails']:
             res['emails'].append(e)
+            res['email_origen'][e] = base
     for n in tels_en_texto(texto):
         if n not in res['tels']:
             res['tels'].append(n)
@@ -110,7 +112,7 @@ async def _sitemap_reciente(cli: httpx.AsyncClient, base: str) -> str:
 
 
 async def rastrea(url: str, cli: httpx.AsyncClient, max_paginas: int = 5) -> dict:
-    res = {'url': url, 'url_final': '', 'ok': False, 'status': 0, 'emails': [], 'tels': [], 'whatsapp': '', 'redes': {},
+    res = {'url': url, 'url_final': '', 'ok': False, 'status': 0, 'emails': [], 'email_origen': {}, 'tels': [], 'whatsapp': '', 'redes': {},
            'senales': set(), 'anyo_web': 0, 'sitemap_lastmod': '', 'aparcado': False, 'titulo': '', 'nombre_web': '', 'descripcion': '', 'h1': '', 'error': '', 'paginas': []}
     if not url:
         res['error'] = 'sin web'

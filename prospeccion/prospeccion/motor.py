@@ -15,7 +15,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from .contacto import dominio_recibe_email, email_es_de_la_empresa, es_email_personal, mejor_email, tipo_tel
+from .contacto import dominio_recibe_email, email_es_de_la_empresa, es_email_personal, mejor_email, tipo_email, tipo_tel
 from .fuentes import buscador, google_maps
 from .web import dominio, rastrea_varias
 
@@ -49,6 +49,39 @@ def nombre_empresa(w: dict, dom: str) -> str:
             return t
     raiz = dom.split('.')[0] if dom else ''
     return raiz.replace('-', ' ').title()
+
+
+def _cierra(horario: dict) -> list[str]:
+    """Qué franjas tiene cerradas según su ficha de Maps (fines de semana, tardes)."""
+    h = {k.lower().replace('á', 'a').replace('é', 'e'): v for k, v in (horario or {}).items()}
+    out = []
+    finde = [d for d in ('sabado', 'domingo') if any('cerrado' in x.lower() for x in h.get(d, []))]
+    if len(finde) == 2:
+        out.append('sábados y domingos')
+    cierres = []
+    for d in ('lunes', 'martes', 'miercoles', 'jueves'):
+        for tramo in h.get(d, []):
+            m = re.findall(r'(\d{1,2}):(\d{2})', tramo)
+            if len(m) == 2:
+                cierres.append(int(m[1][0]))
+    if cierres and max(cierres) <= 19:
+        out.append(f'a partir de las {max(cierres)}:00 entre semana')
+    return out
+
+
+def motivo(c: dict, w: dict) -> tuple[str, str]:
+    """Una frase verdadera y comprobable para la primera línea del email, con la URL que la prueba.
+    Orden de valor (chat de Email): anuncios activos > empleo de atención > reseñas > auditoría de la web/horario > apertura.
+    De momento: auditoría de la web y horario de la ficha. Anuncios, empleo y apertura llegan con las fases 2 y 3."""
+    s = w.get('senales', set())
+    web = w.get('url_final') or c['web']
+    if w.get('ok') and not s & {'chat_web', 'boton_whatsapp'}:
+        via = 'rellenar un formulario o llamar' if 'formulario' in s else 'llamar'
+        return f'en vuestra web no hay chat ni WhatsApp: quien entra fuera de horario solo puede {via}', web
+    franjas = _cierra(c['extra'].get('horario'))
+    if franjas and c['extra'].get('maps'):
+        return 'según vuestra ficha de Google cerráis ' + ' y '.join(franjas), c['extra']['maps']
+    return '', ''
 
 
 def puntua(c: dict, w: dict) -> None:
@@ -113,7 +146,10 @@ def enriquece(cands: list[dict], nicho: set[str]) -> list[dict]:
         email = mejor_email(emails, dom)
         if c['fuente'] == 'buscador':
             c['empresa'] = nombre_empresa(w, dom) or c['empresa']
+        mot, mot_url = motivo(c, w)
         c.update({
+            'tipo_email': tipo_email(email), 'origen_email': w.get('email_origen', {}).get(email, ''), 'mx_ok': bool(email),
+            'motivo': mot, 'motivo_fuente': mot_url, 'motivo_fecha': HOY.isoformat() if mot else '', 'anuncios_activos': '',
             'movil': w.get('whatsapp') if w.get('whatsapp') in moviles else (moviles[0] if moviles else ''),
             'moviles_extra': ' '.join(moviles[1:4]), 'fijo': fijos[0] if fijos else '', 'email': email,
             'emails_extra': ' '.join(e for e in emails if e != email)[:200], 'email_personal': bool(email and es_email_personal(email)),
@@ -158,6 +194,7 @@ def descarta(c: dict, vistos_tel: set, vistos_dom: set) -> str:
 
 
 COLS = ['empresa', 'telefono', 'telefono_fijo', 'email', 'nombre', 'sector', 'ciudad', 'web', 'origen', 'notas',
+        'tipo_email', 'origen_email', 'mx_ok', 'motivo', 'motivo_fuente', 'motivo_fecha', 'anuncios_activos', 'canales',
         'actividad', 'encaje', 'emails_extra', 'moviles_extra', 'redes', 'resenas', 'valoracion', 'senales', 'fuente']
 
 
@@ -167,6 +204,10 @@ def fila(c: dict) -> dict:
         notas += ' Email personal (gmail/hotmail…).'
     return {'empresa': c['empresa'], 'telefono': c['movil'], 'telefono_fijo': c['fijo'], 'email': c['email'], 'nombre': '',
             'sector': c['sector'], 'ciudad': c['ciudad'], 'web': c['web_final'], 'origen': c['origen_contacto'], 'notas': notas,
+            'tipo_email': c['tipo_email'], 'origen_email': c['origen_email'], 'mx_ok': 'si' if c['mx_ok'] else '',
+            'motivo': c['motivo'], 'motivo_fuente': c['motivo_fuente'], 'motivo_fecha': c['motivo_fecha'], 'anuncios_activos': c['anuncios_activos'],
+            # Canales posibles; el panel decide cuál usa (uno solo a la vez)
+            'canales': ','.join(k for k, v in (('whatsapp', c['movil']), ('email', c['email']), ('llamada', c['fijo'] or c['movil'])) if v),
             'actividad': c['actividad'], 'encaje': c['encaje'], 'emails_extra': c['emails_extra'], 'moviles_extra': c['moviles_extra'],
             'redes': c['redes'], 'resenas': c['resenas'], 'valoracion': c['valoracion'], 'senales': c['senales'], 'fuente': c['fuente']}
 
@@ -176,7 +217,7 @@ def guarda(nombre: str, cands: list[dict], limite: int) -> None:
     vt, vd = set(), set()
     buenos, motivos = [], Counter()
     # Primero los que más encajan y más activos están
-    for c in sorted(cands, key=lambda c: (-c['encaje_puntos'], -c['actividad_puntos'])):
+    for c in sorted(cands, key=lambda c: (-c['encaje_puntos'], not c['motivo'], -c['actividad_puntos'])):
         m = descarta(c, vt, vd)
         if m:
             motivos[m] += 1

@@ -116,3 +116,18 @@ def mejor_email(emails: list[str], dominio_web: str) -> str:
         return -p
 
     return sorted(emails, key=peso)[0] if emails else ''
+
+
+GENERICOS_LOCAL = ('info', 'contacto', 'contact', 'hola', 'hello', 'presupuestos', 'presupuesto', 'comercial', 'ventas', 'oficina',
+                   'administracion', 'admin', 'atencion', 'atencionalcliente', 'clientes', 'pedidos', 'reservas', 'citas', 'gerencia', 'direccion', 'estudio', 'tienda')
+
+
+def tipo_email(email: str) -> str:
+    """generico (info@…), nominativo (juan@empresa.es) o gratuito (gmail/hotmail…)."""
+    if not email:
+        return ''
+    if es_email_personal(email):
+        return 'gratuito'
+    local = re.sub(r'[^a-z]', '', email.split('@')[0])
+    raiz_dom = re.sub(r'[^a-z]', '', email.split('@')[1].split('.')[0])
+    return 'generico' if local in GENERICOS_LOCAL or local == raiz_dom else 'nominativo'  # empresa@empresa.es es genérico
