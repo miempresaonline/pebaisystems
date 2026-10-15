@@ -319,6 +319,10 @@ function pebai_email_componer(array $p, int $paso, array $cfg): ?array
         return null; // sin ficha o sin vídeo grabado no se promete nada
     }
     $pregunta = $cfg['preguntas_senal'][$p['senal']] ?? '';
+    // La pregunta de "atención" habla del formulario: si el motivo no lo menciona (solo teléfono, 902…), va la del nicho.
+    if ($p['senal'] === 'atencion' && !preg_match('/formulario/iu', $p['motivo'])) {
+        $pregunta = '';
+    }
     if ($pregunta === '' || $p['senal'] === 'ninguna') {
         $pregunta = $ficha['pregunta'] ?? '';
     }
@@ -398,7 +402,9 @@ function pebai_email_qa(array $p, array $msg, int $paso, bool $comprobarDns = tr
         if ($n < 35 || $n > 95) {
             $err[] = "longitud fuera de rango ($n palabras)";
         }
-        $plano = ' ' . mb_strtolower($msg['texto'] . ' ' . $msg['asunto']) . ' ';
+        // El nombre de la empresa no cuenta ("Ahorro Energético S.L." no es una palabra prohibida nuestra).
+        $nombres = array_filter([mb_strtolower(trim($p['empresa'])), mb_strtolower(pebai_email_empresa_corta($p['empresa']))]);
+        $plano = ' ' . str_replace($nombres, ' ', mb_strtolower($msg['texto'] . ' ' . $msg['asunto'])) . ' ';
         foreach (PEBAI_EMAIL_PROHIBIDAS as $w) {
             if (str_contains($plano, $w)) {
                 $err[] = 'palabra prohibida: «' . trim($w) . '»';
