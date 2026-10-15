@@ -26,12 +26,24 @@ CADENAS = re.compile(r'asisa|sanitas|caser|adeslas|vitaldent|dentix|ikea|leroy|b
                      r'securitas|prosegur|carrefour|mercadona|el corte ingl|schmidt|leroy merlin|porcelanosa|bauhaus|'
                      # Energía: marcas nacionales, comercializadoras y plataformas (no son la instaladora local)
                      r'sotysolar|enchufesolar|solarprofit|otovo|svea|totalenergies|engie|edp|e\.on|autosolar|cambio energ[eé]tico|tesla|'
-                     r'saunier|daikin|mitsubishi electric|bosch|vaillant|baxi|ferroli|junkers|leroymerlin|ikea', re.I)
+                     r'saunier|daikin|mitsubishi electric|bosch|vaillant|baxi|ferroli|junkers|leroymerlin|ikea|'
+                     # Telecomunicaciones: operadores grandes, sus marcas y sus tiendas (no son el operador local)
+                     r'movistar|telef[oó]nica|vodafone|orange|jazztel|digi|m[aá]sm[oó]vil|yoigo|lowi|simyo|pepephone|o2|euskaltel|'
+                     r'r cable|telecable|avatel|adamo|finetwork|phone house|worten|media ?markt', re.I)
 
 # Webs que no son el cliente final: administraciones, directorios y comparadores (venden leads, no los atienden), formación, software
 NO_CLIENTE = re.compile(r'junta de |gobierno|ayuntamiento|diputaci|consejer|ministerio|generalitat|xunta|\.gob\.|gencat|gva\.es|juntadeandalucia|madrid\.org|'
                         r'directorio|comparador|compara |mejores instaladores|evaluador|portal para|presupuestos? de .* gratis|'
                         r'school|escuela|máster|master en|curso|formación online|software|saas|solar design', re.I)
+
+# Nicho B (email): Ley 10/2025 de atención a la clientela. Texto acordado con el chat de Email (docs/captacion-email.md §4.5)
+LEY_URL = 'https://www.boe.es/buscar/act.php?id=BOE-A-2025-26698'
+LEY_CADUCA = '2026-12-28'
+MOTIVO_NORMATIVA = {
+    'luz': 'Antes del 28 de diciembre, las comercializadoras de luz tienen que cumplir la Ley 10/2025 de atención a la clientela, sea cual sea su tamaño',
+    'fibra': 'Antes del 28 de diciembre, la Ley 10/2025 de atención a la clientela también alcanza a los operadores de telecomunicaciones, sea cual sea su tamaño',
+}
+
 
 def raices(texto: str) -> set[str]:
     """Raíces de 6 letras de las palabras del nicho («reformas integrales» → reform, integr; con 5, «inter» casaba con «internet»). Sirven para comprobar que el negocio es del nicho."""
@@ -86,6 +98,9 @@ def motivo(c: dict, w: dict) -> tuple[str, str, str]:
     franjas = _cierra(c['extra'].get('horario'))
     if franjas and c['extra'].get('maps'):
         return 'según vuestra ficha de Google cerráis ' + ' y '.join(franjas), c['extra']['maps'], 'atencion'
+    if c.get('nicho_email') in MOTIVO_NORMATIVA:   # fibra/luz: sin señal propia, la normativa (vale para todas, caduca)
+        c['motivo_caduca'] = LEY_CADUCA
+        return MOTIVO_NORMATIVA[c['nicho_email']], LEY_URL, 'normativa'
     return '', '', 'ninguna'
 
 
@@ -269,7 +284,7 @@ def descarta(c: dict, vistos_tel: set, vistos_dom: set, excl: dict | None = None
 
 
 COLS = ['empresa', 'telefono', 'telefono_fijo', 'email', 'nombre', 'sector', 'ciudad', 'provincia', 'lote', 'hace', 'tamano', 'web', 'origen', 'notas',
-        'tipo_email', 'origen_email', 'mx_ok', 'motivo', 'senal', 'motivo_fuente', 'motivo_fecha', 'anuncios_activos', 'canales',
+        'tipo_email', 'origen_email', 'mx_ok', 'motivo', 'senal', 'motivo_fuente', 'motivo_fecha', 'motivo_caduca', 'nicho', 'anuncios_activos', 'canales',
         'actividad', 'encaje', 'emails_extra', 'moviles_extra', 'redes', 'resenas', 'valoracion', 'senales', 'fuente']
 
 
@@ -283,7 +298,8 @@ def fila(c: dict) -> dict:
             'sector': c['sector'], 'ciudad': c['ciudad'], 'provincia': c.get('provincia', ''), 'lote': c.get('lote', ''),
             'hace': c['hace'], 'tamano': c['tamano'], 'web': c['web_final'], 'origen': c['origen_contacto'], 'notas': notas,
             'tipo_email': c['tipo_email'], 'origen_email': c['origen_email'], 'mx_ok': 'si' if c['mx_ok'] else '',
-            'motivo': c['motivo'], 'senal': c['senal'], 'motivo_fuente': c['motivo_fuente'], 'motivo_fecha': c['motivo_fecha'], 'anuncios_activos': c['anuncios_activos'],
+            'motivo': c['motivo'], 'senal': c['senal'], 'motivo_fuente': c['motivo_fuente'], 'motivo_fecha': c['motivo_fecha'],
+            'motivo_caduca': c.get('motivo_caduca', ''), 'nicho': c.get('nicho_email', ''), 'anuncios_activos': c['anuncios_activos'],
             # Canales posibles; el panel decide cuál usa (uno solo a la vez)
             'canales': ','.join(k for k, v in (('whatsapp', c['movil']), ('email', c['email']), ('llamada', c['fijo'] or c['movil'])) if v),
             'actividad': c['actividad'], 'encaje': c['encaje'], 'emails_extra': c['emails_extra'], 'moviles_extra': c['moviles_extra'],

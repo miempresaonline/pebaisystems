@@ -24,6 +24,14 @@ NICHOS = {
                       'empresa de climatización y aerotermia', 'electricista instalador placas solares'],
         'palabras': 'placas solares fotovoltaica autoconsumo paneles solar aerotermia bomba calor climatización renovables energía',
     },
+    # Nicho B por email: operadores locales de internet (fibra/radio) de pueblos y comarcas
+    'fibra': {
+        'sector': 'Operador local de telecomunicaciones',
+        'nicho_email': 'fibra',
+        'busquedas': ['proveedor de servicios de internet', 'fibra óptica internet operador', 'operador de telecomunicaciones local',
+                      'internet rural wifi'],
+        'palabras': 'fibra óptica internet operador telecomunicaciones banda ancha wifi telefonía conectividad',
+    },
 }
 
 # Nombre para buscar la provincia en OpenStreetMap cuando el oficial no basta
@@ -131,7 +139,9 @@ def provincia(nicho: str, prov: str) -> Path | None:
     fuera = [c for c in cands if c.get('provincia') and c['provincia'] != prov]
     cands = [c for c in cands if not c.get('provincia') or c['provincia'] == prov]
     for c in cands:
-        c['provincia'], c['lote'] = prov, f'Energía · {prov}'
+        c['provincia'], c['lote'] = prov, f'{cfg["sector"]} · {prov}'
+        if cfg.get('nicho_email'):
+            c['nicho_email'] = cfg['nicho_email']
     print(f'  {len(cands)} candidatos de {prov} ({len(fuera)} de otras provincias, se buscan en la suya)')
     destino.mkdir(parents=True, exist_ok=True)
     import prospeccion.motor as m
