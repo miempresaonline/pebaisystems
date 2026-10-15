@@ -191,10 +191,13 @@ function of_email(): array
 /** "energia_malaga: 65 empresas encontradas, 44 entregadas (35 con móvil, …) · fecha" → "Energía en Málaga: 65 encontradas, 44 útiles". */
 function of_lote_bonito(string $t): string
 {
-    if (!preg_match('/^([a-z0-9_]+): (\d+) empresas encontradas, (\d+) entregadas(?: \((\d+) con móvil, (\d+) con email)?/u', $t, $m)) {
+    if (preg_match('/^(\p{L}+) \((\d+) provincias? revisadas?\): (\d+) empresas con móvil importadas/u', $t, $m)) {
+        return 'Pasó ' . $m[3] . ' empresas de ' . mb_strtolower($m[1], 'UTF-8') . ' (' . $m[2] . ' provincias) a Prospectos, para revisar';
+    }
+    if (!preg_match('/^([\p{Ll}0-9_]+): (\d+) empresas encontradas, (\d+) entregadas(?: \((\d+) con móvil, (\d+) con email)?/u', $t, $m)) {
         return $t;
     }
-    $acentos = ['energia' => 'Energía', 'malaga' => 'Málaga', 'cordoba' => 'Córdoba', 'leon' => 'León', 'cadiz' => 'Cádiz', 'almeria' => 'Almería', 'avila' => 'Ávila',
+    $acentos = ['energia' => 'Energía', 'malaga' => 'Málaga', 'málaga' => 'Málaga', 'cordoba' => 'Córdoba', 'leon' => 'León', 'cadiz' => 'Cádiz', 'almeria' => 'Almería', 'avila' => 'Ávila',
                 'caceres' => 'Cáceres', 'jaen' => 'Jaén', 'castellon' => 'Castellón', 'logrono' => 'Logroño', 'clinicas' => 'Clínicas', 'gestorias' => 'Gestorías', 'peluquerias' => 'Peluquerías'];
     $partes = explode('_', $m[1]);
     $bonito = static fn($w) => $acentos[$w] ?? mb_convert_case($w, MB_CASE_TITLE, 'UTF-8');
@@ -262,9 +265,12 @@ function of_embudo(PDO $db): array
     if ($sinRevisar) {
         $fases['necesita'][] = $sinRevisar . ($sinRevisar === 1 ? ' solicitud nueva sin revisar' : ' solicitudes nuevas sin revisar') . ($tarde ? ' (' . $tarde . ' con más de 24 h)' : '');
     }
-    // Recordatorios: el cron deja la hora de su última pasada
-    $last = pebai_private_dir() . '/recordatorios-cron.last';
-    $lastTs = is_file($last) ? filemtime($last) : 0;
+    // Recordatorios: el cron (o las visitas, de respaldo) deja la hora de su última pasada
+    $lastTs = 0;
+    foreach (['cron', 'visitas', 'url'] as $via) {
+        $f = pebai_private_dir() . '/recordatorios-' . $via . '.last';
+        $lastTs = max($lastTs, is_file($f) ? (int)filemtime($f) : 0);
+    }
     $q = $db->prepare("SELECT COUNT(*) FROM citas WHERE estado = 'reservada' AND (rec24 = 1 OR rec1 = 1) AND updated_at >= ?");
     $q->execute([$hoy]);
     $recHoy = (int)$q->fetchColumn();
