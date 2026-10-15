@@ -114,32 +114,60 @@ Limitaciones: solo mide Meta. A las inmobiliarias se les vende sobre todo por em
 
 **Conclusión con datos:** las **academias de oposiciones** son las únicas que salen bien en todo: pagan mucho por captar, casi nadie les vende, el alumno vale 2.000–4.000 € y llevan picos de consultas con cada convocatoria. Segunda Oportunidad baja: los abogados están más trabajados de lo que parecía.
 
-## 3. La prueba real (antes de grabar vídeos)
+## 3. Análisis a fondo de los cuatro (15/10/2026)
 
-1. **Los cuatro con mejor ratio**, unos **75 mensajes de texto por nicho** (unos 300, dos semanas al cupo actual):
-   - **Academias de oposiciones:** la única que sale bien en todo.
-   - **Autoescuelas:** el mejor ratio; es la apuesta de volumen (ticket bajo).
-   - **Inmobiliarias:** muchísima demanda. Sirve para comprobar si de verdad están quemadas (en Meta no lo parece; por email sí puede).
-   - **Instaladores de energía** (placas y aerotermia): el mejor del tipo "obra con presupuesto", con ticket alto.
-   - Reformas y Segunda Oportunidad quedan en reserva; fincas para bodas también (su dato de anuncios tiene demasiado ruido para medirla).
-2. Mismo tipo de mensaje en todos (pregunta de dolor), adaptado a cada nicho. No se cambia el texto durante la prueba.
-3. **Se mide por nicho:** respuestas, respuestas con interés (piden información o el vídeo), bajas y diagnósticos. Se decide por las respuestas con interés.
-4. Los **tres mejores** son los nichos del mes: guiones y vídeos solo para ellos.
-5. Con 75 por nicho solo se distinguen diferencias claras (del tipo 4 % frente a 12 %). Sirve para elegir; los elegidos siguen midiéndose cada mes.
+Cuatro investigaciones independientes, una por nicho: datos oficiales, software que ya pagan, huecos y oferta. Las fuentes principales están al final del documento.
 
-Necesita del chat del Scraper unos 80 prospectos de cada uno de esos 4 nichos, con el origen de cada número.
+### Instaladores de energía (placas + aerotermia): **el mejor ahora mismo**
+- **Mercado:** el autoconsumo cae (UNEF −17 % en hogares en 2025; APPA, tres años de contracción) y la bomba de calor sube (+14,9 %, AFEC). Instalaciones de 4.500–9.500 € (solar) y 8.000–18.000 € (aerotermia).
+- **Momento:** el RDL 7/2026 crea una deducción del IRPF del 10–20 % por autoconsumo solo para lo instalado **y pagado en 2026**, y las deducciones por eficiencia energética acaban el 31/12/2026. Noviembre y diciembre van con prisa; 2027 puede traer un bajón.
+- **Dolor medible:** compran leads a 25–45 € **compartidos con 2–4 instaladores**. Salen 2–5 instalaciones por cada 100 leads (cifras de vendedores). Gana quien contesta primero y pierden horas en visitas a gente que no cualifica.
+- **Competencia:** ya hay quien les vende un agente de voz que llama al lead en el primer minuto (NovaChat). Hay competencia, pero aún no está saturado.
+- **Oferta:** (1) respuesta en menos de 60 s por WhatsApp y voz, pide foto de factura y tejado, descarta y agenda la visita: 1.500–3.000 € + 150–300 €/mes; (2) de foto de la factura a preestudio en PDF con su marca, siempre revisado por el técnico; (3) posventa para los "huérfanos solares" de instaladoras cerradas, más GEO local.
+- **Ostras:** rellenar un formulario delante del dueño y que en 30 s le llegue un WhatsApp con su marca pidiendo la factura y ofreciendo hueco el jueves.
+- **Ojo:** evitar instaladoras de 1–2 personas; buscar las que hacen solar y aerotermia y ya pagan anuncios o leads.
 
-## 4. Qué les vendemos (el momento "ostras" de cada uno)
+### Academias de oposiciones: **la mejor a medio plazo**
+- **Qué es:** preparan durante 1–3 años a quien quiere una plaza fija de funcionario. El Estado sacó unas 37.000 plazas en 2026, a las que se suman las de comunidades, ayuntamientos y docentes (en Madrid se presentaron 25.300 docentes a 3.122 plazas).
+- **Valor:** 90–160 €/mes durante 12–24 meses, es decir, **1.200–2.400 € por alumno**. Una matrícula recuperada paga el año.
+- **Dolor:** consultas en avalancha con cada convocatoria, por WhatsApp a las 23:00 y siempre las mismas preguntas. El 64 % de los opositores ha cambiado de academia (cifra de OpositaTest, débil).
+- **Lo que ya pagan:** programas de gestión de 29–50 €/mes y aulas virtuales. **Ninguno trae un asistente con sus precios y horarios ni tests con su marca.**
+- **Oferta:** (1) asistente de WhatsApp y web con paso a una persona: precios, grupos, clase de prueba, enlaces de clase y matrícula (1.500–3.000 € + 150–300 €/mes); (2) app de tests con su marca, generada con IA desde su temario y revisada por el profesor, con aviso de alumnos que se desenganchan (4.000–9.000 €); (3) GEO por cuerpo y ciudad.
+- **Ostras:** subir un tema suyo en PDF y sacar 50 preguntas en 5 minutos. O escribir a las 23:00 "¿cuánto cuesta Guardia Civil?" y recibir respuesta y enlace a la clase de prueba.
+- **Momento:** prospectar de enero a marzo y de agosto a septiembre, antes de los picos de matrícula. **Lo ideal: preparar ahora y lanzar en enero.**
+- **Ojo:** microempresas sensibles al precio; los tests generados con IA necesitan revisión humana.
 
-Se rellena para los tres nichos que ganen la prueba. Ejemplos de partida:
+### Autoescuelas: **peor de lo que parecía**
+- **Mercado:** récord de 663.541 carnés B en 2025 (+9,5 %, DGT). Hay unas 8.000 autoescuelas, que salen a unos 80 alumnos al año y 800–1.000 € por alumno.
+- **El giro:** su problema número uno es la **falta de examinadores** (más de 300.000 alumnos esperando). **No necesitan más alumnos**: necesitan gestionar los que tienen.
+- **Saturación real:** ya existe un programa de gestión con bot de WhatsApp con IA a **49 €/mes** (IAMESS), y los de gestión cuestan 29–99 €/mes. El ratio de Meta engañaba: les venden poco por anuncios, pero hay productos baratos de sobra.
+- **La app de tests más barata:** **no hay hueco.** Ya cuestan 30–60 €/mes o son gratis para el alumno. Además habría que crear y mantener un banco propio de miles de preguntas, y migrar sus expedientes es un freno para cambiar. Bajar precio a ese nivel no da negocio.
+- **Si se entra:** recepcionista de voz y WhatsApp que conecte con su programa (79–149 €/mes) y un panel de lista de espera y avisos de huecos para escuelas medianas. Ticket bajo.
 
-| Nicho | El momento "ostras" |
-|---|---|
-| Fincas para bodas | La pareja escribe a las 23:00 desde Bodas.net y en un minuto tiene precio orientativo según invitados y fecha, disponibilidad y una visita reservada para el sábado. |
-| Energía | El cliente manda una foto de su factura de la luz y en un minuto recibe una estimación de ahorro y de potencia. |
-| Casas modulares | El comercial empieza el día con la lista de quién tiene parcela y financiación y quién solo mira. |
-| Reformas | Presupuestos que se daban por perdidos vuelven solos semanas después con el seguimiento automático. |
+### Inmobiliarias: **saturadas y con poca caja**
+- **Mercado:** unas 60.000 agencias; el 94 % de las empresas del sector tiene 2 asalariados o menos. Comisión media del 5 % (OCU). Facturan unos 40.000–70.000 € al año, según estimación propia.
+- **Saturación:** sus programas de gestión son de los propios portales (Inmovilla es de Idealista; Witei e Inmoweb de Fotocasa) y ya traen chatbots y valoradores. Hay varias empresas vendiéndoles bots de WhatsApp. **Vender "chatbot para leads de portales" es vender algo que ya tienen.**
+- **El hueco:** su mayor dolor es **captar pisos para vender** (récord de ventas y agencias cerrando por falta de producto). Oferta posible: valorador con seguimiento automático al propietario durante meses, más GEO local. Precios bajos.
+
+### Conclusión
+| Nicho | Veredicto | Cuándo |
+|---|---|---|
+| **Instaladores de energía** | El mejor ahora: dolor medible, retorno claro y prisa por la deducción | Ya (oct–dic) |
+| **Academias de oposiciones** | El mejor a medio plazo: alto valor por alumno y casi nadie les vende lo que necesitan | Preparar ahora, lanzar en enero |
+| Autoescuelas | Ticket bajo y productos baratos de sobra; la app no tiene hueco | Solo con otro ángulo |
+| Inmobiliarias | Saturadas en lo de responder; el hueco es captar pisos | Solo con ese ángulo |
+
+Pendiente de un análisis a fondo igual: **reformas** y **fincas para bodas** (la temporada de bodas arranca en enero). Son los candidatos para el tercer nicho.
+
+## 4. La prueba real
+
+1. **Energía, ya:** unos 75 mensajes a instaladoras que hagan solar y aerotermia, con un mensaje sobre los leads compartidos y la prisa de fin de año.
+2. **Oposiciones, en enero:** se prepara en noviembre y diciembre (vídeo, mensajes, lista), y se lanza antes de las matrículas.
+3. **Tercer nicho:** se decide tras analizar a fondo reformas y fincas para bodas.
+4. Se mide por respuestas con interés y diagnósticos. Con 75 mensajes por nicho solo se distinguen diferencias claras.
 
 Reglas al venderlo: nada de cifras de ahorro inventadas ni promesas garantizadas. La consultoría gratuita es solo para cinco empresas al mes. Todo lo que se enseñe tiene que poder construirlo el equipo de Adrián.
 
-Fuentes: [Bodas.net / Euronews: coste de una boda 2026](https://es.euronews.com/cultura/2026/06/27/el-precio-del-si-quiero-en-espana-las-bodas-cuestan-10000-euros-mas-en-2026) · [Xataka: el negocio de las bodas](https://www.xataka.com/magnet/ano-salario-integro-para-casarse-espana-ha-hecho-bodas-enorme-negocio-millonario-que-no-toca-techo) · [UNEF/pv magazine: autoconsumo 2025](https://www.pv-magazine.es/2026/01/30/espana-sumo-1-139-mw-de-autoconsumo-en-2025/) · [EHPA: bombas de calor 2025](https://www.eseficiencia.es/2026/03/09/datos-ehpa-revelan-aumento-ventas-bombas-calor-2025-paises-europeos) · [Room2030: construcción industrializada](https://www.dparquitectura.es/noticias/20250113/room2030-evolucion-mercado-construccion-industrializada-10-porciento) · [Cataluña Económica: empresas modulares](https://catalunyaeconomica.com/reportajes/modularidad-una-industria-disruptiva/) · [Andimac: reformas 2025](https://www.alimarket.es/construccion/noticia_amp/403945/en-2025-se-reformaran-casi-dos-millones-de-viviendas-en-espana) · [Asofap: piscinas 2026](https://www.alimarket.es/construccion/noticia_amp/431425/el-sector-de-la-piscina-facturo-mas-de-1-800-m--en-el-primer-semestre-de-2026--un-7-7--mas-21-09-2026-12-00) · [Banco de España: concursos de personas físicas](https://www.bde.es/f/webbe/Secciones/Publicaciones/PublicacionesAnuales/MemoriaCentralInformacionRiesgos/25/CIR_M2025_Recuadro_3.3.pdf) · [Vozpópuli: Segunda Oportunidad y el Supremo](https://www.vozpopuli.com/opinion/segunda-oportunidad-el-supremo-eleva-el-liston-y-los-juzgados-responden.html) · [Inforesidencias: precio residencias 2025](https://www.alimarket.es/sanidad/noticia_amp/408273/el-precio-medio-de-una-residencia-privada-en-espana-se-situa-en-2025-en-2-118---al-mes) · [Ministerio: récord de alumnos de FP](https://www.lamoncloa.gob.es/serviciosdeprensa/notasprensa/educacion-fp-deportes/Paginas/2026/31072026-educacion-formacion-profesional.aspx) · [FP privada +467 % en una década](https://cpr.afundacion.org/inicio/wp-content/uploads/2025/04/EL-ASCENSO-DE-LA-FP-EN-A-CORUNA.pdf) · [Academias de oposiciones: precios](https://redopositor.com/blog/es-academias-oposiciones-adams-precio-merece-la-pena/) · [Brokers hipotecarios: comisiones](https://housfy.com/blog/esta-es-la-comision-media-de-un-broker-hipotecario/) · [Alquiler vacacional: comisiones de gestoras](https://www.hostaway.com/es-ES/glossary/management-fee/) · [Audífonos: precios](https://cuantomecuesta.com/es/audifonos-protesis-auditiva/)
+Fuentes del análisis a fondo: [DGT, Anuario 2025](https://www.dgt.es/export/sites/web-DGT/.galleries/downloads/dgt-en-cifras/publicaciones/Anuario_Estadistico_General/Anuario-General-2025.pdf) · [CNMC: estudio de autoescuelas](https://www.cnmc.es/prensa/estudio-autoescuelas-20250109) · [IAMESS: ERP con bot para autoescuelas](https://iamess.com/) · [Vialtest: precios para autoescuelas](https://vialtest.com/servicios-para-autoescuelas/precios) · [OEP 2025](https://administracion.gob.es/empleopublico/ofertas-empleo-publico/oep-2025) · [Comunidad de Madrid: oposiciones docentes 2025](https://www.comunidad.madrid/file/478793/download) · [Observatorio del opositor 2025 (débil)](https://blog.opositatest.com/observatorio-opositor-2025/) · [Software de gestión de academias](https://www.softwaredoit.es/software-educativo/software-gestion-academias.html) · [INE DIRCE 2025](https://ine.es/dyngs/Prensa/DIRCE2025.htm) · [OCU: comisiones de agencias 2026](https://www.ocu.org/organizacion/prensa/notas-de-prensa/2026/agenciasinmobiliarias280126) · [idealista/tools](https://www.idealista.com/news/node/849365) · [APPA: autoconsumo 2025](https://www.appa.es/wp-content/uploads/2026/02/NdP-APPA-Renovables-El-autoconsumo-consolida-su-aportacion-pero-encadena-tres-anos-de-contraccion-y-reclama-una-fiscalidad-estable_vf.pdf) · [AEAT: RDL 7/2026](https://sede.agenciatributaria.gob.es/Sede/eu_es/irpf/novedades-impuesto/novedades-normativa-2026/principales-novedades-tributarias-introducidas-real-marzo.html) · [AFEC: climatización 2025](https://afec.es/visorpdf/mercado/2025) · [Huérfanos solares](https://emprendedores.es/firmas/huerfanos-solares-la-factura-pendiente-del-boom-del-autoconsumo/) · [Precio de leads de placas (débil)](https://generacionleads.es/leads-paneles-solares/placas-solares/)
+
+Fuentes del análisis sobre el papel: [Bodas.net / Euronews: coste de una boda 2026](https://es.euronews.com/cultura/2026/06/27/el-precio-del-si-quiero-en-espana-las-bodas-cuestan-10000-euros-mas-en-2026) · [Xataka: el negocio de las bodas](https://www.xataka.com/magnet/ano-salario-integro-para-casarse-espana-ha-hecho-bodas-enorme-negocio-millonario-que-no-toca-techo) · [UNEF/pv magazine: autoconsumo 2025](https://www.pv-magazine.es/2026/01/30/espana-sumo-1-139-mw-de-autoconsumo-en-2025/) · [EHPA: bombas de calor 2025](https://www.eseficiencia.es/2026/03/09/datos-ehpa-revelan-aumento-ventas-bombas-calor-2025-paises-europeos) · [Room2030: construcción industrializada](https://www.dparquitectura.es/noticias/20250113/room2030-evolucion-mercado-construccion-industrializada-10-porciento) · [Cataluña Económica: empresas modulares](https://catalunyaeconomica.com/reportajes/modularidad-una-industria-disruptiva/) · [Andimac: reformas 2025](https://www.alimarket.es/construccion/noticia_amp/403945/en-2025-se-reformaran-casi-dos-millones-de-viviendas-en-espana) · [Asofap: piscinas 2026](https://www.alimarket.es/construccion/noticia_amp/431425/el-sector-de-la-piscina-facturo-mas-de-1-800-m--en-el-primer-semestre-de-2026--un-7-7--mas-21-09-2026-12-00) · [Banco de España: concursos de personas físicas](https://www.bde.es/f/webbe/Secciones/Publicaciones/PublicacionesAnuales/MemoriaCentralInformacionRiesgos/25/CIR_M2025_Recuadro_3.3.pdf) · [Vozpópuli: Segunda Oportunidad y el Supremo](https://www.vozpopuli.com/opinion/segunda-oportunidad-el-supremo-eleva-el-liston-y-los-juzgados-responden.html) · [Inforesidencias: precio residencias 2025](https://www.alimarket.es/sanidad/noticia_amp/408273/el-precio-medio-de-una-residencia-privada-en-espana-se-situa-en-2025-en-2-118---al-mes) · [Ministerio: récord de alumnos de FP](https://www.lamoncloa.gob.es/serviciosdeprensa/notasprensa/educacion-fp-deportes/Paginas/2026/31072026-educacion-formacion-profesional.aspx) · [FP privada +467 % en una década](https://cpr.afundacion.org/inicio/wp-content/uploads/2025/04/EL-ASCENSO-DE-LA-FP-EN-A-CORUNA.pdf) · [Academias de oposiciones: precios](https://redopositor.com/blog/es-academias-oposiciones-adams-precio-merece-la-pena/) · [Brokers hipotecarios: comisiones](https://housfy.com/blog/esta-es-la-comision-media-de-un-broker-hipotecario/) · [Alquiler vacacional: comisiones de gestoras](https://www.hostaway.com/es-ES/glossary/management-fee/) · [Audífonos: precios](https://cuantomecuesta.com/es/audifonos-protesis-auditiva/)
