@@ -88,6 +88,47 @@ Variables: `[saludo]` (Buenos días / Buenas tardes), `[nombre]` («, Ana» si l
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te hago una pregunta sobre cómo atendéis en [empresa] a los clientes que os escriben? Si no te interesa, dímelo y no te escribo más.
 - **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre lo que pasa con un cliente que os escribe fuera de horario. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
+## Instaladores de energía: primer mensaje trabajado a fondo (nicho principal, oct–dic 2026)
+
+Contexto: compran leads compartidos con 3–4 instaladores, gana quien contesta primero y pierden visitas con gente que no cualifica. **Por qué ahora:** la deducción del IRPF del RDL 7/2026 solo vale para lo instalado y pagado en 2026 (`docs/captacion-por-que-ahora.md`).
+
+Doce candidatos, cada uno con una palanca distinta. Puntuación de 1 a 5 en siete criterios:
+- **Clar.:** se entiende en dos segundos.
+- **Ganas:** dan ganas de contestar.
+- **Esf.:** cuesta poco responder (5 = una palabra).
+- **Legal:** no promociona nada.
+- **Verdad:** no da por hecho nada que no sepamos.
+- **Puente:** la respuesta lleva de forma natural a lo que vendemos.
+- **Voz:** suena a PEBAI.
+
+| # | Palanca | Pregunta (todas llevan "Soy Daniel, de PEBAI Systems" y la salida) | Clar. | Ganas | Esf. | Legal | Verdad | Puente | Voz | **Total** |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Velocidad | Cuando os llega un lead de placas por la noche, ¿le contestáis esa noche o al día siguiente? | 5 | 3 | 5 | 5 | 5 | 5 | 4 | 32 |
+| 2 | Dato que escuece | Los leads que se compran suelen ir a 3 o 4 instaladores. ¿Cuántos de cada diez llegáis a visitar? | 4 | 4 | 4 | 5 | 4 | 5 | 4 | 30 |
+| **3** | **Por qué ahora** | **Con la deducción del IRPF que solo vale para lo que se instale y pague este año, ¿os está entrando más gente pidiendo presupuesto estas semanas?** | 5 | 5 | 5 | 5 | 5 | 3 | 5 | **33** |
+| 4 | Visitas en balde | ¿Cuántas visitas al mes hacéis a gente que luego no tenía tejado o consumo para placas? | 4 | 4 | 3 | 5 | 5 | 4 | 4 | 29 |
+| 5 | Permiso (Voss) | ¿Te importa si te pregunto cómo gestionáis los leads que os llegan de anuncios? | 5 | 3 | 5 | 5 | 5 | 4 | 4 | 31 |
+| **6** | **Oferta de vídeo** | **He grabado un vídeo de un minuto sobre lo que pasa con un lead de placas que entra a las diez de la noche. ¿Te lo mando?** | 5 | 4 | 5 | 4 | 5 | 5 | 4 | **32** |
+| 7 | Observación | He visto que anunciáis placas en Instagram: ¿esos contactos los atiende alguien del equipo o una agencia? (solo si el Scraper confirma que anuncian) | 4 | 5 | 4 | 5 | 5 | 5 | 4 | 32 |
+| 8 | Huérfanos solares | ¿Os escriben clientes de instaladoras que cerraron pidiendo mantenimiento? | 4 | 3 | 4 | 5 | 5 | 2 | 4 | 27 |
+| 9 | Curiosidad abierta | ¿Qué os funciona mejor ahora para conseguir clientes: anuncios, leads comprados o boca a boca? | 5 | 5 | 5 | 5 | 5 | 4 | 4 | 33 |
+| 10 | Tendencia | ¿Os está pidiendo la gente más aerotermia que placas este año? | 5 | 5 | 5 | 5 | 5 | 2 | 4 | 31 |
+| 11 | Coste | ¿Cuánto os cuesta ahora cada lead de placas? | 4 | 3 | 3 | 5 | 5 | 4 | 3 | 27 |
+| 12 | Empatía con el mercado | ¿Habéis notado que este año cuesta más cerrar una instalación que hace dos años? | 5 | 4 | 5 | 5 | 5 | 3 | 4 | 31 |
+
+**Para la prueba A/B se eligen dos palancas distintas**, para que la prueba enseñe algo:
+- **A (n.º 3, por qué ahora):** la pregunta más oportuna y fácil de contestar.
+- **C (n.º 6, oferta de vídeo):** el camino que mejor lleva a nuestro vídeo y al diagnóstico.
+- En reserva: n.º 9 (empata con la 3, pero lleva peor a lo nuestro) y n.º 7 (solo con el dato de anuncios).
+
+Textos finales (menos de 50 palabras; pasan el filtro legal del panel):
+- **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: con la deducción del IRPF que solo vale para lo que se instale y pague este año, ¿os está entrando más gente pidiendo presupuesto estas semanas? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre lo que pasa con un lead de placas que entra a las diez de la noche. ¿Te lo mando? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
+
+Cómo seguir cuando contestan a la A:
+- **"Sí, bastante":** "¿Y os da tiempo a contestarles a todos el mismo día?" Después, el vídeo.
+- **"No mucho":** "¿Y de dónde os están viniendo ahora los clientes: anuncios, leads comprados o boca a boca?"
+
 ## 5. Cuando contestan (lo hace Daniel a mano)
 
 Enlace siempre con `?origen=daniel`, para que la solicitud quede a su nombre (`docs/enlaces-y-utm.md`).
