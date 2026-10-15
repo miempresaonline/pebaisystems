@@ -254,8 +254,28 @@ function pebai_email_dominio(string $email): string
 
 function pebai_email_empresa_corta(string $empresa): string
 {
-    $e = trim(preg_replace('/[,\s]+(s\.?\s?l\.?u?|s\.?\s?a\.?|s\.?\s?l\.?\s?p\.?|s\.?\s?c\.?|s\.?\s?coop\.?)\.?$/iu', '', trim($empresa)));
+    // Los nombres de Google Maps traen coletillas ("Proyectar SL - Reformas integrales - Construcción"): se queda el nombre.
+    $e = preg_split('/\s+[-–—|·]\s+|\s*[|(]\s*|\.\s+/u', trim($empresa))[0] ?? '';
+    $e = trim(preg_replace('/[,\s]+(s\.?\s?l\.?u?|s\.?\s?a\.?|s\.?\s?l\.?\s?p\.?|s\.?\s?c\.?|s\.?\s?coop\.?)\.?$/iu', '', trim($e, " .,")));
+    $palabras = preg_split('/\s+/u', $e, -1, PREG_SPLIT_NO_EMPTY);
+    if (count($palabras) > 4) {
+        $e = implode(' ', array_slice($palabras, 0, 4));
+    }
     return $e !== '' ? $e : 'vuestra empresa';
+}
+
+/** Convierte el motivo del scraper en una frase: «en vuestra web no hay chat…» → «He visto que en vuestra web no hay chat….». */
+function pebai_email_motivo_frase(string $m): string
+{
+    $m = trim(preg_replace('/\s+/u', ' ', $m), " \t.");
+    if ($m === '') {
+        return '';
+    }
+    $primera = mb_substr($m, 0, 1);
+    if ($primera === mb_strtolower($primera) && !preg_match('/^(he|hemos|leyendo|vi|veo)\b/iu', $m)) {
+        $m = 'He visto que ' . $m;
+    }
+    return mb_strtoupper(mb_substr($m, 0, 1)) . mb_substr($m, 1) . '.';
 }
 
 function pebai_email_spintax(string $t): string
@@ -296,7 +316,7 @@ function pebai_email_componer(array $p, int $paso, array $cfg): ?array
     if ($pregunta === '' || $p['senal'] === 'ninguna') {
         $pregunta = $ficha['pregunta'] ?? '';
     }
-    $motivo = trim($p['motivo']);
+    $motivo = pebai_email_motivo_frase($p['motivo']);
     if ($motivo === '') {
         $motivo = 'He visto ' . pebai_email_empresa_corta($p['empresa']) . ' buscando ' . mb_strtolower($ficha['nombre'] ?? $p['sector']) . ($p['ciudad'] !== '' ? ' en ' . $p['ciudad'] : '') . '.';
     }
@@ -956,8 +976,9 @@ function pebai_email_importar(string $raw, string $nichoDefecto, string $lote): 
               'senal' => ['senal', 'señal', 'tipo_senal', 'signal'], 'motivo' => ['motivo'], 'motivo_fuente' => ['motivo_fuente'], 'motivo_fecha' => ['motivo_fecha'], 'notas' => ['notas']];
     $map = [];
     foreach ($alias as $campo => $nombres) {
-        foreach ($head as $i => $hd) {
-            if (in_array($hd, $nombres, true) && !isset($map[$campo])) {
+        foreach ($nombres as $nombre) { // por orden de preferencia: "origen_email" gana a "origen" (que es el del negocio)
+            $i = array_search($nombre, $head, true);
+            if ($i !== false && !isset($map[$campo])) {
                 $map[$campo] = $i;
             }
         }
