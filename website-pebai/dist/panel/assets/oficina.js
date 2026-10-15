@@ -148,6 +148,21 @@ function formatear(t) {
   });
   return html + (ul ? '</ul>' : '');
 }
+/* la respuesta aparece palabra a palabra, como si PEBAI la escribiera (rápido: ~1,5 s una respuesta normal) */
+function escribir(body, txt) {
+  const trozos = String(txt).split(/(\s+)/);
+  const paso = Math.max(1, Math.round(trozos.length / 70));
+  let i = 0;
+  return new Promise((fin) => {
+    const h = setInterval(() => {
+      i = Math.min(trozos.length, i + paso);
+      body.innerHTML = formatear(trozos.slice(0, i).join('')) + (i < trozos.length ? '<span class="cur"></span>' : '');
+      const last = body.lastElementChild; if (last && i < trozos.length && last.classList.contains('cur')) { const todos = body.querySelectorAll('p, li'), pp = todos[todos.length - 1]; if (pp) pp.append(last); }
+      ans.scrollTop = ans.scrollHeight;
+      if (i >= trozos.length) { clearInterval(h); fin(); }
+    }, 22);
+  });
+}
 async function preguntar(t) {
   t = String(t || '').trim(); if (!t) { qIn.focus(); return; }
   sug.classList.remove('on');
@@ -158,23 +173,27 @@ async function preguntar(t) {
   const x = document.createElement('button'); x.type = 'button'; x.className = 'cerrar'; x.setAttribute('aria-label', 'Cerrar respuesta'); x.textContent = '×';
   x.onclick = (e) => { e.stopPropagation(); ans.classList.remove('on'); };
   head.append(img, qd, x);
-  const body = document.createElement('div'); body.className = 'bd'; body.innerHTML = '<div class="pens">PEBAI está mirando los departamentos…</div>';
+  const body = document.createElement('div'); body.className = 'bd'; body.innerHTML = '<div class="pens"><span>PEBAI está mirando los departamentos</span><i></i><i></i><i></i></div>';
   ans.append(head, body);
-  qBtn.disabled = true; qIn.value = '';
+  qBtn.disabled = true; qIn.value = ''; pensando = true; ans.classList.add('pensando');
+  const pasos = ['PEBAI está mirando los departamentos', 'Leyendo lo que han hecho los agentes', 'Preparando la respuesta'];
+  let pi = 0; const rota = setInterval(() => { const sp = $('.pens span', body); if (sp) sp.textContent = pasos[++pi % pasos.length]; }, 1400);
+  const minimo = new Promise((r) => setTimeout(r, 900));
   try {
     const r = await fetch(BASE, { method: 'POST', credentials: 'same-origin', headers: { 'Accept': 'application/json' }, body: new URLSearchParams({ action: 'oficina_preguntar', csrf: S.csrf, q: t, h: JSON.stringify(S.hist.slice(-4)) }) });
     if (r.status === 401) { location.reload(); return; }
     const j = await r.json().catch(() => ({ ok: false, error: 'Respuesta inesperada.' }));
-    body.innerHTML = j.ok ? formatear(j.respuesta) : '<p class="err">' + esc(j.error) + '</p>';
-    if (j.ok) S.hist.push({ q: t, a: j.respuesta });
-  } catch (e) { body.innerHTML = '<p class="err">No se ha podido preguntar ahora.</p>'; }
-  qBtn.disabled = false;
+    await minimo; clearInterval(rota);
+    if (j.ok) { S.hist.push({ q: t, a: j.respuesta }); await escribir(body, j.respuesta); }
+    else body.innerHTML = '<p class="err">' + esc(j.error) + '</p>';
+  } catch (e) { clearInterval(rota); body.innerHTML = '<p class="err">No se ha podido preguntar ahora.</p>'; }
+  pensando = false; ans.classList.remove('pensando'); qBtn.disabled = false;
 }
 $('#pb-of-askf').addEventListener('submit', (e) => { e.preventDefault(); preguntar(qIn.value); });
 ['pb-of-ask', 'pb-of-hud', 'pb-of-side'].forEach((id) => { const n = document.getElementById(id); if (n) n.addEventListener('click', (e) => e.stopPropagation()); });
 
 /* ============ escena 3D ============ */
-let G = null, foco = null;
+let G = null, foco = null, pensando = false;
 function enfocarSala(d) {
   foco = { sala: d.id }; wrap.classList.add('foco'); if (!G) return;
   const s = G.salas.get(d.id); if (!s) return;
@@ -336,7 +355,7 @@ async function montar() {
   function silla() {
     const s = new THREE.Group();
     const asiento = new THREE.Mesh(new RoundedBoxGeometry(.6, .1, .55, 2, .04), matOscuro); asiento.position.y = .58; asiento.castShadow = true; s.add(asiento);
-    const resp = new THREE.Mesh(new RoundedBoxGeometry(.56, .62, .08, 2, .04), matOscuro); resp.position.set(0, .92, .26); resp.castShadow = true; s.add(resp);
+    const resp = new THREE.Mesh(new RoundedBoxGeometry(.56, .36, .08, 2, .04), matOscuro); resp.position.set(0, .8, .26); resp.castShadow = true; s.add(resp);
     const pie = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, .5), matOscuro); pie.position.y = .3; s.add(pie);
     const base = new THREE.Mesh(new THREE.CylinderGeometry(.28, .3, .04, 20), matOscuro); base.position.y = .04; s.add(base);
     return s;
@@ -351,19 +370,19 @@ async function montar() {
     [-.85, .85].forEach((lx) => { const l = new THREE.Mesh(new THREE.BoxGeometry(.06, .74, .85), frameMat); l.position.set(lx, .37, 0); l.castShadow = true; p.add(l); });
     const cv = document.createElement('canvas'); cv.width = 512; cv.height = 320;
     const ptex = new THREE.CanvasTexture(cv); ptex.colorSpace = THREE.SRGBColorSpace; ptex.anisotropy = 4;
-    const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.36, .85), new THREE.MeshBasicMaterial({ map: ptex, toneMapped: false })); scr.position.set(0, 1.29, -.24); p.add(scr);
-    const fr = new THREE.Mesh(new RoundedBoxGeometry(1.46, .95, .05, 2, .02), frameMat); fr.position.set(0, 1.29, -.28); fr.castShadow = true; p.add(fr);
-    const stand = new THREE.Mesh(new THREE.BoxGeometry(.08, .3, .06), frameMat); stand.position.set(0, .92, -.28); p.add(stand);
+    const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.36, .85), new THREE.MeshBasicMaterial({ map: ptex, toneMapped: false })); scr.position.set(0, 1.47, -.24); p.add(scr);
+    const fr = new THREE.Mesh(new RoundedBoxGeometry(1.46, .95, .05, 2, .02), frameMat); fr.position.set(0, 1.47, -.28); fr.castShadow = true; p.add(fr);
+    const stand = new THREE.Mesh(new THREE.BoxGeometry(.08, .3, .06), frameMat); stand.position.set(0, .92, -.28); stand.scale.y = 1.6; p.add(stand);
     const teclado = new THREE.Mesh(new RoundedBoxGeometry(.6, .025, .2, 2, .01), frameMat); teclado.position.set(0, .79, .12); p.add(teclado);
     /* halo de la pantalla sobre la mesa (en lugar de una luz por puesto, que es lo que más pesa) */
     const halo = new THREE.Mesh(new THREE.PlaneGeometry(1.8, .9), new THREE.MeshBasicMaterial({ color: new THREE.Color(d.color), transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
     halo.rotation.x = -Math.PI / 2; halo.position.set(0, .785, .02); p.add(halo);
     const ch = silla(); ch.position.set(0, 0, .85); p.add(ch);
-    const rb = robot(new THREE.Color(d.color)); rb.r.position.set(0, -.08, .78); rb.r.rotation.y = Math.PI; rb.r.scale.setScalar(.95); p.add(rb.r);
-    const baliza = new THREE.Mesh(new THREE.SphereGeometry(.12, 16, 16), new THREE.MeshBasicMaterial({ color: 0xFF5E6C, toneMapped: false })); baliza.position.set(.64, 1.9, -.27); baliza.visible = false; p.add(baliza);
+    const rb = robot(new THREE.Color(d.color)); rb.r.position.set(0, -.08, .74); rb.r.scale.setScalar(.95); p.add(rb.r);
+    const baliza = new THREE.Mesh(new THREE.SphereGeometry(.12, 16, 16), new THREE.MeshBasicMaterial({ color: 0xFF5E6C, toneMapped: false })); baliza.position.set(.64, 2.08, -.27); baliza.visible = false; p.add(baliza);
     const zs = [0, 1, 2].map((k) => { const z = new THREE.Sprite(new THREE.SpriteMaterial({ map: zTex, transparent: true, opacity: 0, depthWrite: false })); z.scale.setScalar(.25); p.add(z); return { z, o: k / 3 }; });
     const tag = document.createElement('div'); tag.className = 'pb-of-tag' + (off ? ' off' : '');
-    const lb = new CSS2DObject(tag); lb.position.set(0, 2.18, -.25); p.add(lb);
+    const lb = new CSS2DObject(tag); lb.position.set(0, 2.36, -.25); p.add(lb);
     if (!off) tag.addEventListener('click', (e) => { e.stopPropagation(); abrirAgente(a.id); });
     const o = { p, scr, ctx: cv.getContext('2d'), tex: ptex, halo, baliza, zs, rb, ch, tag, a, d, off, t0: Math.random() * 6, conducto: null };
     [desk, scr, fr, rb.r, ch].forEach((m) => m.traverse((n) => { if (n.isMesh) { n.userData.puesto = o; clicables.push(n); } }));
@@ -403,17 +422,23 @@ async function montar() {
     if (d.activo) { const pl = new THREE.PointLight(col, 2.2, 10); pl.position.set(0, 3.4, .8); g.add(pl); }
     const sign = new THREE.Mesh(new THREE.PlaneGeometry(4.6, .99), new THREE.MeshBasicMaterial({ transparent: true, toneMapped: false })); sign.position.set(0, 2.5, -D / 2 + .02); sign.rotation.x = -.18; g.add(sign);
     sign.userData.sala = d; base.userData.sala = d; clicables.push(sign, base);
-    /* conducto del núcleo a la entrada de la sala */
-    const entrada = new THREE.Vector3(x - lado * W / 2, .05, z + .9);
-    const tronco = conducto([new THREE.Vector3(lado * 2.9, .05, .2), new THREE.Vector3(lado * (GAP_X - 1.1), .05, .2), new THREE.Vector3(lado * (GAP_X - 1.1), .05, entrada.z), entrada], d.color, .045);
-    const s = { d, g, sign, W, tronco };
+    /* conducto propio del núcleo a la sala: sale de su puerto en el borde del núcleo y entra por la pared interior */
+    const entrada = new THREE.Vector3(x - lado * W / 2, .2, z + 1.6);
+    const dir = new THREE.Vector3(entrada.x, 0, entrada.z).normalize();
+    const salida = dir.clone().multiplyScalar(2.95).setY(.08);
+    const tronco = conducto([salida, new THREE.Vector3(entrada.x - lado * .35, .08, entrada.z), entrada], d.color, .055);
+    const angulo = Math.atan2(-dir.z, dir.x);
+    /* puerto en el núcleo y enchufe en la pared de la sala */
+    const pmat = new THREE.MeshBasicMaterial({ color: col, toneMapped: false, transparent: true, opacity: d.activo ? 1 : .3 });
+    const puerto = new THREE.Mesh(new THREE.CylinderGeometry(.16, .16, .14, 20), pmat); puerto.position.copy(dir.clone().multiplyScalar(2.86)).setY(.28); scene.add(puerto);
+    const enchufe = new THREE.Mesh(new RoundedBoxGeometry(.16, .34, .5, 2, .04), new THREE.MeshStandardMaterial({ color: 0x0d0f1c, emissive: col, emissiveIntensity: d.activo ? .5 : .1 })); enchufe.position.set(-lado * W / 2, .36, 1.6); g.add(enchufe);
+    const s = { d, g, sign, W, tronco, angulo, pmat };
     salas.set(d.id, s);
     lista.forEach((a, i) => {
       const px = (i - (lista.length - 1) / 2) * PASO;
       const o = puesto(g, d, a, px, !d.activo); puestos.set(a.id, o); pintaTag(o);
       /* ramal de la entrada a cada robot, por el suelo de la sala */
-      const desde = new THREE.Vector3(entrada.x, .2, entrada.z), bajoMesa = new THREE.Vector3(x + px, .2, z + .6);
-      o.conducto = conducto([desde, new THREE.Vector3(x - lado * (W / 2 - .5), .2, z + 1.6), new THREE.Vector3(bajoMesa.x, .2, z + 1.6), bajoMesa], d.color, .025);
+      o.conducto = conducto([entrada.clone(), new THREE.Vector3(x + px, .2, z + 1.6), new THREE.Vector3(x + px, .2, z + .45)], d.color, .028);
     });
   });
   /* encuadre de la vista general a partir de lo que ocupa la oficina */
@@ -422,7 +447,7 @@ async function montar() {
   const encajar = () => {
     const c = caja.getCenter(new THREE.Vector3()), size = caja.getSize(new THREE.Vector3());
     const vf = THREE.MathUtils.degToRad(camera.fov), hf = 2 * Math.atan(Math.tan(vf / 2) * camera.aspect);
-    const dist = Math.max((size.x * 1.02) / (2 * Math.tan(hf / 2)), (size.z * .9) / (2 * Math.tan(vf / 2))) + 1.5;
+    const dist = Math.max((size.x * 1.16) / (2 * Math.tan(hf / 2)), (size.z * .9) / (2 * Math.tan(vf / 2))) + 1.5;
     HOME.t.set(c.x, 0, c.z - 1.9); HOME.p.set(c.x, dist * .76, c.z + dist * .66);
   };
   camera.aspect = W0() / H0(); camera.updateProjectionMatrix(); encajar();
@@ -455,7 +480,8 @@ async function montar() {
     });
     health.clear();
     const act = DEPTS.filter((d) => d.activo); const seg = Math.PI * 2 / Math.max(1, act.length);
-    act.forEach((d, i) => { const e = estadoDept(d.id); const m = new THREE.Mesh(new THREE.RingGeometry(2.28, 2.5, 72, 1, i * seg + .07, seg - .14), new THREE.MeshBasicMaterial({ color: e === 'error' ? 0xFF5E6C : e === 'aviso' ? 0xFFB547 : 0x3DDC84, transparent: true, side: THREE.DoubleSide, toneMapped: false })); m.rotation.x = -Math.PI / 2; m.userData.err = e === 'error'; health.add(m); });
+    const ancho = Math.min(1.1, seg - .14);
+    act.forEach((d) => { const e = estadoDept(d.id); const m = new THREE.Mesh(new THREE.RingGeometry(2.28, 2.5, 48, 1, salas.get(d.id).angulo - ancho / 2, ancho), new THREE.MeshBasicMaterial({ color: e === 'error' ? 0xFF5E6C : e === 'aviso' ? 0xFFB547 : 0x3DDC84, transparent: true, side: THREE.DoubleSide, toneMapped: false })); m.rotation.x = -Math.PI / 2; m.userData.err = e === 'error'; health.add(m); });
     const pend = pendientes(), ne = pend.filter((p) => p.err).length;
     coreEl.innerHTML = '<b>PEBAI</b>' + (ne ? `<span class="err">${ne === 1 ? '1 agente con error' : ne + ' agentes con error'}</span>` : pend.length ? `<span class="warn">${pend.length === 1 ? '1 cosa espera por vosotros' : pend.length + ' cosas esperan por vosotros'}</span>` : '<span class="ok">Todo en orden</span>');
     renderer.shadowMap.needsUpdate = true;
@@ -495,8 +521,10 @@ async function montar() {
     if (medida.n >= 90) { if (medida.t / medida.n > 25 && Q > .6) { Q = Math.max(.6, Q - .2); composer.setPixelRatio(Q); composer.setSize(W0(), H0()); } medida.n = 0; medida.t = 0; }
     const t = clock.getElapsedTime();
     mark.position.y = 2.3 + Math.sin(t * 1.1) * .05; mark.lookAt(camera.position.x, mark.position.y, camera.position.z);
-    health.rotation.y = t * .07; health.children.forEach((m) => { if (m.userData.err) m.material.opacity = .5 + Math.sin(t * 5) * .45; });
-    coreLight.intensity = 6 + Math.sin(t * 1.4) * 1.2;
+    health.children.forEach((m) => { if (m.userData.err) m.material.opacity = .5 + Math.sin(t * 5) * .45; });
+    coreLight.intensity = pensando ? 9 + Math.sin(t * 9) * 3 : 6 + Math.sin(t * 1.4) * 1.2;
+    if (pensando) mark.position.y += Math.sin(t * 7) * .04;
+    salas.forEach((s) => { s.pmat.opacity = s.d.activo ? (pensando ? .55 + .45 * Math.sin(t * 8 + s.angulo * 2) : 1) : .3; });
     conductos.forEach((c) => { c.material.uniforms.uT.value = t; });
     const animPant = t - ultPantalla > .12; if (animPant) ultPantalla = t;
     puestos.forEach((o) => {
@@ -507,21 +535,21 @@ async function montar() {
       rb.cuello.rotation.set(0, 0, 0); bi.rotation.set(0, 0, 0); bd.rotation.set(0, 0, 0); rb.r.position.y = -.08;
       o.zs.forEach((z) => { z.z.material.opacity = 0; });
       if (st === 'trabajando') {
-        bi.rotation.x = -1.15 + Math.sin(tt * 14) * .12; bd.rotation.x = -1.15 + Math.sin(tt * 14 + 1.7) * .12;
+        bi.rotation.x = 1.15 + Math.sin(tt * 14) * .12; bd.rotation.x = 1.15 + Math.sin(tt * 14 + 1.7) * .12;
         rb.cuello.rotation.x = -.12 + Math.sin(tt * 2) * .03; rb.cuello.rotation.y = Math.sin(tt * .7) * .08;
         rb.antena.material.color.set(Math.sin(tt * 6) > 0 ? o.d.color : '#ffffff');
         o.halo.material.opacity = .18 + Math.sin(tt * 5) * .06;
       } else if (st === 'espera') {
-        bi.rotation.x = -.35; bd.rotation.x = -.35;
+        bi.rotation.x = .35; bd.rotation.x = .35;
         rb.cuello.rotation.y = Math.sin(tt * .55) * .55; rb.cuello.rotation.x = .08;
       } else if (st === 'dormido') {
-        rb.cuello.rotation.x = -.75; bi.rotation.x = -1.35; bd.rotation.x = -1.35; rb.r.position.y = -.12 + Math.sin(tt * 1.2) * .01;
-        o.zs.forEach((z) => { const k = (tt * .32 + z.o) % 1; z.z.position.set(.2 + k * .45, 1.5 + k * .8, .7); z.z.material.opacity = Math.sin(k * Math.PI) * .9; z.z.scale.setScalar(.16 + k * .18); });
+        rb.cuello.rotation.x = -.75; bi.rotation.x = 1.35; bd.rotation.x = 1.35; rb.r.position.y = -.12 + Math.sin(tt * 1.2) * .01;
+        o.zs.forEach((z) => { const k = (tt * .32 + z.o) % 1; z.z.position.set(.2 + k * .45, 1.55 + k * .8, .55); z.z.material.opacity = Math.sin(k * Math.PI) * .9; z.z.scale.setScalar(.16 + k * .18); });
       } else if (st === 'error') {
-        rb.cuello.rotation.y = Math.sin(tt * 3) * .5; bi.rotation.z = .6; bd.rotation.z = -.6; bi.rotation.x = -.4; bd.rotation.x = -.4;
+        rb.cuello.rotation.y = Math.sin(tt * 3) * .5; bi.rotation.z = .6; bd.rotation.z = -.6; bi.rotation.x = .4; bd.rotation.x = .4;
         o.baliza.visible = Math.sin(t * 8) > -.1;
       } else if (st === 'pausado') {
-        bi.rotation.x = -1.1; bd.rotation.x = -1.1; bi.rotation.z = -.5; bd.rotation.z = .5; rb.cuello.rotation.x = .05;
+        bi.rotation.x = 1.1; bd.rotation.x = 1.1; bi.rotation.z = -.5; bd.rotation.z = .5; rb.cuello.rotation.x = .05;
       }
     });
     if (fly) { fly.k = Math.min(1, fly.k + .025); const e = 1 - Math.pow(1 - fly.k, 3); camera.position.lerpVectors(fly.p0, fly.p1, e); target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) fly = null; }

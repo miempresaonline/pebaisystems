@@ -115,6 +115,15 @@ body:not(.pb-ag-ajustes) #pb-ag-ajustes{display:none}
 .pb-of-ans .err{color:#FF8A95}
 .pb-of-ans .pens{color:#8C8FA3;display:flex;gap:10px;align-items:center}
 .pb-of-ans .pens:before{content:"";width:13px;height:13px;border-radius:50%;border:2px solid #B7FF3C;border-right-color:transparent;animation:pb-of-spin .8s linear infinite;flex:none}
+.pb-of-ans .pens{gap:6px}.pb-of-ans .pens span{margin-right:2px;animation:pb-of-fade .5s var(--ease)}
+.pb-of-ans .pens i{width:5px;height:5px;border-radius:50%;background:#8C8FA3;animation:pb-of-dot 1.1s infinite}
+.pb-of-ans .pens i:nth-of-type(2){animation-delay:.15s}.pb-of-ans .pens i:nth-of-type(3){animation-delay:.3s}
+@keyframes pb-of-dot{0%,60%,100%{opacity:.25;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+@keyframes pb-of-fade{from{opacity:0}to{opacity:1}}
+.pb-of-ans .cur{display:inline-block;width:7px;height:15px;margin-left:2px;vertical-align:-2px;border-radius:2px;background:#B7FF3C;animation:pb-of-blink .8s infinite}
+.pb-of-ans.pensando .hd img{animation:pb-of-latido 1s ease-in-out infinite}
+@keyframes pb-of-latido{50%{transform:scale(1.18);filter:drop-shadow(0 0 6px rgba(183,255,60,.7))}}
+.pb-of-ans{transition:box-shadow .3s}.pb-of-ans.pensando{box-shadow:0 0 0 1px rgba(183,255,60,.35),0 24px 60px rgba(0,0,0,.45)}
 @keyframes pb-of-spin{to{transform:rotate(360deg)}}
 @keyframes pb-of-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .pb-of-sug{display:none;margin-bottom:8px;padding:6px;border-radius:16px;background:rgba(11,13,24,.96);border:1px solid rgba(255,255,255,.12);box-shadow:0 24px 60px rgba(0,0,0,.45)}
@@ -139,3 +148,5 @@ body:not(.pb-ag-ajustes) #pb-ag-ajustes{display:none}
 .pb-of-hud{transition:opacity .35s}
 .pb-of-wrap.foco .pb-of-hud{opacity:0;pointer-events:none}
 .pb-of-wrap.foco .pb-of-hud>*{pointer-events:none}
+/* con el panel de un agente abierto, la pregunta se aparta para no taparlo */
+@media (min-width:761px){.pb-of-ask{transition:left .55s var(--ease)}.pb-of-wrap.foco .pb-of-ask{left:calc((100% - 428px) / 2);width:min(640px,calc(100% - 476px))}}
