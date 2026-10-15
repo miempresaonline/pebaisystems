@@ -21,6 +21,9 @@ RewriteRule ^formulario-completado/?$ formulario-completado/index.html [L]
 # Redirección 302 para /contacto y /contact hacia WhatsApp oficial
 RewriteRule ^contact(o)?/?$ "https://wa.me/34624842799?text=Hola%2C%20soy%20%5B%20x%20%5D%20vengo%20de%20la%20web%20con%20principal%20inter%C3%A9s%20en%20realizar%20una%20consultor%C3%ADa%20gratuita%20sin%20compromiso." [R=302,L]
 
+# El VSL antiguo /sesion-estrategica/ (retirado el 15/10/2026) es ahora /consultoria-gratuita/
+RewriteRule ^sesion-estrategica(/.*)?$ consultoria-gratuita/ [R=301,L,QSA]
+
 # La portada de pruebas /nueva/ ya es la principal
 RewriteRule ^nueva(/.*)?$ / [R=301,L]
 

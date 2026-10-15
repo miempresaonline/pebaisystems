@@ -66,7 +66,7 @@ flowchart TD
         Bot --> DirectLink
     end
 
-    subgraph VSL_PAGE ["2. Página VSL (/sesion-estrategica/)"]
+    subgraph VSL_PAGE ["2. Página VSL (/consultoria-gratuita/)"]
         DirectLink --> VSL["Micro-VSL (8-10 min)<br>1. Síndrome Empleado-API<br>2. Arquitectura de 3 Capas<br>3. Reverse Demo en pantalla"]
         VSL --> Proof["Muro de Casos B2B (€ ahorrados / Horas)"]
         VSL --> CTA["Botón Condicionado:<br>'Comprobar Viabilidad en mi Empresa'"]
