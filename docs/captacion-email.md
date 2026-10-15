@@ -169,6 +169,12 @@ Decidido el 15/10/2026 por el chat de WhatsApp y el principal: el **nicho 2 va p
 > Daniel
 > PEBAI Systems
 
+- **Ficha `luz_coop`** (cooperativas eléctricas locales, separadas el 15/10 tras la auditoría): son pequeñas y su cliente es un socio del pueblo. El texto no puede sonar a «gran comercializadora».
+  - Momento: el mismo que `luz`.
+  - Pregunta del nicho: *Cuando hay un corte en el pueblo, ¿cuántos socios os llaman a la vez?*
+
+**Auditoría del 15/10** (chat principal): fuera las marcas de grupos grandes (Holaluz, Lucera, Pod…), las multinacionales, las administraciones públicas y los buzones que no son de contacto (protección de datos, inversores, denuncias, prensa de grupos grandes). Las descartadas siguen en el panel con el motivo, por si hay que recuperar alguna. Una empresa que esté en la cola de WhatsApp (por teléfono **o por la misma web**) espera una semana y se vuelve a comprobar; no se descarta.
+
 **Cuidado antes de lanzarlo:**
 
 1. **El vídeo solo puede enseñar lo que ya podemos demostrar.** PEBAI aún no tiene un agente de voz en producción, así que el vídeo explica la ley y cómo prepararse, y no promete un agente de voz funcionando hasta que exista la demo propia.

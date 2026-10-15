@@ -388,6 +388,25 @@ function pebai_email_qa(array $p, array $msg, int $paso, bool $comprobarDns = tr
             }
         }
     }
+    // Un solo canal a la vez también cuando el teléfono no coincide: misma web o mismo dominio que un prospecto de WhatsApp.
+    if ($paso === 1) {
+        $base = static function (string $u): string {
+            $h = preg_replace('/^www\./', '', strtolower((string)parse_url(str_contains($u, '://') ? $u : 'https://' . $u, PHP_URL_HOST)));
+            return implode('.', array_slice(explode('.', $h), -2));
+        };
+        $mios = array_filter([$base($p['web']), $p['tipo_email'] !== 'gratuito' ? $base($p['dominio']) : '']);
+        if ($mios) {
+            $hace30 = date('Y-m-d H:i:s', time() - 30 * 86400);
+            $q = $db->prepare("SELECT web FROM prospectos WHERE web <> '' AND (estado IN ('pendiente','enviando') OR enviado_at >= ? OR enviando_at >= ?)");
+            $q->execute([$hace30, $hace30]);
+            foreach ($q->fetchAll(PDO::FETCH_COLUMN) as $w) {
+                if (in_array($base($w), $mios, true)) {
+                    $err[] = 'la misma empresa está en la cola de WhatsApp o le escribió hace menos de 30 días';
+                    break;
+                }
+            }
+        }
+    }
     $q = $db->prepare('SELECT COUNT(*) FROM leads WHERE lower(cliente_email) = ?');
     $q->execute([$email]);
     if ((int)$q->fetchColumn()) {
@@ -529,7 +548,9 @@ function pebai_email_siguiente(array $cfg): ?array
         }
     }
     $hoyMes = (int)date('n');
-    foreach ($db->query("SELECT * FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 ORDER BY prioridad DESC, id LIMIT 200") as $p) {
+    $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 AND (no_antes = '' OR no_antes <= ?) ORDER BY prioridad DESC, id LIMIT 200");
+    $q->execute([date('Y-m-d H:i:s')]);
+    foreach ($q->fetchAll() as $p) {
         $ficha = $cfg['nichos'][$p['nicho']] ?? null;
         if (!$ficha || empty($ficha['video'])) {
             continue;
@@ -598,6 +619,14 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
         $msg = pebai_email_componer($p, $paso, $cfg);
         $qa = $msg ? pebai_email_qa($p, $msg, $paso, $comprobarDns) : ['falta la ficha del nicho'];
         $now = date('Y-m-d H:i:s');
+        // Si lo único que falla es que la empresa está con WhatsApp, el email espera una semana (no se descarta).
+        $soloEspera = $qa && $paso === 1 && !array_filter($qa, static fn($x) => !str_contains($x, 'WhatsApp') || str_contains($x, 'baja'));
+        if ($soloEspera) {
+            $db->prepare("UPDATE email_prospectos SET no_antes = ?, error = ?, updated_at = ? WHERE id = ?")
+               ->execute([date('Y-m-d H:i:s', time() + 7 * 86400), 'Espera: ' . implode('; ', $qa), $now, $p['id']]);
+            pebai_actividad('email', 'bloqueo', 'Espera a ' . ($p['empresa'] ?: $p['email']) . ' una semana (está con WhatsApp)', $p['email'] . "\n" . implode('; ', $qa), 'email:' . $p['id']);
+            continue;
+        }
         if ($qa) {
             $estado = in_array('tiene baja', $qa, true) || in_array('tiene baja en WhatsApp', $qa, true) ? 'baja' : 'descartado';
             pebai_actividad('email', 'bloqueo', 'No escribe a ' . ($p['empresa'] ?: $p['email']) . ($paso === 2 ? ' (recordatorio)' : ''),
