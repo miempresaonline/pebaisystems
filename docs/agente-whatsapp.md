@@ -19,7 +19,7 @@ api/agente.php  ◄──── HTTPS + token ────  agente-whatsapp/ (No
 - **Como una persona:** no aparece "en línea" al conectarse; antes de cada envío abre el chat, sale "escribiendo…" el tiempo que tardaría alguien en teclear el texto, con pausas; luego envía y se desconecta. Entre envíos hay pausas al azar (mínimo 4 min) repartidas por el horario.
 - **Cupo y horario por defecto:** 30 al día, de lunes a viernes, de 08:30 a 13:00 y de 17:00 a 20:00. Sin festivos nacionales.
 - **Mensajes distintos:** varias plantillas con variantes `{a|b}`, el nombre y la empresa. No hay dos mensajes iguales.
-- **Si se cae:** PM2 lo reinicia; el cron lo vuelve a levantar si PM2 muere. Si lleva 30 min sin dar señales o WhatsApp lo desvincula, llega un email a equipo@.
+- **Si se cae:** PM2 lo reinicia; un cron de hPanel cada 10 min lo levanta si el servidor se reinicia (comando: lo imprime `deploy/desplegar_agente_whatsapp.py`). Si lleva 30 min sin dar señales o WhatsApp lo desvincula, llega un email a equipo@.
 
 ## Reglas legales (no se tocan)
 

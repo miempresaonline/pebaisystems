@@ -40,6 +40,7 @@ assets/clients/
 # Sesión de WhatsApp del agente y números contactados (solo en el servidor)
 agente-whatsapp/sesion/
 agente-whatsapp/contactados.json
+agente-whatsapp/agente.pid
 
 # --- Zona de pruebas y material de terceros ------------------------------------
 scratch/

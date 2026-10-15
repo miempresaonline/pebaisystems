@@ -31,6 +31,16 @@ if (!TOKEN || !NUMERO) {
   process.exit(1);
 }
 
+// Una sola instancia: dos procesos con la misma sesión se pisan y WhatsApp cierra la sesión.
+const LOCK = path.join(DIR, 'agente.pid');
+try {
+  const viejo = Number(fs.readFileSync(LOCK, 'utf8'));
+  // Tras un reinicio el pid puede ser de otro programa: solo cuenta si es este mismo script
+  const esAgente = fs.existsSync('/proc/' + viejo) ? fs.readFileSync('/proc/' + viejo + '/cmdline', 'utf8').includes('index.js') : true;
+  if (viejo && viejo !== process.pid && esAgente) { process.kill(viejo, 0); console.error('Ya hay otro agente corriendo (pid ' + viejo + ')'); process.exit(0); }
+} catch { /* no hay otro: seguimos */ }
+fs.writeFileSync(LOCK, String(process.pid));
+
 const logger = pino({ level: 'warn' });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -83,7 +93,6 @@ async function conectar() {
     browser: Browsers.macOS('Chrome'),
     markOnlineOnConnect: false,       // no aparecer "en línea" cada vez que el servidor se conecta
     syncFullHistory: false,
-    shouldSyncHistoryMessage: () => false,
     generateHighQualityLinkPreview: false,
   });
   sock.ev.on('creds.update', saveCreds);
