@@ -169,6 +169,41 @@ def enriquece(cands: list[dict], nicho: set[str]) -> list[dict]:
     return out
 
 
+def _token() -> str:
+    """Token de los agentes: variable de entorno o el .env de la raíz (nunca en el repo)."""
+    import os
+    token = os.environ.get('AGENT_TOKEN', '')
+    env = Path(__file__).resolve().parents[2] / '.env'
+    if not token and env.exists():
+        for l in env.read_text(encoding='utf-8').splitlines():
+            if l.startswith('AGENT_TOKEN='):
+                token = l.split('=', 1)[1].strip().strip('"\'')
+    return token
+
+
+def apunta(resumen: str, detalle: str, ref: str, tipo: str = 'hito') -> None:
+    """Regla de Daniel: todo lo automático deja apuntado qué hizo y por qué (Automático › Agentes).
+    Va al registro común del panel (api/actividad.php); siempre queda copia en scratch/prospeccion/actividad.log."""
+    import json
+    import os
+    import httpx
+    ok = False
+    token = _token()
+    if token:
+        try:
+            r = httpx.post(os.environ.get('ACTIVIDAD_URL', 'https://pebaisystems.es/api/actividad.php'), timeout=20,
+                           headers={'X-Agent-Token': token, 'User-Agent': 'pebai-prospeccion'},
+                           json={'agente': 'prospeccion', 'tipo': tipo, 'resumen': resumen, 'detalle': detalle, 'ref': ref})
+            ok = r.status_code == 200 and bool(r.json().get('ok'))
+        except Exception:
+            ok = False
+    SALIDA.mkdir(parents=True, exist_ok=True)
+    with (SALIDA / 'actividad.log').open('a', encoding='utf-8') as f:
+        f.write(json.dumps({'ts': dt.datetime.now().isoformat(timespec='seconds'), 'resumen': resumen, 'detalle': detalle,
+                            'en_panel': ok}, ensure_ascii=False) + '\n')
+    print('   apunte de actividad: ' + ('en el panel' if ok else 'solo local (el panel no lo ha recibido)'))
+
+
 def exclusiones() -> dict[str, set]:
     """Quién no debe volver a recibir nada: ya está en el panel (cualquier canal) o pidió la baja.
     Lo da el panel (api/exclusiones.php, solo identificadores, con el token de los agentes). Sin él, se avisa y se sigue."""
@@ -176,12 +211,7 @@ def exclusiones() -> dict[str, set]:
     import httpx
     from .contacto import normaliza_tel
     vacio = {k: set() for k in ('tels', 'emails', 'dominios')}
-    token = os.environ.get('AGENT_TOKEN', '')
-    if not token:
-        env = Path(__file__).resolve().parents[2] / '.env'
-        for l in (env.read_text(encoding='utf-8').splitlines() if env.exists() else []):
-            if l.startswith('AGENT_TOKEN='):
-                token = l.split('=', 1)[1].strip().strip('"\'')
+    token = _token()
     if not token:
         print('   ⚠ sin AGENT_TOKEN: no se ha podido excluir a los que ya están en el panel o tienen baja')
         return vacio
@@ -282,6 +312,13 @@ def guarda(nombre: str, cands: list[dict], limite: int) -> None:
     print(f'   actividad: {dict(Counter(r["actividad"] for r in todas))} · encaje: {dict(Counter(r["encaje"] for r in todas))}')
     print(f'   descartados: {dict(motivos)}')
     print(f'   archivos en {SALIDA}')
+    con = lambda k: sum(1 for r in todas if r[k])
+    apunta(f'{nombre}: {len(cands)} empresas encontradas, {n} entregadas ({con("telefono")} con móvil, {con("email")} con email, '
+           f'{con("telefono_fijo")} con fijo)',
+           'Descartadas y por qué: ' + (', '.join(f'{k} {v}' for k, v in motivos.most_common()) or 'ninguna') +
+           f'. Con motivo verificable: {con("motivo")}. Encaje alto: {sum(1 for r in todas if r["encaje"] == "alto")}. '
+           'Exclusión del panel: ' + ('aplicada' if any(excl.values()) else 'NO aplicada (el panel no respondió)') +
+           '. Entregado en CSV locales (scratch/prospeccion); aún no importado en el panel.', nombre)
 
 
 def main():
