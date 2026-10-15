@@ -78,7 +78,7 @@ switch ($in['accion'] ?? '') {
         }
         $embudo = pebai_telefonos_embudo();
         $p = null;
-        foreach ($db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY id LIMIT 50") as $c) {
+        foreach ($db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY prioridad DESC, id LIMIT 50") as $c) {
             if (isset($embudo[$c['telefono']])) {
                 $db->prepare("UPDATE prospectos SET estado = 'descartado', error = 'Ya es solicitud del embudo', updated_at = ? WHERE id = ?")->execute([$now, $c['id']]);
                 pebai_actividad('whatsapp', 'bloqueo', 'No se escribe a ' . ($c['empresa'] ?: $c['telefono']) . ': ya es solicitud del embudo', '', 'wa:' . $c['id']);
