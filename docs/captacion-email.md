@@ -14,7 +14,7 @@ Tres piezas, en este orden: **Motivo → Pregunta → Permiso**.
 
 - **Motivo:** un hecho verdadero y comprobable de *su* negocio, detectado por el scraper (tienen anuncios activos, buscan recepcionista, sus reseñas dicen que cuesta contactarlos…). Es lo que nos separa del ruido de agencias de IA y vendedores de Kit Digital. El dueño lo lee y sabe que no es un correo masivo.
 - **Pregunta:** sobre un momento concreto de su día a día que les duele, y que se contesta con una palabra o un número.
-- **Permiso:** no enseñamos nada sin que lo pidan. "¿Te grabo un vídeo de un minuto sobre vuestro caso?". Solo cuando dicen "sí" llega la oferta. **No vendemos webs**: el vídeo habla de cómo atienden a sus clientes, no de su página.
+- **Permiso:** no enseñamos nada sin que lo pidan. "He grabado un vídeo de un minuto sobre lo que pasa con [momento del sector]. ¿Te lo mando?". Solo cuando dicen "sí" llega la oferta. El vídeo es **por nicho** (Daniel graba uno por sector), así que no prometemos uno hecho para su empresa. **No vendemos webs**: el vídeo habla de cómo se atiende a los clientes, nunca de su página.
 
 Por qué así:
 
@@ -72,7 +72,7 @@ Si una empresa encaja pero no tiene señal, entra al final de la cola con un mot
 | **Saludo** | "Hola, [nombre]:" si lo sabemos; si no, "Hola:" | — |
 | **Motivo** | La frase de la señal. Primera línea siempre. | 1 frase |
 | **Pregunta** | Un momento concreto que les duele. Se contesta con una palabra o un número. | 1 frase |
-| **Permiso** | "¿Te grabo un vídeo de un minuto sobre [empresa] y [momento del nicho]?" (nunca "sobre vuestra web": no vendemos webs) | 1 frase |
+| **Permiso** | "He grabado un vídeo de un minuto sobre lo que pasa con [momento del nicho]. ¿Te lo mando?" (nunca "sobre vuestra web" ni "sobre vuestra empresa": el vídeo es del sector) | 1–2 frases |
 | **Salida y transparencia** | "Tu email lo saqué de vuestra página de contacto. Si no te interesa, dímelo y no vuelvo a escribirte." | 1–2 frases |
 | **Firma** | "Daniel" y debajo "PEBAI Systems". Nada más. | 2 líneas |
 
@@ -89,7 +89,7 @@ Hola[, nombre]:
 
 [PREGUNTA]
 
-¿Te grabo un vídeo de un minuto sobre [empresa] y [MOMENTO]? {Te lo mando por aquí|Te lo paso por aquí}.
+He grabado un vídeo de un minuto sobre lo que pasa con [MOMENTO]. ¿{Te lo mando|Te lo paso}?
 
 Tu email lo saqué de vuestra página de contacto. Si no te interesa, dímelo y no vuelvo a escribirte.
 
@@ -109,7 +109,7 @@ PEBAI Systems
 >
 > Cuando os entra una solicitud de esos anuncios un sábado por la tarde, ¿la llamáis ese día o el lunes?
 >
-> ¿Te grabo un vídeo de un minuto sobre vuestro caso y lo que pasa con esa solicitud hasta que la atendéis? Te lo mando por aquí.
+> He grabado un vídeo de un minuto sobre lo que pasa con una solicitud así hasta que alguien la atiende. ¿Te lo mando?
 >
 > Tu email lo saqué de vuestra página de contacto. Si no te interesa, dímelo y no vuelvo a escribirte.
 >
@@ -123,7 +123,7 @@ En el **mismo hilo** ("Re:" sí vale aquí, porque el primer email existe), **3 
 ```
 Hola[, nombre]:
 
-¿Te lo grabo o lo dejo aquí?
+¿Te lo mando o lo dejo aquí?
 
 Daniel
 ```
@@ -147,12 +147,12 @@ Vendemos que ningún cliente se quede sin respuesta. **Así que nosotros contest
 
 - El motor detecta la respuesta, la marca en el panel y avisa a Daniel al momento (email reenviado y aviso del panel).
 - **En horario laboral, respuesta en menos de 15 minutos.** Si alguien contesta "sí" y recibe el vídeo esa misma tarde, ya ha visto el producto funcionando antes de verlo.
-- El vídeo personalizado habla de **su caso**: Daniel explica en 45–60 segundos qué pasa hoy con un cliente que les escribe o llama fuera de horario y cómo se resuelve (chatbot o asistente que contesta al momento, filtra y agenda). Lo que vendemos es el servicio: atención automática, aplicaciones a medida, GEO. **Nunca una web.** Plazo máximo: 24 horas laborables.
+- El vídeo es **uno por nicho**, grabado y editado de antemano por Daniel (el mismo que usa el chat de WhatsApp): en un minuto, qué pasa con un cliente del sector que escribe o llama fuera de horario y cómo se resuelve (chatbot o asistente que contesta al momento, filtra y agenda). Lo que vendemos es el servicio: atención automática, aplicaciones a medida, GEO. **Nunca una web.** Como ya está grabado, se manda en minutos.
 
 | Contestan | Qué hacemos |
 |---|---|
-| "Sí" / "vale, mándalo" | Vídeo en menos de 24 h. Al enviarlo: "Aquí lo tienes. Si te encaja, en esta página puedes pedir que analicemos vuestro caso; cada mes lo hacemos gratis con cinco empresas: pebaisystems.es/diagnostico/?origen=daniel&utm_source=email" |
-| Contestan la pregunta ("el lunes", "con 3 de 10") | "Es lo más habitual. ¿Te grabo el vídeo con vuestro caso?" Con el "sí", igual que arriba. |
+| "Sí" / "vale, mándalo" | Vídeo al momento. Al enviarlo: "Aquí lo tienes. Si te encaja, en esta página puedes pedir que analicemos vuestro caso; cada mes lo hacemos gratis con cinco empresas: pebaisystems.es/diagnostico/?origen=daniel&utm_source=email" |
+| Contestan la pregunta ("el lunes", "con 3 de 10") | "Es lo más habitual. ¿Te mando el vídeo?" Con el "sí", igual que arriba. |
 | "¿Qué es esto? / ¿Qué vendéis?" | Ya hay permiso para explicarlo: dos frases sobre qué hacemos y la oferta del vídeo. |
 | "¿Cuánto cuesta?" | "Depende de cada caso, por eso primero lo analizamos. Cada mes lo hacemos gratis con cinco empresas: [enlace]". Nunca decir que es gratis para todos. |
 | "No" / "no me interesa" / "baja" | "Entendido, no vuelvo a escribirte. Gracias por contestar." Baja para siempre en todos los canales (el motor la aplica solo). |
@@ -160,19 +160,11 @@ Vendemos que ningún cliente se quede sin respuesta. **Así que nosotros contest
 | Respuesta automática o fuera de la oficina | No cuenta. Si dice cuándo vuelve, el recordatorio se envía después de esa fecha. |
 | Rebote | Email inválido y fuera de la lista para siempre. |
 
-## 6. A quién: cómo elegir los nichos de email
+## 6. A quién: los nichos
 
-Los nichos están por decidir. Esta es la tabla para puntuarlos. Cada criterio de 1 a 5, multiplicado por su peso; ganan los que más sumen.
+Los nichos se eligen con datos y son los mismos para WhatsApp y email: los puntúa y valida `docs/captacion-nichos.md` (criterios fijos, 17 nichos, prueba real antes de grabar vídeos). Este manual no los duplica.
 
-| Criterio | Peso | Por qué |
-|---|---|---|
-| **Pagan por conseguir clientes** (anuncios, portales) | 25 | Si pagan por cada contacto, contestarlo tarde les duele en euros. Además es la señal más fuerte (anuncios activos). |
-| **Ticket alto** (≥ 3.000 € por venta) | 20 | Un solo cliente recuperado paga el servicio. La conversación de valor es fácil. |
-| **Dolor de velocidad de respuesta** | 15 | Es exactamente lo que resolvemos. |
-| **Web propia con email publicado** | 15 | Sin email en su web no entran en este canal. |
-| **Señales detectables** (anuncios, empleo, reseñas) | 10 | Sin señal no hay motivo real. |
-| **Poca saturación de agencias de IA** | 10 | Dental e inmobiliarias ya están muy atacadas. |
-| **Tamaño** (≥ 1.000 empresas en España) | 5 | Para tener cola durante meses. |
+Filtro propio del email, encima de esa puntuación: el nicho tiene que tener **web propia con email publicado** en la mayoría de empresas. Si no, va a WhatsApp, no a email.
 
 Para el piloto, **un solo nicho** y una o dos zonas. Así medimos limpio.
 
