@@ -68,6 +68,34 @@ Para quitar el sesgo de quien conocía las preferencias de Daniel, otro analista
 - **Nichos que él destaca como poco trabajados:** fincas para bodas (pico de consultas de enero a marzo: hay que entrar ya), academias de oposiciones y abogados de Segunda Oportunidad.
 - Su confianza en el orden es media-baja. Las diferencias de menos de 5 puntos no son significativas y casi no hay datos españoles de coste por lead ni de tiempo de respuesta.
 
+### Dato real: quién paga hoy por conseguir clientes (Biblioteca de anuncios de Meta, España, 15/10/2026)
+
+Anuncios **activos** que contienen la frase exacta. Es el único dato de esta página que no es una opinión: indica en qué sectores las empresas pagan ahora mismo por cada contacto.
+
+| Búsqueda | Anuncios activos | Búsqueda | Anuncios activos |
+|---|---|---|---|
+| inmobiliaria | ~4.900 | aerotermia | ~830 |
+| hipoteca | ~4.000 | injerto capilar | ~830 |
+| medicina estética | ~4.000 | reforma integral | ~800 |
+| oposiciones | ~2.800 | para bodas | ~650 |
+| implantes dentales | ~2.500 | mudanzas | ~590 |
+| segunda oportunidad | ~2.500 | autoescuela | ~480 |
+| piscinas | ~1.900 | alquiler vacacional | ~220 |
+| psicólogo | ~1.100 | coches de ocasión | ~190 |
+| placas solares | ~980 | ventanas de pvc | ~160 |
+| | | cocinas a medida | ~110 |
+| | | casas prefabricadas | ~110 |
+| | | residencia de mayores | ~90 |
+| | | casas modulares | ~67 |
+
+Limitaciones: cuenta anuncios, no empresas (una sola puede tener cientos), y la búsqueda por texto mete ruido (en "psicólogo" aparece Amazon Prime Video; en "piscinas", hoteles). Sirve para órdenes de magnitud, no para afinar.
+
+Lo que cambia:
+- **Casas modulares, cocinas a medida y coches de ocasión casi no invierten en captar.** Ninguno de los dos análisis sobre el papel lo detectó. Quedan descartados de la prueba.
+- **Oposiciones y Segunda Oportunidad** están entre los que más pagan y, según el análisis a ciegas, son de los menos trabajados por agencias de IA.
+- **Inmobiliarias, hipotecas, estética y dentales** pagan muchísimo, pero son los más bombardeados por agencias.
+- Reformas, placas y aerotermia están en la zona media.
+
 ## 3. La prueba real (antes de grabar vídeos)
 
 1. **Cuatro nichos de cuatro tipos distintos**, unos **75 mensajes de texto por nicho** (unos 300, dos semanas al cupo actual):
