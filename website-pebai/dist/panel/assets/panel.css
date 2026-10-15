@@ -486,7 +486,7 @@ body.pb-locked{overflow:hidden}
 .pb-crumb{margin-right:auto;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);font-weight:600}
 .pb-crumb b{color:var(--fg-strong);font-weight:700}
 .pb-crumb span:after{content:"/";margin-left:10px;color:var(--muted-2)}
-body[data-page=prospectos] .pb-only-embudo,body[data-page=agentes] .pb-only-embudo,body[data-page=caja] .pb-only-embudo{display:none}
+body[data-page=prospectos] .pb-only-embudo,body[data-page=agentes] .pb-only-embudo,body[data-page=caja] .pb-only-embudo,body[data-page=oficina] .pb-only-embudo{display:none}
 .pb-pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:18px}
 .pb-pagehead .pb-lead{margin-bottom:0}
 .pb-dot[hidden]{display:none}

@@ -94,13 +94,17 @@ if (isset($_GET['salir'])) {
 }
 
 $auth = !empty($_SESSION['auth']);
-if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
+if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || isset($_GET['oficina']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
     json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 401);
 }
 
 // Captación › Email (todo lo del email vive en ese archivo). Condicional: si aún no está subido, el panel sigue funcionando.
 if (is_file(__DIR__ . '/_email_panel.php')) {
     require __DIR__ . '/_email_panel.php';
+}
+// Automático › Oficina (centro de control de los agentes: solo lee, no cambia nada de ellos)
+if (is_file(__DIR__ . '/_oficina_panel.php')) {
+    require __DIR__ . '/_oficina_panel.php';
 }
 
 /* ------------------------------------------------------------ Acciones (JSON) --- */
@@ -510,7 +514,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '13';
+$v = '14';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -528,6 +532,8 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= BASE ?>assets/panel.css?v=<?= $v ?>">
+<link rel="stylesheet" href="<?= BASE ?>assets/oficina.css?v=<?= $v ?>">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="stylesheet" href="<?= BASE ?>assets/email.css?v=<?= $v ?>">
 <script>try{var t=localStorage.getItem('pebai-panel-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
@@ -569,6 +575,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
       <button data-page="caja" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 13h.01"/><path d="M2 10h20"/><path d="M6 6V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg><span>Caja</span></button>
     </div>
     <div class="grp"><small>Automático</small>
+      <button data-page="oficina" type="button"><svg class="pb-i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="4.5" cy="6" r="1.8"/><circle cx="19.5" cy="6" r="1.8"/><circle cx="4.5" cy="18" r="1.8"/><circle cx="19.5" cy="18" r="1.8"/><path d="m6 7 3.6 3M18 7l-3.6 3M6 17l3.6-3M18 17l-3.6-3"/></svg><span>Oficina</span></button>
       <button data-page="agentes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg><span>Agentes</span><i class="pb-live" id="pb-ag-live" title="Estado de los agentes"></i></button>
     </div>
   </nav>
@@ -715,6 +722,19 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     <div id="pb-cj"></div>
   </section>
 
+  <section class="pb-page" id="page-oficina" data-page="oficina">
+    <div class="pb-of-wrap" id="pb-of">
+      <div class="pb-of-load" id="pb-of-load">Montando la oficina…</div>
+      <div class="pb-of-top" id="pb-of-top"></div>
+      <aside class="pb-of-side" id="pb-of-side"><button class="x" id="pb-of-x" type="button" aria-label="Cerrar">×</button><div id="pb-of-sidein"></div></aside>
+      <div class="pb-of-ask">
+        <div class="pb-of-ans" id="pb-of-ans"></div>
+        <div class="pb-of-sug" id="pb-of-sug"></div>
+        <form class="pb-of-box" id="pb-of-askf"><img src="<?= BASE ?>assets/pebai-mark.png" alt=""><input id="pb-of-q" placeholder="Pregunta a PEBAI sobre cualquier departamento…" autocomplete="off" maxlength="500"><button type="submit">Preguntar</button></form>
+      </div>
+    </div>
+  </section>
+
   <section class="pb-page" id="page-agentes" data-page="agentes">
     <div class="pb-pagehead">
       <div>
@@ -757,6 +777,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <script src="<?= BASE ?>assets/agentes.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/caja.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/email.js?v=<?= $v ?>" defer></script>
+<script type="module" src="<?= BASE ?>assets/oficina.js?v=<?= $v ?>"></script>
 <?php endif; ?>
 </body>
 </html>
