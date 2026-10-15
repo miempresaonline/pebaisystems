@@ -44,7 +44,9 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
             $nicho = preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($_POST['nicho'] ?? '')));
             $lote = mb_substr(trim((string)($_POST['lote'] ?? '')), 0, 80) ?: date('d/m H:i');
             try {
-                json_out(['ok' => true, 'res' => pebai_email_importar($raw, $nicho, $lote)]);
+                $res = pebai_email_importar($raw, $nicho, $lote);
+                pebai_actividad('email', 'cambio', "Importados {$res['nuevos']} prospectos nuevos (lote «{$lote}»)", json_encode($res, JSON_UNESCAPED_UNICODE));
+                json_out(['ok' => true, 'res' => $res]);
             } catch (Throwable $e) {
                 json_out(['ok' => false, 'error' => $e->getMessage()], 400);
             }
@@ -53,6 +55,7 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
             $estado = (string)($_POST['estado'] ?? '');
             if ($estado === 'baja') {
                 pebai_email_baja($p, 'Marcado a mano en el panel');
+                pebai_actividad('email', 'cambio', 'Baja a mano de ' . ($p['empresa'] ?: $p['email']), $p['email'], 'email:' . $p['id']);
                 json_out(['ok' => true]);
             }
             if (!in_array($estado, ['pendiente', 'descartado', 'interesado', 'respondio'], true)) {
@@ -69,6 +72,7 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
                 }
             }
             $edb->prepare("UPDATE email_prospectos SET estado = ?, error = '', updated_at = ? WHERE id = ?")->execute([$estado, $now, $p['id']]);
+            pebai_actividad('email', 'cambio', 'Cambiado a mano: ' . ($p['empresa'] ?: $p['email']) . ' → ' . $estado, $p['email'], 'email:' . $p['id']);
             json_out(['ok' => true]);
         case 'email_vista':
             // Vista previa exacta de lo que se enviaría ahora, con la comprobación previa (sin enviar nada).
@@ -80,6 +84,7 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
             $pausar = ($_POST['pausado'] ?? '') === '1';
             $edb->prepare("UPDATE agente_estado SET pausado = ?, estado = ?, detalle = ? WHERE agente = 'email'")
                 ->execute([$pausar ? 1 : 0, $pausar ? 'pausado' : 'activo', $pausar ? 'En pausa desde el panel' : 'Reanudado desde el panel']);
+            pebai_actividad('email', 'cambio', $pausar ? 'Puesto en pausa desde el panel' : 'Reanudado desde el panel');
             json_out(['ok' => true]);
         case 'email_ajustes':
             $ventanas = [];
@@ -91,7 +96,9 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
             if (!$ventanas) {
                 json_out(['ok' => false, 'error' => 'Horario no válido. Ejemplo: 09:00-13:30, 16:00-18:30'], 400);
             }
-            pebai_email_cfg_guardar(['limite_max' => max(0, min(50, (int)($_POST['limite_max'] ?? 50))), 'ventanas' => $ventanas]);
+            $tope = max(0, min(50, (int)($_POST['limite_max'] ?? 50)));
+            pebai_email_cfg_guardar(['limite_max' => $tope, 'ventanas' => $ventanas]);
+            pebai_actividad('email', 'cambio', "Ajustes: tope {$tope} al día, horario " . implode(', ', array_map(static fn($v) => implode('-', $v), $ventanas)));
             json_out(['ok' => true]);
         case 'email_nicho':
             $slug = preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($_POST['slug'] ?? '')));
@@ -116,11 +123,13 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
             $cfg = pebai_email_cfg();
             $cfg['nichos'][$slug] = $ficha;
             pebai_email_cfg_guardar(['nichos' => $cfg['nichos']]);
+            pebai_actividad('email', 'cambio', 'Ficha del nicho «' . $slug . '» guardada' . ($ficha['video'] ? ' (vídeo grabado: ya se puede escribir a este nicho)' : ' (sin vídeo: aún no se escribe)'), json_encode($ficha, JSON_UNESCAPED_UNICODE));
             json_out(['ok' => true]);
         case 'email_nicho_borrar':
             $cfg = pebai_email_cfg();
             unset($cfg['nichos'][(string)($_POST['slug'] ?? '')]);
             pebai_email_cfg_guardar(['nichos' => $cfg['nichos']]);
+            pebai_actividad('email', 'cambio', 'Ficha del nicho «' . (string)($_POST['slug'] ?? '') . '» borrada');
             json_out(['ok' => true]);
         case 'email_plantilla':
             $pl = str_replace("\r", '', trim((string)($_POST['plantilla'] ?? '')));
@@ -138,6 +147,7 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
                 }
             }
             pebai_email_cfg_guardar(['plantilla' => $pl, 'recordatorio' => $rec ?: PEBAI_EMAIL_RECORDATORIO, 'asuntos' => $asuntos ?: PEBAI_EMAIL_ASUNTOS]);
+            pebai_actividad('email', 'cambio', 'Plantilla del email cambiada', $pl);
             json_out(['ok' => true]);
     }
     json_out(['ok' => false, 'error' => 'Acción desconocida.'], 400);
@@ -161,9 +171,17 @@ if ($auth && $db && isset($_GET['email'])) {
     $cfg = pebai_email_cfg();
     $v = pebai_email_ventana();
     $b = pebai_email_buzon();
-    $q = $edb->prepare("SELECT substr(ts, 1, 10) d, sentido, COUNT(*) n FROM agente_mensajes WHERE agente = 'email' AND ts >= ? GROUP BY d, sentido");
+    // Volumen por día: primeros emails, recordatorios, respuestas y bloqueos (lo que hizo el agente cada día).
+    $q = $edb->prepare("SELECT substr(ts, 1, 10) d, CASE WHEN sentido = 'entra' THEN 'respuestas' WHEN texto LIKE 'Asunto: Re:%' THEN 'recordatorios' ELSE 'primeros' END tipo, COUNT(*) n
+                         FROM agente_mensajes WHERE agente = 'email' AND ts >= ? GROUP BY d, tipo");
     $q->execute([date('Y-m-d', strtotime('-29 days'))]);
-    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'prospectos' => $pros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
+    $volumen = $q->fetchAll();
+    foreach (pebai_actividad_por_dia('email', 30) as $r) {
+        if ($r['tipo'] === 'bloqueo') {
+            $volumen[] = ['d' => $r['d'], 'tipo' => 'bloqueos', 'n' => $r['n']];
+        }
+    }
+    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'prospectos' => $pros, 'mensajes' => $msgs, 'volumen' => $volumen, 'actividad' => pebai_actividad_ultimas('email', 200),
         'salud7' => pebai_email_salud(7), 'salud30' => pebai_email_salud(30), 'senales' => PEBAI_EMAIL_SENALES, 'escalones' => PEBAI_EMAIL_ESCALONES,
         'agente' => ['estado' => $a['estado'], 'latido_at' => $a['latido_at'], 'detalle' => $a['detalle'], 'pausado' => (int)$a['pausado'],
                      'buzon' => $b ? $b['user'] : '', 'avisar_a' => $b ? (string)$b['avisar_a'] : '', 'enviados_hoy' => pebai_email_enviados_hoy(), 'limite' => pebai_email_limite($cfg),

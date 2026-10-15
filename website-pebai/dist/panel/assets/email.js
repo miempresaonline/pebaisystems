@@ -236,10 +236,65 @@ function tarjetaAgente() {
   const stats = el('div', 'pe-stats');
   [['Enviados 7 días', N(s7.enviados)], ['Respuestas', N(s7.respuestas)], ['Quieren vídeo', N(s7.interesados)], ['Rebotes', s7.rebotes_pct + ' %'], ['Quejas', N(s7.quejas)]]
     .forEach(([l, v]) => { const x = el('div'); x.append(el('small', null, l), el('b', null, v)); stats.append(x); });
-  const feed = el('div', 'pb-feed pe-feed');
-  (S.mensajes || []).slice(0, 12).forEach((m) => { const it = el('div', 'pb-msg ' + (m.sentido === 'entra' ? 'in' : 'out')); const c = el('div'); const h = el('div', 'h'); h.append(el('b', null, m.empresa || m.email || ''), el('span', null, fecha(parse(m.ts)))); c.append(h, el('div', 'bub', m.texto)); it.append(el('div', 'pb-avatar', (m.empresa || m.email || '?').slice(0, 2).toUpperCase()), c); feed.append(it); });
-  if (!(S.mensajes || []).length) feed.append(el('div', 'pb-empty', 'Todavía no ha enviado nada.'));
-  card.append(top, stats, feed); box.append(card);
+  card.append(top, queHace(), stats, volumen(), registro()); box.append(card);
+}
+
+/* Qué hace el agente, en una frase que se lee de un vistazo. */
+function queHace() {
+  const c = S.cfg, v = (c.ventanas || []).map((x) => x.join('–')).join(' y ');
+  const listos = Object.entries(c.nichos || {}).filter(([, f]) => f.video).map(([k]) => k);
+  const p = el('p', 'pe-que');
+  p.textContent = `Cada día laborable (${v}) escribe a un máximo de ${S.agente.limite} empresas, una a una y con pausas. `
+    + `A quien no contesta le manda un único recordatorio a los ${c.recordatorio_dias || 3} días laborables, en la misma conversación, y no vuelve a escribirle. `
+    + (listos.length ? `Nichos listos: ${listos.join(', ')}.` : 'Aún no hay ningún nicho listo (falta la ficha o el vídeo): no envía nada.');
+  return p;
+}
+
+/* Volumen de cada día: primeros emails, recordatorios, respuestas y bloqueos (30 días). */
+function volumen() {
+  const w = el('div', 'pe-vol');
+  w.append(el('h2', null, 'Volumen por día · 30 días'));
+  const SERIES = [['primeros', 'Primeros emails', 'var(--violet)'], ['recordatorios', 'Recordatorios', 'var(--cyan)'], ['respuestas', 'Respuestas', 'var(--lime)'], ['bloqueos', 'Bloqueados por la revisión', 'var(--slate)']];
+  const val = {}; (S.volumen || []).forEach((r) => { (val[r.d] = val[r.d] || {})[r.tipo] = Number(r.n); });
+  const dias = []; for (let i = 29; i >= 0; i--) { const d = new Date(S.ahora); d.setDate(d.getDate() - i); dias.push(d); }
+  const k = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const max = Math.max(5, ...dias.map((d) => SERIES.reduce((a, [s]) => a + ((val[k(d)] || {})[s] || 0), 0)));
+  const bars = el('div', 'pb-bars');
+  dias.forEach((d, i) => {
+    const v = val[k(d)] || {}; const col = el('div', i === 29 ? 'hoy' : '');
+    col.dataset.t = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}: ` + SERIES.map(([s, l]) => `${v[s] || 0} ${l.toLowerCase()}`).join(' · ');
+    SERIES.slice().reverse().forEach(([s, , color]) => { if (v[s]) { const b = el('i'); b.style.height = (v[s] / max * 100) + '%'; b.style.background = color; b.style.borderRadius = '3px'; col.append(b); } });
+    if (!SERIES.some(([s]) => v[s])) { const b = el('i'); b.style.height = '2px'; b.style.opacity = '.25'; col.append(b); }
+    bars.append(col);
+  });
+  const ley = el('div', 'pb-legend'); SERIES.forEach(([, l, color]) => { const s = el('span'); const i = el('i'); i.style.background = color; s.append(i, l); ley.append(s); });
+  const hoy = val[k(S.ahora)] || {};
+  w.append(bars, ley, el('p', 'note', `Hoy: ${hoy.primeros || 0} primeros emails, ${hoy.recordatorios || 0} recordatorios, ${hoy.respuestas || 0} respuestas, ${hoy.bloqueos || 0} bloqueados. Pasa el ratón por una barra para ver el detalle del día.`));
+  return w;
+}
+
+/* Registro de actividad: cada decisión del agente, como las ejecuciones de n8n. */
+const TIPO_ACT = { envio: ['Envío', 'var(--violet)'], bloqueo: ['No enviado', 'var(--slate)'], respuesta: ['Respuesta', 'var(--lime)'], espera: ['En espera', 'var(--muted-2)'],
+  freno: ['Freno', 'var(--red)'], error: ['Error', 'var(--amber)'], cambio: ['Cambio', 'var(--cyan)'], hito: ['Hito', 'var(--green)'] };
+function registro() {
+  const w = el('div', 'pe-reg');
+  w.append(el('h2', null, 'Registro de actividad'), el('p', 'note', 'Todo lo que ha hecho el agente y por qué: a quién escribió, a quién no (y el motivo), qué respuestas llegaron, cuándo esperó o se frenó. Pulsa una línea para ver el detalle.'));
+  const chips = el('div', 'pb-subtabs');
+  [['', 'Todo']].concat(Object.entries(TIPO_ACT).map(([t, [l]]) => [t, l])).forEach(([t, l]) => {
+    const b = el('button', ui.act === t || (!ui.act && !t) ? 'on' : '', l); b.type = 'button'; b.addEventListener('click', () => { ui.act = t; tarjetaAgente(); }); chips.append(b);
+  });
+  const list = el('div', 'pe-log');
+  const filas = (S.actividad || []).filter((a) => !ui.act || a.tipo === ui.act).slice(0, 80);
+  if (!filas.length) list.append(el('div', 'pb-empty', 'Sin actividad todavía.'));
+  filas.forEach((a) => {
+    const [l, color] = TIPO_ACT[a.tipo] || [a.tipo, 'var(--muted)'];
+    const d = el('details', 'pe-log-i');
+    const s = el('summary'); const chip = el('em', null, l); chip.style.setProperty('--c', color);
+    s.append(el('time', null, fecha(parse(a.ts))), chip, el('span', null, a.resumen));
+    d.append(s); if (a.detalle) d.append(el('pre', 'pe-pre', a.detalle));
+    list.append(d);
+  });
+  w.append(chips, list); return w;
 }
 
 /* ============ ciclo ============ */

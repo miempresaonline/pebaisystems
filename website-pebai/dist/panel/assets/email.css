@@ -36,3 +36,16 @@ body[data-page=email] .pb-only-embudo{display:none}
 .pe-stats small{display:block;font-size:11.5px;color:var(--muted)}
 .pe-stats b{font-family:var(--serif);font-weight:400;font-size:24px;color:var(--fg-strong)}
 .pe-feed{max-height:360px}
+.pe-que{margin:0;font-size:13.5px;color:var(--fg);line-height:1.55;padding:12px 14px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line)}
+.pe-vol h2,.pe-reg h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet-2);margin:0 0 4px;font-weight:700}
+.pe-vol .pb-bars>div{gap:1px}
+.pe-log{display:flex;flex-direction:column;max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.pe-log-i{border-bottom:1px solid var(--line)}
+.pe-log-i:last-child{border-bottom:0}
+.pe-log-i summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:86px auto 1fr;gap:10px;align-items:center;padding:8px 12px;font-size:13px}
+.pe-log-i summary::-webkit-details-marker{display:none}
+.pe-log-i summary:hover{background:var(--panel-2)}
+.pe-log-i time{color:var(--muted-2);font-size:12px;font-variant-numeric:tabular-nums}
+.pe-log-i em{font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 50%,transparent);white-space:nowrap}
+.pe-log-i .pe-pre{margin:0 12px 10px;font-size:12.5px}
+@media (max-width:640px){.pe-log-i summary{grid-template-columns:auto 1fr}.pe-log-i time{grid-column:1/-1}}

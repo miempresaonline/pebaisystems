@@ -18,6 +18,7 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
     exit;
 }
 require_once __DIR__ . '/_agentes_lib.php';
+require_once __DIR__ . '/_actividad_lib.php'; // cada decisión del agente queda apuntada (Automático › Agentes)
 
 const PEBAI_EMAIL_ESTADOS = ['pendiente', 'enviado', 'recordado', 'respondio', 'interesado', 'baja', 'rebote', 'descartado', 'error'];
 
@@ -531,7 +532,15 @@ function pebai_email_frenar(string $motivo): void
 {
     $db = pebai_email_db();
     $db->prepare("UPDATE agente_estado SET pausado = 1, estado = 'frenado', detalle = ? WHERE agente = 'email'")->execute([mb_substr($motivo, 0, 400)]);
+    pebai_actividad('email', 'freno', 'Se ha parado solo por seguridad', $motivo);
     pebai_agente_alerta('email', 'El agente de email se ha frenado solo', $motivo . "\n\nRevisa el motivo y reanúdalo a mano desde el panel (Automático › Agentes).");
+}
+
+/** Motivo por el que no envía ahora, apuntado solo cuando cambia (para que el registro diga siempre en qué está). */
+function pebai_email_espera(string $motivo, string $legible): string
+{
+    pebai_actividad_espera('email', $legible);
+    return $motivo;
 }
 
 /** Intenta UN envío si toca (horario, cupo, ritmo). Devuelve qué ha pasado. */
@@ -541,20 +550,20 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
     $a = pebai_agente('email');
     $b = pebai_email_buzon();
     if (!$b) {
-        return 'sin buzón del frío configurado';
+        return pebai_email_espera('sin buzón del frío configurado', 'No envía: falta el buzón del frío');
     }
     if ((int)$a['pausado']) {
-        return 'en pausa';
+        return pebai_email_espera('en pausa', $a['estado'] === 'frenado' ? 'No envía: está frenado (revisar y reanudar)' : 'No envía: en pausa desde el panel');
     }
     $cfg = pebai_email_cfg();
     $v = pebai_email_ventana();
     if (!$v['abierta']) {
-        return 'fuera de horario';
+        return pebai_email_espera('fuera de horario', 'Fuera de horario: vuelve ' . ($v['proxima'] ? pebai_fecha(date('Y-m-d H:i:s', $v['proxima'])) : 'el próximo día laborable'));
     }
     $limite = pebai_email_limite($cfg);
     $hoy = pebai_email_enviados_hoy();
     if ($hoy >= $limite) {
-        return "cupo de hoy completo ($hoy/$limite)";
+        return pebai_email_espera("cupo de hoy completo ($hoy/$limite)", "Cupo de hoy completo: $hoy de $limite. Sigue mañana");
     }
     // Ritmo: reparte lo que queda de cupo en lo que queda de ventana, con azar, y nunca por debajo de la pausa mínima.
     $ultimo = (string)$db->query("SELECT MAX(ts) FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale'")->fetchColumn();
@@ -568,7 +577,7 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
     for ($intento = 0; $intento < 5; $intento++) {
         $sig = pebai_email_siguiente($cfg);
         if (!$sig) {
-            return 'sin prospectos listos (faltan prospectos, fichas de nicho o vídeos)';
+            return pebai_email_espera('sin prospectos listos (faltan prospectos, fichas de nicho o vídeos)', 'No envía: no hay empresas listas (faltan prospectos, la ficha del nicho o su vídeo)');
         }
         [$p, $paso] = $sig;
         $msg = pebai_email_componer($p, $paso, $cfg);
@@ -576,6 +585,8 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
         $now = date('Y-m-d H:i:s');
         if ($qa) {
             $estado = in_array('tiene baja', $qa, true) || in_array('tiene baja en WhatsApp', $qa, true) ? 'baja' : 'descartado';
+            pebai_actividad('email', 'bloqueo', 'No escribe a ' . ($p['empresa'] ?: $p['email']) . ($paso === 2 ? ' (recordatorio)' : ''),
+                $p['email'] . "\nMotivo: " . implode('; ', $qa), 'email:' . $p['id']);
             if ($paso === 2) {
                 $estado = 'enviado';
                 $db->prepare("UPDATE email_prospectos SET paso = 2, error = ?, updated_at = ? WHERE id = ?")->execute(['Recordatorio no enviado: ' . implode('; ', $qa), $now, $p['id']]);
@@ -593,6 +604,7 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
         } catch (Throwable $e) {
             $m = $e->getMessage();
             $db->prepare("UPDATE email_prospectos SET estado = 'error', error = ?, updated_at = ? WHERE id = ?")->execute([mb_substr($m, 0, 300), $now, $p['id']]);
+            pebai_actividad('email', 'error', 'Falló el envío a ' . ($p['empresa'] ?: $p['email']), $p['email'] . "\n" . $m, 'email:' . $p['id']);
             if (preg_match('/\b5\d\d\b.*(spam|block|policy|reject|rate|limit|reputation|blacklist|listed|suspend)/i', $m) || preg_match('/\b(535|554)\b/', $m)) {
                 pebai_email_frenar('Error grave del servidor de correo al enviar a ' . $p['email'] . ': ' . $m);
             }
@@ -609,6 +621,8 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
         }
         $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto) VALUES (?, 'email', ?, ?, 'sale', ?)")
            ->execute([$now, $p['id'], $p['email'], 'Asunto: ' . $msg['asunto'] . "\n\n" . $msg['texto']]);
+        pebai_actividad('email', 'envio', ($paso === 1 ? 'Primer email a ' : 'Recordatorio a ') . ($p['empresa'] ?: $p['email']),
+            $p['email'] . ' · ' . ($p['nicho'] ?: 'sin nicho') . ' · señal: ' . $p['senal'] . "\nAsunto: " . $msg['asunto'] . "\n\n" . $msg['texto'], 'email:' . $p['id']);
         return 'enviado (' . ($paso === 1 ? 'primer email' : 'recordatorio') . ') a ' . $p['email'];
     }
     return 'varios prospectos descartados por la comprobación previa';
@@ -624,6 +638,8 @@ function pebai_email_revisar_escalon(): void
     $s = pebai_email_salud(7);
     if ($s['enviados'] >= 20 && $s['rebotes_pct'] < 2 && $s['quejas'] === 0 && pebai_agente('email')['estado'] !== 'frenado') {
         pebai_email_cfg_guardar(['escalon' => $cfg['escalon'] + 1, 'escalon_desde' => date('Y-m-d')]);
+        pebai_actividad('email', 'hito', 'Sube el ritmo a ' . PEBAI_EMAIL_ESCALONES[$cfg['escalon'] + 1] . ' emails al día',
+            "Semana limpia: {$s['enviados']} enviados, {$s['rebotes_pct']} % de rebotes y ninguna queja.");
     }
 }
 
@@ -844,6 +860,18 @@ function pebai_email_procesar(array $m, bool $avisar = true): string
     }
     $db = pebai_email_db();
     $now = date('Y-m-d H:i:s');
+    $quien = $p['empresa'] ?: $p['email'];
+    $txt = $p['email'] . ($m['texto'] !== '' ? "\n«" . mb_substr($m['texto'], 0, 600) . '»' : '');
+    $apunte = [
+        'rebote' => 'Rebote: el email de ' . $quien . ' no existe (no se le vuelve a escribir)',
+        'rebote_temporal' => 'Rebote temporal de ' . $quien . ' (buzón lleno o servidor ocupado)',
+        'queja' => 'Queja de spam de ' . $quien,
+        'autorespuesta' => 'Respuesta automática de ' . $quien . ' (no cuenta; el recordatorio se aplaza)',
+        'baja' => $quien . ' pidió la baja (para siempre, todos los canales)',
+        'positivo' => $quien . ' quiere el vídeo',
+        'otro' => $quien . ' ha contestado',
+    ][$m['tipo']] ?? $quien . ' ha contestado';
+    pebai_actividad('email', 'respuesta', $apunte, $txt, 'email:' . $p['id']);
     switch ($m['tipo']) {
         case 'rebote':
             $db->prepare("UPDATE email_prospectos SET estado = 'rebote', error = 'El email no existe (rebote)', updated_at = ? WHERE id = ?")->execute([$now, $p['id']]);
@@ -911,6 +939,7 @@ function pebai_email_leer_buzon(): string
     if (!$imap) {
         $err = imap_last_error() ?: 'sin detalle';
         imap_errors();
+        pebai_actividad_unica('email', 'error', 'No puede leer el buzón (no ve las respuestas)', $err);
         return 'IMAP: no conecta (' . $err . ')';
     }
     $get = static function (string $k) use ($db): string {
@@ -1038,6 +1067,7 @@ function pebai_email_tick(bool $comprobarDns = true): array
     } catch (Throwable $e) {
         $out['buzon'] = 'error: ' . $e->getMessage();
         pebai_log('EMAIL buzón: ' . $e->getMessage());
+        pebai_actividad_unica('email', 'error', 'Error leyendo respuestas', $e->getMessage());
     }
     pebai_email_revisar_escalon();
     try {
@@ -1045,7 +1075,9 @@ function pebai_email_tick(bool $comprobarDns = true): array
     } catch (Throwable $e) {
         $out['envio'] = 'error: ' . $e->getMessage();
         pebai_log('EMAIL envío: ' . $e->getMessage());
+        pebai_actividad_unica('email', 'error', 'Error en el ciclo de envío', $e->getMessage());
     }
+    pebai_actividad_limpiar();
     $a = pebai_agente('email');
     $estado = !pebai_email_buzon() ? 'sin_configurar' : ($a['estado'] === 'frenado' && (int)$a['pausado'] ? 'frenado' : ((int)$a['pausado'] ? 'pausado' : 'activo'));
     $detalle = $estado === 'frenado' ? $a['detalle'] : $out['envio'];
