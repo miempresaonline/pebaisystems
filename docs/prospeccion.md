@@ -84,3 +84,11 @@ Descartados en A: 33 sin señales de actividad (sobre todo sin web), 16 de fuera
 - Rastreo lento y respetuoso: robots.txt, pocas páginas por web, pausas.
 - RGPD: el móvil de un autónomo es un dato personal. Interés legítimo + informar del origen y de los derechos en el primer contacto (art. 14). Las reglas de envío están en `docs/agente-whatsapp.md`.
 - Raspar Google Maps incumple sus condiciones de uso (no es ilegal). El riesgo es un bloqueo, no una sanción.
+
+## En el servidor (sin el PC) — desde el 15/10/2026
+
+- Corre en Hostinger: `~/prospeccion` (código + `.venv` con Python 3.11 de `/opt/alt/python311`), resultados en `~/scratch/prospeccion` (fuera de `public_html`).
+- **Binario de gosom compilado por nosotros:** el servidor tiene una glibc antigua y el binario oficial no arranca. Se compila desde el código fuente de la v1.18.1 con `CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s -w"` (todas sus dependencias son Go puro) y se sube a `~/prospeccion/bin/gmaps`. En el servidor, el modo rápido no usa navegador: 0,7 s por búsqueda.
+- Arranque: `~/prospeccion/correr.sh <nicho>`. Una sola tanda a la vez (flock); es reanudable y salta las provincias hechas y las búsquedas de Maps ya guardadas. Toma el token de `~/agente-whatsapp/.env`.
+- Cron de hPanel (red de seguridad, cada 30 min): `$HOME/prospeccion/correr.sh energia`. Si la tanda ya corre, sale al momento.
+- Medido: Soria 2 min en el servidor (4 en el PC); Madrid y Barcelona, unos 10 min en el PC.
