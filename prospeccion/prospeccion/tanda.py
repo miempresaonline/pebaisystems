@@ -9,6 +9,7 @@ Uso:
   python -m prospeccion.tanda energia --unir          # solo junta las provincias hechas en un CSV
 """
 import argparse
+import math
 import csv
 import time
 from pathlib import Path
@@ -47,17 +48,20 @@ ISO = {'Álava': ['ES-VI'], 'Albacete': ['ES-AB'], 'Alicante': ['ES-A'], 'Almer�
 
 
 def _overpass(q: str) -> list | None:
-    """Overpass es gratis pero limita: reintenta con pausas largas. None si no hay manera."""
+    """Overpass es gratis pero sus servidores se saturan: prueba varios por turnos (2 vueltas). None si ninguno responde."""
     import httpx
-    for intento in range(4):
-        try:
-            r = httpx.post('https://overpass-api.de/api/interpreter', data={'data': q}, timeout=150,
-                           headers={'User-Agent': 'PEBAI-prospeccion/1.0 (+https://pebaisystems.es)'})
-            if r.status_code == 200:
-                return r.json().get('elements', [])
-        except Exception:
-            pass
-        time.sleep(30 * (intento + 1))
+    servidores = ['https://maps.mail.ru/osm/tools/overpass/api/interpreter', 'https://overpass-api.de/api/interpreter',
+                  'https://overpass.kumi.systems/api/interpreter', 'https://overpass.private.coffee/api/interpreter']
+    for vuelta in range(2):
+        for url in servidores:
+            try:
+                r = httpx.post(url, data={'data': q}, timeout=90, headers={'User-Agent': 'PEBAI-prospeccion/1.0 (+https://pebaisystems.es)'})
+                if r.status_code == 200:
+                    return r.json().get('elements', [])
+            except Exception:
+                pass
+            time.sleep(3)
+        time.sleep(30)
     return None
 
 
@@ -72,6 +76,11 @@ ORDEN = ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Alicante', 'Málaga', 'M
 def zonas(provincia: str, max_pueblos: int = 30) -> tuple[list, list]:
     """Dónde buscar: la capital en detalle (9 zonas de 3 km) y los municipios con más población DENTRO del límite de la provincia
     (OpenStreetMap, gratis). Una rejilla por toda la provincia caía en campo y monte y devolvía 0."""
+    import json
+    cache = SALIDA / 'tandas' / 'municipios' / f'{provincia}.json'
+    if cache.exists():   # ya se pidieron: no se vuelve a molestar a OpenStreetMap
+        d = json.loads(cache.read_text(encoding='utf-8'))
+        return [tuple(p) for p in d['capital']], [tuple(p) for p in d['pueblos']]
     capital = CAPITALES.get(provincia, provincia)
     _, _, caja_cap = geocodifica(f'{capital}, {provincia}')
     filtro = '(node["place"~"^(city|town)$"](area.a);node["place"="village"]["population"](area.a););out body;'
@@ -88,8 +97,18 @@ def zonas(provincia: str, max_pueblos: int = 30) -> tuple[list, list]:
     pueblos = [x for x in sorted(pueblos, key=pob, reverse=True) if 'lat' in x and (pob(x) >= 2500 or x['tags'].get('place') in ('city', 'town'))]
     s_, n_, w_, e_ = caja_cap
     # Los municipios dentro de la capital ya los cubren sus 9 zonas
-    pts = [(x['lat'], x['lon']) for x in pueblos if not (s_ <= x['lat'] <= n_ and w_ <= x['lon'] <= e_)][:max_pueblos]
-    return rejilla(caja_cap, 3.0, 9), pts
+    clat0, clon0 = (s_ + n_) / 2, (w_ + e_) / 2
+    cerca = lambda x: math.hypot((x['lat'] - clat0) * 111, (x['lon'] - clon0) * 111 * math.cos(math.radians(clat0))) < 6
+    pts = [(x['lat'], x['lon']) for x in pueblos if not cerca(x)][:max_pueblos]
+    # Capital: cuadrícula fija de 3×3 zonas de 3 km alrededor de su centro (la caja de OpenStreetMap a veces es un punto)
+    clat, clon = (s_ + n_) / 2, (w_ + e_) / 2
+    dlat, dlon = 3 / 111, 3 / (111 * math.cos(math.radians(clat)))
+    cap = [(round(clat + i * dlat, 5), round(clon + j * dlon, 5)) for i in (0, -1, 1) for j in (0, -1, 1)]
+    if pts:
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        cache.write_text(json.dumps({'capital': cap, 'pueblos': pts}), encoding='utf-8')
+    print(f'  municipios: {len(pts)} (OpenStreetMap)' if pts else '  ⚠ OpenStreetMap no respondió: solo la capital')
+    return cap, pts
 
 
 def provincia(nicho: str, prov: str) -> Path | None:
