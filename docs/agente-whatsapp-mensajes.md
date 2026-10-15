@@ -27,9 +27,31 @@ Referencia de tasas: en frío puro se habla de un 1–5 % de respuesta. Con buen
   - **Documentar el interés legítimo**: una hoja de ponderación (por qué escribimos, a quién, de dónde sale el dato, cómo se da de baja). Es lo que piden las guías de cumplimiento y la primera defensa si hay una reclamación. Hay que redactarla y que la revise un abogado.
 - El servicio se explica **solo cuando contestan**. A partir de ahí es una conversación que han aceptado.
 
-## 3. Plantillas por nicho
+## 3. Técnicas comparadas (y la que usamos)
 
-Dos variantes por nicho para medir cuál funciona mejor:
+| Técnica | Respuesta esperada (orientativa) | Riesgo legal | Riesgo de bloqueo | Veredicto |
+|---|---|---|---|---|
+| **Vídeo en el primer mensaje** | Peor que texto: −18 % en primer contacto (estudio de 2,1 M emails). WhatsApp además no descarga solo el contenido de desconocidos | Alto: es promoción directa no pedida | Alto: archivos a desconocidos es señal de spam | Descartado como primer mensaje |
+| **Oferta de vídeo en dos pasos** ("he grabado un vídeo de un minuto sobre vuestra web, ¿te lo mando?") | Curiosidad + reciprocidad. El vídeo personalizado sube un 56 % las respuestas cuando ya hay interés; el genérico las baja un 28 % | Bajo en el vídeo (lo han pedido); el texto inicial no promociona | Bajo: el primer mensaje es solo texto | **Principal: variante C** |
+| **Observación concreta** (un dato real suyo: horario, web sin chat, reseñas) | 7–10 % frente a ~3 % en estudios de personalización; un dato erróneo la hunde (−41 %) | Bajo | Bajo | Se suma a A y C cuando el Scraper traiga el dato |
+| **Pregunta de dolor** (variante A) | Base: 1–5 % en frío puro | Bajo-medio | Bajo | Control del A/B |
+| **Permiso orientado al "no"** (variante B, Chris Voss) | Sin estudio que lo mida en frío | El más bajo: no promociona nada | Bajo | Reserva |
+| **Prueba social** ("trabajamos con varias empresas de reformas") | Sube la confianza; solo si es verdad | Medio: ya es promoción | Bajo | Solo en la respuesta, no en el primer mensaje |
+| **Nota de voz en frío** | Cifras de 34–55 % solo de vendedores de esa herramienta, sin verificar | Medio-alto | Medio: archivo de un desconocido | Solo tras el "sí", como alternativa al vídeo |
+| **Cliente misterioso** (escribirles fingiendo ser cliente) | — | Engaño | — | Descartado |
+
+### Vídeo en dos pasos (variante C)
+
+1. **Primer mensaje, solo texto y sin promoción:** despierta la curiosidad con algo de su negocio y pide permiso para mandar el vídeo.
+2. **Si dicen que sí**, el vídeo ya es una comunicación **solicitada**: la LSSI deja de ser el problema. Lo envía el agente al momento (velocidad = interés) o Daniel a mano.
+3. **El vídeo es personalizado de verdad:** su web o su ficha en pantalla, con Daniel en una burbuja explicando en 45–60 s cómo se pierde una solicitud que llega fuera de horario, y el nombre de la empresa en el título. Daniel graba la narración una vez por nicho; la web de cada prospecto se pone automáticamente. Un vídeo genérico rinde peor que el texto: no se manda nunca.
+4. **El vídeo cierra hacia el embudo:** "si quieres que lo veamos con vuestro caso, cada mes analizamos gratis el de cinco empresas" + `pebaisystems.es/diagnostico/?origen=daniel`. Ya han visto un vídeo nuestro, así que se salta la VSL.
+
+Prueba: **A (dolor) contra C (vídeo en dos pasos)**, mismo nicho y mismo horario. Gana la que más diagnósticos rellenados consiga, no solo la que más respuestas tenga.
+
+## 4. Plantillas por nicho
+
+Variantes por nicho para medir cuál funciona mejor (C, la del vídeo, va en la sección 3 y en cada nicho):
 - **A, pregunta de dolor:** una situación concreta y fácil de contestar.
 - **B, permiso:** pide permiso para preguntar; no promociona nada.
 
@@ -38,33 +60,40 @@ Variables: `[saludo]` (Buenos días / Buenas tardes), `[nombre]` («, Ana» si l
 ### Instalaciones solares y autoconsumo
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: cuando os entra una solicitud de presupuesto de placas por la noche o en fin de semana, ¿le llamáis el mismo día o al siguiente? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te hago una pregunta sobre cómo gestionáis en [empresa] las solicitudes de presupuesto que os llegan de los anuncios? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre la web de [empresa] y lo que pasa con una solicitud de presupuesto que entra fuera de horario. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
 ### Piscinas prefabricadas y de poliéster
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: de cada diez personas que os piden precio de una piscina, ¿con cuántas llegáis a hablar por teléfono? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te pregunto una cosa sobre cómo atendéis en [empresa] a la gente que os pide precio? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre la web de [empresa] y lo que pasa cuando alguien os pide precio a las diez de la noche. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
 ### Casas prefabricadas y modulares
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: de la gente que os pide presupuesto de una casa, ¿cuántos tienen ya parcela y financiación? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te hago una pregunta sobre cómo filtráis en [empresa] las solicitudes de presupuesto antes de dedicarles tiempo? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre la web de [empresa] y cómo separar las solicitudes que van en serio de las que no. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
 ### Reformas
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: cuando estáis en obra y os entra una petición de presupuesto por WhatsApp, ¿cuánto soléis tardar en contestar? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te hago una pregunta sobre cómo atendéis en [empresa] las peticiones de presupuesto cuando estáis todos en obra? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre [empresa] y lo que pasa con una petición de presupuesto que llega mientras estáis en obra. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
 ### Inmobiliarias
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: los contactos que os llegan de los portales por la tarde o en fin de semana, ¿los atendéis el mismo día? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te pregunto una cosa sobre cómo respondéis en [empresa] a los contactos que os llegan de los portales? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre [empresa] y lo que pasa con un contacto de portal que llega un domingo por la tarde. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
 ### Genérica (sector sin plantilla propia)
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: cuando un cliente os escribe o llama fuera de horario, ¿quién le contesta? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te hago una pregunta sobre cómo atendéis en [empresa] a los clientes que os escriben? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre [empresa] y lo que pasa con un cliente que os escribe fuera de horario. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
-## 4. Cuando contestan (lo hace Daniel a mano)
+## 5. Cuando contestan (lo hace Daniel a mano)
 
 Enlace siempre con `?origen=daniel`, para que la solicitud quede a su nombre (`docs/enlaces-y-utm.md`).
 
 | Contestan | Respuesta tipo |
 |---|---|
+| "Sí, mándalo" (variante C) | El agente envía el vídeo al momento (o Daniel). Si al rato no dicen nada: "¿Lo has podido ver? ¿Os pasa algo parecido?" |
 | "No, dime" (variante B) | Haz la pregunta de dolor de la variante A de su nicho. |
 | Confirman el problema ("al día siguiente", "con 3 de 10") | "Tiene sentido, es lo más habitual. Justo eso es lo que resolvemos: que cada cliente reciba respuesta al momento aunque estéis ocupados. Te lo explico en un vídeo de dos minutos: pebaisystems.es/consultoria-gratuita/?origen=daniel" |
 | "Lo tenemos cubierto" | "Me alegra. Por curiosidad, ¿lo lleva alguien del equipo o usáis alguna herramienta?" (la conversación sigue; el vídeo, después) |
@@ -75,17 +104,17 @@ Enlace siempre con `?origen=daniel`, para que la solicitud quede a su nombre (`d
 
 La consultoría gratuita es solo para cinco plazas al mes: nunca escribir que es gratis para todos.
 
-## 5. Cómo medimos
+## 6. Cómo medimos
 
 - Cada mensaje guarda qué plantilla se envió (nicho y variante). Por cada una: enviados, respuestas, bajas y "sin WhatsApp".
 - Se decide con al menos 50 envíos por variante. Gana la que más respuestas tenga sin más bajas. La perdedora se sustituye por una nueva idea, para que siempre haya una prueba en marcha.
 - Señales de peligro para el número: **bajas por encima del 2 %**, muchos "¿de dónde has sacado mi número?", o mensajes que no llegan (un solo tick durante horas). Si pasa, se baja el cupo y se revisa el texto.
 - El cupo sube de 10 en 10 por semana solo si la semana anterior estuvo limpia.
 
-## 6. Nichos online (solar, piscinas, casas prefabricadas)
+## 7. Nichos online (solar, piscinas, casas prefabricadas)
 
 No tienen local y muchos no están en Google Maps: venden con anuncios y formularios. Su dolor es la **velocidad de respuesta y el filtrado de solicitudes**. Hay estudios (InsideSales/MIT, 2007; HBR) que relacionan contestar en minutos con muchas más probabilidades de cerrar; son antiguos y de proveedores, así que sirven para la conversación, no como promesa. Por eso sus plantillas hablan de presupuestos fuera de horario y de cuántos llegan a hablar con alguien.
 
 Sus números salen de su web o de sus anuncios, no de Google. Lo consigue el chat del Scraper, y en cada uno hay que guardar de dónde sale (`origen`).
 
-Fuentes: [LSSI, definición de comunicación comercial (resoluciones AEPD)](https://www.aepd.es/documento/e-06761-2016.pdf) · [Sanciones AEPD por envíos sin consentimiento](https://legitec.com/envios-comerciales-sin-consentimiento-la-aepd-ya-esta-sancionando-con-hasta-5-000-e/) · [Cold email B2B en España: RGPD + LSSI](https://overloop.com/es/blog/b2b-cold-email-espana-rgpd-aepd) · [Preguntas orientadas al "no" (Chris Voss)](https://www.thesdrnewsletter.com/blog/the-power-of-no-oriented-questions-in-sales) · [WhatsApp en frío B2B](https://sbl.so/whatsapp/whatsapp-cold-outreach-b2b-guide/) · [Tasas de respuesta en frío](https://outreaches.ai/blog/cold-outreach-benchmarks) · [Speed to lead](https://ventureharbour.com/how-fast-do-marketing-leads-turn-cold-and-how-to-stop-it-happening/)
+Fuentes: [Vídeo en email frío: estudio de 2,1 M envíos](https://warmysender.com/blog/posts/video-in-cold-email-does-it-work) · [Personalización por señales](https://www.autobound.ai/blog/cold-email-guide-2026) · [Riesgo de archivos de desconocidos en WhatsApp](https://achiya-automation.com/en/blog/whatsapp-spam-detection-2026/) · [Notas de voz (cifras de vendedor)](https://vclar.com/blog/voice-note-scripts-for-sales-outreach-that-book-calls-2026/) · [LSSI, definición de comunicación comercial (resoluciones AEPD)](https://www.aepd.es/documento/e-06761-2016.pdf) · [Sanciones AEPD por envíos sin consentimiento](https://legitec.com/envios-comerciales-sin-consentimiento-la-aepd-ya-esta-sancionando-con-hasta-5-000-e/) · [Cold email B2B en España: RGPD + LSSI](https://overloop.com/es/blog/b2b-cold-email-espana-rgpd-aepd) · [Preguntas orientadas al "no" (Chris Voss)](https://www.thesdrnewsletter.com/blog/the-power-of-no-oriented-questions-in-sales) · [WhatsApp en frío B2B](https://sbl.so/whatsapp/whatsapp-cold-outreach-b2b-guide/) · [Tasas de respuesta en frío](https://outreaches.ai/blog/cold-outreach-benchmarks) · [Speed to lead](https://ventureharbour.com/how-fast-do-marketing-leads-turn-cold-and-how-to-stop-it-happening/)
