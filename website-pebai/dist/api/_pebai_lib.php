@@ -74,9 +74,18 @@ function pebai_db(): PDO
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_leads_created ON leads(created_at)');
         // Columnas de la cita (Cal.com), añadidas sin perder datos existentes
         $cols = array_column($pdo->query('PRAGMA table_info(leads)')->fetchAll(), 'name');
-        foreach (['cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at', 'equipo'] as $col) {
+        foreach (['cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at', 'equipo',
+                  'conocio', 'canal_dueno', 'canal_auto', 'canal_motivo', 'canal_revisar', 'canal_manual'] as $col) {
             if (!in_array($col, $cols, true)) {
                 $pdo->exec("ALTER TABLE leads ADD COLUMN $col TEXT NOT NULL DEFAULT ''");
+            }
+        }
+        // Las solicitudes anteriores a la atribución por canal se clasifican una vez con sus utm
+        if (!in_array('canal_dueno', $cols, true)) {
+            $upd = $pdo->prepare('UPDATE leads SET canal_dueno = ?, canal_auto = ?, canal_motivo = ?, canal_revisar = ? WHERE id = ?');
+            foreach ($pdo->query('SELECT * FROM leads')->fetchAll() as $old) {
+                $c = pebai_canal($old);
+                $upd->execute([$c['canal'], $c['canal'], $c['motivo'], $c['revisar'] ? '1' : '', $old['id']]);
             }
         }
         $pdo->exec('CREATE TABLE IF NOT EXISTS login_attempts (ip_hash TEXT NOT NULL, ts INTEGER NOT NULL)');
@@ -113,6 +122,142 @@ function pebai_db(): PDO
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_eventos_lead ON eventos(lead_id)');
     }
     return $pdo;
+}
+
+/* ------------------------------------------- Canal y dueño de cada solicitud --- */
+
+// Reparto del acuerdo de colaboración: cada solicitud pertenece a un canal y cada canal a un dueño.
+const PEBAI_CANALES = [
+    'salida_adrian' => ['Salida · Adrián', 'adrian'],
+    'salida_daniel' => ['Salida · Daniel', 'daniel'],
+    'seo_geo' => ['SEO/GEO · Daniel', 'daniel'],
+    'anuncios' => ['Anuncios · 5/5', 'compartido'],
+    'redes' => ['Redes · 5/5', 'compartido'],
+    'pendiente' => ['Sin asignar', ''],
+];
+
+// Respuestas de "¿Cómo nos conociste?" en /diagnostico/
+const PEBAI_CONOCIO = [
+    'google' => 'Google', 'ia' => 'ChatGPT u otra IA', 'redes' => 'Instagram, TikTok o YouTube', 'anuncio' => 'Un anuncio',
+    'mensaje' => 'Le escribimos (email/WhatsApp)', 'visita' => 'Le llamamos o visitamos', 'recomendacion' => 'Recomendación', 'otro' => 'Otro',
+];
+
+// Persona de un toque: ?origen=adrian|daniel, utm_source=adrian o la tarjeta /t/adrian (utm_content).
+function pebai_canal_persona(array $t): string
+{
+    $vals = [$t['origen'] ?? '', $t['utm_source'] ?? ''];
+    if (($t['utm_source'] ?? '') === 'tarjeta') {
+        $vals[] = $t['utm_content'] ?? '';
+    }
+    foreach ($vals as $v) {
+        $v = mb_strtolower(trim((string)$v));
+        if (in_array($v, ['adrian', 'adrián'], true)) {
+            return 'adrian';
+        }
+        if (in_array($v, ['daniel', 'dani'], true)) {
+            return 'daniel';
+        }
+    }
+    return '';
+}
+
+// Canal que dicen los utm de un toque: [canal, motivo]. Canal '' si no dicen nada (directo, sin consentimiento...).
+function pebai_canal_toque(array $t): array
+{
+    if (!$t) {
+        return ['', ''];
+    }
+    $src = strtolower(trim((string)($t['utm_source'] ?? '')));
+    $med = strtolower(trim((string)($t['utm_medium'] ?? '')));
+    if ($p = pebai_canal_persona($t)) {
+        return ['salida_' . $p, 'enlace de ' . ($p === 'adrian' ? 'Adrián' : 'Daniel') . ($src === 'tarjeta' ? ' (tarjeta)' : '')];
+    }
+    if (!empty($t['gclid']) || !empty($t['fbclid']) || !empty($t['ttclid'])) {
+        return ['anuncios', 'clic de anuncio (' . (!empty($t['gclid']) ? 'gclid' : (!empty($t['fbclid']) ? 'fbclid' : 'ttclid')) . ')'];
+    }
+    if (preg_match('/^(cpc|ppc|paid|paid_?social|ads?|display|anuncio|sem)$/', $med)) {
+        return ['anuncios', 'utm_medium=' . $med];
+    }
+    if ($src === 'tarjeta' || in_array($med, ['puerta_fria', 'email_frio', 'outbound', 'salida'], true)) {
+        return ['salida', 'captación de salida sin persona (' . ($src ?: $med) . ')'];
+    }
+    if (in_array($src, ['google', 'bing', 'duckduckgo', 'yahoo', 'ecosia', 'chatgpt', 'perplexity', 'gemini', 'copilot', 'claude'], true)) {
+        return ['seo_geo', $src . ($med ? ' · ' . $med : '')];
+    }
+    if (preg_match('/instagram|tiktok|youtube|facebook|linkedin|^x$|twitter|threads/', $src)) {
+        return ['redes', $src . ($med ? ' · ' . $med : '')];
+    }
+    return ['', ''];
+}
+
+// Canal que dice la respuesta del formulario ('salida' = captación de salida sin saber de quién).
+function pebai_canal_respuesta(string $conocio): string
+{
+    return ['google' => 'seo_geo', 'ia' => 'seo_geo', 'redes' => 'redes', 'anuncio' => 'anuncios',
+            'mensaje' => 'salida', 'visita' => 'salida', 'recomendacion' => 'pendiente'][$conocio] ?? '';
+}
+
+/*
+ * Canal y dueño de una solicitud:
+ *  1) Enlace con persona (?origen=adrian|daniel, /t/adrian) → captación de salida de esa persona.
+ *  2) gclid/fbclid/ttclid o utm_medium de pago → anuncios (5/5).
+ *  3) google, bing, chatgpt, perplexity, gemini → SEO/GEO (Daniel).   4) Redes orgánicas → 5/5.
+ *  5) Sin señal en los utm (directo, sin consentimiento) → lo dice la respuesta del formulario.
+ *  6) Si utm y respuesta no coinciden, decide la respuesta y se marca "revisar".
+ * Salida sin persona o recomendación quedan "Sin asignar" y se revisan; sin ningún dato, redes (acuerdo).
+ * Devuelve ['canal' => clave de PEBAI_CANALES, 'revisar' => bool, 'motivo' => texto].
+ */
+function pebai_canal(array $lead): array
+{
+    $leer = function ($j): array {
+        $d = is_array($j) ? $j : json_decode((string)$j, true);
+        return is_array($d) ? $d : [];
+    };
+    $first = $leer($lead['primer_toque'] ?? '');
+    $last = $leer($lead['ultimo_toque'] ?? '');
+
+    // Manda la primera visita (quién los trajo); si no dice nada, la última.
+    // Un enlace con persona en cualquiera de las dos gana a lo demás.
+    $p1 = pebai_canal_persona($first);
+    $p2 = pebai_canal_persona($last);
+    [$utm, $porque] = pebai_canal_toque(!$p1 && $p2 ? $last : $first);
+    if ($utm === '') {
+        [$utm, $porque] = pebai_canal_toque($last);
+    }
+    $choque = $p1 && $p2 && $p1 !== $p2;
+    if ($choque) {
+        $porque .= ' · también hay un enlace de ' . ($p2 === 'adrian' ? 'Adrián' : 'Daniel');
+    }
+
+    $conocio = (string)($lead['conocio'] ?? '');
+    $resp = pebai_canal_respuesta($conocio);
+    $respTxt = $conocio !== '' ? 'respuesta «' . (PEBAI_CONOCIO[$conocio] ?? $conocio) . '»' : '';
+    $asignar = function (string $c): string {
+        return $c === 'salida' ? 'pendiente' : $c;
+    };
+
+    if ($utm === '' && $resp === '') {
+        return ['canal' => 'redes', 'revisar' => $conocio === 'otro',
+                'motivo' => 'sin origen registrado' . ($respTxt ? ' · ' . $respTxt : '') . ' → redes por acuerdo'];
+    }
+    if ($resp === '') {
+        $c = $asignar($utm);
+        return ['canal' => $c, 'revisar' => $choque || $c === 'pendiente', 'motivo' => $porque];
+    }
+    if ($utm === '') {
+        $c = $asignar($resp);
+        return ['canal' => $c, 'revisar' => $c === 'pendiente', 'motivo' => $respTxt . ' (sin utm)' . ($c === 'pendiente' ? ' · falta saber de quién' : '')];
+    }
+    $coinciden = $utm === $resp
+        || ($resp === 'salida' && strpos($utm, 'salida') === 0)
+        || (in_array($utm, ['anuncios', 'redes'], true) && in_array($resp, ['anuncios', 'redes'], true)); // mismo reparto 5/5
+    if ($coinciden) {
+        $c = $asignar($utm);
+        return ['canal' => $c, 'revisar' => $choque || $c === 'pendiente', 'motivo' => $porque . ' · ' . $respTxt . ' coincide'];
+    }
+    $c = $asignar($resp);
+    return ['canal' => $c, 'revisar' => true,
+            'motivo' => 'conflicto: los utm dicen ' . (PEBAI_CANALES[$asignar($utm)][0] ?? $utm) . ' (' . $porque . ') y la ' . $respTxt . ' → decide el formulario'];
 }
 
 function pebai_ip_hash(): string
@@ -481,6 +626,7 @@ function pebai_lead_email(array $lead, int $id): array
     $font = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
     $etiqueta = $qualified ? 'Con presupuesto' : 'Explorando';
     $punto = $qualified ? '#7BC21A' : '#9AA0AE';
+    $canal = PEBAI_CANALES[$lead['canal_dueno'] ?? ''][0] ?? '';
 
     $html = '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
         . '<meta name="color-scheme" content="light"><title>Nueva solicitud</title></head>'
@@ -504,6 +650,8 @@ function pebai_lead_email(array $lead, int $id): array
         . '<div style="margin-top:8px;font-size:24px;line-height:1.25;font-weight:800;color:#0B0F14">' . h($lead['empresa']) . '</div>'
         . '<div style="margin-top:10px;font-size:14px;color:#5B6172">'
         . '<span style="color:' . $punto . ';font-size:16px">&#9679;</span>&nbsp;' . h($etiqueta) . ' &middot; ' . h(pebai_fecha($lead['created_at'])) . '</div>'
+        . ($canal !== '' ? '<div style="margin-top:4px;font-size:14px;color:#5B6172">Canal: <b style="color:#0B0F14">' . h($canal) . '</b>'
+            . (!empty($lead['canal_revisar']) ? ' <span style="color:#C2410C;font-weight:700">&middot; revisar</span>' : '') . '</div>' : '')
         . '</td></tr>'
         // Botón
         . '<tr><td style="padding:26px 30px 30px">'
@@ -514,7 +662,9 @@ function pebai_lead_email(array $lead, int $id): array
         . '<div style="max-width:480px;padding:14px 0 0;font-size:12px;color:#9AA0AE">Solicitud #' . $id . ' &middot; pebaisystems.es</div>'
         . '</td></tr></table></body></html>';
 
-    $text = "Nueva solicitud: {$lead['empresa']} ($etiqueta)\n\nVer en el panel: $panel\n";
+    $text = "Nueva solicitud: {$lead['empresa']} ($etiqueta)\n"
+        . ($canal !== '' ? "Canal: $canal" . (!empty($lead['canal_revisar']) ? ' (revisar)' : '') . "\n" : '')
+        . "\nVer en el panel: $panel\n";
     $subject = 'Nueva solicitud: ' . $lead['empresa'] . ($qualified ? ' · con presupuesto' : '');
 
     return [$subject, $html, $text];

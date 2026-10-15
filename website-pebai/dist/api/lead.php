@@ -100,7 +100,14 @@ $lead = [
     'pagina' => $str($data['pagina'] ?? '', 300),
     'dispositivo' => $str($_SERVER['HTTP_USER_AGENT'] ?? '', 250),
     'ip_hash' => '',
+    'conocio' => array_key_exists($str($data['conocio'] ?? '', 20), PEBAI_CONOCIO) ? $str($data['conocio'] ?? '', 20) : '',
 ];
+// Canal y dueño (acuerdo de colaboración): utm + respuesta de "¿Cómo nos conociste?"
+$canal = pebai_canal($lead);
+$lead['canal_dueno'] = $canal['canal'];
+$lead['canal_auto'] = $canal['canal'];
+$lead['canal_motivo'] = mb_substr($canal['motivo'], 0, 300);
+$lead['canal_revisar'] = $canal['revisar'] ? '1' : '';
 
 $saved = false;
 $id = 0;

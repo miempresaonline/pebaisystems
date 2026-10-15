@@ -697,6 +697,19 @@
       box-shadow: 0 0 12px var(--blue-glow);
     }
 
+    .form-select {
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: pointer;
+      padding-right: 40px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B7FF3C' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 16px;
+    }
+    .form-select:invalid { color: #8A8DA0; }
+    .form-select option { background: #0E1018; color: #FFF; }
+
     .submit-btn {
       width: 100%;
       padding: 13px;
@@ -1682,6 +1695,15 @@
       color: #12121A;
     }
 
+    :root[data-theme="light"] .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23493AC4' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 16px;
+    }
+    :root[data-theme="light"] .form-select:invalid { color: #8A8DA0; }
+    :root[data-theme="light"] .form-select option { background: #FFFFFF; color: #12121A; }
+
     :root[data-theme="light"] .form-input:focus {
       border-color: #493AC4;
       box-shadow: 0 0 14px rgba(73, 58, 196, 0.22);
@@ -1984,7 +2006,7 @@
       document.documentElement.dataset.theme = 'light';
     }
   </script>
-  <script src="/utm.js?v=3"></script>
+  <script src="/utm.js?v=4"></script>
   <link rel="stylesheet" href="/funnel.css">
   <script>try{if(sessionStorage.getItem('pebai_handoff')){sessionStorage.removeItem('pebai_handoff');document.documentElement.classList.add('handoff')}}catch(e){}</script>
   <meta name="twitter:card" content="summary_large_image">
@@ -2244,6 +2266,23 @@
             <label class="form-label" for="input-telefono">Teléfono WhatsApp</label>
             <input type="tel" id="input-telefono" class="form-input" placeholder="Ej: 612 34 56 78" required autocomplete="tel" inputmode="tel" aria-describedby="err-telefono">
             <p class="field-error" id="err-telefono" role="alert"></p>
+          </div>
+
+          <!-- Respaldo de la atribución cuando no hay consentimiento de analítica (ver api/lead.php) -->
+          <div class="form-group">
+            <label class="form-label" for="input-conocio">¿Cómo nos conociste?</label>
+            <select id="input-conocio" class="form-input form-select" required aria-describedby="err-conocio">
+              <option value="" selected disabled>Elige una opción</option>
+              <option value="google">Buscando en Google</option>
+              <option value="ia">Me lo recomendó ChatGPT u otra IA</option>
+              <option value="redes">Instagram, TikTok o YouTube</option>
+              <option value="anuncio">Un anuncio</option>
+              <option value="mensaje">Me escribisteis por email o WhatsApp</option>
+              <option value="visita">Me llamasteis o visitasteis</option>
+              <option value="recomendacion">Me lo recomendó alguien</option>
+              <option value="otro">Otro</option>
+            </select>
+            <p class="field-error" id="err-conocio" role="alert"></p>
           </div>
 
           <!-- CASILLA OBLIGATORIA DE POLÍTICA DE PRIVACIDAD -->
@@ -2709,6 +2748,8 @@
       const el = document.getElementById(id);
       if (el) el.addEventListener('input', function () { setFieldError(id, 'err-' + id.slice(6), ''); });
     });
+    const conocioEl = document.getElementById('input-conocio');
+    if (conocioEl) conocioEl.addEventListener('change', function () { setFieldError('input-conocio', 'err-conocio', ''); });
     const privCheckEl = document.getElementById('check-privacidad');
     if (privCheckEl) privCheckEl.addEventListener('change', function () { document.getElementById('err-privacidad').textContent = ''; });
 
@@ -2718,25 +2759,30 @@
       const empInput = document.getElementById('input-empresa');
       const telInput = document.getElementById('input-telefono');
       const privCheck = document.getElementById('check-privacidad');
+      const conInput = document.getElementById('input-conocio');
+      const conocio = conInput ? conInput.value : '';
       const nombre = nomInput ? nomInput.value.trim() : '';
       const empresa = empInput ? empInput.value.trim() : '';
       const telefono = telInput ? telInput.value.trim() : '';
       const errNombre = nombre.length < 2 ? 'Escribe tu nombre para saber a quién saludar.' : '';
       const errEmpresa = empresa.length < 2 ? 'Escribe el nombre de tu empresa o negocio.' : '';
       const errTelefono = !telefono ? 'Necesitamos tu WhatsApp para enviarte la valoración.' : validatePhone(telefono);
+      const errConocio = conocio ? '' : 'Dinos cómo nos conociste.';
       const errPriv = (privCheck && privCheck.checked) ? '' : 'Acepta la política de privacidad para continuar.';
       setFieldError('input-nombre', 'err-nombre', errNombre);
       setFieldError('input-empresa', 'err-empresa', errEmpresa);
       setFieldError('input-telefono', 'err-telefono', errTelefono);
+      setFieldError('input-conocio', 'err-conocio', errConocio);
       document.getElementById('err-privacidad').textContent = errPriv;
-      if (errNombre || errEmpresa || errTelefono || errPriv) {
-        const first = errNombre ? nomInput : (errEmpresa ? empInput : (errTelefono ? telInput : privCheck));
+      if (errNombre || errEmpresa || errTelefono || errConocio || errPriv) {
+        const first = errNombre ? nomInput : (errEmpresa ? empInput : (errTelefono ? telInput : (errConocio ? conInput : privCheck)));
         if (first) first.focus();
         return;
       }
       state.nombre = nombre;
       state.empresa = empresa;
       state.telefono = telefono;
+      state.conocio = conocio;
       document.getElementById('step-fallback').style.display = 'none';
       executeSubmission();
     }
@@ -2763,7 +2809,7 @@
     function urlAttribution() {
       const p = new URLSearchParams(window.location.search);
       const t = {};
-      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'origen', 'palabra'].forEach(function (k) {
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'origen', 'palabra', 'gclid', 'fbclid', 'ttclid'].forEach(function (k) {
         const v = p.get(k);
         if (v) t[k] = v;
       });
@@ -2825,6 +2871,7 @@
         objetivo: state.objetivo,
         presupuesto: state.presupuesto,
         opcion: state.opcion,
+        conocio: state.conocio || '',
         privacidad_aceptada: true,
         cta: state.cta || attr.cta || '',
         primer_toque: attr.first || null,

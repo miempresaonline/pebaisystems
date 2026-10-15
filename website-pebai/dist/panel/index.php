@@ -139,6 +139,24 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
             pebai_evento($id, 'contacto', $tipos[$tipo], false);
             pebai_avanzar($id, 'contactado', $tipos[$tipo]);
             json_out(['ok' => true]);
+        case 'canal':
+            // Corrección a mano del canal y dueño (o confirmar el automático: quita el aviso de revisar)
+            $id = (int)($_POST['id'] ?? 0);
+            $canal = (string)($_POST['canal'] ?? '');
+            if (!isset(PEBAI_CANALES[$canal])) {
+                json_out(['ok' => false, 'error' => 'Canal no válido.'], 400);
+            }
+            $q = $db->prepare('SELECT canal_dueno, canal_auto FROM leads WHERE id = ?');
+            $q->execute([$id]);
+            $antes = $q->fetch();
+            if (!$antes) {
+                json_out(['ok' => false, 'error' => 'No existe la solicitud #' . $id . '.'], 404);
+            }
+            $db->prepare('UPDATE leads SET canal_dueno = ?, canal_manual = ?, canal_revisar = ?, updated_at = ? WHERE id = ?')
+                ->execute([$canal, $canal === $antes['canal_auto'] ? '' : '1', $canal === 'pendiente' ? '1' : '', $now, $id]);
+            pebai_evento($id, 'canal', ($antes['canal_dueno'] === $canal ? 'Canal confirmado: ' : 'Canal cambiado a: ') . PEBAI_CANALES[$canal][0]
+                . ($antes['canal_dueno'] !== $canal && isset(PEBAI_CANALES[$antes['canal_dueno']]) ? ' (antes ' . PEBAI_CANALES[$antes['canal_dueno']][0] . ')' : ''), false);
+            json_out(['ok' => true]);
         case 'asistencia':
             $uid = (string)($_POST['uid'] ?? '');
             $valor = ($_POST['valor'] ?? '') === 'asistio' ? 'asistio' : (($_POST['valor'] ?? '') === 'no_asistio' ? 'no_asistio' : '');
@@ -179,7 +197,8 @@ if ($auth && $db && isset($_GET['csv'])) {
     $out = fopen('php://output', 'w');
     fwrite($out, "\xEF\xBB\xBF");
     $cols = ['id', 'created_at', 'estado', 'empresa', 'nombre', 'telefono', 'equipo', 'canal', 'volumen', 'objetivo', 'presupuesto',
-             'opcion', 'fuente', 'medio', 'campana', 'contenido', 'palabra', 'cta', 'cita_inicio', 'cliente_email', 'notas'];
+             'opcion', 'fuente', 'medio', 'campana', 'contenido', 'palabra', 'cta', 'conocio', 'canal_dueno', 'canal_revisar', 'canal_motivo',
+             'cita_inicio', 'cliente_email', 'notas'];
     fputcsv($out, $cols, ';');
     foreach ($db->query('SELECT ' . implode(',', $cols) . ' FROM leads ORDER BY id DESC') as $r) {
         fputcsv($out, $r, ';');
@@ -199,7 +218,8 @@ if ($auth && isset($_GET['data'])) {
     }
     $cols = ['id', 'created_at', 'estado', 'notas', 'empresa', 'nombre', 'telefono', 'equipo', 'canal', 'volumen', 'objetivo', 'presupuesto', 'opcion',
              'fuente', 'medio', 'campana', 'contenido', 'palabra', 'cta', 'primer_toque', 'ultimo_toque', 'pagina', 'dispositivo',
-             'email_enviado', 'updated_at', 'cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at'];
+             'email_enviado', 'updated_at', 'cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at',
+             'conocio', 'canal_dueno', 'canal_auto', 'canal_motivo', 'canal_revisar', 'canal_manual'];
     $leads = $db->query('SELECT ' . implode(',', $cols) . ' FROM leads ORDER BY id DESC LIMIT 3000')->fetchAll();
     foreach ($leads as &$l) {
         $l['id'] = (int)$l['id'];
@@ -220,10 +240,14 @@ if ($auth && isset($_GET['data'])) {
         $e['auto'] = (int)$e['auto'];
     }
     unset($e);
-    json_out(['ok' => true, 'eventos' => $eventos, 'ahora' => date('Y-m-d H:i:s'), 'ahora_utc' => gmdate('Y-m-d\TH:i:s\Z'), 'csrf' => csrf(), 'leads' => $leads, 'citas' => $citas]);
+    $canales = [];
+    foreach (PEBAI_CANALES as $k => [$label, $dueno]) {
+        $canales[] = ['clave' => $k, 'label' => $label, 'dueno' => $dueno];
+    }
+    json_out(['ok' => true, 'canales' => $canales, 'conocio' => PEBAI_CONOCIO, 'eventos' => $eventos, 'ahora' => date('Y-m-d H:i:s'), 'ahora_utc' => gmdate('Y-m-d\TH:i:s\Z'), 'csrf' => csrf(), 'leads' => $leads, 'citas' => $citas]);
 }
 
-$v = '6';
+$v = '7';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -312,7 +336,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     <div class="pb-grid two">
       <div class="pb-card pb-anim" style="--i:8">
         <div class="hd"><div><h2>De dónde vienen</h2><p class="note">Origen de cada solicitud en el periodo. Pulsa una fila para ver sus solicitudes.</p></div>
-          <div class="pb-subtabs" id="pb-dim"><button data-d="fuente" class="on" type="button">Fuente · medio</button><button data-d="campana" type="button">Campaña</button><button data-d="palabra" type="button">Palabra</button></div></div>
+          <div class="pb-subtabs" id="pb-dim"><button data-d="fuente" class="on" type="button">Fuente · medio</button><button data-d="campana" type="button">Campaña</button><button data-d="palabra" type="button">Palabra</button><button data-d="canal" type="button">Canal · dueño</button></div></div>
         <div class="pb-scroll">
           <table class="pb-table" id="pb-origen">
             <thead><tr><th data-field="clave">Origen</th><th class="n" data-field="total">Solicitudes</th><th class="n" data-field="con_presupuesto">Con presup.</th><th class="n" data-field="citas">Citas</th><th class="n" data-field="sesiones">Sesiones</th><th class="n" data-field="clientes">Clientes</th><th class="n" data-field="p_cita">% a cita</th></tr></thead>
@@ -336,6 +360,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
       <select id="pb-f-estado" aria-label="Estado"><option value="">Todos los estados</option></select>
       <select id="pb-f-fuente" aria-label="Fuente"><option value="">Todas las fuentes</option></select>
       <select id="pb-f-opcion" aria-label="Opción"><option value="">Con y sin presupuesto</option><option value="A">Opción A · con presupuesto</option><option value="B">Opción B · explorando</option></select>
+      <select id="pb-f-canal" aria-label="Canal y dueño"><option value="">Todos los canales</option></select>
       <button class="pb-btn ghost" id="pb-limpiar" type="button">Limpiar</button>
     </div>
     <div class="pb-list" id="pb-leads"></div>

@@ -13,7 +13,10 @@
   var STORE = 'pebai_attr_v1';
   var KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
               'origen', 'palabra', 'gclid', 'fbclid', 'ttclid'];
-  var PASS_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'origen', 'palabra'];
+  // Los identificadores de clic de anuncios (gclid, fbclid, ttclid) también viajan hasta el formulario:
+  // sin consentimiento es la única forma de saber que el lead vino de un anuncio.
+  var PASS_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'origen', 'palabra',
+                   'gclid', 'fbclid', 'ttclid'];
   var FUNNEL_PATHS = ['/consultoria-gratuita', '/diagnostico'];
 
   // Consentimiento de analítica. consent.js puede no haberse cargado aún

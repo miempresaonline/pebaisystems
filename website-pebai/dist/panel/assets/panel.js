@@ -16,8 +16,12 @@ const PASOS = ['Solicitudes', 'Revisadas', 'Con cita', 'Sesiones', 'Clientes'];
 const EVENTOS = {
   nuevo: 'Solicitud recibida', contactado: 'En revisión', cita: 'Cita agendada', sesion: 'Sesión hecha', no_asistio: 'No se presentó',
   cliente: 'Cliente', descartado: 'Descartado', reserva: 'Reservó la sesión', reprogramada: 'Cambió la hora', cancelada: 'Canceló la cita',
-  unida: 'Reserva unida', contacto: 'Contacto',
+  unida: 'Reserva unida', contacto: 'Contacto', canal: 'Canal',
 };
+/* Canal y dueño (acuerdo de colaboración). Las etiquetas llegan del servidor (PEBAI_CANALES); estos son los colores. */
+const CANAL_COLOR = { salida_adrian: '#FFB547', salida_daniel: '#3FD5FF', seo_geo: '#B7FF3C', anuncios: '#FF6BD6', redes: '#6A5CFF', pendiente: '#3A404D' };
+const canalInfo = (k) => (S.canales || []).find((c) => c.clave === k) || { clave: k || 'pendiente', label: k || 'Sin asignar', dueno: '' };
+const DUENO = { adrian: 'Adrián', daniel: 'Daniel', compartido: 'Compartido 5/5', '': 'Sin dueño' };
 const FASES = [['Solicitud', ['nuevo']], ['Revisión', ['contactado']], ['Reserva', ['cita', 'reserva']], ['Sesión', ['sesion']]];
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -41,20 +45,20 @@ const stats = (rows) => ({
 
 /* ============ estado ============ */
 const S = { leads: [], citas: [], eventos: new Map(), ahora: new Date(), ahoraUTC: new Date(), csrf: app.dataset.csrf, loaded: false, drawn: false, conocidas: null };
-const ui = { page: 'resumen', periodo: '30', estado: null, fuente: null, opcion: null, q: null, dim: 'fuente', sort: { col: 'total', dir: 'desc' }, sel: null, limit: 120 };
+const ui = { page: 'resumen', periodo: '30', estado: null, fuente: null, opcion: null, canal: null, q: null, dim: 'fuente', sort: { col: 'total', dir: 'desc' }, sel: null, limit: 120 };
 
 const readUrl = () => {
   const u = new URLSearchParams(location.search);
   if (u.get('id')) { ui.sel = Number(u.get('id')); ui.page = 'solicitudes'; }
   else if (['resumen', 'solicitudes', 'citas'].includes(u.get('tab'))) ui.page = u.get('tab');
   if (PERIODOS.includes(u.get('periodo'))) ui.periodo = u.get('periodo');
-  ['estado', 'fuente', 'opcion', 'q'].forEach((k) => { if (u.get(k)) ui[k] = u.get(k); });
+  ['estado', 'fuente', 'opcion', 'canal', 'q'].forEach((k) => { if (u.get(k)) ui[k] = u.get(k); });
 };
 const writeUrl = () => {
   const u = new URLSearchParams();
   if (ui.page !== 'resumen') u.set('tab', ui.page);
   if (ui.periodo !== '30') u.set('periodo', ui.periodo);
-  ['estado', 'fuente', 'opcion', 'q'].forEach((k) => { if (ui[k]) u.set(k, ui[k]); });
+  ['estado', 'fuente', 'opcion', 'canal', 'q'].forEach((k) => { if (ui[k]) u.set(k, ui[k]); });
   if (ui.sel != null) u.set('id', ui.sel);
   const qs = u.toString();
   history.replaceState(null, '', BASE + (qs ? '?' + qs : ''));
@@ -91,6 +95,7 @@ const KEYS = {
   fuente: (l) => (l.fuente || 'directo') + (l.medio ? ' · ' + l.medio : ''),
   campana: (l) => (l.campana || '(sin campaña)') + (l.contenido ? ' · ' + l.contenido : ''),
   palabra: (l) => l.palabra || '(sin palabra)',
+  canal: (l) => canalInfo(l.canal_dueno).label,
 };
 const calcGrupo = (dim, p) => d3.rollups(S.leads.filter((l) => enPeriodo(l, p)), (v) => stats(v), KEYS[dim]).map(([clave, s]) => ({ clave, ...s, p_cita: s.total ? s.citas / s.total : null }));
 const calcPorEstado = () => Object.fromEntries(Object.keys(ESTADOS).map((k) => [k, S.leads.filter((l) => l.estado === k).length]));
@@ -102,6 +107,13 @@ const citasClasificadas = () => {
 /* ============ utilidades de interfaz ============ */
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 const badge = (estado) => { const [l, bg, fg] = ESTADOS[estado] || ESTADOS.nuevo; const s = el('span', 'pb-badge', l); s.style.background = bg; s.style.color = fg; return s; };
+const canalPill = (l, small) => {
+  const c = canalInfo(l.canal_dueno); const s = el('span', 'pb-canal-pill' + (small ? ' sm' : ''));
+  s.style.setProperty('--c', CANAL_COLOR[c.clave] || '#3A404D'); s.append(el('i'), c.label);
+  if (l.canal_revisar === '1') s.append(el('em', null, 'revisar'));
+  if (l.canal_manual === '1') s.title = 'Corregido a mano';
+  return s;
+};
 const toast = (msg, err) => { const t = $('#pb-toast'); $('span', t).textContent = msg; t.classList.toggle('err', !!err); t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2800); };
 const countUp = (node, to) => {
   if (!to || matchMedia('(prefers-reduced-motion: reduce)').matches) { node.textContent = N(to); return; }
@@ -116,6 +128,7 @@ async function load() {
   if (r.status === 401 || r.redirected) { location.reload(); return; }
   const j = await r.json();
   if (!j.ok) throw new Error(j.error || 'Error al cargar');
+  S.canales = j.canales || []; S.conocio = j.conocio || {};
   S.leads = j.leads; S.citas = j.citas; S.ahora = parse(j.ahora); S.ahoraUTC = new Date(j.ahora_utc); S.csrf = j.csrf; S.loaded = true;
   S.eventos = d3.group(j.eventos || [], (e) => e.lead_id);
   avisarNuevas();
@@ -143,13 +156,14 @@ $('#pb-periodo').addEventListener('click', (e) => { const b = e.target.closest('
 $('#pb-dim').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; $$('#pb-dim button').forEach((x) => x.classList.toggle('on', x === b)); set({ dim: b.dataset.d }); });
 $('#pb-theme').addEventListener('click', () => { const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; document.documentElement.dataset.theme = t; try { localStorage.setItem('pebai-panel-theme', t); } catch (e) {} draw(); });
 
-const fEstado = $('#pb-f-estado'), fFuente = $('#pb-f-fuente'), fOpcion = $('#pb-f-opcion'), fQ = $('#pb-q');
+const fEstado = $('#pb-f-estado'), fFuente = $('#pb-f-fuente'), fOpcion = $('#pb-f-opcion'), fCanal = $('#pb-f-canal'), fQ = $('#pb-q');
+fCanal.addEventListener('change', () => set({ canal: fCanal.value || null, limit: 120 }));
 Object.entries(ESTADOS).forEach(([k, v]) => fEstado.append(new Option(v[0], k)));
 fEstado.addEventListener('change', () => set({ estado: fEstado.value || null, limit: 120 }));
 fFuente.addEventListener('change', () => set({ fuente: fFuente.value || null, limit: 120 }));
 fOpcion.addEventListener('change', () => set({ opcion: fOpcion.value || null, limit: 120 }));
 fQ.addEventListener('input', () => { clearTimeout(fQ.h); fQ.h = setTimeout(() => set({ q: fQ.value.trim() || null, limit: 120 }), 160); });
-$('#pb-limpiar').addEventListener('click', () => { fQ.value = ''; set({ estado: null, fuente: null, opcion: null, q: null, limit: 120 }); });
+$('#pb-limpiar').addEventListener('click', () => { fQ.value = ''; set({ estado: null, fuente: null, opcion: null, canal: null, q: null, limit: 120 }); });
 document.addEventListener('keydown', (e) => {
   if (e.key === '/' && document.activeElement !== fQ && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && ui.sel == null) { e.preventDefault(); showPage('solicitudes'); fQ.focus(); }
   if (e.key === 'Escape') closeDetail();
@@ -195,6 +209,9 @@ function pendientes() {
   if (sinReserva.length) out.push({ nivel: 'warn', n: sinReserva.length, t: 'con enlace enviado y sin reservar', d: 'Más de 48 h: toca el mensaje de seguimiento', ids: sinReserva.map((l) => l.id), go: { estado: 'contactado' } });
   const atascadas = S.leads.filter((l) => l.estado === 'contactado' && !l.enlace_at && S.ahora - parse(l.visto_at || l.created_at) > 48 * H);
   if (atascadas.length) out.push({ nivel: 'warn', n: atascadas.length, t: 'en revisión sin decisión', d: 'Más de 48 h sin enviar enlace ni descartar', ids: atascadas.map((l) => l.id), go: { estado: 'contactado' } });
+  const revisar = S.leads.filter((l) => l.canal_revisar === '1');
+  if (revisar.length) out.push({ nivel: 'warn', n: revisar.length, t: revisar.length === 1 ? 'canal por revisar' : 'canales por revisar',
+    d: 'Los utm y la respuesta del formulario no cuadran, o falta saber de quién es: confírmalo en la ficha', ids: revisar.map((l) => l.id), go: { canal: 'revisar' } });
   const cl = citasClasificadas();
   const hoy = cl.filter((c) => c.tramo === 'proximas' && c.d.toDateString() === new Date().toDateString());
   if (hoy.length) out.push({ nivel: 'ok', n: hoy.length, t: hoy.length === 1 ? 'sesión hoy' : 'sesiones hoy', d: hoy.map((c) => pad(c.d.getHours()) + ':' + pad(c.d.getMinutes()) + ' ' + (c.lead ? c.lead.empresa : c.nombre)).join(' · '), page: 'citas' });
@@ -215,7 +232,7 @@ function drawPendientes() {
     b.append(n, tx, el('span', 'go', '→'));
     b.addEventListener('click', () => {
       if (it.ids && it.ids.length === 1) { openDetail(it.ids[0]); return; }
-      if (it.go) { Object.assign(ui, { estado: null, fuente: null, opcion: null, q: null }, it.go); showPage('solicitudes'); return; }
+      if (it.go) { Object.assign(ui, { estado: null, fuente: null, opcion: null, canal: null, q: null }, it.go); showPage('solicitudes'); return; }
       showPage(it.page);
     });
     list.append(b);
@@ -315,7 +332,7 @@ function drawRitmo(p, rows) {
 
 function drawOrigen(p) {
   const table = $('#pb-origen'), tb = $('tbody', table);
-  $('th[data-field=clave]', table).textContent = { fuente: 'Fuente · medio', campana: 'Campaña · contenido', palabra: 'Palabra clave' }[ui.dim];
+  $('th[data-field=clave]', table).textContent = { fuente: 'Fuente · medio', campana: 'Campaña · contenido', palabra: 'Palabra clave', canal: 'Canal · dueño' }[ui.dim];
   $$('th', table).forEach((th) => th.setAttribute('aria-sort', th.dataset.field === ui.sort.col ? (ui.sort.dir === 'desc' ? 'descending' : 'ascending') : 'none'));
   tb.replaceChildren();
   const { col, dir } = ui.sort;
@@ -335,7 +352,8 @@ $('#pb-origen tbody').addEventListener('click', (e) => {
   const tr = e.target.closest('tr[data-clave]'); if (!tr) return;
   const clave = tr.dataset.clave;
   fQ.value = '';
-  if (ui.dim === 'fuente') { const f = clave.split(' · ')[0]; Object.assign(ui, { fuente: f === 'directo' ? '(directo)' : f, estado: null, opcion: null, q: null }); }
+  if (ui.dim === 'canal') { const c = (S.canales || []).find((x) => x.label === clave); Object.assign(ui, { canal: c ? c.clave : null, fuente: null, estado: null, opcion: null, q: null }); }
+  else if (ui.dim === 'fuente') { const f = clave.split(' · ')[0]; Object.assign(ui, { fuente: f === 'directo' ? '(directo)' : f, canal: null, estado: null, opcion: null, q: null }); }
   else { const q = clave.split(' · ')[0].replace(/[()]/g, ''); Object.assign(ui, { q, fuente: null, estado: null, opcion: null }); fQ.value = q; }
   showPage('solicitudes');
 });
@@ -352,11 +370,16 @@ function drawSolicitudes() {
   const fuentes = d3.rollups(S.leads, (v) => v.length, (l) => l.fuente).sort((a, b) => b[1] - a[1]);
   fFuente.replaceChildren(new Option('Todas las fuentes', ''), ...fuentes.map(([f, c]) => new Option((f || 'directo') + ' (' + c + ')', f || '(directo)')));
   fFuente.value = ui.fuente ?? ''; fOpcion.value = ui.opcion ?? '';
+  const nRev = S.leads.filter((l) => l.canal_revisar === '1').length;
+  fCanal.replaceChildren(new Option('Todos los canales', ''), new Option('⚠ Por revisar (' + nRev + ')', 'revisar'),
+    ...(S.canales || []).map((c) => new Option(c.label + ' (' + S.leads.filter((l) => l.canal_dueno === c.clave).length + ')', c.clave)));
+  fCanal.value = ui.canal ?? '';
   if (fQ !== document.activeElement) fQ.value = ui.q ?? '';
   const list = $('#pb-leads'); list.replaceChildren();
   const q = (ui.q || '').toLowerCase();
   const rows = S.leads.filter((l) => (!ui.estado || l.estado === ui.estado) && (ui.fuente == null || (ui.fuente === '(directo)' ? !l.fuente : l.fuente === ui.fuente)) && (!ui.opcion || l.opcion === ui.opcion)
-    && (!q || ['empresa', 'nombre', 'telefono', 'notas', 'cliente_email', 'palabra', 'campana', 'objetivo'].some((k) => String(l[k] || '').toLowerCase().includes(q)) || String(l.id) === q.replace('#', '')));
+    && (!ui.canal || (ui.canal === 'revisar' ? l.canal_revisar === '1' : l.canal_dueno === ui.canal))
+    &&(!q || ['empresa', 'nombre', 'telefono', 'notas', 'cliente_email', 'palabra', 'campana', 'objetivo'].some((k) => String(l[k] || '').toLowerCase().includes(q)) || String(l.id) === q.replace('#', '')));
   rows.sort((a, b) => b.id - a.id);
   ui.orden = rows.map((l) => l.id);
   if (!rows.length) { list.append(el('div', 'pb-empty', S.loaded ? 'Todavía no hay solicitudes con estos filtros.' : '')); return; }
@@ -368,6 +391,7 @@ function drawSolicitudes() {
     parts.forEach((t, j) => { if (j) meta.append(el('span', 'sep', '·')); meta.append(el('span', null, t)); });
     if (l.cita_inicio && l.cita_estado !== 'cancelada') { meta.append(el('span', 'sep', '·')); meta.append(el('span', 'cita', 'Cita ' + fechaCorta(parseUTC(l.cita_inicio)))); }
     mid.append(meta);
+    if (l.canal_dueno) mid.append(canalPill(l, true));
     const r = el('div', 'r'); r.append(badge(l.estado));
     const dias = Math.floor((S.ahora - parse(l.created_at)) / 86400000); r.append(el('span', 'age', dias <= 0 ? 'hoy' : 'hace ' + dias + ' d'));
     b.append(av, mid, r); b.addEventListener('click', () => openDetail(l.id)); list.append(b);
@@ -638,6 +662,27 @@ function drawDetalle() {
   const fx = el('div'); fx.append(el('small', null, 'Envió el formulario'), el('b', null, (l.pagina || '/diagnostico/').replace(/^https?:\/\/[^/]+/, '')), el('span', null, l.cta ? 'botón ' + l.cta : fecha(parse(l.created_at)))); fin.append(fx);
   camino.append(el('i', 'arrow')); camino.append(fin);
   src.append(camino);
+
+  // Canal y dueño: lo calcula lead.php con los utm y la respuesta "¿Cómo nos conociste?"; aquí se confirma o corrige
+  const cbox = el('div', 'pb-canal' + (l.canal_revisar === '1' ? ' rev' : ''));
+  const ctop = el('div', 'cab');
+  const cinfo = canalInfo(l.canal_dueno);
+  const ctx = el('div'); ctx.append(el('small', null, 'Canal y dueño'), canalPill(l));
+  ctx.append(el('span', 'own', 'Dueño: ' + DUENO[cinfo.dueno] + (l.canal_manual === '1' ? ' · corregido a mano (automático: ' + canalInfo(l.canal_auto).label + ')' : '')));
+  ctop.append(ctx);
+  const cact = el('div', 'acts');
+  const csel = el('select'); csel.setAttribute('aria-label', 'Cambiar canal y dueño');
+  (S.canales || []).forEach((c) => csel.append(new Option(c.label, c.clave))); csel.value = l.canal_dueno || 'pendiente';
+  csel.addEventListener('change', () => act('canal', { id: l.id, canal: csel.value }, 'Canal: ' + canalInfo(csel.value).label + '.', csel));
+  cact.append(csel);
+  if (l.canal_revisar === '1' && l.canal_dueno !== 'pendiente') cact.append(btn('primary', icon('check'), 'Confirmar', (e) => act('canal', { id: l.id, canal: l.canal_dueno }, 'Canal confirmado.', e.currentTarget)));
+  ctop.append(cact);
+  cbox.append(ctop);
+  const cdet = el('div', 'why');
+  cdet.append(el('span', null, 'Respuesta del formulario: ' + (l.conocio ? (S.conocio[l.conocio] || l.conocio) : 'sin respuesta')));
+  if (l.canal_motivo) cdet.append(el('span', null, 'Por qué: ' + l.canal_motivo));
+  cbox.append(cdet);
+  src.prepend(cbox);
   box.append(section('De dónde viene', 'pin', src));
 
   /* ---------- notas y fase ---------- */
