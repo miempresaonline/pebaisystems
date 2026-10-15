@@ -1,0 +1,18 @@
+{
+  "name": "pebai-agente-whatsapp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Agente de captación por WhatsApp de PEBAI Systems. Corre 24/7 en el servidor; las órdenes las da el panel (api/agente.php).",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "baileys": "7.0.0-rc14",
+    "pino": "9.7.0"
+  }
+}

@@ -16,5 +16,7 @@ return [
     'calcom_webhook_secret' => '',
     // Token para lanzar api/recordatorios.php por URL desde el cron de Hostinger
     'cron_token' => '',
+    // Token del agente de WhatsApp (agente-whatsapp/): el mismo valor que AGENT_TOKEN en su .env
+    'agent_token' => '',
     'salt' => '',
 ];

@@ -10,14 +10,14 @@ Monorepo con todos los sistemas de PEBAI Systems (pebaisystems.es).
 | `website-pebai/` | Web corporativa + landings SEO/GEO. `dist/` **es** la web publicada | Hostinger (`public_html`) vía SFTP |
 | `website-pebai/seo-engine/` | Generación masiva de landings, sitemap e IndexNow (manual) | Local → sube a Hostinger |
 | `carousel-engine/` | Motor de carruseles (radar diario + render con Playwright) | GitHub Actions (manual) + local |
-| `commercial-engine/` | CRM Airtable + llamadas IA de voz + webhooks | Local / servidor |
+| `agente-whatsapp/` | Agente de captación por WhatsApp (Node + Baileys). Lo controla el panel; ver `docs/agente-whatsapp.md` | Hostinger 24/7 (PM2) vía `deploy/desplegar_agente_whatsapp.py` |
 | `deploy/` | Utilidades de servidor (p. ej. `apagar_bots_y_geo.py`) | Local |
 | `docs/` | Sistema de contenido, automatización Instagram, esquema Miro | — |
 | `ideas/` | Modelos de negocio y benchmarks | — |
 | `assets/` | Marca (logos, kit), equipo y piezas sociales | — |
 | `.agents/skills/` | Skills de los agentes (copy, SEO, carruseles, ventas…) | — |
 
-Sin bots ni publicación automática de GEO desde el 14/10/2026 (eliminados a propósito).
+Sin publicación automática de GEO desde el 14/10/2026. El único bot activo es el agente de WhatsApp (desde el 15/10/2026, a petición del equipo).
 
 Carpetas **locales que nunca se suben**: `privado/` (accesos a servidores), `documentos/` (contratos y presupuestos), `scratch/` (pruebas, capturas, vídeos), `assets/clients/`.
 

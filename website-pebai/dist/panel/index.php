@@ -5,10 +5,11 @@
  *
  * Sirve igual como raíz del subdominio (carpeta public_html/panel como document root)
  * que en https://pebaisystems.es/panel/ mientras el subdominio no exista: BASE lo decide.
- * La interfaz es assets/panel.js; este archivo autentica, sirve los datos (?data=1)
- * y aplica las acciones (POST action=update|asistencia|vincular).
+ * Secciones: Embudo (assets/panel.js, datos en ?data=1), Captación y Agentes (assets/agentes.js, datos en ?agentes=1).
+ * Este archivo autentica, sirve los datos y aplica las acciones (POST action=…).
  */
 require dirname(__DIR__) . '/api/_pebai_lib.php';
+require dirname(__DIR__) . '/api/_agentes_lib.php';
 
 header('X-Robots-Tag: noindex, nofollow');
 header('X-Frame-Options: DENY');
@@ -186,6 +187,81 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 pebai_cita_sync_lead($cita);
             }
             json_out(['ok' => true]);
+        /* ---- Captación y agentes ---- */
+        case 'prospectos_importar':
+            $raw = (string)($_POST['texto'] ?? '');
+            if (!empty($_FILES['archivo']['tmp_name']) && is_uploaded_file($_FILES['archivo']['tmp_name'])) {
+                if ($_FILES['archivo']['size'] > 5 * 1024 * 1024) {
+                    json_out(['ok' => false, 'error' => 'El archivo pasa de 5 MB.'], 400);
+                }
+                $raw = (string)file_get_contents($_FILES['archivo']['tmp_name']);
+                if (!mb_check_encoding($raw, 'UTF-8')) {
+                    $raw = mb_convert_encoding($raw, 'UTF-8', 'Windows-1252');
+                }
+            }
+            if (trim($raw) === '') {
+                json_out(['ok' => false, 'error' => 'Sube un CSV o pega la lista.'], 400);
+            }
+            $origen = mb_substr(trim((string)($_POST['origen'] ?? '')), 0, 120);
+            if ($origen === '') {
+                json_out(['ok' => false, 'error' => 'Indica de dónde salen los números (p. ej. «Google Maps, ficha pública»).'], 400);
+            }
+            $lote = mb_substr(trim((string)($_POST['lote'] ?? '')), 0, 80) ?: date('d/m H:i');
+            json_out(['ok' => true, 'res' => pebai_prospectos_importar($raw, $origen, $lote)]);
+        case 'prospecto_estado':
+            $id = (int)($_POST['id'] ?? 0);
+            $estado = (string)($_POST['estado'] ?? '');
+            if (!in_array($estado, ['pendiente', 'descartado', 'baja', 'respondio'], true)) {
+                json_out(['ok' => false, 'error' => 'Estado no válido.'], 400);
+            }
+            $q = pebai_agentes_db()->prepare('SELECT telefono FROM prospectos WHERE id = ?');
+            $q->execute([$id]);
+            $tel = $q->fetchColumn();
+            if ($tel === false) {
+                json_out(['ok' => false, 'error' => 'No existe el prospecto.'], 404);
+            }
+            if ($estado === 'baja') {
+                pebai_wa_baja($tel, 'Marcado a mano en el panel');
+                json_out(['ok' => true]);
+            }
+            $q = pebai_agentes_db()->prepare('SELECT COUNT(*) FROM bajas WHERE telefono = ?');
+            $q->execute([$tel]);
+            if ((int)$q->fetchColumn()) {
+                json_out(['ok' => false, 'error' => 'Pidió la baja: no se le puede volver a escribir.'], 400);
+            }
+            pebai_agentes_db()->prepare("UPDATE prospectos SET estado = ?, error = '', updated_at = ? WHERE id = ?")->execute([$estado, $now, $id]);
+            json_out(['ok' => true]);
+        case 'prospecto_notas':
+            $id = (int)($_POST['id'] ?? 0);
+            pebai_agentes_db()->prepare('UPDATE prospectos SET notas = ?, updated_at = ? WHERE id = ?')
+                ->execute([mb_substr(trim((string)($_POST['notas'] ?? '')), 0, 3000), $now, $id]);
+            json_out(['ok' => true]);
+        case 'agente_pausa':
+            pebai_agentes_db()->prepare("UPDATE agente_estado SET pausado = ? WHERE agente = 'whatsapp'")->execute([($_POST['pausado'] ?? '') === '1' ? 1 : 0]);
+            json_out(['ok' => true]);
+        case 'agente_config':
+            $cfg = pebai_wa_config();
+            $cfg['limite_dia'] = max(0, min(200, (int)($_POST['limite_dia'] ?? $cfg['limite_dia'])));
+            $ventanas = [];
+            foreach (preg_split('/[,\n]+/', (string)($_POST['ventanas'] ?? '')) as $tramo) {
+                if (preg_match('/^\s*(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s*$/', $tramo, $m) && strtotime($m[1]) < strtotime($m[2])) {
+                    $ventanas[] = [$m[1], $m[2]];
+                }
+            }
+            if (!$ventanas) {
+                json_out(['ok' => false, 'error' => 'Horario no válido. Ejemplo: 08:30-13:00, 17:00-20:00'], 400);
+            }
+            $cfg['ventanas'] = $ventanas;
+            $plantillas = array_values(array_filter(array_map('trim', preg_split('/\n\s*-{3,}\s*\n/', str_replace("\r", '', (string)($_POST['plantillas'] ?? ''))))));
+            foreach ($plantillas as $t) {
+                if (!str_contains($t, 'Daniel') || !preg_match('/no (te |os |le )?(vuelvo|volver|molest|escrib)/iu', $t)) {
+                    json_out(['ok' => false, 'error' => 'Cada plantilla debe decir quién escribe (Daniel) y ofrecer no volver a escribir. Es lo que nos mantiene dentro de la ley.'], 400);
+                }
+            }
+            $cfg['plantillas'] = $plantillas ?: PEBAI_WA_PLANTILLAS;
+            pebai_agentes_db()->prepare("UPDATE agente_estado SET config = ? WHERE agente = 'whatsapp'")
+                ->execute([json_encode(array_intersect_key($cfg, array_flip(['limite_dia', 'ventanas', 'plantillas'])), JSON_UNESCAPED_UNICODE)]);
+            json_out(['ok' => true]);
     }
     json_out(['ok' => false, 'error' => 'Acción desconocida.'], 400);
 }
@@ -247,7 +323,38 @@ if ($auth && isset($_GET['data'])) {
     json_out(['ok' => true, 'canales' => $canales, 'conocio' => PEBAI_CONOCIO, 'eventos' => $eventos, 'ahora' => date('Y-m-d H:i:s'), 'ahora_utc' => gmdate('Y-m-d\TH:i:s\Z'), 'csrf' => csrf(), 'leads' => $leads, 'citas' => $citas]);
 }
 
-$v = '7';
+/* ------------------------------------------- Datos de Captación y Agentes --- */
+if ($auth && isset($_GET['agentes'])) {
+    if (!$db) {
+        json_out(['ok' => false, 'error' => $dbError], 500);
+    }
+    $adb = pebai_agentes_db();
+    $pros = $adb->query('SELECT id, created_at, updated_at, empresa, nombre, telefono, sector, ciudad, web, origen_dato, lote, notas, estado, enviado_at, respondido_at, error
+                         FROM prospectos ORDER BY id DESC LIMIT 5000')->fetchAll();
+    foreach ($pros as &$p) {
+        $p['id'] = (int)$p['id'];
+    }
+    unset($p);
+    $msgs = $adb->query("SELECT m.id, m.ts, m.prospecto_id, m.sentido, m.texto, p.empresa, p.telefono FROM agente_mensajes m
+                         LEFT JOIN prospectos p ON p.id = m.prospecto_id WHERE m.agente = 'whatsapp' ORDER BY m.id DESC LIMIT 400")->fetchAll();
+    foreach ($msgs as &$m) {
+        $m['id'] = (int)$m['id'];
+        $m['prospecto_id'] = (int)$m['prospecto_id'];
+    }
+    unset($m);
+    $wa = pebai_agente('whatsapp');
+    $cfg = pebai_wa_config();
+    $vent = pebai_wa_ventana();
+    $q = $adb->prepare("SELECT substr(ts, 1, 10) d, sentido, COUNT(*) n FROM agente_mensajes WHERE agente = 'whatsapp' AND ts >= ? GROUP BY d, sentido");
+    $q->execute([date('Y-m-d', strtotime('-29 days'))]);
+    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'prospectos' => $pros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
+              'bajas' => (int)$adb->query('SELECT COUNT(*) FROM bajas')->fetchColumn(),
+              'whatsapp' => ['estado' => $wa['estado'], 'latido_at' => $wa['latido_at'], 'detalle' => $wa['detalle'], 'codigo' => $wa['codigo'], 'pausado' => (int)$wa['pausado'],
+                             'enviados_hoy' => pebai_wa_enviados_hoy(), 'limite_dia' => $cfg['limite_dia'], 'ventanas' => $cfg['ventanas'], 'plantillas' => $cfg['plantillas'],
+                             'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
+}
+
+$v = '8';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -286,26 +393,40 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 </main>
 
 <?php else: ?>
-<div class="pb-shell" id="pb-app" data-base="<?= h(BASE) ?>" data-csrf="<?= h(csrf()) ?>">
+<div class="pb-app" id="pb-app" data-base="<?= h(BASE) ?>" data-csrf="<?= h(csrf()) ?>">
 
-  <div class="pb-top">
-    <a class="pb-brand" href="<?= BASE ?>" aria-label="Panel PEBAI">
+<aside class="pb-side" aria-label="Secciones del panel">
+  <a class="pb-brand" href="<?= BASE ?>" aria-label="Panel PEBAI">
       <img class="pb-mark" src="<?= BASE ?>assets/pebai-mark.png" width="122" height="144" alt=""><svg class="pb-word" viewBox="30 15 700 112" aria-label="PEBAI" role="img"><g fill="currentColor"><g transform="translate(30 15) scale(2.72003 1.55556) translate(-7 72)"><path d="M12.7500 0L7 0L7-72L34.1500-72Q35.2000-72 36.4250-71.9250Q37.6500-71.8500 39-71.6000L39-71.6000Q44.4000-70.7500 48.2750-67.7250Q52.1500-64.7000 54.2000-60.1250Q56.2500-55.5500 56.2500-50.0500L56.2500-50.0500Q56.2500-44.5000 54.2000-39.9250Q52.1500-35.3500 48.2750-32.3250Q44.4000-29.3000 39-28.4500L39-28.4500Q37.6500-28.2500 36.4250-28.1500Q35.2000-28.0500 34.1500-28.0500L34.1500-28.0500L12.7500-28.0500L12.7500 0ZM12.7500-66.4000L12.7500-33.7000L34.0500-33.7000Q34.9500-33.7000 36.1250-33.8000Q37.3000-33.9000 38.5000-34.1000L38.5000-34.1000Q42.4000-34.9000 45-37.2750Q47.6000-39.6500 48.9000-43Q50.2000-46.3500 50.2000-50.0500L50.2000-50.0500Q50.2000-53.7500 48.9000-57.0750Q47.6000-60.4000 45-62.7750Q42.4000-65.1500 38.5000-65.9500L38.5000-65.9500Q37.3000-66.2000 36.1250-66.3000Q34.9500-66.4000 34.0500-66.4000L34.0500-66.4000L12.7500-66.4000Z"/><path d="M113.7500 0L69.2500 0L69.2500-72L113.7500-72L113.7500-66.4000L75-66.4000L75-39.0500L107.7500-39.0500L107.7500-33.4500L75-33.4500L75-5.6000L113.7500-5.6000L113.7500 0Z"/><path d="M158.4000 0L128.7500 0L128.7500-72L156.3000-72Q161.9000-72 166.3750-69.6250Q170.8500-67.2500 173.4250-63.1500Q176-59.0500 176-53.9000L176-53.9000Q176-48.1000 172.8000-43.4750Q169.6000-38.8500 164.3000-37L164.3000-37L164.1000-39.4000Q171.2000-37.2500 175.3750-32.2250Q179.5500-27.2000 179.5500-19.8000L179.5500-19.8000Q179.5500-13.6000 176.8250-9.1750Q174.1000-4.7500 169.3000-2.3750Q164.5000 0 158.4000 0L158.4000 0ZM134.5500-35.1000L134.5500-5.6500L156.5000-5.6500Q161.3000-5.6500 165.1250-7.3000Q168.9500-8.9500 171.1750-12.0500Q173.4000-15.1500 173.4000-19.5500L173.4000-19.5500Q173.4000-23.9000 171.3750-27.4250Q169.3500-30.9500 165.9000-33.0250Q162.4500-35.1000 158.1500-35.1000L158.1500-35.1000L134.5500-35.1000ZM134.5500-66.4500L134.5500-40.6500L156.2500-40.6500Q160-40.6500 163.1250-42.4000Q166.2500-44.1500 168.1000-47.1750Q169.9500-50.2000 169.9500-54.1000L169.9500-54.1000Q169.9500-59.6500 166.0250-63.0500Q162.1000-66.4500 156.2500-66.4500L156.2500-66.4500L134.5500-66.4500Z"/><path d="M193.5500 0L187.4500 0L212.9500-72L220.1000-72L245.6000 0L239.5000 0L215-69L217.9000-69L193.5500 0ZM235-18.1000L198-18.1000L198-23.5500L235-23.5500L235-18.1000Z"/><path d="M264.3500 0L258.6000 0L258.6000-72L264.3500-72L264.3500 0Z"/></g></g></svg>
     </a>
-    <div class="pb-seg" id="pb-periodo" aria-label="Periodo">
-      <button data-p="7">7 días</button><button data-p="30">30 días</button><button data-p="90">90 días</button><button data-p="todo">Todo</button>
+  <nav class="pb-nav" id="pb-tabs">
+    <div class="grp"><small>Embudo</small>
+      <button data-page="resumen" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg><span>Resumen</span></button>
+      <button data-page="solicitudes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span>Solicitudes</span><em id="pb-leads-n">—</em><i class="pb-dot" id="pb-leads-dot" hidden></i></button>
+      <button data-page="citas" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span>Citas</span><em id="pb-citas-n">—</em></button>
     </div>
+    <div class="grp"><small>Captación</small>
+      <button data-page="prospectos" type="button"><svg class="pb-i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/></svg><span>Prospectos</span><em id="pb-pros-n">—</em></button>
+    </div>
+    <div class="grp"><small>Automático</small>
+      <button data-page="agentes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg><span>Agentes</span><i class="pb-live" id="pb-ag-live" title="Estado de los agentes"></i></button>
+    </div>
+  </nav>
+  <div class="pb-side-foot">
     <button class="pb-btn icon" id="pb-avisos" title="Activar avisos de nuevas solicitudes" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
     <button class="pb-btn icon" id="pb-theme" title="Cambiar tema" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg></button>
-    <a class="pb-btn" href="<?= BASE ?>?csv=1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Exportar CSV</a>
     <a class="pb-btn ghost" href="<?= BASE ?>?salir=1">Salir</a>
   </div>
+</aside>
 
-  <nav class="pb-tabs" id="pb-tabs">
-    <button data-page="resumen" type="button">Resumen</button>
-    <button data-page="solicitudes" type="button">Solicitudes <em id="pb-leads-n">—</em><i class="pb-dot" id="pb-leads-dot" hidden></i></button>
-    <button data-page="citas" type="button">Citas <em id="pb-citas-n">—</em></button>
-  </nav>
+<main class="pb-shell pb-main">
+  <div class="pb-top">
+    <div class="pb-crumb" id="pb-crumb"><span>Embudo</span><b>Resumen</b></div>
+    <div class="pb-seg pb-only-embudo" id="pb-periodo" aria-label="Periodo">
+      <button data-p="7">7 días</button><button data-p="30">30 días</button><button data-p="90">90 días</button><button data-p="todo">Todo</button>
+    </div>
+    <a class="pb-btn pb-only-embudo" href="<?= BASE ?>?csv=1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Exportar CSV</a>
+  </div>
 
   <section class="pb-page" id="page-resumen" data-page="resumen">
     <h1 class="pb-h1">El embudo, <i>de un vistazo</i></h1>
@@ -377,6 +498,63 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
       <div class="pb-card"><h2>Pasadas · marca si asistió</h2><p class="note">Marcar asistencia actualiza el estado de la solicitud.</p><div class="pb-agenda" id="pb-pasadas"></div></div>
     </div>
   </section>
+
+  <section class="pb-page" id="page-prospectos" data-page="prospectos">
+    <div class="pb-pagehead">
+      <div>
+        <div class="pb-eyebrow">Captación · Salida en frío</div>
+        <h1 class="pb-h1">Prospectos, <i>uno a uno</i></h1>
+        <p class="pb-lead">La lista de la que tira el agente de WhatsApp. Escribe a los pendientes por orden de llegada, dentro del horario y del cupo diario. Quien pide la baja no vuelve a recibir nada, aunque se reimporte.</p>
+      </div>
+      <button class="pb-btn primary big" id="pb-imp-abrir" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Añadir prospectos</button>
+    </div>
+    <div class="pb-grid k" id="pb-pros-kpis"></div>
+    <div class="pb-card pb-import" id="pb-import" hidden>
+      <div class="hd"><div><h2>Importar lista</h2><p class="note">CSV de Google Sheets o Excel, o pégala tal cual. Columnas: <b>empresa, telefono</b> y, si las tienes, nombre, sector, ciudad, web, origen, notas. Solo entran móviles; los repetidos se ignoran.</p></div>
+        <button class="pb-btn ghost icon" id="pb-imp-cerrar" type="button" title="Cerrar"><svg class="pb-i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+      <form id="pb-imp-form" class="pb-imp-grid">
+        <label class="pb-drop" id="pb-drop">
+          <input type="file" name="archivo" accept=".csv,.tsv,.txt,text/csv" hidden>
+          <svg class="pb-i" viewBox="0 0 24 24"><path d="M12 16V4m0 0 4 4m-4-4-4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+          <b id="pb-drop-t">Suelta aquí el CSV</b><small>o pulsa para elegirlo</small>
+        </label>
+        <textarea name="texto" placeholder="…o pega la lista:&#10;empresa;telefono;sector;ciudad&#10;Clínica Dental Sonrisa;612345678;Clínicas;Valencia"></textarea>
+        <label class="pb-field"><span>De dónde salen los números <em class="req">obligatorio</em></span><input name="origen" required placeholder="Google Maps · ficha pública del negocio" value="Google Maps · ficha pública del negocio"></label>
+        <label class="pb-field"><span>Nombre del lote</span><input name="lote" placeholder="Clínicas Valencia, octubre"></label>
+        <div class="pb-imp-foot"><p class="note">Solo números publicados por la empresa como contacto comercial. Se guarda el origen de cada uno por si alguien pregunta de dónde lo sacamos.</p><button class="pb-btn primary" type="submit">Importar</button></div>
+      </form>
+    </div>
+    <div class="pb-chips" id="pb-pros-chips"></div>
+    <div class="pb-filters">
+      <div class="grow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pb-pros-q" type="search" placeholder="Buscar empresa, teléfono, sector, ciudad…" aria-label="Buscar prospectos"></div>
+      <select id="pb-pros-lote" aria-label="Lote"><option value="">Todos los lotes</option></select>
+    </div>
+    <div class="pb-list" id="pb-pros-list"></div>
+  </section>
+
+  <section class="pb-page" id="page-agentes" data-page="agentes">
+    <div class="pb-pagehead">
+      <div>
+        <div class="pb-eyebrow">Automático · 24/7 en el servidor</div>
+        <h1 class="pb-h1">Tu equipo <i>que no duerme</i></h1>
+        <p class="pb-lead" id="pb-ag-lead">Los agentes que trabajan solos, por departamento. Aquí ves si están vivos, qué han hecho hoy y a quién han escrito.</p>
+      </div>
+    </div>
+    <div class="pb-dept">
+      <div class="pb-dept-h"><span class="pb-ico lime"><svg class="pb-i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><div><h2>Captación</h2><p>Primer contacto con empresas nuevas</p></div></div>
+      <div id="pb-ag-wa"></div>
+      <div class="pb-grid two pb-soon-row">
+        <div class="pb-card pb-soon"><span class="pb-tile" style="background:linear-gradient(135deg,#6A5CFF,#3FD5FF)"><svg class="pb-i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><div><b>Agente de email</b><small>Secuencias en frío · próximamente</small></div></div>
+      </div>
+    </div>
+    <div class="pb-dept">
+      <div class="pb-dept-h"><span class="pb-ico"><svg class="pb-i" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 3v18M3 9h5"/></svg></span><div><h2>Redes</h2><p>Contenido que se publica solo</p></div></div>
+      <div class="pb-grid two pb-soon-row">
+        <div class="pb-card pb-soon"><span class="pb-tile" style="background:linear-gradient(45deg,#F58529,#DD2A7B 45%,#8134AF 75%,#515BD4)"><svg class="pb-i" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="14" rx="2"/><path d="M6 2h14a2 2 0 0 1 2 2v14"/></svg></span><div><b>Agente de carruseles</b><small>Radar diario y diseño automático · próximamente</small></div></div>
+      </div>
+    </div>
+  </section>
+</main>
 </div>
 
 <div class="pb-veil" id="pb-veil"></div>
@@ -391,6 +569,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>
 <script src="<?= BASE ?>assets/icons.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/panel.js?v=<?= $v ?>" defer></script>
+<script src="<?= BASE ?>assets/agentes.js?v=<?= $v ?>" defer></script>
 <?php endif; ?>
 </body>
 </html>

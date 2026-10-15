@@ -117,6 +117,14 @@ try {
     $errores++;
 }
 
+// De paso, vigila que el agente de WhatsApp siga vivo (avisa por email si lleva 30 min sin latido)
+try {
+    require_once __DIR__ . '/_agentes_lib.php';
+    pebai_agentes_vigilar();
+} catch (Throwable $e) {
+    pebai_log('VIGILAR AGENTES: ' . $e->getMessage());
+}
+
 $out = ['status' => 'ok', 'enviados_24h' => $enviados['24'], 'enviados_1h' => $enviados['1'], 'sesiones_auto' => $sesiones, 'errores' => $errores];
 // Última ejecución de cada vía (cron de hPanel, GitHub/URL o visitas) para comprobar que funcionan
 @file_put_contents(pebai_private_dir() . '/recordatorios-' . ($isCli ? 'cron' : ($isTick ? 'visitas' : 'url')) . '.last',

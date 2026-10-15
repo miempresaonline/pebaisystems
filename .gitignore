@@ -37,6 +37,9 @@ conversations_memory.json
 learning_metrics.json
 commercial-engine/backups/
 assets/clients/
+# Sesión de WhatsApp del agente y números contactados (solo en el servidor)
+agente-whatsapp/sesion/
+agente-whatsapp/contactados.json
 
 # --- Zona de pruebas y material de terceros ------------------------------------
 scratch/

@@ -1,4 +1,4 @@
-/* PEBAI · Panel del embudo — interfaz. Los datos llegan de index.php?data=1 y las acciones se envían por POST. */
+/* PEBAI · Panel — sección Embudo (resumen, solicitudes, citas). Los datos llegan de index.php?data=1 y las acciones se envían por POST. */
 (() => {
 'use strict';
 const app = document.getElementById('pb-app');
@@ -50,7 +50,7 @@ const ui = { page: 'resumen', periodo: '30', estado: null, fuente: null, opcion:
 const readUrl = () => {
   const u = new URLSearchParams(location.search);
   if (u.get('id')) { ui.sel = Number(u.get('id')); ui.page = 'solicitudes'; }
-  else if (['resumen', 'solicitudes', 'citas'].includes(u.get('tab'))) ui.page = u.get('tab');
+  else if (['resumen', 'solicitudes', 'citas', 'prospectos', 'agentes'].includes(u.get('tab'))) ui.page = u.get('tab');
   if (PERIODOS.includes(u.get('periodo'))) ui.periodo = u.get('periodo');
   ['estado', 'fuente', 'opcion', 'canal', 'q'].forEach((k) => { if (u.get(k)) ui[k] = u.get(k); });
 };
@@ -149,7 +149,9 @@ const act = async (action, fields, okMsg, btn) => {
 };
 
 /* ============ navegación ============ */
-const showPage = (p) => { $$('.pb-page').forEach((s) => s.classList.toggle('on', s.dataset.page === p)); $$('#pb-tabs button').forEach((b) => b.classList.toggle('on', b.dataset.page === p)); set({ page: p }); };
+/* Las secciones nuevas (Captación, Agentes) viven en agentes.js: se enteran del cambio de página por el evento pb:page. */
+const marcaPagina = (p) => { $$('.pb-page').forEach((s) => s.classList.toggle('on', s.dataset.page === p)); $$('#pb-tabs button').forEach((b) => b.classList.toggle('on', b.dataset.page === p)); document.body.dataset.page = p; document.dispatchEvent(new CustomEvent('pb:page', { detail: p })); };
+const showPage = (p) => { if (!p) return; marcaPagina(p); set({ page: p }); window.scrollTo({ top: 0 }); };
 $('#pb-tabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) showPage(b.dataset.page); });
 $$('[data-go]').forEach((b) => b.addEventListener('click', () => showPage(b.dataset.go)));
 $('#pb-periodo').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) set({ periodo: b.dataset.p }); });
@@ -754,7 +756,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 /* ============ arranque ============ */
 readUrl();
 $$('#pb-kpis .v').forEach((e) => e.classList.add('pb-skel'));
-$$('.pb-page').forEach((s) => s.classList.toggle('on', s.dataset.page === ui.page)); $$('#pb-tabs button').forEach((b) => b.classList.toggle('on', b.dataset.page === ui.page));
+marcaPagina(ui.page);
 fQ.value = ui.q || '';
 if (ui.sel != null) { $('#pb-drawer').classList.add('on'); $('#pb-veil').classList.add('on'); document.body.classList.add('pb-locked'); }
 writeUrl(); draw();
