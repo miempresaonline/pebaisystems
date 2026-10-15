@@ -5,11 +5,13 @@
  *
  * Sirve igual como raíz del subdominio (carpeta public_html/panel como document root)
  * que en https://pebaisystems.es/panel/ mientras el subdominio no exista: BASE lo decide.
- * Secciones: Embudo (assets/panel.js, datos en ?data=1), Captación y Agentes (assets/agentes.js, datos en ?agentes=1).
+ * Secciones: Embudo (assets/panel.js, datos en ?data=1), Captación y Agentes (assets/agentes.js, datos en ?agentes=1),
+ * Empresa › Caja (assets/caja.js, datos en ?caja=1).
  * Este archivo autentica, sirve los datos y aplica las acciones (POST action=…).
  */
 require dirname(__DIR__) . '/api/_pebai_lib.php';
 require dirname(__DIR__) . '/api/_agentes_lib.php';
+require dirname(__DIR__) . '/api/_caja_lib.php';
 
 header('X-Robots-Tag: noindex, nofollow');
 header('X-Frame-Options: DENY');
@@ -262,6 +264,99 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
             pebai_agentes_db()->prepare("UPDATE agente_estado SET config = ? WHERE agente = 'whatsapp'")
                 ->execute([json_encode(array_intersect_key($cfg, array_flip(['limite_dia', 'ventanas', 'plantillas'])), JSON_UNESCAPED_UNICODE)]);
             json_out(['ok' => true]);
+        /* ---- Empresa › Caja ---- */
+        case 'caja_guardar':
+            $cdb = pebai_caja_db();
+            $id = (int)($_POST['id'] ?? 0);
+            $tipo = ($_POST['tipo'] ?? '') === 'ingreso' ? 'ingreso' : 'gasto';
+            $importe = pebai_caja_cent((string)($_POST['importe'] ?? ''));
+            $fecha = pebai_caja_fecha((string)($_POST['fecha'] ?? ''));
+            $concepto = mb_substr(trim((string)($_POST['concepto'] ?? '')), 0, 200);
+            if ($importe === null) {
+                json_out(['ok' => false, 'error' => 'Escribe un importe válido, por ejemplo 1.250,00.'], 422);
+            }
+            if ($fecha === null) {
+                json_out(['ok' => false, 'error' => 'La fecha no es válida.'], 422);
+            }
+            if ($concepto === '') {
+                json_out(['ok' => false, 'error' => 'Pon un concepto: qué es este movimiento.'], 422);
+            }
+            $forma = in_array($_POST['forma'] ?? '', CAJA_FORMAS, true) ? $_POST['forma'] : '';
+            $campos = [
+                'tipo' => $tipo, 'fecha' => $fecha, 'importe' => $importe, 'concepto' => $concepto,
+                'categoria' => mb_substr(trim((string)($_POST['categoria'] ?? '')), 0, 80),
+                'servicio' => $tipo === 'ingreso' ? mb_substr(trim((string)($_POST['servicio'] ?? '')), 0, 120) : '',
+                'cliente' => mb_substr(trim((string)($_POST['cliente'] ?? '')), 0, 160),
+                'lead_id' => max(0, (int)($_POST['lead_id'] ?? 0)),
+                'forma' => $forma,
+                'cobrado' => ($_POST['cobrado'] ?? '1') === '0' ? 0 : 1,
+                'notas' => mb_substr(trim((string)($_POST['notas'] ?? '')), 0, 2000),
+            ];
+            if ($id > 0) {
+                $set = implode(', ', array_map(fn($k) => "$k = ?", array_keys($campos)));
+                $cdb->prepare("UPDATE caja_movimientos SET $set, updated_at = ? WHERE id = ?")->execute(array_merge(array_values($campos), [$now, $id]));
+            } else {
+                $campos['created_at'] = $now;
+                $cols = array_keys($campos);
+                $cdb->prepare('INSERT INTO caja_movimientos (' . implode(',', $cols) . ') VALUES (' . implode(',', array_fill(0, count($cols), '?')) . ')')
+                    ->execute(array_values($campos));
+                $id = (int)$cdb->lastInsertId();
+            }
+            json_out(['ok' => true, 'id' => $id]);
+        case 'caja_borrar':
+            $cdb = pebai_caja_db();
+            $id = (int)($_POST['id'] ?? 0);
+            // Un cargo de suscripción no se borra: se anula, para que no vuelva a apuntarse solo
+            $cdb->prepare("UPDATE caja_movimientos SET tipo = 'anulado', updated_at = ? WHERE id = ? AND suscripcion_id > 0")->execute([$now, $id]);
+            $cdb->prepare('DELETE FROM caja_movimientos WHERE id = ? AND suscripcion_id = 0')->execute([$id]);
+            json_out(['ok' => true]);
+        case 'sus_guardar':
+            $cdb = pebai_caja_db();
+            $id = (int)($_POST['id'] ?? 0);
+            $nombre = mb_substr(trim((string)($_POST['nombre'] ?? '')), 0, 120);
+            $importe = pebai_caja_cent((string)($_POST['importe'] ?? ''));
+            $inicio = pebai_caja_fecha((string)($_POST['inicio'] ?? ''));
+            $fin = trim((string)($_POST['fin'] ?? '')) === '' ? '' : pebai_caja_fecha((string)$_POST['fin']);
+            if ($nombre === '' || $importe === null || $inicio === null || $fin === null) {
+                json_out(['ok' => false, 'error' => 'Revisa el nombre, el importe y las fechas.'], 422);
+            }
+            $campos = [
+                'nombre' => $nombre, 'importe' => $importe,
+                'categoria' => mb_substr(trim((string)($_POST['categoria'] ?? '')), 0, 80) ?: 'Herramientas y software',
+                'periodo' => ($_POST['periodo'] ?? '') === 'anual' ? 'anual' : 'mensual',
+                'dia' => max(1, min(28, (int)($_POST['dia'] ?? 1))),
+                'inicio' => $inicio, 'fin' => $fin,
+                'activa' => ($_POST['activa'] ?? '1') === '0' ? 0 : 1,
+                'forma' => in_array($_POST['forma'] ?? '', CAJA_FORMAS, true) ? $_POST['forma'] : 'tarjeta',
+                'notas' => mb_substr(trim((string)($_POST['notas'] ?? '')), 0, 1000),
+            ];
+            if ($id > 0) {
+                $set = implode(', ', array_map(fn($k) => "$k = ?", array_keys($campos)));
+                $cdb->prepare("UPDATE caja_suscripciones SET $set, updated_at = ? WHERE id = ?")->execute(array_merge(array_values($campos), [$now, $id]));
+            } else {
+                $campos['created_at'] = $now;
+                $cols = array_keys($campos);
+                $cdb->prepare('INSERT INTO caja_suscripciones (' . implode(',', $cols) . ') VALUES (' . implode(',', array_fill(0, count($cols), '?')) . ')')
+                    ->execute(array_values($campos));
+            }
+            pebai_caja_suscripciones_al_dia();
+            json_out(['ok' => true]);
+        case 'sus_borrar':
+            // Los cargos ya apuntados se quedan en la caja: fueron gastos reales
+            pebai_caja_db()->prepare('DELETE FROM caja_suscripciones WHERE id = ?')->execute([(int)($_POST['id'] ?? 0)]);
+            json_out(['ok' => true]);
+        case 'caja_ajuste':
+            $raw = trim((string)($_POST['saldo_inicial'] ?? ''));
+            $neg = strpos($raw, '-') === 0;
+            $cent = $raw === '' || preg_match('/^-?0+([.,]0+)?$/', $raw) ? 0 : pebai_caja_cent(ltrim($raw, '-'));
+            $fecha = pebai_caja_fecha((string)($_POST['saldo_fecha'] ?? ''));
+            if ($cent === null || $fecha === null) {
+                json_out(['ok' => false, 'error' => 'Revisa el importe y la fecha del saldo inicial.'], 422);
+            }
+            $up = pebai_caja_db()->prepare('INSERT INTO caja_ajustes (clave, valor) VALUES (?, ?) ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor');
+            $up->execute(['saldo_inicial', (string)($neg ? -$cent : $cent)]);
+            $up->execute(['saldo_fecha', $fecha]);
+            json_out(['ok' => true]);
     }
     json_out(['ok' => false, 'error' => 'Acción desconocida.'], 400);
 }
@@ -324,6 +419,35 @@ if ($auth && isset($_GET['data'])) {
 }
 
 /* ------------------------------------------- Datos de Captación y Agentes --- */
+/* ------------------------------------------------------ Caja (JSON) --- */
+if ($auth && isset($_GET['caja'])) {
+    try {
+        pebai_caja_suscripciones_al_dia();
+        $cdb = pebai_caja_db();
+        $movs = $cdb->query("SELECT * FROM caja_movimientos WHERE tipo IN ('ingreso','gasto') ORDER BY fecha DESC, id DESC")->fetchAll();
+        foreach ($movs as &$m) {
+            foreach (['id', 'importe', 'lead_id', 'cobrado', 'suscripcion_id'] as $k) {
+                $m[$k] = (int)$m[$k];
+            }
+        }
+        unset($m);
+        $subs = $cdb->query('SELECT * FROM caja_suscripciones ORDER BY activa DESC, importe DESC')->fetchAll();
+        foreach ($subs as &$x) {
+            foreach (['id', 'importe', 'dia', 'activa'] as $k) {
+                $x[$k] = (int)$x[$k];
+            }
+        }
+        unset($x);
+        $aj = $cdb->query('SELECT clave, valor FROM caja_ajustes')->fetchAll(PDO::FETCH_KEY_PAIR);
+        // Solo empresa y fase: para elegir a quién se le vendió sin escribirlo a mano
+        $clientes = $cdb->query("SELECT id, empresa, estado FROM leads ORDER BY CASE estado WHEN 'cliente' THEN 0 ELSE 1 END, id DESC LIMIT 2000")->fetchAll();
+    } catch (Throwable $e) {
+        json_out(['ok' => false, 'error' => 'No se puede abrir la caja: ' . $e->getMessage()], 500);
+    }
+    json_out(['ok' => true, 'csrf' => csrf(), 'hoy' => date('Y-m-d'), 'movimientos' => $movs, 'suscripciones' => $subs,
+              'saldo_inicial' => (int)($aj['saldo_inicial'] ?? 0), 'saldo_fecha' => (string)($aj['saldo_fecha'] ?? ''), 'clientes' => $clientes]);
+}
+
 if ($auth && isset($_GET['agentes'])) {
     if (!$db) {
         json_out(['ok' => false, 'error' => $dbError], 500);
@@ -354,7 +478,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '8';
+$v = '9';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -407,6 +531,9 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     </div>
     <div class="grp"><small>Captación</small>
       <button data-page="prospectos" type="button"><svg class="pb-i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/></svg><span>Prospectos</span><em id="pb-pros-n">—</em></button>
+    </div>
+    <div class="grp"><small>Empresa</small>
+      <button data-page="caja" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 13h.01"/><path d="M2 10h20"/><path d="M6 6V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg><span>Caja</span></button>
     </div>
     <div class="grp"><small>Automático</small>
       <button data-page="agentes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg><span>Agentes</span><i class="pb-live" id="pb-ag-live" title="Estado de los agentes"></i></button>
@@ -532,6 +659,27 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     <div class="pb-list" id="pb-pros-list"></div>
   </section>
 
+  <section class="pb-page" id="page-caja" data-page="caja">
+    <div class="pb-pagehead">
+      <div>
+        <div class="pb-eyebrow">Empresa · Caja</div>
+        <h1 class="pb-h1">La caja, <i>al día</i></h1>
+        <p class="pb-lead">Lo que entra, por qué entra y lo que sale. Las suscripciones se apuntan solas cada mes.</p>
+      </div>
+      <div class="pb-cj-acts">
+        <button class="pb-btn primary big" data-cj-nuevo="ingreso" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Ingreso</button>
+        <button class="pb-btn big" data-cj-nuevo="gasto" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg>Gasto</button>
+      </div>
+    </div>
+    <div class="pb-cj-mes">
+      <button class="pb-btn icon" id="pb-cj-prev" type="button" title="Mes anterior"><svg class="pb-i" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+      <b id="pb-cj-mes">—</b>
+      <button class="pb-btn icon" id="pb-cj-next" type="button" title="Mes siguiente"><svg class="pb-i" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+      <button class="pb-btn ghost" id="pb-cj-hoy" type="button">Este mes</button>
+    </div>
+    <div id="pb-cj"></div>
+  </section>
+
   <section class="pb-page" id="page-agentes" data-page="agentes">
     <div class="pb-pagehead">
       <div>
@@ -570,6 +718,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <script src="<?= BASE ?>assets/icons.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/panel.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/agentes.js?v=<?= $v ?>" defer></script>
+<script src="<?= BASE ?>assets/caja.js?v=<?= $v ?>" defer></script>
 <?php endif; ?>
 </body>
 </html>
