@@ -50,14 +50,37 @@ Datos en los que se apoya cada nota:
 - **FP privada y oposiciones:** la FP marca récord (1,21 millones de alumnos) y la privada se ha multiplicado por casi cinco en una década. Son grupos grandes (decide un departamento de marketing) y la matrícula se concentra de marzo a septiembre.
 - **Clínicas dentales e inmobiliarias:** mucho dolor, pero son los sectores más bombardeados por agencias de IA.
 
+### Contraste a ciegas
+
+Para quitar el sesgo de quien conocía las preferencias de Daniel, otro analista **sin acceso a esta conversación** listó 47 nichos y los puntuó con los mismos criterios. Su top 6:
+
+| # | Nicho | Nota a ciegas | Nuestra nota |
+|---|---|---|---|
+| 1 | Reformas integrales | 89 | 83 |
+| 2 | Inmobiliarias | 85 | 80 |
+| 3 | Fincas y espacios para bodas | 81 | 86 |
+| 4 | Placas solares | 81 | 84 (con aerotermia) |
+| 5 | Cocinas y armarios a medida | 80 | — (no lo valoramos) |
+| 6 | Compraventa de coches de ocasión | 78 | 74 |
+
+- **Coinciden** en reformas, fincas para bodas y placas. Inmobiliarias sube en el análisis a ciegas, aunque los dos la penalizamos por la competencia de CRM y agencias.
+- **Aviso clave del análisis a ciegas:** reformas, cocinas, aerotermia, ventanas y piscinas son en la práctica **un solo tipo de negocio** (obra con presupuesto y visita). Elegir tres de ellos es probar una sola idea tres veces. La prueba debe cubrir tipos distintos.
+- **Nichos que él destaca como poco trabajados:** fincas para bodas (pico de consultas de enero a marzo: hay que entrar ya), academias de oposiciones y abogados de Segunda Oportunidad.
+- Su confianza en el orden es media-baja. Las diferencias de menos de 5 puntos no son significativas y casi no hay datos españoles de coste por lead ni de tiempo de respuesta.
+
 ## 3. La prueba real (antes de grabar vídeos)
 
-1. **Semana de prueba:** los **6 primeros de la lista** (fincas, energía, casas modulares, reformas, ventanas, inmobiliarias), unos **25 mensajes de texto por nicho** (unos 150, el cupo de una semana). La misma estructura de mensaje en todos (pregunta de dolor), adaptada a cada nicho.
-2. **Se mide por nicho:** tasa de respuesta, respuestas positivas (piden info o el vídeo), bajas y diagnósticos rellenados.
-3. **Los tres mejores** son los nichos del mes: para ellos se escriben los guiones y Daniel graba los vídeos.
-4. Con 25 por nicho solo se ven diferencias grandes; sirve para descartar. Los tres elegidos siguen midiéndose y el peor se cambia cada mes por el siguiente de la tabla.
+1. **Cuatro nichos de cuatro tipos distintos**, unos **75 mensajes de texto por nicho** (unos 300, dos semanas al cupo actual):
+   - **Reformas integrales**, por la obra con presupuesto: primero en el análisis a ciegas y nosotros tenemos experiencia.
+   - **Fincas para bodas**, por los eventos: alto en los dos análisis, poco trabajado y su temporada empieza ya.
+   - **Inmobiliarias**, por los contactos de portales: segundo en el análisis a ciegas, muchísimas empresas.
+   - **Academias de oposiciones**, por la formación: el nicho poco trabajado con menos riesgo legal (Segunda Oportunidad trata deudas).
+2. Mismo tipo de mensaje en todos (pregunta de dolor), adaptado a cada nicho. No se cambia el texto durante la prueba.
+3. **Se mide por nicho:** respuestas, respuestas con interés (piden información o el vídeo), bajas y diagnósticos. Se decide por las respuestas con interés.
+4. Los **tres mejores** son los nichos del mes: guiones y vídeos solo para ellos. Si gana reformas, sus vecinos (placas, aerotermia, cocinas, casas modulares) entran después con el mismo enfoque.
+5. Con 75 por nicho solo se distinguen diferencias claras (del tipo 4 % frente a 12 %). Sirve para elegir; los elegidos siguen midiéndose cada mes.
 
-Necesita del chat del Scraper unos 30 prospectos de cada uno de esos 6 nichos.
+Necesita del chat del Scraper unos 80 prospectos de cada uno de esos 4 nichos, con el origen de cada número.
 
 ## 4. Qué les vendemos (el momento "ostras" de cada uno)
 
