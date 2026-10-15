@@ -749,3 +749,17 @@ body[data-page=prospectos] .pb-only-embudo,body[data-page=agentes] .pb-only-embu
 .pb-plz.lleno .t{color:var(--amber)}
 .pb-plz.sig{opacity:.75}
 .pb-plz.sig b{font-weight:600}
+
+/* WhatsApp · qué hace, qué mensaje funciona y registro de actividad */
+.pw-que{margin:0 0 14px;font-size:13.5px;color:var(--fg);line-height:1.55;padding:12px 14px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line)}
+.pw-card{margin-top:14px}
+.pw-log{display:flex;flex-direction:column;max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.pw-log-i{border-bottom:1px solid var(--line)}
+.pw-log-i:last-child{border-bottom:0}
+.pw-log-i summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:150px auto 1fr;gap:10px;align-items:center;padding:8px 12px;font-size:13px}
+.pw-log-i summary::-webkit-details-marker{display:none}
+.pw-log-i summary:hover{background:var(--panel-2)}
+.pw-log-i time{color:var(--muted-2);font-size:12px;font-variant-numeric:tabular-nums}
+.pw-log-i em{font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 50%,transparent);white-space:nowrap}
+.pw-pre{margin:0 12px 10px;padding:10px 12px;border-radius:10px;background:var(--panel-2);font:12.5px/1.5 var(--sans);white-space:pre-wrap;color:var(--fg)}
+@media (max-width:640px){.pw-log-i summary{grid-template-columns:auto 1fr}.pw-log-i time{grid-column:1/-1}}

@@ -8,7 +8,7 @@ const BASE = app.dataset.base;
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const S = { loaded: false, csrf: app.dataset.csrf };
-const ui = { estado: '', q: '', lote: '', limit: 150 };
+const ui = { estado: '', q: '', lote: '', limit: 150, act: '' };
 
 /* ============ dominio ============ */
 const PE = {
@@ -276,8 +276,62 @@ function drawAgentes() {
   });
   feedC.append(feed);
   body.append(act, feedC);
+  box.prepend(queHace(w));
   box.append(body);
+  box.append(statsCard());
+  box.append(registroCard());
   box.append(configCard(w));
+}
+
+/* Qué hace el agente, en una frase. */
+function queHace(w) {
+  const v = (w.ventanas || []).map((x) => x.join('–')).join(' y ');
+  const nichos = (S.nichos || []).map((n) => n.nombre + ' (' + Object.keys(n.plantillas || {}).join(' / ') + ')').join(', ');
+  return el('p', 'pw-que', `Cada día laborable (${v}) escribe a un máximo de ${w.limite_dia} empresas, una a una, como Daniel y con pausas de persona. `
+    + `Solo manda el primer mensaje: si contestan, te avisa y contestas tú. A quien no contesta no le vuelve a escribir. `
+    + `Elige el mensaje según el nicho y reparte las variantes a partes iguales para ver cuál funciona: ${nichos}.`);
+}
+
+/* Qué mensaje funciona mejor: resultados por plantilla (nicho y variante). */
+function statsCard() {
+  const c = el('div', 'pb-card pw-card');
+  c.append(el('h2', null, 'Qué mensaje funciona mejor'), el('p', 'note', 'Por cada plantilla: a cuántos se ha enviado y cuántos han contestado. Con menos de 50 envíos por variante las diferencias aún no significan nada.'));
+  const st = S.stats || [];
+  if (!st.length) { c.append(el('div', 'pb-empty', 'Todavía no se ha enviado ningún mensaje con plantilla.')); return c; }
+  const nombre = (k) => { const [n, v] = String(k).split('-'); const ni = (S.nichos || []).find((x) => x.clave === n); return (ni ? ni.nombre : n) + ' · ' + (v || ''); };
+  const t = el('table', 'pb-table'); const th = el('thead'); const hr = el('tr');
+  ['Plantilla', 'Enviados', 'Respondieron', '% respuesta', 'Bajas', 'Sin WhatsApp'].forEach((h, i) => { const x = el('th', i ? 'n' : '', h); hr.append(x); });
+  th.append(hr); const tb = el('tbody');
+  st.forEach((r) => {
+    const tr = el('tr'); const env = Number(r.enviados), resp = Number(r.respondieron);
+    [nombre(r.plantilla), N(env), N(resp), pct(resp, env), N(Number(r.bajas)), N(Number(r.sin_whatsapp))].forEach((v, i) => tr.append(el('td', i ? 'n' : 'k', v)));
+    tb.append(tr);
+  });
+  t.append(th, tb); const sc = el('div', 'pb-scroll'); sc.append(t); c.append(sc);
+  return c;
+}
+
+/* Registro de actividad: cada decisión del agente (regla común de todos los agentes). */
+const TIPO_ACT = { envio: ['Envío', 'var(--violet)'], bloqueo: ['No enviado', 'var(--slate)'], respuesta: ['Respuesta', 'var(--lime)'], espera: ['En espera', 'var(--muted-2)'],
+  freno: ['Freno', 'var(--red)'], error: ['Error', 'var(--amber)'], cambio: ['Cambio', 'var(--cyan)'], hito: ['Hito', 'var(--green)'] };
+function registroCard() {
+  const c = el('div', 'pb-card pw-card');
+  c.append(el('h2', null, 'Registro de actividad'), el('p', 'note', 'Todo lo que ha hecho el agente y por qué: a quién escribió, a quién no (y el motivo), qué respuestas llegaron y cuándo esperó. Pulsa una línea para ver el detalle.'));
+  const chips = el('div', 'pb-subtabs');
+  [['', 'Todo']].concat(Object.entries(TIPO_ACT).map(([t, [l]]) => [t, l])).forEach(([t, l]) => {
+    const b = el('button', (ui.act || '') === t ? 'on' : '', l); b.type = 'button'; b.addEventListener('click', () => { ui.act = t; drawAgentes(); }); chips.append(b);
+  });
+  const list = el('div', 'pw-log');
+  const filas = (S.actividad || []).filter((a) => !ui.act || a.tipo === ui.act).slice(0, 100);
+  if (!filas.length) list.append(el('div', 'pb-empty', 'Sin actividad todavía.'));
+  filas.forEach((a) => {
+    const [l, color] = TIPO_ACT[a.tipo] || [a.tipo, 'var(--muted)'];
+    const d = el('details', 'pw-log-i'); const sm = el('summary'); const chip = el('em', null, l); chip.style.setProperty('--c', color);
+    sm.append(el('time', null, cuando(parse(a.ts))), chip, el('span', null, a.resumen));
+    d.append(sm); if (a.detalle) d.append(el('pre', 'pw-pre', a.detalle));
+    list.append(d);
+  });
+  c.append(chips, list); return c;
 }
 function configCard(w) {
   const d = el('details', 'pb-histbox pb-config');
@@ -288,8 +342,12 @@ function configCard(w) {
   const lim = el('label', 'pb-field'); lim.append(el('span', null, 'Mensajes nuevos al día')); const li = el('input'); li.name = 'limite_dia'; li.type = 'number'; li.min = 0; li.max = 200; li.value = w.limite_dia; lim.append(li);
   const ven = el('label', 'pb-field'); ven.append(el('span', null, 'Horario (lun–vie)')); const vi = el('input'); vi.name = 'ventanas'; vi.value = (w.ventanas || []).map((v) => v.join('-')).join(', '); ven.append(vi);
   left.append(lim, ven, el('p', 'note', 'Subir de golpe el cupo dispara los bloqueos de WhatsApp. Mejor de 10 en 10 por semana.'));
-  const pl = el('label', 'pb-field'); pl.append(el('span', null, 'Plantillas del primer mensaje · separa cada una con una línea ---'));
-  const ta = el('textarea'); ta.name = 'plantillas'; ta.value = (w.plantillas || []).join('\n---\n'); pl.append(ta);
+  const pl = el('div'); pl.style.cssText = 'display:flex;flex-direction:column;gap:12px';
+  (S.nichos || []).forEach((n) => {
+    const lab = el('label', 'pb-field'); lab.append(el('span', null, 'Primer mensaje · ' + n.nombre + ' · una variante por bloque («A: …»), separadas con una línea ---'));
+    const ta = el('textarea'); ta.name = 'plantillas[' + n.clave + ']';
+    ta.value = Object.entries(n.plantillas || {}).map(([k, t]) => k + ': ' + t).join('\n---\n'); lab.append(ta); pl.append(lab);
+  });
   g.append(left, pl);
   const foot = el('div', 'foot');
   foot.append(el('p', null, '[saludo] = Buenos días / Buenas tardes · [nombre] = «, Ana» si lo sabemos · [empresa] · {a|b} elige una variante al azar. Cada plantilla debe presentarse como Daniel y ofrecer no volver a escribir.'));

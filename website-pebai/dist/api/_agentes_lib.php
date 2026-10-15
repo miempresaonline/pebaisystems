@@ -15,15 +15,31 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
     exit;
 }
 require_once __DIR__ . '/_pebai_lib.php';
+require_once __DIR__ . '/_actividad_lib.php';
 
 const PEBAI_PROSPECTO_ESTADOS = ['pendiente', 'enviando', 'enviado', 'respondio', 'baja', 'sin_whatsapp', 'error', 'descartado'];
 
-// Primer mensaje. [saludo] = Buenos días / Buenas tardes, [nombre] = ", Ana" o nada, [empresa].
-// {a|b} elige una variante al azar: ningún mensaje sale idéntico a otro.
-const PEBAI_WA_PLANTILLAS = [
-    "[saludo][nombre] 👋 Soy Daniel, de PEBAI Systems. {He visto|Vi} [empresa] en Google y {tengo|te quería hacer} una pregunta rápida: cuando un cliente os escribe o llama fuera de horario, ¿quién le contesta?\n\n{Si no te interesa|Si no es para ti}, dímelo y no vuelvo a escribirte.",
-    "{Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. {Ayudamos a|Echamos una mano a} negocios como [empresa] a no perder clientes por no contestar a tiempo (WhatsApp, llamadas, formularios). ¿Te puedo hacer una pregunta de un minuto sobre cómo lo gestionáis ahora?\n\nSi no te encaja, me lo dices y no te molesto más.",
-    "[saludo][nombre]. Soy Daniel, de PEBAI Systems 🙂 Una pregunta {rápida|corta} para [empresa]: ¿cuántos mensajes o llamadas de clientes se os quedan sin contestar a la semana? {Te lo pregunto|Lo pregunto} porque estamos ayudando a negocios {parecidos|de vuestro sector} a recuperarlos.\n\nSi no te interesa, dímelo y no vuelvo a escribirte.",
+// Primer mensaje por nicho (docs/agente-whatsapp-mensajes.md). [saludo] = Buenos días / Buenas tardes,
+// [nombre] = ", Ana" o nada, [empresa]. {a|b} elige una variante al azar: ningún mensaje sale idéntico a otro.
+// Cada nicho tiene dos o más variantes (A, C…) que se reparten a partes iguales para medir cuál responde mejor.
+// El nicho de cada prospecto sale de su sector (o de su nombre) con las palabras clave; si no encaja, "general".
+const PEBAI_WA_NICHOS = [
+    'energia' => [
+        'nombre' => 'Instaladores de energía',
+        'palabras' => ['solar', 'placa', 'fotovolt', 'aerotermia', 'autoconsumo', 'energ', 'renovable', 'bomba de calor', 'climatiz'],
+        'plantillas' => [
+            'A' => "[saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: con la deducción del IRPF que solo vale para lo que se instale y pague este año, ¿os está entrando más gente pidiendo presupuesto estas semanas? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.",
+            'C' => "[saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre lo que pasa con un lead de placas que entra a las diez de la noche. ¿Te lo mando? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.",
+        ],
+    ],
+    'general' => [
+        'nombre' => 'Resto de sectores',
+        'palabras' => [],
+        'plantillas' => [
+            'A' => "[saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: cuando un cliente os escribe o llama fuera de horario, ¿quién le contesta? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.",
+            'C' => "[saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre lo que pasa con un cliente que os escribe fuera de horario. ¿Te lo mando? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.",
+        ],
+    ],
 ];
 
 const PEBAI_WA_CONFIG = [
@@ -31,7 +47,7 @@ const PEBAI_WA_CONFIG = [
     'ventanas' => [['08:30', '13:00'], ['17:00', '20:00']],
     'dias' => [1, 2, 3, 4, 5],          // lunes a viernes
     'pausa_min' => 240,                  // nunca dos envíos con menos de 4 minutos
-    'plantillas' => PEBAI_WA_PLANTILLAS,
+    'nichos' => PEBAI_WA_NICHOS,
 ];
 
 // Festivos nacionales fijos (mm-dd): ese día no sale nada.
@@ -91,6 +107,12 @@ function pebai_agentes_db(): PDO
             motivo TEXT NOT NULL DEFAULT ""
         )');
         $db->exec("INSERT OR IGNORE INTO agente_estado (agente, estado) VALUES ('whatsapp', 'sin_arrancar')");
+        // Qué plantilla (nicho-variante) recibió cada prospecto, para medir cuál responde mejor
+        foreach (['prospectos', 'agente_mensajes'] as $t) {
+            if (!in_array('plantilla', array_column($db->query("PRAGMA table_info($t)")->fetchAll(), 'name'), true)) {
+                $db->exec("ALTER TABLE $t ADD COLUMN plantilla TEXT NOT NULL DEFAULT ''");
+            }
+        }
         $ready = true;
     }
     return $db;
@@ -108,9 +130,14 @@ function pebai_wa_config(): array
     $saved = json_decode(pebai_agente('whatsapp')['config'] ?: '{}', true) ?: [];
     $cfg = array_merge(PEBAI_WA_CONFIG, array_intersect_key($saved, PEBAI_WA_CONFIG));
     $cfg['limite_dia'] = max(0, min(200, (int)$cfg['limite_dia']));
-    if (!$cfg['plantillas']) {
-        $cfg['plantillas'] = PEBAI_WA_PLANTILLAS;
+    // Nichos guardados desde el panel; los que falten (o sin plantillas) vuelven a los de serie
+    $nichos = PEBAI_WA_NICHOS;
+    foreach ((array)($saved['nichos'] ?? []) as $k => $n) {
+        if (isset($nichos[$k]) && !empty($n['plantillas']) && is_array($n['plantillas'])) {
+            $nichos[$k]['plantillas'] = $n['plantillas'];
+        }
     }
+    $cfg['nichos'] = $nichos;
     return $cfg;
 }
 
@@ -178,6 +205,47 @@ function pebai_wa_render(string $plantilla, array $p, ?int $now = null): string
         }, $txt);
     }
     return trim($txt);
+}
+
+/** Nicho de un prospecto según su sector (o su nombre de empresa). */
+function pebai_wa_nicho(array $p, array $nichos): string
+{
+    $txt = mb_strtolower(($p['sector'] ?? '') . ' ' . ($p['empresa'] ?? ''));
+    foreach ($nichos as $k => $n) {
+        foreach ($n['palabras'] as $w) {
+            if ($w !== '' && str_contains($txt, $w)) {
+                return $k;
+            }
+        }
+    }
+    return 'general';
+}
+
+/** Variante del nicho con menos envíos hasta ahora (reparto A/B a partes iguales). Devuelve [clave "nicho-X", texto]. */
+function pebai_wa_plantilla(string $nicho, array $nichos): array
+{
+    $vars = $nichos[$nicho]['plantillas'] ?? PEBAI_WA_NICHOS['general']['plantillas'];
+    $q = pebai_agentes_db()->prepare("SELECT COUNT(*) FROM prospectos WHERE plantilla = ? AND enviado_at <> ''");
+    $mejor = null;
+    foreach (array_keys($vars) as $v) {
+        $q->execute([$nicho . '-' . $v]);
+        $n = (int)$q->fetchColumn() + mt_rand() / mt_getrandmax() * 0.5;
+        if ($mejor === null || $n < $mejor[1]) {
+            $mejor = [$v, $n];
+        }
+    }
+    return [$nicho . '-' . $mejor[0], $vars[$mejor[0]]];
+}
+
+/** Resultados por plantilla: enviados, respondieron, bajas y sin WhatsApp. */
+function pebai_wa_stats(): array
+{
+    return pebai_agentes_db()->query("SELECT plantilla,
+            SUM(enviado_at <> '') enviados,
+            SUM(respondido_at <> '') respondieron,
+            SUM(estado = 'baja' AND enviado_at <> '') bajas,
+            SUM(estado = 'sin_whatsapp') sin_whatsapp
+        FROM prospectos WHERE plantilla <> '' GROUP BY plantilla ORDER BY plantilla")->fetchAll();
 }
 
 /** Pausa recomendada hasta el siguiente envío: reparte lo que queda de cupo en lo que queda de ventana, con azar. */

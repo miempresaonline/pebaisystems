@@ -6,6 +6,7 @@
  *
  * Autenticación: cabecera X-Agent-Token = 'agent_token' de private/config.php.
  * Cuerpo JSON {accion: latido | siguiente | resultado | entrante, ...}.
+ * Cada decisión queda en el registro de actividad (api/_actividad_lib.php), visible en Automático › Agentes.
  */
 require_once __DIR__ . '/_agentes_lib.php';
 
@@ -36,6 +37,11 @@ switch ($in['accion'] ?? '') {
         $antes = pebai_agente('whatsapp');
         $db->prepare('UPDATE agente_estado SET latido_at = ?, estado = ?, detalle = ?, codigo = ? WHERE agente = ?')
            ->execute([$now, $estado, mb_substr((string)($in['detalle'] ?? ''), 0, 500), mb_substr((string)($in['codigo'] ?? ''), 0, 20), 'whatsapp']);
+        if ($estado !== $antes['estado']) {
+            $hitos = ['conectado' => 'Conectado a WhatsApp', 'esperando_vinculo' => 'Esperando a que se vincule el WhatsApp (código en el panel)',
+                      'desvinculado' => 'WhatsApp ha cerrado la sesión', 'reconectando' => 'Conexión perdida: reconectando'];
+            pebai_actividad('whatsapp', $estado === 'desvinculado' ? 'error' : 'hito', $hitos[$estado] ?? ('Estado: ' . $estado), (string)($in['detalle'] ?? ''));
+        }
         if ($estado === 'conectado') {
             $db->prepare("UPDATE agente_estado SET alerta_at = '' WHERE agente = 'whatsapp'")->execute();
         } elseif (in_array($estado, ['desvinculado', 'esperando_vinculo'], true) && $antes['estado'] === 'conectado') {
@@ -51,6 +57,7 @@ switch ($in['accion'] ?? '') {
         $a = pebai_agente('whatsapp');
         $cfg = pebai_wa_config();
         if ((int)$a['pausado']) {
+            pebai_actividad_espera('whatsapp', 'En pausa desde el panel');
             out(['ok' => true, 'esperar' => 600, 'motivo' => 'pausado']);
         }
         // Un envío que se quedó a medias (el proceso cayó) no se repite: queda en error para revisarlo a mano.
@@ -58,9 +65,11 @@ switch ($in['accion'] ?? '') {
            ->execute([$now, date('Y-m-d H:i:s', time() - 1200)]);
         $v = pebai_wa_ventana();
         if (!$v['abierta']) {
+            pebai_actividad_espera('whatsapp', 'Fuera de horario: el siguiente tramo empieza el ' . ($v['proxima'] ? pebai_fecha(date('Y-m-d H:i:s', $v['proxima'])) : '—'));
             out(['ok' => true, 'esperar' => max(60, min(3600, $v['proxima'] - time() + random_int(0, 900))), 'motivo' => 'fuera_de_horario']);
         }
         if (pebai_wa_enviados_hoy() >= $cfg['limite_dia']) {
+            pebai_actividad_espera('whatsapp', 'Cupo de hoy completo (' . $cfg['limite_dia'] . ' mensajes)');
             out(['ok' => true, 'esperar' => 3600, 'motivo' => 'cupo_completo']);
         }
         $ultimo = (string)$db->query("SELECT MAX(ts) FROM agente_mensajes WHERE agente = 'whatsapp' AND sentido = 'sale'")->fetchColumn();
@@ -72,17 +81,20 @@ switch ($in['accion'] ?? '') {
         foreach ($db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY id LIMIT 50") as $c) {
             if (isset($embudo[$c['telefono']])) {
                 $db->prepare("UPDATE prospectos SET estado = 'descartado', error = 'Ya es solicitud del embudo', updated_at = ? WHERE id = ?")->execute([$now, $c['id']]);
+                pebai_actividad('whatsapp', 'bloqueo', 'No se escribe a ' . ($c['empresa'] ?: $c['telefono']) . ': ya es solicitud del embudo', '', 'wa:' . $c['id']);
                 continue;
             }
             $p = $c;
             break;
         }
         if (!$p) {
+            pebai_actividad_espera('whatsapp', 'Sin prospectos en cola: no hay a quién escribir');
             out(['ok' => true, 'esperar' => 1800, 'motivo' => 'sin_prospectos']);
         }
-        $plantillas = array_values($cfg['plantillas']);
-        $texto = pebai_wa_render($plantillas[random_int(0, count($plantillas) - 1)], $p);
-        $db->prepare("UPDATE prospectos SET estado = 'enviando', enviando_at = ?, updated_at = ? WHERE id = ? AND estado = 'pendiente'")->execute([$now, $now, $p['id']]);
+        // Mensaje del nicho del prospecto, repartiendo las variantes a partes iguales para medir cuál funciona
+        [$plantilla, $tpl] = pebai_wa_plantilla(pebai_wa_nicho($p, $cfg['nichos']), $cfg['nichos']);
+        $texto = pebai_wa_render($tpl, $p);
+        $db->prepare("UPDATE prospectos SET estado = 'enviando', enviando_at = ?, plantilla = ?, updated_at = ? WHERE id = ? AND estado = 'pendiente'")->execute([$now, $plantilla, $now, $p['id']]);
         out(['ok' => true, 'prospecto' => ['id' => (int)$p['id'], 'telefono' => $p['telefono'], 'empresa' => $p['empresa']], 'texto' => $texto]);
 
     case 'resultado':
@@ -95,12 +107,15 @@ switch ($in['accion'] ?? '') {
         }
         if (!empty($in['ok'])) {
             $db->prepare("UPDATE prospectos SET estado = 'enviado', enviado_at = ?, error = '', updated_at = ? WHERE id = ?")->execute([$now, $now, $id]);
-            $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto) VALUES (?, 'whatsapp', ?, ?, 'sale', ?)")
-               ->execute([$now, $id, $p['telefono'], mb_substr((string)($in['texto'] ?? ''), 0, 2000)]);
+            $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla) VALUES (?, 'whatsapp', ?, ?, 'sale', ?, ?)")
+               ->execute([$now, $id, $p['telefono'], mb_substr((string)($in['texto'] ?? ''), 0, 2000), $p['plantilla']]);
+            pebai_actividad('whatsapp', 'envio', 'Enviado a ' . ($p['empresa'] ?: $p['telefono']) . ' · plantilla ' . ($p['plantilla'] ?: '—'), (string)($in['texto'] ?? ''), 'wa:' . $id);
         } else {
             $estado = !empty($in['sin_whatsapp']) ? 'sin_whatsapp' : 'error';
             $db->prepare('UPDATE prospectos SET estado = ?, error = ?, updated_at = ? WHERE id = ?')
                ->execute([$estado, mb_substr((string)($in['error'] ?? ''), 0, 300), $now, $id]);
+            pebai_actividad('whatsapp', $estado === 'sin_whatsapp' ? 'bloqueo' : 'error',
+                ($estado === 'sin_whatsapp' ? 'Sin WhatsApp: ' : 'Error al enviar a ') . ($p['empresa'] ?: $p['telefono']), (string)($in['error'] ?? ''), 'wa:' . $id);
         }
         out(['ok' => true, 'esperar' => !empty($in['ok']) ? pebai_wa_pausa() : random_int(20, 90)]);
 
@@ -122,6 +137,9 @@ switch ($in['accion'] ?? '') {
         }
         if (preg_match(PEBAI_BAJA_RE, $texto)) {
             pebai_wa_baja($tel, 'Lo pidió por WhatsApp: «' . mb_substr($texto, 0, 200) . '»');
+            pebai_actividad('whatsapp', 'respuesta', 'Baja: ' . ($p['empresa'] ?: $tel) . ' pidió no recibir más mensajes', $texto, 'wa:' . $p['id']);
+        } else {
+            pebai_actividad('whatsapp', 'respuesta', 'Respondió ' . ($p['empresa'] ?: $tel) . ' · plantilla ' . ($p['plantilla'] ?: '—') . ' (te toca contestar desde el móvil)', $texto, 'wa:' . $p['id']);
         }
         out(['ok' => true]);
 }

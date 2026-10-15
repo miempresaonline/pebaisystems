@@ -214,7 +214,9 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 json_out(['ok' => false, 'error' => 'Indica de dónde salen los números (p. ej. «Google Maps, ficha pública»).'], 400);
             }
             $lote = mb_substr(trim((string)($_POST['lote'] ?? '')), 0, 80) ?: date('d/m H:i');
-            json_out(['ok' => true, 'res' => pebai_prospectos_importar($raw, $origen, $lote)]);
+            $res = pebai_prospectos_importar($raw, $origen, $lote);
+            pebai_actividad('whatsapp', 'cambio', 'Importados ' . $res['nuevos'] . ' prospectos nuevos (lote ' . $lote . ')', json_encode($res, JSON_UNESCAPED_UNICODE));
+            json_out(['ok' => true, 'res' => $res]);
         case 'prospecto_estado':
             $id = (int)($_POST['id'] ?? 0);
             $estado = (string)($_POST['estado'] ?? '');
@@ -229,6 +231,7 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
             }
             if ($estado === 'baja') {
                 pebai_wa_baja($tel, 'Marcado a mano en el panel');
+                pebai_actividad('whatsapp', 'cambio', 'Baja marcada a mano en el panel', '', 'wa:' . $id);
                 json_out(['ok' => true]);
             }
             $q = pebai_agentes_db()->prepare('SELECT COUNT(*) FROM bajas WHERE telefono = ?');
@@ -245,6 +248,7 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
             json_out(['ok' => true]);
         case 'agente_pausa':
             pebai_agentes_db()->prepare("UPDATE agente_estado SET pausado = ? WHERE agente = 'whatsapp'")->execute([($_POST['pausado'] ?? '') === '1' ? 1 : 0]);
+            pebai_actividad('whatsapp', 'cambio', ($_POST['pausado'] ?? '') === '1' ? 'Pausado desde el panel' : 'Reanudado desde el panel');
             json_out(['ok' => true]);
         case 'agente_config':
             $cfg = pebai_wa_config();
@@ -259,15 +263,32 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 json_out(['ok' => false, 'error' => 'Horario no válido. Ejemplo: 08:30-13:00, 17:00-20:00'], 400);
             }
             $cfg['ventanas'] = $ventanas;
-            $plantillas = array_values(array_filter(array_map('trim', preg_split('/\n\s*-{3,}\s*\n/', str_replace("\r", '', (string)($_POST['plantillas'] ?? ''))))));
-            foreach ($plantillas as $t) {
-                if (!str_contains($t, 'Daniel') || !preg_match('/no (te |os |le )?(vuelvo|volver|molest|escrib)/iu', $t)) {
-                    json_out(['ok' => false, 'error' => 'Cada plantilla debe decir quién escribe (Daniel) y ofrecer no volver a escribir. Es lo que nos mantiene dentro de la ley.'], 400);
+            // Plantillas por nicho: un cuadro por nicho, variantes separadas por una línea "---" y con su letra delante ("A: …").
+            $nichos = [];
+            foreach ((array)($_POST['plantillas'] ?? []) as $k => $txt) {
+                if (!isset(PEBAI_WA_NICHOS[$k])) {
+                    continue;
+                }
+                $vars = [];
+                $letra = 'A';
+                foreach (array_filter(array_map('trim', preg_split('/\n\s*-{3,}\s*\n/', str_replace("\r", '', (string)$txt)))) as $bloque) {
+                    if (preg_match('/^([A-Z])\s*:\s*/u', $bloque, $m)) {
+                        $letra = $m[1];
+                        $bloque = trim(substr($bloque, strlen($m[0])));
+                    }
+                    if (!str_contains($bloque, 'Daniel') || !preg_match('/no (te |os |le )?(vuelvo|volver|molest|escrib)/iu', $bloque)) {
+                        json_out(['ok' => false, 'error' => 'Cada plantilla debe decir quién escribe (Daniel) y ofrecer no volver a escribir. Es lo que nos mantiene dentro de la ley.'], 400);
+                    }
+                    $vars[$letra] = $bloque;
+                    $letra = chr(ord($letra) + 1);
+                }
+                if ($vars) {
+                    $nichos[$k] = ['plantillas' => $vars];
                 }
             }
-            $cfg['plantillas'] = $plantillas ?: PEBAI_WA_PLANTILLAS;
             pebai_agentes_db()->prepare("UPDATE agente_estado SET config = ? WHERE agente = 'whatsapp'")
-                ->execute([json_encode(array_intersect_key($cfg, array_flip(['limite_dia', 'ventanas', 'plantillas'])), JSON_UNESCAPED_UNICODE)]);
+                ->execute([json_encode(['limite_dia' => $cfg['limite_dia'], 'ventanas' => $cfg['ventanas'], 'nichos' => $nichos], JSON_UNESCAPED_UNICODE)]);
+            pebai_actividad('whatsapp', 'cambio', 'Ajustes cambiados: ' . $cfg['limite_dia'] . ' al día, horario ' . implode(', ', array_map(fn($v) => implode('–', $v), $ventanas)));
             json_out(['ok' => true]);
         /* ---- Empresa › Caja ---- */
         case 'caja_guardar':
@@ -458,7 +479,7 @@ if ($auth && isset($_GET['agentes'])) {
         json_out(['ok' => false, 'error' => $dbError], 500);
     }
     $adb = pebai_agentes_db();
-    $pros = $adb->query('SELECT id, created_at, updated_at, empresa, nombre, telefono, sector, ciudad, web, origen_dato, lote, notas, estado, enviado_at, respondido_at, error
+    $pros = $adb->query('SELECT id, created_at, updated_at, empresa, nombre, telefono, sector, ciudad, web, origen_dato, lote, notas, estado, enviado_at, respondido_at, error, plantilla
                          FROM prospectos ORDER BY id DESC LIMIT 5000')->fetchAll();
     foreach ($pros as &$p) {
         $p['id'] = (int)$p['id'];
@@ -476,14 +497,19 @@ if ($auth && isset($_GET['agentes'])) {
     $vent = pebai_wa_ventana();
     $q = $adb->prepare("SELECT substr(ts, 1, 10) d, sentido, COUNT(*) n FROM agente_mensajes WHERE agente = 'whatsapp' AND ts >= ? GROUP BY d, sentido");
     $q->execute([date('Y-m-d', strtotime('-29 days'))]);
+    $nichosOut = [];
+    foreach ($cfg['nichos'] as $k => $n) {
+        $nichosOut[] = ['clave' => $k, 'nombre' => $n['nombre'], 'plantillas' => $n['plantillas']];
+    }
     json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'prospectos' => $pros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
               'bajas' => (int)$adb->query('SELECT COUNT(*) FROM bajas')->fetchColumn(),
+              'nichos' => $nichosOut, 'stats' => pebai_wa_stats(), 'actividad' => pebai_actividad_ultimas('whatsapp', 150),
               'whatsapp' => ['estado' => $wa['estado'], 'latido_at' => $wa['latido_at'], 'detalle' => $wa['detalle'], 'codigo' => $wa['codigo'], 'pausado' => (int)$wa['pausado'],
-                             'enviados_hoy' => pebai_wa_enviados_hoy(), 'limite_dia' => $cfg['limite_dia'], 'ventanas' => $cfg['ventanas'], 'plantillas' => $cfg['plantillas'],
+                             'enviados_hoy' => pebai_wa_enviados_hoy(), 'limite_dia' => $cfg['limite_dia'], 'ventanas' => $cfg['ventanas'],
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '11';
+$v = '12';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
