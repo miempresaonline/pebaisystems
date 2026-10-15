@@ -150,3 +150,13 @@ body:not(.pb-ag-ajustes) #pb-ag-ajustes{display:none}
 .pb-of-wrap.foco .pb-of-hud>*{pointer-events:none}
 /* con el panel de un agente abierto, la pregunta se aparta para no taparlo */
 @media (min-width:761px){.pb-of-ask{transition:left .55s var(--ease)}.pb-of-wrap.foco .pb-of-ask{left:calc((100% - 428px) / 2);width:min(640px,calc(100% - 476px))}}
+/* ficha junto al cursor al pasar por una mesa, una sala o el núcleo */
+.pb-of-hov{position:absolute;left:0;top:0;z-index:5;pointer-events:none;min-width:170px;max-width:250px;padding:10px 12px 11px;border-radius:13px;background:rgba(9,11,21,.96);border:1px solid rgba(255,255,255,.12);box-shadow:0 14px 36px rgba(0,0,0,.45);color:#EFEDE7;opacity:0;transition:opacity .18s;font-family:var(--sans)}
+.pb-of-hov.on{opacity:1}
+.pb-of-hov small{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:800;color:#8C8FA3}
+.pb-of-hov b{display:block;font-family:var(--serif);font-weight:400;font-size:22px;line-height:1.1;color:#fff;margin:2px 0 4px}
+.pb-of-hov span{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#C9CBDA}
+.pb-of-hov span i{width:7px;height:7px;border-radius:50%;flex:none}
+.pb-of-hov em{display:block;font-style:normal;font-size:12px;color:#8C8FA3;margin-top:5px;line-height:1.4}
+.pb-of-wrap.foco .pb-of-hov{display:none}
+

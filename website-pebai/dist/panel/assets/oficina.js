@@ -508,6 +508,9 @@ async function montar() {
     [-.085, .085].forEach((x) => { const o = new THREE.Mesh(new THREE.CapsuleGeometry(.024, .032, 4, 8), ojoMat); o.rotation.z = Math.PI / 2; o.position.set(x, .17, -.2); cuello.add(o); });
     const antena = new THREE.Mesh(new THREE.SphereGeometry(.038, 12, 12), new THREE.MeshBasicMaterial({ color: acento, toneMapped: false })); antena.position.y = .4; cuello.add(antena);
     const palo = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .09), M.oscuro); palo.position.y = .34; cuello.add(palo);
+    const acentoMat = new THREE.MeshStandardMaterial({ color: acento, roughness: .35, metalness: .3, emissive: acento, emissiveIntensity: .25 });
+    [-1, 1].forEach((sx) => { const oreja = new THREE.Mesh(new THREE.CylinderGeometry(.075, .075, .05, 20), acentoMat); oreja.rotation.z = Math.PI / 2; oreja.position.set(sx * .245, .16, 0); cuello.add(oreja); });
+    const cinta = new THREE.Mesh(new THREE.TorusGeometry(.215, .018, 8, 32), acentoMat); cinta.rotation.x = Math.PI / 2; cinta.position.y = .8; r.add(cinta);
     const brazos = [-1, 1].map((s) => {
       const hombro = new THREE.Group(); hombro.position.set(s * .26, 1.1, 0); r.add(hombro);
       const b = new THREE.Mesh(new THREE.CapsuleGeometry(.056, .26, 4, 10), M.cuerpo); b.position.y = -.17; b.castShadow = true; hombro.add(b);
@@ -566,22 +569,10 @@ async function montar() {
     const rb = robot(BC.clone()); rb.r.position.set(0, -.08, .74); rb.r.scale.setScalar(.95); p.add(rb.r);
     const baliza = new THREE.Mesh(new THREE.SphereGeometry(.12, 16, 16), new THREE.MeshBasicMaterial({ color: 0xFF5E6C, toneMapped: false })); baliza.position.set(.64, 2.08, -.27); baliza.visible = false; p.add(baliza);
     const zs = [0, 1, 2].map((k) => { const z = new THREE.Sprite(new THREE.SpriteMaterial({ map: zTex, transparent: true, opacity: 0, depthWrite: false })); z.scale.setScalar(.25); p.add(z); return { z, o: k / 3 }; });
-    const tag = document.createElement('div'); tag.className = 'pb-of-tag';
-    const lb = new CSS2DObject(tag); lb.position.set(0, 3.36, -.28); p.add(lb);
-    tag.addEventListener('click', (e) => { e.stopPropagation(); abrirAgente(a.id); });
-    const o = { p, scr, ctx: cv.getContext('2d'), tex: ptex, halo, baliza, zs, rb, ch, tag, a, d, col: bc, logo, logoMat, cono, pad, t0: Math.random() * 6, linea: null };
+    const o = { p, scr, ctx: cv.getContext('2d'), tex: ptex, halo, baliza, zs, rb, ch, a, d, hl: 0, col: bc, logo, logoMat, cono, pad, t0: Math.random() * 6, linea: null };
     p.traverse((n) => { if (n.isMesh) { n.userData.puesto = o; clicables.push(n); } });
     dibujaPantalla(o, 0);
     return o;
-  }
-  function pintaTag(o) {
-    const { tag, a } = o; tag.replaceChildren();
-    const i = document.createElement('i'); i.style.background = (ST[a.st] || ST.espera)[0];
-    tag.append(i, a.nombre); tag.classList.toggle('error', a.st === 'error');
-    const tip = document.createElement('div'); tip.className = 'tip';
-    const b = document.createElement('b'); b.textContent = (ST[a.st] || ST.espera)[1] + (a.cupo ? ` · ${N(a.hoy)} de ${a.cupo} hoy` : ` · ${N(a.hoy)} hoy`);
-    const m = document.createElement('div'); m.textContent = a.motivo || '';
-    tip.append(b, m); tag.append(tip);
   }
 
   /* ---------- distribución: dos columnas a los lados del núcleo, tantas filas como haga falta ----------
@@ -713,7 +704,7 @@ async function montar() {
     }
     lista.forEach((a, i) => {
       const px = (i - (lista.length - 1) / 2) * PASO;
-      const o = puesto(g, d, a, px); puestos.set(a.id, o); pintaTag(o);
+      const o = puesto(g, d, a, px); puestos.set(a.id, o);
       o.linea = cable(new THREE.LineCurve3(new THREE.Vector3(x + px, Y, z + frente2), new THREE.Vector3(x + px, Y, z + .1)), o.col, .015, 0);
       o.linea.alma.material.uniforms.uN.value = 1.5; o.linea.halo.material.uniforms.uN.value = 1.5;
     });
@@ -761,7 +752,7 @@ async function montar() {
       o.pad.material.opacity = v === 'apagado' ? .25 : v === 'dormido' ? .6 : 1;
       o.baliza.visible = v === 'error';
       if (o.linea) ponOn(o.linea, v === 'trabajando' ? 1 : v === 'error' ? 0 : .12);
-      dibujaPantalla(o, 0); pintaTag(o);
+      dibujaPantalla(o, 0);
     });
     salas.forEach((s) => {
       const d = s.d; let partes = [['Sin agentes aún', '#4a4d62']];
@@ -780,20 +771,36 @@ async function montar() {
   }
 
   /* ---------- cámara con clics ---------- */
-  let fly = null;
-  const volar = (p, t) => { if (!Number.isFinite(camera.position.x)) { camera.position.copy(p); target.copy(t); } fly = { p0: camera.position.clone(), t0: target.clone(), p1: p.clone(), t1: t.clone(), k: 0 }; };
-  volar(HOME.p, HOME.t);
+  let fly = null, intro = { k: 0 }, deriva = 0;
+  const volar = (p, t) => { intro = null; if (!Number.isFinite(camera.position.x)) { camera.position.copy(p); target.copy(t); } fly = { p0: camera.position.clone(), t0: target.clone(), p1: p.clone(), t1: t.clone(), k: 0 }; };
+  const enIntro = (e) => { const off = HOME.p.clone().sub(HOME.t), ang = (1 - e) * 1.1; off.applyAxisAngle(new THREE.Vector3(0, 1, 0), ang).multiplyScalar(1 + (1 - e) * .35); camera.position.copy(HOME.t).add(off); camera.position.y += (1 - e) * 6; target.copy(HOME.t).add(new THREE.Vector3(0, (1 - e) * 2, 0)); };
+  enIntro(0);
   const ray = new THREE.Raycaster(), m2 = new THREE.Vector2();
   const tocar = (e) => { const r = renderer.domElement.getBoundingClientRect(); m2.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(m2, camera); return ray.intersectObjects(clicables, false)[0]; };
   let hover = null, ultimoMov = 0;
+  const ficha = document.createElement('div'); ficha.className = 'pb-of-hov'; wrap.append(ficha);
+  const fichaDe = (h) => {
+    if (!h) return null;
+    const u = h.object.userData;
+    if (u.puesto) { const a = u.puesto.a, [c, txt] = ST[a.st] || ST.espera; return { k: u.puesto.d.nombre, b: a.nombre, c, txt: txt + (a.cupo ? ` · ${N(a.hoy)} de ${a.cupo} hoy` : a.hoy ? ` · ${N(a.hoy)} hoy` : ''), m: a.motivo }; }
+    if (u.sala) { const d = u.sala, l = agsDe(d.id), tr = l.filter((a) => a.st === 'trabajando').length; return { k: 'Departamento', b: d.nombre, c: d.activo ? (tr ? '#3DDC84' : '#8E91A8') : '#5C5F73', txt: d.activo ? `${tr} de ${l.length} trabajando` : 'Sin agentes aún', m: d.objetivo }; }
+    if (u.nucleo) { const pe = pendientes(); return { k: 'El núcleo', b: 'PEBAI', c: pe.some((p) => p.err) ? '#FF5E6C' : pe.length ? '#FFB547' : '#3DDC84', txt: pe.length ? (pe.length === 1 ? '1 aviso' : pe.length + ' avisos') : 'Todo en orden', m: 'Pincha para ver el resumen de la oficina' }; }
+    return null;
+  };
   renderer.domElement.addEventListener('pointermove', (e) => {
-    if (performance.now() - ultimoMov < 60) return; ultimoMov = performance.now();
+    const r = renderer.domElement.getBoundingClientRect();
+    ficha.style.transform = `translate(${Math.min(e.clientX - r.left + 16, r.width - 260)}px, ${e.clientY - r.top + 18}px)`;
+    if (performance.now() - ultimoMov < 50) return; ultimoMov = performance.now();
     const h = tocar(e); const o = h && h.object.userData.puesto ? h.object.userData.puesto : null;
-    renderer.domElement.style.cursor = o || (h && (h.object.userData.sala || h.object.userData.nucleo)) ? 'pointer' : 'default';
-    if (hover !== o) { if (hover) hover.tag.classList.remove('hover'); hover = o; if (o) o.tag.classList.add('hover'); }
+    const f = foco ? null : fichaDe(h);
+    renderer.domElement.style.cursor = h && (o || h.object.userData.sala || h.object.userData.nucleo) ? 'pointer' : 'default';
+    if (f) { ficha.innerHTML = `<small>${esc(f.k)}</small><b>${esc(f.b)}</b><span><i style="background:${f.c}"></i>${esc(f.txt)}</span>` + (f.m ? `<em>${esc(f.m)}</em>` : ''); ficha.classList.add('on'); } else ficha.classList.remove('on');
+    hover = o;
   });
+  renderer.domElement.addEventListener('pointerleave', () => { ficha.classList.remove('on'); hover = null; });
   renderer.domElement.addEventListener('click', (e) => {
     const h = tocar(e);
+    ficha.classList.remove('on');
     if (h && h.object.userData.puesto) { abrirAgente(h.object.userData.puesto.a.id); return; }
     if (h && h.object.userData.sala) { abrirSala(h.object.userData.sala); return; }
     if (h && h.object.userData.nucleo) { abrirNucleo(); return; }
@@ -802,7 +809,7 @@ async function montar() {
   new ResizeObserver(() => {
     if (!W0()) return; camera.aspect = W0() / H0(); camera.updateProjectionMatrix(); encajar();
     renderer.setSize(W0(), H0()); composer.setSize(W0(), H0()); labels.setSize(W0(), H0());
-    if (!foco) volar(HOME.p, HOME.t); else if (foco.agente) enfocarAgente(foco.agente); else if (foco.nucleo) abrirNucleo(); else if (foco.sala) enfocarSala(DEPTS.find((x) => x.id === foco.sala));
+    if (!foco) { if (!intro) volar(HOME.p, HOME.t); } else if (foco.agente) enfocarAgente(foco.agente); else if (foco.nucleo) abrirNucleo(); else if (foco.sala) enfocarSala(DEPTS.find((x) => x.id === foco.sala));
   }).observe(wrap);
 
   const clock = new THREE.Clock(); let ultPantalla = 0, tPrev = 0, ledPaso = -1, minuto = -1, medida = { n: 0, t: 0, prev: 0 };
@@ -848,10 +855,13 @@ async function montar() {
     puestos.forEach((o) => {
       const st = vis(o.a.st), rb = o.rb, tt = t + o.t0;
       if (animPant && ['trabajando', 'espera', 'error'].includes(st)) dibujaPantalla(o, tt);
+      o.hl += ((hover === o ? 1 : 0) - o.hl) * .15;
+      o.logo.scale.setScalar(1 + o.hl * .22);
       const vivo = st === 'trabajando' || st === 'espera' || st === 'error';
       o.logo.rotation.y = vivo ? Math.sin(tt * .9) * .55 : Math.sin(tt * .3) * .15;
       o.logo.position.y = 2.82 + (vivo ? Math.sin(tt * 1.6) * .06 : -.06);
-      if (st === 'trabajando') o.logoMat.emissiveIntensity = .6 + Math.sin(tt * 4) * .15;
+      if (st === 'trabajando') o.logoMat.emissiveIntensity = .6 + Math.sin(tt * 4) * .15 + o.hl * .4;
+      else if (o.hl > .02 && st !== 'error') o.logoMat.emissiveIntensity = (st === 'apagado' ? 0 : .1) + o.hl * .7;
       else if (st === 'error') o.logoMat.emissiveIntensity = Math.sin(t * 8) > 0 ? .9 : .2;
       const [bi, bd] = rb.brazos;
       rb.cuello.rotation.set(0, 0, 0); bi.rotation.set(0, 0, 0); bd.rotation.set(0, 0, 0); rb.r.position.y = -.08;
@@ -872,7 +882,9 @@ async function montar() {
         o.baliza.visible = Math.sin(t * 8) > -.1;
       }
     });
-    if (fly) { fly.k = Math.min(1, fly.k + .025); const e = 1 - Math.pow(1 - fly.k, 3); camera.position.lerpVectors(fly.p0, fly.p1, e); target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) fly = null; }
+    if (intro) { intro.k = Math.min(1, intro.k + dt / 3.2); const e = intro.k < .5 ? 4 * intro.k ** 3 : 1 - Math.pow(-2 * intro.k + 2, 3) / 2; enIntro(e); if (intro.k >= 1) { intro = null; deriva = 0; } }
+    if (fly) { fly.k = Math.min(1, fly.k + .025); const e = 1 - Math.pow(1 - fly.k, 3); camera.position.lerpVectors(fly.p0, fly.p1, e); target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) { fly = null; deriva = 0; } }
+    if (!fly && !intro && !foco) { deriva = Math.min(1, deriva + dt / 2.5); const off = HOME.p.clone().sub(HOME.t).applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.sin(t * .11) * .045 * deriva); camera.position.copy(HOME.t).add(off); camera.position.y += Math.sin(t * .17) * .25 * deriva; target.copy(HOME.t); }
     camera.lookAt(target);
     composer.render(); labels.render(scene, camera);
   }
