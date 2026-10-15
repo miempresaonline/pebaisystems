@@ -94,6 +94,9 @@ def _analiza(html: str, base: str, res: dict) -> list[str]:
     cab = (cab + ' ' + ((d.attributes.get('content') if d else '') or '')).lower()
     if re.search(r'fotovoltai|solar|autoconsumo|aerotermia|bombas? de calor|renovable', cab):
         res['nicho_cabecera'] = True
+    # Placas solares en la cabecera (título, h1/h2, menú, descripción): su negocio principal es solar
+    if re.search(r'fotovoltai|placas? solares?|paneles? solares?|energ[ií]a solar|autoconsumo|instalaci[oó]n(?:es)? solar', cab):
+        res['solar_cabecera'] = True
     if re.search(r'nuestro equipo|equipo de (?:\d+|profesionales|t[eé]cnicos|instaladores)|m[aá]s de \d+ (?:profesionales|t[eé]cnicos|empleados|trabajadores|instaladores)|'
                  r'delegaci[oó]n|delegaciones|nuestras (?:oficinas|sedes|tiendas)|sede central', t):
         res['senales'].add('equipo')

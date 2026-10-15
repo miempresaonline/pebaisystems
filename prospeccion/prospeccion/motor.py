@@ -160,6 +160,23 @@ def puntua(c: dict, w: dict) -> None:
     c['encaje_motivos'] = ', '.join(em)
 
 
+_SOLAR_NOMBRE = re.compile(r'solar|fotovolt|placas|paneles|renovab|autoconsumo|\bsun|\bsol\b|sol[a-z]*energ', re.I)
+_OTRO_NEGOCIO = re.compile(r'clima|aire acondicionado|\baire\b|fr[ií]o|frigor|calor|calefac|\bgas\b|caldera|fontaner|electricist|el[eé]ctric|electro|'
+                           r'reforma|mantenimiento|multiservicio|servicio t[eé]cnico|hvac', re.I)
+
+
+def es_solar_principal(empresa: str, dominio_web: str, w: dict) -> bool:
+    """Decisión de Daniel (15/10/2026): el nicho son EMPRESAS DE PLACAS SOLARES (baterías y aerotermia como complemento).
+    Fuera electricistas generalistas aunque mencionen placas, climatización, gas y calderas. Ante la duda, fuera."""
+    txt = f'{empresa} {dominio_web}'
+    if _SOLAR_NOMBRE.search(txt):
+        return True                      # «Solar…», «…Fotovoltaica», «Placas…», «Renovables…»
+    if _OTRO_NEGOCIO.search(txt):
+        return False                     # electricista, clima, gas… aunque haga placas
+    # Nombre neutro: lo decide su web. Placas solares en la cabecera y la solar pesa más que la aerotermia.
+    return bool(w.get('solar_cabecera') and w.get('n_solar', 0) >= 3 and w.get('n_solar', 0) >= w.get('n_aerotermia', 0))
+
+
 def enriquece(cands: list[dict], nicho: set[str]) -> list[dict]:
     webs = asyncio.run(rastrea_varias([c['web'] for c in cands if c['web']]))
     dom_count = Counter(dominio(c['web']) for c in cands if c['web'])
@@ -189,6 +206,7 @@ def enriquece(cands: list[dict], nicho: set[str]) -> list[dict]:
             'titulo_web': w.get('titulo', ''),
             # Se dedica de verdad (no lo nombra en un post): lo dice en su cabecera o lo repite por la web
             'se_dedica': bool(w.get('nicho_cabecera') or (w.get('n_solar', 0) + w.get('n_aerotermia', 0)) >= 4),
+            'solar_principal': es_solar_principal(c['empresa'], dom, w),
             'del_nicho': bool(c['nicho'] & raices(' '.join([c['empresa'], w.get('titulo', ''), w.get('descripcion', ''), w.get('h1', '')]))),
             'cadena': bool(CADENAS.search(c['empresa'] + ' ' + dom) or (c['fuente'] == 'google_maps' and dom and dom_count[dom] > 2)),
             # De dónde sale cada contacto (lo exige la ley y el panel)
@@ -275,6 +293,8 @@ def descarta(c: dict, vistos_tel: set, vistos_dom: set, excl: dict | None = None
         return 'no hace solar ni aerotermia (según su web)'
     if reglas.get('dedicacion') and not c.get('se_dedica'):
         return 'lo nombra de pasada, no se dedica a ello'
+    if reglas.get('solo_solar') and not c.get('solar_principal'):
+        return 'su negocio principal no es la instalación de placas solares'
     if reglas.get('solo_activas') and c['actividad'] != 'activa':
         return 'actividad no segura (probable)'
     if reglas.get('sin_autonomos') and c['tamano'] == 'posible autónomo':

@@ -18,14 +18,14 @@ from .fuentes import PROVINCIAS_CP, geocodifica, google_maps, rejilla
 from .motor import COLS, HOY, SALIDA, apunta, enriquece, guarda, raices
 
 NICHOS = {
+    # Decisión de Daniel (15/10/2026): EMPRESAS DE PLACAS SOLARES (baterías y aerotermia como complemento)
     'energia': {
-        'sector': 'Instaladores energía',
-        'lote': 'Energía',
-        'busquedas': ['instalador de placas solares', 'instalación fotovoltaica autoconsumo', 'aerotermia instalador',
-                      'empresa de climatización y aerotermia', 'electricista instalador placas solares'],
-        'palabras': 'placas solares fotovoltaica autoconsumo paneles solar aerotermia bomba calor climatización renovables energía',
-        # Revisión del 15/10: un 30 % no hacía ni solar ni aerotermia (electricistas, fontaneros, tiendas de aire) y había autónomos
-        'reglas': {'requiere_hace': True, 'sin_autonomos': True, 'dedicacion': True, 'solo_activas': True},
+        'sector': 'Empresas de placas solares',
+        'lote': 'Solar',
+        'busquedas': ['empresa de placas solares', 'instalador de placas solares', 'instalación fotovoltaica autoconsumo',
+                      'energía solar fotovoltaica empresa'],
+        'palabras': 'placas solares fotovoltaica autoconsumo paneles solar renovables energía',
+        'reglas': {'requiere_hace': True, 'sin_autonomos': True, 'dedicacion': True, 'solo_activas': True, 'solo_solar': True},
     },
     # Nicho B por email: operadores locales de internet (fibra/radio) de pueblos y comarcas
     'fibra': {
