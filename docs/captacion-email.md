@@ -137,9 +137,43 @@ Por cada nicho, una ficha de cuatro líneas:
 | Hueco | Qué es | Ejemplo |
 |---|---|---|
 | `[producto]` | Lo que venden, con sus palabras | instalación de placas |
-| `[momento]` | El instante en que pierden clientes | lo que pasa con una solicitud que entra el domingo |
+| `[momento]` | De qué trata el vídeo: completa «He grabado un vídeo de un minuto sobre…» (normalmente el instante en que pierden clientes) | lo que pasa con una solicitud que entra el domingo |
 | `[pregunta del nicho]` | Su versión de la pregunta, que se contesta con una palabra o un número | De cada diez que os piden precio, ¿con cuántos llegáis a hablar? |
 | `[temporada]` | Cuándo escribirles y cuándo no | Piscinas: de enero a marzo, antes de que empiece la temporada |
+
+### 4.5 Nicho 2 (borrador): operadores locales de fibra y comercializadoras pequeñas de luz
+
+Decidido el 15/10/2026 por el chat de WhatsApp y el principal: el **nicho 2 va por email** (y llamada), no por WhatsApp. Por qué ahora: la **Ley 10/2025 de atención a la clientela** obliga a adaptarse **antes del 28/12/2026**, sea cual sea su tamaño (detalle en `docs/captacion-por-que-ahora.md`).
+
+- **Señal `normativa`**, nueva: el motivo es la obligación legal con fecha límite. Caduca sola el **28/12/2026** (columna `motivo_caduca`). Si el scraper trae además una señal propia de la empresa (solo teléfono en horario corto, sin chat…), esa va primero.
+- **Ficha `fibra`:**
+  - Momento: *lo que pide la ley con las llamadas y cómo llegar a tiempo*.
+  - Pregunta del nicho: *Cuando hay una caída y llaman veinte clientes a la vez, ¿cuántos esperan más de tres minutos?*
+  - Meses: 10, 11 y 12.
+- **Ficha `luz`:**
+  - Momento: el mismo que `fibra`.
+  - Pregunta del nicho: *Cuando sale una tanda de facturas, ¿cuántas llamadas se os quedan sin atender ese día?*
+  - Meses: 10, 11 y 12.
+- **Ejemplo** (comercializadora, señal `normativa`, 83 palabras, pasa la revisión):
+
+> Hola:
+>
+> Antes del 28 de diciembre, las comercializadoras de luz tienen que cumplir la Ley 10/2025 de atención a la clientela, sea cual sea su tamaño.
+>
+> ¿Tenéis ya medido cuántas llamadas atendéis en menos de tres minutos?
+>
+> He grabado un vídeo de un minuto sobre lo que pide la ley con las llamadas y cómo llegar a tiempo. ¿Te lo paso?
+>
+> Tu email lo saqué de vuestra página de contacto. Si no te interesa, dímelo y no vuelvo a escribirte.
+>
+> Daniel
+> PEBAI Systems
+
+**Cuidado antes de lanzarlo:**
+
+1. **El vídeo solo puede enseñar lo que ya podemos demostrar.** PEBAI aún no tiene un agente de voz en producción, así que el vídeo explica la ley y cómo prepararse, y no promete un agente de voz funcionando hasta que exista la demo propia.
+2. **El abogado debe confirmar la frase de la ley en telecomunicaciones**: ahí manda su normativa sectorial y la Ley 10/2025 se aplica de forma supletoria. En luz la obligación es directa.
+3. **Fecha límite cercana:** para que tenga sentido hay que escribir en octubre y noviembre. Con la subida de 10 a 50 al día, el buzón del frío y el vídeo tienen que estar listos cuanto antes.
 
 ## 5. Cuando contestan: predicar con el ejemplo
 

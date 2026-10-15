@@ -32,10 +32,13 @@ const PEBAI_EMAIL_SENALES = [
     'resenas'  => ['Reseñas: cuesta contactar', 90, 40],
     'apertura' => ['Apertura o nueva sede', 60, 35],
     'atencion' => ['Sin atención fuera de horario', 90, 30],
+    // Obligación legal con plazo que afecta a su sector (p. ej. Ley 10/2025 de atención a la clientela, hasta el 28/12/2026).
+    // Caduca en la fecha límite (columna motivo_caduca del CSV); después ya no es un motivo.
+    'normativa' => ['Obligación legal con plazo', 90, 25],
     'ninguna'  => ['Sin señal (motivo de sector)', 3650, 0],
 ];
 
-const PEBAI_EMAIL_PLANTILLA = "Hola[nombre]:\n\n[motivo]\n\n[pregunta]\n\nHe grabado un vídeo de un minuto sobre lo que pasa con [momento]. ¿{Te lo mando|Te lo paso}?\n\nTu email lo saqué de vuestra página de contacto. Si no te interesa, dímelo y no vuelvo a escribirte.\n\nDaniel\nPEBAI Systems";
+const PEBAI_EMAIL_PLANTILLA = "Hola[nombre]:\n\n[motivo]\n\n[pregunta]\n\nHe grabado un vídeo de un minuto sobre [momento]. ¿{Te lo mando|Te lo paso}?\n\nTu email lo saqué de vuestra página de contacto. Si no te interesa, dímelo y no vuelvo a escribirte.\n\nDaniel\nPEBAI Systems";
 const PEBAI_EMAIL_RECORDATORIO = "Hola[nombre]:\n\n¿Te lo mando o lo dejo aquí?\n\nDaniel";
 const PEBAI_EMAIL_ASUNTOS = ['[empresa_corta]', 'pregunta sobre [empresa_corta]'];
 
@@ -59,6 +62,7 @@ const PEBAI_EMAIL_CONFIG = [
         'resenas'  => '¿Os pasa más por volumen de llamadas o por el horario?',
         'apertura' => '¿Las consultas de los dos sitios las lleva la misma persona?',
         'atencion' => 'Si alguien lo rellena a las diez de la noche, ¿cuándo le contesta alguien?',
+        'normativa' => '¿Tenéis ya medido cuántas llamadas atendéis en menos de tres minutos?',
     ],
 ];
 
@@ -266,14 +270,15 @@ function pebai_email_empresa_corta(string $empresa): string
 }
 
 /** Convierte el motivo del scraper en una frase: «en vuestra web no hay chat…» → «He visto que en vuestra web no hay chat….». */
-function pebai_email_motivo_frase(string $m): string
+function pebai_email_motivo_frase(string $m, string $senal = ''): string
 {
     $m = trim(preg_replace('/\s+/u', ' ', $m), " \t.");
     if ($m === '') {
         return '';
     }
     $primera = mb_substr($m, 0, 1);
-    if ($primera === mb_strtolower($primera) && !preg_match('/^(he|hemos|leyendo|vi|veo)\b/iu', $m)) {
+    // Una obligación legal no se «ha visto»: va tal cual («Antes del 28 de diciembre, la Ley…»).
+    if ($senal !== 'normativa' && $primera === mb_strtolower($primera) && !preg_match('/^(he|hemos|leyendo|vi|veo)\b/iu', $m)) {
         $m = 'He visto que ' . $m;
     }
     return mb_strtoupper(mb_substr($m, 0, 1)) . mb_substr($m, 1) . '.';
@@ -317,7 +322,7 @@ function pebai_email_componer(array $p, int $paso, array $cfg): ?array
     if ($pregunta === '' || $p['senal'] === 'ninguna') {
         $pregunta = $ficha['pregunta'] ?? '';
     }
-    $motivo = pebai_email_motivo_frase($p['motivo']);
+    $motivo = pebai_email_motivo_frase($p['motivo'], $p['senal']);
     if ($motivo === '') {
         $motivo = 'He visto ' . pebai_email_empresa_corta($p['empresa']) . ' buscando ' . mb_strtolower($ficha['nombre'] ?? $p['sector']) . ($p['ciudad'] !== '' ? ' en ' . $p['ciudad'] : '') . '.';
     }
@@ -1002,7 +1007,7 @@ function pebai_email_importar(string $raw, string $nichoDefecto, string $lote): 
     $alias = ['empresa' => ['empresa', 'negocio', 'name', 'company'], 'email' => ['email', 'correo', 'mail', 'e-mail'], 'nombre' => ['nombre', 'contacto'],
               'telefono' => ['telefono', 'movil', 'phone', 'tel'], 'sector' => ['sector', 'categoria'], 'nicho' => ['nicho', 'niche'], 'ciudad' => ['ciudad', 'localidad', 'municipio', 'city'],
               'web' => ['web', 'website', 'url'], 'origen_email' => ['origen_email', 'origen', 'fuente'], 'tipo_email' => ['tipo_email'],
-              'senal' => ['senal', 'señal', 'tipo_senal', 'signal'], 'motivo' => ['motivo'], 'motivo_fuente' => ['motivo_fuente'], 'motivo_fecha' => ['motivo_fecha'], 'notas' => ['notas']];
+              'senal' => ['senal', 'señal', 'tipo_senal', 'signal'], 'motivo' => ['motivo'], 'motivo_fuente' => ['motivo_fuente'], 'motivo_fecha' => ['motivo_fecha'], 'motivo_caduca' => ['motivo_caduca', 'plazo'], 'notas' => ['notas']];
     $map = [];
     foreach ($alias as $campo => $nombres) {
         foreach ($nombres as $nombre) { // por orden de preferencia: "origen_email" gana a "origen" (que es el del negocio)
@@ -1044,7 +1049,8 @@ function pebai_email_importar(string $raw, string $nichoDefecto, string $lote): 
         $estado = isset($bajas[$email]) ? 'baja' : 'pendiente';
         $ins->execute([$now, $now, $get('empresa'), $get('nombre'), $email, $dom, $tipo, $get('origen_email'), pebai_phone_digits($get('telefono')) ?: '',
                        $get('sector'), $get('nicho') ?: $nichoDefecto, $get('ciudad'), $get('web'), $senal, $get('motivo'), $get('motivo_fuente'), $fecha,
-                       date('Y-m-d', strtotime($fecha) + $vigencia * 86400), $prio, $lote, $get('notas'), $estado, bin2hex(random_bytes(16))]);
+                       $get('motivo_caduca') !== '' && strtotime($get('motivo_caduca')) ? date('Y-m-d', strtotime($get('motivo_caduca'))) : date('Y-m-d', strtotime($fecha) + $vigencia * 86400),
+                       $prio, $lote, $get('notas'), $estado, bin2hex(random_bytes(16))]);
         if ($ins->rowCount()) {
             $estado === 'baja' ? $res['bajas']++ : $res['nuevos']++;
         } else {

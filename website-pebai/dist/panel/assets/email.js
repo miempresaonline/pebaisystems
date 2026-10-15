@@ -136,7 +136,7 @@ function tarjetaNichos() {
   const vl = el('label', 'pe-check'); vl.append(v, ' El vídeo de este nicho ya está grabado (sin esto no se envía: el email dice «He grabado»)');
   f.append(field('Identificador', input('slug', '', { placeholder: 'reformas' })), field('Nombre', input('nombre', '', { placeholder: 'Empresas de reformas' })),
     field('Producto (con sus palabras)', input('producto', '', { placeholder: 'reformas integrales' })),
-    field('Momento (lo que pasa con…)', input('momento', '', { placeholder: 'una petición de presupuesto que llega mientras estáis en obra' })),
+    field('Momento: de qué trata el vídeo (completa «He grabado un vídeo de un minuto sobre…»)', input('momento', '', { placeholder: 'lo que pasa con una petición de presupuesto que llega mientras estáis en obra' })),
     field('Pregunta del nicho (se contesta con una palabra o un número)', input('pregunta', '', { placeholder: 'Cuando estáis en obra, ¿cuánto soléis tardar en contestar un presupuesto?' })),
     field('Meses en los que se escribe (vacío = todo el año)', input('meses', '', { placeholder: '1,2,3,9,10,11' })), vl);
   const b = btn('primary', 'Guardar ficha'); b.type = 'submit'; f.append(b);
