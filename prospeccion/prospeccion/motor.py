@@ -69,19 +69,21 @@ def _cierra(horario: dict) -> list[str]:
     return out
 
 
-def motivo(c: dict, w: dict) -> tuple[str, str]:
+def motivo(c: dict, w: dict) -> tuple[str, str, str]:
     """Una frase verdadera y comprobable para la primera línea del email, con la URL que la prueba.
     Orden de valor (chat de Email): anuncios activos > empleo de atención > reseñas > auditoría de la web/horario > apertura.
-    De momento: auditoría de la web y horario de la ficha. Anuncios, empleo y apertura llegan con las fases 2 y 3."""
+    De momento: cómo se les contacta (señal 'atencion') y horario de la ficha. Anuncios, empleo y apertura llegan con las fases 2 y 3.
+    Redacción: en minúscula y sin punto (el agente de email antepone «He visto que»), y sin hablar de «web»: no vendemos webs.
+    Devuelve (motivo, url que lo prueba, señal)."""
     s = w.get('senales', set())
     web = w.get('url_final') or c['web']
     if w.get('ok') and not s & {'chat_web', 'boton_whatsapp'}:
-        via = 'rellenar un formulario o llamar' if 'formulario' in s else 'llamar'
-        return f'en vuestra web no hay chat ni WhatsApp: quien entra fuera de horario solo puede {via}', web
+        via = 'un formulario o el teléfono' if 'formulario' in s else 'el teléfono'
+        return f'fuera de horario la única forma de contactar con vosotros es {via}', web, 'atencion'
     franjas = _cierra(c['extra'].get('horario'))
     if franjas and c['extra'].get('maps'):
-        return 'según vuestra ficha de Google cerráis ' + ' y '.join(franjas), c['extra']['maps']
-    return '', ''
+        return 'según vuestra ficha de Google cerráis ' + ' y '.join(franjas), c['extra']['maps'], 'atencion'
+    return '', '', 'ninguna'
 
 
 def puntua(c: dict, w: dict) -> None:
@@ -146,10 +148,10 @@ def enriquece(cands: list[dict], nicho: set[str]) -> list[dict]:
         email = mejor_email(emails, dom)
         if c['fuente'] == 'buscador':
             c['empresa'] = nombre_empresa(w, dom) or c['empresa']
-        mot, mot_url = motivo(c, w)
+        mot, mot_url, senal = motivo(c, w)
         c.update({
             'tipo_email': tipo_email(email), 'origen_email': w.get('email_origen', {}).get(email, ''), 'mx_ok': bool(email),
-            'motivo': mot, 'motivo_fuente': mot_url, 'motivo_fecha': HOY.isoformat() if mot else '', 'anuncios_activos': '',
+            'motivo': mot, 'senal': senal, 'motivo_fuente': mot_url, 'motivo_fecha': HOY.isoformat() if mot else '', 'anuncios_activos': '',
             'movil': w.get('whatsapp') if w.get('whatsapp') in moviles else (moviles[0] if moviles else ''),
             'moviles_extra': ' '.join(moviles[1:4]), 'fijo': fijos[0] if fijos else '', 'email': email,
             'emails_extra': ' '.join(e for e in emails if e != email)[:200], 'email_personal': bool(email and es_email_personal(email)),
@@ -167,8 +169,42 @@ def enriquece(cands: list[dict], nicho: set[str]) -> list[dict]:
     return out
 
 
-def descarta(c: dict, vistos_tel: set, vistos_dom: set) -> str:
+def exclusiones() -> dict[str, set]:
+    """Quién no debe volver a recibir nada: ya está en el panel (cualquier canal) o pidió la baja.
+    Lo da el panel (api/exclusiones.php, solo identificadores, con el token de los agentes). Sin él, se avisa y se sigue."""
+    import os
+    import httpx
+    from .contacto import normaliza_tel
+    vacio = {k: set() for k in ('tels', 'emails', 'dominios')}
+    token = os.environ.get('AGENT_TOKEN', '')
+    if not token:
+        env = Path(__file__).resolve().parents[2] / '.env'
+        for l in (env.read_text(encoding='utf-8').splitlines() if env.exists() else []):
+            if l.startswith('AGENT_TOKEN='):
+                token = l.split('=', 1)[1].strip().strip('"\'')
+    if not token:
+        print('   ⚠ sin AGENT_TOKEN: no se ha podido excluir a los que ya están en el panel o tienen baja')
+        return vacio
+    try:
+        r = httpx.get(os.environ.get('EXCLUSIONES_URL', 'https://pebaisystems.es/api/exclusiones.php'),
+                      headers={'X-Agent-Token': token, 'User-Agent': 'pebai-prospeccion'}, timeout=30)
+        j = r.json() if r.status_code == 200 else {}
+    except Exception:
+        j = {}
+    if not j:
+        print('   ⚠ el panel no ha dado la lista de exclusión (¿api/exclusiones.php sin desplegar?): revisa antes de importar')
+        return vacio
+    tels = {normaliza_tel(str(t)) for k in ('telefonos_en_panel', 'bajas_telefono') for t in j.get(k, [])}
+    emails = {str(e).strip().lower() for k in ('emails_en_panel', 'bajas_email') for e in j.get(k, [])}
+    doms = {dominio(str(d)) for d in j.get('dominios_en_panel', [])}
+    print(f'   exclusión del panel: {len(tels)} teléfonos, {len(emails)} emails, {len(doms)} dominios')
+    return {'tels': tels - {''}, 'emails': emails - {''}, 'dominios': doms - {''}}
+
+
+def descarta(c: dict, vistos_tel: set, vistos_dom: set, excl: dict | None = None) -> str:
     """Motivo para no entregarlo, o '' si vale."""
+    if excl and ({c['movil'], c['fijo']} & excl['tels'] or c['email'] in excl['emails'] or dominio(c['web_final']) in excl['dominios']):
+        return 'ya en el panel o con baja'
     if c['cadena']:
         return 'cadena o franquicia'
     if not c['del_nicho']:
@@ -194,7 +230,7 @@ def descarta(c: dict, vistos_tel: set, vistos_dom: set) -> str:
 
 
 COLS = ['empresa', 'telefono', 'telefono_fijo', 'email', 'nombre', 'sector', 'ciudad', 'web', 'origen', 'notas',
-        'tipo_email', 'origen_email', 'mx_ok', 'motivo', 'motivo_fuente', 'motivo_fecha', 'anuncios_activos', 'canales',
+        'tipo_email', 'origen_email', 'mx_ok', 'motivo', 'senal', 'motivo_fuente', 'motivo_fecha', 'anuncios_activos', 'canales',
         'actividad', 'encaje', 'emails_extra', 'moviles_extra', 'redes', 'resenas', 'valoracion', 'senales', 'fuente']
 
 
@@ -205,7 +241,7 @@ def fila(c: dict) -> dict:
     return {'empresa': c['empresa'], 'telefono': c['movil'], 'telefono_fijo': c['fijo'], 'email': c['email'], 'nombre': '',
             'sector': c['sector'], 'ciudad': c['ciudad'], 'web': c['web_final'], 'origen': c['origen_contacto'], 'notas': notas,
             'tipo_email': c['tipo_email'], 'origen_email': c['origen_email'], 'mx_ok': 'si' if c['mx_ok'] else '',
-            'motivo': c['motivo'], 'motivo_fuente': c['motivo_fuente'], 'motivo_fecha': c['motivo_fecha'], 'anuncios_activos': c['anuncios_activos'],
+            'motivo': c['motivo'], 'senal': c['senal'], 'motivo_fuente': c['motivo_fuente'], 'motivo_fecha': c['motivo_fecha'], 'anuncios_activos': c['anuncios_activos'],
             # Canales posibles; el panel decide cuál usa (uno solo a la vez)
             'canales': ','.join(k for k, v in (('whatsapp', c['movil']), ('email', c['email']), ('llamada', c['fijo'] or c['movil'])) if v),
             'actividad': c['actividad'], 'encaje': c['encaje'], 'emails_extra': c['emails_extra'], 'moviles_extra': c['moviles_extra'],
@@ -215,10 +251,11 @@ def fila(c: dict) -> dict:
 def guarda(nombre: str, cands: list[dict], limite: int) -> None:
     SALIDA.mkdir(parents=True, exist_ok=True)
     vt, vd = set(), set()
+    excl = exclusiones()
     buenos, motivos = [], Counter()
     # Primero los que más encajan y más activos están
     for c in sorted(cands, key=lambda c: (-c['encaje_puntos'], not c['motivo'], -c['actividad_puntos'])):
-        m = descarta(c, vt, vd)
+        m = descarta(c, vt, vd, excl)
         if m:
             motivos[m] += 1
         else:

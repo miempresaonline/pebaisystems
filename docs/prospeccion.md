@@ -29,11 +29,14 @@ Directorios del sector (fase 3)  ─┘  anuncios, fecha de la web       contact
 - `tipo_email`: generico / nominativo / gratuito.
 - `origen_email`: URL exacta donde la empresa publica ese email.
 - `mx_ok`.
-- `motivo`: una frase verdadera y comprobable para la primera línea, con `motivo_fuente` (URL) y `motivo_fecha`.
+- `motivo`: una frase verdadera y comprobable para la primera línea, en minúscula, sin punto final y sin hablar de «web» (el agente antepone «He visto que»), con `motivo_fuente` (URL) y `motivo_fecha`.
+- `senal`: anuncios / empleo / resenas / apertura / atencion / ninguna.
 - `anuncios_activos`.
 - `canales`: whatsapp, email, llamada. El panel decide uno solo a la vez.
 
 Motivos por orden de valor: anuncios activos en Meta (fase 2) > oferta de empleo de atención al cliente (fase 3) > reseñas que dicen que cuesta contactar, solo en agregado (fase 3) > auditoría de la web y horario de la ficha (**ya activo**) > apertura reciente, por el BORME (fase 3).
+
+**Exclusiones:** antes de entregar, el motor pide al panel (`api/exclusiones.php`, con el `AGENT_TOKEN` del `.env`) los teléfonos, emails y dominios que ya están en él y las bajas de cualquier canal, y los quita. Si el panel no responde, avisa en el resumen.
 
 **Calidad del contacto:**
 - Se descarta el email de la agencia que hizo la web, los de relleno (`info@sitio.com`) y los de RR. HH.
