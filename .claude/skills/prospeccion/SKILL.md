@@ -18,6 +18,11 @@ Motor en `prospeccion/` (documentación completa en `docs/prospeccion.md`). Regl
    - Fuera las multinacionales y grandes cadenas (no son pymes).
    - Nunca el email de una persona sacado de una página de equipo, dirección o leadership: solo los publicados como contacto.
    - Para atención al cliente, mejor atencion@, clientes@ o info@ que reportes@ o comunicacion@ (prensa).
+   - Fuera los buzones que no son de contacto: dpd@, rgpd@, ir@, irteam@, presse@, donnees.personnelles@ y canales de denuncias.
+   - Un gmail o hotmail solo si lleva el nombre de la empresa (reformasgarcia@), nunca el de una persona (soyperez@).
+   - Fuera las marcas o filiales de grupos grandes, también por el dominio de la web o del email (Lucera, Mipodo, Papernest, Met, SEFE, Air Liquide…).
+   - Luz: solo con la web actualizada en los últimos 12 meses. Las cooperativas eléctricas van con nicho=luz_coop.
+8. **Reglas del chat principal:** el scraper se para mientras la cola de WhatsApp tenga más de 150 empresas (`touch ~/prospeccion/PAUSA` en el servidor). Meter empresas en la cola NO autoriza envíos: solo Daniel lo decide. Daniel habla con el chat principal; las bifurcaciones le informan a él.
 
 ## Antes de ejecutar
 

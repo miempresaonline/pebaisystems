@@ -13,6 +13,7 @@ Uso: python -m prospeccion.nicho_b luz
 """
 import asyncio
 import csv
+import datetime as dt
 import html
 import re
 import sys
@@ -28,7 +29,9 @@ GRANDES_LUZ = re.compile(r'endesa|iberdrola|naturgy|repsol|totalenergies|\bedp\b
                          r'comercializadora regulada|baser|viesgo|cepsa|moeve|galp|audax|axpo|factor energ|engie|enel|alpiq|naturgy|'
                          r'nexus energ|acciona|fenie|gas natural|union fenosa|unión fenosa|hidrocant|cide hcenerg|bassols|'
                          # Multinacionales y grandes cadenas que también comercializan (no son pymes)
-                         r'centrica|bon preu|mercadona|carrefour|eroski|alcampo|lidl|ikea|shell|bp energ|statkraft|uniper|vattenfall|ørsted|orsted', re.I)
+                         r'centrica|bon preu|mercadona|carrefour|eroski|alcampo|lidl|ikea|shell|bp energ|statkraft|uniper|vattenfall|ørsted|orsted|'
+                         # Marcas o filiales de grupos grandes (auditoría del chat de Email, 15/10)
+                         r'lucera|mipodo|papernest|\bmet\b|met\.com|sefe|air ?liquide', re.I)
 _GENERICOS_ATENCION = ('atencion', 'atencionalcliente', 'clientes', 'cliente', 'info', 'contacto', 'comercial', 'hola', 'oficina')
 
 
@@ -78,6 +81,13 @@ def luz() -> None:
         if not w.get('ok') or w.get('aparcado'):
             descarta('web caída o aparcada'); continue
         dom = dominio(w.get('url_final') or c['web'])
+        if GRANDES_LUZ.search(dom):
+            descarta('web de un grupo grande (filial o marca)'); continue
+        # Actividad real (pedido del chat principal): la web se ha tocado en los últimos 12 meses
+        lastmod = w.get('sitemap_lastmod') or ''
+        reciente = (lastmod and (HOY - dt.date.fromisoformat(lastmod)).days <= 365) or w.get('anyo_web', 0) >= HOY.year
+        if not reciente:
+            descarta('sin señales de actualización en 12 meses'); continue
         if dom in vistos:
             descarta('duplicado (mismo grupo)'); continue
         vistos.add(dom)
@@ -89,6 +99,8 @@ def luz() -> None:
         tels = ([c['tel_censo']] if c['tel_censo'] else []) + [t for t in w.get('tels', []) if t != c['tel_censo']]
         if not email:
             descarta('sin email publicado'); continue
+        if GRANDES_LUZ.search(email.split('@')[-1]):
+            descarta('email de un grupo grande'); continue
         if email in excl['emails'] or dom in excl['dominios'] or set(tels) & excl['tels']:
             descarta('ya en el panel o con baja'); continue
         mot, fuente, senal, caduca = motivo_luz(c, w, tels, 'luz')
@@ -97,7 +109,9 @@ def luz() -> None:
         filas.append({
             'empresa': c['empresa'], 'telefono': movil, 'telefono_fijo': fijo, 'email': email, 'nombre': '', 'sector': 'Comercializadora de electricidad',
             'ciudad': c['ciudad'], 'provincia': c['provincia'], 'lote': 'Luz · CNMC', 'web': w.get('url_final') or c['web'],
-            'origen': f'Censo de comercializadoras de la CNMC ({c["orden"]}) · teléfono y web', 'nicho': 'luz',
+            'origen': f'Censo de comercializadoras de la CNMC ({c["orden"]}) · teléfono y web',
+            # Cooperativas eléctricas: ficha propia en el agente de email
+            'nicho': 'luz_coop' if re.search(r'cooperativ|\bcoop\b|s\.?\s?coop', c['razon_social'], re.I) else 'luz',
             'tipo_email': tipo_email(email), 'origen_email': w.get('email_origen', {}).get(email, ''), 'mx_ok': 'si',
             'motivo': mot, 'senal': senal, 'motivo_fuente': fuente, 'motivo_fecha': HOY.isoformat(), 'motivo_caduca': caduca,
             'canales': ','.join(k for k, v in (('email', email), ('llamada', fijo or movil)) if v),

@@ -14,7 +14,9 @@ _TEL_RE = re.compile(r'(?<![\d/])(?:(?:\+|00)\s?34[\s.\-]?)?([6789](?:[\s.\-]?\d
 _EMAIL_RE = re.compile(r'[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,24}')
 _EMAIL_JUNK = re.compile(r'\.(png|jpe?g|gif|webp|svg|css|js)$|example\.|sentry|wixpress|@sentry|godaddy|domain\.com|tudominio|email\.com|correo\.com|'
                          r'@2x|^[0-9a-f]{20,}@|noreply|no-reply|@(?:sentry|wix)|@(?:sitio|ejemplo|empresa|tuempresa|miempresa|midominio|dominio|correo|mail)\.(?:com|es)$|'
-                         r'^(?:rrhh|talento|seleccion|candidatos|empleo|jobs|trabajo|curriculum|cv|privacidad|lopd|rgpd|dpo|protecciondedatos|facturacion|webmaster|wordpress)[.@_-]', re.I)
+                         r'^(?:rrhh|talento|seleccion|candidatos|empleo|jobs|trabajo|curriculum|cv|privacidad|lopd|rgpd|dpo|dpd|protecciondedatos|facturacion|webmaster|wordpress|'
+                         # Buzones que no son de contacto (auditoría del chat de Email): datos personales, inversores, prensa, denuncias
+                         r'donnees\.?personnelles|ir|irteam|investor|inversores|presse|press|prensa|denuncias?|canal\.?(?:etico|denuncias)|compliance|whistleblow\w*|etica)[.@_-]', re.I)
 _GENERICOS_PERSONALES = ('gmail.', 'hotmail.', 'outlook.', 'yahoo.', 'icloud.', 'live.', 'msn.', 'telefonica.net')
 
 
@@ -106,6 +108,11 @@ def precarga_mx(emails: list[str]) -> None:
             _MX_CACHE[d] = ok
 
 
+def _sin_tildes(s: str) -> str:
+    import unicodedata
+    return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+
+
 def email_es_de_la_empresa(email: str, dominio_web: str, empresa: str) -> bool:
     """Descarta el email de la agencia que hizo la web (pie «diseñado por…»): solo vale el del propio dominio,
     un buzón gratuito (gmail…) o uno cuyo dominio se parezca al nombre de la empresa."""
@@ -114,7 +121,11 @@ def email_es_de_la_empresa(email: str, dominio_web: str, empresa: str) -> bool:
     if dw and (dom == dw or dom.endswith('.' + dw) or dw.endswith('.' + dom)):
         return True
     if es_email_personal(email):
-        return True
+        # gmail/hotmail: solo si lleva el nombre de la empresa (reformasgarcia@), no el de una persona (soyperez@)
+        local = re.sub(r'[^a-z0-9]', '', email.split('@')[0].lower())
+        nom = re.sub(r'[^a-z0-9 ]', '', _sin_tildes(empresa or '').lower())
+        palabras = [p for p in nom.split() if len(p) >= 4 and p not in ('instalaciones', 'empresa', 'servicios', 'grupo', 'energia', 'energias')]
+        return any(p in local for p in palabras) or any(p in local for p in re.sub(r'[^a-z0-9]', ' ', dw).split() if len(p) >= 5)
     raiz = dom.split('.')[0]
     nombre = re.sub(r'[^a-z0-9]', '', (empresa or '').lower())
     return len(raiz) >= 4 and (raiz in nombre or raiz in re.sub(r'[^a-z0-9]', '', dw))
