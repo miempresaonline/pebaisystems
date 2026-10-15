@@ -100,6 +100,21 @@ def email_es_de_la_empresa(email: str, dominio_web: str, empresa: str) -> bool:
     return len(raiz) >= 4 and (raiz in nombre or raiz in re.sub(r'[^a-z0-9]', '', dw))
 
 
+_ADMIN_PUBLICA = re.compile(r'^(ajuntament|ayuntamiento|ayto|concello|udala|aj\.|alcaldia|secretaria\.ayto)|'
+                            r'@(.*\.)?(gob\.es|gva\.es|gencat\.cat|xunta\.gal|juntadeandalucia\.es|jcyl\.es|aragon\.es|navarra\.es|euskadi\.eus|dip[a-z]*\.(es|cat))$', re.I)
+_PAGINA_EQUIPO = re.compile(r'team|equipo|leadership|direcci[oó]n|management|board|consejo|directiva|who-we-are|nuestro-equipo|people|personas', re.I)
+
+
+def email_publicable(email: str, origen_url: str) -> bool:
+    """Reglas del chat de Email: nada de administraciones públicas, y nunca el email de una persona sacado
+    de una página de equipo o dirección (solo valen los publicados como contacto)."""
+    if _ADMIN_PUBLICA.search(email):
+        return False
+    if tipo_email(email) == 'nominativo' and _PAGINA_EQUIPO.search(origen_url or ''):
+        return False
+    return True
+
+
 def mejor_email(emails: list[str], dominio_web: str) -> str:
     """Prioriza: del propio dominio y genérico de contacto > del propio dominio > otros."""
     dominio_web = (dominio_web or '').lower().removeprefix('www.')
@@ -109,8 +124,11 @@ def mejor_email(emails: list[str], dominio_web: str) -> str:
         p = 0
         if dominio_web and (dom == dominio_web or dom.endswith('.' + dominio_web) or dominio_web.endswith(dom)):
             p += 10
-        if local in ('info', 'contacto', 'hola', 'clinica', 'administracion', 'comercial', 'ventas', 'presupuestos', 'oficina'):
+        if local in ('atencion', 'atencionalcliente', 'clientes', 'info', 'contacto', 'hola', 'clinica', 'administracion', 'comercial',
+                     'ventas', 'presupuestos', 'oficina'):
             p += 3
+        if re.match(r'(reportes|comunicacion|prensa|press|marketing|mkt|newsletter|noticias)', local):
+            p -= 4   # prensa y marketing: no es quien atiende a clientes
         if es_email_personal(e):
             p -= 2
         return -p

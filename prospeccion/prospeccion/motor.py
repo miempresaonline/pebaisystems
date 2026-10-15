@@ -15,7 +15,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from .contacto import dominio_recibe_email, email_es_de_la_empresa, es_email_personal, mejor_email, tipo_email, tipo_tel
+from .contacto import dominio_recibe_email, email_es_de_la_empresa, email_publicable, es_email_personal, mejor_email, tipo_email, tipo_tel
 from .fuentes import buscador, google_maps
 from .web import dominio, rastrea_varias
 
@@ -29,7 +29,7 @@ CADENAS = re.compile(r'asisa|sanitas|caser|adeslas|vitaldent|dentix|ikea|leroy|b
                      r'saunier|daikin|mitsubishi electric|bosch|vaillant|baxi|ferroli|junkers|leroymerlin|ikea|'
                      # Telecomunicaciones: operadores grandes, sus marcas y sus tiendas (no son el operador local)
                      r'movistar|telef[oó]nica|vodafone|orange|jazztel|digi|m[aá]sm[oó]vil|yoigo|lowi|simyo|pepephone|o2|euskaltel|'
-                     r'r cable|telecable|avatel|adamo|finetwork|phone house|worten|media ?markt', re.I)
+                     r'r cable|telecable|avatel|adamo|finetwork|phone house|worten|media ?markt|centrica|bon preu', re.I)
 
 # Webs que no son el cliente final: administraciones, directorios y comparadores (venden leads, no los atienden), formación, software
 NO_CLIENTE = re.compile(r'junta de |gobierno|ayuntamiento|diputaci|consejer|ministerio|generalitat|xunta|\.gob\.|gencat|gva\.es|juntadeandalucia|madrid\.org|'
@@ -168,7 +168,8 @@ def enriquece(cands: list[dict], nicho: set[str]) -> list[dict]:
         moviles = [t for t in tels if tipo_tel(t) == 'movil']
         fijos = [t for t in tels if tipo_tel(t) in ('fijo', 'tarificacion')]
         dom = dominio(w.get('url_final') or c['web'])
-        emails = [e for e in w.get('emails', []) if email_es_de_la_empresa(e, dom, c['empresa']) and dominio_recibe_email(e)]
+        emails = [e for e in w.get('emails', []) if email_es_de_la_empresa(e, dom, c['empresa'])
+                  and email_publicable(e, w.get('email_origen', {}).get(e, '')) and dominio_recibe_email(e)]
         email = mejor_email(emails, dom)
         if c['fuente'] == 'buscador':
             c['empresa'] = nombre_empresa(w, dom) or c['empresa']

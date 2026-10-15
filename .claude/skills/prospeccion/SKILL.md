@@ -13,6 +13,11 @@ Motor en `prospeccion/` (documentación completa en `docs/prospeccion.md`). Regl
 4. **Los CSV con datos reales van a `scratch/prospeccion/`** (o a `documentos/`), nunca al repo, que es público.
 5. **Los nichos aún no están decididos** (15/10/2026): pregúntalos antes de una tirada grande. Las pruebas se hicieron con reformas y placas solares.
 6. **Para el agente de email** cada fila lleva `tipo_email` (generico/nominativo/gratuito), `origen_email` (URL exacta), `mx_ok`, `motivo` + `motivo_fuente` + `motivo_fecha` (una frase verdadera y comprobable) y `canales`. Sin motivo verificable la empresa vale igual, pero va detrás. Nunca inventes un motivo.
+7. **Reglas del chat de Email (15/10/2026):**
+   - Fuera las administraciones públicas: ayuntamientos, comercializadoras municipales y emails ajuntament@ o ayuntamiento@.
+   - Fuera las multinacionales y grandes cadenas (no son pymes).
+   - Nunca el email de una persona sacado de una página de equipo, dirección o leadership: solo los publicados como contacto.
+   - Para atención al cliente, mejor atencion@, clientes@ o info@ que reportes@ o comunicacion@ (prensa).
 
 ## Antes de ejecutar
 

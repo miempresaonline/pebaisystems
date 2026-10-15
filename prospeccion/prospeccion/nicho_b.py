@@ -19,14 +19,16 @@ import sys
 
 import httpx
 
-from .contacto import dominio_recibe_email, email_es_de_la_empresa, mejor_email, normaliza_tel, tipo_email, tipo_tel
+from .contacto import dominio_recibe_email, email_es_de_la_empresa, email_publicable, mejor_email, normaliza_tel, tipo_email, tipo_tel
 from .motor import COLS, HOY, LEY_CADUCA as CADUCA, LEY_URL, MOTIVO_NORMATIVA, SALIDA, apunta, exclusiones
 from .web import dominio, rastrea_varias
 
 # Grandes y sus filiales (no son el cliente: lista corta y cuidada de pequeñas)
 GRANDES_LUZ = re.compile(r'endesa|iberdrola|naturgy|repsol|totalenergies|\bedp\b|e\.on|\beon\b|holaluz|octopus|cur ?energ|energ[ií]a xxi|regsiti|'
                          r'comercializadora regulada|baser|viesgo|cepsa|moeve|galp|audax|axpo|factor energ|engie|enel|alpiq|naturgy|'
-                         r'nexus energ|acciona|fenie|gas natural|union fenosa|unión fenosa|hidrocant|cide hcenerg|bassols', re.I)
+                         r'nexus energ|acciona|fenie|gas natural|union fenosa|unión fenosa|hidrocant|cide hcenerg|bassols|'
+                         # Multinacionales y grandes cadenas que también comercializan (no son pymes)
+                         r'centrica|bon preu|mercadona|carrefour|eroski|alcampo|lidl|ikea|shell|bp energ|statkraft|uniper|vattenfall|ørsted|orsted', re.I)
 _GENERICOS_ATENCION = ('atencion', 'atencionalcliente', 'clientes', 'cliente', 'info', 'contacto', 'comercial', 'hola', 'oficina')
 
 
@@ -35,7 +37,8 @@ def censo_luz() -> list[dict]:
     out = []
     for tr in re.findall(r'<tr[^>]*>(.*?)</tr>', r.text, re.S):
         td = [re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', x))).strip() for x in re.findall(r'<td[^>]*>(.*?)</td>', tr, re.S)]
-        if len(td) < 13 or td[12] == 'Baja' or 'EXTINGUIDA' in td[1].upper() or GRANDES_LUZ.search(td[1]):
+        municipal = re.search(r'ayuntamiento|ajuntament|concello|municipal|diputaci', td[1], re.I)
+        if len(td) < 13 or td[12] == 'Baja' or 'EXTINGUIDA' in td[1].upper() or GRANDES_LUZ.search(td[1]) or municipal:
             continue
         web = td[11].strip()
         out.append({'empresa': re.sub(r',?\s*S\.?\s?[LA]\.?\s?U?\.?$', '', td[1]).strip(), 'razon_social': td[1], 'nif': td[8],
@@ -78,7 +81,8 @@ def luz() -> None:
             descarta('duplicado (mismo grupo)'); continue
         vistos.add(dom)
         # Solo emails del propio dominio o que se parezcan a la empresa: nada de la matriz ni de distribuidoras
-        emails = [e for e in w.get('emails', []) if email_es_de_la_empresa(e, dom, c['empresa']) and dominio_recibe_email(e)]
+        emails = [e for e in w.get('emails', []) if email_es_de_la_empresa(e, dom, c['empresa'])
+                  and email_publicable(e, w.get('email_origen', {}).get(e, '')) and dominio_recibe_email(e)]
         pref = [e for e in emails if re.sub(r'[^a-z]', '', e.split('@')[0]) in _GENERICOS_ATENCION]
         email = mejor_email(pref or emails, dom)
         tels = ([c['tel_censo']] if c['tel_censo'] else []) + [t for t in w.get('tels', []) if t != c['tel_censo']]
