@@ -522,7 +522,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '18';
+$v = '19';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -734,7 +734,6 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     <div class="pb-of-wrap" id="pb-of">
       <div class="pb-of-load" id="pb-of-load">Montando la oficina…</div>
       <div class="pb-of-hud" id="pb-of-hud"></div>
-      <button class="pb-of-ajustes" id="pb-of-ajustes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Ajustes de los agentes</button>
       <aside class="pb-of-side" id="pb-of-side"><button class="x" id="pb-of-x" type="button" aria-label="Cerrar">×</button><div id="pb-of-sidein"></div></aside>
       <div class="pb-of-ask" id="pb-of-ask">
         <div class="pb-of-ans" id="pb-of-ans"></div>

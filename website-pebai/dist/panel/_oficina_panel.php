@@ -120,7 +120,12 @@ function of_whatsapp(): array
         array_unshift($a['necesita'], $resp . ($resp === 1 ? ' respuesta espera' : ' respuestas esperan') . ' que alguien conteste');
     }
     $a['ultima'] = of_ultima($a['actividad'], ['envio', 'respuesta']);
-    $a['datos'] = [['En cola', (string)$cola], ['Respuestas hoy', (string)$respHoy], ['Horario', $e['detalle'] && !$v['abierta'] ? 'Fuera de horario' : 'Dentro de horario'],
+    $a['pausado'] = (int)$e['pausado'];
+    $a['acciones'] = ['pausa' => 'agente_pausa', 'ajustes' => 'whatsapp'];
+    if ($e['estado'] === 'esperando_vinculo' && $e['codigo'] !== '') {
+        $a['codigo'] = (string)$e['codigo'];
+    }
+    $a['datos'] = [['Empresas en su cola', (string)$cola . ' (lista de Captación › Prospectos)'], ['Respuestas hoy', (string)$respHoy], ['Horario', $e['detalle'] && !$v['abierta'] ? 'Fuera de horario' : 'Dentro de horario'],
                    ['Último latido', $latido ? of_hace($e['latido_at']) : 'nunca']];
     foreach (pebai_wa_stats() as $s) {
         if ((int)$s['enviados'] > 0) {
@@ -174,13 +179,31 @@ function of_email(): array
         array_unshift($a['necesita'], $inter . ($inter === 1 ? ' empresa ha respondido' : ' empresas han respondido') . ' y espera contestación');
     }
     $a['ultima'] = of_ultima($a['actividad'], ['envio', 'respuesta']);
-    $a['datos'] = [['En cola', (string)$cola], ['Calentamiento', 'Escalón ' . ((int)$cfg['escalon'] + 1) . ' · ' . ($a['cupo'] ?: 0) . ' al día'],
+    $a['pausado'] = (int)$e['pausado'];
+    $a['acciones'] = ['pausa' => 'email_pausa', 'ir' => 'email'];
+    $a['datos'] = [['Empresas en su cola', (string)$cola . ' (lista de Captación › Email)'], ['Calentamiento', 'Escalón ' . ((int)$cfg['escalon'] + 1) . ' · ' . ($a['cupo'] ?: 0) . ' al día'],
                    ['Rebotes 7 días', $s7['rebotes_pct'] . ' %'], ['Respuestas 7 días', (string)$s7['respuestas']], ['Bajas 7 días', (string)$s7['bajas']]];
     $a['cola'] = $cola;
     return $a;
 }
 
 /* ------------------------------------------------------------ Prospección --- */
+/** "energia_malaga: 65 empresas encontradas, 44 entregadas (35 con móvil, …) · fecha" → "Energía en Málaga: 65 encontradas, 44 útiles". */
+function of_lote_bonito(string $t): string
+{
+    if (!preg_match('/^([a-z0-9_]+): (\d+) empresas encontradas, (\d+) entregadas(?: \((\d+) con móvil, (\d+) con email)?/u', $t, $m)) {
+        return $t;
+    }
+    $acentos = ['energia' => 'Energía', 'malaga' => 'Málaga', 'cordoba' => 'Córdoba', 'leon' => 'León', 'cadiz' => 'Cádiz', 'almeria' => 'Almería', 'avila' => 'Ávila',
+                'caceres' => 'Cáceres', 'jaen' => 'Jaén', 'castellon' => 'Castellón', 'logrono' => 'Logroño', 'clinicas' => 'Clínicas', 'gestorias' => 'Gestorías', 'peluquerias' => 'Peluquerías'];
+    $partes = explode('_', $m[1]);
+    $bonito = static fn($w) => $acentos[$w] ?? mb_convert_case($w, MB_CASE_TITLE, 'UTF-8');
+    // "nicho_ciudad" es lo habitual; con más trozos no se sabe dónde acaba el nicho, así que va todo seguido
+    $nicho = count($partes) === 2 ? $bonito($partes[0]) : implode(' ', array_map($bonito, $partes));
+    $ciudad = count($partes) === 2 ? $bonito($partes[1]) : '';
+    return $nicho . ($ciudad !== '' ? ' en ' . $ciudad : '') . ': ' . $m[2] . ' encontradas, ' . $m[3] . ' útiles' . (isset($m[4]) ? ' (' . $m[4] . ' con móvil, ' . $m[5] . ' con email)' : '');
+}
+
 function of_scraper(): array
 {
     $a = of_agente(['id' => 'scraper', 'dept' => 'captacion', 'nombre' => 'Scraper', 'icono' => 'googlemaps', 'rol' => 'Encuentra empresas y sus contactos', 'unidad' => 'empresas entregadas']);
@@ -207,7 +230,15 @@ function of_scraper(): array
         : ($reciente ? 'Está subiendo lotes ahora mismo.' : 'Corre en el ordenador del equipo y se activa cuando lanzáis una búsqueda.' . ($ult ? ' Último lote ' . of_hace($ult) . '.' : ''));
     $a['proxima'] = 'Cuando lancéis la siguiente búsqueda';
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
-    $a['datos'] = [['Lotes hoy', (string)$lotes], ['Encontradas hoy', (string)$enc], ['Con móvil', (string)$mov], ['Con email', (string)$mail]];
+    $a['datos'] = [['Encontradas hoy', (string)$enc], ['Útiles (con contacto)', (string)$ent], ['Con móvil', (string)$mov], ['Con email', (string)$mail]];
+    $a['acciones'] = ['ir' => 'prospectos'];
+    foreach ($a['actividad'] as &$e) {
+        $e['txt'] = of_lote_bonito($e['txt']);
+    }
+    unset($e);
+    if ($a['ultima']) {
+        $a['ultima']['txt'] = of_lote_bonito($a['ultima']['txt']);
+    }
     return $a;
 }
 
