@@ -113,6 +113,14 @@ function pebai_agentes_db(): PDO
                 $db->exec("ALTER TABLE $t ADD COLUMN plantilla TEXT NOT NULL DEFAULT ''");
             }
         }
+        // Tipo de empresa y prioridad en la cola (auditoría del CEO de captación, 15/10/2026): primero las solares puras
+        $colsP = array_column($db->query('PRAGMA table_info(prospectos)')->fetchAll(), 'name');
+        if (!in_array('tipo', $colsP, true)) {
+            $db->exec("ALTER TABLE prospectos ADD COLUMN tipo TEXT NOT NULL DEFAULT ''");
+        }
+        if (!in_array('prioridad', $colsP, true)) {
+            $db->exec('ALTER TABLE prospectos ADD COLUMN prioridad INTEGER NOT NULL DEFAULT 0');
+        }
         $ready = true;
     }
     return $db;
@@ -311,6 +319,53 @@ function pebai_wa_movil(string $tel): string
         return $d;
     }
     return preg_match('/^(?!34)\d{10,15}$/', $d) ? $d : '';
+}
+
+/**
+ * Tipo de empresa y prioridad en la cola del agente (mayor = antes). Lo calcula el nombre, la web y las etiquetas que deja
+ * el scraper en notas (hace_solar / hace_ambas / hace_aerotermia, tamaño, anuncia):
+ *   core_solar (50) > ambas (40) > generalista (30) > clima_gas (20) > sin_dato (10); −5 si es pequeña, +3 si anuncia.
+ */
+function pebai_prospecto_tipo(string $empresa, string $web, string $notas): array
+{
+    $txt = mb_strtolower($empresa . ' ' . preg_replace('#^https?://(www\.)?#', '', $web));
+    $hace = preg_match('/hace_(ambas|solar|aerotermia)/', $notas, $m) ? $m[1] : '';
+    $solarNombre = preg_match('/solar|fotovolt|placas|paneles|renovab|autoconsumo|\bsun|\bsol\b|sol[a-z]*energ/u', $txt);
+    $clima = preg_match('/clima|aire|fr[ií]o|calor|calefac|gas\b|caldera|fontaner|termo|split|hvac|frigor/u', $txt);
+    $electr = preg_match('/el[eé]ctric|electro|reforma|instalaciones|mantenimiento|multiservicio/u', $txt);
+    if ($solarNombre && $hace !== 'aerotermia') {
+        $tipo = 'core_solar';
+    } elseif ($hace === 'ambas' && !$clima) {
+        $tipo = 'ambas';
+    } elseif ($hace === 'ambas') {
+        $tipo = 'clima_gas';
+    } elseif ($hace === 'solar') {
+        $tipo = $clima ? 'clima_gas' : 'generalista';
+    } elseif ($hace === 'aerotermia') {
+        $tipo = 'clima_gas';
+    } else {
+        $tipo = $solarNombre ? 'core_solar' : ($electr ? 'generalista' : 'sin_dato');
+    }
+    $base = ['core_solar' => 50, 'ambas' => 40, 'generalista' => 30, 'clima_gas' => 20, 'sin_dato' => 10][$tipo];
+    if ($hace === '') {
+        $base = min($base, 15);   // sin etiqueta del scraper: al final de la cola
+    }
+    $prio = $base - (str_contains($notas, 'tamaño: pequeña') ? 5 : 0) + (str_contains($notas, 'anuncia') ? 3 : 0);
+    return [$tipo, $prio];
+}
+
+/** Recalcula tipo y prioridad de todo lo que espera en la cola (o en revisión). Idempotente. */
+function pebai_prospectos_priorizar(): int
+{
+    $db = pebai_agentes_db();
+    $up = $db->prepare('UPDATE prospectos SET tipo = ?, prioridad = ? WHERE id = ?');
+    $n = 0;
+    foreach ($db->query("SELECT id, empresa, web, notas FROM prospectos WHERE estado IN ('pendiente', 'revision')")->fetchAll() as $p) {
+        [$tipo, $prio] = pebai_prospecto_tipo((string)$p['empresa'], (string)$p['web'], (string)$p['notas']);
+        $up->execute([$tipo, $prio, $p['id']]);
+        $n++;
+    }
+    return $n;
 }
 
 /**

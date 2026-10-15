@@ -15,4 +15,5 @@ $csv = (string)file_get_contents($argv[1]);
 $lote = $argv[2];
 $estado = ($argv[3] ?? '') === 'revision' ? 'revision' : 'pendiente';
 $r = pebai_prospectos_importar($csv, 'Google Maps · ficha pública del negocio', $lote, $estado);
+$r['priorizados'] = pebai_prospectos_priorizar();   // solares puras primero (ver pebai_prospecto_tipo)
 echo json_encode($r, JSON_UNESCAPED_UNICODE), PHP_EOL;
