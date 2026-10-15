@@ -25,10 +25,10 @@ HOY = dt.date.today()
 CADENAS = re.compile(r'asisa|sanitas|caser|adeslas|vitaldent|dentix|ikea|leroy|bricomart|obramat|iberdrola|endesa|repsol|naturgy|holaluz|'
                      r'securitas|prosegur|carrefour|mercadona|el corte ingl|schmidt|leroy merlin|porcelanosa|bauhaus|'
                      # Energía: marcas nacionales, comercializadoras y plataformas (no son la instaladora local)
-                     r'sotysolar|enchufesolar|solarprofit|otovo|svea|totalenergies|engie|edp|e\.on|autosolar|cambio energ[eé]tico|tesla|'
+                     r'sotysolar|enchufesolar|solarprofit|otovo|svea|totalenergies|engie|\bedp\b|e\.on|autosolar|cambio energ[eé]tico|tesla|'
                      r'saunier|daikin|mitsubishi electric|bosch|vaillant|baxi|ferroli|junkers|leroymerlin|ikea|'
                      # Telecomunicaciones: operadores grandes, sus marcas y sus tiendas (no son el operador local)
-                     r'movistar|telef[oó]nica|vodafone|orange|jazztel|digi|m[aá]sm[oó]vil|yoigo|lowi|simyo|pepephone|o2|euskaltel|'
+                     r'movistar|telef[oó]nica|vodafone|orange|jazztel|\bdigi\b|m[aá]sm[oó]vil|yoigo|lowi|simyo|pepephone|\bo2\b|euskaltel|'
                      r'r cable|telecable|avatel|adamo|finetwork|phone house|worten|media ?markt|centrica|bon preu', re.I)
 
 # Webs que no son el cliente final: administraciones, directorios y comparadores (venden leads, no los atienden), formación, software
@@ -36,7 +36,7 @@ NO_CLIENTE = re.compile(r'junta de |gobierno|ayuntamiento|diputaci|consejer|mini
                         r'directorio|comparador|compara |mejores instaladores|evaluador|portal para|presupuestos? de .* gratis|'
                         r'school|escuela|máster|master en|curso|formación online|software|saas|solar design|'
                         # Tiendas, distribuidores, mayoristas y fabricantes: venden material, no instalan (revisión del 15/10)
-                        r'tienda|mayorista|distribuci[oó]n|distribuidor|suministros|material (?:de|el[eé]ctrico)|recambios|repuestos|almac[eé]n|'
+                        r'\btienda\b|mayorista|distribuci[oó]n|distribuidor|suministros|material (?:de|el[eé]ctrico)|recambios|repuestos|almac[eé]n|'
                         r'fabricante|outlet|midea|saltoki|climamania|universo instalador|macro-?tubo', re.I)
 
 # Nicho B (email): Ley 10/2025 de atención a la clientela. Texto acordado con el chat de Email (docs/captacion-email.md §4.5)
