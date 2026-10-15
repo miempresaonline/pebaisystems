@@ -12,6 +12,8 @@ return [
     ],
     // php -r "echo password_hash('CONTRASEÑA', PASSWORD_DEFAULT);"
     'panel_password_hash' => '',
+    // Clave rápida: solo vale desde la casilla que abre el atajo Ctrl + 5 × Espacio en el login
+    'panel_password_atajo_hash' => '',
     // Secreto del webhook de Cal.com (mismo valor en Cal.com)
     'calcom_webhook_secret' => '',
     // Token para lanzar api/recordatorios.php por URL desde el cron de Hostinger

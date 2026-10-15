@@ -61,6 +61,18 @@ try {
 }
 
 /* ------------------------------------------------------------ Login --- */
+/** Contraseña normal, o la clave rápida si viene de la casilla del atajo (Ctrl + 5 × Espacio). */
+function pebai_login_ok(): bool
+{
+    $cfg = pebai_config();
+    if (($_POST['modo'] ?? '') === 'atajo') {
+        $hash = (string)($cfg['panel_password_atajo_hash'] ?? '');
+        // da igual mayúsculas o minúsculas, y la ñ escrita como n + tilde
+        $clave = mb_strtolower(str_replace("n\u{303}", 'ñ', trim((string)($_POST['clave'] ?? ''))), 'UTF-8');
+        return $hash !== '' && $clave !== '' && password_verify($clave, $hash);
+    }
+    return password_verify($_POST['password'] ?? '', $cfg['panel_password_hash']);
+}
 if (isset($_POST['action']) && $_POST['action'] === 'login') {
     $ip = pebai_ip_hash();
     $blocked = false;
@@ -72,7 +84,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     }
     if ($blocked) {
         $error = 'Demasiados intentos. Espera 15 minutos.';
-    } elseif (password_verify($_POST['password'] ?? '', pebai_config()['panel_password_hash'])) {
+    } elseif (pebai_login_ok()) {
         session_regenerate_id(true);
         $_SESSION['auth'] = true;
         $next = (string)($_POST['next'] ?? '');
@@ -522,7 +534,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '22';
+$v = '23';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -558,9 +570,31 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     <?php if ($error): ?><div class="pb-err"><?= h($error) ?></div><?php endif; ?>
     <input type="hidden" name="action" value="login">
     <input type="hidden" name="next" value="<?= h($next) ?>">
-    <label class="pb-field"><span>Contraseña</span><input type="password" name="password" autocomplete="current-password" required autofocus></label>
+    <label class="pb-field" id="pb-login-normal"><span>Contraseña</span><input type="password" name="password" autocomplete="current-password" required autofocus></label>
+    <label class="pb-field" id="pb-login-atajo" hidden style="display:none"><span>Clave rápida</span><input type="password" name="clave" autocomplete="off" disabled></label>
+    <input type="hidden" name="modo" value="" id="pb-login-modo">
     <button class="pb-btn primary wide" type="submit">Entrar</button>
   </form>
+  <script>
+  /* Ctrl + 5 veces Espacio (en menos de 4 s, soltando o no el Ctrl) cambia a la casilla de la clave rápida; Esc vuelve. */
+  (() => {
+    const normal = document.getElementById('pb-login-normal'), atajo = document.getElementById('pb-login-atajo'), modo = document.getElementById('pb-login-modo');
+    const pass = normal.querySelector('input'), clave = atajo.querySelector('input');
+    let n = 0, t0 = 0;
+    const poner = (rapida) => {
+      normal.hidden = rapida; normal.style.display = rapida ? 'none' : ''; pass.disabled = rapida; pass.required = !rapida;
+      atajo.hidden = !rapida; atajo.style.display = rapida ? '' : 'none'; clave.disabled = !rapida; clave.required = rapida;
+      modo.value = rapida ? 'atajo' : ''; (rapida ? clave : pass).focus();
+    };
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modo.value) { poner(false); return; }
+      if (e.code !== 'Space' || !e.ctrlKey) return;
+      e.preventDefault();
+      const ahora = Date.now(); if (ahora - t0 > 4000) { n = 0; t0 = ahora; }
+      if (++n >= 5) { n = 0; poner(!modo.value); }
+    });
+  })();
+  </script>
 </main>
 
 <?php else: ?>
