@@ -19,7 +19,7 @@ import sys
 
 import httpx
 
-from .contacto import dominio_recibe_email, email_es_de_la_empresa, email_publicable, mejor_email, normaliza_tel, tipo_email, tipo_tel
+from .contacto import dominio_recibe_email, precarga_mx, email_es_de_la_empresa, email_publicable, mejor_email, normaliza_tel, tipo_email, tipo_tel
 from .motor import COLS, HOY, LEY_CADUCA as CADUCA, LEY_URL, MOTIVO_NORMATIVA, SALIDA, apunta, exclusiones
 from .web import dominio, rastrea_varias
 
@@ -63,6 +63,7 @@ def luz() -> None:
     cands = censo_luz()
     print(f'Comercializadoras activas pequeñas en el censo de la CNMC: {len(cands)} ({sum(1 for c in cands if c["web"])} con web en el censo)')
     webs = asyncio.run(rastrea_varias([c['web'] for c in cands if c['web']], concurrencia=10))
+    precarga_mx([e for w in webs.values() for e in w.get('emails', [])])
     excl = exclusiones()
     filas, descartes = [], {}
     vistos = set()

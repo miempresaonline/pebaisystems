@@ -129,13 +129,21 @@ def provincia(nicho: str, prov: str) -> Path | None:
         return hecho
     t0 = time.time()
     print(f'\n=== {prov} ===')
-    cap, pueblos = zonas(prov)
-    print(f'  capital en 9 zonas + {len(pueblos)} municipios')
-    cands = google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=cap, paso_km=3.0, zoom=14)
-    vistos = {c['empresa'] + c['telefono'] for c in cands}
-    for c in google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=pueblos, paso_km=6.0, zoom=14):
-        if c['empresa'] + c['telefono'] not in vistos:
-            cands.append(c)
+    import json
+    bruto = destino / 'maps' / f'{nombre}.json'
+    if bruto.exists():   # Maps ya se recorrió para esta provincia (tanda cortada): no se vuelve a pedir a Google
+        cands = json.loads(bruto.read_text(encoding='utf-8'))
+        print(f'  {len(cands)} resultados de Maps guardados de antes')
+    else:
+        cap, pueblos = zonas(prov)
+        print(f'  capital en 9 zonas + {len(pueblos)} municipios')
+        cands = google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=cap, paso_km=3.0, zoom=14)
+        vistos = {c['empresa'] + c['telefono'] for c in cands}
+        for c in google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=pueblos, paso_km=6.0, zoom=14):
+            if c['empresa'] + c['telefono'] not in vistos:
+                cands.append(c)
+        bruto.parent.mkdir(parents=True, exist_ok=True)
+        bruto.write_text(json.dumps(cands, ensure_ascii=False), encoding='utf-8')
     fuera = [c for c in cands if c.get('provincia') and c['provincia'] != prov]
     cands = [c for c in cands if not c.get('provincia') or c['provincia'] == prov]
     for c in cands:

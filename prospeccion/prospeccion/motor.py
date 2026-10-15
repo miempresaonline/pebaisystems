@@ -15,7 +15,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from .contacto import dominio_recibe_email, email_es_de_la_empresa, email_publicable, es_email_personal, mejor_email, tipo_email, tipo_tel
+from .contacto import dominio_recibe_email, precarga_mx, email_es_de_la_empresa, email_publicable, es_email_personal, mejor_email, tipo_email, tipo_tel
 from .fuentes import buscador, google_maps
 from .web import dominio, rastrea_varias
 
@@ -160,6 +160,7 @@ def puntua(c: dict, w: dict) -> None:
 def enriquece(cands: list[dict], nicho: set[str]) -> list[dict]:
     webs = asyncio.run(rastrea_varias([c['web'] for c in cands if c['web']]))
     dom_count = Counter(dominio(c['web']) for c in cands if c['web'])
+    precarga_mx([e for w in webs.values() for e in w.get('emails', [])])
     out = []
     for c in cands:
         c['nicho'] = nicho

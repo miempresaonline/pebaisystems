@@ -73,17 +73,37 @@ def es_email_personal(email: str) -> bool:
 
 
 _MX_CACHE: dict[str, bool] = {}
+# DNS públicos: el del sistema tardaba 2 s por consulta (cientos por provincia = el cuello de botella)
+_RES = dns.resolver.Resolver(configure=False)
+_RES.nameservers = ['1.1.1.1', '8.8.8.8', '9.9.9.9']
+
+
+def _mx(dom: str) -> bool:
+    for intento in range(2):
+        try:
+            return bool(_RES.resolve(dom, 'MX', lifetime=4))
+        except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+            return False
+        except Exception:
+            continue
+    return False
 
 
 def dominio_recibe_email(email: str) -> bool:
     """El dominio tiene servidor de correo (registros MX). Evita rebotes, que hunden la reputación del envío."""
     dom = email.split('@')[-1]
     if dom not in _MX_CACHE:
-        try:
-            _MX_CACHE[dom] = bool(dns.resolver.resolve(dom, 'MX', lifetime=6))
-        except Exception:
-            _MX_CACHE[dom] = False
+        _MX_CACHE[dom] = _mx(dom)
     return _MX_CACHE[dom]
+
+
+def precarga_mx(emails: list[str]) -> None:
+    """Comprueba en paralelo los dominios de muchos emails de golpe (luego dominio_recibe_email tira de la caché)."""
+    from concurrent.futures import ThreadPoolExecutor
+    doms = sorted({e.split('@')[-1] for e in emails} - set(_MX_CACHE))
+    with ThreadPoolExecutor(16) as ex:
+        for d, ok in zip(doms, ex.map(_mx, doms)):
+            _MX_CACHE[d] = ok
 
 
 def email_es_de_la_empresa(email: str, dominio_web: str, empresa: str) -> bool:
