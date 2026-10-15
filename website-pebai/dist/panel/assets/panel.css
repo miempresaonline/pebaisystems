@@ -735,3 +735,17 @@ body[data-page=prospectos] .pb-only-embudo,body[data-page=agentes] .pb-only-embu
 .pb-cj-flujo .leg i{width:9px;height:9px;border-radius:3px}
 .pb-cj-flujo .leg b{color:var(--fg-strong);font-variant-numeric:tabular-nums}
 .pb-cj-kpis .pb-kpi.sin-saldo{box-shadow:0 0 0 1px color-mix(in srgb,var(--amber) 55%,transparent) inset}
+
+/* plazas gratuitas del mes */
+.pb-plazas{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 18px}
+.pb-plz{display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:13px}
+.pb-plz b{font-weight:700;color:var(--fg-strong)}
+.pb-plz .dots{display:inline-flex;gap:4px}
+.pb-plz .dots i{width:10px;height:10px;border-radius:50%;background:var(--line-2);transition:background .4s var(--ease),transform .4s var(--ease)}
+.pb-plz .dots i.on{background:var(--lime);box-shadow:0 0 0 3px var(--lime-glow)}
+.pb-plz .t{color:var(--muted);font-weight:600}
+.pb-plz.lleno{border-color:color-mix(in srgb,var(--amber) 55%,transparent)}
+.pb-plz.lleno .dots i.on{background:var(--amber);box-shadow:none}
+.pb-plz.lleno .t{color:var(--amber)}
+.pb-plz.sig{opacity:.75}
+.pb-plz.sig b{font-weight:600}

@@ -483,7 +483,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '10';
+$v = '11';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -564,6 +564,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
   <section class="pb-page" id="page-resumen" data-page="resumen">
     <h1 class="pb-h1">El embudo, <i>de un vistazo</i></h1>
     <p class="pb-lead" id="pb-takeaway">—</p>
+    <div class="pb-plazas" id="pb-plazas"></div>
     <div class="pb-card pb-pendientes pb-anim" id="pb-pendientes" style="--i:0;margin-bottom:14px">
       <div class="hd"><div><h2>Qué toca ahora</h2><p class="note">Se actualiza solo cada minuto. Las fases avanzan solas; aquí queda lo que necesita una persona.</p></div></div>
       <div class="pb-pend-list" id="pb-pend-list"></div>
@@ -623,6 +624,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
   <section class="pb-page" id="page-citas" data-page="citas">
     <h1 class="pb-h1">Agenda de <i>sesiones técnicas</i></h1>
     <p class="pb-lead">Reservas de Cal.com. Las pasadas se marcan como asistió o no se presentó; las hechas sin enlace del panel se unen a su solicitud.</p>
+    <div class="pb-plazas" id="pb-plazas-citas"></div>
     <div class="pb-grid two">
       <div>
         <div class="pb-card" style="margin-bottom:14px"><h2>Próximas</h2><p class="note">Con recordatorios automáticos a 24 h y 1 h.</p><div class="pb-agenda" id="pb-proximas"></div></div>

@@ -186,6 +186,30 @@ $('#pb-veil').addEventListener('click', closeDetail);
 /* ============ dibujo: resumen ============ */
 const deltaEl = (e, v) => { e.classList.remove('up', 'down', 'flat'); if (v == null) { e.textContent = '—'; e.classList.add('flat'); return; } e.textContent = (v > 0 ? '+' : '') + N(v); e.classList.add(v > 0 ? 'up' : v < 0 ? 'down' : 'flat'); };
 
+/* ============ plazas gratuitas del mes (oferta: 5 sesiones gratis al mes) ============ */
+const PLAZAS_MES = 5;
+// Ocupa plaza cada sesión reservada para ese mes; no cuentan las canceladas, las cambiadas ni quien no se presentó.
+const plazasDe = (y, m) => new Set(citasClasificadas()
+  .filter((c) => c.d.getFullYear() === y && c.d.getMonth() === m && c.asistencia !== 'no_asistio').map((c) => c.lead_id || c.uid)).size;
+const plazasAhora = () => {
+  const h = S.ahoraUTC || new Date(), y = h.getFullYear(), m = h.getMonth();
+  const sig = m === 11 ? [y + 1, 0] : [y, m + 1];
+  return { mes: m, usadas: plazasDe(y, m), sigMes: sig[1], sigUsadas: plazasDe(sig[0], sig[1]) };
+};
+function pintaPlazas(box) {
+  if (!box) return;
+  const p = plazasAhora(); box.replaceChildren();
+  const fila = (mes, usadas, actual) => {
+    const r = el('div', 'pb-plz' + (usadas >= PLAZAS_MES ? ' lleno' : '') + (actual ? '' : ' sig'));
+    const dots = el('span', 'dots'); for (let i = 0; i < PLAZAS_MES; i++) dots.append(el('i', i < usadas ? 'on' : ''));
+    const libres = Math.max(0, PLAZAS_MES - usadas);
+    r.append(el('b', null, 'Plazas gratis de ' + MESES_L[mes]), dots, el('span', 't', usadas >= PLAZAS_MES ? 'Completo' : libres + (libres === 1 ? ' libre' : ' libres')));
+    return r;
+  };
+  box.append(fila(p.mes, p.usadas, true), fila(p.sigMes, p.sigUsadas, false));
+}
+const MESES_L = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
 function drawResumen(p) {
   const r = calcResumen(p), emb = calcEmbudo(p), dia = calcPorDia(p);
   $$('#pb-kpis [data-k]').forEach((e) => {
@@ -198,7 +222,7 @@ function drawResumen(p) {
   tk.append('En ' + nombre + ': ', Object.assign(el('b'), { textContent: N(r.total) + ' solicitudes' }), ', ', Object.assign(el('b'), { textContent: N(r.citas) + ' citas' }), ' y ', Object.assign(el('b'), { textContent: N(r.clientes) + ' clientes' }), '. ');
   if (worst && worst.perdida > 0) tk.append('Donde más se pierde es entre ' + PASOS[worst.orden - 1].toLowerCase() + ' y ' + worst.paso.toLowerCase() + ': ', Object.assign(el('b'), { textContent: '−' + pct(worst.perdida) }), '.');
   else if (!r.total) tk.append('Todavía no hay solicitudes en este periodo.');
-  drawPendientes(); drawSpark(dia); drawFunnel(emb); drawRitmo(p, dia); drawOrigen(p); drawAgenda($('#pb-proximas-mini'), 'proximas', 5);
+  pintaPlazas($('#pb-plazas')); drawPendientes(); drawSpark(dia); drawFunnel(emb); drawRitmo(p, dia); drawOrigen(p); drawAgenda($('#pb-proximas-mini'), 'proximas', 5);
 }
 
 function pendientes() {
@@ -577,8 +601,12 @@ function drawDetalle() {
   const setNext = (tono, titulo, texto) => { next.dataset.tono = tono; nt.append(el('div', 'eyebrow', 'Siguiente paso'), el('h3', null, titulo)); if (texto) nt.append(el('p', null, texto)); };
   const cita = citasClasificadas().filter((c) => c.lead_id === l.id).sort((a, b) => b.d - a.d)[0];
   const edad = (S.ahora - parse(l.created_at)) / 3600000;
-  if (['nuevo', 'contactado'].includes(l.estado) && !l.enlace_at) {
-    setNext(edad > 24 ? 'bad' : 'go', 'Revisar y enviar el enlace de reserva', 'Llegó ' + hace(parse(l.created_at)) + '. ' + (edad > 24 ? 'Ya pasaron las 24 h que prometemos para escribir por WhatsApp.' : 'Prometemos escribir por WhatsApp en menos de 24 h.'));
+  const plz = plazasAhora(), lleno = plz.usadas >= PLAZAS_MES, libres = Math.max(0, PLAZAS_MES - plz.usadas);
+  if (['nuevo', 'contactado'].includes(l.estado) && !l.enlace_at && lleno) {
+    setNext('warn', 'Plazas gratis de ' + MESES_L[plz.mes] + ' completas', 'Las ' + PLAZAS_MES + ' sesiones gratis de este mes ya están reservadas. Ofrécele la sesión de pago o una plaza gratis en ' + MESES_L[plz.sigMes] + ' (quedan ' + Math.max(0, PLAZAS_MES - plz.sigUsadas) + ').');
+    na.append(waTpl('plazas', 'primary big'), waTpl('enlace', ''), waTpl('no_encaja', 'danger'));
+  } else if (['nuevo', 'contactado'].includes(l.estado) && !l.enlace_at) {
+    setNext(edad > 24 ? 'bad' : 'go', 'Revisar y enviar el enlace de reserva', 'Llegó ' + hace(parse(l.created_at)) + '. ' + (edad > 24 ? 'Ya pasaron las 24 h que prometemos para escribir por WhatsApp.' : 'Prometemos escribir por WhatsApp en menos de 24 h.') + ' Quedan ' + libres + (libres === 1 ? ' plaza gratis' : ' plazas gratis') + ' en ' + MESES_L[plz.mes] + '.');
     na.append(waTpl('enlace', 'primary big'), waTpl('plazas', ''), waTpl('no_encaja', 'danger'));
   } else if (['nuevo', 'contactado'].includes(l.estado)) {
     const h = (S.ahora - parse(l.enlace_at)) / 3600000;
@@ -746,7 +774,7 @@ function draw() {
   if (!S.loaded) return;
   if (ui.page === 'resumen') drawResumen(ui.periodo);
   if (ui.page === 'solicitudes') drawSolicitudes();
-  if (ui.page === 'citas') { drawAgenda($('#pb-proximas'), 'proximas'); drawAgenda($('#pb-pasadas'), 'pasadas'); drawAgenda($('#pb-sinvincular'), 'sin_vincular'); }
+  if (ui.page === 'citas') { pintaPlazas($('#pb-plazas-citas')); drawAgenda($('#pb-proximas'), 'proximas'); drawAgenda($('#pb-pasadas'), 'pasadas'); drawAgenda($('#pb-sinvincular'), 'sin_vincular'); }
   drawDetalle();
   if (!S.drawn) { S.drawn = true; document.body.classList.add('pb-in'); }
 }

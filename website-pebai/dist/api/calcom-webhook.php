@@ -24,7 +24,7 @@ $raw = file_get_contents('php://input');
 $secret = pebai_config()['calcom_webhook_secret'] ?? '';
 $sig = $_SERVER['HTTP_X_CAL_SIGNATURE_256'] ?? '';
 if ($secret === '' || !hash_equals(hash_hmac('sha256', $raw, $secret), $sig)) {
-    pebai_log('CALCOM: firma no válida');
+    pebai_log('CALCOM: firma no válida (' . ($sig === '' ? 'sin firma: no viene de Cal.com' : 'firma distinta: revisar el secreto') . ')');
     done(401, ['status' => 'error', 'message' => 'firma no válida']);
 }
 
