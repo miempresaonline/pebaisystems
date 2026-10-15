@@ -32,7 +32,7 @@ Referencia de tasas: en frío puro se habla de un 1–5 % de respuesta. Con buen
 | Técnica | Respuesta esperada (orientativa) | Riesgo legal | Riesgo de bloqueo | Veredicto |
 |---|---|---|---|---|
 | **Vídeo en el primer mensaje** | Peor que texto: −18 % en primer contacto (estudio de 2,1 M emails). WhatsApp además no descarga solo el contenido de desconocidos | Alto: es promoción directa no pedida | Alto: archivos a desconocidos es señal de spam | Descartado como primer mensaje |
-| **Oferta de vídeo en dos pasos** ("he grabado un vídeo de un minuto sobre vuestra web, ¿te lo mando?") | Curiosidad + reciprocidad. El vídeo personalizado sube un 56 % las respuestas cuando ya hay interés; el genérico las baja un 28 % | Bajo en el vídeo (lo han pedido); el texto inicial no promociona | Bajo: el primer mensaje es solo texto | **Principal: variante C** |
+| **Oferta de vídeo en dos pasos** ("he grabado un vídeo de un minuto sobre lo que pasa con un presupuesto que entra fuera de horario, ¿te lo mando?") | Curiosidad + reciprocidad. El vídeo personalizado sube un 56 % las respuestas cuando ya hay interés; el genérico las baja un 28 % | Bajo en el vídeo (lo han pedido); el texto inicial no promociona | Bajo: el primer mensaje es solo texto | **Principal: variante C** |
 | **Observación concreta** (un dato real suyo: horario, web sin chat, reseñas) | 7–10 % frente a ~3 % en estudios de personalización; un dato erróneo la hunde (−41 %) | Bajo | Bajo | Se suma a A y C cuando el Scraper traiga el dato |
 | **Pregunta de dolor** (variante A) | Base: 1–5 % en frío puro | Bajo-medio | Bajo | Control del A/B |
 | **Permiso orientado al "no"** (variante B, Chris Voss) | Sin estudio que lo mida en frío | El más bajo: no promociona nada | Bajo | Reserva |
@@ -44,7 +44,8 @@ Referencia de tasas: en frío puro se habla de un 1–5 % de respuesta. Con buen
 
 1. **Primer mensaje, solo texto y sin promoción:** despierta la curiosidad con algo de su negocio y pide permiso para mandar el vídeo.
 2. **Si dicen que sí**, el vídeo ya es una comunicación **solicitada**: la LSSI deja de ser el problema. Lo envía el agente al momento (velocidad = interés) o Daniel a mano.
-3. **El vídeo es personalizado de verdad:** su web o su ficha en pantalla, con Daniel en una burbuja explicando en 45–60 s cómo se pierde una solicitud que llega fuera de horario, y el nombre de la empresa en el título. Daniel graba la narración una vez por nicho; la web de cada prospecto se pone automáticamente. Un vídeo genérico rinde peor que el texto: no se manda nunca.
+3. **El vídeo es del nicho, grabado y editado por Daniel:** 45–60 s sobre el momento exacto en que ese sector pierde clientes, con su vocabulario y sus ejemplos. Un vídeo genérico "para todo el mundo" rinde peor que el texto: nunca se manda uno así.
+   - **El texto promete solo lo que es.** No decimos que el vídeo es sobre su empresa ni sobre su web (PEBAI no vende webs): es sobre lo que le pasa a su sector.
 4. **El vídeo cierra hacia el embudo:** "si quieres que lo veamos con vuestro caso, cada mes analizamos gratis el de cinco empresas" + `pebaisystems.es/diagnostico/?origen=daniel`. Ya han visto un vídeo nuestro, así que se salta la VSL.
 
 Prueba: **A (dolor) contra C (vídeo en dos pasos)**, mismo nicho y mismo horario. Gana la que más diagnósticos rellenados consiga, no solo la que más respuestas tenga.
@@ -60,32 +61,32 @@ Variables: `[saludo]` (Buenos días / Buenas tardes), `[nombre]` («, Ana» si l
 ### Instalaciones solares y autoconsumo
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: cuando os entra una solicitud de presupuesto de placas por la noche o en fin de semana, ¿le llamáis el mismo día o al siguiente? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te hago una pregunta sobre cómo gestionáis en [empresa] las solicitudes de presupuesto que os llegan de los anuncios? Si no te interesa, dímelo y no te escribo más.
-- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre la web de [empresa] y lo que pasa con una solicitud de presupuesto que entra fuera de horario. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre lo que pasa con una solicitud de presupuesto de placas que entra fuera de horario. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
 ### Piscinas prefabricadas y de poliéster
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: de cada diez personas que os piden precio de una piscina, ¿con cuántas llegáis a hablar por teléfono? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te pregunto una cosa sobre cómo atendéis en [empresa] a la gente que os pide precio? Si no te interesa, dímelo y no te escribo más.
-- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre la web de [empresa] y lo que pasa cuando alguien os pide precio a las diez de la noche. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre lo que pasa cuando alguien pide precio de una piscina a las diez de la noche. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
 ### Casas prefabricadas y modulares
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: de la gente que os pide presupuesto de una casa, ¿cuántos tienen ya parcela y financiación? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te hago una pregunta sobre cómo filtráis en [empresa] las solicitudes de presupuesto antes de dedicarles tiempo? Si no te interesa, dímelo y no te escribo más.
-- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre la web de [empresa] y cómo separar las solicitudes que van en serio de las que no. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre cómo las empresas de casas modulares separan las solicitudes que van en serio de las que no. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
 ### Reformas
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: cuando estáis en obra y os entra una petición de presupuesto por WhatsApp, ¿cuánto soléis tardar en contestar? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te hago una pregunta sobre cómo atendéis en [empresa] las peticiones de presupuesto cuando estáis todos en obra? Si no te interesa, dímelo y no te escribo más.
-- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre [empresa] y lo que pasa con una petición de presupuesto que llega mientras estáis en obra. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre lo que pasa con una petición de presupuesto que llega mientras estáis en obra. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
 ### Inmobiliarias
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: los contactos que os llegan de los portales por la tarde o en fin de semana, ¿los atendéis el mismo día? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te pregunto una cosa sobre cómo respondéis en [empresa] a los contactos que os llegan de los portales? Si no te interesa, dímelo y no te escribo más.
-- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre [empresa] y lo que pasa con un contacto de portal que llega un domingo por la tarde. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre lo que pasa con un contacto de portal que llega un domingo por la tarde. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
 ### Genérica (sector sin plantilla propia)
 - **A:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. Una pregunta para [empresa]: cuando un cliente os escribe o llama fuera de horario, ¿quién le contesta? {Si no te interesa|Si no es para ti}, dímelo y no te escribo más.
 - **B:** {Hola|Buenas}[nombre], soy Daniel de PEBAI Systems. ¿Te importa si te hago una pregunta sobre cómo atendéis en [empresa] a los clientes que os escriben? Si no te interesa, dímelo y no te escribo más.
-- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre [empresa] y lo que pasa con un cliente que os escribe fuera de horario. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
+- **C:** [saludo][nombre]. Soy Daniel, de PEBAI Systems. He grabado un vídeo de un minuto sobre lo que pasa con un cliente que os escribe fuera de horario. ¿Te lo mando? Si no te interesa, dímelo y no te escribo más.
 
 ## 5. Cuando contestan (lo hace Daniel a mano)
 
