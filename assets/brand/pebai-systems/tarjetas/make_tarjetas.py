@@ -5,7 +5,7 @@ Formato de Publikea (https://publikea.es/producto/tarjetas-de-visita-baratas/):
   cara A y cara B en archivos separados · 300 ppp · CMYK · fuentes en curvas
 Se entregan como imagen CMYK a 300 ppp (JPG y PDF): al ir rasterizadas no hay fuentes que convertir.
 
-El QR lleva a pebaisystems.es/t/<persona>, que redirige al vídeo del embudo con
+El QR lleva a pebaisystems.es/t/<persona>: la tarjeta digital de esa persona (contacto, WhatsApp, consultoría), con
 utm_source=tarjeta&utm_medium=puerta_fria&utm_content=<persona> (regla en website-pebai/dist/.htaccess).
 
 Uso:   python assets/brand/pebai-systems/tarjetas/make_tarjetas.py
@@ -123,7 +123,7 @@ def html_for(key: str, p: dict, cara: str) -> str:
     </div>
     <div class="right">
       <div class="qr">{qr_svg('https://' + url_short)}</div>
-      <div class="scan">Escanea y mira<br>el vídeo<span>Sin compromiso</span></div>
+      <div class="scan">Escanea y guarda<br>mi contacto<span>Sin compromiso</span></div>
       <div class="url">{url_short}</div>
     </div>
   </div>
