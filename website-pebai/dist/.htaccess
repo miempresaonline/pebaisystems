@@ -13,6 +13,9 @@ ErrorDocument 404 /404.html
 RewriteEngine On
 RewriteBase /
 
+# QRs de calle (puerta fría): /q/<nombre>?p=a|d → api/qr.php cuenta el escaneo y redirige (ver docs/enlaces-y-utm.md)
+RewriteRule ^q/([a-z0-9-]+)/?$ api/qr.php?c=$1 [L,QSA]
+
 # Resolución directa para las landings principales
 RewriteRule ^consultoria-gratuita/?$ consultoria-gratuita/index.html [L]
 RewriteRule ^confirmacion-de-llamada/?$ confirmacion-de-llamada/index.html [L]

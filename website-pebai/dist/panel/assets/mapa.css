@@ -1,0 +1,92 @@
+/* PEBAI · Panel — Captación › Mapa (pantalla completa, como la oficina) */
+body[data-page=mapa] .pb-main{max-width:none;padding:0;margin:0}
+body[data-page=mapa] .pb-main>.pb-top{display:none}
+.pb-mapa{position:relative;height:100vh;min-height:560px;overflow:hidden;background:var(--ink);font-family:var(--sans)}
+@media (max-width:960px){.pb-mapa{height:calc(100dvh - 64px);min-height:520px}}
+.pb-mapa .pb-mapa-map{position:absolute!important;inset:0;width:100%;height:100%}
+.pb-mapa-load{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted);font-size:12.5px;letter-spacing:.04em}
+.pb-mapa-load img{width:50px;animation:pb-mapa-lat 1.4s ease-in-out infinite}
+@keyframes pb-mapa-lat{50%{transform:scale(1.14)}}
+
+/* panel izquierdo: resumen, búsqueda y filtros (los estados hacen de leyenda) */
+.pb-mapa-panel{position:absolute;left:18px;top:18px;bottom:18px;width:310px;z-index:3;display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:20px;background:color-mix(in srgb,var(--panel-solid) 94%,transparent);border:1px solid var(--line);box-shadow:0 24px 60px rgba(0,0,0,.35);overflow:auto;scrollbar-width:thin;color:var(--fg)}
+.pb-mapa-panel .k{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:var(--muted-2)}
+.pb-mapa-panel h1{font-family:var(--serif);font-weight:400;font-size:30px;line-height:1.05;margin:4px 0 4px;color:var(--fg-strong)}
+.pb-mapa-panel h1 i{color:var(--muted)}
+.pb-mapa-panel .hd p{margin:0;font-size:13px;color:var(--muted)}
+.pb-mapa-panel .buscar{display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:12px;background:var(--ink-2);border:1px solid var(--line)}
+.pb-mapa-panel .buscar:focus-within{border-color:var(--line-2)}
+.pb-mapa-panel .buscar svg{width:16px;height:16px;color:var(--muted);flex:none}
+.pb-mapa-panel .buscar input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--fg);font:500 13.5px var(--sans);padding:10px 0;box-shadow:none!important}
+.pb-mapa-panel select{width:100%;padding:9px 10px;border-radius:12px;background:var(--ink-2);border:1px solid var(--line);color:var(--fg);font:600 13px var(--sans)}
+.pb-mapa .seg{display:flex;gap:3px;padding:3px;border-radius:12px;background:var(--ink-2);border:1px solid var(--line)}
+.pb-mapa .seg button{flex:1;border:0;background:transparent;color:var(--muted);font:700 12.5px var(--sans);padding:7px 10px;border-radius:9px;cursor:pointer;transition:background .2s,color .2s;white-space:nowrap}
+.pb-mapa .seg button.on{background:var(--panel-2);color:var(--fg-strong);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.pb-mapa-panel .est{display:flex;flex-direction:column;gap:2px}
+.pb-mapa-panel .est .e{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:center;border:0;background:transparent;color:var(--fg);font:600 13px var(--sans);padding:7px 8px;border-radius:9px;cursor:pointer;text-align:left;transition:background .2s,opacity .2s}
+.pb-mapa-panel .est .e:hover{background:var(--panel-2)}
+.pb-mapa-panel .est .e i{width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 22%,transparent)}
+.pb-mapa-panel .est .e b{font-variant-numeric:tabular-nums;color:var(--muted)}
+.pb-mapa-panel .est .e:not(.on){opacity:.38}
+.pb-mapa-panel .est .e:not(.on) i{background:transparent;box-shadow:inset 0 0 0 2px var(--c)}
+.pb-mapa-panel .est .e.cero{display:none}
+.pb-mapa-panel .ciu{margin-top:auto;padding-top:12px;border-top:1px solid var(--line)}
+.pb-mapa-panel .ciu .t{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px}
+.pb-mapa-panel .ciu button{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:transparent;color:var(--fg);font:600 13px var(--sans);padding:7px 8px;border-radius:9px;cursor:pointer;text-align:left}
+.pb-mapa-panel .ciu button:hover{background:var(--panel-2)}
+.pb-mapa-panel .ciu small{display:block;font-size:11.5px;font-weight:500;color:var(--muted-2)}
+.pb-mapa-panel .ciu b{font-variant-numeric:tabular-nums;color:var(--muted)}
+.pb-mapa-panel .vacio{font-size:12.5px;color:var(--muted);margin:4px 8px}
+
+/* ficha de una empresa */
+.pb-mapa-ficha{position:absolute;right:18px;top:96px;width:min(340px,calc(100% - 36px));z-index:4;padding:20px;border-radius:20px;background:color-mix(in srgb,var(--panel-solid) 97%,transparent);border:1px solid var(--line-2);box-shadow:0 30px 70px rgba(0,0,0,.45);color:var(--fg);transform:translateY(-8px);opacity:0;pointer-events:none;transition:opacity .25s,transform .35s var(--ease)}
+.pb-mapa-ficha.on{opacity:1;transform:none;pointer-events:auto}
+.pb-mapa-ficha .x{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;font-size:17px}
+.pb-mapa-ficha .estado{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:var(--fg)}
+.pb-mapa-ficha .estado i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.pb-mapa-ficha .estado span{font-weight:600;color:var(--muted-2)}
+.pb-mapa-ficha h2{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.08;margin:8px 34px 2px 0;color:var(--fg-strong)}
+.pb-mapa-ficha .donde{font-size:13px;color:var(--muted)}
+.pb-mapa-ficha dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:14px 0;font-size:13px}
+.pb-mapa-ficha dt{color:var(--muted-2)}
+.pb-mapa-ficha dd{margin:0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
+.pb-mapa-ficha dd a{color:var(--fg)}
+.pb-mapa-ficha .acts{display:flex;gap:8px}
+.pb-mapa-ficha .acts>*{flex:1;justify-content:center;text-decoration:none}
+.pb-mapa-ficha .aprox{margin:12px 0 0;font-size:11.5px;color:var(--muted-2)}
+
+/* abajo a la derecha: modo y zonas */
+.pb-mapa-vista{position:absolute;right:18px;bottom:34px;z-index:3;display:flex;gap:8px}
+.pb-mapa-vista .seg{background:color-mix(in srgb,var(--panel-solid) 94%,transparent);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+
+/* clústeres (dónut con el reparto de estados) */
+.pb-mapa-cl{border:0;background:transparent;padding:0;cursor:pointer;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45));transition:transform .2s var(--ease)}
+.pb-mapa-cl:hover{transform:scale(1.1)}
+.pb-mapa-cl svg{display:block}
+.pb-mapa-cl .f{fill:color-mix(in srgb,var(--panel-solid) 92%,transparent)}
+.pb-mapa-cl text{fill:var(--fg-strong);font-family:var(--sans);font-weight:800}
+
+/* controles y popup de MapLibre con el estilo del panel */
+.pb-mapa .maplibregl-ctrl-group{background:color-mix(in srgb,var(--panel-solid) 94%,transparent);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden}
+.pb-mapa .maplibregl-ctrl-group button{width:36px;height:36px}
+.pb-mapa .maplibregl-ctrl-group button+button{border-top:1px solid var(--line)}
+:root:not([data-theme=light]) .pb-mapa .maplibregl-ctrl-icon{filter:invert(1) brightness(1.4)}
+.pb-mapa .maplibregl-ctrl-top-right{top:8px;right:8px}
+.pb-mapa .maplibregl-ctrl-attrib{background:color-mix(in srgb,var(--panel-solid) 80%,transparent);color:var(--muted-2);font-size:10.5px}
+.pb-mapa .maplibregl-ctrl-attrib a{color:var(--muted)}
+.pb-mapa-pop .maplibregl-popup-content{background:var(--panel-solid);color:var(--fg);border:1px solid var(--line-2);border-radius:12px;padding:9px 12px;box-shadow:0 14px 36px rgba(0,0,0,.4);font-family:var(--sans)}
+.pb-mapa-pop .maplibregl-popup-tip{display:none}
+.pb-mapa-pop b{display:block;font-size:13px}
+.pb-mapa-pop span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:2px}
+.pb-mapa-pop i{width:7px;height:7px;border-radius:50%}
+
+@media (max-width:900px){
+  .pb-mapa-panel{top:auto;bottom:0;left:0;right:0;width:auto;max-height:44%;border-radius:20px 20px 0 0;padding:14px 14px 18px}
+  .pb-mapa-panel .hd h1{font-size:24px}
+  .pb-mapa-panel .ciu{display:none}
+  .pb-mapa-panel .est{flex-direction:row;flex-wrap:wrap}
+  .pb-mapa-panel .est .e{grid-template-columns:12px auto auto;padding:6px 8px}
+  .pb-mapa-ficha{top:12px;right:12px;left:12px;width:auto}
+  .pb-mapa-vista{top:12px;bottom:auto;left:12px;right:auto}
+  .pb-mapa-vista .seg:last-child{display:none}
+}

@@ -1,0 +1,58 @@
+/* PEBAI · Panel — Captación › Prospectos en cajas: nicho → provincia → lista */
+.pb-filters .pb-seg{display:flex;gap:3px;padding:3px;border-radius:12px;background:var(--panel);border:1px solid var(--line);flex:none}
+.pb-filters .pb-seg button{border:0;background:transparent;color:var(--muted);font:700 12.5px var(--sans);padding:7px 14px;border-radius:9px;cursor:pointer;transition:background .2s,color .2s}
+.pb-filters .pb-seg button.on{background:var(--panel-2);color:var(--fg-strong);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.pb-chipfijo{flex:none;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:700 12.5px var(--sans);padding:9px 14px;border-radius:12px;cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.pb-chipfijo.on{border-color:var(--cyan);color:var(--fg-strong);background:color-mix(in srgb,var(--cyan) 12%,var(--panel))}
+.pb-prow .meta a.fijo{color:var(--cyan);text-decoration:none;font-weight:600}
+.pb-prow .meta a.fijo:hover{text-decoration:underline}
+
+/* nivel 1: las cajas */
+.pb-cajas{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding-top:10px}
+.pb-caja{position:relative;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:6px 22px 22px 22px;padding:20px 20px 16px;color:var(--fg);cursor:pointer;font-family:var(--sans);display:flex;flex-direction:column;gap:12px;
+  transition:transform .35s var(--ease),border-color .3s,box-shadow .35s;animation:pb-caja-in .5s var(--ease) both;animation-delay:calc(var(--i,0) * 70ms)}
+.pb-caja:before{content:"";position:absolute;left:-1px;top:-13px;width:120px;height:14px;border:1px solid var(--line);border-bottom:0;border-radius:10px 14px 0 0;background:inherit;clip-path:polygon(0 0,82% 0,100% 100%,0 100%)}
+.pb-caja:hover{transform:translateY(-4px);border-color:var(--line-2);box-shadow:0 22px 50px rgba(0,0,0,.28)}
+.pb-caja.todas{background:transparent;border-style:dashed}
+.pb-caja.todas:before{border-style:dashed}
+@keyframes pb-caja-in{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.pb-caja .top{display:flex;justify-content:space-between;align-items:center}
+.pb-caja .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--lime) 14%,transparent);color:var(--lime)}
+.pb-caja.todas .ic{background:var(--panel-2);color:var(--fg)}
+.pb-caja .ic .pb-i{width:20px;height:20px}
+.pb-caja .abrir{font-size:12px;font-weight:800;color:var(--muted-2);opacity:0;transform:translateX(-4px);transition:opacity .25s,transform .25s}
+.pb-caja .abrir:after{content:" →"}
+.pb-caja:hover .abrir{opacity:1;transform:none;color:var(--fg)}
+.pb-caja h3{margin:0;font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.1;color:var(--fg-strong)}
+.pb-caja .n{display:flex;align-items:baseline;gap:8px}
+.pb-caja .n b{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;color:var(--fg-strong)}
+.pb-caja .n span{font-size:13px;color:var(--muted)}
+.pb-caja-barra{display:flex;gap:2px;height:8px;border-radius:5px;overflow:hidden;background:var(--line)}
+.pb-caja-barra i{display:block;min-width:3px}
+.pb-caja .provs{display:flex;flex-wrap:wrap;gap:6px}
+.pb-caja .provs span{font-size:11.5px;font-weight:600;color:var(--muted);padding:4px 9px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line)}
+.pb-caja .pie{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted-2);padding-top:10px;border-top:1px solid var(--line)}
+.pb-caja .pie .ok{color:#25D366;font-weight:700}
+
+/* nivel 2: provincias dentro de la caja */
+.pb-cajas-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 14px}
+.pb-cajas-migas{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px}
+.pb-cajas-migas button{border:0;background:transparent;color:var(--muted);font:600 14px var(--sans);cursor:pointer;padding:4px 2px}
+.pb-cajas-migas button:hover{color:var(--fg);text-decoration:underline}
+.pb-cajas-migas b{font-family:var(--serif);font-weight:400;font-size:24px;color:var(--fg-strong)}
+.pb-cajas-migas .sep{color:var(--muted-2)}
+.pb-cprovs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.pb-cprov{text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:14px 16px;color:var(--fg);cursor:pointer;font-family:var(--sans);display:flex;flex-direction:column;gap:10px;
+  transition:transform .3s var(--ease),border-color .25s;animation:pb-caja-in .45s var(--ease) both;animation-delay:calc(var(--i,0) * 35ms)}
+.pb-cprov:hover{transform:translateY(-3px);border-color:var(--line-2)}
+.pb-cprov .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.pb-cprov .hd b{font-size:15px;font-weight:800}
+.pb-cprov .num{font-family:var(--serif);font-size:30px;line-height:1;color:var(--fg-strong)}
+.pb-cprov .sub{font-size:12px;color:var(--muted-2)}
+
+/* nivel 3: ciudades de la provincia */
+.pb-ciuchips{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;scrollbar-width:thin}
+.pb-ciuchips button{flex:none;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:600 12.5px var(--sans);padding:7px 12px;border-radius:999px;cursor:pointer}
+.pb-ciuchips button.on{border-color:var(--fg);color:var(--fg-strong)}
+@media (max-width:760px){.pb-cajas{grid-template-columns:1fr}.pb-cprovs{grid-template-columns:repeat(2,minmax(0,1fr))}.pb-filters{flex-wrap:wrap}}
+@media (prefers-reduced-motion:reduce){.pb-caja,.pb-cprov{animation:none}}

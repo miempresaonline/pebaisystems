@@ -44,6 +44,15 @@ Cuando contactes tú a una empresa, mándale el enlace con tu nombre. Así la so
 
 También vale sobre cualquier enlace corto: `pebaisystems.es/wa?origen=adrian`.
 
+### QRs de calle (panel › Captación › QRs)
+
+Para la puerta fría hay un QR por situación de la conversación («Vale, me interesa», «Me lo pienso», «Mándame información»…). Se enseñan desde el móvil en el panel (botón «Enseñar», a pantalla completa) y se crean o cambian allí mismo.
+
+- Cada QR apunta a `pebaisystems.es/q/<nombre>?p=a` (Adrián) o `?p=d` (Daniel): elige arriba «¿Quién lo enseña?» antes de enseñarlo.
+- `api/qr.php` apunta el escaneo (sin datos personales) y redirige con `origen=<persona>&utm_source=qr&utm_medium=puerta_fria&utm_content=<nombre>`: la solicitud queda como **salida de esa persona**.
+- El QR de WhatsApp abre el chat del equipo con un mensaje que ya dice con quién habló; ese no deja solicitud en el panel, solo el escaneo.
+- Las vistas previas de enlaces (WhatsApp, Telegram…) y los robots no cuentan como escaneo.
+
 ## Canal y dueño de cada solicitud
 
 Al llegar una solicitud, la web decide su canal con los utm y con la respuesta a "¿Cómo nos conociste?" del formulario:

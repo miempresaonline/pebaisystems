@@ -8,7 +8,8 @@ const BASE = app.dataset.base;
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const S = { loaded: false, csrf: app.dataset.csrf };
-const ui = { estado: '', q: '', lote: '', limit: 150, act: '' };
+const ui = { estado: '', q: '', lote: '', limit: 150, act: '', vista: 'cajas', caja: '', prov: '', ciudad: '', fijo: false };
+try { if (localStorage.getItem('pebai-pros-vista') === 'lista') ui.vista = 'lista'; } catch (e) { /* sin almacenamiento */ }
 
 /* ============ dominio ============ */
 const PE = {
@@ -18,7 +19,7 @@ const PE = {
 };
 const CHIPS = [['', 'Todos', '#EFEDE7'], ['revision', 'En revisión', '#FFB547'], ['pendiente', 'En cola', '#9A9CB0'], ['enviado', 'Sin respuesta aún', '#6A5CFF'], ['respondio', 'Respondieron', '#25D366'],
   ['error', 'Revisar', '#FFB547'], ['baja', 'Bajas', '#FF6B7A'], ['sin_whatsapp', 'Sin WhatsApp', '#3A404D'], ['descartado', 'Descartados', '#3A404D']];
-const PAGINAS = { resumen: ['Embudo', 'Resumen'], solicitudes: ['Embudo', 'Solicitudes'], citas: ['Embudo', 'Citas'], prospectos: ['Captación', 'Prospectos'], agentes: ['Automático', 'Agentes'], caja: ['Empresa', 'Caja'] };
+const PAGINAS = { resumen: ['Embudo', 'Resumen'], solicitudes: ['Embudo', 'Solicitudes'], citas: ['Embudo', 'Citas'], prospectos: ['Captación', 'Prospectos'], mapa: ['Captación', 'Mapa'], qr: ['Captación', 'QRs'], agentes: ['Automático', 'Agentes'], caja: ['Empresa', 'Caja'] };
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const pad = (n) => String(n).padStart(2, '0');
@@ -97,6 +98,44 @@ function pintaSidebar() {
 }
 
 /* ============ Captación · prospectos ============ */
+/* Cajas: nicho → provincia → lista. El nicho es el sector del scraper; la provincia, lo que va tras «·» en el lote. */
+const nichoDe = (p) => p.sector || (p.lote && p.lote.includes('·') ? p.lote.split('·')[0].trim() : '') || 'Sin nicho';
+const provDe = (p) => (p.lote && p.lote.includes('·') ? p.lote.slice(p.lote.lastIndexOf('·') + 1).trim() : '') || p.ciudad || 'Sin provincia';
+const fijoDe = (p) => { const m = /\bfijo (\d{9})\b/.exec(p.notas || ''); return m ? m[1] : ''; };
+const telFijo = (t) => '+34 ' + t.slice(0, 3) + ' ' + t.slice(3, 5) + ' ' + t.slice(5, 7) + ' ' + t.slice(7);
+const BARRA = [['respondio', '#25D366'], ['enviado', '#6A5CFF'], ['enviando', '#6A5CFF'], ['revision', '#FFB547'], ['pendiente', '#9A9CB0'], ['error', '#FFB547'], ['baja', '#FF6B7A'], ['sin_whatsapp', '#3A404D'], ['descartado', '#3A404D']];
+function barraEstados(lista) {
+  const b = el('div', 'pb-caja-barra'); const t = lista.length || 1;
+  BARRA.forEach(([k, c]) => { const n = lista.filter((p) => p.estado === k).length; if (!n) return; const i = el('i'); i.style.cssText = `flex:${n / t};background:${c}`; i.title = (PE[k] ? PE[k][0] : k) + ': ' + N(n); b.append(i); });
+  return b;
+}
+const ICO_CAJA = (nicho) => /solar|placa|fotovolt/i.test(nicho)
+  ? svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>')
+  : /energ|electr/i.test(nicho) ? svg('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>') : svg('<path d="M3 7h18v13H3zM3 7l2-4h14l2 4M9 11h6"/>');
+function migas(partes) {
+  const m = el('nav', 'pb-cajas-migas'); m.setAttribute('aria-label', 'Dónde estás');
+  partes.forEach(([t, fn], i) => { if (i) m.append(el('span', 'sep', '›')); if (fn) { const b = el('button', null, t); b.type = 'button'; b.onclick = fn; m.append(b); } else m.append(el('b', null, t)); });
+  return m;
+}
+function cajaCard(titulo, lista, extra, onOpen, todas) {
+  const c = el('button', 'pb-caja' + (todas ? ' todas' : '')); c.type = 'button';
+  const provs = new Map(); lista.forEach((p) => provs.set(provDe(p), (provs.get(provDe(p)) || 0) + 1));
+  const resp = lista.filter((p) => p.estado === 'respondio').length, cola = lista.filter((p) => p.estado === 'pendiente').length, fijos = lista.filter((p) => fijoDe(p)).length;
+  const top = el('div', 'top'); const ic = el('span', 'ic'); ic.append(todas ? svg('<path d="M4 6h16M4 12h16M4 18h16"/>') : ICO_CAJA(titulo)); top.append(ic, el('span', 'abrir', 'Abrir'));
+  const h = el('h3', null, titulo); const n = el('div', 'n'); n.append(el('b', null, N(lista.length)), el('span', null, lista.length === 1 ? 'empresa' : 'empresas'));
+  const pie = el('div', 'pie'); pie.append(el('span', null, N(provs.size) + (provs.size === 1 ? ' provincia' : ' provincias')), el('span', null, N(cola) + ' en cola'), el('span', resp ? 'ok' : null, N(resp) + (resp === 1 ? ' respondió' : ' respondieron')), el('span', null, N(fijos) + ' con fijo'));
+  const chips = el('div', 'provs'); [...provs.entries()].sort((a, b) => b[1] - a[1]).slice(0, extra || 4).forEach(([pv, k]) => chips.append(el('span', null, pv + ' · ' + N(k))));
+  c.append(top, h, n, barraEstados(lista), chips, pie); c.onclick = onOpen;
+  return c;
+}
+function provCard(nombre, lista, onOpen) {
+  const c = el('button', 'pb-cprov'); c.type = 'button';
+  const ciu = new Set(lista.map((p) => p.ciudad)); const resp = lista.filter((p) => p.estado === 'respondio').length;
+  const hd = el('div', 'hd'); hd.append(el('b', null, nombre), el('span', 'num', N(lista.length)));
+  const sub = el('div', 'sub', N(ciu.size) + (ciu.size === 1 ? ' ciudad' : ' ciudades') + (resp ? ' · ' + N(resp) + ' respondieron' : ''));
+  c.append(hd, barraEstados(lista), sub); c.onclick = onOpen; return c;
+}
+const irA = (cambios) => { Object.assign(ui, cambios, { limit: 150 }); drawProspectos(); const l = $('#pb-pros-list'); if (l && l.getBoundingClientRect().top < 0) l.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 function drawProspectos() {
   const P = S.prospectos || [];
   const cuenta = (k) => P.filter((p) => p.estado === k).length;
@@ -123,22 +162,79 @@ function drawProspectos() {
     ch.append(b);
   });
 
+  if (!$('#pb-pros-vista')) {
+    const v = el('div', 'pb-seg'); v.id = 'pb-pros-vista'; v.setAttribute('role', 'radiogroup'); v.setAttribute('aria-label', 'Vista');
+    [['cajas', 'Cajas'], ['lista', 'Lista']].forEach(([k, l]) => { const b = el('button', null, l); b.type = 'button'; b.dataset.v = k; b.onclick = () => { ui.vista = k; try { localStorage.setItem('pebai-pros-vista', k); } catch (e) { /* nada */ } drawProspectos(); }; v.append(b); });
+    const fj = el('button', 'pb-chipfijo'); fj.type = 'button'; fj.id = 'pb-pros-fijo'; fj.textContent = 'Con fijo'; fj.title = 'Solo las que tienen también teléfono fijo (para llamar)'; fj.onclick = () => { ui.fijo = !ui.fijo; ui.limit = 150; drawProspectos(); };
+    $('.pb-filters', $('#page-prospectos')).append(fj, v);
+  }
+  $$('#pb-pros-vista button').forEach((b) => b.classList.toggle('on', b.dataset.v === ui.vista));
+  $('#pb-pros-fijo').classList.toggle('on', ui.fijo);
+  $('#pb-pros-lote').hidden = ui.vista === 'cajas';
   const sel = $('#pb-pros-lote'); const lotes = [...new Set(P.map((p) => p.lote).filter(Boolean))];
   if (sel.options.length - 1 !== lotes.length) { sel.length = 1; lotes.forEach((l) => sel.add(new Option(l, l))); sel.value = ui.lote; }
 
   const q = ui.q.toLowerCase();
-  const rows = P.filter((p) => (!ui.estado || p.estado === ui.estado || (ui.estado === 'enviado' && p.estado === 'enviando'))
-    && (!ui.lote || p.lote === ui.lote)
-    && (!q || [p.empresa, p.nombre, p.telefono, p.sector, p.ciudad, p.notas].join(' ').toLowerCase().includes(q)));
+  const cajas = ui.vista === 'cajas';
+  const base = P.filter((p) => (!ui.estado || p.estado === ui.estado || (ui.estado === 'enviado' && p.estado === 'enviando'))
+    && (cajas || !ui.lote || p.lote === ui.lote) && (!ui.fijo || fijoDe(p)));
+  let rows = base.filter((p) => !q || [p.empresa, p.nombre, p.telefono, p.sector, p.ciudad, p.notas].join(' ').toLowerCase().includes(q));
   const list = $('#pb-pros-list'); list.textContent = '';
+  list.classList.toggle('cajas', cajas);
+  if (cajas) {
+    const enCaja = ui.caja && ui.caja !== '*' ? rows.filter((p) => nichoDe(p) === ui.caja) : rows;
+    const tituloCaja = ui.caja === '*' ? 'Todas las empresas' : ui.caja;
+    if (!ui.caja && !q) {
+      // nivel 1: una caja por nicho
+      const grupos = new Map(); rows.forEach((p) => { const k = nichoDe(p); if (!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(p); });
+      const g = el('div', 'pb-cajas');
+      [...grupos.entries()].sort((a, b) => b[1].length - a[1].length).forEach(([k, l], i) => { const c = cajaCard(k, l, 4, () => irA({ caja: k, prov: '', ciudad: '' })); c.style.setProperty('--i', i); g.append(c); });
+      if (grupos.size > 1) { const c = cajaCard('Todas', rows, 5, () => irA({ caja: '*', prov: '', ciudad: '' }), true); c.style.setProperty('--i', grupos.size); g.append(c); }
+      if (!rows.length) g.append(el('div', 'pb-card pb-empty', P.length ? 'Nada con estos filtros.' : 'Aún no hay prospectos. Pulsa «Añadir prospectos» y sube la primera lista.'));
+      list.append(g); return;
+    }
+    if (ui.caja && !ui.prov && !q) {
+      // nivel 2: dentro de la caja, por provincia
+      const head = el('div', 'pb-cajas-head'); head.append(migas([['Cajas', () => irA({ caja: '', prov: '', ciudad: '' })], [tituloCaja]]));
+      head.append(btn('primary', null, 'Ver todas (' + N(enCaja.length) + ')', () => irA({ prov: '*', ciudad: '' })));
+      list.append(head);
+      const grupos = new Map(); enCaja.forEach((p) => { const k = provDe(p); if (!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(p); });
+      const g = el('div', 'pb-cprovs');
+      [...grupos.entries()].sort((a, b) => b[1].length - a[1].length).forEach(([k, l], i) => { const c = provCard(k, l, () => irA({ prov: k, ciudad: '' })); c.style.setProperty('--i', Math.min(i, 20)); g.append(c); });
+      if (!enCaja.length) g.append(el('div', 'pb-card pb-empty', 'Nada con estos filtros.'));
+      list.append(g); return;
+    }
+    // nivel 3: la lista de siempre, dentro de la caja y la provincia (o la búsqueda)
+    const enProv = ui.prov && ui.prov !== '*' ? enCaja.filter((p) => provDe(p) === ui.prov) : enCaja;
+    const head = el('div', 'pb-cajas-head');
+    const pasos = [['Cajas', () => irA({ caja: '', prov: '', ciudad: '' })]];
+    if (ui.caja) pasos.push([tituloCaja, ui.prov ? () => irA({ prov: '', ciudad: '' }) : null]);
+    if (ui.prov) pasos.push([ui.prov === '*' ? 'Todas' : ui.prov, ui.ciudad ? () => irA({ ciudad: '' }) : null]);
+    if (q) pasos.push(['Búsqueda «' + ui.q + '»']);
+    head.append(migas(pasos)); list.append(head);
+    const ciudades = new Map(); enProv.forEach((p) => ciudades.set(p.ciudad, (ciudades.get(p.ciudad) || 0) + 1));
+    if (ui.prov && ui.prov !== '*' && ciudades.size > 1) {
+      const cc = el('div', 'pb-ciuchips');
+      const todas = el('button', ui.ciudad ? null : 'on', 'Todas · ' + N(enProv.length)); todas.type = 'button'; todas.onclick = () => irA({ ciudad: '' }); cc.append(todas);
+      [...ciudades.entries()].sort((a, b) => b[1] - a[1]).forEach(([cn, k]) => { const b = el('button', ui.ciudad === cn ? 'on' : null, cn + ' · ' + N(k)); b.type = 'button'; b.onclick = () => irA({ ciudad: cn }); cc.append(b); });
+      list.append(cc);
+    }
+    rows = ui.ciudad ? enProv.filter((p) => p.ciudad === ui.ciudad) : enProv;
+  }
   // En revisión: el agente no les escribe. Se aprueban una a una o todas las del lote/filtro de golpe.
   const enRev = rows.filter((p) => p.estado === 'revision').length;
   if (enRev) {
+    // El servidor aprueba por lote: el botón solo sale cuando lo que se ve es exactamente un lote (o todo, sin filtros),
+    // y dice cuántas aprueba de verdad, aunque haya un filtro de ciudad encima.
+    const lotesRev = [...new Set(rows.filter((p) => p.estado === 'revision').map((p) => p.lote))];
+    const sinFiltros = !cajas && !q && !ui.fijo && (!ui.estado || ui.estado === 'revision');
+    const loteAprobar = !cajas && ui.lote ? ui.lote : lotesRev.length === 1 ? lotesRev[0] : sinFiltros ? '' : null;
+    const nAprobar = loteAprobar === null ? 0 : P.filter((p) => p.estado === 'revision' && (!loteAprobar || p.lote === loteAprobar)).length;
     const bar = el('div', 'pb-card'); bar.style.cssText = 'display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px;border-color:color-mix(in srgb,var(--amber) 50%,var(--line))';
-    bar.append(el('div', null, N(enRev) + ' en revisión' + (ui.lote ? ' en el lote «' + ui.lote + '»' : '') + ': el agente no les escribe hasta que las apruebes.'));
-    bar.append(btn('primary', null, 'Aprobar ' + (ui.lote ? 'las del lote' : 'todas') + ' (' + N(enRev) + ')', (e) => {
-      if (!confirm('¿Pasar ' + enRev + ' empresas a la cola del agente de WhatsApp? Empezará a escribirles en su horario, a su ritmo diario.')) return;
-      post('prospectos_aprobar', { lote: ui.lote || '' }, e.currentTarget).then((j) => { toast(N(j.aprobados) + ' aprobadas: ya están en la cola.'); }).catch((er) => toast(er.message, true));
+    bar.append(el('div', null, N(enRev) + ' en revisión aquí: el agente no les escribe hasta que las apruebes.' + (loteAprobar === null ? ' Apruébalas una a una, o abre una provincia para aprobarlas de golpe.' : '')));
+    if (loteAprobar !== null) bar.append(btn('primary', null, (loteAprobar ? 'Aprobar las ' + N(nAprobar) + ' del lote «' + loteAprobar + '»' : 'Aprobar todas (' + N(nAprobar) + ')'), (e) => {
+      if (!confirm('¿Pasar ' + nAprobar + ' empresas' + (loteAprobar ? ' del lote «' + loteAprobar + '»' : '') + ' a la cola del agente de WhatsApp? Empezará a escribirles en su horario, a su ritmo diario.')) return;
+      post('prospectos_aprobar', { lote: loteAprobar }, e.currentTarget).then((j) => { toast(N(j.aprobados) + ' aprobadas: ya están en la cola.'); }).catch((er) => toast(er.message, true));
     }));
     list.append(bar);
   }
@@ -160,6 +256,8 @@ function filaProspecto(p) {
   const sub = [p.nombre, p.sector, p.ciudad].filter(Boolean).join(' · '); if (sub) emp.append(el('span', null, sub));
   const meta = el('div', 'meta');
   meta.append(el('span', 'tel', telBonito(p.telefono)));
+  const fj = fijoDe(p);
+  if (fj) { const a = el('a', 'tel fijo'); a.href = 'tel:+34' + fj; a.textContent = 'Fijo ' + telFijo(fj); a.title = 'Llamar al fijo'; meta.append(el('span', 'sep', '·'), a); }
   if (p.lote) meta.append(el('span', 'sep', '·'), el('span', null, p.lote));
   if (p.error) meta.append(el('span', 'sep', '·'), el('span', 'err', p.error));
   who.append(emp, meta);
