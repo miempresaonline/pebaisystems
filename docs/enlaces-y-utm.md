@@ -40,7 +40,7 @@ Cuando contactes tú a una empresa, mándale el enlace con tu nombre. Así la so
 
 - Adrián: `pebaisystems.es/consultoria-gratuita/?origen=adrian`
 - Daniel: `pebaisystems.es/consultoria-gratuita/?origen=daniel`
-- Tarjetas de visita (QR): `pebaisystems.es/t/adrian` y `pebaisystems.es/t/dani`
+- Tarjetas de visita (QR): `pebaisystems.es/t/adrian` y `pebaisystems.es/t/dani`. Abren la tarjeta digital de cada uno (guardar contacto, WhatsApp, llamar, consultoría gratuita y servicios), generada con `website-pebai/scripts/make_tarjeta_digital.py`. Cuando haya vídeos de los servicios, se ponen en `SERVICIOS` de ese script.
 
 También vale sobre cualquier enlace corto: `pebaisystems.es/wa?origen=adrian`.
 
