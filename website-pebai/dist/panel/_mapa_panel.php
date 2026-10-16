@@ -71,8 +71,10 @@ function mapa_geo_db(PDO $db): PDO
 function mapa_nominatim(string $ciudad, string $prov): ?array
 {
     $ciudad = trim(preg_replace('/\s*\(([^)]*)\)\s*/', ' ', $ciudad));   // «Palmas De Gran Canaria (Las)» → «Palmas De Gran Canaria»
-    $ctx = stream_context_create(['http' => ['timeout' => 5, 'ignore_errors' => true, 'header' => "User-Agent: PEBAI-panel/1.0 (pebaisystems.es)
-Accept-Language: es
+    $ctx = stream_context_create(['http' => ['timeout' => 5, 'ignore_errors' => true, 'header' => "User-Agent: PEBAI-panel/1.0 (pebaisystems.es)
+
+Accept-Language: es
+
 "]]);
     $intentos = [['city' => $ciudad, 'country' => 'España'] + ($prov !== '' ? ['county' => $prov] : []), ['q' => $ciudad . ($prov !== '' ? ', ' . $prov : '') . ', España']];
     foreach ($intentos as $n => $params) {
@@ -80,7 +82,7 @@ Accept-Language: es
             usleep(1100000);
         }
         $r = @file_get_contents('https://nominatim.openstreetmap.org/search?' . http_build_query($params + ['format' => 'json', 'limit' => 1]), false, $ctx);
-        $codigo = isset($http_response_header[0]) && preg_match('/\s(\d{3})\s/', $http_response_header[0], $m) ? (int)$m[1] : 0;
+        $codigo = isset($http_response_header[0]) && preg_match('#^HTTP/\S+\s+(\d{3})#', $http_response_header[0], $m) ? (int)$m[1] : 0;
         if ($r === false || $codigo !== 200) {
             return null;
         }
