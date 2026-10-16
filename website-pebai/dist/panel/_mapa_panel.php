@@ -168,7 +168,11 @@ function mapa_datos(): array
     $cupo = 4;   // ciudades nuevas que se buscan en OpenStreetMap por carga (el resto, en la siguiente)
     $puntos = [];
     $sinUbicar = 0;
-    $provDe = static fn(string $lote): string => str_contains($lote, '·') ? trim(substr($lote, strrpos($lote, '·') + 2)) : '';
+    // la provincia es lo que va tras «·» en el lote, solo si de verdad es una provincia (hay lotes como «censo CNMC 15/10»)
+    $provDe = static function (string $lote): string {
+        $p = str_contains($lote, '·') ? trim(substr($lote, strrpos($lote, '·') + 2)) : '';
+        return $p !== '' && isset(mapa_municipios()[mapa_norm($p)]) ? $p : '';
+    };
     $nicho = static function (string $lote, string $sector): string {
         $n = str_contains($lote, '·') ? trim(substr($lote, 0, strpos($lote, '·'))) : '';
         return $sector !== '' ? $sector : ($n ?: 'Sin nicho');
