@@ -66,19 +66,30 @@ function mapa_geo_db(PDO $db): PDO
     return $db;
 }
 
-/** Busca una ciudad en OpenStreetMap (gratis, 1 petición por segundo). null si no la encuentra. */
+/** Busca una ciudad en OpenStreetMap (gratis, máximo 1 petición por segundo).
+ *  [lat, lon] si la encuentra, [] si no existe, null si OpenStreetMap no ha contestado bien (se reintenta otro día). */
 function mapa_nominatim(string $ciudad, string $prov): ?array
 {
-    $url = 'https://nominatim.openstreetmap.org/search?' . http_build_query(['city' => $ciudad, 'county' => $prov, 'country' => 'España', 'format' => 'json', 'limit' => 1]);
-    $ctx = stream_context_create(['http' => ['timeout' => 4, 'header' => "User-Agent: PEBAI-panel/1.0 (pebaisystems.es)\r\nAccept-Language: es\r\n"]]);
-    $r = @file_get_contents($url, false, $ctx);
-    $j = $r ? json_decode($r, true) : null;
-    if (!$j) {
-        $url = 'https://nominatim.openstreetmap.org/search?' . http_build_query(['q' => $ciudad . ', ' . $prov . ', España', 'format' => 'json', 'limit' => 1]);
-        $r = @file_get_contents($url, false, $ctx);
-        $j = $r ? json_decode($r, true) : null;
+    $ciudad = trim(preg_replace('/\s*\(([^)]*)\)\s*/', ' ', $ciudad));   // «Palmas De Gran Canaria (Las)» → «Palmas De Gran Canaria»
+    $ctx = stream_context_create(['http' => ['timeout' => 5, 'ignore_errors' => true, 'header' => "User-Agent: PEBAI-panel/1.0 (pebaisystems.es)
+Accept-Language: es
+"]]);
+    $intentos = [['city' => $ciudad, 'country' => 'España'] + ($prov !== '' ? ['county' => $prov] : []), ['q' => $ciudad . ($prov !== '' ? ', ' . $prov : '') . ', España']];
+    foreach ($intentos as $n => $params) {
+        if ($n) {
+            usleep(1100000);
+        }
+        $r = @file_get_contents('https://nominatim.openstreetmap.org/search?' . http_build_query($params + ['format' => 'json', 'limit' => 1]), false, $ctx);
+        $codigo = isset($http_response_header[0]) && preg_match('/\s(\d{3})\s/', $http_response_header[0], $m) ? (int)$m[1] : 0;
+        if ($r === false || $codigo !== 200) {
+            return null;
+        }
+        $j = json_decode($r, true);
+        if ($j) {
+            return [(float)$j[0]['lat'], (float)$j[0]['lon']];
+        }
     }
-    return $j ? [(float)$j[0]['lat'], (float)$j[0]['lon']] : null;
+    return [];
 }
 
 /** Coordenadas de una ciudad: [lat, lon, precisión] con precisión 1 = ciudad, 2 = provincia (aproximada), 0 = sin ubicar. */
@@ -106,11 +117,15 @@ function mapa_ubicar(PDO $db, string $ciudad, string $prov, int &$cupoNominatim)
         $cupoNominatim--;
         $g = mapa_nominatim($ciudad, $prov);
         usleep(1100000);
-        $db->prepare('INSERT OR REPLACE INTO geo_ciudades (clave, lat, lon, fuente, ts) VALUES (?, ?, ?, ?, ?)')
-            ->execute([$clave, $g[0] ?? null, $g[1] ?? null, $g ? 'nominatim' : 'no_encontrada', date('Y-m-d H:i:s')]);
-        $cache[$clave] = $g;
-        if ($g) {
-            return [...$g, 1];
+        if ($g === null) {
+            $cupoNominatim = 0;   // OpenStreetMap no contesta o nos frena: no se apunta nada y se reintenta en la próxima carga
+        } else {
+            $db->prepare('INSERT OR REPLACE INTO geo_ciudades (clave, lat, lon, fuente, ts) VALUES (?, ?, ?, ?, ?)')
+                ->execute([$clave, $g[0] ?? null, $g[1] ?? null, $g ? 'nominatim' : 'no_encontrada', date('Y-m-d H:i:s')]);
+            $cache[$clave] = $g ?: null;
+            if ($g) {
+                return [...$g, 1];
+            }
         }
     }
     // sin provincia conocida: la ciudad tal cual en cualquier provincia
