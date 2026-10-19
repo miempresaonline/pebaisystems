@@ -602,10 +602,6 @@ async function montar() {
   const alfNeutra = canvasTex(256, 256, (c) => { c.fillStyle = 'rgba(255,255,255,.10)'; c.beginPath(); c.roundRect(4, 4, 248, 248, 36); c.fill(); c.strokeStyle = 'rgba(255,255,255,.75)'; c.lineWidth = 5; c.beginPath(); c.roundRect(6, 6, 244, 244, 34); c.stroke(); });
   const brilloCal = canvasTex(128, 128, (c) => { const r = c.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, 'rgba(255,214,150,.9)'); r.addColorStop(1, 'rgba(255,214,150,0)'); c.fillStyle = r; c.fillRect(0, 0, 128, 128); });
   const datoTex = canvasTex(64, 64, (c) => { c.fillStyle = '#3DDC84'; c.beginPath(); c.roundRect(14, 26, 36, 12, 6); c.fill(); });
-  /* haz de luz de un foco desde arriba: se enciende sobre quien está trabajando */
-  const hazMat = () => new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, uniforms: { uO: { value: 0 } },
-    vertexShader: 'varying vec2 vUv;varying vec3 vN;varying vec3 vV;void main(){vUv=uv;vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
-    fragmentShader: 'varying vec2 vUv;varying vec3 vN;varying vec3 vV;uniform float uO;void main(){float borde=pow(abs(dot(normalize(vN),normalize(vV))),1.6);float a=(.05+.22*pow(vUv.y,1.6))*borde*uO;gl_FragColor=vec4(vec3(1.,.93,.8),a);}' });
   function puesto(g, d, a, x) {
     const bc = colorDe(a), BC = new THREE.Color(bc);
     const p = new THREE.Group(); p.position.set(x, 0, -.6); g.add(p);
@@ -636,9 +632,8 @@ async function montar() {
     en(p, caja(1.02, .04, .07, M.marco, .015), 0, 1.985, -.19);
     en(p, new THREE.Mesh(new THREE.BoxGeometry(.05, .07, .09), M.marco), 0, 1.955, -.235);
     const bombillaMat = new THREE.MeshBasicMaterial({ color: 0x2a2d40, toneMapped: false });
-    const tiraLuz = new THREE.Mesh(new THREE.PlaneGeometry(.96, .022), bombillaMat); tiraLuz.rotation.x = Math.PI / 2; tiraLuz.position.set(0, 1.963, -.17); p.add(tiraLuz);
-    const haz = new THREE.Mesh(new THREE.CylinderGeometry(.48, 1, 1.12, 4, 1, true), hazMat()); haz.rotation.y = Math.PI / 4; haz.scale.set(1, 1, .42);
-    const hazG = new THREE.Group(); hazG.position.set(0, 1.4, .02); hazG.rotation.x = .28; hazG.add(haz); p.add(hazG);
+    const tiraLuz = new THREE.Mesh(new THREE.BoxGeometry(.94, .016, .012), bombillaMat); tiraLuz.position.set(0, 1.972, -.152); p.add(tiraLuz);
+    const brilloBarra = new THREE.Sprite(new THREE.SpriteMaterial({ map: brilloCal, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })); brilloBarra.scale.set(1.5, .32, 1); brilloBarra.position.set(0, 1.95, -.12); p.add(brilloBarra);
     const charcoF = new THREE.Mesh(new THREE.PlaneGeometry(1.5, .75), new THREE.MeshBasicMaterial({ map: brilloCal, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })); charcoF.rotation.x = -Math.PI / 2; charcoF.position.set(0, .787, .08); p.add(charcoF);
     const tecladoMat = new THREE.MeshBasicMaterial({ color: 0x14172a, toneMapped: false });
     const teclas = new THREE.Mesh(new THREE.PlaneGeometry(.54, .15), tecladoMat); teclas.rotation.x = -Math.PI / 2; teclas.position.set(0, .804, .12); p.add(teclas);
@@ -646,7 +641,7 @@ async function montar() {
     const rb = robot(new THREE.Color('#9C93FF')); rb.r.position.set(0, -.08, .74); rb.r.scale.setScalar(.95); p.add(rb.r);
     const baliza = new THREE.Mesh(new THREE.SphereGeometry(.12, 16, 16), new THREE.MeshBasicMaterial({ color: 0xFF5E6C, toneMapped: false })); baliza.position.set(.64, 2.08, -.27); baliza.visible = false; p.add(baliza);
     const zs = [0, 1, 2].map((k) => { const z = new THREE.Sprite(new THREE.SpriteMaterial({ map: zTex, transparent: true, opacity: 0, depthWrite: false })); z.scale.setScalar(.25); p.add(z); return { z, o: k / 3 }; });
-    const o = { p, scr, ctx: cv.getContext('2d'), tex: ptex, halo, baliza, zs, rb, ch, a, d, hl: 0, col: bc, logo, logoMat, cono, pad, tiraMat, bombillaMat, charcoF, haz, tecladoMat, datos, luz: 0, t0: Math.random() * 6, linea: null };
+    const o = { p, scr, ctx: cv.getContext('2d'), tex: ptex, halo, baliza, zs, rb, ch, a, d, hl: 0, col: bc, logo, logoMat, cono, pad, tiraMat, bombillaMat, charcoF, brilloBarra, tecladoMat, datos, luz: 0, t0: Math.random() * 6, linea: null };
     p.traverse((n) => { if (n.isMesh) { n.userData.puesto = o; clicables.push(n); } });
     dibujaPantalla(o, 0);
     return o;
@@ -734,7 +729,6 @@ async function montar() {
     const OUT = -IN;
     planta(g, OUT * (W / 2 - .55), D / 2 - .55, 1.05);
     if (on) {
-      estanteria(g, OUT * (W / 2 - .6), -D / 2 + .4, 0, false);
       lampara(g, IN * (W / 2 - .5), -D / 2 + .6);
     } else if (d.id === 'embudo') {
       alfombra(g, 3.4, 2.6, 0, .2, d.color);
@@ -846,8 +840,10 @@ async function montar() {
   }
   const flotantes = [];
   function flotar(o, n) {
-    const t2 = canvasTex(320, 110, (c) => { c.font = '800 76px Manrope, sans-serif'; c.textAlign = 'center'; c.lineWidth = 10; c.strokeStyle = 'rgba(6,7,13,.85)'; c.strokeText('+' + N(n), 160, 82); c.fillStyle = o.col; c.fillText('+' + N(n), 160, 82); });
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t2, transparent: true, depthWrite: false })); sp.scale.set(2, .69, 1);
+    const uni = String(o.a.unidad || '').split(' ')[0] || 'más';
+    const txt = '+' + N(n) + ' ' + (n === 1 ? uni.replace(/es$/, '').replace(/s$/, '') : uni);
+    const t2 = canvasTex(640, 110, (c) => { c.font = '800 64px Manrope, sans-serif'; c.textAlign = 'center'; c.lineWidth = 10; c.strokeStyle = 'rgba(6,7,13,.85)'; c.strokeText(txt, 320, 80); c.fillStyle = '#3DDC84'; c.fillText(txt, 320, 80); });
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t2, transparent: true, depthWrite: false })); sp.scale.set(3.4, .58, 1);
     o.logo.getWorldPosition(sp.position); sp.position.y += .55; scene.add(sp); flotantes.push({ sp, k: 0 });
   }
   const pintaReloj = () => salas.forEach((s) => {
@@ -1009,8 +1005,8 @@ async function montar() {
       o.zs.forEach((z) => { z.z.material.opacity = 0; });
       rb.r.rotation.x = 0; rb.r.rotation.y = 0;
       o.luz += ((st === 'trabajando' ? 1 : 0) - o.luz) * Math.min(1, dt * 3);
-      o.haz.material.uniforms.uO.value = o.luz * 1.6; o.charcoF.material.opacity = o.luz * .75;
-      o.bombillaMat.color.setRGB(.16 + .84 * o.luz, .17 + .75 * o.luz, .25 + .5 * o.luz);
+      o.brilloBarra.material.opacity = o.luz * .85; o.charcoF.material.opacity = o.luz * .7;
+      o.bombillaMat.color.setRGB(.16 + 1.1 * o.luz, .17 + 1 * o.luz, .25 + .65 * o.luz);
       o.datos.forEach((dd) => { const kk = (tt * .45 + dd.o) % 1; dd.sp.position.set(dd.x, 2.0 + kk * .55, -.24); dd.sp.material.opacity = st === 'trabajando' ? Math.sin(kk * Math.PI) * .85 : 0; });
       if (st === 'trabajando') {
         // ráfagas de tecleo con pausas cortas para leer la pantalla, como una persona
