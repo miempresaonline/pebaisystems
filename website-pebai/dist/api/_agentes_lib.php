@@ -333,7 +333,10 @@ function pebai_prospecto_tipo(string $empresa, string $web, string $notas): arra
     $solarNombre = preg_match('/solar|fotovolt|placas|paneles|renovab|autoconsumo|\bsun|\bsol\b|sol[a-z]*energ/u', $txt);
     $clima = preg_match('/clima|aire|fr[ií]o|calor|calefac|gas\b|caldera|fontaner|termo|split|hvac|frigor/u', $txt);
     $electr = preg_match('/el[eé]ctric|electro|reforma|instalaciones|mantenimiento|multiservicio/u', $txt);
-    if ($solarNombre && $hace !== 'aerotermia') {
+    if (str_contains($notas, 'solar_verificado')) {
+        // El scraper ya comprobó en su web que su negocio principal es solar (regla solo_solar): manda sobre el nombre
+        $tipo = $hace === 'ambas' ? 'ambas' : 'core_solar';
+    } elseif ($solarNombre && $hace !== 'aerotermia') {
         $tipo = 'core_solar';
     } elseif ($hace === 'ambas' && !$clima) {
         $tipo = 'ambas';

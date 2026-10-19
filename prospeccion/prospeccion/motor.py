@@ -160,21 +160,37 @@ def puntua(c: dict, w: dict) -> None:
     c['encaje_motivos'] = ', '.join(em)
 
 
-_SOLAR_NOMBRE = re.compile(r'solar|fotovolt|placas|paneles|renovab|autoconsumo|\bsun|\bsol\b|sol[a-z]*energ', re.I)
+_SOLAR_NOMBRE = re.compile(r'solar|fotovolt|placas|paneles|renovab|autoconsumo|\bsun|\bsol\b|\w{3,}sol\b|sol[a-z]*energ', re.I)
 _OTRO_NEGOCIO = re.compile(r'clima|aire acondicionado|\baire\b|fr[ií]o|frigor|calor|calefac|\bgas\b|caldera|fontaner|electricist|el[eé]ctric|electro|'
                            r'reforma|mantenimiento|multiservicio|servicio t[eé]cnico|hvac', re.I)
+
+
+# Negocios que hablan de placas en su cabecera pero no las instalan (revisión del 19/10 de la cola: 59 se colaron así)
+_NO_INSTALADORA = re.compile(r'consultor|asesor|inversi[oó]n en|parques? solares|huertos? solares|compra ?venta|legaliz|tramitaci|oficina t[eé]cnica|'
+                             r'certificados? energ|certificaci[oó]n energ|boletines|comercializadora|tarifas? de luz|revisi[oó]n (?:gratuita )?de (?:tu )?factura|riego|alquil|cubiertas industriales|'
+                             r'farolas|alumbrado|kits? solar|estaciones de energ|generador|tienda|fibra|telecomunicac|dom[oó]tica|videovigilancia|'
+                             r'fontaner|climatizaci|calefacci|calderas|aluminio|pvc|cristaler|eventos|congreso|estructuras para|biomasa|wordpress', re.I)
+# Electricista que «también» hace placas: lo eléctrico en su cabecera y la solar con poco peso en su web
+_ELECTRICISTA_CAB = re.compile(r'electricista|instalaci[oó]n(?:es)? el[eé]ctrica|servicios el[eé]ctricos|electricidad', re.I)   # «coche eléctrico» no cuenta
 
 
 def es_solar_principal(empresa: str, dominio_web: str, w: dict) -> bool:
     """Decisión de Daniel (15/10/2026): el nicho son EMPRESAS DE PLACAS SOLARES (baterías y aerotermia como complemento).
     Fuera electricistas generalistas aunque mencionen placas, climatización, gas y calderas. Ante la duda, fuera."""
     txt = f'{empresa} {dominio_web}'
+    cab = f'{w.get("titulo", "")} {w.get("descripcion", "")} {w.get("h1", "")}'
+    if _NO_INSTALADORA.search(f'{empresa} {cab}'):
+        return False                     # consultoría, inversión, legalización, tienda, riego, telecom, clima…
+    if _ELECTRICISTA_CAB.search(cab) and w.get('n_solar', 0) < 30:
+        return False                     # «instalaciones eléctricas y fotovoltaicas»: generalista
     if _SOLAR_NOMBRE.search(txt):
         return True                      # «Solar…», «…Fotovoltaica», «Placas…», «Renovables…»
     if _OTRO_NEGOCIO.search(txt):
         return False                     # electricista, clima, gas… aunque haga placas
     # Nombre neutro: lo decide su web. Placas solares en la cabecera y la solar pesa más que la aerotermia.
-    return bool(w.get('solar_cabecera') and w.get('n_solar', 0) >= 3 and w.get('n_solar', 0) >= w.get('n_aerotermia', 0))
+    # y además tiene que decir que instala (no basta con hablar de energía solar)
+    return bool(w.get('solar_cabecera') and w.get('n_solar', 0) >= 3 and w.get('n_solar', 0) >= w.get('n_aerotermia', 0)
+                and re.search(r'instal|montaje|llave en mano', cab, re.I))
 
 
 def enriquece(cands: list[dict], nicho: set[str]) -> list[dict]:
@@ -326,7 +342,9 @@ COLS = ['empresa', 'telefono', 'telefono_fijo', 'email', 'nombre', 'sector', 'ci
 
 def fila(c: dict) -> dict:
     etiquetas = [f'hace_{c["hace"]}' if c['hace'] else '', f'tamaño: {c["tamano"]}', 'anuncia (etiquetas de Google Ads/Meta en su web)' if c['anuncia'] else '',
-                 f'fijo {c["fijo"]}' if c['fijo'] and c['movil'] else '']
+                 f'fijo {c["fijo"]}' if c['fijo'] and c['movil'] else '',
+                 # El panel clasifica por nombre; esta marca le dice que el motor ya comprobó en su web que es solar
+                 'solar_verificado' if c.get('solar_principal') else '']
     notas = ' · '.join(e for e in etiquetas if e) + f'. Actividad {c["actividad"]}: {c["actividad_motivos"]}. Encaje {c["encaje"]}: {c["encaje_motivos"]}.'
     if c['email_personal']:
         notas += ' Email personal (gmail/hotmail…).'
