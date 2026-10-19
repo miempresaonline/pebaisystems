@@ -79,6 +79,15 @@ def _analiza(html: str, base: str, res: dict) -> list[str]:
     if re.search(r'tawk\.to|crisp\.chat|intercom|tidio|livechat|zendesk|hubspot|whatsapp-widget|joinchat|getbutton', low):
         res['senales'].add('chat_web')
     t = texto.lower()
+    # Idioma y contenido (regla de luz, 19/10): web en castellano o cooficial y con contenido real, no solo teléfono y email
+    if not res.get('lang'):
+        h = tree.css_first('html')
+        res['lang'] = ((h.attributes.get('lang') if h else '') or '').lower()[:5]
+    palabras = re.findall(r'[a-záéíóúñçàèòïü]+', t)
+    res['n_palabras'] += len(palabras)
+    res['n_es'] += sum(1 for p in palabras if p in ('de', 'la', 'que', 'el', 'los', 'para', 'con', 'una', 'del', 'las', 'nuestra', 'nuestros',
+                                                        'per', 'amb', 'els', 'dels', 'eta', 'da', 'dos', 'cos'))
+    res['n_en'] += sum(1 for p in palabras if p in ('the', 'and', 'with', 'our', 'for', 'your', 'you', 'we', 'are', 'about'))
     # Qué hace (nicho energía) y señales de tamaño: más de 1–2 personas
     n_sol = len(re.findall(r'fotovoltai|placas? solares?|paneles? solares?|autoconsumo|energ[ií]a solar', t))
     n_aer = len(re.findall(r'aerotermia|bombas? de calor', t))
@@ -134,7 +143,7 @@ async def _sitemap_reciente(cli: httpx.AsyncClient, base: str) -> str:
 
 
 async def rastrea(url: str, cli: httpx.AsyncClient, max_paginas: int = 5) -> dict:
-    res = {'url': url, 'url_final': '', 'ok': False, 'status': 0, 'emails': [], 'email_origen': {}, 'tels': [], 'n_solar': 0, 'n_aerotermia': 0, 'nicho_cabecera': False, 'whatsapp': '', 'redes': {},
+    res = {'url': url, 'url_final': '', 'ok': False, 'status': 0, 'emails': [], 'email_origen': {}, 'tels': [], 'n_solar': 0, 'n_aerotermia': 0, 'nicho_cabecera': False, 'lang': '', 'n_palabras': 0, 'n_es': 0, 'n_en': 0, 'whatsapp': '', 'redes': {},
            'senales': set(), 'anyo_web': 0, 'sitemap_lastmod': '', 'aparcado': False, 'titulo': '', 'nombre_web': '', 'descripcion': '', 'h1': '', 'error': '', 'paginas': []}
     if not url:
         res['error'] = 'sin web'

@@ -83,6 +83,21 @@ def luz() -> None:
         dom = dominio(w.get('url_final') or c['web'])
         if GRANDES_LUZ.search(dom):
             descarta('web de un grupo grande (filial o marca)'); continue
+        # Regla del principal (19/10): solo comercializadoras que venden luz a clientes en España, con web en castellano o cooficial
+        cab = f'{c["razon_social"]} {w.get("titulo", "")} {w.get("descripcion", "")} {w.get("h1", "")}'
+        if dom.endswith(('.ie', '.dk', '.ch', '.cz', '.pt', '.de', '.fr', '.it', '.nl', '.be', '.uk', '.at', '.pl')) or \
+                re.search(r'trading|trader|\bgmbh\b|\ba/s\b|\bag\b|ireland|denmark|switzerland|czech|portugal', cab, re.I):
+            descarta('trader o empresa extranjera'); continue
+        if re.search(r'hidroel[eé]ctric|cogeneraci|central (?:hidro|t[eé]rmica)|productor(?:a)? de (?:energ|electric)|generaci[oó]n de (?:energ|electric)', cab, re.I):
+            descarta('productora, no comercializadora para clientes'); continue
+        if re.search(r'residuos|venta de equipos|certificados? de ahorro|\bcae\b|asesor[ií]a|ahorro en (?:tu|su) factura|revisi[oó]n de factura', cab, re.I):
+            descarta('otro sector (residuos, equipos, CAE o asesoría)'); continue
+        if re.search(r'en proceso de alta|en construcci[oó]n|pr[oó]ximamente|coming soon|under construction', cab, re.I):
+            descarta('web en construcción o en proceso de alta'); continue
+        if w.get('n_palabras', 0) < 120:
+            descarta('página vacía (solo teléfono y email)'); continue
+        if w.get('lang', '').startswith('en') and w.get('n_en', 0) > w.get('n_es', 0):
+            descarta('web solo en inglés'); continue
         # Actividad real (pedido del chat principal): la web se ha tocado en los últimos 12 meses
         lastmod = w.get('sitemap_lastmod') or ''
         reciente = (lastmod and (HOY - dt.date.fromisoformat(lastmod)).days <= 365) or w.get('anyo_web', 0) >= HOY.year
