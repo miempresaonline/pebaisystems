@@ -196,7 +196,7 @@ function mapa_datos(): array
     };
     $cols = array_column($db->query('PRAGMA table_info(prospectos)')->fetchAll(), 'name');
     $conLat = in_array('lat', $cols, true) && in_array('lon', $cols, true);
-    $wa = $db->query('SELECT id, empresa, ciudad, lote, sector, web, estado, tipo, telefono, notas, created_at, enviado_at, respondido_at' . ($conLat ? ', lat, lon' : '') . ' FROM prospectos')->fetchAll(PDO::FETCH_ASSOC);
+    $wa = $db->query('SELECT id, empresa, ciudad, lote, sector, web, estado, tipo, telefono, notas, created_at, enviado_at, respondido_at' . ($conLat ? ', lat, lon' : '') . " FROM prospectos WHERE estado NOT IN ('descartado', 'sin_whatsapp')")->fetchAll(PDO::FETCH_ASSOC); // las descartadas no son prospectos: no salen
     foreach ($wa as $p) {
         $prov = $provDe((string)$p['lote']);
         if ($conLat && $p['lat']) {
@@ -222,6 +222,9 @@ function mapa_datos(): array
         $em = [];
     }
     foreach ($em as $p) {
+        if ((string)$p['estado'] === 'descartado') {
+            continue;
+        }
         $prov = $provDe((string)($p['lote'] ?? ''));
         [$la, $lo, $prec] = mapa_ubicar($db, (string)$p['ciudad'], $prov, $cupo);
         if (!$prec) {

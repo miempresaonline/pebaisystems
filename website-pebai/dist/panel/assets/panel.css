@@ -763,3 +763,10 @@ body[data-page=prospectos] .pb-only-embudo,body[data-page=agentes] .pb-only-embu
 .pw-log-i em{font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 50%,transparent);white-space:nowrap}
 .pw-pre{margin:0 12px 10px;padding:10px 12px;border-radius:10px;background:var(--panel-2);font:12.5px/1.5 var(--sans);white-space:pre-wrap;color:var(--fg)}
 @media (max-width:640px){.pw-log-i summary{grid-template-columns:auto 1fr}.pw-log-i time{grid-column:1/-1}}
+
+/* Prospectos: una sola lista con el canal de cada empresa */
+.pb-canal-tag{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:6px;border:1px solid var(--line-2)}
+.pb-canal-tag.wa{color:var(--green);border-color:color-mix(in srgb,var(--green) 45%,transparent)}
+.pb-canal-tag.email{color:var(--cyan);border-color:color-mix(in srgb,var(--cyan) 45%,transparent)}
+.pb-pros-pie{margin:18px 2px 0;font-size:12.5px;color:var(--muted-2)}
+#pb-tabs button[hidden]{display:none}

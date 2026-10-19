@@ -8,17 +8,30 @@ const BASE = app.dataset.base;
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const S = { loaded: false, csrf: app.dataset.csrf };
-const ui = { estado: '', q: '', lote: '', limit: 150, act: '', vista: 'cajas', caja: '', prov: '', ciudad: '', fijo: false };
+const ui = { estado: '', q: '', lote: '', limit: 150, act: '', vista: 'cajas', caja: '', prov: '', ciudad: '', fijo: false, canal: '' };
 try { if (localStorage.getItem('pebai-pros-vista') === 'lista') ui.vista = 'lista'; } catch (e) { /* sin almacenamiento */ }
 
 /* ============ dominio ============ */
 const PE = {
-  revision: ['En revisión', '#FFB547', '#0B0F14'], pendiente: ['En cola', '#3A404D', '#C9CED8'], enviando: ['Enviando…', '#6A5CFF', '#FFFFFF'], enviado: ['Enviado', '#6A5CFF', '#FFFFFF'],
+  revision: ['Por aprobar', '#FFB547', '#0B0F14'], pendiente: ['Por escribir', '#3A404D', '#C9CED8'], enviando: ['Enviando…', '#6A5CFF', '#FFFFFF'], enviado: ['Enviado', '#6A5CFF', '#FFFFFF'],
   respondio: ['Respondió', '#25D366', '#0B0F14'], baja: ['Baja', '#FF6B7A', '#0B0F14'], sin_whatsapp: ['Sin WhatsApp', '#3A404D', '#C9CED8'],
   error: ['Revisar', '#FFB547', '#0B0F14'], descartado: ['Descartado', '#3A404D', '#C9CED8'],
 };
-const CHIPS = [['', 'Todos', '#EFEDE7'], ['revision', 'En revisión', '#FFB547'], ['pendiente', 'En cola', '#9A9CB0'], ['enviado', 'Sin respuesta aún', '#6A5CFF'], ['respondio', 'Respondieron', '#25D366'],
-  ['error', 'Revisar', '#FFB547'], ['baja', 'Bajas', '#FF6B7A'], ['sin_whatsapp', 'Sin WhatsApp', '#3A404D'], ['descartado', 'Descartados', '#3A404D']];
+// Las descartadas no son prospectos: ni se cuentan ni se listan (solo una nota al pie).
+const CHIPS = [['', 'Todas', '#EFEDE7'], ['pendiente', 'Por escribir', '#9A9CB0'], ['enviado', 'Escritas, sin respuesta', '#6A5CFF'], ['respondio', 'Respondieron', '#25D366'],
+  ['revision', 'Por aprobar', '#FFB547'], ['error', 'Revisar', '#FFB547'], ['baja', 'Bajas', '#FF6B7A'], ['sin_whatsapp', 'Sin WhatsApp', '#3A404D']];
+const CANALES = [['', 'Todos los canales'], ['wa', 'WhatsApp'], ['email', 'Email']];
+// Un solo nombre por nicho, venga de la lista de WhatsApp o de la de email
+const NICHO_NOMBRE = (k) => /solar|placa|fotovolt|instaladores energ|^energia$/i.test(k) ? 'Placas solares' : k === 'luz' ? 'Comercializadoras de luz' : k === 'luz_coop' ? 'Cooperativas eléctricas' : k;
+// Estado de una empresa de la lista de email, con los mismos nombres que la de WhatsApp
+const estadoEmail = (p) => {
+  const e = String(p.estado || '');
+  if (p.respondido_at || ['respondido', 'respondio', 'interesado'].includes(e)) return 'respondio';
+  if (['baja', 'no_interesa', 'no'].includes(e)) return 'baja';
+  if (['rebotado', 'rebote', 'error'].includes(e)) return 'error';
+  if (p.enviado1_at || e.startsWith('enviado') || e === 'seguimiento') return 'enviado';
+  return e === 'revision' ? 'revision' : 'pendiente';
+};
 const PAGINAS = { resumen: ['Embudo', 'Resumen'], solicitudes: ['Embudo', 'Solicitudes'], citas: ['Embudo', 'Citas'], prospectos: ['Captación', 'Prospectos'], mapa: ['Captación', 'Mapa'], qr: ['Captación', 'QRs'], agentes: ['Automático', 'Agentes'], caja: ['Empresa', 'Caja'] };
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -57,6 +70,11 @@ async function load() {
   const j = await r.json();
   if (!j.ok) throw new Error(j.error || 'Error al cargar');
   Object.assign(S, j, { ahora: parse(j.ahora), loaded: true });
+  // Una sola lista de empresas buenas: las de WhatsApp (con móvil) y las de email (sin móvil), sin descartadas
+  const wa = (j.prospectos || []).filter((p) => p.estado !== 'descartado').map((p) => ({ ...p, canal: 'wa' }));
+  const em = (j.email_prospectos || []).map((p) => ({ ...p, canal: 'email', estado: estadoEmail(p), enviado_at: p.enviado1_at, sector: p.nicho || p.sector }));
+  S.empresas = wa.concat(em);
+  S.descartadas = (j.prospectos || []).length - wa.length;
   S.porProspecto = new Map();
   (j.mensajes || []).forEach((m) => { if (!S.porProspecto.has(m.prospecto_id)) S.porProspecto.set(m.prospecto_id, []); S.porProspecto.get(m.prospecto_id).push(m); });
 }
@@ -91,15 +109,14 @@ function estadoAgente() {
 }
 function pintaSidebar() {
   if (!S.loaded) return;
-  const n = (S.prospectos || []).filter((p) => p.estado === 'pendiente').length;
-  $('#pb-pros-n').textContent = N(n);
+  $('#pb-pros-n').textContent = N((S.empresas || []).length);
   const e = estadoAgente(); const live = $('#pb-ag-live');
   live.dataset.s = e.s; live.title = 'WhatsApp: ' + e.t;
 }
 
 /* ============ Captación · prospectos ============ */
 /* Cajas: nicho → provincia → lista. El nicho es el sector del scraper; la provincia, lo que va tras «·» en el lote. */
-const nichoDe = (p) => p.sector || (p.lote && p.lote.includes('·') ? p.lote.split('·')[0].trim() : '') || 'Sin nicho';
+const nichoDe = (p) => NICHO_NOMBRE(p.sector || (p.lote && p.lote.includes('·') ? p.lote.split('·')[0].trim() : '') || 'Sin nicho');
 const provDe = (p) => (p.lote && p.lote.includes('·') ? p.lote.slice(p.lote.lastIndexOf('·') + 1).trim() : '') || p.ciudad || 'Sin provincia';
 const fijoDe = (p) => { const m = /\bfijo (\d{9})\b/.exec(p.notas || ''); return m ? m[1] : ''; };
 const telFijo = (t) => '+34 ' + t.slice(0, 3) + ' ' + t.slice(3, 5) + ' ' + t.slice(5, 7) + ' ' + t.slice(7);
@@ -123,7 +140,7 @@ function cajaCard(titulo, lista, extra, onOpen, todas) {
   const resp = lista.filter((p) => p.estado === 'respondio').length, cola = lista.filter((p) => p.estado === 'pendiente').length, fijos = lista.filter((p) => fijoDe(p)).length;
   const top = el('div', 'top'); const ic = el('span', 'ic'); ic.append(todas ? svg('<path d="M4 6h16M4 12h16M4 18h16"/>') : ICO_CAJA(titulo)); top.append(ic, el('span', 'abrir', 'Abrir'));
   const h = el('h3', null, titulo); const n = el('div', 'n'); n.append(el('b', null, N(lista.length)), el('span', null, lista.length === 1 ? 'empresa' : 'empresas'));
-  const pie = el('div', 'pie'); pie.append(el('span', null, N(provs.size) + (provs.size === 1 ? ' provincia' : ' provincias')), el('span', null, N(cola) + ' en cola'), el('span', resp ? 'ok' : null, N(resp) + (resp === 1 ? ' respondió' : ' respondieron')), el('span', null, N(fijos) + ' con fijo'));
+  const pie = el('div', 'pie'); pie.append(el('span', null, N(provs.size) + (provs.size === 1 ? ' provincia' : ' provincias')), el('span', null, N(cola) + ' por escribir'), el('span', resp ? 'ok' : null, N(resp) + (resp === 1 ? ' respondió' : ' respondieron')), el('span', null, N(fijos) + ' con fijo'));
   const chips = el('div', 'provs'); [...provs.entries()].sort((a, b) => b[1] - a[1]).slice(0, extra || 4).forEach(([pv, k]) => chips.append(el('span', null, pv + ' · ' + N(k))));
   c.append(top, h, n, barraEstados(lista), chips, pie); c.onclick = onOpen;
   return c;
@@ -137,16 +154,17 @@ function provCard(nombre, lista, onOpen) {
 }
 const irA = (cambios) => { Object.assign(ui, cambios, { limit: 150 }); drawProspectos(); const l = $('#pb-pros-list'); if (l && l.getBoundingClientRect().top < 0) l.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 function drawProspectos() {
-  const P = S.prospectos || [];
+  const TODAS = S.empresas || [];
+  const P = ui.canal ? TODAS.filter((p) => p.canal === ui.canal) : TODAS;
   const cuenta = (k) => P.filter((p) => p.estado === k).length;
   const enviados = P.filter((p) => ['enviado', 'respondio', 'baja'].includes(p.estado) && p.enviado_at).length;
   const resp = cuenta('respondio') + P.filter((p) => p.estado === 'baja' && p.respondido_at).length;
   const pend = cuenta('pendiente');
-  const lim = (S.whatsapp && S.whatsapp.limite_dia) || 30;
+  const nWa = TODAS.filter((p) => p.canal === 'wa').length, nEm = TODAS.length - nWa;
   const kp = $('#pb-pros-kpis'); kp.textContent = '';
-  [[true, 'En cola', pend, pend ? '≈ ' + Math.ceil(pend / lim) + (Math.ceil(pend / lim) === 1 ? ' día' : ' días') + ' de envíos' : 'Añade prospectos para que trabaje'],
-    [false, 'Enviados', enviados, 'en total'], [false, 'Respondieron', resp, pct(resp, enviados) + ' de tasa de respuesta'],
-    [false, 'Bajas', S.bajas || 0, 'no se les vuelve a escribir'], [false, 'Revisar', cuenta('error'), 'envíos con incidencia']]
+  [[true, 'Empresas', P.length, ui.canal ? (ui.canal === 'wa' ? 'con móvil: van por WhatsApp' : 'sin móvil: van por email') : N(nWa) + ' por WhatsApp · ' + N(nEm) + ' por email'],
+    [false, 'Por escribir', pend, 'aún no les ha escrito nadie'], [false, 'Escritas', enviados, 'primer mensaje enviado'],
+    [false, 'Respondieron', resp, pct(resp, enviados) + ' de las escritas'], [false, 'Bajas', cuenta('baja'), 'no se les vuelve a escribir']]
     .forEach(([hero, l, v, d], i) => {
       const c = el('div', 'pb-card pb-kpi pb-anim' + (hero ? ' hero' : '')); c.style.setProperty('--i', i);
       c.append(el('div', 'l', l), el('div', 'v', N(v)), el('div', 'd', d)); kp.append(c);
@@ -166,8 +184,13 @@ function drawProspectos() {
     const v = el('div', 'pb-seg'); v.id = 'pb-pros-vista'; v.setAttribute('role', 'radiogroup'); v.setAttribute('aria-label', 'Vista');
     [['cajas', 'Cajas'], ['lista', 'Lista']].forEach(([k, l]) => { const b = el('button', null, l); b.type = 'button'; b.dataset.v = k; b.onclick = () => { ui.vista = k; try { localStorage.setItem('pebai-pros-vista', k); } catch (e) { /* nada */ } drawProspectos(); }; v.append(b); });
     const fj = el('button', 'pb-chipfijo'); fj.type = 'button'; fj.id = 'pb-pros-fijo'; fj.textContent = 'Con fijo'; fj.title = 'Solo las que tienen también teléfono fijo (para llamar)'; fj.onclick = () => { ui.fijo = !ui.fijo; ui.limit = 150; drawProspectos(); };
-    $('.pb-filters', $('#page-prospectos')).append(fj, v);
+    const cn = el('div', 'pb-seg'); cn.id = 'pb-pros-canal'; cn.setAttribute('aria-label', 'Canal');
+    CANALES.forEach(([k, l]) => { const b = el('button', null, l); b.type = 'button'; b.dataset.c = k; b.onclick = () => { ui.canal = k; ui.limit = 150; drawProspectos(); }; cn.append(b); });
+    $('.pb-filters', $('#page-prospectos')).append(cn, fj, v);
+    const pie = el('p', 'note pb-pros-pie'); pie.id = 'pb-pros-pie'; $('#page-prospectos').append(pie);
   }
+  $$('#pb-pros-canal button').forEach((b) => b.classList.toggle('on', b.dataset.c === ui.canal));
+  $('#pb-pros-pie').textContent = S.descartadas ? N(S.descartadas) + ' empresas encontradas por el Scraper no eran del nicho y se descartaron: no cuentan ni salen aquí.' : '';
   $$('#pb-pros-vista button').forEach((b) => b.classList.toggle('on', b.dataset.v === ui.vista));
   $('#pb-pros-fijo').classList.toggle('on', ui.fijo);
   $('#pb-pros-lote').hidden = ui.vista === 'cajas';
@@ -178,7 +201,7 @@ function drawProspectos() {
   const cajas = ui.vista === 'cajas';
   const base = P.filter((p) => (!ui.estado || p.estado === ui.estado || (ui.estado === 'enviado' && p.estado === 'enviando'))
     && (cajas || !ui.lote || p.lote === ui.lote) && (!ui.fijo || fijoDe(p)));
-  let rows = base.filter((p) => !q || [p.empresa, p.nombre, p.telefono, p.sector, p.ciudad, p.notas].join(' ').toLowerCase().includes(q));
+  let rows = base.filter((p) => !q || [p.empresa, p.nombre, p.telefono, p.email, p.sector, p.ciudad, p.notas].join(' ').toLowerCase().includes(q));
   const list = $('#pb-pros-list'); list.textContent = '';
   list.classList.toggle('cajas', cajas);
   if (cajas) {
@@ -240,7 +263,7 @@ function drawProspectos() {
   }
   if (!rows.length) {
     const e = el('div', 'pb-card pb-empty');
-    e.textContent = P.length ? 'Nada con estos filtros.' : 'Aún no hay prospectos. Pulsa «Añadir prospectos» y sube la primera lista: el agente empieza a escribir en el siguiente tramo de horario.';
+    e.textContent = P.length ? 'Nada con estos filtros.' : 'Aún no hay empresas en este canal.';
     list.append(e); return;
   }
   rows.slice(0, ui.limit).forEach((p) => list.append(filaProspecto(p)));
@@ -253,9 +276,10 @@ function filaProspecto(p) {
   const av = el('div', 'pb-avatar' + (p.estado === 'respondio' ? ' A' : ''), iniciales(p.empresa || p.nombre));
   const who = el('div', 'who');
   const emp = el('div', 'emp', p.empresa || 'Sin nombre');
-  const sub = [p.nombre, p.sector, p.ciudad].filter(Boolean).join(' · '); if (sub) emp.append(el('span', null, sub));
+  const sub = [p.nombre, nichoDe(p), p.ciudad].filter(Boolean).join(' · '); if (sub) emp.append(el('span', null, sub));
   const meta = el('div', 'meta');
-  meta.append(el('span', 'tel', telBonito(p.telefono)));
+  const canal = el('span', 'pb-canal-tag ' + p.canal, p.canal === 'email' ? 'Email' : 'WhatsApp'); meta.append(canal, el('span', 'sep', '·'));
+  if (p.canal === 'email') meta.append(el('span', 'tel', p.email || '')); else meta.append(el('span', 'tel', telBonito(p.telefono)));
   const fj = fijoDe(p);
   if (fj) { const a = el('a', 'tel fijo'); a.href = 'tel:+34' + fj; a.textContent = 'Fijo ' + telFijo(fj); a.title = 'Llamar al fijo'; meta.append(el('span', 'sep', '·'), a); }
   if (p.lote) meta.append(el('span', 'sep', '·'), el('span', null, p.lote));
@@ -267,6 +291,11 @@ function filaProspecto(p) {
   top.append(badge(p.estado));
   r.append(top, el('span', 'age', (p.estado === 'respondio' ? 'Respondió ' : p.enviado_at ? 'Enviado ' : 'Añadido ') + hace(parse(ultima))));
   const acts = el('div', 'acts');
+  if (p.canal === 'email') {
+    // Las acciones de la lista de email (aprobar, baja…) están en su agente; aquí solo se consulta
+    if (p.web) { const a = el('a', 'pb-btn ghost'); a.href = p.web; a.target = '_blank'; a.rel = 'noopener'; a.append('Ver web'); acts.append(a); }
+    r.append(acts); row.append(av, who, r); return row;
+  }
   if (['enviado', 'respondio', 'error'].includes(p.estado)) {
     const a = el('a', 'pb-btn wa'); a.href = 'https://wa.me/' + p.telefono; a.target = '_blank'; a.rel = 'noopener'; a.append(ICO.chat(), 'Abrir chat'); acts.append(a);
   }

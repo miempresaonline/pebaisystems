@@ -34,7 +34,8 @@ const input = (name, value, attrs) => { const i = el('input'); i.name = name; i.
 function montar() {
   const pros = $('#pb-tabs button[data-page="prospectos"]');
   if (pros && !$('#pb-tabs button[data-page="email"]')) {
-    const b = el('button'); b.type = 'button'; b.dataset.page = 'email';
+    // Oculto: las empresas de email se ven en Prospectos (una sola lista). La página sigue para el detalle del agente (desde Agentes).
+    const b = el('button'); b.type = 'button'; b.dataset.page = 'email'; b.hidden = true;
     b.innerHTML = '<svg class="pb-i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><span>Email</span><em id="pb-email-n">—</em>';
     pros.after(b);
   }

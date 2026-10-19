@@ -532,7 +532,18 @@ if ($auth && isset($_GET['agentes'])) {
     foreach ($cfg['nichos'] as $k => $n) {
         $nichosOut[] = ['clave' => $k, 'nombre' => $n['nombre'], 'plantillas' => $n['plantillas']];
     }
-    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'prospectos' => $pros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
+    // Las de email se ven en la misma lista de Prospectos (canal «email»): sin descartadas
+    try {
+        $emailPros = $adb->query("SELECT id, created_at, empresa, nombre, email, telefono, sector, nicho, ciudad, web, lote, estado, enviado1_at, respondido_at, error
+                                  FROM email_prospectos WHERE estado <> 'descartado' ORDER BY id DESC LIMIT 5000")->fetchAll();
+    } catch (Throwable $e) {
+        $emailPros = [];
+    }
+    foreach ($emailPros as &$p) {
+        $p['id'] = (int)$p['id'];
+    }
+    unset($p);
+    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'prospectos' => $pros, 'email_prospectos' => $emailPros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
               'bajas' => (int)$adb->query('SELECT COUNT(*) FROM bajas')->fetchColumn(),
               'nichos' => $nichosOut, 'stats' => pebai_wa_stats(), 'actividad' => pebai_actividad_ultimas('whatsapp', 150),
               'whatsapp' => ['estado' => $wa['estado'], 'latido_at' => $wa['latido_at'], 'detalle' => $wa['detalle'], 'codigo' => $wa['codigo'], 'pausado' => (int)$wa['pausado'],
@@ -540,7 +551,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '28';
+$v = '29';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -725,7 +736,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
       <div>
         <div class="pb-eyebrow">Captación · Salida en frío</div>
         <h1 class="pb-h1">Prospectos, <i>uno a uno</i></h1>
-        <p class="pb-lead">La lista de la que tira el agente de WhatsApp. Escribe a los pendientes por orden de llegada, dentro del horario y del cupo diario. Quien pide la baja no vuelve a recibir nada, aunque se reimporte.</p>
+        <p class="pb-lead">Todas las empresas buenas de cada nicho, en una sola lista. Las que tienen móvil van por <b>WhatsApp</b>; las que solo tienen email, por <b>email</b>. Las descartadas no salen ni cuentan. Quien pide la baja no vuelve a recibir nada.</p>
       </div>
       <button class="pb-btn primary big" id="pb-imp-abrir" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Añadir prospectos</button>
     </div>
