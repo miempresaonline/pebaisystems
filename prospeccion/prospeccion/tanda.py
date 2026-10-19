@@ -28,6 +28,18 @@ NICHOS = {
         'reglas': {'requiere_hace': True, 'sin_autonomos': True, 'dedicacion': True, 'solo_activas': True, 'solo_solar': True},
         'email_nicho': 'energia',   # las válidas sin móvil y con email van a email_prospectos con este nicho
     },
+    # Segunda pasada solar (orden de Daniel, 19/10): otras formas de buscar y más municipios, hasta 200 en la lista de email
+    'solar2': {
+        'sector': 'Empresas de placas solares',
+        'lote': 'Solar',
+        'busquedas': ['instalador fotovoltaico', 'autoconsumo solar', 'paneles solares instalación', 'energía solar empresa instaladora',
+                      'placas solares'],
+        'palabras': 'placas solares fotovoltaica autoconsumo paneles solar renovables energía',
+        'reglas': {'requiere_hace': True, 'sin_autonomos': True, 'dedicacion': True, 'solo_activas': True, 'solo_solar': True},
+        'email_nicho': 'energia',
+        'max_pueblos': 40,
+        'objetivo_email': 200,       # se para (y deja PAUSA) cuando email_prospectos «energia» llega a este número
+    },
     # Nicho B por email: operadores locales de internet (fibra/radio) de pueblos y comarcas
     'fibra': {
         'sector': 'Operador local de telecomunicaciones',
@@ -120,7 +132,7 @@ def provincia(nicho: str, prov: str) -> Path | None:
         cands = json.loads(bruto.read_text(encoding='utf-8'))
         print(f'  {len(cands)} resultados de Maps guardados de antes')
     else:
-        cap, pueblos = zonas(prov)
+        cap, pueblos = zonas(prov, cfg.get('max_pueblos', 30))
         print(f'  capital en 9 zonas + {len(pueblos)} municipios')
         cands = google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=cap, paso_km=3.0, zoom=14)
         vistos = {c['empresa'] + c['telefono'] for c in cands}
@@ -207,6 +219,17 @@ def unir(nicho: str) -> None:
         print(f'  {p}: {t} ({mv} con móvil)')
 
 
+def cuenta_email(nicho: str) -> int:
+    """Empresas pendientes en la lista de email de ese nicho (solo en el servidor; en el PC devuelve 0)."""
+    import subprocess
+    db = Path.home() / 'domains' / 'pebaisystems.es' / 'private' / 'leads.sqlite'
+    if not db.exists():
+        return 0
+    r = subprocess.run(['sqlite3', str(db), f"SELECT COUNT(*) FROM email_prospectos WHERE nicho = '{nicho}' AND estado = 'pendiente';"],
+                       capture_output=True, text=True, timeout=60)
+    return int((r.stdout or '0').strip() or 0)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('nicho', choices=NICHOS)
@@ -226,6 +249,15 @@ def main():
             try:
                 provincia(a.nicho, p)
                 hechas += 1
+                objetivo = NICHOS[a.nicho].get('objetivo_email')
+                if objetivo and p in pendientes:
+                    n = cuenta_email(NICHOS[a.nicho]['email_nicho'])
+                    print(f'  lista de email «{NICHOS[a.nicho]["email_nicho"]}»: {n} de {objetivo}')
+                    if n >= objetivo:
+                        (Path.home() / 'prospeccion' / 'PAUSA').touch()   # objetivo cumplido: queda en pausa hasta nueva orden
+                        apunta(f'Parado: objetivo cumplido ({n} empresas en la lista de email)',
+                               f'La tanda {a.nicho} se para al llegar a {objetivo} en email_prospectos «{NICHOS[a.nicho]["email_nicho"]}».', f'{a.nicho}_fin', tipo='espera')
+                        break
             except Exception as e:   # una provincia que falla no para la tanda; queda apuntado y se reintenta en la siguiente
                 print(f'  ⚠ {p} falló: {type(e).__name__}: {e}')
                 apunta(f'Tanda {a.nicho}: {p} falló', f'{type(e).__name__}: {e}', f'{a.nicho}_{p}', tipo='error')

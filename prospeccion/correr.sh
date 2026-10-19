@@ -8,5 +8,7 @@ cd "$HOME/prospeccion" || exit 1
 export AGENT_TOKEN=$(grep '^AGENT_TOKEN=' "$HOME/agente-whatsapp/.env" | cut -d= -f2)
 export PYTHONIOENCODING=utf-8
 NICHO="${1:-energia}"
+# Tanda activa (la deja quien la lanza): el cron siempre pasa «energia», pero se retoma la que esté en curso
+[ -f "$HOME/prospeccion/NICHO_ACTIVO" ] && NICHO=$(cat "$HOME/prospeccion/NICHO_ACTIVO")
 mkdir -p "$HOME/scratch/prospeccion"
 exec flock -n /tmp/pebai-prospeccion.lock .venv/bin/python -u -m prospeccion.tanda "$NICHO" >> "$HOME/scratch/prospeccion/tanda_$NICHO.log" 2>&1
