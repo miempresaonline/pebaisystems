@@ -386,6 +386,8 @@ def guarda(nombre: str, cands: list[dict], limite: int) -> None:
     escribe('', todas)
     escribe('_whatsapp', [r for r in todas if r['telefono']])
     escribe('_email', [r for r in todas if r['email']])
+    # Canal por empresa (regla de Daniel, 19/10): con móvil → WhatsApp; sin móvil pero con email → email. Nunca las dos.
+    escribe('_solo_email', [r for r in todas if r['email'] and not r['telefono']])
     escribe('_llamadas', [r for r in todas if r['telefono_fijo'] and not r['telefono']])
     n = len(todas)
     print(f'\n== {nombre}: {len(cands)} candidatos → {n} entregados')

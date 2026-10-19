@@ -26,6 +26,7 @@ NICHOS = {
                       'energía solar fotovoltaica empresa'],
         'palabras': 'placas solares fotovoltaica autoconsumo paneles solar renovables energía',
         'reglas': {'requiere_hace': True, 'sin_autonomos': True, 'dedicacion': True, 'solo_activas': True, 'solo_solar': True},
+        'email_nicho': 'energia',   # las válidas sin móvil y con email van a email_prospectos con este nicho
     },
     # Nicho B por email: operadores locales de internet (fibra/radio) de pueblos y comarcas
     'fibra': {
@@ -159,9 +160,16 @@ def importar_panel(csv_whatsapp: Path, lote: str, cfg: dict) -> None:
     script = Path(__file__).resolve().parent.parent / 'importar_panel.php'
     if not (Path.home() / 'domains' / 'pebaisystems.es').exists() or not script.exists():
         return
+    # Solo llega al panel lo válido: estos CSV ya son las entregadas; las descartadas se quedan en el CSV maestro y el log del servidor
     r = subprocess.run(['/usr/bin/php', str(script), str(csv_whatsapp), lote], capture_output=True, text=True, timeout=300)
     print('  importadas en el panel:', (r.stdout or r.stderr).strip()[:200])
     apunta(f'{lote}: importadas en el panel', 'Entran en la cola del agente de WhatsApp. ' + (r.stdout or r.stderr).strip()[:500], csv_whatsapp.stem)
+    solo_email = csv_whatsapp.with_name(csv_whatsapp.name.replace('_whatsapp.csv', '_solo_email.csv'))
+    if cfg.get('email_nicho') and solo_email.exists():
+        r = subprocess.run(['/usr/bin/php', str(script), str(solo_email), lote + ' (email)', 'email', cfg['email_nicho']],
+                           capture_output=True, text=True, timeout=300)
+        print('  sin móvil, a la lista de email:', (r.stdout or r.stderr).strip()[:200])
+        apunta(f'{lote}: sin móvil, a la lista de email', 'Válidas sin móvil y con email de empresa. ' + (r.stdout or r.stderr).strip()[:500], solo_email.stem)
 
 
 def unir(nicho: str) -> None:
