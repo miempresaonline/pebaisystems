@@ -129,6 +129,7 @@ if ($isCli) {
     try {
         require_once __DIR__ . '/_ia_lib.php';
         pebai_preparar_whatsapp(4);
+        pebai_preparar_email(3);
     } catch (Throwable $e) {
         pebai_log('PREPARAR WHATSAPP: ' . $e->getMessage());
     }

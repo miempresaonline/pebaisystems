@@ -189,3 +189,37 @@ function pebai_preparar_whatsapp(int $max = 3, int $colchon = 30): array
     }
     return $hecho;
 }
+
+/** Igual que pebai_preparar_whatsapp, para la lista de email de placas solares (asunto_personal y cuerpo_personal). */
+function pebai_preparar_email(int $max = 3, int $colchon = 20): array
+{
+    require_once __DIR__ . '/_agentes_lib.php';
+    $db = pebai_db();
+    $listos = (int)$db->query("SELECT COUNT(*) FROM email_prospectos WHERE estado = 'pendiente' AND nicho = 'energia' AND cuerpo_personal <> ''")->fetchColumn();
+    $hecho = ['listos' => $listos, 'escritos' => 0, 'fuera' => 0, 'fallos' => 0];
+    if ($listos >= $colchon) {
+        return $hecho;
+    }
+    $q = $db->prepare("SELECT id, empresa, ciudad, web FROM email_prospectos WHERE estado = 'pendiente' AND nicho = 'energia' AND cuerpo_personal = ''
+                       AND NOT (error LIKE '[ia_error]%' AND updated_at > ?) ORDER BY id LIMIT ?");
+    $q->execute([date('Y-m-d H:i:s', time() - 43200), $max]);
+    foreach ($q->fetchAll() as $p) {
+        $now = date('Y-m-d H:i:s');
+        $r = pebai_ia_prospecto((string)$p['empresa'], (string)$p['ciudad'], (string)$p['web'], 'email');
+        $quien = $p['empresa'] ?: ('#' . $p['id']);
+        if (isset($r['error'])) {
+            $db->prepare("UPDATE email_prospectos SET error = ?, updated_at = ? WHERE id = ?")->execute(['[ia_error] ' . $r['error'], $now, $p['id']]);
+            pebai_actividad('email', 'espera', 'Sin email para ' . $quien . ' por ahora: ' . $r['error'], '', 'em:' . $p['id']);
+            $hecho['fallos']++;
+        } elseif (!$r['encaja']) {
+            $db->prepare("UPDATE email_prospectos SET estado = 'descartado', error = ?, updated_at = ? WHERE id = ?")->execute(['[ia] ' . $r['motivo'], $now, $p['id']]);
+            pebai_actividad('email', 'bloqueo', 'Fuera de la lista ' . $quien . ': ' . $r['motivo'], '', 'em:' . $p['id']);
+            $hecho['fuera']++;
+        } else {
+            $db->prepare("UPDATE email_prospectos SET asunto_personal = ?, cuerpo_personal = ?, error = '', updated_at = ? WHERE id = ?")->execute([$r['asunto'], $r['cuerpo'], $now, $p['id']]);
+            pebai_actividad('email', 'cambio', 'Email escrito para ' . $quien . ' (basado en: «' . $r['dato'] . '»)', $r['asunto'] . "\n\n" . $r['cuerpo'], 'em:' . $p['id']);
+            $hecho['escritos']++;
+        }
+    }
+    return $hecho;
+}
