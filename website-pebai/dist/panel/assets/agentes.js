@@ -308,6 +308,8 @@ function filaProspecto(p) {
   row.append(av, who, r);
   // En revisión se ve lo que dice el scraper de ella (qué hace, tamaño, por qué está activa) para decidir
   if (p.estado === 'revision' && p.notas) row.append(el('div', 'msg', p.notas));
+  // Mensaje ya escrito (por la IA tras leer su web) que saldrá cuando le toque
+  if (p.canal === 'wa' && p.estado === 'pendiente' && p.mensaje) row.append(el('div', 'msg', '✎ Preparado: ' + p.mensaje));
   const msgs = (S.porProspecto.get(p.id) || []);
   const ult = msgs.find((m) => m.sentido === 'entra') || msgs[0];
   if (ult) { const m = el('div', 'msg' + (ult.sentido === 'entra' ? ' in' : ''), (ult.sentido === 'entra' ? '↩ ' : '→ ') + ult.texto); row.append(m); }
