@@ -142,3 +142,10 @@ $out = ['status' => 'ok', 'enviados_24h' => $enviados['24'], 'enviados_1h' => $e
 if (!$isTick) {
     echo $isCli ? json_encode($out) . "\n" : json_encode($out);
 }
+
+// Motor del agente de email, colgado de este mismo cron (cada 15 min), porque no se puede crear otra tarea en hPanel.
+// Va al final: email-cron.php puede terminar el script si otra vuelta del email está en marcha.
+if ($isCli) {
+    echo "\n";
+    include __DIR__ . '/email-cron.php';
+}
