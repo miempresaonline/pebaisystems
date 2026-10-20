@@ -175,6 +175,8 @@ function fila(p) {
   if (p.error) meta.append(el('span', 'sep', '·'), el('span', 'err', p.error));
   who.append(emp, meta);
   if (p.motivo) who.append(el('div', 'pe-motivo', '«' + p.motivo + '»'));
+  // Texto escrito a mano para esta empresa (sale tal cual; la vista previa muestra el email completo con firma)
+  if (p.cuerpo_personal) { const d = el('details', 'pe-personal'); d.append(el('summary', null, '✍ Texto personal' + (p.asunto_personal ? ' · ' + p.asunto_personal : '') + (p.cuerpo_recordatorio ? ' · con recordatorio' : ' · sin recordatorio')), el('pre', 'pe-pre', p.cuerpo_personal)); who.append(d); }
   const ult = (S.porP.get(p.id) || []).find((m) => m.sentido === 'entra'); if (ult) who.append(el('div', 'pe-resp', '↩ ' + ult.texto));
   const der = el('div', 'r'); der.append(badge(p.estado), el('span', 'age', p.respondido_at ? 'Respondió ' + hace(parse(p.respondido_at)) : p.enviado1_at ? 'Escrito ' + hace(parse(p.enviado1_at)) : 'Añadido ' + hace(parse(p.created_at))));
   const acts = el('div', 'pe-acts');

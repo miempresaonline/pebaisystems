@@ -157,7 +157,8 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
 if ($auth && $db && isset($_GET['email'])) {
     $edb = pebai_email_db();
     $pros = $edb->query('SELECT id, created_at, updated_at, empresa, nombre, email, dominio, tipo_email, origen_email, telefono, sector, nicho, ciudad, web, senal, motivo,
-                         motivo_fuente, motivo_fecha, motivo_caduca, prioridad, lote, estado, paso, asunto, enviado1_at, enviado2_at, respondido_at, error
+                         motivo_fuente, motivo_fecha, motivo_caduca, prioridad, lote, estado, paso, asunto, enviado1_at, enviado2_at, respondido_at, error,
+                         asunto_personal, cuerpo_personal, asunto_recordatorio, cuerpo_recordatorio
                          FROM email_prospectos ORDER BY id DESC LIMIT 5000')->fetchAll();
     foreach ($pros as &$p) {
         $p['id'] = (int)$p['id'];

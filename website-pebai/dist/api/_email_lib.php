@@ -126,6 +126,13 @@ function pebai_email_db(): PDO
             token TEXT NOT NULL DEFAULT "",
             error TEXT NOT NULL DEFAULT ""
         )');
+        // Textos escritos a mano para cada empresa (20/10: el chat principal los escribe y salen tal cual, sin fichas).
+        $cols = array_column($db->query('PRAGMA table_info(email_prospectos)')->fetchAll(), 'name');
+        foreach (['asunto_personal', 'cuerpo_personal', 'asunto_recordatorio', 'cuerpo_recordatorio'] as $col) {
+            if (!in_array($col, $cols, true)) {
+                $db->exec("ALTER TABLE email_prospectos ADD COLUMN $col TEXT NOT NULL DEFAULT ''");
+            }
+        }
         $db->exec('CREATE INDEX IF NOT EXISTS idx_emailp_estado ON email_prospectos(estado, prioridad)');
         $db->exec('CREATE INDEX IF NOT EXISTS idx_emailp_dominio ON email_prospectos(dominio)');
         $db->exec('CREATE TABLE IF NOT EXISTS bajas_email (
@@ -316,6 +323,22 @@ function pebai_email_palabras(string $t): int
 
 /* ----------------------------------------------------------------- textos --- */
 
+/**
+ * Cierra un texto escrito a mano: si no ofrece dejar de escribir, se añade la salida (la exige la ley: LSSI art. 22
+ * y docs/captacion-email.md §2), y si no está firmado, se firma como Daniel · PEBAI Systems. El resto, tal cual.
+ */
+function pebai_email_firmar(string $cuerpo, bool $conSalida = true): string
+{
+    $t = trim(str_replace("\r", '', $cuerpo));
+    if ($conSalida && !preg_match('/no (te |os |le )?(vuelvo|volver[eé]|molest|escrib)|dar(te|os)? de baja|responde «?baja|si no te interesa/iu', $t)) {
+        $t .= "\n\nSi no te interesa, dímelo y no vuelvo a escribirte.";
+    }
+    if (!preg_match('/\n\s*Daniel\b[^\n]*(\n\s*PEBAI Systems)?\s*$/u', $t)) {
+        $t .= "\n\nDaniel\nPEBAI Systems";
+    }
+    return $t;
+}
+
 /** Arma asunto y cuerpo de un paso (1 = primer email, 2 = recordatorio). Devuelve null si falta la ficha del nicho. */
 function pebai_email_componer(array $p, int $paso, array $cfg): ?array
 {
@@ -325,6 +348,18 @@ function pebai_email_componer(array $p, int $paso, array $cfg): ?array
         '[empresa]' => trim($p['empresa']) ?: 'vuestra empresa',
         '[empresa_corta]' => mb_strtolower(pebai_email_empresa_corta($p['empresa'])),
     ];
+    // Texto escrito a mano para esta empresa: sale tal cual, solo se añade la salida (si falta) y la firma.
+    if ($paso === 1 && trim((string)($p['cuerpo_personal'] ?? '')) !== '') {
+        return ['asunto' => trim((string)$p['asunto_personal']) ?: mb_strtolower(pebai_email_empresa_corta($p['empresa'])),
+                'texto' => pebai_email_firmar((string)$p['cuerpo_personal']), 'personal' => true];
+    }
+    if ($paso === 2 && trim((string)($p['cuerpo_personal'] ?? '')) !== '') {
+        if (trim((string)($p['cuerpo_recordatorio'] ?? '')) === '') {
+            return null; // texto personal sin recordatorio escrito: no hay recordatorio
+        }
+        return ['asunto' => trim((string)$p['asunto_recordatorio']) ?: 'Re: ' . $p['asunto'],
+                'texto' => pebai_email_firmar((string)$p['cuerpo_recordatorio'], false), 'personal' => true];
+    }
     if ($paso === 2) {
         $rec = $cfg['recordatorio'];
         $fichaRec = $cfg['nichos'][$p['nicho']] ?? [];
@@ -438,7 +473,8 @@ function pebai_email_qa(array $p, array $msg, int $paso, bool $comprobarDns = tr
             $err[] = 'ya se escribió a otra persona de esta empresa';
         }
         $n = pebai_email_palabras($msg['texto']);
-        if ($n < 35 || $n > 95) {
+        [$min, $max] = !empty($msg['personal']) ? [15, 180] : [35, 95]; // los textos a mano tienen más margen
+        if ($n < $min || $n > $max) {
             $err[] = "longitud fuera de rango ($n palabras)";
         }
         // El nombre de la empresa no cuenta ("Ahorro Energético S.L." no es una palabra prohibida nuestra).
@@ -556,7 +592,9 @@ function pebai_email_smtp(array $b, string $to, string $asunto, string $texto, s
 function pebai_email_siguiente(array $cfg): ?array
 {
     $db = pebai_email_db();
-    $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'enviado' AND paso = 1 AND respondido_at = '' AND (no_antes = '' OR no_antes <= ?) ORDER BY enviado1_at LIMIT 30");
+    // Recordatorios: a los de texto personal solo si su recordatorio está escrito.
+    $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'enviado' AND paso = 1 AND respondido_at = '' AND (no_antes = '' OR no_antes <= ?)
+                       AND (cuerpo_personal = '' OR cuerpo_recordatorio <> '') ORDER BY enviado1_at LIMIT 30");
     $q->execute([date('Y-m-d H:i:s')]);
     foreach ($q->fetchAll() as $p) {
         if (pebai_email_mas_laborables(strtotime($p['enviado1_at']), (int)$cfg['recordatorio_dias']) <= time()) {
@@ -567,16 +605,18 @@ function pebai_email_siguiente(array $cfg): ?array
     if ((int)($cfg['tope_total'] ?? 0) > 0 && pebai_email_primeros_total() >= (int)$cfg['tope_total']) {
         return null;
     }
-    // Solo nichos con ficha lista (con vídeo o con alternativa sin vídeo): el resto de la cola espera, aunque tenga más prioridad.
+    // Candidatos: empresas con su texto escrito a mano (cuerpo_personal) o, si no, de un nicho con ficha lista.
+    // El resto de la cola espera, aunque tenga más prioridad.
     $listos = array_keys(array_filter($cfg['nichos'], static fn($f) => !empty($f['video']) || trim((string)($f['sin_video'] ?? '')) !== ''));
-    if (!$listos) {
-        return null;
-    }
+    $in = $listos ? implode(',', array_fill(0, count($listos), '?')) : "''";
     $hoyMes = (int)date('n');
-    $in = implode(',', array_fill(0, count($listos), '?'));
-    $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 AND nicho IN ($in) AND (no_antes = '' OR no_antes <= ?) ORDER BY prioridad DESC, id LIMIT 200");
+    $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 AND (cuerpo_personal <> '' OR nicho IN ($in))
+                       AND (no_antes = '' OR no_antes <= ?) ORDER BY (cuerpo_personal <> '') DESC, prioridad DESC, id LIMIT 200");
     $q->execute(array_merge($listos, [date('Y-m-d H:i:s')]));
     foreach ($q->fetchAll() as $p) {
+        if ($p['cuerpo_personal'] !== '') {
+            return [$p, 1];
+        }
         $ficha = $cfg['nichos'][$p['nicho']] ?? null;
         if (!empty($ficha['meses']) && !in_array($hoyMes, array_map('intval', $ficha['meses']), true)) {
             continue; // fuera de la temporada del nicho
@@ -655,6 +695,10 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
         }
         if ($qa) {
             $estado = in_array('tiene baja', $qa, true) || in_array('tiene baja en WhatsApp', $qa, true) ? 'baja' : 'descartado';
+            // Un texto escrito a mano con algo que corregir (palabra prohibida, longitud) no se descarta: queda en «Revisar».
+            if ($estado === 'descartado' && !empty($msg['personal']) && !array_filter($qa, static fn($x) => !preg_match('/palabra prohibida|longitud|huecos/u', $x))) {
+                $estado = 'error';
+            }
             pebai_actividad('email', 'bloqueo', 'No escribe a ' . ($p['empresa'] ?: $p['email']) . ($paso === 2 ? ' (recordatorio)' : ''),
                 $p['email'] . "\nMotivo: " . implode('; ', $qa), 'email:' . $p['id']);
             if ($paso === 2) {

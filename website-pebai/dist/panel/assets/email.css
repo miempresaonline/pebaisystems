@@ -49,3 +49,6 @@ body[data-page=email] .pb-only-embudo{display:none}
 .pe-log-i em{font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 50%,transparent);white-space:nowrap}
 .pe-log-i .pe-pre{margin:0 12px 10px;font-size:12.5px}
 @media (max-width:640px){.pe-log-i summary{grid-template-columns:auto 1fr}.pe-log-i time{grid-column:1/-1}}
+.pe-personal{margin-top:6px;font-size:12.5px}
+.pe-personal summary{cursor:pointer;color:var(--violet-2);font-weight:700}
+.pe-personal .pe-pre{margin-top:6px;font-size:12.5px}
