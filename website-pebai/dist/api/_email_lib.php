@@ -42,12 +42,16 @@ const PEBAI_EMAIL_SENALES = [
     'ninguna'  => ['Sin señal (motivo de sector)', 3650, 0],
 ];
 
-const PEBAI_EMAIL_PLANTILLA = "Hola[nombre]:\n\n[motivo]\n\n[pregunta]\n\nHe grabado un vídeo de un minuto sobre [momento]. ¿{Te lo mando|Te lo paso}?\n\nTu email lo saqué de vuestra página de contacto. Si no te interesa, dímelo y no vuelvo a escribirte.\n\nDaniel\nPEBAI Systems";
+// [oferta] = "He grabado un vídeo de un minuto sobre [momento]. ¿Te lo mando?" si el vídeo del nicho existe;
+// si no, la alternativa sin vídeo de la ficha (nunca se promete un vídeo que no está grabado).
+const PEBAI_EMAIL_OFERTA_VIDEO = 'He grabado un vídeo de un minuto sobre [momento]. ¿{Te lo mando|Te lo paso}?';
+const PEBAI_EMAIL_PLANTILLA = "Hola[nombre]:\n\n[motivo]\n\n[pregunta]\n\n[oferta]\n\nTu email lo saqué de vuestra página de contacto. Si no te interesa, dímelo y no vuelvo a escribirte.\n\nDaniel\nPEBAI Systems";
 const PEBAI_EMAIL_RECORDATORIO = "Hola[nombre]:\n\n¿Te lo mando o lo dejo aquí?\n\nDaniel";
 const PEBAI_EMAIL_ASUNTOS = ['[empresa_corta]', 'pregunta sobre [empresa_corta]'];
 
 const PEBAI_EMAIL_CONFIG = [
     'limite_max' => 50,
+    'tope_total' => 0,          // tope de primeros emails en total (prueba: 200). 0 = sin tope. Al llegar, deja de escribir a nuevos.
     'escalon' => 0,
     'escalon_desde' => '',
     'ventanas' => [['09:00', '13:30'], ['16:00', '18:30']],
@@ -173,6 +177,12 @@ function pebai_email_buzon(): ?array
 function pebai_email_limite(array $cfg): int
 {
     return min($cfg['limite_max'], PEBAI_EMAIL_ESCALONES[$cfg['escalon']]);
+}
+
+/** Primeros emails enviados desde siempre (para el tope de la prueba). */
+function pebai_email_primeros_total(): int
+{
+    return (int)pebai_email_db()->query("SELECT COUNT(*) FROM email_prospectos WHERE paso >= 1")->fetchColumn();
 }
 
 function pebai_email_enviados_hoy(): int
@@ -319,8 +329,9 @@ function pebai_email_componer(array $p, int $paso, array $cfg): ?array
         return ['asunto' => 'Re: ' . $p['asunto'], 'texto' => trim(strtr(pebai_email_spintax($cfg['recordatorio']), $vars))];
     }
     $ficha = $cfg['nichos'][$p['nicho']] ?? null;
-    if (!$ficha || empty($ficha['video'])) {
-        return null; // sin ficha o sin vídeo grabado no se promete nada
+    $oferta = !empty($ficha['video']) ? PEBAI_EMAIL_OFERTA_VIDEO : trim((string)($ficha['sin_video'] ?? ''));
+    if (!$ficha || $oferta === '') {
+        return null; // sin ficha, o sin vídeo y sin alternativa: no se promete nada
     }
     $pregunta = $cfg['preguntas_senal'][$p['senal']] ?? '';
     // La pregunta de "atención" habla del formulario: si el motivo no lo menciona (solo teléfono, 902…), va la del nicho.
@@ -334,7 +345,7 @@ function pebai_email_componer(array $p, int $paso, array $cfg): ?array
     if ($motivo === '') {
         $motivo = 'He visto ' . pebai_email_empresa_corta($p['empresa']) . ' buscando ' . mb_strtolower($ficha['nombre'] ?? $p['sector']) . ($p['ciudad'] !== '' ? ' en ' . $p['ciudad'] : '') . '.';
     }
-    $vars += ['[motivo]' => $motivo, '[pregunta]' => $pregunta, '[momento]' => $ficha['momento'] ?? '', '[producto]' => $ficha['producto'] ?? ''];
+    $vars += ['[motivo]' => $motivo, '[pregunta]' => $pregunta, '[oferta]' => $oferta, '[momento]' => $ficha['momento'] ?? '', '[producto]' => $ficha['producto'] ?? ''];
     $texto = strtr($cfg['plantilla'], $vars);
     $texto = strtr($texto, $vars); // la pregunta puede traer [producto]/[momento]
     $asuntos = array_values($cfg['asuntos']) ?: PEBAI_EMAIL_ASUNTOS;
@@ -547,14 +558,21 @@ function pebai_email_siguiente(array $cfg): ?array
             return [$p, 2];
         }
     }
+    // Tope de la prueba: al llegar a N primeros emails ya no se escribe a nadie nuevo (los recordatorios siguen).
+    if ((int)($cfg['tope_total'] ?? 0) > 0 && pebai_email_primeros_total() >= (int)$cfg['tope_total']) {
+        return null;
+    }
+    // Solo nichos con ficha lista (con vídeo o con alternativa sin vídeo): el resto de la cola espera, aunque tenga más prioridad.
+    $listos = array_keys(array_filter($cfg['nichos'], static fn($f) => !empty($f['video']) || trim((string)($f['sin_video'] ?? '')) !== ''));
+    if (!$listos) {
+        return null;
+    }
     $hoyMes = (int)date('n');
-    $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 AND (no_antes = '' OR no_antes <= ?) ORDER BY prioridad DESC, id LIMIT 200");
-    $q->execute([date('Y-m-d H:i:s')]);
+    $in = implode(',', array_fill(0, count($listos), '?'));
+    $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 AND nicho IN ($in) AND (no_antes = '' OR no_antes <= ?) ORDER BY prioridad DESC, id LIMIT 200");
+    $q->execute(array_merge($listos, [date('Y-m-d H:i:s')]));
     foreach ($q->fetchAll() as $p) {
         $ficha = $cfg['nichos'][$p['nicho']] ?? null;
-        if (!$ficha || empty($ficha['video'])) {
-            continue;
-        }
         if (!empty($ficha['meses']) && !in_array($hoyMes, array_map('intval', $ficha['meses']), true)) {
             continue; // fuera de la temporada del nicho
         }
@@ -613,7 +631,10 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
     for ($intento = 0; $intento < 5; $intento++) {
         $sig = pebai_email_siguiente($cfg);
         if (!$sig) {
-            return pebai_email_espera('sin prospectos listos (faltan prospectos, fichas de nicho o vídeos)', 'No envía: no hay empresas listas (faltan prospectos, la ficha del nicho o su vídeo)');
+            if ((int)($cfg['tope_total'] ?? 0) > 0 && pebai_email_primeros_total() >= (int)$cfg['tope_total']) {
+                return pebai_email_espera('tope de la prueba alcanzado', 'Prueba completada: ' . (int)$cfg['tope_total'] . ' primeros emails enviados. Ya no escribe a nadie nuevo (los recordatorios siguen)');
+            }
+            return pebai_email_espera('sin prospectos listos (faltan prospectos, fichas de nicho o vídeos)', 'No envía: no hay empresas listas (faltan prospectos o la ficha del nicho)');
         }
         [$p, $paso] = $sig;
         $msg = pebai_email_componer($p, $paso, $cfg);

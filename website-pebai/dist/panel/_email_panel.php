@@ -106,11 +106,11 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
                 json_out(['ok' => false, 'error' => 'Pon un identificador corto del nicho (p. ej. reformas).'], 400);
             }
             $ficha = [];
-            foreach (['nombre' => 80, 'producto' => 120, 'momento' => 200, 'pregunta' => 300] as $k => $max) {
+            foreach (['nombre' => 80, 'producto' => 120, 'momento' => 200, 'pregunta' => 300, 'sin_video' => 300] as $k => $max) {
                 $ficha[$k] = mb_substr(trim((string)($_POST[$k] ?? '')), 0, $max);
             }
-            if ($ficha['momento'] === '' || $ficha['pregunta'] === '') {
-                json_out(['ok' => false, 'error' => 'El momento y la pregunta del nicho son obligatorios.'], 400);
+            if ($ficha['pregunta'] === '' || ($ficha['momento'] === '' && $ficha['sin_video'] === '')) {
+                json_out(['ok' => false, 'error' => 'La pregunta es obligatoria, y hace falta el momento del vídeo o la alternativa sin vídeo.'], 400);
             }
             $plano = ' ' . mb_strtolower(implode(' ', $ficha)) . ' ';
             foreach (PEBAI_EMAIL_PROHIBIDAS as $w) {

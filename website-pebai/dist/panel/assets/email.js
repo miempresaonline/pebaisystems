@@ -127,7 +127,7 @@ function tarjetaNichos() {
   Object.entries(nichos).forEach(([slug, f]) => {
     const r = el('div', 'pe-nicho');
     const t = el('div'); t.append(el('b', null, `${f.nombre || slug} (${slug})`), el('div', 'muted', `Momento: ${f.momento}`), el('div', 'muted', `Pregunta: ${f.pregunta}`),
-      el('div', 'muted', `Meses: ${(f.meses || []).length ? f.meses.join(', ') : 'todo el año'} · Vídeo: ${f.video ? 'grabado ✓' : 'falta'}`));
+      el('div', 'muted', `Meses: ${(f.meses || []).length ? f.meses.join(', ') : 'todo el año'} · Vídeo: ${f.video ? 'grabado ✓ (usa la frase del vídeo)' : (f.sin_video ? 'falta: usa la alternativa sin vídeo' : 'falta: no envía')}`), f.sin_video ? el('div', 'muted', `Sin vídeo: ${f.sin_video}`) : '');
     const acts = el('div', 'pe-acts');
     acts.append(btn('ghost', 'Editar', () => rellenar(slug, f)), btn('danger', 'Borrar', (e) => { if (confirm('¿Borrar la ficha de ' + slug + '?')) accion('email_nicho_borrar', { slug }, 'Ficha borrada.', e.currentTarget); }));
     r.append(t, acts); list.append(r);
@@ -140,9 +140,10 @@ function tarjetaNichos() {
     field('Producto (con sus palabras)', input('producto', '', { placeholder: 'reformas integrales' })),
     field('Momento: de qué trata el vídeo (completa «He grabado un vídeo de un minuto sobre…»)', input('momento', '', { placeholder: 'lo que pasa con una petición de presupuesto que llega mientras estáis en obra' })),
     field('Pregunta del nicho (se contesta con una palabra o un número)', input('pregunta', '', { placeholder: 'Cuando estáis en obra, ¿cuánto soléis tardar en contestar un presupuesto?' })),
+    field('Alternativa sin vídeo (se usa mientras el vídeo no esté grabado)', input('sin_video', '', { placeholder: 'Si te sirve, te cuento por aquí cómo lo están resolviendo otras instaladoras de placas. ¿Te lo cuento?' })),
     field('Meses en los que se escribe (vacío = todo el año)', input('meses', '', { placeholder: '1,2,3,9,10,11' })), vl);
   const b = btn('primary', 'Guardar ficha'); b.type = 'submit'; f.append(b);
-  const rellenar = (slug, x) => { f.slug.value = slug; f.nombre.value = x.nombre || ''; f.producto.value = x.producto || ''; f.momento.value = x.momento || ''; f.pregunta.value = x.pregunta || ''; f.meses.value = (x.meses || []).join(','); v.checked = !!x.video; d.open = true; f.scrollIntoView({ block: 'nearest' }); };
+  const rellenar = (slug, x) => { f.slug.value = slug; f.nombre.value = x.nombre || ''; f.producto.value = x.producto || ''; f.momento.value = x.momento || ''; f.pregunta.value = x.pregunta || ''; f.sin_video.value = x.sin_video || ''; f.meses.value = (x.meses || []).join(','); v.checked = !!x.video; d.open = true; f.scrollIntoView({ block: 'nearest' }); };
   f.addEventListener('submit', (e) => { e.preventDefault(); const fd = new FormData(f); fd.set('video', v.checked ? '1' : '0'); accion('email_nicho', fd, 'Ficha guardada.', b); });
   d.append(list, f); return d;
 }
