@@ -124,6 +124,15 @@ try {
 } catch (Throwable $e) {
     pebai_log('VIGILAR AGENTES: ' . $e->getMessage());
 }
+// Y deja escritos los próximos mensajes de WhatsApp (la IA lee la web de cada empresa). Solo en el cron, no con las visitas.
+if ($isCli) {
+    try {
+        require_once __DIR__ . '/_ia_lib.php';
+        pebai_preparar_whatsapp(4);
+    } catch (Throwable $e) {
+        pebai_log('PREPARAR WHATSAPP: ' . $e->getMessage());
+    }
+}
 
 $out = ['status' => 'ok', 'enviados_24h' => $enviados['24'], 'enviados_1h' => $enviados['1'], 'sesiones_auto' => $sesiones, 'errores' => $errores];
 // Última ejecución de cada vía (cron de hPanel, GitHub/URL o visitas) para comprobar que funcionan
