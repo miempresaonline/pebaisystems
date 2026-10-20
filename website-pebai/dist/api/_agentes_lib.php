@@ -121,6 +121,10 @@ function pebai_agentes_db(): PDO
         if (!in_array('prioridad', $colsP, true)) {
             $db->exec('ALTER TABLE prospectos ADD COLUMN prioridad INTEGER NOT NULL DEFAULT 0');
         }
+        // Mensaje escrito a mano para cada empresa (decisión de Daniel, 20/10/2026): el agente lo envía tal cual, sin plantillas
+        if (!in_array('mensaje', $colsP, true)) {
+            $db->exec("ALTER TABLE prospectos ADD COLUMN mensaje TEXT NOT NULL DEFAULT ''");
+        }
         $ready = true;
     }
     return $db;

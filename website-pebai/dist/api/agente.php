@@ -78,7 +78,8 @@ switch ($in['accion'] ?? '') {
         }
         $embudo = pebai_telefonos_embudo();
         $p = null;
-        foreach ($db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY prioridad DESC, id LIMIT 50") as $c) {
+        // Solo empresas con su mensaje personal ya escrito: nunca se envía una plantilla genérica
+        foreach ($db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND mensaje <> '' AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY prioridad DESC, id LIMIT 50") as $c) {
             if (isset($embudo[$c['telefono']])) {
                 $db->prepare("UPDATE prospectos SET estado = 'descartado', error = 'Ya es solicitud del embudo', updated_at = ? WHERE id = ?")->execute([$now, $c['id']]);
                 pebai_actividad('whatsapp', 'bloqueo', 'No se escribe a ' . ($c['empresa'] ?: $c['telefono']) . ': ya es solicitud del embudo', '', 'wa:' . $c['id']);
@@ -88,12 +89,12 @@ switch ($in['accion'] ?? '') {
             break;
         }
         if (!$p) {
-            pebai_actividad_espera('whatsapp', 'Sin prospectos en cola: no hay a quién escribir');
+            pebai_actividad_espera('whatsapp', 'Sin mensajes escritos en cola: no hay a quién escribir');
             out(['ok' => true, 'esperar' => 1800, 'motivo' => 'sin_prospectos']);
         }
-        // Mensaje del nicho del prospecto, repartiendo las variantes a partes iguales para medir cuál funciona
-        [$plantilla, $tpl] = pebai_wa_plantilla(pebai_wa_nicho($p, $cfg['nichos']), $cfg['nichos']);
-        $texto = pebai_wa_render($tpl, $p);
+        // El mensaje es el escrito para esta empresa, tal cual
+        $plantilla = 'personal';
+        $texto = trim((string)$p['mensaje']);
         $db->prepare("UPDATE prospectos SET estado = 'enviando', enviando_at = ?, plantilla = ?, updated_at = ? WHERE id = ? AND estado = 'pendiente'")->execute([$now, $plantilla, $now, $p['id']]);
         out(['ok' => true, 'prospecto' => ['id' => (int)$p['id'], 'telefono' => $p['telefono'], 'empresa' => $p['empresa']], 'texto' => $texto]);
 
