@@ -326,7 +326,12 @@ function pebai_email_componer(array $p, int $paso, array $cfg): ?array
         '[empresa_corta]' => mb_strtolower(pebai_email_empresa_corta($p['empresa'])),
     ];
     if ($paso === 2) {
-        return ['asunto' => 'Re: ' . $p['asunto'], 'texto' => trim(strtr(pebai_email_spintax($cfg['recordatorio']), $vars))];
+        $rec = $cfg['recordatorio'];
+        $fichaRec = $cfg['nichos'][$p['nicho']] ?? [];
+        if (empty($fichaRec['video'])) {
+            $rec = str_replace(['¿Te lo mando', '¿te lo mando'], ['¿Te lo cuento', '¿te lo cuento'], $rec); // sin vídeo no hay nada que «mandar»
+        }
+        return ['asunto' => 'Re: ' . $p['asunto'], 'texto' => trim(strtr(pebai_email_spintax($rec), $vars))];
     }
     $ficha = $cfg['nichos'][$p['nicho']] ?? null;
     $oferta = !empty($ficha['video']) ? PEBAI_EMAIL_OFERTA_VIDEO : trim((string)($ficha['sin_video'] ?? ''));
