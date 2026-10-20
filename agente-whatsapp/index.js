@@ -24,6 +24,7 @@ for (const line of (fs.existsSync(path.join(DIR, '.env')) ? fs.readFileSync(path
 const PANEL_API = process.env.PANEL_API || 'https://pebaisystems.es/api/agente.php';
 const TOKEN = process.env.AGENT_TOKEN || '';
 const NUMERO = (process.env.WA_NUMERO || '').replace(/\D/g, '');
+const VINCULO = (process.env.WA_VINCULO || 'qr').toLowerCase();
 const SESION = path.join(DIR, 'sesion');
 const CONTACTADOS_FILE = path.join(DIR, 'contactados.json');
 if (!TOKEN || !NUMERO) {
@@ -98,8 +99,16 @@ async function conectar() {
   sock.ev.on('creds.update', saveCreds);
 
   sock.ev.on('connection.update', async ({ connection, lastDisconnect, qr }) => {
-    // Sin sesión: en vez de QR se pide un código de 8 letras que se escribe en el móvil (se ve en el panel).
-    if (qr && !sock.authState.creds.registered && !pedido) {
+    // Sin sesión: se vincula escaneando un QR que sale en el panel (WA_VINCULO=qr, por defecto).
+    // El código de 8 letras (WA_VINCULO=codigo) falla en Baileys 7.0.0-rc14 al confirmar ("Invalid buffer"), por eso el QR.
+    if (qr && !sock.authState.creds.registered && VINCULO === 'qr') {
+      if (!pedido) { pedido = true; intentosVinculo++; }
+      codigo = 'QR:' + qr;   // el QR cambia cada ~20 s: se manda cada vez
+      estado = 'esperando_vinculo';
+      detalle = 'QR de vinculación listo';
+      log('QR de vinculación nuevo');
+      await latido();
+    } else if (qr && !sock.authState.creds.registered && !pedido) {
       pedido = true;
       intentosVinculo++;
       try {

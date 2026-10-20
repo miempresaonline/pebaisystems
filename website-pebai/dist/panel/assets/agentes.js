@@ -366,7 +366,17 @@ function drawAgentes() {
   top.append(tile, info, ring, acts);
   card.append(top);
 
-  if (w.estado === 'esperando_vinculo' && w.codigo) {
+  if (w.estado === 'esperando_vinculo' && String(w.codigo || '').startsWith('QR:')) {
+    // Vinculación por QR: se escanea desde el móvil. El QR cambia cada ~20 s; el panel se refresca solo cada pocos segundos.
+    const pair = el('div', 'pb-pair');
+    pair.append(el('h3', null, 'Escanea este QR con el WhatsApp del móvil'), el('p', null, 'Solo hace falta una vez. El QR se renueva solo cada pocos segundos: si falla, espera al siguiente.'));
+    const caja = el('div', 'pb-qrbox'); caja.style.cssText = 'background:#fff;padding:14px;border-radius:14px;display:inline-block;line-height:0';
+    const pinta = () => { caja.textContent = ''; new window.QRCode(caja, { text: String(w.codigo).slice(3), width: 260, height: 260, correctLevel: window.QRCode.CorrectLevel.L }); };
+    if (window.QRCode) pinta();
+    else { const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'; sc.onload = pinta; document.head.append(sc); }
+    const ol = el('ol'); ['Abre WhatsApp Business en el móvil → Ajustes → Dispositivos vinculados.', 'Pulsa «Vincular un dispositivo» y apunta la cámara a este QR.', 'En unos segundos este panel pasará a «Conectado».'].forEach((t) => ol.append(el('li', null, t)));
+    pair.append(caja, ol); card.append(pair);
+  } else if (w.estado === 'esperando_vinculo' && w.codigo) {
     const pair = el('div', 'pb-pair');
     pair.append(el('h3', null, 'Vincula tu WhatsApp con este código'), el('p', null, 'Solo hace falta una vez. El código caduca en unos minutos; si pasa, aparece uno nuevo aquí solo.'));
     const code = el('div', 'pb-code'); const c = String(w.codigo).replace(/[^A-Z0-9]/gi, '').toUpperCase();
@@ -526,7 +536,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) refr
 let ultimo = 0;
 setInterval(() => {
   const rapido = S.whatsapp && S.whatsapp.estado === 'esperando_vinculo' && pagina() === 'agentes';
-  if (!document.hidden && Date.now() - ultimo >= (rapido ? 8000 : 60000)) { ultimo = Date.now(); refrescar(); }
+  if (!document.hidden && Date.now() - ultimo >= (rapido ? 4000 : 60000)) { ultimo = Date.now(); refrescar(); }
 }, 4000);
 crumb(pagina());
 refrescar();

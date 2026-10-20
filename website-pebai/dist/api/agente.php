@@ -36,9 +36,9 @@ switch ($in['accion'] ?? '') {
         $estado = preg_replace('/[^a-z_]/', '', (string)($in['estado'] ?? ''));
         $antes = pebai_agente('whatsapp');
         $db->prepare('UPDATE agente_estado SET latido_at = ?, estado = ?, detalle = ?, codigo = ? WHERE agente = ?')
-           ->execute([$now, $estado, mb_substr((string)($in['detalle'] ?? ''), 0, 500), mb_substr((string)($in['codigo'] ?? ''), 0, 20), 'whatsapp']);
+           ->execute([$now, $estado, mb_substr((string)($in['detalle'] ?? ''), 0, 500), mb_substr((string)($in['codigo'] ?? ''), 0, 1200), 'whatsapp']);
         if ($estado !== $antes['estado']) {
-            $hitos = ['conectado' => 'Conectado a WhatsApp', 'esperando_vinculo' => 'Esperando a que se vincule el WhatsApp (código en el panel)',
+            $hitos = ['conectado' => 'Conectado a WhatsApp', 'esperando_vinculo' => 'Esperando a que se vincule el WhatsApp (QR en el panel)',
                       'desvinculado' => 'WhatsApp ha cerrado la sesión', 'reconectando' => 'Conexión perdida: reconectando'];
             pebai_actividad('whatsapp', $estado === 'desvinculado' ? 'error' : 'hito', $hitos[$estado] ?? ('Estado: ' . $estado), (string)($in['detalle'] ?? ''));
         }
