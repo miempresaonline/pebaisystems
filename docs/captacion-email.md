@@ -181,6 +181,53 @@ Decidido el 15/10/2026 por el chat de WhatsApp y el principal: el **nicho 2 va p
 2. **El abogado debe confirmar la frase de la ley en telecomunicaciones**: ahí manda su normativa sectorial y la Ley 10/2025 se aplica de forma supletoria. En luz la obligación es directa.
 3. **Fecha límite cercana:** para que tenga sentido hay que escribir en octubre y noviembre. Con la subida de 10 a 50 al día, el buzón del frío y el vídeo tienen que estar listos cuanto antes.
 
+### 4.6 Prueba de 200 emails: instaladores de placas solares (nicho `energia`)
+
+Decidido el 20/10/2026 (OK de Daniel en el chat principal):
+
+- **Alcance:** 200 emails, solo empresas de placas solares **sin móvil** (las que tienen móvil van por WhatsApp). Luz y cooperativas no entran.
+- **Ritmo:** 10 al día la primera semana y 20 la segunda, con los frenos de siempre. Tope de 200 primeros emails (`tope_total`); al llegar, ya no se escribe a nadie nuevo.
+- **Estado:** el agente sigue **en pausa**. No sale nada hasta que Daniel lo diga en el chat principal. La ficha no se guarda hasta que la apruebe.
+
+**Ficha `energia` (borrador):**
+
+| Campo | Texto |
+|---|---|
+| Nombre | Instaladores de placas solares |
+| Producto | placas solares |
+| Momento del vídeo | lo que pasa con una petición de presupuesto de placas que entra un sábado |
+| Pregunta del nicho | Cuando os entra una petición de presupuesto de placas en fin de semana, ¿la llamáis ese día o el lunes? |
+| Alternativa sin vídeo | Si te sirve, te cuento por aquí cómo lo están resolviendo otras instaladoras de placas. ¿Te lo cuento? |
+| Meses | todo el año |
+
+**Email sin vídeo** (el que saldría hoy). Enviado en la prueba de bandeja: 74 palabras.
+
+> Asunto: sol alicante
+>
+> Hola:
+>
+> He visto que fuera de horario la única forma de contactar con vosotros es un formulario o el teléfono.
+>
+> Si alguien lo rellena a las diez de la noche, ¿cuándo le contesta alguien?
+>
+> Si te sirve, te cuento por aquí cómo lo están resolviendo otras instaladoras de placas. ¿Te lo cuento?
+>
+> Tu email lo saqué de vuestra página de contacto. Si no te interesa, dímelo y no vuelvo a escribirte.
+>
+> Daniel
+> PEBAI Systems
+
+**Con vídeo**, cambia solo la tercera frase: *He grabado un vídeo de un minuto sobre lo que pasa con una petición de presupuesto de placas que entra un sábado. ¿Te lo mando?*
+
+**Variantes según el motivo** (vienen del scraper):
+
+- Solo teléfono: la pregunta pasa a ser la del nicho («Cuando os entra una petición de presupuesto de placas en fin de semana…»).
+- Sin motivo (42 de las 200): el motivo pasa a ser «He visto [empresa] buscando instaladores de placas solares en [ciudad]».
+
+**Recordatorio** (3 días laborables después, en el mismo hilo): «¿Te lo cuento o lo dejo aquí?» sin vídeo, o «¿Te lo mando o lo dejo aquí?» con vídeo.
+
+**Prueba de bandeja del 20/10:** enviado desde `daniel@pebaisystems.es` a `equipo@` y a `daniel@`. Llega a la **bandeja de entrada** en los dos, con SPF, DKIM y DMARC en «pass». Falta probar contra Gmail y Outlook, porque es entrega dentro de Hostinger.
+
 ## 5. Cuando contestan: predicar con el ejemplo
 
 Vendemos que ningún cliente se quede sin respuesta. **Así que nosotros contestamos en minutos.**
