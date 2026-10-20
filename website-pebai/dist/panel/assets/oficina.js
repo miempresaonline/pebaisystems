@@ -95,6 +95,13 @@ function horaHud() { const sg = Math.round((Date.now() - (S.cargado || Date.now(
 setInterval(horaHud, 10000);
 
 const q = (t, cuerpo) => `<div class="pb-of-q"><h4>${t}</h4>${cuerpo}</div>`;
+/* QR de vinculación de WhatsApp: se dibuja con qrcodejs (cdnjs) tras pintar el lateral */
+function pintaQRs() {
+  const cajas = Array.from(document.querySelectorAll('.pb-of-qr[data-qr]')); if (!cajas.length) return;
+  const dibuja = () => cajas.forEach((c) => { c.textContent = ''; new window.QRCode(c, { text: c.dataset.qr, width: 240, height: 240, correctLevel: window.QRCode.CorrectLevel.L }); });
+  if (window.QRCode) return dibuja();
+  const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'; sc.onload = dibuja; document.head.append(sc);
+}
 function abrirAgente(id) {
   const a = ag(id); if (!a) return;
   const d = DEPTS.find((x) => x.id === a.dept); enfocarAgente(a.id);
@@ -105,7 +112,8 @@ function abrirAgente(id) {
     + `<div class="k">${esc(d.nombre)}</div><h2>${tileHtml(a)}${esc(a.nombre)}</h2><div class="rol">${esc(a.rol || '')}</div>
     <div class="pb-of-state" style="--c:${c}"><i></i><div><b>${txt}</b><span>${esc(a.motivo)}</span></div></div>
     <div class="pb-of-acts" id="pb-of-acts"></div>
-    ${a.codigo ? `<div class="pb-of-code"><small>Código para vincular WhatsApp</small><b>${esc(String(a.codigo).replace(/[^A-Z0-9]/gi, '').toUpperCase().replace(/(.{4})(?=.)/g, '$1-'))}</b><span>En el móvil: WhatsApp › Dispositivos vinculados › Vincular con el número de teléfono.</span></div>` : ''}
+    ${a.codigo && String(a.codigo).startsWith('QR:') ? `<div class="pb-of-code"><small>Escanea este QR con WhatsApp</small><div class="pb-of-qr" data-qr="${esc(String(a.codigo).slice(3))}" style="background:#fff;padding:12px;border-radius:12px;display:inline-block;line-height:0;margin:8px 0"></div><span>En el móvil: WhatsApp › Dispositivos vinculados › Vincular un dispositivo, y apunta la cámara aquí. Se renueva solo cada pocos segundos.</span></div>` : ''}
+    ${a.codigo && !String(a.codigo).startsWith('QR:') ? `<div class="pb-of-code"><small>Código para vincular WhatsApp</small><b>${esc(String(a.codigo).replace(/[^A-Z0-9]/gi, '').toUpperCase().replace(/(.{4})(?=.)/g, '$1-'))}</b><span>En el móvil: WhatsApp › Dispositivos vinculados › Vincular con el número de teléfono.</span></div>` : ''}
     <div class="pb-of-qa">
     ${q('Hoy', `<p><b class="big">${N(a.hoy)}</b> ${esc(a.unidad)}${a.cupo ? ` de ${a.cupo} posibles` : ''}</p>${a.cupo ? `<div class="bar" style="--c:${d.color}"><i data-w="${pct}%"></i></div>` : ''}`)}
     ${q('Lo último que hizo', a.ultima ? `<p>${esc(a.ultima.txt)}</p><p class="sub">${esc(a.ultima.hace)}</p>` : '<p>Todavía no ha hecho nada.</p>')}
@@ -123,6 +131,7 @@ function abrirAgente(id) {
   if (A.ir) boton('ghost', A.ir === 'email' ? 'Ver su lista de empresas' : 'Ver las empresas', () => { const b = document.querySelector(`#pb-tabs button[data-page="${A.ir}"]`); if (b) b.click(); });
   if (!acts.childElementCount) acts.remove();
   sideIn.querySelectorAll('.pb-of-nav button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); vecino(+b.dataset.d); }; });
+  pintaQRs();
   const more = $('#pb-of-more'); if (more) more.onclick = (e) => { e.stopPropagation(); S.verTodo = !S.verTodo; abrirAgente(a.id); };
   mostrar();
 }
@@ -1056,5 +1065,7 @@ const alEntrar = () => { if (enPagina()) refrescar(); };
 document.addEventListener('pb:page', alEntrar);
 document.addEventListener('pb:agview', alEntrar);
 setInterval(() => { if (!document.hidden && enPagina() && !side.classList.contains('on')) refrescar(); }, 60000);
+// Mientras se ve un QR de vinculación (caduca a los ~20 s), refrescar cada 5 s para que siempre esté vigente
+setInterval(() => { if (!document.hidden && enPagina() && side.classList.contains('on') && document.querySelector('.pb-of-qr')) refrescar(); }, 5000);
 alEntrar();
 }
