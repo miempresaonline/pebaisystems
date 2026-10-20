@@ -82,6 +82,17 @@ function of_whatsapp(): array
     $a['cupo'] = (int)($cfg['limite_dia'] ?? 0) ?: null;
     $a['actividad'] = of_actividad('whatsapp');
     $a['errores'] = of_errores($a['actividad']);
+    // Un error ya superado no cuenta: si después volvió a conectarse, el cartel no sigue en rojo 24 h
+    if ($e['estado'] === 'conectado') {
+        $reconexion = '';
+        foreach ($a['actividad'] as $ev) {
+            if ($ev['txt'] === 'Conectado a WhatsApp') {
+                $reconexion = $ev['ts'];
+                break;
+            }
+        }
+        $a['errores'] = array_values(array_filter($a['errores'], static fn($ev) => $ev['ts'] > $reconexion));
+    }
     $v = pebai_wa_ventana();
     $latido = $e['latido_at'] !== '' ? strtotime($e['latido_at']) : 0;
     $cola = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente'")->fetchColumn();
