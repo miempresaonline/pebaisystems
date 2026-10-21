@@ -12,7 +12,7 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 - [ ] 2026-10-21 · Revisar /posicionamiento-en-ia/ cuando Search Console empiece a dar datos · (plan)
 
 ## geo_local · Local
-- [ ] 2026-10-21 · Cerrar las tareas de comprobación de Localo y seguir posiciones · (plan)
+- [x] 2026-10-21 · Cerrar las tareas de comprobación de Localo y seguir posiciones · (plan)
 
 ## geo_redes · Redes
 - [ ] 2026-10-21 · Preparar propuestas de imagen con logos de las IAs (ChatGPT, Claude, Gemini, Perplexity), poco texto y composición variada, para que Daniel las apruebe · (Daniel)
