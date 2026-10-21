@@ -119,8 +119,10 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
         ? '"asunto": asunto corto en minúsculas con el nombre corto de la empresa y el tema (máximo 7 palabras, sin signos raros), '
           . '"cuerpo": email de 60 a 90 palabras que empiece por "Hola:" en una línea, luego el detalle real de su web, una frase de por qué importa para no perder clientes, '
           . 'qué hacemos en una frase ("En PEBAI montamos asistentes que contestan en minutos, también fuera de horario."), UNA pregunta, y termine exactamente con "' . $bajaEmail . '". Sin firma.'
-        : '"mensaje": WhatsApp de 40 a 60 palabras que empiece exactamente por "' . $presenta . '", mencione el detalle real de su web, razone en una frase por qué importa para no perder clientes, '
-          . 'haga UNA sola pregunta fácil de contestar sobre cómo atienden a quien pide presupuesto, y termine exactamente con "' . $bajaWa . '".';
+        : '"mensaje": WhatsApp de 45 a 70 palabras que empiece exactamente por "' . $presenta . '", y justo después diga en una frase sencilla qué hacemos '
+          . '(p. ej. "Ayudamos a instaladoras solares a contestar al momento a quien pide presupuesto, también fuera de horario."), para que quede claro que no somos un cliente pidiendo presupuesto; '
+          . 'luego mencione el detalle real de su web y por qué importa en una frase, y haga UNA sola pregunta corta, concreta y fácil de contestar sobre cómo atienden hoy a quien les escribe pidiendo presupuesto '
+          . '(quién contesta o cuánto tardan; nada de plazos de reuniones ni procesos internos), y termine exactamente con "' . $bajaWa . '".';
     $prompt = "Eres Daniel, comercial de PEBAI Systems. PEBAI monta asistentes que contestan al momento por WhatsApp y web, hacen las preguntas clave y agendan la visita, "
         . "para que las instaladoras de placas solares no pierdan peticiones de presupuesto.\n"
         . "Te paso el texto de la portada de la web de una empresa. Responde SOLO con JSON.\n"
@@ -136,7 +138,7 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
         . "prometer resultados, hablar de otros clientes nuestros.\n"
         . "Ejemplos de buen WhatsApp:\n- \"Hola, soy Daniel, de PEBAI Systems. He visto que la web de EcoNítida está en español, inglés y alemán. En la costa de Granada os escribirán muchos extranjeros. "
         . "Cuando alguien os escribe en inglés o alemán, ¿quién le contesta y cuánto tarda? Si no te interesa, dímelo y no te escribo más.\"\n"
-        . "- \"Hola, soy Daniel, de PEBAI Systems. Me gustó una frase de vuestra web: «No buscamos hacer muchas instalaciones. Buscamos hacerlas bien». Para eso hay que dedicar el tiempo a quien va en serio. "
+        . "- \"Hola, soy Daniel, de PEBAI Systems. Montamos asistentes que contestan al momento a quien os pide presupuesto. Me gustó una frase de vuestra web: «No buscamos hacer muchas instalaciones. Buscamos hacerlas bien». Para eso hay que dedicar el tiempo a quien va en serio. "
         . "¿Cómo filtráis hoy las peticiones de la calculadora? Si no te interesa, dímelo y no te escribo más.\"\n\n"
         . "EMPRESA: {$empresa} ({$ciudad})\nWEB:\n" . $w['texto'];
     $r = pebai_ia_json($prompt);
@@ -164,7 +166,7 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
     $m = trim(preg_replace('/\s+/u', ' ', (string)($r['mensaje'] ?? '')));
     $n = count(preg_split('/\s+/u', $m));
     if (!str_starts_with($m, $presenta) || !str_ends_with($m, $bajaWa) || preg_match(PEBAI_IA_PROHIBIDO, $m)
-        || $n < 32 || $n > 75 || substr_count($m, '?') !== 1) {
+        || $n < 35 || $n > 85 || substr_count($m, '?') !== 1) {
         return ['error' => 'El mensaje no pasa el control de calidad'];
     }
     return ['encaja' => true, 'motivo' => (string)($r['motivo'] ?? ''), 'mensaje' => $m, 'dato' => $dato];

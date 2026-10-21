@@ -140,7 +140,14 @@ switch ($in['accion'] ?? '') {
             pebai_wa_baja($tel, 'Lo pidió por WhatsApp: «' . mb_substr($texto, 0, 200) . '»');
             pebai_actividad('whatsapp', 'respuesta', 'Baja: ' . ($p['empresa'] ?: $tel) . ' pidió no recibir más mensajes', $texto, 'wa:' . $p['id']);
         } else {
-            pebai_actividad('whatsapp', 'respuesta', 'Respondió ' . ($p['empresa'] ?: $tel) . ' · plantilla ' . ($p['plantilla'] ?: '—') . ' (te toca contestar desde el móvil)', $texto, 'wa:' . $p['id']);
+            pebai_actividad('whatsapp', 'respuesta', 'Respondió ' . ($p['empresa'] ?: $tel), $texto, 'wa:' . $p['id']);
+            // En el momento: la IA lee la respuesta, la clasifica y deja preparada la contestación (sin esperar al cron)
+            try {
+                require_once __DIR__ . '/_conversaciones_lib.php';
+                pebai_conv_al_momento('whatsapp', (int)$p['id']);
+            } catch (Throwable $e) {
+                pebai_log('CONVERSACION AL MOMENTO: ' . $e->getMessage());
+            }
         }
         out(['ok' => true]);
 

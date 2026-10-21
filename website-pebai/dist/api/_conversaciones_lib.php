@@ -84,7 +84,7 @@ function pebai_conv_clasificar_una(string $empresa, array $msgs): ?array
     }
     $r = pebai_ia_json("Eres el asistente comercial de PEBAI Systems (consultora de procesos e Inteligencia Artificial). Escribimos en frío a la empresa {$empresa} y esta es la conversación.\n"
         . "Clasifica lo que ha contestado la EMPRESA. Responde SOLO JSON {\"estado\": …, \"resumen\": …}.\n"
-        . "estado: \"auto\" si todo lo que contesta es un mensaje automático de WhatsApp Business o de correo: bienvenida, ausencia, fuera de horario, «Gracias por comunicarte con X. ¿Cómo podemos ayudarte?», «Gracias por contactar», menús de opciones. Si no hay ninguna frase escrita por una persona que reaccione a nuestro mensaje, es \"auto\"; "
+        . "estado: \"auto\" si todo lo que contesta es un mensaje automático de WhatsApp Business o de correo: bienvenida, ausencia, fuera de horario, «Gracias por comunicarte con X. ¿Cómo podemos ayudarte?», «Gracias por contactar», menús de opciones. Si no hay ninguna frase escrita por una persona que reaccione a nuestro mensaje, es \"auto\". Si hay un contestador y DESPUÉS una persona escribe, manda lo que dice la persona (nunca \"auto\"); "
         . "\"interesado\" si muestra interés, pide información, precio, llamada o pregunta qué ofrecemos; "
         . "\"no_interesado\" si dice que no le interesa, que lo dejemos, que no escribamos más o similar; "
         . "\"pregunta\" si una persona contesta con una duda o un dato sin mostrar interés claro (p. ej. quién es, de qué va, o responde a nuestra pregunta); "
@@ -127,6 +127,38 @@ function pebai_conv_clasificar(int $max = 10): int
         $hechas++;
     }
     return $hechas;
+}
+
+/** Clasifica una conversación ya (al llegar una respuesta) y, si toca contestar, prepara el borrador. */
+function pebai_conv_al_momento(string $canal, int $id): void
+{
+    $db = pebai_conv_db();
+    $q = $db->prepare('SELECT manual FROM conversaciones WHERE canal = ? AND prospecto_id = ?');
+    $q->execute([$canal, $id]);
+    $msgs = pebai_conv_mensajes($canal, $id);
+    $ult = 0;
+    foreach ($msgs as $m) {
+        if ($m['sentido'] === 'entra') {
+            $ult = max($ult, (int)$m['id']);
+        }
+    }
+    $p = pebai_conv_prospecto($canal, $id);
+    if (!$p || !$ult || (int)$q->fetchColumn()) {
+        return;
+    }
+    $res = pebai_conv_clasificar_una((string)$p['empresa'], $msgs);
+    if (!$res) {
+        return;   // la IA no ha contestado: lo hará el cron en unos minutos
+    }
+    $db->prepare('INSERT INTO conversaciones (canal, prospecto_id, clasificacion, resumen, ultimo_msg, clasificado_at) VALUES (?, ?, ?, ?, ?, ?)
+                  ON CONFLICT(canal, prospecto_id) DO UPDATE SET clasificacion = excluded.clasificacion, resumen = excluded.resumen, ultimo_msg = excluded.ultimo_msg, clasificado_at = excluded.clasificado_at')
+       ->execute([$canal, $id, $res['estado'], $res['resumen'], $ult, date('Y-m-d H:i:s')]);
+    if (!in_array($res['estado'], ['auto', 'no_interesado'], true) && !pebai_conv_es_baja($canal, $p) && end($msgs)['sentido'] === 'entra') {
+        $b = pebai_conv_borrador($canal, $id);
+        if (isset($b['texto'])) {
+            pebai_actividad($canal, 'respuesta', 'Respuesta preparada para ' . ($p['empresa'] ?: '#' . $id) . ': espera tu aprobación en Conversaciones', $b['texto'], ($canal === 'email' ? 'em:' : 'wa:') . $id);
+        }
+    }
 }
 
 /** Busca la solicitud de trato directo (leads.tipo = 'cliente') de una empresa por teléfono o email. */
@@ -219,6 +251,8 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         . "Cuando tenga sentido proponer la llamada, pon exactamente " . PEBAI_CONV_ENLACE . " donde va el enlace para reservar (se cambia solo por el enlace real).\n\n"
         . "REGLAS:\n- Tutea, tono cercano y profesional, español de España. Ve al grano: "
         . ($email ? 'máximo 110 palabras, sin firma (se añade sola), sin asunto.' : 'máximo 70 palabras, como un WhatsApp de verdad, sin saludo largo ni firma.') . "\n"
+        . "- Si no han entendido nuestro mensaje o creen que les pedimos presupuesto de placas, acláralo primero en una frase sencilla: no somos clientes, ayudamos a instaladoras como ellos a no perder clientes contestando al momento.
+"
         . "- Contesta primero a lo que han dicho o preguntado; después dolor + beneficio en una o dos frases y la invitación a la llamada.\n"
         . "- Nunca des precios, cifras de ahorro, porcentajes ni plazos. Si preguntan precio: depende de su caso y se ve en la llamada.\n"
         . "- No inventes clientes, casos de éxito ni datos de su empresa. No hables de su web ni vendas webs. Nada de leyes, IRPF ni subvenciones.\n"
@@ -398,7 +432,7 @@ function pebai_conv_datos(): array
                 $estado = 'no_interesado';
             } elseif (!$entra) {
                 $estado = 'sin_respuesta';
-            } elseif ($c && $c['clasificacion'] !== '') {
+            } elseif ($c && $c['clasificacion'] !== '' && ((int)$c['manual'] || (int)$c['ultimo_msg'] >= (int)max(array_map(static fn($m) => (int)$m['id'], $entra)))) {
                 $estado = $c['clasificacion'] === 'neutral' ? 'pregunta' : $c['clasificacion'];
             } else {
                 $estado = 'pendiente_ia';
@@ -411,7 +445,7 @@ function pebai_conv_datos(): array
                 'foto' => $canal === 'whatsapp' && is_file(pebai_private_dir() . '/fotos/' . preg_replace('/\D/', '', (string)$p['telefono']) . '.jpg') ? preg_replace('/\D/', '', (string)$p['telefono']) : '',
                 'mensajes' => $hilo, 'cola' => $cola[$k] ?? [], 'borrador' => $c['borrador'] ?? '',
                 // Le toca contestar a Daniel: lo último lo escribió la empresa y no es un contestador ni alguien que no quiere
-                'te_toca' => $hilo && end($hilo)['de'] === 'entra' && empty($cola[$k]) && !in_array($estado, ['no_interesado', 'auto', 'cita', 'pendiente_ia'], true) ? 1 : 0,
+                'te_toca' => $hilo && end($hilo)['de'] === 'entra' && empty($cola[$k]) && !in_array($estado, ['no_interesado', 'auto', 'cita'], true) ? 1 : 0,
             ];
         }
     }
