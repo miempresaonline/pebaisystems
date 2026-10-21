@@ -159,6 +159,29 @@ Cuatro investigaciones independientes, una por nicho: datos oficiales, software 
 
 Pendiente de un análisis a fondo igual: **reformas** y **fincas para bodas** (la temporada de bodas arranca en enero). Son los candidatos para el tercer nicho.
 
+## Revisión del 21/10/2026: qué ha cambiado y orden nuevo
+
+Seis días de captación real con placas solares (69 empresas escritas por WhatsApp y email) y el scraper recorriendo toda España dan tres datos que el análisis sobre el papel no tenía:
+
+1. **Placas se acaba.** En Google Maps hay pocas instaladoras más de las que ya tenemos: ~1.640 en las listas, y la última vuelta por España encontró 3.418 negocios para solo 21 instaladoras nuevas. Hay cola para semanas, no para meses.
+2. **Respuesta real:** contesta una persona en ~17 % de los casos y 2 de 69 muestran interés. Sirve de referencia para comparar los nichos nuevos.
+3. **Nuestro canal manda.** El WhatsApp en frío necesita que el dueño publique un móvil en Google Maps o en su web. Esto pesa más que la nota sobre el papel: sin móvil publicado, el nicho no sirve para este agente.
+
+Además, el aviso del análisis a ciegas («reformas, ventanas, piscinas y cocinas son el mismo negocio que placas») ahora es una **ventaja**: los mensajes, la oferta (asistente que contesta al momento, cualifica y agenda la visita) y la forma de responder ya están probados con placas y se trasladan casi sin cambios.
+
+| # | Nicho | Por qué ahora | Móvil publicado | Empresas | Cuándo |
+|---|---|---|---|---|---|
+| 1 | **Reformas integrales** | Mismo negocio que placas (obra con visita); el mayor volumen; nota a ciegas 89 | Muy alto (autónomos y pymes con el móvil del dueño) | Decenas de miles | **Ya** |
+| 2 | **Fincas y espacios para bodas** | Primero sobre el papel (86); pico de consultas de enero a marzo: hay que escribirles en noviembre y diciembre | Alto | Unos pocos miles | **Noviembre** |
+| 3 | **Academias de oposiciones** | Las únicas que salen bien en todo (pagan mucho por captar, casi nadie les vende) | Medio (muchas con WhatsApp) | Unas 2.000–3.000 | **Preparar ya, lanzar en enero** |
+| 4 | Piscinas | Mismo negocio; ~1.900 anuncios activos; temporada de presupuestos en primavera | Alto | Unos miles | Febrero |
+| 5 | Ventanas y cerramientos | Mismo negocio que reformas; poca competencia de agencias | Alto | Miles | Con reformas |
+| — | Placas solares | Seguir hasta agotar España (el scraper ya recorre pueblos y todo el territorio) | — | — | En curso |
+
+Fuera por ahora: inmobiliarias y clínicas (saturadas de agencias), autoescuelas (no necesitan alumnos), casas modulares y cocinas (casi no pagan por captar), Segunda Oportunidad y residencias (datos sensibles), luz y cooperativas (decisión de Daniel).
+
+**Scrapers en paralelo:** el servidor aguanta 2-3 a la vez sin problema (cada uno usa ~70 MB). Más de 3 a la vez desde la misma IP aumenta el riesgo de que Google Maps frene las búsquedas y perjudique también al de placas. Cada nicho nuevo necesita su lista propia y sus mensajes antes de que los agentes le escriban.
+
 ## 4. La prueba real
 
 1. **Energía, ya:** unos 75 mensajes a instaladoras que hagan solar y aerotermia, con un mensaje sobre los leads compartidos y la prisa de fin de año.
