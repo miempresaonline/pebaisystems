@@ -44,6 +44,8 @@ function pebai_db(): PDO
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         $pdo->exec('PRAGMA journal_mode = WAL');
+        // Varios procesos escriben a la vez (agentes, cron, panel): esperar hasta 5 s en vez de fallar con «database is locked»
+        $pdo->exec('PRAGMA busy_timeout = 5000');
         $pdo->exec('CREATE TABLE IF NOT EXISTS leads (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             created_at TEXT NOT NULL,
