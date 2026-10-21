@@ -734,8 +734,8 @@ async function montar() {
     const destello = new THREE.Sprite(new THREE.SpriteMaterial({ map: brillo, color: col, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })); destello.scale.setScalar(1.4); destello.position.y = ALTA + .18; g.add(destello);
     const auraCol = new THREE.Sprite(new THREE.SpriteMaterial({ map: brillo, color: col, transparent: true, opacity: on ? .22 : 0, depthWrite: false, blending: THREE.AdditiveBlending })); auraCol.scale.set(1.6, ALTA * 1.2, 1); auraCol.position.y = ALTA / 2; g.add(auraCol);
     cuerpo.userData.sala = d; cristal.userData.sala = d; clicables.push(cuerpo, cristal);
-    /* cartel flotando sobre la columna, siempre de cara a quien mira */
-    const sign = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, toneMapped: false, depthWrite: false })); sign.scale.set(5, 1.25, 1); sign.position.y = ALTA + 1.25; sign.center.set(.5, 0); g.add(sign);
+    /* cartel en el borde trasero de la sala, de cara a quien mira: así nunca tapa a los agentes */
+    const sign = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, toneMapped: false, depthWrite: false })); sign.scale.set(4.4, 1.1, 1); sign.position.set(0, 1.1, -RSALA - .15); sign.center.set(.5, 0); g.add(sign);
     sign.userData.sala = d; plat.userData.sala = d; clicables.push(sign, plat);
     /* cable del núcleo al cristal de la columna */
     const fin = new THREE.Vector3(x, ALTO + ALTA + .18, z);
