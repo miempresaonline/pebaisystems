@@ -483,9 +483,14 @@ function pebai_agente_alerta(string $agente, string $titulo, string $texto): voi
     }
 }
 
-/** Lo llama el cron cada 15 min: si el bot lleva más de 30 min sin dar señales en horario de envío, avisa. */
+/** Lo llama el cron cada 15 min: si el bot de WhatsApp o el agente de email llevan más de 30 min sin dar señales, avisa. */
 function pebai_agentes_vigilar(): void
 {
+    $m = pebai_agente('email');
+    if (!(int)$m['pausado'] && !in_array($m['estado'], ['sin_arrancar', 'sin_configurar'], true) && $m['latido_at'] !== '' && strtotime($m['latido_at']) < time() - 1800) {
+        pebai_agente_alerta('email', 'El agente de email no da señales',
+            'Último latido: ' . pebai_fecha($m['latido_at']) . ".\nEl cron de hPanel que lo mueve cada 5 minutos (api/email-cron.php) puede haberse parado.");
+    }
     $a = pebai_agente('whatsapp');
     if ((int)$a['pausado'] || $a['estado'] === 'sin_arrancar' || $a['latido_at'] === '') {
         return;

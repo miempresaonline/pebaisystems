@@ -212,3 +212,11 @@ body.pb-of-cine .pb-side{display:none}
 .pb-of-row b small,.pb-of-auto .h b small{display:block;font-size:11.5px;font-weight:500;color:#8C8FA3;line-height:1.35;margin-top:1px}
 .pb-of-row b{flex:1;min-width:0}
 
+.pb-of-hud{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.pb-of-stop{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:16px;border:1px solid rgba(255,94,108,.35);background:rgba(11,13,24,.92);color:#FF8C96;font:700 12.5px var(--sans);cursor:pointer;box-shadow:0 14px 40px rgba(0,0,0,.35);transition:background .2s,border-color .2s;animation:pb-of-up .4s var(--ease)}
+.pb-of-stop:hover{background:rgba(255,94,108,.14);border-color:rgba(255,94,108,.6)}
+.pb-of-stop svg{width:12px;height:12px}
+.pb-of-stop small{font-weight:600;color:#8C8FA3;font-size:11.5px}
+.pb-of-stop.on{border-color:rgba(61,220,132,.4);color:#3DDC84}
+.pb-of-stop.on:hover{background:rgba(61,220,132,.12);border-color:rgba(61,220,132,.65)}
+.pb-of-stop:disabled{opacity:.5;cursor:wait}

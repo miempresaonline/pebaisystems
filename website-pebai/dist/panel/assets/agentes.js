@@ -342,6 +342,10 @@ let qt; $('#pb-pros-q').addEventListener('input', (e) => { clearTimeout(qt); qt 
 $('#pb-pros-lote').addEventListener('change', (e) => { ui.lote = e.target.value; drawProspectos(); });
 
 /* ============ Automático · agentes ============ */
+/* Cada tarjeta se pinta aislada: si una falla, sale un aviso en su sitio y el resto de la página sigue. */
+function seguro(fn, que) {
+  try { return fn(); } catch (er) { console.error(que, er); return el('div', 'pb-card pb-empty', 'No se ha podido mostrar ' + que + '. El resto sigue funcionando.'); }
+}
 function drawAgentes() {
   const w = S.whatsapp || {}; const e = estadoAgente();
   const box = $('#pb-ag-wa'); box.textContent = '';
@@ -395,11 +399,11 @@ function drawAgentes() {
   [['Enviados · 30 días', N(env30), null], ['Respondieron', N(respondieron), pct(respondieron, enviadosTot)], ['Bajas', N(S.bajas || 0), null], ['En cola', N(P.filter((p) => p.estado === 'pendiente').length), null]]
     .forEach(([l, v, x]) => { const d = el('div'); const b = el('b', null, v); if (x) b.append(el('em', null, x)); d.append(el('small', null, l), b); stats.append(d); });
   card.append(stats);
-  box.append(controlCard(w));
+  box.append(seguro(() => controlCard(w), 'el control del agente'));
   box.append(card);
 
-  box.append(rendimientoCard());
-  if (S.scraper) box.append(scraperCard(S.scraper));
+  box.append(seguro(rendimientoCard, 'el rendimiento'));
+  if (S.scraper) box.append(seguro(() => scraperCard(S.scraper), 'el seguimiento del scraper'));
 
   const feedC = el('div', 'pb-card');
   feedC.append(el('h2', null, 'Últimos mensajes'), el('p', 'note', 'Lo que ha enviado el agente y lo que han contestado. Las respuestas se aprueban en Captación › Conversaciones.'));
@@ -415,14 +419,14 @@ function drawAgentes() {
   });
   feedC.append(feed);
   const body = el('div', 'pb-agent-body');
-  body.append(feedC, registroCard());
-  box.prepend(queHace(w));
+  body.append(feedC, seguro(registroCard, 'el registro'));
+  box.prepend(seguro(() => queHace(w), 'el resumen'));
   box.append(body);
 }
 
 /* Qué hace el agente, en una frase. */
 const NOMDIA = ['', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
-const diasTxt = (d) => { const a = (d || []).map(Number).sort(); return a.join() === '1,2,3,4,5' ? 'de lunes a viernes' : a.map((x) => NOMDIA[x]).join(', '); };
+const diasTxt = (d) => { const a = (d || []).map(Number).sort(); return !a.length ? 'ningún día' : a.join() === '1,2,3,4,5' ? 'de lunes a viernes' : a.join() === '1,2,3,4,5,6,7' ? 'todos los días' : a.map((x) => NOMDIA[x]).join(', '); };
 function queHace(w) {
   const v = (w.ventanas || []).map((x) => x.join('–')).join(' y ');
   const dt = diasTxt(w.dias);
@@ -716,7 +720,7 @@ function draw() {
   if (p === 'agentes') {
     // No repintar mientras se editan los ajustes (se perdería lo escrito)
     const cfg = $('#pb-ag-wa .pb-config'); if (cfg && cfg.contains(document.activeElement)) return;
-    drawAgentes();
+    try { drawAgentes(); } catch (er) { console.error(er); }
   }
   // Las animaciones de entrada solo la primera vez: el refresco de cada minuto no hace parpadear nada
   if (sec && ['prospectos', 'agentes'].includes(p)) requestAnimationFrame(() => setTimeout(() => sec.classList.add('pb-quiet'), 1200));

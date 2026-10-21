@@ -593,9 +593,67 @@ if ($auth && isset($_GET['oficina_resumen'])) {
     }
 }
 
+/* ------------------------------------------------------- «Parar todo» --- */
+/** Agentes que escriben a otras empresas: el interruptor general los pausa a la vez. */
+const OF_PARAR = ['whatsapp', 'email'];
+
+function of_parada_file(): string
+{
+    return pebai_private_dir() . '/parada_general.json';
+}
+
+/** Si está en marcha la parada general: cuándo y qué agentes estaban funcionando (solo esos se reanudan después). */
+function of_parada(): ?array
+{
+    $j = is_file(of_parada_file()) ? json_decode((string)file_get_contents(of_parada_file()), true) : null;
+    return is_array($j) ? $j : null;
+}
+
+function of_pausar(string $id, bool $pausar): void
+{
+    if ($id === 'email') {
+        if (!function_exists('pebai_email_db')) {
+            return;
+        }
+        pebai_email_db()->prepare("UPDATE agente_estado SET pausado = ?, estado = CASE WHEN estado = 'sin_configurar' THEN estado ELSE ? END, detalle = ? WHERE agente = 'email'")
+            ->execute([$pausar ? 1 : 0, $pausar ? 'pausado' : 'activo', $pausar ? 'En pausa: «Parar todo» desde el panel' : 'Reanudado desde el panel']);
+    } else {
+        pebai_agentes_db()->prepare('UPDATE agente_estado SET pausado = ? WHERE agente = ?')->execute([$pausar ? 1 : 0, $id]);
+    }
+    pebai_actividad($id, 'cambio', $pausar ? 'Parado con «Parar todo» desde el panel' : 'Reanudado con «Reanudar todo» desde el panel');
+}
+
+if ($auth && ($_POST['action'] ?? '') === 'agentes_parar') {
+    if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
+        json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 400);
+    }
+    $p = of_parada();
+    if (($_POST['modo'] ?? '') === 'parar') {
+        $parados = $p['agentes'] ?? [];
+        foreach (OF_PARAR as $id) {
+            if (!function_exists('pebai_agente') || ($id === 'email' && !function_exists('pebai_email_db'))) {
+                continue;
+            }
+            if (!(int)pebai_agente($id)['pausado']) {
+                of_pausar($id, true);
+                $parados[] = $id;
+            }
+        }
+        file_put_contents(of_parada_file(), json_encode(['ts' => $p['ts'] ?? date('Y-m-d H:i:s'), 'agentes' => array_values(array_unique($parados))]), LOCK_EX);
+        json_out(['ok' => true]);
+    }
+    foreach ($p['agentes'] ?? [] as $id) {
+        if (in_array($id, OF_PARAR, true)) {
+            of_pausar($id, false);
+        }
+    }
+    @unlink(of_parada_file());
+    json_out(['ok' => true]);
+}
+
 if ($auth && isset($_GET['oficina'])) {
     json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'agentes' => of_estado(pebai_db()),
-              'ia' => is_file(pebai_private_dir() . '/ia.php')]);
+              'ia' => is_file(pebai_private_dir() . '/ia.php'), 'parada' => of_parada()]);
 }
 
 if ($auth && ($_POST['action'] ?? '') === 'oficina_preguntar') {

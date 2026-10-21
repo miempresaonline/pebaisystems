@@ -45,7 +45,7 @@ async function cargar() {
   let j; try { j = await r.json(); } catch (e) { throw new Error('La oficina no ha respondido bien.'); }
   if (!j.ok) throw new Error(j.error || 'No se ha podido cargar la oficina.');
   /* en la oficina solo salen los bots de verdad (los de los departamentos con agentes) */
-  S.agentes = j.agentes.filter((a) => DEPTS.some((d) => d.activo && d.id === a.dept)); S.autos = j.agentes.filter((a) => a.dept === 'embudo'); S.csrf = j.csrf; S.cargado = Date.now(); return true;
+  S.agentes = j.agentes.filter((a) => DEPTS.some((d) => d.activo && d.id === a.dept)); S.autos = j.agentes.filter((a) => a.dept === 'embudo'); S.csrf = j.csrf; S.parada = j.parada || null; S.cargado = Date.now(); return true;
 }
 async function accion(action, fields, ok, btn) {
   if (btn) btn.disabled = true;
@@ -89,7 +89,23 @@ function pintaHud() {
     b.innerHTML = tileHtml(a, 't') + `<span class="x"><b>${esc(a.nombre)}</b><span>${esc(txt)}</span></span><svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>`;
     b.onclick = (ev) => { ev.stopPropagation(); c.classList.remove('abierto'); abrirAgente(a.id); }; lista.append(b);
   });
-  hud.append(c); horaHud();
+  hud.append(c, botonParar()); horaHud();
+}
+/* Interruptor general: pausa a la vez a los agentes que escriben a otras empresas (WhatsApp y email).
+   «Reanudar todo» solo vuelve a poner en marcha los que estaban funcionando al pararlo. */
+function botonParar() {
+  const b = document.createElement('button'); b.type = 'button';
+  const p = S.parada;
+  b.className = 'pb-of-stop' + (p ? ' on' : '');
+  b.innerHTML = p ? `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Reanudar todo</span><small>parado desde ${esc(String(p.ts || '').slice(11, 16))}</small>`
+    : '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg><span>Parar todo</span>';
+  b.title = p ? 'Vuelve a poner en marcha los agentes que estaban funcionando' : 'Pausa ahora WhatsApp y email: no escriben a nadie hasta que lo reanudéis';
+  b.onclick = (ev) => {
+    ev.stopPropagation();
+    if (!p && !confirm('¿Parar todos los agentes que escriben a empresas (WhatsApp y email)?\n\nNo enviarán nada hasta que pulséis «Reanudar todo».')) return;
+    accion('agentes_parar', { modo: p ? 'reanudar' : 'parar' }, p ? 'Agentes reanudados.' : 'Todo parado: ningún agente escribe a nadie.', b);
+  };
+  return b;
 }
 /* "Actualizado hace…" al pasar el ratón por la píldora */
 function horaHud() { const sg = Math.round((Date.now() - (S.cargado || Date.now())) / 1000); hud.title = 'Datos de ahora mismo · actualizado ' + (sg < 10 ? 'hace un momento' : sg < 60 ? `hace ${sg} s` : `hace ${Math.round(sg / 60)} min`); }
