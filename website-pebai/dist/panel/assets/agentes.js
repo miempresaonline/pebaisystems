@@ -32,7 +32,7 @@ const estadoEmail = (p) => {
   if (p.enviado1_at || e.startsWith('enviado') || e === 'seguimiento') return 'enviado';
   return e === 'revision' ? 'revision' : 'pendiente';
 };
-const PAGINAS = { resumen: ['Embudo', 'Resumen'], solicitudes: ['Embudo', 'Solicitudes'], citas: ['Embudo', 'Citas'], prospectos: ['Captación', 'Prospectos'], mapa: ['Captación', 'Mapa'], qr: ['Captación', 'QRs'], agentes: ['Automático', 'Agentes'], caja: ['Empresa', 'Caja'] };
+const PAGINAS = { resumen: ['Embudo', 'Resumen'], solicitudes: ['Embudo', 'Solicitudes'], citas: ['Embudo', 'Citas'], clientes: ['Captación', 'Clientes'], prospectos: ['Captación', 'Prospectos'], mapa: ['Captación', 'Mapa'], qr: ['Captación', 'QRs'], agentes: ['Automático', 'Agentes'], caja: ['Empresa', 'Caja'] };
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const pad = (n) => String(n).padStart(2, '0');

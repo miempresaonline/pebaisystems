@@ -100,7 +100,7 @@ const KEYS = {
 const calcGrupo = (dim, p) => d3.rollups(S.leads.filter((l) => enPeriodo(l, p)), (v) => stats(v), KEYS[dim]).map(([clave, s]) => ({ clave, ...s, p_cita: s.total ? s.citas / s.total : null }));
 const calcPorEstado = () => Object.fromEntries(Object.keys(ESTADOS).map((k) => [k, S.leads.filter((l) => l.estado === k).length]));
 const citasClasificadas = () => {
-  const leads = new Map(S.leads.map((l) => [l.id, l])), limite = new Date(S.ahoraUTC.getTime() - 3600000);
+  const leads = new Map(S.todos.map((l) => [l.id, l])), limite = new Date(S.ahoraUTC.getTime() - 3600000);
   return S.citas.filter((c) => c.estado === 'reservada').map((c) => { const d = parseUTC(c.inicio); return { ...c, d, lead: leads.get(c.lead_id) || null, tramo: c.lead_id === 0 ? 'sin_vincular' : d >= limite ? 'proximas' : 'pasadas' }; });
 };
 
@@ -129,7 +129,8 @@ async function load() {
   const j = await r.json();
   if (!j.ok) throw new Error(j.error || 'Error al cargar');
   S.canales = j.canales || []; S.conocio = j.conocio || {};
-  S.leads = j.leads; S.citas = j.citas; S.ahora = parse(j.ahora); S.ahoraUTC = new Date(j.ahora_utc); S.csrf = j.csrf; S.loaded = true;
+  // Solicitudes = solo las del formulario. Los clientes de trato directo (WhatsApp, email, llamada) van aparte.
+  S.todos = j.leads; S.leads = j.leads.filter((l) => l.tipo !== 'cliente'); S.clientes = j.leads.filter((l) => l.tipo === 'cliente'); S.citas = j.citas; S.ahora = parse(j.ahora); S.ahoraUTC = new Date(j.ahora_utc); S.csrf = j.csrf; S.loaded = true;
   S.eventos = d3.group(j.eventos || [], (e) => e.lead_id);
   avisarNuevas();
 }
@@ -172,7 +173,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 const marcarVista = (id) => {
-  const l = S.leads.find((x) => x.id === Number(id));
+  const l = S.todos.find((x) => x.id === Number(id));
   if (!l || l.estado !== 'nuevo') return;
   l.estado = 'contactado'; // respuesta inmediata en pantalla; el servidor lo confirma
   post('visto', { id: l.id }).then(() => { toast(l.empresa + ' pasa a En revisión.'); draw(); }).catch(() => {});
@@ -425,6 +426,27 @@ function drawSolicitudes() {
   if (rows.length > ui.limit) { const m = el('div', 'pb-more'); const b = el('button', 'pb-btn', 'Ver ' + N(rows.length - ui.limit) + ' más'); b.type = 'button'; b.addEventListener('click', () => set({ limit: ui.limit + 200 })); m.append(b); list.append(m); }
 }
 
+/* ============ dibujo: clientes (trato directo) ============ */
+function drawClientes() {
+  const list = $('#pb-clientes-list'); if (!list) return; list.replaceChildren();
+  const rows = (S.clientes || []).slice().sort((a, b) => b.id - a.id);
+  if (!rows.length) { list.append(el('div', 'pb-empty', 'Aún no hay clientes de trato directo.')); return; }
+  rows.forEach((l, i) => {
+    const b = el('button', 'pb-row pb-anim'); b.type = 'button'; b.style.setProperty('--i', Math.min(i, 12));
+    const av = el('div', 'pb-avatar A', (l.empresa || '?').slice(0, 2).toUpperCase());
+    const mid = el('div'); const emp = el('div', 'emp'); emp.append(l.empresa, el('span', null, l.telefono)); mid.append(emp);
+    const meta = el('div', 'meta'); [fecha(parse(l.created_at)), 'Vía ' + (l.fuente || 'directo')].forEach((t, j) => { if (j) meta.append(el('span', 'sep', '·')); meta.append(el('span', null, t)); });
+    if (l.cita_inicio && l.cita_estado !== 'cancelada') { meta.append(el('span', 'sep', '·')); meta.append(el('span', 'cita', 'Cita ' + fechaCorta(parseUTC(l.cita_inicio)))); }
+    mid.append(meta);
+    if (l.notas) mid.append(el('div', 'meta', l.notas.slice(0, 180)));
+    const r = el('div', 'r'); r.append(badge(l.estado));
+    const cp = el('button', 'pb-btn ghost', 'Copiar enlace de reserva'); cp.type = 'button';
+    cp.addEventListener('click', (e) => { e.stopPropagation(); navigator.clipboard.writeText(l.booking_url).then(() => toast('Enlace de reserva copiado.'), () => toast('No se pudo copiar.', true)); });
+    r.append(cp);
+    b.append(av, mid, r); b.addEventListener('click', () => openDetail(l.id)); list.append(b);
+  });
+}
+
 /* ============ dibujo: agenda ============ */
 const recEl = (c) => { const r = el('span', 'pb-rec'); [['24 h', c.rec24], ['1 h', c.rec1]].forEach(([t, ok]) => { r.append(el('i', ok ? 'ok' : '', ok ? '✓' : '·'), t); }); return r; };
 const autoBadge = () => { const b = badge('sesion'); b.textContent = 'Sesión hecha · auto'; b.title = 'Marcada sola al pasar la hora. Confírmala o corrígela.'; return b; };
@@ -542,7 +564,7 @@ let fichaFirma = '';
 function drawDetalle() {
   const box = $('#pb-detalle');
   if (ui.sel == null) { box.replaceChildren(); fichaFirma = ''; return; }
-  const l = S.leads.find((x) => x.id === Number(ui.sel));
+  const l = S.todos.find((x) => x.id === Number(ui.sel));
   if (!l) { if (S.loaded) { box.replaceChildren(el('div', 'pb-empty', 'No existe la solicitud #' + ui.sel + '.')); } return; }
   const evs = (S.eventos.get(l.id) || []).slice().sort((a, b) => a.ts < b.ts ? -1 : 1);
   const citas = S.citas.filter((c) => c.lead_id === l.id);
@@ -770,10 +792,12 @@ document.addEventListener('keydown', (e) => {
 function draw() {
   $$('#pb-periodo button').forEach((b) => b.classList.toggle('on', b.dataset.p === ui.periodo));
   $('#pb-leads-n').textContent = S.loaded ? N(S.leads.length) : '—';
+  { const n = $('#pb-clientes-n'); if (n) n.textContent = S.loaded ? N((S.clientes || []).length) : '—'; }
   $('#pb-citas-n').textContent = S.loaded ? N(citasClasificadas().filter((x) => x.tramo === 'proximas').length) : '—';
   if (!S.loaded) return;
   if (ui.page === 'resumen') drawResumen(ui.periodo);
   if (ui.page === 'solicitudes') drawSolicitudes();
+  if (ui.page === 'clientes') drawClientes();
   if (ui.page === 'citas') { pintaPlazas($('#pb-plazas-citas')); drawAgenda($('#pb-proximas'), 'proximas'); drawAgenda($('#pb-pasadas'), 'pasadas'); drawAgenda($('#pb-sinvincular'), 'sin_vincular'); }
   drawDetalle();
   if (!S.drawn) { S.drawn = true; document.body.classList.add('pb-in'); }

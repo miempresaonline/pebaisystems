@@ -270,8 +270,8 @@ function of_embudo(PDO $db): array
     $q->execute([$hoy]);
     $fasesHoy = (int)$q->fetchColumn();
     $ultFase = $db->query("SELECT e.ts, e.tipo, l.empresa FROM eventos e LEFT JOIN leads l ON l.id = e.lead_id WHERE e.auto = 1 ORDER BY e.id DESC LIMIT 1")->fetch();
-    $sinRevisar = (int)$db->query("SELECT COUNT(*) FROM leads WHERE estado = 'nuevo'")->fetchColumn();
-    $q = $db->prepare("SELECT COUNT(*) FROM leads WHERE estado = 'nuevo' AND created_at < ?");
+    $sinRevisar = (int)$db->query("SELECT COUNT(*) FROM leads WHERE estado = 'nuevo' AND tipo <> 'cliente'")->fetchColumn();
+    $q = $db->prepare("SELECT COUNT(*) FROM leads WHERE estado = 'nuevo' AND tipo <> 'cliente' AND created_at < ?");
     $q->execute([date('Y-m-d H:i:s', time() - 86400)]);
     $tarde = (int)$q->fetchColumn();
     $nombres = ['contactado' => 'En revisión', 'cita' => 'Cita agendada', 'sesion' => 'Sesión hecha', 'nuevo' => 'Solicitud', 'no_asistio' => 'No se presentó', 'cliente' => 'Cliente', 'descartado' => 'Descartado'];
@@ -396,7 +396,7 @@ if ($auth && ($_POST['action'] ?? '') === 'oficina_preguntar') {
                   'actividad_reciente' => array_map(static fn($e) => substr($e['ts'], 5, 11) . ' ' . $e['tipo'] . ': ' . $e['txt'], array_slice($a['actividad'], 0, 12))];
     }
     $db = pebai_db();
-    $embudo = $db->query("SELECT estado, COUNT(*) n FROM leads GROUP BY estado")->fetchAll(PDO::FETCH_KEY_PAIR);
+    $embudo = $db->query("SELECT estado, COUNT(*) n FROM leads WHERE tipo <> 'cliente' GROUP BY estado")->fetchAll(PDO::FETCH_KEY_PAIR);
     $datos = json_encode(['agentes' => $ctx, 'solicitudes_por_fase' => $embudo], JSON_UNESCAPED_UNICODE);
     $sys = "Eres PEBAI, el centro de control de los agentes automáticos de PEBAI Systems, una consultora española de procesos e Inteligencia Artificial. "
          . "Hablas con Adrián o Daniel, los dueños. Responde en español de España, con tuteo, como un compañero que conoce bien la oficina.\n"

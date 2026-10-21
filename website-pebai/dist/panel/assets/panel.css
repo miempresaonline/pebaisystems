@@ -770,3 +770,5 @@ body[data-page=prospectos] .pb-only-embudo,body[data-page=agentes] .pb-only-embu
 .pb-canal-tag.email{color:var(--cyan);border-color:color-mix(in srgb,var(--cyan) 45%,transparent)}
 .pb-pros-pie{margin:18px 2px 0;font-size:12.5px;color:var(--muted-2)}
 #pb-tabs button[hidden]{display:none}
+
+body[data-page=clientes] .pb-only-embudo{display:none}

@@ -447,7 +447,7 @@ if ($auth && isset($_GET['data'])) {
     $cols = ['id', 'created_at', 'estado', 'notas', 'empresa', 'nombre', 'telefono', 'equipo', 'canal', 'volumen', 'objetivo', 'presupuesto', 'opcion',
              'fuente', 'medio', 'campana', 'contenido', 'palabra', 'cta', 'primer_toque', 'ultimo_toque', 'pagina', 'dispositivo',
              'email_enviado', 'updated_at', 'cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at',
-             'conocio', 'canal_dueno', 'canal_auto', 'canal_motivo', 'canal_revisar', 'canal_manual'];
+             'conocio', 'canal_dueno', 'canal_auto', 'canal_motivo', 'canal_revisar', 'canal_manual', 'tipo'];
     $leads = $db->query('SELECT ' . implode(',', $cols) . ' FROM leads ORDER BY id DESC LIMIT 3000')->fetchAll();
     foreach ($leads as &$l) {
         $l['id'] = (int)$l['id'];
@@ -551,7 +551,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '38';
+$v = '39';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -631,6 +631,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
       <button data-page="citas" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span>Citas</span><em id="pb-citas-n">—</em></button>
     </div>
     <div class="grp"><small>Captación</small>
+      <button data-page="clientes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Clientes</span><em id="pb-clientes-n">—</em></button>
       <button data-page="prospectos" type="button"><svg class="pb-i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/></svg><span>Prospectos</span><em id="pb-pros-n">—</em></button>
       <button data-page="mapa" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span>Mapa</span></button>
       <button data-page="qr" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h3v4h-3"/></svg><span>QRs</span></button>
@@ -729,6 +730,15 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
       </div>
       <div class="pb-card"><h2>Pasadas · marca si asistió</h2><p class="note">Marcar asistencia actualiza el estado de la solicitud.</p><div class="pb-agenda" id="pb-pasadas"></div></div>
     </div>
+  </section>
+
+  <section class="pb-page" id="page-clientes" data-page="clientes">
+    <div class="pb-pagehead"><div>
+      <div class="pb-eyebrow">Captación · Trato directo</div>
+      <h1 class="pb-h1">Clientes, <i>en conversación</i></h1>
+      <p class="pb-lead">Empresas con las que hablamos directamente (WhatsApp, email o llamada) y que no han rellenado el formulario. Aquí tienes su enlace de reserva y su seguimiento. Las solicitudes del formulario siguen en <b>Solicitudes</b>.</p>
+    </div></div>
+    <div class="pb-list" id="pb-clientes-list"></div>
   </section>
 
   <section class="pb-page" id="page-prospectos" data-page="prospectos">

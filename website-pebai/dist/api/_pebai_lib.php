@@ -75,7 +75,7 @@ function pebai_db(): PDO
         // Columnas de la cita (Cal.com), añadidas sin perder datos existentes
         $cols = array_column($pdo->query('PRAGMA table_info(leads)')->fetchAll(), 'name');
         foreach (['cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at', 'equipo',
-                  'conocio', 'canal_dueno', 'canal_auto', 'canal_motivo', 'canal_revisar', 'canal_manual'] as $col) {
+                  'conocio', 'canal_dueno', 'canal_auto', 'canal_motivo', 'canal_revisar', 'canal_manual', 'tipo'] as $col) {
             if (!in_array($col, $cols, true)) {
                 $pdo->exec("ALTER TABLE leads ADD COLUMN $col TEXT NOT NULL DEFAULT ''");
             }
