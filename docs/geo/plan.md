@@ -2,7 +2,7 @@
 
 Objetivo: ser la consultora que ChatGPT, Perplexity, Gemini, AI Overviews/AI Mode, Copilot y Claude recomiendan a las empresas españolas, empezando por las **empresas de placas solares**. Skill que lo ejecuta: `.claude/skills/geo-pebai/`. Fuentes y datos: `.claude/skills/geo-pebai/references/playbook-2026-10.md`.
 
-Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equipo (acceso, decisión o dato).
+Estado (21/10: los `[~]` de la fase 1 están hechos en código, pendientes de desplegar): `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equipo (acceso, decisión o dato).
 
 ## Punto de partida (auditoría del 21/10/2026)
 
@@ -18,14 +18,15 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 ## Fase 1 — Que puedan leernos (semanas 1-2)
 
 - [~] Cloudflare (21/10): AI bot policies con Search, Agent y Training en Allow y *Bot Preference Sync* desactivado. robots.txt servido = el nuestro. ClaudeBot, Google-Extended, Applebot-Extended, OAI-SearchBot, PerplexityBot y Bingbot dan 200. **GPTBot da 429** desde una IP que no es de OpenAI (posible control anti-suplantación o propagación): confirmar con las visitas reales en Clarity (actividad de bots, conectada a Cloudflare el 21/10) o en AI Crawl Control.
-- [x] Bing Webmaster dado de alta importando desde Search Console (21/10). Search Console: archivo de verificación subido (commit 9dad61a).
-- [ ] `robots.txt`: añadir Claude-SearchBot, Claude-User y Perplexity-User.
-- [ ] `sitemap.xml`: solo URLs indexables; commitear el estado real.
-- [ ] noindex en `/formulario-completado/`; canonical de `/diagnostico/` con barra; 301 de `www` a sin `www`.
+- [~] Bing Webmaster: la importación desde Search Console falló (21/10, "not able to fetch data"); pasar a verificación manual con `BingSiteAuth.xml`. Search Console: archivo de verificación subido (commit 9dad61a). Clarity: Cita (dominio conectado) y actividad de bots (Cloudflare) configurados el 21/10.
+- [~] `robots.txt`: añadir Claude-SearchBot, Claude-User y Perplexity-User.
+- [~] `sitemap.xml`: solo URLs indexables; commitear el estado real.
+- [~] noindex en `/formulario-completado/` y `/diagnostico/`; canonical de `/diagnostico/` con barra; 301 de `www` a sin `www`.
 - [ ] Landings retiradas: el 302 es temporal a propósito (el equipo las rehace). Al volver, revisarlas con `seo-clean-architecture` (sin canibalizar, con nicho solar), añadirlas a sitemap y llms.txt y quitar la regla; las que no vuelvan → 301 a su equivalente o 410.
 - [ ] 🔑 Search Console y Bing Webmaster verificados (Bing importando desde GSC) con el sitemap enviado.
-- [ ] IndexNow automático en `deploy_changed.py` para las URL HTML del commit.
-- [ ] Medición: arreglar `geo-tracker.js` (escuchar `pebai:consent`), claude.ai y copilot en `utm.js`, canal "IA" en GA4, Clarity con canal AIPlatform y Citations.
+- [~] IndexNow automático en `deploy_changed.py` para las URL HTML del commit.
+- [~] Medición sin consentimiento (decidido el 21/10, tras revisar la guía de cookies de la AEPD 05/2024 y las directrices 2/2023 del EDPB): Clarity y GA4 siguen **solo con consentimiento** (Clarity con `consentv2`, la API antigua se retira). Para contar a todos: Metricool (ya instalado, sin cookies, declarado en la política; marca 7537996, legible por MCP) + contador propio agregado en PHP/SQLite (fecha, ruta, dominio de origen, utm y paso del embudo; sin IP, sin identificadores, sin cookies), declarado en la política de cookies, para ver visitas y leads que llegan desde IAs.
+- [~] Medición: arreglar `geo-tracker.js` (escuchar `pebai:consent`), claude.ai y copilot en `utm.js`, canal "IA" en GA4, Clarity con canal AIPlatform y Citations.
 - [ ] Línea base: primera pasada del set de prompts (`docs/geo/prompts.md`).
 
 ## Fase 2 — Que entiendan quiénes somos (semanas 2-4)

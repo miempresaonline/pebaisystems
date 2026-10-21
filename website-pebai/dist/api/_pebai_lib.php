@@ -671,3 +671,117 @@ function pebai_lead_email(array $lead, int $id): array
 
     return [$subject, $html, $text];
 }
+
+/* ------------------------------------------- Medición propia sin cookies --- */
+
+/*
+ * Contador agregado de visitas (api/visita.php, lo llama utm.js en cada página vista).
+ * Medición propia, solo estadística y agregada (guía de cookies de la AEPD, 05/2024):
+ * sin IP, sin navegador, sin identificador y sin hora; solo cuántas visitas hubo cada día
+ * por página, origen, dominio de procedencia y campaña. Declarado en /politica-de-cookies/.
+ */
+const PEBAI_VISITAS_MAX_FILAS_DIA = 3000; // tope de combinaciones nuevas por día (anti-abuso)
+
+function pebai_visitas_tabla(PDO $db): void
+{
+    $db->exec('CREATE TABLE IF NOT EXISTS visitas_dia (
+        fecha TEXT NOT NULL,
+        path TEXT NOT NULL,
+        paso TEXT NOT NULL DEFAULT "",
+        origen TEXT NOT NULL DEFAULT "",
+        dominio TEXT NOT NULL DEFAULT "",
+        utm_source TEXT NOT NULL DEFAULT "",
+        utm_medium TEXT NOT NULL DEFAULT "",
+        utm_campaign TEXT NOT NULL DEFAULT "",
+        visitas INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (fecha, path, origen, dominio, utm_source, utm_medium, utm_campaign)
+    )');
+}
+
+// Paso del embudo según la página (lo decide el servidor, no el navegador).
+function pebai_visita_paso(string $path): string
+{
+    $map = ['/' => 'portada', '/consultoria-gratuita/' => 'vsl', '/diagnostico/' => 'diagnostico',
+            '/formulario-completado/' => 'formulario_completado', '/reservar/' => 'reservar',
+            '/confirmacion-de-llamada/' => 'confirmacion'];
+    if (isset($map[$path])) {
+        return $map[$path];
+    }
+    return strpos($path, '/t/') === 0 ? 'tarjeta' : 'otra';
+}
+
+/*
+ * Origen de la visita, alineado con utm.js y pebai_canal_toque():
+ * interno (navegación dentro de la web), ia, email, redes, google, bing, directo u otros.
+ */
+function pebai_visita_origen(string $dominio, string $src, string $med): string
+{
+    if ($dominio !== '' && preg_match('/(^|\.)pebaisystems\.es$/', $dominio)) {
+        return 'interno';
+    }
+    if (preg_match('/^(chatgpt\.com|chat\.openai\.com|perplexity\.ai|gemini\.google\.com|copilot\.microsoft\.com|copilot\.com|claude\.ai)$/', $dominio)
+        || preg_match('/chatgpt|openai|perplexity|gemini|copilot|claude/', $src)) {
+        return 'ia';
+    }
+    if (preg_match('/e-?mail|newsletter|correo/', $src . ' ' . $med)
+        || preg_match('/^(mail\.|webmail\.|outlook\.)/', $dominio)) {
+        return 'email';
+    }
+    if (preg_match('/instagram|facebook|tiktok|linkedin|youtube|twitter|threads|^x$/', $src)
+        || preg_match('/(^|\.)(instagram\.com|facebook\.com|fb\.com|fb\.me|tiktok\.com|linkedin\.com|lnkd\.in|youtube\.com|youtu\.be|t\.co|x\.com|twitter\.com|threads\.net)$/', $dominio)) {
+        return 'redes';
+    }
+    if ($src === 'google' || preg_match('/(^|\.)google\.[a-z]{2,3}(\.[a-z]{2})?$/', $dominio)) {
+        return 'google';
+    }
+    if ($src === 'bing' || preg_match('/(^|\.)bing\.com$/', $dominio)) {
+        return 'bing';
+    }
+    if ($dominio === '' && $src === '') {
+        return 'directo';
+    }
+    return 'otros';
+}
+
+// Suma una visita a la fila agregada del día. Devuelve false si se descarta.
+function pebai_visita_contar(string $path, string $dominio, string $src, string $med, string $camp): bool
+{
+    $db = pebai_db();
+    pebai_visitas_tabla($db);
+    $fila = [date('Y-m-d'), $path, pebai_visita_origen($dominio, $src, $med), $dominio, $src, $med, $camp];
+    $upd = $db->prepare('UPDATE visitas_dia SET visitas = visitas + 1
+        WHERE fecha = ? AND path = ? AND origen = ? AND dominio = ? AND utm_source = ? AND utm_medium = ? AND utm_campaign = ?');
+    $upd->execute($fila);
+    if ($upd->rowCount() > 0) {
+        return true;
+    }
+    $q = $db->prepare('SELECT COUNT(*) FROM visitas_dia WHERE fecha = ?');
+    $q->execute([$fila[0]]);
+    if ((int)$q->fetchColumn() >= PEBAI_VISITAS_MAX_FILAS_DIA) {
+        return false;
+    }
+    $ins = $db->prepare('INSERT INTO visitas_dia (fecha, path, origen, dominio, utm_source, utm_medium, utm_campaign, paso, visitas)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+        ON CONFLICT (fecha, path, origen, dominio, utm_source, utm_medium, utm_campaign) DO UPDATE SET visitas = visitas + 1');
+    $ins->execute(array_merge($fila, [pebai_visita_paso($path)]));
+    return true;
+}
+
+/*
+ * Lectura para el panel: visitas entre dos fechas (YYYY-MM-DD, incluidas) agrupadas por los campos pedidos.
+ * Ej.: pebai_visitas_resumen('2026-10-01', '2026-10-31', ['origen'])  → [['origen' => 'ia', 'visitas' => 12], ...]
+ *      pebai_visitas_resumen($desde, $hasta, ['paso', 'origen'], true) → solo entradas (sin navegación interna)
+ */
+function pebai_visitas_resumen(string $desde, string $hasta, array $por = ['fecha', 'origen'], bool $soloEntradas = false): array
+{
+    $validos = ['fecha', 'path', 'paso', 'origen', 'dominio', 'utm_source', 'utm_medium', 'utm_campaign'];
+    $por = array_values(array_intersect($por, $validos)) ?: ['fecha'];
+    $cols = implode(', ', $por);
+    $db = pebai_db();
+    pebai_visitas_tabla($db);
+    $q = $db->prepare("SELECT $cols, SUM(visitas) AS visitas FROM visitas_dia
+        WHERE fecha BETWEEN ? AND ?" . ($soloEntradas ? " AND origen <> 'interno'" : '') . "
+        GROUP BY $cols ORDER BY $cols");
+    $q->execute([$desde, $hasta]);
+    return $q->fetchAll();
+}

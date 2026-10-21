@@ -56,7 +56,8 @@
     if (!document.querySelector('script[src*="clarity.ms/tag"]')) {
       (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", CLARITY_ID);
     }
-    try { window.clarity('consent'); } catch (e) {}
+    // Consent API v2 de Clarity: analítica sí, publicidad no.
+    try { window.clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: 'granted' }); } catch (e) {}
 
     // Google Analytics 4 (cookies limitadas a 12 meses)
     window['ga-disable-' + GA4_ID] = false;
@@ -74,7 +75,7 @@
 
   function clearAnalytics() {
     // Deja de medir en esta página y borra lo que se hubiera guardado.
-    try { if (typeof window.clarity === 'function') window.clarity('consent', false); } catch (e) {}
+    try { if (typeof window.clarity === 'function') window.clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: 'denied' }); } catch (e) {}
     window['ga-disable-' + GA4_ID] = true;
     try { localStorage.removeItem('pebai_attr_v1'); } catch (e) {}
     try { sessionStorage.removeItem('pebai_geo_origin'); } catch (e) {}

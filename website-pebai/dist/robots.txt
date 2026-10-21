@@ -11,35 +11,24 @@ Disallow: /panel/
 Disallow: /uploads/
 
 # Motores de Inteligencia Artificial y Búsqueda Generativa (GEO)
+# Un solo grupo: los grupos por bot no heredan los Disallow de '*'.
 User-agent: GPTBot
-Allow: /
-
 User-agent: OAI-SearchBot
-Allow: /
-
 User-agent: ChatGPT-User
-Allow: /
-
 User-agent: PerplexityBot
-Allow: /
-
 User-agent: ClaudeBot
-Allow: /
-
 User-agent: anthropic-ai
-Allow: /
-
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: Perplexity-User
 User-agent: Google-Extended
-Allow: /
-
 User-agent: Googlebot
-Allow: /
-
 User-agent: Bingbot
-Allow: /
-
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /api/
+Disallow: /panel/
+Disallow: /uploads/
 
 # Mapa del sitio canónico
 Sitemap: https://pebaisystems.es/sitemap.xml

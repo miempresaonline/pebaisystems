@@ -8,6 +8,7 @@ Sube automáticamente el sitemap actualizado a Hostinger vía SFTP.
 
 import json
 import os
+import re
 import sys
 from datetime import date
 import paramiko
@@ -23,6 +24,13 @@ PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
 LOCAL_DIST = os.path.join(PROJECT_DIR, 'dist')
 SITEMAP_PATH = os.path.join(LOCAL_DIST, "sitemap.xml")
 PROJECT_CONFIGS_PATH = "C:/programacion/APIs/project_configs.json"
+
+def is_noindex(path):
+    """Las páginas con <meta name="robots" content="noindex..."> no van al sitemap."""
+    with open(path, encoding="utf-8", errors="ignore") as f:
+        head = f.read(20000).lower()
+    return bool(re.search(r"<meta[^>]+name=[\"']robots[\"'][^>]+content=[\"'][^\"']*noindex", head))
+
 
 def generate_sitemap():
     today = date.today().isoformat()
@@ -46,6 +54,7 @@ def generate_sitemap():
         if os.path.isdir(os.path.join(LOCAL_DIST, d))
         and d not in ignore_dirs
         and os.path.exists(os.path.join(LOCAL_DIST, d, "index.html"))
+        and not is_noindex(os.path.join(LOCAL_DIST, d, "index.html"))
     ])
 
     for slug in slugs:

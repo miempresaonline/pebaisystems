@@ -42,16 +42,20 @@
     try { localStorage.setItem(STORE, JSON.stringify(data)); } catch (e) {}
   }
 
+  // Asistentes de IA primero: «chatgpt.com» contiene «t.co» y «gemini.google.com» contiene «google».
+  // Misma lista que pebai_visita_origen() y pebai_canal_toque() en api/_pebai_lib.php.
   function sourceFromReferrer(ref) {
     var host = '';
     try { host = new URL(ref).hostname.replace(/^www\./, ''); } catch (e) { return 'desconocido'; }
     var map = [
+      ['chatgpt', 'chatgpt'], ['openai', 'chatgpt'], ['perplexity', 'perplexity'],
+      ['gemini', 'gemini'], ['claude.ai', 'claude'], ['copilot', 'copilot'],
       ['youtube', 'youtube'], ['youtu.be', 'youtube'], ['instagram', 'instagram'],
       ['facebook', 'facebook'], ['fb.', 'facebook'], ['tiktok', 'tiktok'], ['linkedin', 'linkedin'],
-      ['lnkd.in', 'linkedin'], ['t.co', 'x'], ['twitter', 'x'], ['x.com', 'x'],
-      ['chatgpt', 'chatgpt'], ['openai', 'chatgpt'], ['perplexity', 'perplexity'],
-      ['gemini', 'gemini'], ['google', 'google'], ['bing', 'bing'], ['whatsapp', 'whatsapp']
+      ['lnkd.in', 'linkedin'], ['twitter', 'x'],
+      ['google', 'google'], ['bing', 'bing'], ['whatsapp', 'whatsapp']
     ];
+    if (host === 't.co' || host === 'x.com') return 'x';
     for (var i = 0; i < map.length; i++) {
       if (host.indexOf(map[i][0]) !== -1) return map[i][1];
     }
@@ -155,6 +159,24 @@
       };
     }
   };
+
+  // Contador propio de visitas, sin cookies y para todos los visitantes (api/visita.php):
+  // página, solo el dominio de procedencia y los utm de la URL. No guarda nada en el navegador
+  // ni envía identificadores; el servidor suma 1 a un total diario (ver /politica-de-cookies/).
+  try {
+    var isPanel = /^\/panel(\/|$)/.test(window.location.pathname) || /^panel\./.test(window.location.hostname);
+    if (!isPanel && !navigator.webdriver && navigator.sendBeacon) {
+      var refHost = '';
+      try { refHost = referrer ? new URL(referrer).hostname.replace(/^www\./, '') : ''; } catch (e) {}
+      var beacon = new URLSearchParams();
+      beacon.set('p', window.location.pathname.slice(0, 120));
+      beacon.set('r', refHost.slice(0, 80));
+      beacon.set('s', (params.get('utm_source') || params.get('origen') || '').slice(0, 60));
+      beacon.set('m', (params.get('utm_medium') || '').slice(0, 60));
+      beacon.set('c', (params.get('utm_campaign') || '').slice(0, 80));
+      navigator.sendBeacon('/api/visita.php', beacon);
+    }
+  } catch (e) {}
 
   // Respaldo de los recordatorios de citas: el servidor los revisa como mucho cada 10 min
   // (api/tick.php). No envía datos del visitante.
