@@ -152,27 +152,57 @@ async function conectar() {
     if (type !== 'notify' && type !== 'append') return;
     for (const m of messages) {
       if (!m.message) continue;
-      // Lo que escribe Daniel desde el móvil a una empresa contactada también se guarda, para ver la conversación completa en el panel.
       // Lo que envía el propio agente ya está registrado: se reconoce por su id y se salta.
       if (m.key.fromMe && enviadosAgente.has(m.key.id)) continue;
       if (!m.key.fromMe && type !== 'notify') continue;
-      let jid = m.key.remoteJidAlt || m.key.senderPn || m.key.remoteJid || '';
-      if (isLidUser(jid)) jid = (await sock.signalRepository.lidMapping.getPNForLID(jid).catch(() => null)) || '';
-      if (!jid.endsWith('@s.whatsapp.net')) continue;
-      const tel = jid.split('@')[0].split(':')[0];
-      if (!contactados.has(tel)) continue;
-      const msg = m.message;
-      const texto = msg.conversation || msg.extendedTextMessage?.text || msg.imageMessage?.caption || msg.videoMessage?.caption
-        || (msg.audioMessage ? '[nota de voz]' : msg.imageMessage ? '[imagen]' : msg.stickerMessage ? '[sticker]' : msg.documentMessage ? '[documento]' : '[mensaje]');
+      const tel = await telDelChat(m.key);
+      if (!tel || !contactados.has(tel)) continue;
+      const texto = textoDe(m.message);
       if (m.key.fromMe) {
+        // Lo que escribe Daniel desde el móvil a una empresa contactada también se guarda, para ver la conversación completa en el panel
         log('Mensaje de Daniel desde el móvil a', tel);
-        await api('manual', { telefono: tel, texto });
+        await api('manual', { telefono: tel, texto, ts: Number(m.messageTimestamp) || 0 });
         continue;
       }
       log('Respuesta de', tel);
       await api('entrante', { telefono: tel, texto });
+      recuperaHistorial(tel, m).catch(() => {});
     }
   });
+  // Historial que manda el móvil cuando se le pide (recuperaHistorial): solo se guardan los mensajes de Daniel que faltan
+  sock.ev.on('messaging-history.set', async ({ messages = [] }) => {
+    let n = 0;
+    for (const m of messages) {
+      if (!m.message || !m.key?.fromMe || enviadosAgente.has(m.key.id)) continue;
+      const tel = await telDelChat(m.key);
+      if (!tel || !contactados.has(tel)) continue;
+      const r = await api('manual', { telefono: tel, texto: textoDe(m.message), ts: Number(m.messageTimestamp) || 0 });
+      if (r && !r.ignorado) n++;
+    }
+    if (n) log('Historial: recuperados', n, 'mensajes de Daniel');
+  });
+}
+
+// Número de la empresa de un chat. En los mensajes propios, remoteJidAlt es el número de Daniel, no el de la empresa:
+// ahí manda remoteJid (el chat), traducido de LID a número si hace falta.
+async function telDelChat(key) {
+  let jid = key.fromMe ? (key.remoteJid || '') : (key.remoteJidAlt || key.senderPn || key.remoteJid || '');
+  if (key.fromMe && isLidUser(jid) && key.remoteJidAlt && !isLidUser(key.remoteJidAlt) && !key.remoteJidAlt.startsWith(NUMERO || "-")) jid = key.remoteJidAlt;
+  if (isLidUser(jid)) jid = (await sock.signalRepository.lidMapping.getPNForLID(jid).catch(() => null)) || '';
+  if (!jid.endsWith('@s.whatsapp.net')) return '';
+  return jid.split('@')[0].split(':')[0];
+}
+function textoDe(msg) {
+  msg = msg.deviceSentMessage?.message || msg.ephemeralMessage?.message || msg;
+  return msg.conversation || msg.extendedTextMessage?.text || msg.imageMessage?.caption || msg.videoMessage?.caption
+    || (msg.audioMessage ? '[nota de voz]' : msg.imageMessage ? '[imagen]' : msg.stickerMessage ? '[sticker]' : msg.documentMessage ? '[documento]' : '[mensaje]');
+}
+// Una vez por chat y arranque: pide al móvil los mensajes anteriores para recuperar lo que Daniel escribió y no se guardó
+const historialPedido = new Set();
+async function recuperaHistorial(tel, m) {
+  if (historialPedido.has(tel)) return;
+  historialPedido.add(tel);
+  await sock.fetchMessageHistory(50, m.key, Number(m.messageTimestamp) || Math.floor(Date.now() / 1000));
 }
 
 /* --------------------------------------------------- envío como persona --- */

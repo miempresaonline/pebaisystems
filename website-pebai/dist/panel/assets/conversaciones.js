@@ -138,7 +138,7 @@ function drawTabla(rows) {
     who.append(avatar(f), t);
     const d = parse(f.enviado_at);
     const env = el('div', 'pc-env'); env.append(el('b', null, dia(d)), el('span', null, hora(d)));
-    const est = el('div', 'pc-est'); est.append(pill(f.estado)); if (f.manual) est.append(el('small', null, 'a mano'));
+    const est = el('div', 'pc-est'); est.append(pill(f.estado));
     if (f.te_toca) est.append(el('small', 'pc-toca', f.borrador ? 'Respuesta lista' : 'Te toca'));
     else if (f.cola.length) est.append(el('small', 'pc-toca cola', 'Enviando…'));
     const ult = el('div', 'pc-ult');
@@ -148,14 +148,12 @@ function drawTabla(rows) {
     else ult.append(el('p', 'muted', 'Esperando respuesta'));
     if (ultima) ult.append(el('span', null, hace(parse(ultima.ts))));
     const acts = el('div', 'pc-acts');
-    const bm = el('button', 'pc-btn', null); bm.type = 'button'; bm.append(ICO.eye(), el('span', null, 'Mensaje')); bm.title = 'Ver el mensaje enviado';
-    bm.onclick = (e) => { e.stopPropagation(); r.classList.toggle('abierta'); };
-    const bc = el('button', 'pc-btn main', null); bc.type = 'button'; bc.append(ICO.chat(), el('span', null, 'Conversación' + (f.respuestas ? ` · ${f.respuestas}` : '')));
+    // Un solo botón, siempre del mismo ancho; el número de mensajes va en una pastilla fija
+    const bc = el('button', 'pc-btn main pc-conv', null); bc.type = 'button'; bc.title = f.mensajes.length + ' mensajes en total';
+    bc.append(ICO.chat(), el('span', null, 'Conversación'), el('em', null, String(f.mensajes.length)));
     bc.onclick = (e) => { e.stopPropagation(); abrir(f.k); };
-    acts.append(bm, bc);
-    const msg = el('div', 'pc-msg'); const env1 = f.mensajes.find((m) => m.de === 'sale');
-    msg.append(el('small', null, `Enviado por ${f.canal === 'email' ? 'email' : 'WhatsApp'} · ${dia(d)} a las ${hora(d)}`), el('p', null, env1 ? env1.texto : '—'));
-    r.append(who, env, est, ult, acts, msg);
+    acts.append(bc);
+    r.append(who, env, est, ult, acts);
     r.onclick = () => abrir(f.k);
     box.append(r);
   });
@@ -196,15 +194,9 @@ function drawChat() {
     } catch (e) { toast(e.message, true); }
   };
   links.append(rb);
-  // Estado: la IA lo pone sola; aquí se corrige si se equivoca
-  const est = el('div', 'pc-dest'); est.append(el('small', null, f.manual ? 'Estado (puesto a mano)' : 'Estado (lo pone la IA al leer la respuesta)'));
-  const seg = el('div', 'pc-seg');
-  [['interesado', 'Interesado'], ['pregunta', 'Contestó'], ['auto', 'Contestador'], ['no_interesado', 'No interesado']].forEach(([k, l]) => {
-    const b = el('button', grupo(f.estado) === k ? 'on' : '', l); b.type = 'button'; b.style.setProperty('--c', EST[k][1]);
-    b.onclick = async () => { try { await post('conv_estado', { canal: f.canal, id: f.id, estado: k }); toast('Estado guardado.'); await load(); draw(); } catch (e) { toast(e.message, true); } };
-    seg.append(b);
-  });
-  if (f.manual) { const b = el('button', 'ia', 'Que lo decida la IA'); b.type = 'button'; b.onclick = async () => { await post('conv_estado', { canal: f.canal, id: f.id, estado: 'ia' }); toast('La IA lo volverá a clasificar en unos minutos.'); await load(); draw(); }; seg.append(b); }
+  // Estado: lo pone la IA al leer la respuesta (no se cambia a mano)
+  const est = el('div', 'pc-dest'); est.append(el('small', null, 'Estado (lo pone la IA al leer la respuesta)'));
+  const seg = el('div', 'pc-seg'); seg.append(pill(f.estado)); if (f.resumen) seg.append(el('span', 'pc-resumen', f.resumen));
   est.append(seg);
   if (f.estado === 'cita' && f.cita) est.append(el('p', 'pc-cita', 'Cita reservada: ' + dia(new Date(f.cita)) + ' a las ' + hora(new Date(f.cita))));
   // Hilo

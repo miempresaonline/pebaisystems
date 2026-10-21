@@ -168,8 +168,16 @@ switch ($in['accion'] ?? '') {
         if (!$pid) {
             out(['ok' => true, 'ignorado' => true]);
         }
+        $texto = mb_substr(trim((string)($in['texto'] ?? '')), 0, 4000);
+        // Puede llegar dos veces (en directo y al recuperar el historial del móvil), o ser uno que ya envió el agente: no se duplica
+        $q = $db->prepare("SELECT COUNT(*) FROM agente_mensajes WHERE agente = 'whatsapp' AND prospecto_id = ? AND sentido = 'sale' AND texto = ?");
+        $q->execute([$pid, $texto]);
+        if ((int)$q->fetchColumn()) {
+            out(['ok' => true, 'ignorado' => true]);
+        }
+        $ts = (int)($in['ts'] ?? 0);
         $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla) VALUES (?, 'whatsapp', ?, ?, 'sale', ?, 'manual')")
-           ->execute([$now, $pid, $tel, mb_substr(trim((string)($in['texto'] ?? '')), 0, 4000)]);
+           ->execute([$ts > 1700000000 && $ts <= time() + 60 ? date('Y-m-d H:i:s', $ts) : $now, $pid, $tel, $texto]);
         out(['ok' => true]);
 
     case 'salida':

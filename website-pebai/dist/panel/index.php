@@ -551,7 +551,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '41';
+$v = '42';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -737,7 +737,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     <div class="pb-pagehead"><div>
       <div class="pb-eyebrow">Captación · CRM</div>
       <h1 class="pb-h1">Conversaciones, <i>una a una</i></h1>
-      <p class="pb-lead">Todo lo que han enviado los agentes por WhatsApp y email, y lo que ha contestado cada empresa. La IA lee cada respuesta y la clasifica sola; si se equivoca, lo corriges en la conversación.</p>
+      <p class="pb-lead">Todo lo que han enviado los agentes por WhatsApp y email, y lo que ha contestado cada empresa. La IA lee cada respuesta, la clasifica sola y te deja preparada la contestación: tú solo la apruebas.</p>
     </div></div>
     <div class="pc-kpis" id="pc-kpis"></div>
     <div class="pc-bar">

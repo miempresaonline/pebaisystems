@@ -70,7 +70,7 @@ function pebai_conv_db(): PDO
 /** Mensajes de una conversación, en orden. */
 function pebai_conv_mensajes(string $canal, int $id): array
 {
-    $q = pebai_conv_db()->prepare('SELECT id, ts, sentido, texto FROM agente_mensajes WHERE agente = ? AND prospecto_id = ? ORDER BY id');
+    $q = pebai_conv_db()->prepare('SELECT id, ts, sentido, texto FROM agente_mensajes WHERE agente = ? AND prospecto_id = ? ORDER BY ts, id');
     $q->execute([$canal === 'email' ? 'email' : 'whatsapp', $id]);
     return $q->fetchAll();
 }
@@ -359,7 +359,7 @@ function pebai_conv_datos(): array
         $cls[$c['canal'] . ':' . $c['prospecto_id']] = $c;
     }
     $msgs = [];
-    foreach ($db->query("SELECT id, ts, agente, prospecto_id, sentido, texto, plantilla FROM agente_mensajes WHERE prospecto_id > 0 ORDER BY id") as $m) {
+    foreach ($db->query("SELECT id, ts, agente, prospecto_id, sentido, texto, plantilla FROM agente_mensajes WHERE prospecto_id > 0 ORDER BY ts, id") as $m) {
         $msgs[($m['agente'] === 'email' ? 'email' : 'whatsapp') . ':' . $m['prospecto_id']][] = ['ts' => $m['ts'], 'de' => $m['sentido'], 'texto' => $m['texto'], 'manual' => $m['plantilla'] === 'manual' ? 1 : 0, 'respuesta' => $m['plantilla'] === 'respuesta' ? 1 : 0];
     }
     $cola = [];

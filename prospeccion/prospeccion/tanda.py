@@ -50,6 +50,51 @@ NICHOS = {
     },
 }
 
+# Barrido continuo de instaladoras solares (orden de Daniel, 21/10): el scraper no se queda dormido. Cada vuelta recorre
+# toda España con otro grupo de búsquedas; al acabar empieza la siguiente (y al agotar los grupos, vuelven a rotar y solo
+# salen las nuevas: las que ya están en el panel se excluyen). Mismos filtros: solo instaladoras de placas solares, y la IA
+# lee la web de cada una antes de que entre en el panel.
+GRUPOS_SOLAR = [
+    ['instaladora fotovoltaica', 'instalación de placas solares', 'autoconsumo fotovoltaico empresa'],
+    ['instaladores de paneles solares', 'placas solares para viviendas', 'placas solares para empresas'],
+    ['energía solar instaladores', 'fotovoltaica instalación', 'autoconsumo solar instaladora'],
+    ['empresa fotovoltaica', 'instalador solar', 'placas solares y baterías instalación'],
+    ['instalaciones fotovoltaicas', 'empresa de energía solar', 'paneles fotovoltaicos instalación'],
+]
+FALLOS_MAX = 3   # una provincia que falla 3 veces en una vuelta se salta para no atascar el barrido
+
+
+def _carpeta(nicho: str) -> Path:
+    return SALIDA / 'tandas' / nicho
+
+
+def _hecha(nicho: str, prov: str) -> bool:
+    return (_carpeta(nicho) / f'{nicho}_{prov.lower().replace(" ", "-")}.csv').exists()
+
+
+def _fallos(nicho: str) -> dict:
+    import json
+    f = _carpeta(nicho) / 'fallos.json'
+    return json.loads(f.read_text(encoding='utf-8')) if f.exists() else {}
+
+
+def pendientes_de(nicho: str, lista: list) -> list:
+    fallos = _fallos(nicho)
+    return [p for p in lista if not _hecha(nicho, p) and fallos.get(p, 0) < FALLOS_MAX]
+
+
+def pasada_solar() -> str:
+    """La vuelta del barrido continuo que toca: la primera que tenga provincias pendientes. La registra en NICHOS."""
+    n = 1
+    while True:
+        nombre = f'solar_v{n}'
+        NICHOS[nombre] = dict(NICHOS['solar2'], busquedas=GRUPOS_SOLAR[(n - 1) % len(GRUPOS_SOLAR)])
+        NICHOS[nombre].pop('objetivo_email', None)
+        if pendientes_de(nombre, ORDEN):
+            return nombre
+        n += 1
+
+
 # Nombre para buscar la provincia en OpenStreetMap cuando el oficial no basta
 _OSM = {'Illes Balears': 'Illes Balears', 'Las Palmas': 'Provincia de Las Palmas', 'Santa Cruz de Tenerife': 'Provincia de Santa Cruz de Tenerife',
         'Madrid': 'Comunidad de Madrid', 'Asturias': 'Asturias', 'Cantabria': 'Cantabria', 'La Rioja': 'La Rioja', 'Navarra': 'Navarra',
@@ -238,15 +283,18 @@ def cuenta_email(nicho: str) -> int:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('nicho', choices=NICHOS)
+    ap.add_argument('nicho', choices=[*NICHOS, 'solar'])
     ap.add_argument('--provincias', nargs='*')
     ap.add_argument('--unir', action='store_true')
     a = ap.parse_args()
+    if a.nicho == 'solar':
+        a.nicho = pasada_solar()
+        print(f'Barrido continuo de instaladoras solares: vuelta {a.nicho} · búsquedas: {", ".join(NICHOS[a.nicho]["busquedas"])}')
     if not a.unir:
         lista = a.provincias or ORDEN
         hechas = 0
         carpeta = SALIDA / 'tandas' / a.nicho
-        pendientes = [p for p in lista if not (carpeta / f'{a.nicho}_{p.lower().replace(" ", "-")}.csv').exists()]
+        pendientes = pendientes_de(a.nicho, lista)
         for p in lista:
             if p in pendientes:
                 # Aviso al empezar: el panel (Oficina) muestra al scraper «trabajando» mientras lo último empiece por «Buscando»
@@ -267,6 +315,11 @@ def main():
             except Exception as e:   # una provincia que falla no para la tanda; queda apuntado y se reintenta en la siguiente
                 print(f'  ⚠ {p} falló: {type(e).__name__}: {e}')
                 apunta(f'Tanda {a.nicho}: {p} falló', f'{type(e).__name__}: {e}', f'{a.nicho}_{p}', tipo='error')
+                import json
+                fallos = _fallos(a.nicho)
+                fallos[p] = fallos.get(p, 0) + 1
+                carpeta.mkdir(parents=True, exist_ok=True)
+                (carpeta / 'fallos.json').write_text(json.dumps(fallos, ensure_ascii=False), encoding='utf-8')
         print(f'\n{hechas} de {len(lista)} provincias procesadas')
     unir(a.nicho)
 
