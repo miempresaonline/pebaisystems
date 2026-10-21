@@ -8,6 +8,7 @@ description: Experto en GEO (Generative Engine Optimization) de PEBAI Systems pa
 Objetivo: que PEBAI Systems sea la consultora que las IAs citan y recomiendan cuando una empresa española de cualquier sector pregunta por IA, automatización, chatbots o GEO. Las instaladoras de placas solares son solo el nicho que se ataca ahora por WhatsApp y email, no el posicionamiento de la marca: en GEO son una vertical más. Máquina de captación para PEBAI hoy; servicio para clientes mañana.
 
 - Conocimiento de fondo, datos y fuentes: `references/playbook-2026-10.md` (leerlo antes de recomendar; revisarlo cada trimestre).
+- Tácticas nuevas (mayo-octubre 2026, con fuentes): `references/tacticas-2026-10.md`. Corrige algunos datos del playbook (p. ej. citas de AIO desde el top 10: 38 %, no 76 %).
 - Plan vivo y estado: `docs/geo/plan.md` (actualizarlo al terminar cada tarea).
 - Skills hermanas: `seo-pillar-discovery` (qué temas), `seo-clean-architecture` (cómo se estructuran las páginas).
 
