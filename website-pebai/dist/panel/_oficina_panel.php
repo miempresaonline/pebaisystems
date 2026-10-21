@@ -274,85 +274,36 @@ function of_scraper(): array
 }
 
 /* ------------------------------------------------------------------ GEO --- */
-/** Agente GEO: tareas programadas en el ordenador del equipo (Claude) que apuntan cada paso en api/actividad.php. */
-function of_geo(): array
+/** Agentes GEO: rutinas en la nube de Claude que apuntan cada paso en api/actividad.php (un id por agente). */
+const OF_GEO_AGENTES = [
+    ['geo_jefe', 'Jefe GEO', 'Lee lo que hacen los demás, decide prioridades y te resume', 'Lunes y jueves 13:00'],
+    ['geo_vigia', 'Vigía', 'Novedades de GEO, IAs, redes y competencia; mejora la skill', 'Cada día 8:00'],
+    ['geo_contenido', 'Contenido', 'Escribe y publica páginas que las IAs puedan citar', 'Martes y jueves 10:00'],
+    ['geo_refresco', 'Refresco', 'Actualiza y mejora las páginas ya publicadas', 'Viernes 10:00'],
+    ['geo_local', 'Local', 'Localo y Google Business: todas las tareas', 'Lunes a viernes 11:30'],
+    ['geo_redes', 'Redes', 'Posts de Google Business con imagen nueva', 'Miércoles 11:00'],
+    ['geo_medicion', 'Medición', 'Informe semanal de visibilidad en IA', 'Lunes 8:00'],
+];
+
+function of_geo_agente(string $id, string $nombre, string $rol, string $cuando): array
 {
-    $a = of_agente(['id' => 'geo', 'dept' => 'geo', 'nombre' => 'GEO', 'glifo' => 'lupa', 'rol' => 'Que ChatGPT, Gemini y Google recomienden a PEBAI', 'unidad' => 'tareas hechas']);
-    $a['actividad'] = of_actividad('geo', 30);
+    $a = of_agente(['id' => $id, 'dept' => 'geo', 'nombre' => $nombre, 'glifo' => 'lupa', 'rol' => $rol, 'unidad' => 'tareas hechas']);
+    $a['actividad'] = of_actividad($id, 30);
+    if ($id === 'geo_jefe') {  // el primer agente GEO apuntaba como 'geo'
+        $a['actividad'] = array_slice(array_merge($a['actividad'], of_actividad('geo', 30)), 0, 30);
+        usort($a['actividad'], static fn($x, $y) => strcmp($y['ts'], $x['ts']));
+    }
     $a['errores'] = of_errores($a['actividad']);
     $hoy = date('Y-m-d');
-    $hechasHoy = count(array_filter($a['actividad'], static fn($e) => substr($e['ts'], 0, 10) === $hoy && $e['tipo'] === 'hito'));
-    $mes = date('Y-m-d H:i:s', time() - 30 * 86400);
-    $hechasMes = count(array_filter($a['actividad'], static fn($e) => $e['ts'] >= $mes && $e['tipo'] === 'hito'));
+    $a['hoy'] = count(array_filter($a['actividad'], static fn($e) => substr($e['ts'], 0, 10) === $hoy && $e['tipo'] === 'hito'));
     $ult = $a['actividad'][0] ?? null;
-    $reciente = $ult && strtotime($ult['ts']) > time() - 7200 && $ult['tipo'] !== 'espera';
-    $a['hoy'] = $hechasHoy;
+    $reciente = $ult && strtotime($ult['ts']) > time() - 3600 && $ult['tipo'] !== 'espera' && !preg_match('/^Termina/u', $ult['txt']);
     $a['st'] = $a['errores'] ? 'error' : ($reciente ? 'trabajando' : 'espera');
-    $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
-        : ($ult ? $ult['txt'] : 'Trabaja con tareas programadas: contenido de la web, Google Business, Localo y medición semanal.');
-    $a['proxima'] = 'Lunes 9:00: informe de visibilidad en IA';
+    $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt'] : ($ult ? $ult['txt'] : 'Aún no ha trabajado. Turno: ' . $cuando . '.');
+    $a['proxima'] = $cuando;
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
-    $a['datos'] = [['Tareas hoy', (string)$hechasHoy], ['Tareas en 30 días', (string)$hechasMes]];
+    $a['datos'] = [['Turno', $cuando], ['Tareas hoy', (string)$a['hoy']]];
     return $a;
-}
-
-/**
- * Seguimiento del scraper para el panel (Control de envíos): por día, cuántas empresas encuentra en Google Maps, cuántas
- * pasan los filtros y cuántas entran de verdad en la cola; los motivos de descarte de hoy; y por dónde va el barrido.
- */
-function of_scraper_seguimiento(): array
-{
-    $db = pebai_agentes_db();
-    $desde = date('Y-m-d', strtotime('-13 days'));
-    $dias = [];
-    for ($i = 13; $i >= 0; $i--) {
-        $dias[date('Y-m-d', strtotime("-$i days"))] = ['enc' => 0, 'ent' => 0, 'cola' => 0];
-    }
-    $motivos = [];
-    $q = $db->prepare("SELECT ts, resumen, detalle FROM agente_actividad WHERE agente = 'prospeccion' AND resumen LIKE '%empresas encontradas%' AND ts >= ?");
-    $q->execute([$desde]);
-    foreach ($q as $r) {
-        $d = substr($r['ts'], 0, 10);
-        if (!isset($dias[$d]) || !preg_match('/(\d+) empresas encontradas, (\d+) entregadas/u', $r['resumen'], $m)) {
-            continue;
-        }
-        $dias[$d]['enc'] += (int)$m[1];
-        $dias[$d]['ent'] += (int)$m[2];
-        if ($d === date('Y-m-d') && preg_match('/Descartadas y por qué: ([^.]+)\./u', (string)$r['detalle'], $mm)) {
-            foreach (explode(',', $mm[1]) as $par) {
-                if (preg_match('/^\s*(.+?)\s+(\d+)\s*$/u', $par, $x)) {
-                    $motivos[$x[1]] = ($motivos[$x[1]] ?? 0) + (int)$x[2];
-                }
-            }
-        }
-    }
-    foreach (['prospectos', 'email_prospectos'] as $t) {
-        $q = $db->prepare("SELECT substr(created_at, 1, 10) d, COUNT(*) n FROM $t WHERE created_at >= ? GROUP BY d");
-        $q->execute([$desde]);
-        foreach ($q as $r) {
-            if (isset($dias[$r['d']])) {
-                $dias[$r['d']]['cola'] += (int)$r['n'];
-            }
-        }
-    }
-    arsort($motivos);
-    // Por dónde va: la vuelta más reciente del barrido y cuántas provincias lleva
-    $carpeta = dirname(pebai_private_dir(), 3) . '/scratch/prospeccion/tandas';
-    $vueltas = glob($carpeta . '/solar_v*', GLOB_ONLYDIR) ?: [];
-    usort($vueltas, static fn($a, $b) => (int)substr(strrchr($b, 'v'), 1) <=> (int)substr(strrchr($a, 'v'), 1));
-    $vuelta = $vueltas ? basename($vueltas[0]) : '';
-    $hechas = $vuelta ? count(array_filter(glob($vueltas[0] . '/' . $vuelta . '_*.csv') ?: [], static fn($f) => !preg_match('/_(whatsapp|email|llamadas|solo_email)(_ia)?\.csv$/', $f))) : 0;
-    $ahora = '';
-    $logs = glob(dirname(pebai_private_dir(), 3) . '/scratch/prospeccion/tanda_*.log') ?: [];
-    usort($logs, static fn($x, $y) => filemtime($y) <=> filemtime($x));
-    if ($logs && filemtime($logs[0]) > time() - 600) {
-        $cola = (string)@file_get_contents($logs[0], false, null, max(0, filesize($logs[0]) - 65536));
-        if (preg_match_all('/^=== (.+) ===$/mu', $cola, $pv)) {
-            $ahora = end($pv[1]);
-        }
-    }
-    return ['dias' => array_map(static fn($d, $v) => ['d' => $d] + $v, array_keys($dias), $dias), 'motivos' => array_slice($motivos, 0, 6, true),
-            'vuelta' => (int)substr($vuelta, 7), 'hechas' => $hechas, 'total' => 52, 'ahora' => $ahora, 'pueblos' => (int)substr($vuelta, 7) >= 2];
 }
 
 /* --------------------------------------------------------------- Embudo --- */
@@ -429,12 +380,19 @@ function of_ultima(array $act, array $tipos): ?array
 function of_estado(PDO $db): array
 {
     $ags = [];
-    foreach (['of_scraper', 'of_whatsapp', 'of_email', 'of_geo'] as $fn) {
+    foreach (['of_scraper', 'of_whatsapp', 'of_email'] as $fn) {
         try {
             $ags[] = $fn();
         } catch (Throwable $e) {
             pebai_log('OFICINA ' . $fn . ': ' . $e->getMessage());
             $ags[] = of_agente(['id' => substr($fn, 3), 'dept' => 'captacion', 'nombre' => ucfirst(substr($fn, 3)), 'st' => 'error', 'motivo' => 'No se ha podido leer su estado.']);
+        }
+    }
+    foreach (OF_GEO_AGENTES as [$id, $nombre, $rol, $cuando]) {
+        try {
+            $ags[] = of_geo_agente($id, $nombre, $rol, $cuando);
+        } catch (Throwable $e) {
+            pebai_log('OFICINA ' . $id . ': ' . $e->getMessage());
         }
     }
     try {
