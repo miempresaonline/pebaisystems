@@ -2,7 +2,7 @@
 
 Objetivo: ser la consultora que ChatGPT, Perplexity, Gemini, AI Overviews/AI Mode, Copilot y Claude recomiendan a las empresas españolas, empezando por las **empresas de placas solares**. Skill que lo ejecuta: `.claude/skills/geo-pebai/`. Fuentes y datos: `.claude/skills/geo-pebai/references/playbook-2026-10.md`.
 
-Estado (21/10: los `[~]` de la fase 1 están hechos en código, pendientes de desplegar): `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equipo (acceso, decisión o dato).
+Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equipo (acceso, decisión o dato).
 
 ## Punto de partida (auditoría del 21/10/2026)
 
@@ -19,22 +19,22 @@ Estado (21/10: los `[~]` de la fase 1 están hechos en código, pendientes de de
 
 - [~] Cloudflare (21/10): AI bot policies con Search, Agent y Training en Allow y *Bot Preference Sync* desactivado. robots.txt servido = el nuestro. ClaudeBot, Google-Extended, Applebot-Extended, OAI-SearchBot, PerplexityBot y Bingbot dan 200. **GPTBot da 429** desde una IP que no es de OpenAI (posible control anti-suplantación o propagación): confirmar con las visitas reales en Clarity (actividad de bots, conectada a Cloudflare el 21/10) o en AI Crawl Control.
 - [~] Bing Webmaster: la importación desde Search Console falló (21/10, "not able to fetch data"); pasar a verificación manual con `BingSiteAuth.xml`. Search Console: archivo de verificación subido (commit 9dad61a). Clarity: Cita (dominio conectado) y actividad de bots (Cloudflare) configurados el 21/10.
-- [~] `robots.txt`: añadir Claude-SearchBot, Claude-User y Perplexity-User.
-- [~] `sitemap.xml`: solo URLs indexables; commitear el estado real.
-- [~] noindex en `/formulario-completado/` y `/diagnostico/`; canonical de `/diagnostico/` con barra; 301 de `www` a sin `www`.
+- [x] `robots.txt`: añadir Claude-SearchBot, Claude-User y Perplexity-User.
+- [x] `sitemap.xml`: solo URLs indexables; commitear el estado real.
+- [x] noindex en `/formulario-completado/` y `/diagnostico/`; canonical de `/diagnostico/` con barra; 301 de `www` a sin `www`.
 - [ ] Landings retiradas: el 302 es temporal a propósito (el equipo las rehace). Al volver, revisarlas con `seo-clean-architecture` (sin canibalizar, con nicho solar), añadirlas a sitemap y llms.txt y quitar la regla; las que no vuelvan → 301 a su equivalente o 410.
-- [ ] 🔑 Search Console y Bing Webmaster verificados (Bing importando desde GSC) con el sitemap enviado.
-- [~] IndexNow automático en `deploy_changed.py` para las URL HTML del commit.
-- [~] Medición sin consentimiento (decidido el 21/10, tras revisar la guía de cookies de la AEPD 05/2024 y las directrices 2/2023 del EDPB): Clarity y GA4 siguen **solo con consentimiento** (Clarity con `consentv2`, la API antigua se retira). Para contar a todos: Metricool (ya instalado, sin cookies, declarado en la política; marca 7537996, legible por MCP) + contador propio agregado en PHP/SQLite (fecha, ruta, dominio de origen, utm y paso del embudo; sin IP, sin identificadores, sin cookies), declarado en la política de cookies, para ver visitas y leads que llegan desde IAs.
-- [~] Medición: arreglar `geo-tracker.js` (escuchar `pebai:consent`), claude.ai y copilot en `utm.js`, canal "IA" en GA4, Clarity con canal AIPlatform y Citations.
+- [x] (21/10, commit 2283d6a desplegado) Search Console verificado y sitemap enviado por API; GA4 con grupo de canales "PEBAI (IA primero)" creado por API (además del canal nativo AI Assistant). Antes: 🔑 Search Console y Bing Webmaster verificados (Bing importando desde GSC) con el sitemap enviado.
+- [x] IndexNow automático en `deploy_changed.py` para las URL HTML del commit.
+- [x] Medición sin consentimiento (decidido el 21/10, tras revisar la guía de cookies de la AEPD 05/2024 y las directrices 2/2023 del EDPB): Clarity y GA4 siguen **solo con consentimiento** (Clarity con `consentv2`, la API antigua se retira). Para contar a todos: Metricool (ya instalado, sin cookies, declarado en la política; marca 7537996, legible por MCP) + contador propio agregado en PHP/SQLite (fecha, ruta, dominio de origen, utm y paso del embudo; sin IP, sin identificadores, sin cookies), declarado en la política de cookies, para ver visitas y leads que llegan desde IAs.
+- [x] Medición: arreglar `geo-tracker.js` (escuchar `pebai:consent`), claude.ai y copilot en `utm.js`, canal "IA" en GA4, Clarity con canal AIPlatform y Citations.
 - [ ] Línea base: primera pasada del set de prompts (`docs/geo/prompts.md`).
 
 ## Fase 2 — Que entiendan quiénes somos (semanas 2-4)
 
-- [ ] JSON-LD completo: Organization + ProfessionalService + WebSite, Person ×2 (`@id`, url, sameAs LinkedIn, `worksFor`), Service por servicio, FAQPage donde haya FAQ visible, VideoObject en los vídeos.
+- [x] (21/10, c47c0ef) JSON-LD completo en portada y VSL (Organization, ProfessionalService, WebSite, WebPage, Person ×2, VideoObject, BreadcrumbList); falta sameAs de LinkedIn cuando exista. Era: Organization + ProfessionalService + WebSite, Person ×2 (`@id`, url, sameAs LinkedIn, `worksFor`), Service por servicio, FAQPage donde haya FAQ visible, VideoObject en los vídeos.
 - [ ] 🔑 Páginas de Daniel y Adrián indexables con biografía, experiencia y LinkedIn (hoy `/t/*` son noindex).
 - [ ] 🔑 Perfiles coherentes (mismo nombre, descripción, web, teléfono): LinkedIn de empresa, Google Business Profile (área de servicio, si cumple normas), Clutch, Sortlist, Crunchbase, YouTube.
-- [ ] `llms.txt` con el nicho solar y los servicios; `llms-full.txt` con detalle real o eliminarlo.
+- [x] (21/10) `llms.txt` con el nicho solar y los servicios; `llms-full.txt` con detalle real o eliminarlo.
 
 ## Fase 3 — Que tengamos algo que citar (semanas 3-8)
 
@@ -57,7 +57,7 @@ Estado (21/10: los `[~]` de la fase 1 están hechos en código, pendientes de de
 
 ## Fase 5 — Medir y automatizar
 
-- [ ] Rutina semanal de la skill `geo-pebai` (lunes).
+- [x] (21/10) Tarea programada `informe-geo-semanal-pebai`, lunes 9:00, solo lectura. Rutina semanal de la skill `geo-pebai` (lunes).
 - [ ] 🔑 Decidir herramienta de seguimiento en IA: rastreador propio por API (0-10 €/mes) y/o add-on AI Search de SE Ranking / Otterly Lite.
 - [ ] Tabla de resultados GEO en el panel (Automático › Agentes) — solo si el equipo lo pide.
 
