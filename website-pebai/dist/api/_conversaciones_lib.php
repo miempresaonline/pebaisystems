@@ -360,7 +360,7 @@ function pebai_conv_datos(): array
     }
     $msgs = [];
     foreach ($db->query("SELECT id, ts, agente, prospecto_id, sentido, texto, plantilla FROM agente_mensajes WHERE prospecto_id > 0 ORDER BY ts, id") as $m) {
-        $msgs[($m['agente'] === 'email' ? 'email' : 'whatsapp') . ':' . $m['prospecto_id']][] = ['ts' => $m['ts'], 'de' => $m['sentido'], 'texto' => $m['texto'], 'manual' => $m['plantilla'] === 'manual' ? 1 : 0, 'respuesta' => $m['plantilla'] === 'respuesta' ? 1 : 0];
+        $msgs[($m['agente'] === 'email' ? 'email' : 'whatsapp') . ':' . $m['prospecto_id']][] = ['id' => (int)$m['id'], 'ts' => $m['ts'], 'de' => $m['sentido'], 'texto' => $m['texto'], 'manual' => $m['plantilla'] === 'manual' ? 1 : 0, 'respuesta' => $m['plantilla'] === 'respuesta' ? 1 : 0];
     }
     $cola = [];
     foreach ($db->query("SELECT prospecto_id, texto, estado, error FROM wa_salida WHERE estado <> 'enviado' ORDER BY id") as $w) {

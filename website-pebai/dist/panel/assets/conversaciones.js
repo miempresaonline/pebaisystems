@@ -205,6 +205,12 @@ function drawChat() {
     if (dd !== ultimoDia) { chat.append(el('div', 'pc-day', dd)); ultimoDia = dd; }
     const b = el('div', 'pc-b ' + (m.de === 'sale' ? 'yo' : 'ellos'));
     b.append(el('p', null, m.texto), el('time', null, hora(d) + (m.de === 'sale' ? (m.manual ? ' · enviado por ti' : m.respuesta ? ' · aprobada por ti' : ' · enviado por el agente') : '')));
+    if (m.manual) {
+      // Por si se pegó mal: solo los «enviados por ti» se pueden quitar
+      const q = el('button', 'pc-quitar', '×'); q.type = 'button'; q.title = 'Quitar este mensaje de la conversación';
+      q.onclick = async () => { if (!confirm('¿Quitar este mensaje de la conversación?')) return; try { await post('conv_mio_quitar', { canal: f.canal, id: f.id, msg: m.id }); toast('Mensaje quitado.'); await load(); draw(); } catch (e) { toast(e.message, true); } };
+      b.append(q);
+    }
     chat.append(b);
   });
   // Respuestas aprobadas que el agente aún no ha enviado
@@ -219,7 +225,7 @@ function drawChat() {
   const ta = el('textarea'); ta.value = f.notas || ''; ta.placeholder = 'Ej.: le interesa para la web y WhatsApp; llamar el jueves por la tarde.';
   let tm; ta.oninput = () => { clearTimeout(tm); tm = setTimeout(async () => { try { await post('conv_notas', { canal: f.canal, id: f.id, notas: ta.value }); f.notas = ta.value; } catch (e) { toast(e.message, true); } }, 700); };
   nt.append(ta);
-  drawer.append(hd, links, est, chat, responder(f), nt);
+  drawer.append(hd, links, est, chat, faltaMio(f), responder(f), nt);
   requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; });
 }
 
@@ -276,6 +282,29 @@ function responder(f) {
   fila.append(ins, otra, pon);
   box.append(ta, nota, fila, env);
   return box;
+}
+
+/* ============ mensajes de Daniel que no se guardaron: se pegan con su fecha ============ */
+function faltaMio(f) {
+  const d = el('details', 'pc-mio'); if (ui.mio === f.k) d.open = true;
+  d.addEventListener('toggle', () => { ui.mio = d.open ? f.k : null; });
+  const s = el('summary', null, '¿Falta algún mensaje tuyo? Pégalo aquí');
+  const ta = el('textarea'); ta.rows = 3; ta.placeholder = 'Pega el mensaje tal cual lo enviaste desde ' + (f.canal === 'email' ? 'tu correo' : 'el móvil') + '.';
+  const fila = el('div', 'pc-mio-fila');
+  const fe = el('input'); fe.type = 'datetime-local';
+  const ahora = new Date(); const loc = (x) => `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}T${pad(x.getHours())}:${pad(x.getMinutes())}`;
+  fe.max = loc(ahora); fe.value = loc(ahora); const ini = parse(f.enviado_at); if (ini) fe.min = loc(ini);
+  fe.title = 'Cuándo lo enviaste';
+  const b = el('button', 'pc-btn main', null); b.type = 'button'; b.append(el('span', null, 'Añadir a la conversación'));
+  b.onclick = async () => {
+    if (!ta.value.trim()) { toast('Pega el texto del mensaje.', true); return; }
+    b.disabled = true;
+    try { await post('conv_mio', { canal: f.canal, id: f.id, texto: ta.value, fecha: fe.value }); toast('Añadido a la conversación en su fecha.'); await load(); draw(); }
+    catch (e) { toast(e.message, true); b.disabled = false; }
+  };
+  fila.append(el('small', null, 'Enviado el'), fe, b);
+  d.append(s, ta, fila);
+  return d;
 }
 
 /* ============ eventos y ciclo ============ */
