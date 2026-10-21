@@ -148,7 +148,8 @@ switch ($in['accion'] ?? '') {
         // Foto de perfil de WhatsApp de una empresa contactada (para el CRM del panel)
         $tel = pebai_phone_digits((string)($in['telefono'] ?? ''));
         $img = base64_decode((string)($in['img'] ?? ''), true);
-        if (!preg_match('/^\d{9,15}$/', $tel) || !$img || strlen($img) > 400000 || substr($img, 0, 3) !== "ÿØÿ") {
+        $info = $img ? @getimagesizefromstring($img) : false;
+        if (!preg_match('/^\d{9,15}$/', $tel) || !$img || strlen($img) > 400000 || !$info || !in_array($info['mime'], ['image/jpeg', 'image/png', 'image/webp'], true)) {
             out(['ok' => true, 'ignorado' => true]);
         }
         $dir = pebai_private_dir() . '/fotos';

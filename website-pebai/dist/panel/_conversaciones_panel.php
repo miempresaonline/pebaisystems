@@ -20,7 +20,8 @@ if ($auth && isset($_GET['foto'])) {
         http_response_code(404);
         exit;
     }
-    header('Content-Type: image/jpeg');
+    $info = @getimagesize($f);
+    header('Content-Type: ' . ($info['mime'] ?? 'image/jpeg'));
     header('Cache-Control: private, max-age=86400');
     readfile($f);
     exit;
