@@ -74,3 +74,10 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 | Cloudflare | token y zona configurados; 🔑 cambios de bots necesitan OK |
 | Localo | 🔑 token pendiente de copiar; no hay `localo_place_id` (no hay perfil de Google Business) |
 | Metricool | MCP conectado; token pendiente de copiar; falta `metricool_blog_id` |
+
+## Ajustes de herramientas (21/10/2026, solo PEBAI)
+- SE Ranking (proyecto 12936941): grupo "Pilares PEBAI" con 31 keywords de los pilares + "aparecer en chatgpt empresa"; competidores javadex.es, upliora.es, plainconcepts.com, hiberus.com, minsait.com. Las 39 antiguas se quedan en "General" (conservan histórico). Sin add-on de seguimiento en IA (no se ha comprado nada).
+- GA4: eventos clave `lead_funnel_diagnostic` y `conversion_whatsapp`; retención de datos de 2 a 14 meses; grupo de canales "PEBAI (IA primero)".
+- Bing Webmaster: enviadas `/` y `/consultoria-gratuita/`; sin errores de rastreo; sitemap leído (aún la versión antigua de 9 URLs, se actualizará).
+- Search Console: sitemap enviado por API.
+- Cloudflare: IA permitida (Search, Agent y Training), sin robots.txt gestionado, email visible, token `claude-geo` solo con purga de caché (sin permiso de ajustes de zona).
