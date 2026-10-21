@@ -177,6 +177,16 @@ function pebai_conv_lead(string $telefono, string $email): int
 
 /* ------------------------------------------------------------ respuestas --- */
 
+/**
+ * Contestadores automáticos (orden de Daniel, 21/10): a quien solo respondió con un mensaje automático se le prepara UN único
+ * mensaje corto, a partir del día siguiente al primero, que Daniel aprueba uno a uno. Si tampoco contesta, no se le vuelve a escribir.
+ */
+function pebai_conv_toca_contestador(string $clasificacion, array $msgs, string $enviadoAt): bool
+{
+    $salen = count(array_filter($msgs, static fn($m) => ($m['sentido'] ?? $m['de'] ?? '') === 'sale'));
+    return $clasificacion === 'auto' && $salen === 1 && $enviadoAt !== '' && substr($enviadoAt, 0, 10) < date('Y-m-d');
+}
+
 const PEBAI_CONV_ENLACE = '[ENLACE_RESERVA]';
 
 function pebai_conv_prospecto(string $canal, int $id): ?array
@@ -241,11 +251,19 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
     $email = $canal === 'email';
     $q = $db->prepare('SELECT clasificacion FROM conversaciones WHERE canal = ? AND prospecto_id = ?');
     $q->execute([$canal, (int)$p['id']]);
-    $interes = (string)$q->fetchColumn() === 'interesado';
+    $clasif = (string)$q->fetchColumn();
+    $interes = $clasif === 'interesado';
+    $auto = $clasif === 'auto';
     $enlaceDado = str_contains($hilo, '/reservar/?s=');
     // Por pasos (orden de Daniel, 21/10): 1) ver si le interesa, sin llamada ni enlace; 2) si muestra interés, proponer la llamada
     // y preguntar si quiere el enlace; 3) el enlace solo cuando lo acepta o lo pide
-    $etapa = $enlaceDado
+    $etapa = $auto
+        ? 'Solo nos ha contestado su CONTESTADOR AUTOMÁTICO: ninguna persona ha leído nuestro mensaje. Este es el ÚNICO mensaje que le mandamos después, '
+          . 'así que tiene que ser muy corto (máximo 30 palabras), amable y natural, como si lo escribiera Daniel desde el móvil al día siguiente. '
+          . 'Sin repetir el primer mensaje: una frase que diga a qué se dedica PEBAI con ellos (que nadie que les pida presupuesto se quede sin respuesta) '
+          . 'y UNA pregunta muy fácil de contestar (p. ej. quién lleva los mensajes de presupuesto o si les vendría bien). '
+          . 'No menciones el contestador automático. PROHIBIDO: llamada, reunión, enlaces, plazas, «gratis», cualquier oferta.'
+        : ($enlaceDado
         ? 'Ya tiene el enlace para reservar. Resuelve lo que pregunte y, si hace falta, recuérdale con suavidad que puede elegir hora cuando quiera. No repitas el enlace salvo que lo pida (entonces pon ' . PEBAI_CONV_ENLACE . ').'
         : ($interes
             ? 'Ha mostrado interés. Responde a lo que pregunta, cuéntale en una o dos frases cómo le ayudaría (dolor + beneficio) y proponle con suavidad una videollamada de 25 minutos '
@@ -253,7 +271,7 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
               . 'Pon el enlace (exactamente ' . PEBAI_CONV_ENLACE . ') SOLO si en la conversación ya ha aceptado la llamada o ha pedido el enlace, la cita o hablar.'
             : 'Aún NO ha mostrado interés. Este mensaje solo busca que entienda qué hacemos y saber si le interesa: dale las gracias por contestar, explica en una frase sencilla cómo le ayudaríamos '
               . '(que nadie que les escriba pidiendo presupuesto se quede sin respuesta, también fuera de horario) y termina con UNA pregunta abierta y fácil para ver si le interesa. '
-              . 'PROHIBIDO en este mensaje: proponer llamada o reunión, enlaces, plazas, «gratis» o cualquier oferta.');
+              . 'PROHIBIDO en este mensaje: proponer llamada o reunión, enlaces, plazas, «gratis» o cualquier oferta.'));
     $prompt = "Eres Daniel, de PEBAI Systems, una consultora de procesos e Inteligencia Artificial. Escribimos en frío a {$p['empresa']}"
         . ($p['ciudad'] ? " ({$p['ciudad']})" : '') . ", una empresa instaladora de placas solares, y nos han contestado. Escribe la siguiente respuesta de Daniel por "
         . ($email ? 'email' : 'WhatsApp') . ".\n\n"
@@ -280,7 +298,11 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         $t = trim(str_replace("\r", '', (string)($r['respuesta'] ?? '')));
         $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
         $prisa = !$interes && !$enlaceDado && preg_match('/' . preg_quote(PEBAI_CONV_ENLACE, '/') . '|videollamada|llamada|reuni[oó]n|25 minutos|gratis|gratuit|plazas/iu', $t);
-        if ($t !== '' && !$prisa && $n <= ($email ? 130 : 85) && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t)) {
+        if ($t !== '' && !$prisa && $n <= ($auto ? ($email ? 60 : 40) : ($email ? 130 : 85)) && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t)) {
+            // Segundo mensaje a quien aún no ha leído nada: vuelve a ofrecer no escribir más (regla legal)
+            if ($auto && !preg_match('/no (os |te )?(escribo|vuelvo|molesto)|no os escribir|digáis|dímelo|me lo dices/iu', $t)) {
+                $t .= $email ? "\n\nSi no os interesa, me lo decís y no vuelvo a escribiros." : ' Si no os interesa, me lo decís y no os escribo más.';
+            }
             return ['texto' => $t];
         }
     }
@@ -312,6 +334,22 @@ function pebai_conv_borradores(int $max = 3): int
 {
     $db = pebai_conv_db();
     $hechos = 0;
+    // Contestadores del día anterior: su único mensaje corto
+    foreach ($db->query("SELECT canal, prospecto_id FROM conversaciones WHERE clasificacion = 'auto' AND manual = 0 AND borrador = ''")->fetchAll() as $c) {
+        if ($hechos >= $max) {
+            break;
+        }
+        $p = pebai_conv_prospecto($c['canal'], (int)$c['prospecto_id']);
+        $env = $p ? (string)($c['canal'] === 'email' ? $p['enviado1_at'] : $p['enviado_at']) : '';
+        if (!$p || pebai_conv_es_baja($c['canal'], $p) || !pebai_conv_toca_contestador('auto', pebai_conv_mensajes($c['canal'], (int)$c['prospecto_id']), $env)) {
+            continue;
+        }
+        $res = pebai_conv_borrador($c['canal'], (int)$c['prospecto_id']);
+        if (isset($res['texto'])) {
+            pebai_actividad($c['canal'], 'respuesta', 'Solo contestó su contestador: mensaje corto preparado para ' . ($p['empresa'] ?: '#' . $p['id']) . ' (espera tu aprobación)', $res['texto'], ($c['canal'] === 'email' ? 'em:' : 'wa:') . $p['id']);
+        }
+        $hechos++;
+    }
     $rows = $db->query("SELECT m.agente, m.prospecto_id, m.id FROM agente_mensajes m
                         JOIN (SELECT agente, prospecto_id, MAX(id) ult FROM agente_mensajes WHERE prospecto_id > 0 GROUP BY agente, prospecto_id) u ON u.ult = m.id
                         WHERE m.sentido = 'entra' ORDER BY m.id DESC")->fetchAll();
@@ -458,7 +496,9 @@ function pebai_conv_datos(): array
                 'foto' => $canal === 'whatsapp' && is_file(pebai_private_dir() . '/fotos/' . preg_replace('/\D/', '', (string)$p['telefono']) . '.jpg') ? preg_replace('/\D/', '', (string)$p['telefono']) : '',
                 'mensajes' => $hilo, 'cola' => $cola[$k] ?? [], 'borrador' => $c['borrador'] ?? '',
                 // Le toca contestar a Daniel: lo último lo escribió la empresa y no es un contestador ni alguien que no quiere
-                'te_toca' => $hilo && end($hilo)['de'] === 'entra' && empty($cola[$k]) && !in_array($estado, ['no_interesado', 'auto', 'cita'], true) ? 1 : 0,
+                'te_toca' => empty($cola[$k]) && (($hilo && end($hilo)['de'] === 'entra' && !in_array($estado, ['no_interesado', 'auto', 'cita'], true))
+                    || ($estado === 'auto' && pebai_conv_toca_contestador('auto', $hilo, (string)$p['enviado_at']))) ? 1 : 0,
+                'contestador' => $estado === 'auto' && pebai_conv_toca_contestador('auto', $hilo, (string)$p['enviado_at']) ? 1 : 0,
             ];
         }
     }

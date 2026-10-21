@@ -139,7 +139,7 @@ function drawTabla(rows) {
     const d = parse(f.enviado_at);
     const env = el('div', 'pc-env'); env.append(el('b', null, dia(d)), el('span', null, hora(d)));
     const est = el('div', 'pc-est'); est.append(pill(f.estado));
-    if (f.te_toca) est.append(el('small', 'pc-toca', f.borrador ? 'Respuesta lista' : 'Te toca'));
+    if (f.te_toca) est.append(el('small', 'pc-toca', f.contestador ? (f.borrador ? 'Mensaje corto listo' : 'Contestador: un mensaje') : f.borrador ? 'Respuesta lista' : 'Te toca'));
     else if (f.cola.length) est.append(el('small', 'pc-toca cola', 'Enviando…'));
     const ult = el('div', 'pc-ult');
     const ultima = [...f.mensajes].reverse().find((m) => m.de === 'entra');
@@ -239,7 +239,7 @@ function responder(f) {
   const box = el('div', 'pc-resp');
   if (f.estado === 'no_interesado') { box.append(el('p', 'pc-resp-no', 'No quiere más mensajes: aquí no se le contesta.')); return box; }
   const via = f.canal === 'email' ? 'email' : 'WhatsApp';
-  box.append(el('small', null, f.borrador ? 'Respuesta preparada por la IA · revísala y envíala' : 'Responder por ' + via));
+  box.append(el('small', null, f.contestador ? 'Solo contestó su contestador · un único mensaje corto, revísalo' : f.borrador ? 'Respuesta preparada por la IA · revísala y envíala' : 'Responder por ' + via));
   const ta = el('textarea'); ta.value = (f.borrador || '').split(ENLACE).join(f.reserva || ENLACE); ta.rows = 5;
   // Si la IA propone la llamada, el enlace real de la empresa va ya escrito en el mensaje
   if (ta.value.includes(ENLACE)) enlace(f).then((u) => { ta.value = ta.value.split(ENLACE).join(u); drawLinks(); }).catch(() => {});
