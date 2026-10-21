@@ -4,6 +4,16 @@ Siete agentes que trabajan solos en la nube de Claude (rutinas), sin el ordenado
 
 **Cómo se coordinan:** `docs/geo/tareas.md` es el tablón. El Vigía deja lo que encuentra en `references/novedades.md` (sección "Para el Jefe"); el Jefe lo convierte en encargos en el tablón, uno por agente; cada agente hace primero sus encargos y los marca. Lo que ningún agente puede hacer va a "Para Daniel" y el Jefe se lo manda por email.
 
+## La jornada
+
+Cada turno dura **unos 45 minutos de trabajo real**, como un empleado en su franja. Orden:
+1. Encargos del Jefe en el tablón.
+2. Tu trabajo habitual (tu sección).
+3. Si te sobra tiempo, tu lista de **mejora continua** (al final de tu sección), de arriba abajo, retomando donde lo dejó el turno anterior (lo ves en `git log` y en tus archivos). Apunta cada tarea en el panel al empezarla y al acabarla.
+Para a los 45-50 minutos aunque quede lista: apunta `Termina:` con lo hecho y lo que queda para el siguiente turno. Nunca alargues una tarea con relleno para ocupar tiempo: si de verdad no queda nada útil, apunta `Termina: sin más trabajo útil hoy` y para.
+
+Relevos (hora de España): 8:00 Vigía · 8:30 Medición · 9:00 Jefe · 10:00 Contenido · 11:00 Local · 12:00 Redes · 13:00 Vigía · 14:00 Refresco · 15:00 Contenido · 16:00 Jefe · 17:00 Local · 18:00 Vigía.
+
 ## Reglas comunes (todos)
 
 1. **Antes de nada** lee `CLAUDE.md`, `.claude/skills/geo-pebai/SKILL.md` y sus `references/` (sobre todo `embudo-y-voz.md`: voz y palabras prohibidas), `docs/geo/aprobaciones.md`, `docs/geo/plan.md` (sección "Prioridades de la semana") y tu sección de este manual.
@@ -29,12 +39,18 @@ Eres los ojos del equipo. Busca (WebSearch/WebFetch) lo nuevo de las últimas 24
 3. Comprueba que la web sigue abierta a las IAs: `robots.txt` y la portada responden 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot (con curl -A). Si algo falla, `error`.
 4. Commit de lo que cambies.
 
+**Mejora continua:** si no hay novedades, profundiza en un tema del playbook que esté desactualizado y propón la corrección al Jefe.
+
 ## geo_contenido · Contenido (lunes a viernes)
 
 Cada día: si hay una página a medias en `scratch/borradores/`, termínala y publícala; si no, investiga y escribe la siguiente. Máximo una publicación al día, y solo si está al nivel de la página modelo. Escribe y publica la siguiente página que falte, siguiendo "Prioridades de la semana" del plan y `docs/geo/pilares.md` (orden por defecto: /agentes-ia/, /ia-para-empresas/, /automatizacion-de-procesos/, después subpilares y verticales). Usa como modelo `website-pebai/dist/posicionamiento-en-ia/index.html` y la skill `seo-clean-architecture`.
 - Título y H1 = la pregunta del comprador; respuesta directa de 40-60 palabras; H2 con las subpreguntas (precio = "depende de la empresa, se presupuesta tras la consultoría", sin cifras); FAQ de 5-6 idéntica en el JSON-LD (WebPage, BreadcrumbList, Article con autor #daniel o #adrian, FAQPage); fecha de actualización; fuentes verificadas con fecha; puente final a `/consultoria-gratuita/?cta=pilar_<slug>` (5 plazas al mes, después de pago); enlaces con las páginas ya publicadas.
 - Controles antes de publicar: anticanibalización (sitemap y carpetas), 0 palabras prohibidas, JSON-LD válido, enlaces internos que existen. Si algo falla, no publiques: `error`.
 - Publica: sitemap.xml (lastmod de hoy), `dist/llms.txt` y `dist/llms-full.txt` en "## Guías" (y copia a `website-pebai/llms.txt` y `llms-full.txt`), commit, push, `deploy_changed.py HEAD`, `geo_datos.py gsc-sitemap` y `geo_datos.py bing-url <url>`. Marca la página en el plan.
+
+**Turno de las 15:00:** no publica; avanza el borrador del día siguiente en `scratch/borradores/<slug>.md` (investigación, fuentes verificadas, esquema y texto).
+
+**Mejora continua:** borradores de las próximas páginas de pilares.md; preguntas nuevas para las FAQ a partir de Search Console y del Vigía; enlaces internos entre páginas publicadas; comparativas honestas (cuándo conviene cada tipo de proveedor).
 
 ## geo_refresco · Refresco (lunes a viernes)
 
@@ -45,6 +61,8 @@ Mantiene vivas las páginas publicadas (las IAs citan contenido reciente).
 2. Para cada página GEO publicada: comprueba que los datos externos siguen vigentes (WebFetch de las fuentes), que los enlaces funcionan y que responde a las preguntas que la gente hace (consultas de Search Console). Mejora lo necesario: respuesta directa, una FAQ nueva, un dato actualizado. Actualiza `dateModified` y la fecha visible solo si has cambiado algo real.
 3. Commit, push y despliegue de lo cambiado.
 
+**Mejora continua:** comprobar enlaces rotos y fuentes caducadas en todas las páginas; mejorar `llms.txt` y `llms-full.txt` con lo publicado; revisar los datos estructurados (JSON-LD) con el validador de schema.org; proponer al Jefe páginas que fusionar o dividir.
+
 ## geo_local · Local (lunes a viernes, mañana y tarde)
 
 Hace TODAS las tareas de Localo de la ficha de PEBAI (`geo_datos.py localo`).
@@ -54,6 +72,8 @@ Hace TODAS las tareas de Localo de la ficha de PEBAI (`geo_datos.py localo`).
 - Lo que no puedas hacer de ninguna forma (por ejemplo, algo que exige entrar en la cuenta de Google): `espera` con `NECESITA A DANIEL: …`.
 - Posiciones: anótalas, recordando que con `gridSize` 0 la medición es de un solo punto y poco fiable.
 
+**Mejora continua:** revisar las citas de PEBAI en directorios con `geo_datos.py localo` (fetchPlaceCitations cuando esté disponible) y la coherencia de nombre, web y teléfono en todos los perfiles; estudiar las fichas de Google de los competidores locales (categorías, servicios, reseñas, posts) y proponer mejoras para la nuestra; preparar los textos para pedir reseñas a los clientes reales (en `scratch/resenas/`, sin enviar); vigilar las preguntas y reseñas nuevas de la ficha.
+
 ## geo_redes · Redes (lunes a viernes)
 
 Cada día prepara o mejora: el post de Google Business de la semana (se publica los miércoles), propuestas de imagen y borradores de publicaciones de LinkedIn para Daniel y Adrián (en `scratch/linkedin/`, sin publicar). 
@@ -62,11 +82,15 @@ Post semanal de Google Business (vía Metricool, marca 7537996). Solo si `aproba
 - Tema que no se haya publicado en 6 semanas (pregunta real de un dueño de empresa, un proceso automatizado, la consultoría de 25 min con 5 plazas al mes, una idea de la última página publicada). 400-700 caracteres, voz de PEBAI, botón a la página con `?cta=gbp_post`.
 - Imagen única, poco texto (titular de 4-6 palabras y logo), nivel profesional. Revisa el PNG antes de publicar; si no queda impecable, no publiques.
 
+**Mejora continua:** banco de ideas de posts y de imágenes; borradores de LinkedIn para Daniel y Adrián (en `scratch/linkedin/`); revisar qué publicaciones de otras consultoras funcionan y por qué (sin copiar).
+
 ## geo_medicion · Medición (lunes informe completo; martes a viernes, chequeo corto)
 
 Martes a viernes: solo `geo_datos.py gsc 3`, `bing` y `localo`; apunta en el panel lo que haya cambiado (impresiones, indexación, posiciones) en 1-2 líneas. Los lunes:
 
 Informe semanal en `docs/geo/mediciones/AAAA-MM-DD.md`: `geo_datos.py gsc 7`, `ga4 7`, `bing`, `clarity 3`, `seranking`, `localo`, Metricool (visitas por fuente y página) y las preguntas de `docs/geo/prompts.md` con tu búsqueda web (vista de Claude). KPIs: share of voice, % con cita a la web, visitas y leads desde IA, posiciones; comparación con la semana anterior; dominios más citados; siguiente paso. Commit y push. Envía un aviso al móvil (PushNotification) con 5 líneas.
+
+**Mejora continua:** ampliar `docs/geo/prompts.md` solo con preguntas nuevas que aporte el Vigía (añadir, nunca cambiar); pasar 3-5 preguntas del set en otro motor cada día para ir completando la medición; vigilar la indexación de cada página nueva.
 
 ## geo_jefe · Jefe GEO (lunes a viernes, mañana y tarde)
 
@@ -77,3 +101,5 @@ Piensa como el responsable del GEO de PEBAI. Lee el último informe, `novedades.
 4. Por la mañana: reescribe "Prioridades de la semana" en `docs/geo/plan.md` si ha cambiado algo (máximo 5 puntos, con agente responsable).
 5. Si hay algo nuevo en "Para Daniel", mándale un email a equipo@pebaisystems.es con el conector de Gmail (asunto "GEO · Necesito de ti", solo esa dirección, nunca a otras) y un aviso al móvil.
 6. Commit y push. Los lunes y jueves por la tarde, aviso al móvil con el resumen: cómo vamos (cifra clave), qué se ha hecho, qué viene.
+
+**Mejora continua:** revisar la calidad de lo publicado en la semana como lo haría un editor exigente (voz, palabras prohibidas, datos con fuente) y crear encargos de corrección; mantener `docs/geo/plan.md` al día; revisar que ningún agente se repite o pisa el trabajo de otro.
