@@ -119,7 +119,7 @@ if (is_file(__DIR__ . '/_oficina_panel.php')) {
     require __DIR__ . '/_oficina_panel.php';
 }
 // Captación › QRs para la calle y › Mapa de prospectos
-foreach (['_qr_panel.php', '_mapa_panel.php', '_conversaciones_panel.php'] as $f) {
+foreach (['_qr_panel.php', '_mapa_panel.php', '_conversaciones_panel.php', '_global_panel.php'] as $f) {
     if (is_file(__DIR__ . '/' . $f)) {
         require __DIR__ . '/' . $f;
     }
@@ -598,7 +598,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '44';
+$v = '45';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -620,6 +620,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <link rel="stylesheet" href="<?= BASE ?>assets/qr.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/mapa.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/conversaciones.css?v=<?= $v ?>">
+<link rel="stylesheet" href="<?= BASE ?>assets/global.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/cajas.css?v=<?= $v ?>">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="stylesheet" href="<?= BASE ?>assets/email.css?v=<?= $v ?>">
@@ -708,7 +709,8 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
   </div>
 
   <section class="pb-page" id="page-resumen" data-page="resumen">
-    <h1 class="pb-h1">El embudo, <i>de un vistazo</i></h1>
+    <h1 class="pb-h1">PEBAI, <i>de un vistazo</i></h1>
+    <div id="pb-global" class="pg"></div>
     <p class="pb-lead" id="pb-takeaway">—</p>
     <div class="pb-plazas" id="pb-plazas"></div>
     <div class="pb-card pb-pendientes pb-anim" id="pb-pendientes" style="--i:0;margin-bottom:14px">
@@ -911,6 +913,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <script>window.PB_TAB = new URLSearchParams(location.search).get('tab');</script>
 <script src="<?= BASE ?>assets/agentes.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/conversaciones.js?v=<?= $v ?>" defer></script>
+<script src="<?= BASE ?>assets/global.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/caja.js?v=<?= $v ?>" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" defer></script>
 <script src="<?= BASE ?>assets/qr.js?v=<?= $v ?>" defer></script>

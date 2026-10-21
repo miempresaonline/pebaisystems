@@ -243,11 +243,22 @@ function of_scraper(): array
     $esLote = $ult && preg_match('/empresas encontradas/u', $ult['txt']);
     $buscando = $ult && preg_match('/^Buscando/u', $ult['txt']);
     $reciente = ($esLote && strtotime($ult['ts']) > time() - 900) || ($buscando && strtotime($ult['ts']) > time() - 2700);
-    $parado = $ult && $ult['tipo'] === 'espera';
+    // El barrido escribe su log mientras trabaja (una provincia puede tardar horas): si se ha movido hace poco, está trabajando
+    $logs = glob(dirname(pebai_private_dir(), 3) . '/scratch/prospeccion/tanda_*.log') ?: [];
+    usort($logs, static fn($x, $y) => filemtime($y) <=> filemtime($x));
+    $vivo = $logs && filemtime($logs[0]) > time() - 600;
+    if ($vivo && !$reciente) {
+        $reciente = true;
+        $cola = (string)@file_get_contents($logs[0], false, null, max(0, filesize($logs[0]) - 65536));
+        preg_match_all('/^=== (.+) ===$/mu', $cola, $prov);
+        $buscando = true;
+        $ult = ['txt' => 'Buscando instaladoras de placas solares' . ($prov[1] ? ' en ' . end($prov[1]) : ''), 'ts' => date('Y-m-d H:i:s'), 'tipo' => 'espera'];
+    }
+    $parado = !$vivo && $ult && $ult['tipo'] === 'espera';
     $a['st'] = $a['errores'] ? 'error' : ($reciente ? 'trabajando' : ($parado ? 'pausado' : 'dormido'));
     $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
-        : ($reciente ? ($buscando ? $ult['txt'] . '.' : 'Está buscando empresas ahora mismo.') : ($parado ? $ult['txt'] . ' (desde ' . of_hace($ult['ts']) . ').' : 'Corre en el servidor y busca cuando la cola de WhatsApp baja de 150.'));
-    $a['proxima'] = $parado ? 'Cuando la cola baje de 150 o haya un nicho nuevo' : 'Cuando la cola baje de 150';
+        : ($reciente ? ($buscando ? $ult['txt'] . '.' : 'Está buscando empresas ahora mismo.') : ($parado ? $ult['txt'] . ' (desde ' . of_hace($ult['ts']) . ').' : 'Corre en el servidor y recorre España sin parar buscando instaladoras de placas solares.'));
+    $a['proxima'] = $parado ? 'Cuando se quite la pausa' : 'Sigue con la siguiente provincia';
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
     $cola = (int)pebai_db()->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente'")->fetchColumn();
     $a['datos'] = [['En cola de WhatsApp', (string)$cola], ['Encontradas hoy', (string)$enc], ['Útiles hoy', (string)$ent], ['Con móvil hoy', (string)$mov]];

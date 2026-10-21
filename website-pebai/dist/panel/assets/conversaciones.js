@@ -313,6 +313,8 @@ $('#pc-periodo').addEventListener('click', (e) => { const b = e.target.closest('
 let qt; $('#pc-q').addEventListener('input', (e) => { clearTimeout(qt); qt = setTimeout(() => { ui.q = e.target.value.trim(); draw(); }, 140); });
 const refrescar = () => load().then(draw).catch((e) => { if (document.body.dataset.page === 'conversaciones') toast(e.message, true); });
 document.addEventListener('pb:page', (e) => { if (e.detail === 'conversaciones') refrescar(); else cerrar(); });
+// Desde el Resumen: abrir directamente una conversación
+document.addEventListener('pb:abrir-conv', (e) => { load().then(() => { draw(); abrir(e.detail); }).catch((er) => toast(er.message, true)); });
 setInterval(() => { if (!document.hidden && document.body.dataset.page === 'conversaciones' && !ui.abierta) refrescar(); }, 60000);
 refrescar();
 })();

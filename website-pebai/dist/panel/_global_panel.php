@@ -1,0 +1,97 @@
+<?php
+/*
+ * PEBAI · Panel — Resumen global: toda la app de un vistazo (captación de salida, embudo de entrada, agentes y caja).
+ * Lo incluye panel/index.php después de comprobar la sesión: usa $auth, csrf() y json_out() de allí.
+ *   GET ?global=1 → cifras de hoy, el camino completo de una empresa (cola → escrita → contestó → interesada → cita),
+ *                   las solicitudes del formulario, el estado de cada agente y la caja del mes.
+ * Cada bloque va aislado: si uno falla, el resto se sigue viendo.
+ */
+if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
+    http_response_code(404);
+    exit;
+}
+
+function gl_bloque(callable $fn, string $nombre)
+{
+    try {
+        return $fn();
+    } catch (Throwable $e) {
+        pebai_log('RESUMEN GLOBAL ' . $nombre . ': ' . $e->getMessage());
+        return null;
+    }
+}
+
+if ($auth && isset($_GET['global'])) {
+    require_once dirname(__DIR__) . '/api/_conversaciones_lib.php';
+    $hoy = date('Y-m-d 00:00:00');
+    $out = ['ok' => true, 'ahora' => date('Y-m-d H:i:s')];
+
+    // Hoy: lo que han hecho los agentes y lo que ha entrado
+    $out['hoy'] = gl_bloque(static function () use ($hoy) {
+        $adb = pebai_agentes_db();
+        $n = static function (string $sql, array $a = []) use ($adb): int { $q = $adb->prepare($sql); $q->execute($a); return (int)$q->fetchColumn(); };
+        require_once dirname(__DIR__) . '/api/_email_lib.php';
+        $emCfg = pebai_email_cfg();
+        $q = pebai_db()->prepare("SELECT COUNT(*) FROM leads WHERE tipo <> 'cliente' AND created_at >= ?");
+        $q->execute([$hoy]);
+        return [
+            'wa' => pebai_wa_enviados_hoy(), 'wa_cupo' => pebai_wa_config()['limite_dia'],
+            'email' => pebai_email_enviados_hoy(), 'email_cupo' => pebai_email_limite($emCfg),
+            'respuestas' => $n("SELECT COUNT(DISTINCT agente || prospecto_id) FROM agente_mensajes WHERE sentido = 'entra' AND prospecto_id > 0 AND ts >= ?", [$hoy]),
+            'solicitudes' => (int)$q->fetchColumn(),
+        ];
+    }, 'hoy');
+
+    // Captación de salida: el camino de cada empresa, de la cola a la cita
+    $out['salida'] = gl_bloque(static function () {
+        $adb = pebai_agentes_db();
+        $filas = pebai_conv_datos();
+        $cuenta = static fn(callable $f) => count(array_filter($filas, $f));
+        $contestaron = $cuenta(static fn($f) => $f['respuestas'] > 0 && $f['estado'] !== 'auto');
+        return [
+            'cola_wa' => (int)$adb->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND telefono NOT IN (SELECT telefono FROM bajas)")->fetchColumn(),
+            'listas_wa' => (int)$adb->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND mensaje <> ''")->fetchColumn(),
+            'cola_email' => (int)$adb->query("SELECT COUNT(*) FROM email_prospectos WHERE estado = 'pendiente'")->fetchColumn(),
+            'escritas' => count($filas),
+            'escritas_wa' => $cuenta(static fn($f) => $f['canal'] === 'whatsapp'),
+            'contestaron' => $contestaron,
+            'contestadores' => $cuenta(static fn($f) => $f['estado'] === 'auto'),
+            'interesados' => $cuenta(static fn($f) => in_array($f['estado'], ['interesado', 'cita'], true)),
+            'citas' => $cuenta(static fn($f) => $f['estado'] === 'cita'),
+            'no' => $cuenta(static fn($f) => $f['estado'] === 'no_interesado'),
+            'te_toca' => $cuenta(static fn($f) => (bool)$f['te_toca']),
+            'listas_para_aprobar' => $cuenta(static fn($f) => $f['te_toca'] && $f['borrador'] !== ''),
+            'te_toca_lista' => array_values(array_map(static fn($f) => ['empresa' => $f['empresa'], 'canal' => $f['canal'], 'resumen' => $f['resumen'], 'k' => $f['k'], 'lista' => $f['borrador'] !== ''],
+                array_slice(array_filter($filas, static fn($f) => (bool)$f['te_toca']), 0, 6))),
+        ];
+    }, 'salida');
+
+    // Embudo de entrada: solicitudes del formulario (las de trato directo, aparte)
+    $out['entrada'] = gl_bloque(static function () {
+        $db = pebai_db();
+        $c = static fn(string $w) => (int)$db->query("SELECT COUNT(*) FROM leads WHERE tipo <> 'cliente' AND $w")->fetchColumn();
+        $prox = (int)$db->query("SELECT COUNT(*) FROM citas WHERE estado = 'reservada' AND inicio >= '" . gmdate('Y-m-d\TH:i:s') . "'")->fetchColumn();
+        return ['solicitudes' => $c('1'), 'sin_revisar' => $c("estado = 'nuevo'"), 'citas' => $c("cita_inicio <> ''"), 'sesiones' => $c("estado IN ('sesion','cliente')"),
+                'clientes' => $c("estado = 'cliente'"), 'citas_proximas' => $prox];
+    }, 'entrada');
+
+    // Agentes: el mismo estado que la oficina, en corto
+    $out['agentes'] = gl_bloque(static function () {
+        return array_map(static fn($a) => ['id' => $a['id'], 'nombre' => $a['nombre'], 'st' => $a['st'], 'motivo' => $a['motivo'], 'hoy' => $a['hoy'], 'cupo' => $a['cupo'], 'unidad' => $a['unidad']],
+            function_exists('of_estado') ? of_estado(pebai_db()) : []);
+    }, 'agentes');
+
+    // Caja del mes
+    $out['caja'] = gl_bloque(static function () {
+        require_once dirname(__DIR__) . '/api/_caja_lib.php';
+        $q = pebai_caja_db()->prepare("SELECT tipo, SUM(importe) s FROM caja_movimientos WHERE fecha >= ? GROUP BY tipo");
+        $q->execute([date('Y-m-01')]);
+        $t = ['ingreso' => 0, 'gasto' => 0];
+        foreach ($q as $r) {
+            $t[$r['tipo']] = (int)$r['s'];
+        }
+        return ['ingresos' => $t['ingreso'], 'gastos' => $t['gasto'], 'mes' => (int)date('n')];
+    }, 'caja');
+
+    json_out($out);
+}
