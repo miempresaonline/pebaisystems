@@ -228,20 +228,23 @@ const fotosHechas = new Set();
 async function subeFoto(tel, jid) {
   if (fotosHechas.has(tel)) return;
   fotosHechas.add(tel);
-  const url = await sock.profilePictureUrl(jid || tel + '@s.whatsapp.net', 'image').catch(() => null);
+  const url = await sock.profilePictureUrl(jid || tel + '@s.whatsapp.net', 'image').catch((e) => { fotoLog.push(tel + ': sin foto (' + e.message + ')'); return null; });
   if (!url) return;
   const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
-  if (!r.ok) return;
+  if (!r.ok) { fotoLog.push(tel + ': descarga ' + r.status); return; }
   const buf = Buffer.from(await r.arrayBuffer());
   if (buf.length > 400000) return;
-  await api('foto', { telefono: tel, img: buf.toString('base64') });
+  const j = await api('foto', { telefono: tel, img: buf.toString('base64') });
+  fotoLog.push(tel + ': ' + (j && !j.ignorado ? 'guardada' : 'rechazada por la API'));
 }
+const fotoLog = [];
 async function fotosPendientes() {
   for (const tel of [...contactados]) {
     if (estado !== 'conectado') return;
-    await subeFoto(tel).catch(() => {});
+    await subeFoto(tel).catch((e) => fotoLog.push(tel + ': error ' + e.message));
     await sleep(rand(2e3, 5e3));
   }
+  log('Fotos de perfil: ' + fotoLog.splice(0).join(' · ').slice(0, 1500));
 }
 
 /* ------------------------------------------------------------ bucles --- */
