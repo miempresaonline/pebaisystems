@@ -1,0 +1,17 @@
+{
+  "template": "b",
+  "out": "b1-presupuestos-automaticos.png",
+  "theme": "dark",
+  "serie": "S45",
+  "mode": "before_after",
+  "tag": "Presupuestos",
+  "title": "Presupuestos que salen *solos* en minutos",
+  "subtitle": "El mismo presupuesto, con vuestras tarifas, sin pasar datos a mano.",
+  "before_label": "Antes · a mano",
+  "after_label": "Ahora · automático",
+  "before": ["Apuntas medidas y datos en una libreta", "Los pasas a una hoja de cálculo", "Montas el PDF y lo envías por email"],
+  "after": ["El cliente deja sus datos en un formulario o por WhatsApp", "El sistema calcula con vuestras tarifas", "Sale el PDF con tu marca y se envía solo"],
+  "before_meta": "Cuando alguien tiene un rato",
+  "doc_name": "Presupuesto_0142.pdf",
+  "doc_status": "Enviado al cliente por WhatsApp"
+}

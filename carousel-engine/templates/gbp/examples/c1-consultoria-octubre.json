@@ -1,0 +1,15 @@
+{
+  "template": "c",
+  "out": "c1-consultoria-octubre.png",
+  "theme": "dark",
+  "serie": "S43",
+  "tag": "Consultoría · 25 min",
+  "title": "Veinticinco minutos para ver *qué se puede automatizar* en tu empresa.",
+  "chips": ["25 min", "Videollamada", "0 € la sesión"],
+  "items": ["Vemos dónde se os va el tiempo cada semana", "Te decimos qué automatizaríamos primero", "Si algo se resuelve sin Inteligencia Artificial, te lo decimos"],
+  "plazas": 5,
+  "month": "Octubre",
+  "condition": "Gratuita para cinco empresas al mes. Después, de pago.",
+  "cta": "Solicita tu plaza",
+  "cta_url": "pebaisystems.es"
+}

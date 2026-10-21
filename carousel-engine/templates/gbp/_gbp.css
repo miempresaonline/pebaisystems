@@ -1,0 +1,96 @@
+/* PEBAI · plantillas de imagen para Google Business Profile y LinkedIn
+   Lienzo 1200x900 (4:3). Zona segura 900x900 centrada (x 150-1050): Google
+   recorta a 1:1 en algunas vistas, así que todo el texto vive dentro de ella.
+   Los raíles laterales son decorativos y pueden perderse en el recorte. */
+
+@font-face{font-family:'Manrope';src:url('../../../website-pebai/dist/brand/Manrope-latin-variable.woff2') format('woff2');font-weight:200 800;font-display:block}
+
+:root{
+  --bg:#0A0912;--s1:#161427;--s2:#1E1A36;--s3:#272246;
+  --fg:#EFEDE7;--fg-70:rgba(239,237,231,.70);--fg-45:rgba(239,237,231,.45);
+  --fg-12:rgba(239,237,231,.12);--fg-06:rgba(239,237,231,.06);
+  --accent:#B7FF3C;--accent-bg:rgba(183,255,60,.10);--accent-line:rgba(183,255,60,.38);
+  --lime:#B7FF3C;--violet:#6A5CFF;--ink:#0B0F14;
+  --line:rgba(239,237,231,.10);
+  --glow-1:rgba(106,92,255,.24);--glow-2:rgba(106,92,255,.07);
+  --card:rgba(22,20,39,.94);--card-shadow:0 40px 80px -40px rgba(0,0,0,.85),0 0 0 1px rgba(239,237,231,.08);
+  --chip-bg:#B7FF3C;--chip-fg:#0B0F14;
+  --serif:'Instrument Serif',Georgia,'Times New Roman',serif;
+  --sans:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',Consolas,'Courier New',monospace;
+  --logo-dark:url('../../../assets/brand/pebai-systems/logo-kit-v2/pebai-horizontal-color-mineral-1160.png');
+}
+[data-theme="light"]{
+  --bg:#F3F1EC;--s1:#FFFFFF;--s2:#ECE9E3;--s3:#E0DCD5;
+  --fg:#12121A;--fg-70:rgba(18,18,26,.70);--fg-45:rgba(18,18,26,.50);
+  --fg-12:rgba(18,18,26,.12);--fg-06:rgba(18,18,26,.05);
+  --accent:#4C3DE0;--accent-bg:rgba(106,92,255,.10);--accent-line:rgba(76,61,224,.40);
+  --line:rgba(18,18,26,.10);
+  --glow-1:rgba(106,92,255,.13);--glow-2:rgba(183,255,60,.10);
+  --card:#FFFFFF;--card-shadow:0 40px 80px -44px rgba(18,18,26,.35),0 0 0 1px rgba(18,18,26,.08);
+  --chip-bg:#12121A;--chip-fg:#B7FF3C;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1200px;height:900px;overflow:hidden}
+body{position:relative;background:var(--bg);color:var(--fg);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+
+/* ---------- fondo: brillo de la web, rejilla y grano ---------- */
+.bg{position:absolute;inset:0;background:
+  radial-gradient(760px 560px at 86% -10%,var(--glow-1),transparent 62%),
+  radial-gradient(620px 460px at 4% 110%,var(--glow-2),transparent 62%)}
+.grid{position:absolute;inset:0;
+  background-image:linear-gradient(to right,var(--fg-06) 1px,transparent 1px),linear-gradient(to bottom,var(--fg-06) 1px,transparent 1px);
+  background-size:60px 60px;background-position:30px 30px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 75% at 55% 45%,#000 30%,transparent 100%)}
+.noise{position:absolute;inset:0;opacity:.07;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+[data-theme="light"] .noise{opacity:.18;mix-blend-mode:multiply}
+
+/* ---------- raíles laterales (fuera del recorte 1:1) ---------- */
+.rail{position:absolute;top:0;bottom:0;width:150px}
+.rail.l{left:0;border-right:1px solid var(--line)}
+.rail.r{right:0;border-left:1px solid var(--line)}
+.rail::before{content:"";position:absolute;top:0;bottom:0;width:10px;
+  background:repeating-linear-gradient(to bottom,var(--fg-12) 0 1px,transparent 1px 30px)}
+.rail.l::before{right:0}.rail.r::before{left:0}
+.rail .v{position:absolute;top:50%;left:50%;white-space:nowrap;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:var(--fg-45)}
+.rail.l .v{transform:translate(-50%,-50%) rotate(-90deg)}
+.rail.r .v{transform:translate(-50%,-50%) rotate(90deg)}
+.rail .num{position:absolute;left:0;right:0;text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--fg-45)}
+.rail .num.t{top:62px}.rail .num.b{bottom:58px}
+.cross{position:absolute;width:18px;height:18px;transform:translate(-50%,-50%)}
+.cross::before,.cross::after{content:"";position:absolute;background:var(--fg-45)}
+.cross::before{left:8.5px;top:0;width:1px;height:18px}
+.cross::after{top:8.5px;left:0;height:1px;width:18px}
+
+/* ---------- zona segura ---------- */
+.safe{position:absolute;left:150px;top:0;width:900px;height:900px;padding:58px 64px 52px;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;height:60px;flex:none}
+.logo{height:60px;width:170px;background:var(--logo-dark) left center/contain no-repeat}
+[data-theme="light"] .logo{background-image:url('../../../assets/brand/pebai-systems/logo-kit-v2/pebai-horizontal-color-ink-1160.png')}
+.tag{display:inline-flex;align-items:center;gap:10px;height:36px;padding:0 16px 0 14px;border-radius:999px;background:var(--accent-bg);color:var(--accent);font-size:13px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;white-space:nowrap}
+.tag::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+
+.title{font-family:var(--serif);font-weight:400;letter-spacing:-.022em;line-height:.98;color:var(--fg);overflow:visible;text-wrap:balance}
+.title em{font-style:italic;color:var(--accent)}
+.sub{font-size:24px;line-height:1.38;font-weight:500;color:var(--fg-70);letter-spacing:-.01em;max-width:772px;text-wrap:balance}
+.sub b{color:var(--fg);font-weight:700}
+.sub:empty{display:none}
+
+.foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex:none;padding-top:22px}
+.url{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:.06em;color:var(--fg-45)}
+.url b{color:var(--fg);font-weight:500}
+.foot .note{font-size:15px;color:var(--fg-45);font-weight:500;text-align:right}
+
+/* ---------- piezas de interfaz ---------- */
+.card{background:var(--card);border-radius:26px;box-shadow:var(--card-shadow);position:relative}
+.kicker{font-family:var(--mono);font-size:12.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-45)}
+.chip{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 13px;border-radius:999px;background:var(--fg-06);color:var(--fg-70);font-size:13px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.chip.hot{background:var(--chip-bg);color:var(--chip-fg)}
+.ico{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--fg-06);color:var(--violet);flex:none}
+[data-theme="light"] .ico{color:var(--accent)}
+.ico svg{width:19px;height:19px}
+
+/* guía de recorte: ?safe=1 */
+.safe-guide{position:absolute;left:150px;top:0;width:900px;height:900px;outline:2px dashed #ff3b6b;outline-offset:-2px;z-index:99;pointer-events:none}

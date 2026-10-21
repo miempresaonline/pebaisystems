@@ -1,0 +1,13 @@
+{
+  "template": "a",
+  "out": "a1-llamadas-fuera-de-horario.png",
+  "theme": "dark",
+  "serie": "S43",
+  "tag": "Atención al cliente",
+  "title": "¿Cuántas llamadas pierde tu empresa *fuera de horario*?",
+  "subtitle": "Cada llamada sin contestar es un cliente que acaba llamando a otro.",
+  "card": "calls",
+  "card_title": "Llamadas perdidas · esta semana",
+  "items": ["Llamada perdida: Lun 20:47", "Llamada perdida: Mié 21:15", "Llamada perdida: Sáb 10:30"],
+  "highlight": "Un agente de voz las atiende y te deja el resumen por WhatsApp."
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>GBP B · Cómo lo hacemos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="_gbp.css">
+<style>
+  .title{font-size:98px;max-height:196px;margin-top:40px}
+  .sub{margin-top:18px}
+  .stage{margin-top:auto;padding-top:26px}
+
+  /* modo antes / después */
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:18px;position:relative}
+  .col{padding:22px 24px 22px;display:flex;flex-direction:column}
+  .col.before{background:transparent;box-shadow:none;border:1px dashed var(--fg-12)}
+  .col .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .col ul{list-style:none;display:grid}
+  .col li{display:grid;grid-template-columns:26px 1fr;gap:10px;padding:12px 0;border-top:1px solid var(--line);font-size:18px;line-height:1.32;font-weight:600;letter-spacing:-.01em}
+  .col li:first-child{border-top:0}
+  .col li svg{width:20px;height:20px;margin-top:2px}
+  .before li{color:var(--fg-45);font-weight:500}
+  .before li svg{color:var(--fg-45)}
+  .after{outline:1.5px solid var(--accent-line);outline-offset:-1.5px}
+  .after li svg{color:var(--accent)}
+  .col .meta{margin-top:auto;padding-top:14px;font-family:var(--mono);font-size:13.5px;letter-spacing:.04em;color:var(--fg-45)}
+  .after .meta{color:var(--fg)}
+  .doc{margin-top:14px;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:var(--fg-06)}
+  .doc .pdf{width:34px;height:40px;border-radius:6px;background:var(--chip-bg);color:var(--chip-fg);font-family:var(--mono);font-size:10px;font-weight:500;display:grid;place-items:end center;padding-bottom:5px;flex:none;position:relative}
+  .doc .pdf::before{content:"";position:absolute;top:0;right:0;width:10px;height:10px;background:var(--card);border-bottom-left-radius:4px}
+  .doc b{font-size:15px;font-weight:700;display:block}
+  .doc small{font-size:13px;color:var(--fg-45);font-weight:500}
+  .doc .ok{margin-left:auto}
+  .arrow{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;background:var(--chip-bg);color:var(--chip-fg);display:grid;place-items:center;box-shadow:0 0 0 8px var(--bg)}
+  .arrow svg{width:20px;height:20px}
+
+  /* modo pasos */
+  .steps{display:grid}
+  .step{display:grid;grid-template-columns:104px 1fr;gap:18px;align-items:start;padding:20px 0;border-top:1px solid var(--line)}
+  .step:last-child{border-bottom:1px solid var(--line)}
+  .step .n{font-family:var(--serif);font-style:italic;font-size:72px;line-height:.8;color:var(--accent);letter-spacing:-.03em}
+  .step h3{font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+  .step p{margin-top:6px;font-size:18px;line-height:1.42;color:var(--fg-70);font-weight:500;max-width:600px}
+</style>
+</head>
+<body>
+<div class="safe">
+  <div class="top"><div class="logo" role="img" aria-label="PEBAI Systems"></div><span class="tag" id="tag"></span></div>
+  <h1 class="title" id="title" data-fit="54"></h1>
+  <p class="sub" id="sub"></p>
+  <div class="stage" id="stage"></div>
+  <div class="foot"><span class="url"><b>pebaisystems</b>.es</span><span class="note" id="note"></span></div>
+</div>
+<script src="_gbp.js"></script>
+<script>
+var X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 12h10"/></svg>';
+var OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+var ARR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+GBP.boot({
+  theme: 'dark',
+  mode: 'before_after',
+  tag: 'Presupuestos',
+  title: 'Presupuestos que salen *solos* en minutos',
+  subtitle: 'El mismo presupuesto, con vuestras tarifas, sin pasar datos a mano.',
+  before_label: 'Antes · a mano',
+  after_label: 'Ahora · automático',
+  before: ['Apuntas medidas y datos en una libreta', 'Los pasas a una hoja de cálculo', 'Montas el PDF y lo envías por email'],
+  after: ['El cliente deja sus datos en un formulario o por WhatsApp', 'El sistema calcula con vuestras tarifas', 'Sale el PDF con tu marca y se envía solo'],
+  before_meta: 'Cuando alguien tiene un rato',
+  after_meta: '',
+  doc_name: 'Presupuesto_0142.pdf',
+  doc_status: 'Enviado al cliente por WhatsApp',
+  items: [],
+  note: ''
+}, function (d) {
+  var $ = function (id) { return document.getElementById(id); };
+  $('tag').textContent = d.tag || '';
+  if (!d.tag) $('tag').style.display = 'none';
+  $('title').innerHTML = GBP.md(d.title);
+  $('sub').innerHTML = GBP.md(d.subtitle || '');
+  $('note').innerHTML = GBP.md(d.note || '');
+  var html = '';
+  if (d.mode === 'steps') {
+    html = '<div class="steps">';
+    (d.items || []).slice(0, 3).forEach(function (it, i) {
+      var s = GBP.split(it);
+      html += '<div class="step"><span class="n">0' + (i + 1) + '</span><div><h3>' + GBP.md(s.head) + '</h3>' +
+        (s.text ? '<p>' + GBP.md(s.text) + '</p>' : '') + '</div></div>';
+    });
+    html += '</div>';
+  } else {
+    var list = function (arr, icon) {
+      return '<ul>' + (arr || []).map(function (t) { return '<li>' + icon + '<span>' + GBP.md(t) + '</span></li>'; }).join('') + '</ul>';
+    };
+    html = '<div class="ba">' +
+      '<div class="card col before"><div class="hd"><span class="chip">' + GBP.esc(d.before_label) + '</span></div>' + list(d.before, X) +
+      (d.before_meta ? '<div class="meta">' + GBP.esc(d.before_meta) + '</div>' : '') + '</div>' +
+      '<div class="card col after"><div class="hd"><span class="chip hot">' + GBP.esc(d.after_label) + '</span></div>' + list(d.after, OK) +
+      (d.after_meta ? '<div class="meta">' + GBP.esc(d.after_meta) + '</div>' : '') +
+      (d.doc_name ? '<div class="doc"><span class="pdf">PDF</span><span><b>' + GBP.esc(d.doc_name) + '</b><small>' + GBP.esc(d.doc_status) + '</small></span></div>' : '') +
+      '</div><span class="arrow">' + ARR + '</span></div>';
+  }
+  $('stage').innerHTML = html;
+});
+</script>
+</body>
+</html>

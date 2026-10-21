@@ -1,0 +1,14 @@
+{
+  "template": "a",
+  "out": "a2-chatgpt-sale-tu-empresa.png",
+  "theme": "light",
+  "serie": "S44",
+  "tag": "Visibilidad en ChatGPT",
+  "title": "Cuando un cliente pregunta a ChatGPT, *¿sale tu empresa?*",
+  "subtitle": "Antes de llamar, muchos clientes preguntan a un asistente. Conviene saber qué les responde.",
+  "card": "chat",
+  "card_title": "Asistente",
+  "question": "¿Qué empresa de reformas me recomiendas en Valencia?",
+  "answer": "Estas son tres opciones bien valoradas:",
+  "items": ["-", "¿Tu empresa aquí?", "-"]
+}

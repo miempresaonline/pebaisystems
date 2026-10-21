@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>GBP C · Consultoría</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="_gbp.css">
+<style>
+  .title{font-size:88px;max-height:264px;margin-top:36px}
+  .sub{margin-top:18px}
+  .stage{margin-top:auto;padding-top:26px}
+
+  /* la plaza como un pase: cuerpo + matriz troquelada */
+  .ticket{display:grid;grid-template-columns:1fr 236px;overflow:visible}
+  .ticket .body{padding:24px 26px 22px}
+  .ticket .hd{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .ticket ul{list-style:none;margin-top:14px;display:grid}
+  .ticket li{display:grid;grid-template-columns:26px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:18px;line-height:1.32;font-weight:600;letter-spacing:-.01em}
+  .ticket li:first-child{border-top:0}
+  .ticket li svg{width:20px;height:20px;margin-top:2px;color:var(--accent)}
+  .stub{position:relative;padding:22px 22px 20px;border-left:2px dashed var(--fg-12);display:flex;flex-direction:column;align-items:flex-start}
+  .stub::before,.stub::after{content:"";position:absolute;left:-15px;width:28px;height:28px;border-radius:50%;background:var(--bg)}
+  .stub::before{top:-14px}.stub::after{bottom:-14px}
+  .stub .big{font-family:var(--serif);font-size:128px;line-height:.82;color:var(--accent);letter-spacing:-.04em;margin-top:6px}
+  .stub .lbl{font-size:18px;font-weight:700;letter-spacing:-.01em;margin-top:6px}
+  .slots{display:flex;gap:8px;margin-top:14px}
+  .slots i{width:24px;height:24px;border-radius:50%;border:2px solid var(--accent-line)}
+  .slots i.on{background:var(--accent);border-color:var(--accent)}
+  .stub .month{margin-top:auto;padding-top:12px;font-family:var(--mono);font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-45)}
+
+  .foot .cond{font-size:16px;line-height:1.35;color:var(--fg-70);font-weight:500;max-width:330px}
+  .cta{display:inline-flex;align-items:center;gap:12px;height:54px;padding:0 22px 0 24px;border-radius:999px;background:var(--chip-bg);color:var(--chip-fg);font-size:17px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+  .cta span{font-family:var(--mono);font-weight:500;font-size:15px;opacity:.8}
+</style>
+</head>
+<body>
+<div class="safe">
+  <div class="top"><div class="logo" role="img" aria-label="PEBAI Systems"></div><span class="tag" id="tag"></span></div>
+  <h1 class="title" id="title" data-fit="54"></h1>
+  <p class="sub" id="sub"></p>
+  <div class="stage" id="stage"></div>
+  <div class="foot"><span class="cond" id="cond"></span><span class="cta" id="cta"></span></div>
+</div>
+<script src="_gbp.js"></script>
+<script>
+var OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+var CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+
+GBP.boot({
+  theme: 'dark',
+  tag: 'Consultoría · 25 min',
+  title: 'Veinticinco minutos para ver *qué se puede automatizar* en tu empresa.',
+  subtitle: '',
+  chips: ['25 min', 'Videollamada', '0 € la sesión'],
+  items: ['Vemos dónde se os va el tiempo cada semana', 'Te decimos qué automatizaríamos primero', 'Si algo se resuelve sin Inteligencia Artificial, te lo decimos'],
+  plazas: 5,
+  plazas_ocupadas: 0,
+  plazas_label: 'plazas al mes',
+  month: 'Octubre',
+  condition: 'Gratuita para cinco empresas al mes. Después, de pago.',
+  cta: 'Solicita tu plaza',
+  cta_url: 'pebaisystems.es'
+}, function (d) {
+  var $ = function (id) { return document.getElementById(id); };
+  $('tag').textContent = d.tag || '';
+  if (!d.tag) $('tag').style.display = 'none';
+  $('title').innerHTML = GBP.md(d.title);
+  $('sub').innerHTML = GBP.md(d.subtitle || '');
+  /* la condición de las plazas no se puede quitar: si viene vacía se repone */
+  $('cond').innerHTML = GBP.md(d.condition || 'Gratuita para cinco empresas al mes. Después, de pago.');
+  $('cta').innerHTML = GBP.esc(d.cta) + ' <span>' + GBP.esc(d.cta_url) + '</span>';
+  var n = parseInt(d.plazas, 10) || 5, taken = Math.min(parseInt(d.plazas_ocupadas, 10) || 0, n);
+  var chips = (d.chips || []).map(function (c, i) {
+    return '<span class="chip' + (i === 0 ? ' hot' : '') + '">' + (i === 0 ? CLOCK : '') + GBP.esc(c) + '</span>';
+  }).join('');
+  var slots = '';
+  for (var i = 0; i < n; i++) slots += '<i' + (i < taken ? ' class="on"' : '') + '></i>';
+  $('stage').innerHTML =
+    '<div class="card ticket"><div class="body"><div class="hd">' + chips + '</div><ul>' +
+    (d.items || []).map(function (t) { return '<li>' + OK + '<span>' + GBP.md(t) + '</span></li>'; }).join('') +
+    '</ul></div><div class="stub"><span class="kicker">' + GBP.esc(d.month || 'Plazas') + '</span><span class="big">' + n + '</span><span class="lbl">' + GBP.esc(d.plazas_label) + '</span>' +
+    '<span class="slots">' + slots + '</span>' + '<span class="month">' + (taken ? taken + ' de ' + n + ' ocupadas' : 'Por videollamada') + '</span>' + '</div></div>';
+});
+</script>
+</body>
+</html>

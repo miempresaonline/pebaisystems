@@ -1,0 +1,15 @@
+{
+  "template": "b",
+  "out": "b2-aparecer-en-chatgpt.png",
+  "theme": "light",
+  "serie": "S46",
+  "mode": "steps",
+  "tag": "Visibilidad en ChatGPT",
+  "title": "Cómo aparecer cuando un cliente *pregunta a ChatGPT*",
+  "subtitle": "",
+  "items": [
+    "Preguntamos lo que preguntan tus clientes: Lanzamos esas preguntas a ChatGPT, Gemini y Perplexity y anotamos a quién recomiendan.",
+    "Ordenamos tu información: Ficha de Google, datos de empresa y páginas que responden a esas preguntas, iguales en todas partes.",
+    "Medimos cada semana: Repetimos las mismas preguntas y vemos si la Inteligencia Artificial ya os nombra."
+  ]
+}

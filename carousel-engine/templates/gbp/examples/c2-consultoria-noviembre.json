@@ -1,0 +1,16 @@
+{
+  "template": "c",
+  "out": "c2-consultoria-noviembre.png",
+  "theme": "light",
+  "serie": "S45",
+  "tag": "Consultoría de procesos",
+  "title": "Cinco plazas al mes para *analizar tu caso*.",
+  "subtitle": "Atención, presupuestos, seguimiento: miramos lo que más horas os quita.",
+  "chips": ["25 min", "Videollamada", "0 € la sesión"],
+  "items": ["Analizamos cómo trabajáis hoy", "Señalamos las tareas que más tiempo consumen", "Os dejamos un plan técnico de implantación"],
+  "plazas": 5,
+  "month": "Noviembre",
+  "condition": "Gratuita para cinco empresas al mes. Después, de pago.",
+  "cta": "Solicita tu plaza",
+  "cta_url": "pebaisystems.es"
+}
