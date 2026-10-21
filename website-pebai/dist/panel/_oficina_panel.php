@@ -276,12 +276,12 @@ function of_scraper(): array
 /* ------------------------------------------------------------------ GEO --- */
 /** Agentes GEO: rutinas en la nube de Claude que apuntan cada paso en api/actividad.php (un id por agente). */
 const OF_GEO_AGENTES = [  // horas de España (en verano, una hora más)
-    ['geo_jefe', 'Jefe GEO', 'Reparte el trabajo, revisa la calidad y te avisa de lo que necesita de ti', 'L-V 9:00 y 16:00'],
-    ['geo_vigia', 'Vigía', 'Trae novedades de GEO, IAs, redes y competencia y se las pasa al Jefe', 'Cada día 8:00, 13:00 y 18:00'],
-    ['geo_contenido', 'Contenido', 'Escribe y publica páginas que las IAs puedan citar', 'L-V 10:00'],
-    ['geo_refresco', 'Refresco', 'Mejora y actualiza una página publicada cada día', 'L-V 15:00'],
-    ['geo_local', 'Local', 'Hace las tareas de Localo y cuida la ficha de Google', 'L-V 11:30 y 17:30'],
-    ['geo_redes', 'Redes', 'Prepara posts de Google Business y borradores de LinkedIn', 'L-V 12:00'],
+    ['geo_jefe', 'Jefe GEO', 'Reparte el trabajo, revisa la calidad y te avisa de lo que necesita de ti', 'L-V 9:00 y 16:00 (45 min)'],
+    ['geo_vigia', 'Vigía', 'Trae novedades de GEO, IAs, redes y competencia y se las pasa al Jefe', 'Cada día 8:00, 13:00 y 18:00 (45 min)'],
+    ['geo_contenido', 'Contenido', 'Escribe y publica páginas que las IAs puedan citar', 'L-V 10:00 y 15:00 (45 min)'],
+    ['geo_refresco', 'Refresco', 'Mejora y actualiza una página publicada cada día', 'L-V 14:00 (45 min)'],
+    ['geo_local', 'Local', 'Hace las tareas de Localo y cuida la ficha de Google', 'L-V 11:00 y 17:00 (45 min)'],
+    ['geo_redes', 'Redes', 'Prepara posts de Google Business y borradores de LinkedIn', 'L-V 12:00 (45 min)'],
     ['geo_medicion', 'Medición', 'Mide la visibilidad en IA (informe completo los lunes)', 'L-V 8:30'],
 ];
 
@@ -297,7 +297,7 @@ function of_geo_agente(string $id, string $nombre, string $rol, string $cuando):
     $hoy = date('Y-m-d');
     $a['hoy'] = count(array_filter($a['actividad'], static fn($e) => substr($e['ts'], 0, 10) === $hoy && $e['tipo'] === 'hito'));
     $ult = $a['actividad'][0] ?? null;
-    $reciente = $ult && strtotime($ult['ts']) > time() - 3600 && $ult['tipo'] !== 'espera' && !preg_match('/^Termina/u', $ult['txt']);
+    $reciente = $ult && strtotime($ult['ts']) > time() - 1200 && $ult['tipo'] !== 'espera' && !preg_match('/^Termina/u', $ult['txt']);
     $a['st'] = $a['errores'] ? 'error' : ($reciente ? 'trabajando' : 'espera');
     $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
         : ($reciente ? $ult['txt'] : ($ult ? 'Descansando hasta su turno (' . $cuando . '). Lo último: ' . $ult['txt'] : 'Empieza en su próximo turno: ' . $cuando . '.'));
