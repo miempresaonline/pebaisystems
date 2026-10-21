@@ -399,6 +399,7 @@ function drawAgentes() {
   box.append(card);
 
   box.append(rendimientoCard());
+  if (S.scraper) box.append(scraperCard(S.scraper));
 
   const feedC = el('div', 'pb-card');
   feedC.append(el('h2', null, 'Últimos mensajes'), el('p', 'note', 'Lo que ha enviado el agente y lo que han contestado. Las respuestas se aprueban en Captación › Conversaciones.'));
@@ -500,6 +501,48 @@ function controlCard(w) {
     post('agente_config', fd, save).then(() => { ui.ctl = null; toast('Guardado. El agente lo usa desde el siguiente mensaje.'); refrescar(); }).catch((er) => toast(er.message, true));
   });
   c.append(f); pinta();
+  return c;
+}
+
+/* ============ scraper: qué encuentra cada día y por qué descarta ============ */
+function scraperCard(sc) {
+  const c = el('div', 'pb-card pw-scr');
+  const hd = el('div', 'pw-rend-h'); hd.append(el('h2', null, 'Scraper'));
+  if (sc.ahora) { const v = el('span', 'pw-scr-vivo'); v.append(el('i'), document.createTextNode('Buscando en ' + sc.ahora)); hd.append(v); }
+  c.append(hd);
+  const g = el('div', 'pw-scr-g');
+  // 1) por dónde va: anillo de provincias de esta vuelta
+  const vu = el('div', 'pw-chart pw-scr-vuelta');
+  const R = 42, C = 2 * Math.PI * R, f = Math.min(1, sc.hechas / (sc.total || 52));
+  const s = sv('svg', { viewBox: '0 0 100 100', class: 'pw-svg' });
+  s.append(sv('circle', { cx: 50, cy: 50, r: R, class: 'track', 'stroke-width': 9 }), sv('circle', { cx: 50, cy: 50, r: R, fill: 'none', stroke: 'var(--ch-wa)', 'stroke-width': 9, 'stroke-linecap': 'round', 'stroke-dasharray': C, 'stroke-dashoffset': C * (1 - f), transform: 'rotate(-90 50 50)' }));
+  s.append(svt({ x: 50, y: 52, class: 'big', 'text-anchor': 'middle' }, `${sc.hechas}/${sc.total}`), svt({ x: 50, y: 68, class: 'ax', 'text-anchor': 'middle' }, 'provincias'));
+  vu.append(el('h3', null, `Vuelta ${sc.vuelta || 1}`), el('p', 'note', sc.pueblos ? 'Pueblos de 1.000 a 5.000 habitantes' : 'Ciudades de más de 5.000'), s);
+  // 2) hoy: de lo encontrado a la cola
+  const hoy = sc.dias[sc.dias.length - 1] || { enc: 0, ent: 0, cola: 0 };
+  const fu = el('div', 'pw-chart pw-scr-hoy'); fu.append(el('h3', null, 'Hoy'));
+  const ya = Number(Object.entries(sc.motivos || {}).find(([k]) => /ya en el panel/.test(k))?.[1] || 0);
+  const pasos = [['Encontradas', hoy.enc, '#6F7189'], ['Nuevas', Math.max(0, hoy.enc - ya), '#7E73FF'], ['Instaladoras', hoy.ent, '#3FD5FF'], ['A la cola', hoy.cola, '#B7FF3C']];
+  const mx = Math.sqrt(Math.max(1, ...pasos.map((p) => p[1])));
+  pasos.forEach(([l, n, col]) => { const r = el('div', 'pw-scr-f'); const b = el('i'); b.style.background = col; b.style.width = Math.max(3, Math.sqrt(n) / mx * 100) + '%'; r.append(el('span', null, l), b, el('b', null, N(n))); fu.append(r); });
+  // 3) por qué descarta (hoy)
+  const mo = el('div', 'pw-chart pw-scr-mot'); mo.append(el('h3', null, 'Descartadas hoy'));
+  const ms = Object.entries(sc.motivos || {}); const mm = Math.max(1, ...ms.map((x) => x[1]));
+  if (!ms.length) mo.append(el('p', 'note', 'Aún nada hoy.'));
+  ms.forEach(([k, n]) => { const r = el('div', 'pw-scr-m'); const b = el('i'); b.style.width = Math.max(3, n / mm * 100) + '%'; r.append(el('span', null, k.charAt(0).toUpperCase() + k.slice(1)), b, el('b', null, N(n))); r.title = `${k}: ${n}`; mo.append(r); });
+  // 4) 14 días: empresas nuevas en la cola
+  const d14 = el('div', 'pw-chart pw-scr-14'); d14.append(el('h3', null, 'Nuevas en la cola · 14 días'));
+  const W = 420, H = 110, B = 16; const mxc = Math.max(4, ...sc.dias.map((d) => d.cola)); const bw = W / sc.dias.length;
+  const s2 = sv('svg', { viewBox: `0 0 ${W} ${H}`, class: 'pw-svg' });
+  sc.dias.forEach((d, i) => {
+    const h = (H - B - 4) * d.cola / mxc; const w = bw * 0.62; const x = i * bw + (bw - w) / 2;
+    const r = sv('rect', { x, y: H - B - Math.max(1.5, h), width: w, height: Math.max(1.5, h), rx: Math.min(3, w / 2), fill: d.cola ? '#B7FF3C' : 'var(--line-2)' });
+    const t = sv('title'); const f2 = new Date(d.d + 'T12:00'); t.textContent = `${f2.getDate()} ${MESES[f2.getMonth()]}: ${d.enc} encontradas · ${d.ent} instaladoras válidas · ${d.cola} a la cola`; r.append(t); s2.append(r);
+    if (d.cola && d.cola >= mxc / 3) s2.append(svt({ x: i * bw + bw / 2, y: H - B - h - 4, class: 'ax', 'text-anchor': 'middle' }, d.cola));
+    if (i === 0 || i === sc.dias.length - 1) s2.append(svt({ x: i * bw + bw / 2, y: H - 3, class: 'ax', 'text-anchor': i ? 'end' : 'start' }, i ? 'hoy' : `${f2.getDate()} ${MESES[f2.getMonth()]}`));
+  });
+  d14.append(s2);
+  g.append(vu, fu, mo, d14); c.append(g);
   return c;
 }
 

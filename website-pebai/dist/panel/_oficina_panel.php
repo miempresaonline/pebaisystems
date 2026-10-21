@@ -296,6 +296,65 @@ function of_geo(): array
     return $a;
 }
 
+/**
+ * Seguimiento del scraper para el panel (Control de envíos): por día, cuántas empresas encuentra en Google Maps, cuántas
+ * pasan los filtros y cuántas entran de verdad en la cola; los motivos de descarte de hoy; y por dónde va el barrido.
+ */
+function of_scraper_seguimiento(): array
+{
+    $db = pebai_agentes_db();
+    $desde = date('Y-m-d', strtotime('-13 days'));
+    $dias = [];
+    for ($i = 13; $i >= 0; $i--) {
+        $dias[date('Y-m-d', strtotime("-$i days"))] = ['enc' => 0, 'ent' => 0, 'cola' => 0];
+    }
+    $motivos = [];
+    $q = $db->prepare("SELECT ts, resumen, detalle FROM agente_actividad WHERE agente = 'prospeccion' AND resumen LIKE '%empresas encontradas%' AND ts >= ?");
+    $q->execute([$desde]);
+    foreach ($q as $r) {
+        $d = substr($r['ts'], 0, 10);
+        if (!isset($dias[$d]) || !preg_match('/(\d+) empresas encontradas, (\d+) entregadas/u', $r['resumen'], $m)) {
+            continue;
+        }
+        $dias[$d]['enc'] += (int)$m[1];
+        $dias[$d]['ent'] += (int)$m[2];
+        if ($d === date('Y-m-d') && preg_match('/Descartadas y por qué: ([^.]+)\./u', (string)$r['detalle'], $mm)) {
+            foreach (explode(',', $mm[1]) as $par) {
+                if (preg_match('/^\s*(.+?)\s+(\d+)\s*$/u', $par, $x)) {
+                    $motivos[$x[1]] = ($motivos[$x[1]] ?? 0) + (int)$x[2];
+                }
+            }
+        }
+    }
+    foreach (['prospectos', 'email_prospectos'] as $t) {
+        $q = $db->prepare("SELECT substr(created_at, 1, 10) d, COUNT(*) n FROM $t WHERE created_at >= ? GROUP BY d");
+        $q->execute([$desde]);
+        foreach ($q as $r) {
+            if (isset($dias[$r['d']])) {
+                $dias[$r['d']]['cola'] += (int)$r['n'];
+            }
+        }
+    }
+    arsort($motivos);
+    // Por dónde va: la vuelta más reciente del barrido y cuántas provincias lleva
+    $carpeta = dirname(pebai_private_dir(), 3) . '/scratch/prospeccion/tandas';
+    $vueltas = glob($carpeta . '/solar_v*', GLOB_ONLYDIR) ?: [];
+    usort($vueltas, static fn($a, $b) => (int)substr(strrchr($b, 'v'), 1) <=> (int)substr(strrchr($a, 'v'), 1));
+    $vuelta = $vueltas ? basename($vueltas[0]) : '';
+    $hechas = $vuelta ? count(array_filter(glob($vueltas[0] . '/' . $vuelta . '_*.csv') ?: [], static fn($f) => !preg_match('/_(whatsapp|email|llamadas|solo_email)(_ia)?\.csv$/', $f))) : 0;
+    $ahora = '';
+    $logs = glob(dirname(pebai_private_dir(), 3) . '/scratch/prospeccion/tanda_*.log') ?: [];
+    usort($logs, static fn($x, $y) => filemtime($y) <=> filemtime($x));
+    if ($logs && filemtime($logs[0]) > time() - 600) {
+        $cola = (string)@file_get_contents($logs[0], false, null, max(0, filesize($logs[0]) - 65536));
+        if (preg_match_all('/^=== (.+) ===$/mu', $cola, $pv)) {
+            $ahora = end($pv[1]);
+        }
+    }
+    return ['dias' => array_map(static fn($d, $v) => ['d' => $d] + $v, array_keys($dias), $dias), 'motivos' => array_slice($motivos, 0, 6, true),
+            'vuelta' => (int)substr($vuelta, 7), 'hechas' => $hechas, 'total' => 52, 'ahora' => $ahora, 'pueblos' => (int)substr($vuelta, 7) >= 2];
+}
+
 /* --------------------------------------------------------------- Embudo --- */
 function of_embudo(PDO $db): array
 {

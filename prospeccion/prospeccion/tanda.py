@@ -88,7 +88,7 @@ def pasada_solar() -> str:
     n = 1
     while True:
         nombre = f'solar_v{n}'
-        NICHOS[nombre] = dict(NICHOS['solar2'], busquedas=GRUPOS_SOLAR[(n - 1) % len(GRUPOS_SOLAR)])
+        NICHOS[nombre] = dict(NICHOS['solar2'], busquedas=GRUPOS_SOLAR[(n - 1) % len(GRUPOS_SOLAR)], tramo=max(0, n - 1))
         NICHOS[nombre].pop('objetivo_email', None)
         if pendientes_de(nombre, ORDEN):
             return nombre
@@ -142,6 +142,25 @@ ORDEN = ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Alicante', 'Málaga', 'M
          'Palencia', 'Ávila', 'Segovia', 'Teruel', 'Soria', 'Ceuta', 'Melilla']
 
 
+PUEBLOS_POR_TRAMO = 60
+
+
+def pueblos_pequenos(provincia: str, tramo: int) -> list:
+    """Vueltas 3+ (21/10: las ciudades de más de 5.000 habitantes ya están casi agotadas): núcleos de 1.000 habitantes o más
+    (municipios_es_1000.json, GeoNames) que no estén a menos de 4 km de los que ya se recorren, de 60 en 60 por vuelta.
+    Cuando se acaban, vuelve a empezar (las búsquedas cambian en cada vuelta)."""
+    import json
+    base = json.loads((Path(__file__).with_name('municipios_es.json')).read_text(encoding='utf-8'))['provincias'].get(provincia) or []
+    todos = json.loads((Path(__file__).with_name('municipios_es_1000.json')).read_text(encoding='utf-8'))['provincias'].get(provincia) or []
+    cerca = lambda la, lo: any(math.hypot((la - b[1]) * 111, (lo - b[2]) * 111 * math.cos(math.radians(la))) < 4 for b in base)
+    nuevos = [(la, lo) for _, la, lo, _ in todos if not cerca(la, lo)]
+    if not nuevos:
+        return []
+    bloques = math.ceil(len(nuevos) / PUEBLOS_POR_TRAMO)
+    i = (tramo - 1) % bloques
+    return nuevos[i * PUEBLOS_POR_TRAMO:(i + 1) * PUEBLOS_POR_TRAMO]
+
+
 def zonas(provincia: str, max_pueblos: int = 30) -> tuple[list, list]:
     """Dónde buscar: la ciudad más grande de la provincia en detalle (cuadrícula de 3×3 zonas de 3 km alrededor de su
     centro) y los siguientes municipios por población (≥ 5.000 hab.). Tabla fija sacada de GeoNames (municipios_es.json):
@@ -178,8 +197,14 @@ def provincia(nicho: str, prov: str) -> Path | None:
         print(f'  {len(cands)} resultados de Maps guardados de antes')
     else:
         cap, pueblos = zonas(prov, cfg.get('max_pueblos', 30))
+        if cfg.get('tramo'):
+            # Vuelta de pueblos: la capital y las ciudades ya están vistas; solo los pueblos nuevos de este tramo
+            extra = pueblos_pequenos(prov, cfg['tramo'])
+            if extra:
+                cap, pueblos = [], extra
+                print(f'  vuelta de pueblos: {len(extra)} núcleos de 1.000 a 5.000 habitantes (tramo {cfg["tramo"]})')
         print(f'  capital en 9 zonas + {len(pueblos)} municipios')
-        cands = google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=cap, paso_km=3.0, zoom=14)
+        cands = google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=cap, paso_km=3.0, zoom=14) if cap else []
         vistos = {c['empresa'] + c['telefono'] for c in cands}
         for c in google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=pueblos, paso_km=6.0, zoom=14):
             if c['empresa'] + c['telefono'] not in vistos:

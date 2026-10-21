@@ -589,7 +589,13 @@ if ($auth && isset($_GET['agentes'])) {
     } catch (Throwable $e) {
         pebai_log('GRAFICAS: ' . $e->getMessage());
     }
-    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'graficas' => $graf, 'prospectos' => $pros, 'email_prospectos' => $emailPros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
+    $scraper = null;
+    try {
+        $scraper = function_exists('of_scraper_seguimiento') ? of_scraper_seguimiento() : null;
+    } catch (Throwable $e) {
+        pebai_log('SEGUIMIENTO SCRAPER: ' . $e->getMessage());
+    }
+    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'graficas' => $graf, 'scraper' => $scraper, 'prospectos' => $pros, 'email_prospectos' => $emailPros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
               'bajas' => (int)$adb->query('SELECT COUNT(*) FROM bajas')->fetchColumn(),
               'nichos' => $nichosOut, 'stats' => pebai_wa_stats(), 'actividad' => pebai_actividad_ultimas('whatsapp', 150),
               'whatsapp' => ['estado' => $wa['estado'], 'latido_at' => $wa['latido_at'], 'detalle' => $wa['detalle'], 'codigo' => $wa['codigo'], 'pausado' => (int)$wa['pausado'],
@@ -598,7 +604,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '52';
+$v = '53';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
