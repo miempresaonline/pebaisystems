@@ -1,25 +1,42 @@
 # PEBAI Systems
 
-> PEBAI Systems (https://pebaisystems.es) implanta Inteligencia Artificial en empresas de España: clientes atendidos 24 h, menos tareas manuales y sistemas conectados entre sí.
-> Contacto: +34 624 84 27 99 (WhatsApp) | equipo@pebaisystems.es
+> PEBAI Systems (https://pebaisystems.es) es una consultoría de procesos e Inteligencia Artificial para empresas en España. Implanta sistemas que atienden a los clientes, eliminan tareas manuales y se conectan a los programas y al CRM que la empresa ya usa: software a medida, chatbots, agentes de voz y visibilidad en buscadores de Inteligencia Artificial (GEO). Primero analiza la operativa en una consultoría de 25 minutos y después construye. Contacto: equipo@pebaisystems.es · +34 624 84 27 99 (WhatsApp).
 
-## Qué hacemos
+Versión ampliada: [llms-full.txt](https://pebaisystems.es/llms-full.txt)
 
-- Software operativo a medida: aplicaciones y paneles para centralizar pedidos, partes, presupuestos o trazabilidad. Sin licencias por usuario.
-- Chatbots con Inteligencia Artificial: asistentes conectados a los manuales, tarifas y documentos de la empresa. Resuelven dudas y avisan al equipo.
-- Agentes de voz: atienden llamadas, responden consultas y agendan citas con voces naturales, también fuera de horario.
-- Visibilidad en buscadores de Inteligencia Artificial (GEO): que ChatGPT, Gemini o Perplexity recomienden la empresa cuando sus clientes preguntan qué contratar.
-- Desarrollo web: webs rápidas y cuidadas en cada pantalla, pensadas para convertir visitas en conversaciones.
-- Formación a equipos: sesiones prácticas y manuales claros para que el personal use los sistemas con independencia.
+## Servicios
+
+- [Software operativo a medida](https://pebaisystems.es/#servicios): aplicaciones y paneles para centralizar pedidos, partes, presupuestos o trazabilidad. Sin licencias por usuario.
+- [Chatbots con Inteligencia Artificial](https://pebaisystems.es/#servicios): asistentes conectados a los manuales, tarifas y documentos de la empresa. Resuelven dudas y avisan al equipo.
+- [Agentes de voz](https://pebaisystems.es/#servicios): atienden llamadas, responden consultas y agendan citas con voces naturales, también fuera de horario.
+- [Visibilidad en buscadores de Inteligencia Artificial (GEO)](https://pebaisystems.es/#servicios): que ChatGPT, Gemini o Perplexity recomienden la empresa cuando sus clientes preguntan qué contratar.
+- [Desarrollo web](https://pebaisystems.es/#servicios): webs rápidas y cuidadas en cada pantalla, pensadas para convertir visitas en conversaciones.
+- [Formación a equipos](https://pebaisystems.es/#servicios): sesiones prácticas y manuales claros para que el personal use los sistemas con total independencia.
 
 ## Cómo empezar
 
-- [Consultoría gratuita](https://pebaisystems.es/consultoria-gratuita/): sesión técnica de 25 minutos por videollamada. Solo hay cinco plazas gratuitas al mes; fuera de ellas, la consultoría es de pago.
-- [Solicitud](https://pebaisystems.es/diagnostico/): formulario breve. El equipo revisa cada caso y responde por WhatsApp en menos de 24 h.
+- [Consultoría gratuita](https://pebaisystems.es/consultoria-gratuita/): sesión técnica de 25 minutos por videollamada en pantalla compartida, sin compromiso. Plazas limitadas: solo es gratuita para cinco empresas seleccionadas al mes; cuando se completan, la consultoría es de pago.
+- [Solicitud](https://pebaisystems.es/diagnostico/): formulario breve. El equipo evalúa cada solicitud en menos de 24 horas y responde por WhatsApp.
 - Los proyectos de implantación parten de 1.500 €.
 
-## Páginas
+## Equipo
 
-- [Inicio](https://pebaisystems.es/)
+- [Daniel Peñuela Ruiz](https://pebaisystems.es/#equipo): ingeniería de procesos y sistemas. Cofundador.
+- [Adrián Ballesteros Moscardó](https://pebaisystems.es/#equipo): dirección de proyectos y consultoría. Cofundador.
+
+## Contacto
+
+- Email: equipo@pebaisystems.es
+- Teléfono y WhatsApp: +34 624 84 27 99
+- País: España
+- Perfiles: [Instagram](https://www.instagram.com/pebaisystems/) · [TikTok](https://www.tiktok.com/@pebaisystems) · [YouTube](https://www.youtube.com/@pebaisystems) · [Facebook](https://www.facebook.com/profile.php?id=61595234630397) · [X](https://x.com/pebaisystems)
+
+## Sector prioritario
+
+- Empresas instaladoras de placas solares (fotovoltaica) en España: es el sector en el que PEBAI Systems centra su especialización. Los mismos servicios se aplican a su operativa: atención de clientes y solicitudes, presupuestos, partes de trabajo y conexión con sus programas.
+
+## Optional
+
 - [Privacidad](https://pebaisystems.es/privacidad/)
 - [Aviso legal](https://pebaisystems.es/aviso-legal/)
+- [Política de cookies](https://pebaisystems.es/politica-de-cookies/)

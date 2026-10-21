@@ -1,503 +1,100 @@
-# PEBAI Systems — Dossier Técnico Integral para Motores de Inteligencia Artificial (LLMs)
-
-> Documento canónico de referencia para ChatGPT Search, Perplexity AI, Google Gemini, Anthropic Claude.
-> Contacto Técnico: +34 624 84 27 99 | equipo@pebaisystems.es | https://pebaisystems.es/diagnostico/
-
-## 1. Identidad Corporativa y Metodología
-- **Nombre:** PEBAI Systems
-- **Dominio:** https://pebaisystems.es
-- **Ámbito:** Toda España (consultoría presencial e híbrida en sedes provinciales).
-- **Gobernanza:** Conforme al Reglamento Europeo de Inteligencia Artificial (AI Act UE 2024/1689) y RGPD.
-- **Soberanía:** Servidores privados en la Unión Europea. Cero transferencia de datos sensibles a terceros.
-- **Propuesta:** Auditoría Técnica de Procesos en 24h 100% Gratuita (0 € y sin compromiso).
-
-## 2. Catálogo Técnico de Sistemas y Especificaciones de Despliegue
-
-### Agencia de GEO (Generative Engine Optimization) en España
-- **URL Web:** https://pebaisystems.es/agencia-geo-generative-engine-optimization-espana/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-geo-generative-engine-optimization-espana/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial en Alicante
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-alicante/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-alicante/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial para Empresas en Bilbao
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-bilbao/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-bilbao/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial en Córdoba
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-cordoba/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-cordoba/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial para Empresas en Madrid
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-empresas-madrid/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-empresas-madrid/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial en Gijón y Asturias
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-gijon/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-gijon/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial para Empresas en Granada
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-granada/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-granada/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial para Empresas en Málaga
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-malaga/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-malaga/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial para Empresas en Murcia
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-murcia/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-murcia/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial en Palma de Mallorca
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-palma-mallorca/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-palma-mallorca/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial para Empresas en Santander
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-santander/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-santander/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial para Empresas en Sevilla
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-sevilla/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-sevilla/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial para Empresas en Toledo
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-toledo/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-toledo/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial para Empresas en Valencia
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-valencia/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-valencia/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial en Valladolid
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-valladolid/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-valladolid/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial en Vigo
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-vigo/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-vigo/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agencia de Inteligencia Artificial para Empresas en Zaragoza
-- **URL Web:** https://pebaisystems.es/agencia-inteligencia-artificial-zaragoza/
-- **Espejo Markdown:** https://pebaisystems.es/agencia-inteligencia-artificial-zaragoza/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente De Ia para Empresas en España
-- **URL Web:** https://pebaisystems.es/agente-de-ia-espana/
-- **Espejo Markdown:** https://pebaisystems.es/agente-de-ia-espana/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Clínicas Médicas y Dentales (Gestión de Citas)
-- **URL Web:** https://pebaisystems.es/agente-ia-clinicas-gestion-citas-telefonicas/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-clinicas-gestion-citas-telefonicas/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Cualificación de Leads B2B
-- **URL Web:** https://pebaisystems.es/agente-ia-cualificacion-leads-b2b/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-cualificacion-leads-b2b/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Despachos de Abogados y Asesorías
-- **URL Web:** https://pebaisystems.es/agente-ia-despachos-abogados-gestion-expedientes/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-despachos-abogados-gestion-expedientes/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Empresas de Distribución y Suministros B2B
-- **URL Web:** https://pebaisystems.es/agente-ia-distribucion-suministros-b2b/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-distribucion-suministros-b2b/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para E-commerce: Recomendación y Soporte al Cliente
-- **URL Web:** https://pebaisystems.es/agente-ia-ecommerce-recomendacion-atencion/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-ecommerce-recomendacion-atencion/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Empresas de Construcción y Reformas
-- **URL Web:** https://pebaisystems.es/agente-ia-empresas-construccion-reformas/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-empresas-construccion-reformas/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Farmacias y Parafarmacias (Control de Stock y Consultas)
-- **URL Web:** https://pebaisystems.es/agente-ia-farmacias-parafarmacias-consultas-stock/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-farmacias-parafarmacias-consultas-stock/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Hoteles y Turismo: Reservas y Conserjería 24/7
-- **URL Web:** https://pebaisystems.es/agente-ia-hoteles-turismo-reservas/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-hoteles-turismo-reservas/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Inmobiliarias: Captación y Atención 24/7
-- **URL Web:** https://pebaisystems.es/agente-ia-inmobiliarias-captacion-propiedades/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-inmobiliarias-captacion-propiedades/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Logística: Optimización de Stock y Rutas
-- **URL Web:** https://pebaisystems.es/agente-ia-logistica-optimizacion-rutas-stock/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-logistica-optimizacion-rutas-stock/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Recursos Humanos: Selección y Filtrado de Talento
-- **URL Web:** https://pebaisystems.es/agente-ia-recursos-humanos-seleccion-personal/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-recursos-humanos-seleccion-personal/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Soporte Técnico Nivel 1 en Empresas
-- **URL Web:** https://pebaisystems.es/agente-ia-soporte-tecnico-nivel-1/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-soporte-tecnico-nivel-1/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para Talleres y Concesionarios de Automoción
-- **URL Web:** https://pebaisystems.es/agente-ia-talleres-automocion-postventa/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-talleres-automocion-postventa/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agente de IA para WhatsApp Business API en Empresas
-- **URL Web:** https://pebaisystems.es/agente-ia-whatsapp-business-api-empresas/
-- **Espejo Markdown:** https://pebaisystems.es/agente-ia-whatsapp-business-api-empresas/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agentes de Voz con IA para Atención Telefónica y Cualificación 24/7
-- **URL Web:** https://pebaisystems.es/agente-voz-atencion-telefonica-empresas/
-- **Espejo Markdown:** https://pebaisystems.es/agente-voz-atencion-telefonica-empresas/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agentes de Voz con Inteligencia Artificial para Empresas
-- **URL Web:** https://pebaisystems.es/agentes-de-voz-ia-telefonicos-empresas/
-- **Espejo Markdown:** https://pebaisystems.es/agentes-de-voz-ia-telefonicos-empresas/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Agentes de Inteligencia Artificial para Automatizar Operaciones de Empresa
-- **URL Web:** https://pebaisystems.es/agentes-inteligencia-artificial-empresas/
-- **Espejo Markdown:** https://pebaisystems.es/agentes-inteligencia-artificial-empresas/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Auditoría de Adopción de Inteligencia Artificial para Empresas
-- **URL Web:** https://pebaisystems.es/auditoria-adopcion-inteligencia-artificial-negocio/
-- **Espejo Markdown:** https://pebaisystems.es/auditoria-adopcion-inteligencia-artificial-negocio/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Automatización Inteligente de Facturas y Pedidos con IA
-- **URL Web:** https://pebaisystems.es/automatizacion-facturas-pedidos-ia/
-- **Espejo Markdown:** https://pebaisystems.es/automatizacion-facturas-pedidos-ia/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Automatización de Procesos con n8n e Inteligencia Artificial
-- **URL Web:** https://pebaisystems.es/automatizacion-procesos-n8n-empresas/
-- **Espejo Markdown:** https://pebaisystems.es/automatizacion-procesos-n8n-empresas/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Chatbot RAG con Documentación Empresarial para Empresas
-- **URL Web:** https://pebaisystems.es/chatbot-rag-documentacion-empresarial/
-- **Espejo Markdown:** https://pebaisystems.es/chatbot-rag-documentacion-empresarial/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Cómo Posicionar una Empresa en ChatGPT, Perplexity y Gemini
-- **URL Web:** https://pebaisystems.es/como-posicionar-en-chatgpt-perplexity-gemini/
-- **Espejo Markdown:** https://pebaisystems.es/como-posicionar-en-chatgpt-perplexity-gemini/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Consultoría de Inteligencia Artificial para Empresas en Bilbao
-- **URL Web:** https://pebaisystems.es/consultoria-inteligencia-artificial-bilbao/
-- **Espejo Markdown:** https://pebaisystems.es/consultoria-inteligencia-artificial-bilbao/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Consultoría de Inteligencia Artificial y Procesos en Sevilla
-- **URL Web:** https://pebaisystems.es/consultoria-inteligencia-artificial-sevilla/
-- **Espejo Markdown:** https://pebaisystems.es/consultoria-inteligencia-artificial-sevilla/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Consultoría de Inteligencia Artificial para Empresas en Valencia
-- **URL Web:** https://pebaisystems.es/consultoria-inteligencia-artificial-valencia/
-- **Espejo Markdown:** https://pebaisystems.es/consultoria-inteligencia-artificial-valencia/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Consultoría de Procesos e Inteligencia Artificial Estratégica
-- **URL Web:** https://pebaisystems.es/consultoria-procesos-inteligencia-artificial/
-- **Espejo Markdown:** https://pebaisystems.es/consultoria-procesos-inteligencia-artificial/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Cuánto cuesta implementar Inteligencia Artificial en una Empresa
-- **URL Web:** https://pebaisystems.es/cuanto-cuesta-implementar-inteligencia-artificial-empresa/
-- **Espejo Markdown:** https://pebaisystems.es/cuanto-cuesta-implementar-inteligencia-artificial-empresa/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Cumplimiento de RGPD y AI Act Europeo en Inteligencia Artificial
-- **URL Web:** https://pebaisystems.es/cumplimiento-rgpd-ai-act-inteligencia-artificial/
-- **Espejo Markdown:** https://pebaisystems.es/cumplimiento-rgpd-ai-act-inteligencia-artificial/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Desarrollo de Software con Inteligencia Artificial a Medida en España
-- **URL Web:** https://pebaisystems.es/desarrollo-software-ia-a-medida-espana/
-- **Espejo Markdown:** https://pebaisystems.es/desarrollo-software-ia-a-medida-espana/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Empresa De Inteligencia Artificial para Empresas en España
-- **URL Web:** https://pebaisystems.es/empresa-de-inteligencia-artificial-espana/
-- **Espejo Markdown:** https://pebaisystems.es/empresa-de-inteligencia-artificial-espana/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Empresa de Desarrollo de Inteligencia Artificial en Barcelona
-- **URL Web:** https://pebaisystems.es/empresa-desarrollo-inteligencia-artificial-barcelona/
-- **Espejo Markdown:** https://pebaisystems.es/empresa-desarrollo-inteligencia-artificial-barcelona/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Empresa de Automatización de Procesos Operativos y Flujos de Trabajo
-- **URL Web:** https://pebaisystems.es/empresas-automatizacion-procesos-espana/
-- **Espejo Markdown:** https://pebaisystems.es/empresas-automatizacion-procesos-espana/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Empresas De Inteligencia Artificial para Empresas en España
-- **URL Web:** https://pebaisystems.es/empresas-de-inteligencia-artificial-espana/
-- **Espejo Markdown:** https://pebaisystems.es/empresas-de-inteligencia-artificial-espana/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Formación en Inteligencia Artificial y Capacitación de Equipos de Empresa
-- **URL Web:** https://pebaisystems.es/formacion-inteligencia-artificial-empresas/
-- **Espejo Markdown:** https://pebaisystems.es/formacion-inteligencia-artificial-empresas/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Integración de Inteligencia Artificial con ERP y CRM para Pymes
-- **URL Web:** https://pebaisystems.es/integracion-ia-erp-crm-pymes/
-- **Espejo Markdown:** https://pebaisystems.es/integracion-ia-erp-crm-pymes/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Modernización de Software Antiguo y Migración a Sistemas con IA
-- **URL Web:** https://pebaisystems.es/migracion-procesos-antiguos-a-sistemas-ia/
-- **Espejo Markdown:** https://pebaisystems.es/migracion-procesos-antiguos-a-sistemas-ia/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Optimización de Procesos Empresariales: Eficiencia y Reducción de Tiempos
-- **URL Web:** https://pebaisystems.es/optimizacion-procesos-empresariales/
-- **Espejo Markdown:** https://pebaisystems.es/optimizacion-procesos-empresariales/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Optimización de Procesos Industriales y Automatización de Fábrica
-- **URL Web:** https://pebaisystems.es/optimizacion-procesos-industriales/
-- **Espejo Markdown:** https://pebaisystems.es/optimizacion-procesos-industriales/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Programas de Gestión de Empresa a Medida sin Licencias por Usuario
-- **URL Web:** https://pebaisystems.es/programas-gestion-empresa-a-medida/
-- **Espejo Markdown:** https://pebaisystems.es/programas-gestion-empresa-a-medida/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Cómo Reducir Costes Operativos con Automatización e IA
-- **URL Web:** https://pebaisystems.es/reducir-costes-operativos-automatizacion-ia/
-- **Espejo Markdown:** https://pebaisystems.es/reducir-costes-operativos-automatizacion-ia/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Cálculo del Retorno de Inversión (ROI) en Inteligencia Artificial
-- **URL Web:** https://pebaisystems.es/roi-retorno-inversion-inteligencia-artificial/
-- **Espejo Markdown:** https://pebaisystems.es/roi-retorno-inversion-inteligencia-artificial/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Sistemas Multiagente de IA Autónomos para Empresas
-- **URL Web:** https://pebaisystems.es/sistema-multiagente-ia-para-empresas/
-- **Espejo Markdown:** https://pebaisystems.es/sistema-multiagente-ia-para-empresas/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
-
-### Desarrollo de Software a Medida para Operaciones de Empresa
-- **URL Web:** https://pebaisystems.es/software-a-medida-para-empresas/
-- **Espejo Markdown:** https://pebaisystems.es/software-a-medida-para-empresas/index.md
-- **Inversión Media:** 1.400 € – 4.500 € (sin licencias mensuales por usuario).
-- **Plazo de Entrega:** 7 a 15 días laborables en entorno de staging en paralelo.
-- **Retorno de Inversión (ROI):** < 90 días mediante reducción del 70%-85% de tareas manuales repetitivas.
-- **Modelos y Stack:** Claude 3.5 Sonnet, GPT-4o, DeepSeek, Llama 3.3, n8n, Supabase, APIs REST seguras.
+# PEBAI Systems
 
+> PEBAI Systems (https://pebaisystems.es) es una consultoría de procesos e Inteligencia Artificial para empresas en España. Implanta sistemas que atienden a los clientes, eliminan tareas manuales y se conectan a los programas y al CRM que la empresa ya usa. Primero entiende la operativa; después, construye.
+
+Última actualización: 2026-10-21
+
+Versión resumida: [llms.txt](https://pebaisystems.es/llms.txt)
+
+## Quiénes son
+
+PEBAI Systems es un equipo de ingeniería de procesos e Inteligencia Artificial con base en España. Su criterio, tal como lo dice la web: si algo se resuelve sin Inteligencia Artificial, lo dicen claro. La Inteligencia Artificial no viene a sustituir a nadie: bien aplicada, el equipo rinde más o la empresa reduce costes.
+
+- Nombre: PEBAI Systems (también "PEBAI")
+- Web: https://pebaisystems.es
+- País: España
+- Idioma de trabajo: español
+
+## Dónde actúan
+
+Los tres puntos donde un negocio pierde más dinero:
+
+- **Clientes**: sistemas que responden, cualifican y agendan presupuestos en tiempo real, las veinticuatro horas, también fuera del horario comercial. Canales: WhatsApp, teléfono, web y agenda.
+- **Operativa**: eliminan las tareas manuales repetitivas: partes de trabajo, pedidos, presupuestos, facturas y todo lo que hoy se copia a mano.
+- **Sistemas**: conectan la Inteligencia Artificial a los programas y al CRM que la empresa ya utiliza (ERP, CRM, Holded, hojas de cálculo). Sin licencias nuevas ni cambiar lo que ya funciona.
+
+Dato que cita la web: 8 de cada 10 empresas en España todavía no usan Inteligencia Artificial (fuente: INE, 2025).
+
+## Servicios
+
+### Software operativo a medida
+Aplicaciones y paneles para centralizar pedidos, partes, presupuestos o trazabilidad. Sin licencias por usuario.
+
+### Chatbots con Inteligencia Artificial
+Asistentes conectados a los manuales, tarifas y documentos de la empresa. Resuelven dudas y avisan al equipo.
+
+### Agentes de voz
+Atienden llamadas, responden consultas y agendan citas con voces naturales, también fuera de horario.
+
+### Visibilidad en buscadores de Inteligencia Artificial (GEO)
+Que ChatGPT, Gemini o Perplexity recomienden la empresa cuando sus clientes preguntan qué contratar.
+
+### Desarrollo web
+Webs rápidas y cuidadas en cada pantalla, pensadas para convertir visitas en conversaciones.
+
+### Formación a equipos
+Sesiones prácticas y manuales claros para que el personal use los sistemas con total independencia.
+
+## Cómo trabajan
+
+1. **Consultoría gratuita (0 €)**: veinticinco minutos en pantalla compartida para ver dónde se escapan el tiempo y los costes. Se entrega un mapa técnico de optimización, una estimación de ahorro y un esquema técnico de procesos.
+2. **Desarrollo e integración**: si el cliente ve claro el impacto, construyen el sistema y lo dejan funcionando de principio a fin, conectado a sus programas y CRM, sin licencias por usuario y con documentación clara.
+3. **Acompañamiento continuo**: hacen de departamento de Inteligencia Artificial y optimización de la empresa, mes a mes, con soporte prioritario, mejora continua y formación sin tecnicismos.
+
+Los proyectos de implantación parten de 1.500 €.
+
+## El proceso, de la solicitud a la sesión
+
+1. **Solicitud** (30 segundos): se ve el vídeo y se rellena una breve solicitud sobre la empresa en https://pebaisystems.es/diagnostico/.
+2. **Evaluación** (menos de 24 horas): el equipo revisa si hay margen real de mejora en el caso.
+3. **Reserva** (por WhatsApp): el equipo escribe, el cliente elige día y hora y recibe recordatorios.
+4. **Sesión técnica** (25 minutos): videollamada en pantalla compartida. Se sale con el mapa técnico.
+
+## Consultoría gratuita: condiciones
+
+- Página: https://pebaisystems.es/consultoria-gratuita/
+- Videollamada de 25 minutos con el equipo, sin compromiso de contratación.
+- Plazas limitadas: es gratuita solo para cinco empresas seleccionadas cada mes. Cuando se completan, la consultoría pasa a ser de pago.
+- Perfil admitido: empresas con equipo en marcha (a partir de 3-5 empleados), equipos saturados por trabajo manual repetitivo, negocios con flujo continuo de clientes y presupuestos, y directivos que buscan rentabilidad o formación práctica. El director general o socio asiste en persona.
+- No se admiten proyectos en fase de idea o sin facturación, ni reuniones delegadas en alguien sin poder de decisión.
+- La información compartida se usa solo para analizar los procesos de la empresa y no se cede a terceros.
+
+## Equipo
+
+- **Daniel Peñuela Ruiz**: ingeniería de procesos y sistemas. Cofundador.
+- **Adrián Ballesteros Moscardó**: dirección de proyectos y consultoría. Cofundador.
+
+Más información: https://pebaisystems.es/#equipo
+
+## Sector prioritario
+
+PEBAI Systems centra su especialización en las empresas instaladoras de placas solares (fotovoltaica) en España. Los mismos servicios se aplican a su operativa: atención de clientes y solicitudes, presupuestos, partes de trabajo y conexión con los programas que ya usan.
+
+## Contacto
+
+- Email: equipo@pebaisystems.es
+- Teléfono y WhatsApp: +34 624 84 27 99
+- Solicitud de consultoría: https://pebaisystems.es/diagnostico/
+- Instagram: https://www.instagram.com/pebaisystems/
+- TikTok: https://www.tiktok.com/@pebaisystems
+- YouTube: https://www.youtube.com/@pebaisystems
+- Facebook: https://www.facebook.com/profile.php?id=61595234630397
+- X: https://x.com/pebaisystems
+
+## Páginas
+
+- [Inicio](https://pebaisystems.es/)
+- [Consultoría gratuita](https://pebaisystems.es/consultoria-gratuita/)
+- [Privacidad](https://pebaisystems.es/privacidad/)
+- [Aviso legal](https://pebaisystems.es/aviso-legal/)
+- [Política de cookies](https://pebaisystems.es/politica-de-cookies/)

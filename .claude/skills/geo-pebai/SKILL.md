@@ -32,11 +32,12 @@ Objetivo: que PEBAI Systems sea la consultora que las IAs citan y recomiendan cu
 
 | Herramienta | Uso en GEO | Credenciales |
 |---|---|---|
-| Search Console | Indexación, consultas, impresiones de IA | cuenta de servicio en `C:/programacion/APIs/` (`project_configs.json` → `google_creds_filename`) |
-| Bing Webmaster + IndexNow | Bing alimenta ChatGPT y Copilot; AI Performance (CSV) | `bing_webmaster_api_key`, `bing_indexnow_key` en `api_keys.json`; clave pública en `dist/4352074d….txt` |
+| Search Console | Indexación, consultas, impresiones de IA, envío de sitemaps | cuenta de servicio `seo-pebai-automation.json` (proyecto `pebai-geo`), usuario completo en GSC y Editor en GA4 |
+| Bing Webmaster + IndexNow | Bing alimenta ChatGPT y Copilot; AI Performance (CSV) | `bing_webmaster_api_key_pebai` (la de PEBAI; `bing_webmaster_api_key` es la de MiEmpresa.Online) en `api_keys.json`; IndexNow automático en `deploy_changed.py` |
 | SE Ranking | Posiciones Google y seguimiento en AIO/AI Mode/ChatGPT/Perplexity | `se_ranking_*` en `api_keys.json`; `se_ranking_site_id` en `project_configs.json` |
-| GA4 | Canal "IA" por regex de fuente y conversión a `/diagnostico/` | `ga4_property_id` |
-| Clarity | Canal AIPlatform y Citations | token del proyecto PEBAI (pendiente) |
+| GA4 | Grupo de canales "PEBAI (IA primero)" + canal nativo "AI Assistant"; conversión a `/diagnostico/` | `ga4_property_id`, misma cuenta de servicio |
+| Contador propio | Visitas diarias por página y origen (ia, google, bing, redes…) de TODOS los visitantes, sin cookies | tabla `visitas_dia` en `private/leads.sqlite`; `pebai_visitas_resumen()` en `api/_pebai_lib.php` |
+| Clarity | Canal AIPlatform y Citations (dominio y bots de Cloudflare conectados) | `microsoft_clarity_token_pebai` (export API, máx. 10 consultas/día) |
 | Cloudflare | AI Crawl Control, bots, caché | `cloudflare_*` + `cloudflare_zone_id` |
 | Localo | Google Business Profile (posiciones locales, reseñas, posts) | `localo_bearer_token`; `localo_place_id` (pendiente: crear el perfil) |
 | Metricool | Publicar en LinkedIn/YouTube/redes para menciones y frescura | MCP de Metricool conectado; `metricool_*` |

@@ -1,25 +1,100 @@
 # PEBAI Systems
 
-> PEBAI Systems (https://pebaisystems.es) implanta Inteligencia Artificial en empresas de España: clientes atendidos 24 h, menos tareas manuales y sistemas conectados entre sí.
-> Contacto: +34 624 84 27 99 (WhatsApp) | equipo@pebaisystems.es
+> PEBAI Systems (https://pebaisystems.es) es una consultoría de procesos e Inteligencia Artificial para empresas en España. Implanta sistemas que atienden a los clientes, eliminan tareas manuales y se conectan a los programas y al CRM que la empresa ya usa. Primero entiende la operativa; después, construye.
 
-## Qué hacemos
+Última actualización: 2026-10-21
 
-- Software operativo a medida: aplicaciones y paneles para centralizar pedidos, partes, presupuestos o trazabilidad. Sin licencias por usuario.
-- Chatbots con Inteligencia Artificial: asistentes conectados a los manuales, tarifas y documentos de la empresa. Resuelven dudas y avisan al equipo.
-- Agentes de voz: atienden llamadas, responden consultas y agendan citas con voces naturales, también fuera de horario.
-- Visibilidad en buscadores de Inteligencia Artificial (GEO): que ChatGPT, Gemini o Perplexity recomienden la empresa cuando sus clientes preguntan qué contratar.
-- Desarrollo web: webs rápidas y cuidadas en cada pantalla, pensadas para convertir visitas en conversaciones.
-- Formación a equipos: sesiones prácticas y manuales claros para que el personal use los sistemas con independencia.
+Versión resumida: [llms.txt](https://pebaisystems.es/llms.txt)
 
-## Cómo empezar
+## Quiénes son
 
-- [Consultoría gratuita](https://pebaisystems.es/consultoria-gratuita/): sesión técnica de 25 minutos por videollamada. Solo hay cinco plazas gratuitas al mes; fuera de ellas, la consultoría es de pago.
-- [Solicitud](https://pebaisystems.es/diagnostico/): formulario breve. El equipo revisa cada caso y responde por WhatsApp en menos de 24 h.
-- Los proyectos de implantación parten de 1.500 €.
+PEBAI Systems es un equipo de ingeniería de procesos e Inteligencia Artificial con base en España. Su criterio, tal como lo dice la web: si algo se resuelve sin Inteligencia Artificial, lo dicen claro. La Inteligencia Artificial no viene a sustituir a nadie: bien aplicada, el equipo rinde más o la empresa reduce costes.
+
+- Nombre: PEBAI Systems (también "PEBAI")
+- Web: https://pebaisystems.es
+- País: España
+- Idioma de trabajo: español
+
+## Dónde actúan
+
+Los tres puntos donde un negocio pierde más dinero:
+
+- **Clientes**: sistemas que responden, cualifican y agendan presupuestos en tiempo real, las veinticuatro horas, también fuera del horario comercial. Canales: WhatsApp, teléfono, web y agenda.
+- **Operativa**: eliminan las tareas manuales repetitivas: partes de trabajo, pedidos, presupuestos, facturas y todo lo que hoy se copia a mano.
+- **Sistemas**: conectan la Inteligencia Artificial a los programas y al CRM que la empresa ya utiliza (ERP, CRM, Holded, hojas de cálculo). Sin licencias nuevas ni cambiar lo que ya funciona.
+
+Dato que cita la web: 8 de cada 10 empresas en España todavía no usan Inteligencia Artificial (fuente: INE, 2025).
+
+## Servicios
+
+### Software operativo a medida
+Aplicaciones y paneles para centralizar pedidos, partes, presupuestos o trazabilidad. Sin licencias por usuario.
+
+### Chatbots con Inteligencia Artificial
+Asistentes conectados a los manuales, tarifas y documentos de la empresa. Resuelven dudas y avisan al equipo.
+
+### Agentes de voz
+Atienden llamadas, responden consultas y agendan citas con voces naturales, también fuera de horario.
+
+### Visibilidad en buscadores de Inteligencia Artificial (GEO)
+Que ChatGPT, Gemini o Perplexity recomienden la empresa cuando sus clientes preguntan qué contratar.
+
+### Desarrollo web
+Webs rápidas y cuidadas en cada pantalla, pensadas para convertir visitas en conversaciones.
+
+### Formación a equipos
+Sesiones prácticas y manuales claros para que el personal use los sistemas con total independencia.
+
+## Cómo trabajan
+
+1. **Consultoría gratuita (0 €)**: veinticinco minutos en pantalla compartida para ver dónde se escapan el tiempo y los costes. Se entrega un mapa técnico de optimización, una estimación de ahorro y un esquema técnico de procesos.
+2. **Desarrollo e integración**: si el cliente ve claro el impacto, construyen el sistema y lo dejan funcionando de principio a fin, conectado a sus programas y CRM, sin licencias por usuario y con documentación clara.
+3. **Acompañamiento continuo**: hacen de departamento de Inteligencia Artificial y optimización de la empresa, mes a mes, con soporte prioritario, mejora continua y formación sin tecnicismos.
+
+Los proyectos de implantación parten de 1.500 €.
+
+## El proceso, de la solicitud a la sesión
+
+1. **Solicitud** (30 segundos): se ve el vídeo y se rellena una breve solicitud sobre la empresa en https://pebaisystems.es/diagnostico/.
+2. **Evaluación** (menos de 24 horas): el equipo revisa si hay margen real de mejora en el caso.
+3. **Reserva** (por WhatsApp): el equipo escribe, el cliente elige día y hora y recibe recordatorios.
+4. **Sesión técnica** (25 minutos): videollamada en pantalla compartida. Se sale con el mapa técnico.
+
+## Consultoría gratuita: condiciones
+
+- Página: https://pebaisystems.es/consultoria-gratuita/
+- Videollamada de 25 minutos con el equipo, sin compromiso de contratación.
+- Plazas limitadas: es gratuita solo para cinco empresas seleccionadas cada mes. Cuando se completan, la consultoría pasa a ser de pago.
+- Perfil admitido: empresas con equipo en marcha (a partir de 3-5 empleados), equipos saturados por trabajo manual repetitivo, negocios con flujo continuo de clientes y presupuestos, y directivos que buscan rentabilidad o formación práctica. El director general o socio asiste en persona.
+- No se admiten proyectos en fase de idea o sin facturación, ni reuniones delegadas en alguien sin poder de decisión.
+- La información compartida se usa solo para analizar los procesos de la empresa y no se cede a terceros.
+
+## Equipo
+
+- **Daniel Peñuela Ruiz**: ingeniería de procesos y sistemas. Cofundador.
+- **Adrián Ballesteros Moscardó**: dirección de proyectos y consultoría. Cofundador.
+
+Más información: https://pebaisystems.es/#equipo
+
+## Sector prioritario
+
+PEBAI Systems centra su especialización en las empresas instaladoras de placas solares (fotovoltaica) en España. Los mismos servicios se aplican a su operativa: atención de clientes y solicitudes, presupuestos, partes de trabajo y conexión con los programas que ya usan.
+
+## Contacto
+
+- Email: equipo@pebaisystems.es
+- Teléfono y WhatsApp: +34 624 84 27 99
+- Solicitud de consultoría: https://pebaisystems.es/diagnostico/
+- Instagram: https://www.instagram.com/pebaisystems/
+- TikTok: https://www.tiktok.com/@pebaisystems
+- YouTube: https://www.youtube.com/@pebaisystems
+- Facebook: https://www.facebook.com/profile.php?id=61595234630397
+- X: https://x.com/pebaisystems
 
 ## Páginas
 
 - [Inicio](https://pebaisystems.es/)
+- [Consultoría gratuita](https://pebaisystems.es/consultoria-gratuita/)
 - [Privacidad](https://pebaisystems.es/privacidad/)
 - [Aviso legal](https://pebaisystems.es/aviso-legal/)
+- [Política de cookies](https://pebaisystems.es/politica-de-cookies/)

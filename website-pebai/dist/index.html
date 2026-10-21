@@ -28,14 +28,70 @@
       "@type": "Organization",
       "@id": "https://pebaisystems.es/#organization",
       "name": "PEBAI Systems",
+      "alternateName": "PEBAI",
       "url": "https://pebaisystems.es/",
-      "logo": "https://pebaisystems.es/brand/pebai-logo-03-master-transparent-v1.png",
-      "sameAs": ["https://www.instagram.com/pebaisystems/", "https://www.tiktok.com/@pebaisystems", "https://www.youtube.com/@pebaisystems", "https://www.facebook.com/profile.php?id=61595234630397"],
-      "founder": [
-        { "@type": "Person", "name": "Daniel Peñuela Ruiz", "jobTitle": "Ingeniería de procesos y sistemas IA", "image": "https://pebaisystems.es/team/dani-editorial-v2.png" },
-        { "@type": "Person", "name": "Adrián Ballesteros Moscardó", "jobTitle": "Dirección de proyectos y consultoría", "image": "https://pebaisystems.es/team/adrian-editorial-v4.png" }
+      "description": "Consultoría de procesos e Inteligencia Artificial para empresas en España: sistemas que atienden a los clientes, eliminan tareas manuales y se conectan a los programas que ya se usan.",
+      "logo": {
+        "@type": "ImageObject",
+        "@id": "https://pebaisystems.es/#logo",
+        "url": "https://pebaisystems.es/brand/pebai-logo-03-master-transparent-v1.png",
+        "contentUrl": "https://pebaisystems.es/brand/pebai-logo-03-master-transparent-v1.png",
+        "width": 1110,
+        "height": 1417,
+        "caption": "PEBAI Systems"
+      },
+      "image": {
+        "@id": "https://pebaisystems.es/#logo"
+      },
+      "email": "equipo@pebaisystems.es",
+      "telephone": "+34-624-84-27-99",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "ES"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "España"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+34-624-84-27-99",
+        "email": "equipo@pebaisystems.es",
+        "contactType": "customer service",
+        "availableLanguage": [
+          "es"
+        ],
+        "areaServed": "ES"
+      },
+      "sameAs": [
+        "https://www.instagram.com/pebaisystems/",
+        "https://www.tiktok.com/@pebaisystems",
+        "https://www.youtube.com/@pebaisystems",
+        "https://www.youtube.com/channel/UCJ5ecot00P--vMBuv09dKIQ",
+        "https://www.facebook.com/profile.php?id=61595234630397",
+        "https://x.com/pebaisystems"
       ],
-      "contactPoint": { "@type": "ContactPoint", "telephone": "+34-624-84-27-99", "contactType": "customer service", "availableLanguage": ["es"], "areaServed": "ES" }
+      "founder": [
+        {
+          "@id": "https://pebaisystems.es/#daniel"
+        },
+        {
+          "@id": "https://pebaisystems.es/#adrian"
+        }
+      ],
+      "knowsAbout": [
+        "Generative Engine Optimization (GEO)",
+        "Posicionamiento en buscadores de Inteligencia Artificial",
+        "Chatbots con Inteligencia Artificial",
+        "Agentes de Inteligencia Artificial",
+        "Agentes de voz con IA",
+        "Automatización de procesos",
+        "Optimización de procesos empresariales",
+        "Integración con ERP y CRM",
+        "Aplicaciones a medida",
+        "Inteligencia Artificial para empresas",
+        "Inteligencia Artificial para empresas instaladoras de placas solares"
+      ]
     },
     {
       "@type": "ProfessionalService",
@@ -43,22 +99,231 @@
       "name": "PEBAI Systems — Consultoría de procesos e Inteligencia Artificial",
       "description": "Consultoría de procesos e integración de Inteligencia Artificial para empresas: atención a clientes 24 horas, eliminación de tareas manuales y conexión con los programas y el CRM que ya se utilizan.",
       "url": "https://pebaisystems.es/",
+      "image": "https://pebaisystems.es/brand/og/og-consultoria.jpg",
+      "logo": {
+        "@id": "https://pebaisystems.es/#logo"
+      },
       "telephone": "+34-624-84-27-99",
-      "address": { "@type": "PostalAddress", "addressCountry": "ES" },
-      "areaServed": "ES",
-      "knowsAbout": ["Optimización de procesos empresariales", "Inteligencia Artificial para empresas", "Automatización de procesos", "Integración con ERP y CRM", "Agentes de voz con IA", "Chatbots con IA", "Generative Engine Optimization (GEO)"],
+      "email": "equipo@pebaisystems.es",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "ES"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "España"
+      },
+      "priceRange": "Desde 1.500 €",
+      "parentOrganization": {
+        "@id": "https://pebaisystems.es/#organization"
+      },
+      "audience": {
+        "@type": "BusinessAudience",
+        "audienceType": "Empresas instaladoras de placas solares (fotovoltaica)",
+        "geographicArea": {
+          "@type": "Country",
+          "name": "España"
+        }
+      },
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
         "name": "Servicios",
         "itemListElement": [
-          { "@type": "Offer", "price": "0", "priceCurrency": "EUR", "itemOffered": { "@type": "Service", "name": "Consultoría gratuita de procesos e IA", "description": "Sesión de 25 minutos por videollamada con un mapa técnico de optimización y una estimación de ahorro. Gratuita para cinco empresas al mes; después, de pago." } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Software operativo a medida" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Chatbots con IA conectados a la empresa" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Agentes de voz con IA" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Visibilidad en buscadores de IA (GEO)" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Desarrollo web" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Acompañamiento y formación" } }
+          {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR",
+            "url": "https://pebaisystems.es/consultoria-gratuita/",
+            "itemOffered": {
+              "@type": "Service",
+              "@id": "https://pebaisystems.es/#consultoria-gratuita",
+              "name": "Consultoría gratuita de procesos e IA",
+              "description": "Sesión de 25 minutos por videollamada con un mapa técnico de optimización y una estimación de ahorro. Gratuita para cinco empresas al mes; después, de pago.",
+              "provider": {
+                "@id": "https://pebaisystems.es/#organization"
+              },
+              "areaServed": {
+                "@type": "Country",
+                "name": "España"
+              }
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "@id": "https://pebaisystems.es/#servicio-software",
+              "name": "Software operativo a medida",
+              "description": "Aplicaciones y paneles para centralizar pedidos, partes, presupuestos o trazabilidad. Sin licencias por usuario.",
+              "provider": {
+                "@id": "https://pebaisystems.es/#organization"
+              },
+              "areaServed": {
+                "@type": "Country",
+                "name": "España"
+              },
+              "url": "https://pebaisystems.es/#servicios"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "@id": "https://pebaisystems.es/#servicio-chatbots",
+              "name": "Chatbots con Inteligencia Artificial",
+              "description": "Asistentes conectados a los manuales, tarifas y documentos de la empresa. Resuelven dudas y avisan al equipo.",
+              "provider": {
+                "@id": "https://pebaisystems.es/#organization"
+              },
+              "areaServed": {
+                "@type": "Country",
+                "name": "España"
+              },
+              "url": "https://pebaisystems.es/#servicios"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "@id": "https://pebaisystems.es/#servicio-voz",
+              "name": "Agentes de voz",
+              "description": "Atienden llamadas, responden consultas y agendan citas con voces naturales, también fuera de horario.",
+              "provider": {
+                "@id": "https://pebaisystems.es/#organization"
+              },
+              "areaServed": {
+                "@type": "Country",
+                "name": "España"
+              },
+              "url": "https://pebaisystems.es/#servicios"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "@id": "https://pebaisystems.es/#servicio-geo",
+              "name": "Visibilidad en buscadores de Inteligencia Artificial (GEO)",
+              "description": "Que ChatGPT, Gemini o Perplexity recomienden la empresa cuando sus clientes preguntan qué contratar.",
+              "provider": {
+                "@id": "https://pebaisystems.es/#organization"
+              },
+              "areaServed": {
+                "@type": "Country",
+                "name": "España"
+              },
+              "url": "https://pebaisystems.es/#servicios"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "@id": "https://pebaisystems.es/#servicio-web",
+              "name": "Desarrollo web",
+              "description": "Webs rápidas y cuidadas en cada pantalla, pensadas para convertir visitas en conversaciones.",
+              "provider": {
+                "@id": "https://pebaisystems.es/#organization"
+              },
+              "areaServed": {
+                "@type": "Country",
+                "name": "España"
+              },
+              "url": "https://pebaisystems.es/#servicios"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "@id": "https://pebaisystems.es/#servicio-formacion",
+              "name": "Formación a equipos",
+              "description": "Sesiones prácticas y manuales claros para que el personal use los sistemas con total independencia.",
+              "provider": {
+                "@id": "https://pebaisystems.es/#organization"
+              },
+              "areaServed": {
+                "@type": "Country",
+                "name": "España"
+              },
+              "url": "https://pebaisystems.es/#servicios"
+            }
+          }
         ]
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://pebaisystems.es/#website",
+      "name": "PEBAI Systems",
+      "alternateName": "PEBAI",
+      "url": "https://pebaisystems.es/",
+      "inLanguage": "es-ES",
+      "publisher": {
+        "@id": "https://pebaisystems.es/#organization"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://pebaisystems.es/#webpage",
+      "url": "https://pebaisystems.es/",
+      "name": "PEBAI Systems — Inteligencia Artificial trabajando dentro de tu empresa",
+      "description": "Implantamos Inteligencia Artificial en tu empresa: clientes atendidos 24 h, menos tareas manuales y sistemas conectados. Consultoría gratuita, 5 plazas al mes.",
+      "isPartOf": {
+        "@id": "https://pebaisystems.es/#website"
+      },
+      "about": {
+        "@id": "https://pebaisystems.es/#organization"
+      },
+      "publisher": {
+        "@id": "https://pebaisystems.es/#organization"
+      },
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "https://pebaisystems.es/brand/og/og-consultoria.jpg",
+        "width": 1200,
+        "height": 630
+      },
+      "video": {
+        "@id": "https://pebaisystems.es/#video"
+      },
+      "inLanguage": "es-ES"
+    },
+    {
+      "@type": "Person",
+      "@id": "https://pebaisystems.es/#daniel",
+      "name": "Daniel Peñuela Ruiz",
+      "jobTitle": "Ingeniería de procesos y sistemas",
+      "image": "https://pebaisystems.es/brand/home/dani.webp",
+      "url": "https://pebaisystems.es/#equipo",
+      "worksFor": {
+        "@id": "https://pebaisystems.es/#organization"
+      }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://pebaisystems.es/#adrian",
+      "name": "Adrián Ballesteros Moscardó",
+      "jobTitle": "Dirección de proyectos y consultoría",
+      "image": "https://pebaisystems.es/brand/home/adrian-v2.webp",
+      "url": "https://pebaisystems.es/#equipo",
+      "worksFor": {
+        "@id": "https://pebaisystems.es/#organization"
+      }
+    },
+    {
+      "@type": "VideoObject",
+      "@id": "https://pebaisystems.es/#video",
+      "name": "PEBAI Systems: Inteligencia Artificial trabajando dentro de tu empresa",
+      "description": "Implantamos sistemas que atienden a tus clientes, eliminan tareas manuales y se conectan a los programas que ya usáis.",
+      "thumbnailUrl": "https://pebaisystems.es/video/presentacion_poster.jpg",
+      "contentUrl": "https://pebaisystems.es/video/presentacion.mp4",
+      "uploadDate": "2026-10-14",
+      "duration": "PT2M51S",
+      "inLanguage": "es-ES",
+      "publisher": {
+        "@id": "https://pebaisystems.es/#organization"
       }
     }
   ]

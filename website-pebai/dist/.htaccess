@@ -13,6 +13,11 @@ ErrorDocument 404 /404.html
 RewriteEngine On
 RewriteBase /
 
+# Dominio canónico: www.pebaisystems.es -> https://pebaisystems.es (301, conserva ruta y query).
+# Solo se mira el host: el HTTPS lo termina Cloudflare y el origen puede ver HTTP, así que no se comprueba %{HTTPS} aquí (evita bucles).
+RewriteCond %{HTTP_HOST} ^www\.pebaisystems\.es$ [NC]
+RewriteRule ^(.*)$ https://pebaisystems.es/$1 [R=301,L]
+
 # QRs de calle (puerta fría): /q/<nombre>?p=a|d → api/qr.php cuenta el escaneo y redirige (ver docs/enlaces-y-utm.md)
 RewriteRule ^q/([a-z0-9-]+)/?$ api/qr.php?c=$1 [L,QSA]
 
