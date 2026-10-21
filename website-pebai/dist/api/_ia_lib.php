@@ -181,12 +181,12 @@ function pebai_preparar_whatsapp(int $max = 3, int $colchon = 30): array
 {
     require_once __DIR__ . '/_agentes_lib.php';
     $db = pebai_agentes_db();
-    $listos = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND mensaje <> ''")->fetchColumn();
+    $listos = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND mensaje <> '' AND nicho = 'solar'")->fetchColumn();
     $hecho = ['listos' => $listos, 'escritos' => 0, 'fuera' => 0, 'fallos' => 0];
     if ($listos >= $colchon) {
         return $hecho;
     }
-    $q = $db->prepare("SELECT id, empresa, ciudad, web FROM prospectos WHERE estado = 'pendiente' AND mensaje = ''
+    $q = $db->prepare("SELECT id, empresa, ciudad, web FROM prospectos WHERE estado = 'pendiente' AND mensaje = '' AND nicho = 'solar'
                        AND NOT (error LIKE '[ia_error]%' AND updated_at > ?) ORDER BY prioridad DESC, id LIMIT ?");
     $q->execute([date('Y-m-d H:i:s', time() - 43200), $max]);
     foreach ($q->fetchAll() as $p) {

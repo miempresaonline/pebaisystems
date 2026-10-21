@@ -8,13 +8,15 @@ cd "$HOME/prospeccion" || exit 1
 [ -f "$HOME/prospeccion/PAUSA" ] && exit 0
 export AGENT_TOKEN=$(grep '^AGENT_TOKEN=' "$HOME/agente-whatsapp/.env" | cut -d= -f2)
 export PYTHONIOENCODING=utf-8
-NICHO="${1:-solar}"
-# «energia» (lo que pasa el cron de hPanel) es ya el barrido continuo de instaladoras solares: nunca se queda dormido
-[ "$NICHO" = energia ] && NICHO=solar
-# Tanda activa (la deja quien la lanza): el cron siempre pasa «energia», pero se retoma la que esté en curso
-[ -f "$HOME/prospeccion/NICHO_ACTIVO" ] && NICHO=$(cat "$HOME/prospeccion/NICHO_ACTIVO")
+# Scrapers a la vez (21/10): placas solares, climatización y formación (oposiciones, formación especializada e idiomas).
+# Cada uno con su candado: si ya está en marcha, no se duplica. Sin argumento (o con «energia», lo que pasa el cron) arranca los tres.
+SERIES="solar climatizacion formacion"
+[ -n "$1" ] && [ "$1" != energia ] && SERIES="$1"
 mkdir -p "$HOME/scratch/prospeccion"
-# Se lanza aparte (setsid): el cron de hPanel corta sus tareas a los 30 min y una provincia grande tarda más.
-# Si ya hay un barrido en marcha, flock -n sale al momento y no se duplica.
-setsid nohup flock -n /tmp/pebai-prospeccion.lock .venv/bin/python -u -m prospeccion.tanda "$NICHO" >> "$HOME/scratch/prospeccion/tanda_$NICHO.log" 2>&1 < /dev/null &
+for NICHO in $SERIES; do
+  LOCK=/tmp/pebai-prospeccion.lock
+  [ "$NICHO" != solar ] && LOCK=/tmp/pebai-prospeccion-$NICHO.lock
+  # Se lanza aparte (setsid): el cron de hPanel corta sus tareas a los 30 min y una provincia grande tarda más.
+  setsid nohup flock -n "$LOCK" .venv/bin/python -u -m prospeccion.tanda "$NICHO" >> "$HOME/scratch/prospeccion/tanda_$NICHO.log" 2>&1 < /dev/null &
+done
 exit 0

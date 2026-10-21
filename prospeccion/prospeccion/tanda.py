@@ -62,6 +62,59 @@ GRUPOS_SOLAR = [
     ['empresa fotovoltaica', 'instalador solar', 'placas solares y baterías instalación'],
     ['instalaciones fotovoltaicas', 'empresa de energía solar', 'paneles fotovoltaicos instalación'],
 ]
+# Nichos nuevos del 21/10 (Daniel): llenan su carpeta en Prospectos; los agentes NO les escriben hasta que él lo active.
+# Sin IA en la importación (la IA de hoy está pensada para placas): entran por filtros estrictos y se revisan al activarlos.
+_GRANDES_CLIMA = (r'elecnor|eulen|clece|ferrovial|cofely|engie|dalkia|veolia|sacyr|acciona|imesapi|imtech|ortiz|grupo\s*vaillant|'
+                  r'daikin|carrier|mitsubishi|fujitsu|panasonic|lg electronics|saunier|baxi|junkers|bosch|leroy|media\s*markt|'
+                  r'el corte ingl|carrefour|bricomart|obramat|bauhaus|brico ?depot|conforama|worten|fnac')
+_GRANDES_FORMACION = (r'masterd|master\s*d\b|cesur|ceac|medac|campus\s*training|ilerna|unir\b|uned|universidad|'
+                      r'cef\s*[-.]?\s*udima|udima|academia\s*adams|adams formaci|tecnos\b|opositatest|'
+                      r'vaughan|kids\s*&?\s*us|wall\s*street|berlitz|british council|opening english|dexway|inlingua|'
+                      r'american language academy|fundaci[oó]n|ayuntamiento|sepe|inem')
+NICHOS_NUEVOS = {
+    # Empresas serias de climatización: con web propia, activas, con varios técnicos (reseñas) y sin gigantes ni tiendas
+    'climatizacion': {
+        'sector': 'Empresas de climatización', 'lote': 'Climatización', 'nicho_panel': 'climatizacion', 'email_nicho': 'climatizacion', 'ia': False,
+        'palabras': 'climatización aire acondicionado calefacción aerotermia bomba de calor frío conductos instalación mantenimiento',
+        'reglas': {'solo_activas': True, 'sin_autonomos': True, 'requiere_web': True, 'min_resenas': 15, 'grandes': _GRANDES_CLIMA},
+        'cat_ok': r'climatiz|aire acondicionado|calefacci|aerotermia|bomba de calor|frigor|refrigeraci|hvac|ventilaci|calderas',
+        'nombre_ok': r'climatiz|clima\b|aire acondicionado|calefacci|aerotermia|fr[ií]o|confort t[eé]rmico',
+        'grupos': [['empresa de climatización', 'instalación de aire acondicionado', 'empresa de aire acondicionado'],
+                   ['instaladores de climatización', 'aerotermia instalación empresa', 'calefacción y climatización'],
+                   ['servicio técnico de aire acondicionado', 'climatización para empresas', 'instalación de bomba de calor']],
+    },
+    # Formación: tres tipos distintos, cada uno con su carpeta. Un solo scraper los alterna (ver SERIES)
+    'oposiciones': {
+        'sector': 'Academias de oposiciones', 'lote': 'Oposiciones', 'nicho_panel': 'oposiciones', 'email_nicho': 'oposiciones', 'ia': False,
+        'palabras': 'oposiciones opositores academia preparación temario convocatoria plazas guardia civil policía docentes',
+        'reglas': {'solo_activas': True, 'requiere_web': True, 'permite_formacion': True, 'grandes': _GRANDES_FORMACION},
+        'cat_ok': r'oposici|academia|centro de formaci|centro de estudios|preparaci',
+        'nombre_ok': r'oposici|opositor|academia',
+        'grupos': [['academia de oposiciones', 'preparación de oposiciones', 'centro de oposiciones'],
+                   ['academia oposiciones guardia civil policía', 'academia oposiciones docentes maestros', 'academia oposiciones administrativo']],
+    },
+    'formacion': {
+        'sector': 'Centros privados de formación especializada', 'lote': 'Formación especializada', 'nicho_panel': 'formacion', 'email_nicho': 'formacion', 'ia': False,
+        'palabras': 'formación cursos centro de formación especializada profesional certificado técnico escuela privada',
+        'reglas': {'solo_activas': True, 'requiere_web': True, 'permite_formacion': True, 'grandes': _GRANDES_FORMACION, 'no_oposiciones_ni_idiomas': True},
+        'cat_ok': r'formaci|academia|escuela|centro de estudios|instituto|educativ|capacitaci',
+        'nombre_ok': r'formaci|escuela|academia|instituto|training|campus',
+        'grupos': [['centro de formación privado', 'centro de formación especializada', 'escuela de formación profesional privada'],
+                   ['cursos de formación profesional', 'academia de formación técnica', 'cursos certificado de profesionalidad']],
+    },
+    'idiomas': {
+        'sector': 'Escuelas de idiomas', 'lote': 'Idiomas', 'nicho_panel': 'idiomas', 'email_nicho': 'idiomas', 'ia': False,
+        'palabras': 'idiomas inglés academia clases alemán francés cambridge escuela de idiomas',
+        'reglas': {'solo_activas': True, 'requiere_web': True, 'permite_formacion': True, 'grandes': _GRANDES_FORMACION},
+        'cat_ok': r'idioma|ingl[eé]s|language|lengua|escuela|academia',
+        'nombre_ok': r'idioma|ingl[eé]s|english|language|lingu|academia',
+        'grupos': [['academia de inglés', 'escuela de idiomas', 'academia de idiomas'],
+                   ['clases de inglés', 'centro de idiomas', 'academia de inglés para adultos y niños']],
+    },
+}
+NICHOS.update(NICHOS_NUEVOS)
+# Cada scraper recorre una serie: solar (placas), climatización y formación (alterna oposiciones → formación → idiomas)
+SERIES = {'solar': ['solar'], 'climatizacion': ['climatizacion'], 'formacion': ['oposiciones', 'formacion', 'idiomas']}
 FALLOS_MAX = 3   # una provincia que falla 3 veces en una vuelta se salta para no atascar el barrido
 
 
@@ -82,6 +135,24 @@ def _fallos(nicho: str) -> dict:
 def pendientes_de(nicho: str, lista: list) -> list:
     fallos = _fallos(nicho)
     return [p for p in lista if not _hecha(nicho, p) and fallos.get(p, 0) < FALLOS_MAX]
+
+
+def pasada(serie: str) -> str:
+    """La vuelta que toca de una serie: la primera con provincias pendientes. Solar sigue con su propia numeración.
+    En formación, cada vuelta es de uno de sus tres tipos (oposiciones, formación, idiomas) por turnos."""
+    if serie == 'solar':
+        return pasada_solar()
+    subs = SERIES[serie]
+    n = 1
+    while True:
+        sub = subs[(n - 1) % len(subs)]
+        v = (n - 1) // len(subs) + 1
+        nombre = f'{sub}_v{v}'
+        base = NICHOS_NUEVOS[sub]
+        NICHOS[nombre] = dict(base, busquedas=base['grupos'][(v - 1) % len(base['grupos'])], tramo=v - 1, cob=sub)
+        if pendientes_de(nombre, ORDEN):
+            return nombre
+        n += 1
 
 
 def pasada_solar() -> str:
@@ -199,10 +270,10 @@ def pueblos_pequenos(provincia: str, tramo: int) -> list:
     return pts[i * PUEBLOS_POR_TRAMO:(i + 1) * PUEBLOS_POR_TRAMO]
 
 
-def apunta_cobertura(provincia: str, tramo: int) -> None:
-    """Cuánto de cada provincia se ha recorrido ya (lo lee el panel para el % de España)."""
+def apunta_cobertura(provincia: str, tramo: int, cob_de: str = 'solar') -> None:
+    """Cuánto de cada provincia se ha recorrido ya (lo lee el panel para el % de España). Un archivo por nicho."""
     import json
-    f = SALIDA / 'tandas' / 'cobertura.json'
+    f = SALIDA / 'tandas' / ('cobertura.json' if cob_de == 'solar' else f'cobertura_{cob_de}.json')
     cob = json.loads(f.read_text(encoding='utf-8')) if f.exists() else {}
     total = max(1, math.ceil(len(puntos_cobertura(provincia)) / PUEBLOS_POR_TRAMO))
     antes = cob.get(provincia, {}).get('hecho', 0)
@@ -226,6 +297,11 @@ def prefiltra(cands: list, prov: str, nicho: str) -> list:
     from .contacto import normaliza_tel
     from .web import dominio
     excl = exclusiones()
+    cfg = NICHOS.get(nicho, {})
+    cat_ok = re.compile(cfg['cat_ok'], re.I) if cfg.get('cat_ok') else _SOLAR_CAT
+    nom_ok = re.compile(cfg['nombre_ok'], re.I) if cfg.get('nombre_ok') else _SOLAR_NOMBRE
+    reglas = cfg.get('reglas') or {}
+    grandes = re.compile(reglas['grandes'], re.I) if reglas.get('grandes') else None
     analizar, archivar, ya = [], [], 0
     for c in cands:
         tel = normaliza_tel(c.get('telefono') or '')
@@ -234,13 +310,19 @@ def prefiltra(cands: list, prov: str, nicho: str) -> list:
             ya += 1
             continue
         cats = ' '.join(c.get('categorias') or [])
-        if not cats or _SOLAR_CAT.search(cats) or _SOLAR_NOMBRE.search(c.get('empresa') or ''):
+        if grandes and grandes.search((c.get('empresa') or '') + ' ' + dom):
+            ya += 1   # gigantes, cadenas y tiendas: no son clientes nuestros
+            continue
+        del_nicho = not cats or cat_ok.search(cats) or nom_ok.search(c.get('empresa') or '')
+        # Empresas serias (climatización y formación): con web propia y, si se pide, con actividad en Google (reseñas)
+        floja = (reglas.get('requiere_web') and not c.get('web')) or (reglas.get('min_resenas') and int(c.get('resenas') or 0) < reglas['min_resenas'])
+        if del_nicho and not floja:
             analizar.append(c)
         else:
             archivar.append(c)
     n = archiva(archivar, prov)
-    print(f'  antes de abrir webs: {ya} ya en el panel · {len(archivar)} no son instaladoras (archivadas, {n} nuevas en el archivo) · {len(analizar)} a analizar')
-    apunta(f'{prov}: {len(analizar)} a analizar de {len(cands)}', f'Ya en el panel: {ya}. Otros sectores archivados para el futuro: {len(archivar)}.', f'{nicho}_{prov}_prefiltro', tipo='espera')
+    print(f'  antes de abrir webs: {ya} ya en el panel · {len(archivar)} de otros sectores o poco serias (archivadas, {n} nuevas en el archivo) · {len(analizar)} a analizar')
+    apunta(f'{prov}: {len(analizar)} a analizar de {len(cands)}', f'Ya en el panel: {ya}. Otros sectores o poco serias, archivadas para el futuro: {len(archivar)}.', f'{nicho}_{prov}_prefiltro', tipo='espera')
     return analizar
 
 
@@ -342,7 +424,7 @@ def provincia(nicho: str, prov: str) -> Path | None:
     finally:
         m.SALIDA = antes
     if cfg.get('tramo'):
-        apunta_cobertura(prov, cfg['tramo'])
+        apunta_cobertura(prov, cfg['tramo'], cfg.get('cob', 'solar'))
     importar_panel(destino / f'{nombre}_whatsapp.csv', f'{cfg.get("lote", cfg["sector"])} · {prov}', cfg)
     print(f'  {prov} hecha en {(time.time() - t0) / 60:.0f} min')
     return hecho
@@ -360,6 +442,16 @@ def importar_panel(csv_whatsapp: Path, lote: str, cfg: dict) -> None:
         return
     # Solo llega al panel lo válido: además de los filtros, la IA lee la web de cada una y solo entran las que encajan
     # (orden del CEO, 20/10). Las que no, al log local; las que dan error, se reintentan en la siguiente tirada.
+    if cfg.get('ia') is False:
+        # Nichos nuevos: entran en su carpeta sin mensaje (los agentes no les escriben hasta que Daniel los active)
+        r = subprocess.run(['/usr/bin/php', str(script), str(csv_whatsapp), lote, 'pendiente', cfg['nicho_panel']], capture_output=True, text=True, timeout=300)
+        print('  importadas en su carpeta:', (r.stdout or r.stderr).strip()[:200])
+        apunta(f'{lote}: a su carpeta de Prospectos', 'Sin mensajes todavía: el nicho aún no está activado. ' + (r.stdout or r.stderr).strip()[:300], csv_whatsapp.stem)
+        solo_email = csv_whatsapp.with_name(csv_whatsapp.name.replace('_whatsapp.csv', '_solo_email.csv'))
+        if solo_email.exists():
+            r = subprocess.run(['/usr/bin/php', str(script), str(solo_email), lote + ' (email)', 'email', cfg['email_nicho']], capture_output=True, text=True, timeout=300)
+            print('  sin móvil, a su lista de email:', (r.stdout or r.stderr).strip()[:200])
+        return
     from .ia import filtra
     wa, n = filtra(csv_whatsapp, 'whatsapp')
     r = subprocess.run(['/usr/bin/php', str(script), str(wa), lote], capture_output=True, text=True, timeout=300)
@@ -424,13 +516,15 @@ def cuenta_email(nicho: str) -> int:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('nicho', choices=[*NICHOS, 'solar'])
+    ap.add_argument('nicho', choices=[*NICHOS, *SERIES])
     ap.add_argument('--provincias', nargs='*')
     ap.add_argument('--unir', action='store_true')
     a = ap.parse_args()
-    if a.nicho == 'solar':
-        a.nicho = pasada_solar()
-        print(f'Barrido continuo de instaladoras solares: vuelta {a.nicho} · búsquedas: {", ".join(NICHOS[a.nicho]["busquedas"])}')
+    if a.nicho in SERIES:
+        serie = a.nicho
+        a.nicho = pasada(serie)
+        print(f'Barrido continuo ({serie}): vuelta {a.nicho} · búsquedas: {", ".join(NICHOS[a.nicho]["busquedas"])}')
+    if a.nicho.startswith('solar_v'):
         # Para el % de España del panel: todas las provincias con su total, aunque aún no se hayan tocado
         import json
         fc = SALIDA / 'tandas' / 'cobertura.json'

@@ -49,8 +49,8 @@ if ($auth && isset($_GET['global'])) {
         $cuenta = static fn(callable $f) => count(array_filter($filas, $f));
         $contestaron = $cuenta(static fn($f) => $f['respuestas'] > 0 && $f['estado'] !== 'auto');
         return [
-            'cola_wa' => (int)$adb->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND telefono NOT IN (SELECT telefono FROM bajas)")->fetchColumn(),
-            'listas_wa' => (int)$adb->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND mensaje <> ''")->fetchColumn(),
+            'cola_wa' => (int)$adb->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND nicho = 'solar' AND telefono NOT IN (SELECT telefono FROM bajas)")->fetchColumn(),
+            'listas_wa' => (int)$adb->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND nicho = 'solar' AND mensaje <> ''")->fetchColumn(),
             'cola_email' => (int)$adb->query("SELECT COUNT(*) FROM email_prospectos WHERE estado = 'pendiente'")->fetchColumn(),
             'escritas' => count($filas),
             'escritas_wa' => $cuenta(static fn($f) => $f['canal'] === 'whatsapp'),

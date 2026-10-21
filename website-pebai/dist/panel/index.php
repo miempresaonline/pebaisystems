@@ -523,7 +523,7 @@ if ($auth && isset($_GET['agentes'])) {
         json_out(['ok' => false, 'error' => $dbError], 500);
     }
     $adb = pebai_agentes_db();
-    $pros = $adb->query('SELECT id, created_at, updated_at, empresa, nombre, telefono, sector, ciudad, web, origen_dato, lote, notas, estado, enviado_at, respondido_at, error, plantilla, mensaje
+    $pros = $adb->query('SELECT id, created_at, updated_at, empresa, nombre, telefono, sector, ciudad, web, origen_dato, lote, notas, estado, enviado_at, respondido_at, error, plantilla, mensaje, nicho
                          FROM prospectos ORDER BY id DESC LIMIT 5000')->fetchAll();
     foreach ($pros as &$p) {
         $p['id'] = (int)$p['id'];
@@ -604,7 +604,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '60';
+$v = '61';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">

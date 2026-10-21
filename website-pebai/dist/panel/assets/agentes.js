@@ -21,6 +21,10 @@ const PE = {
 const CHIPS = [['', 'Todas', '#EFEDE7'], ['pendiente', 'Por escribir', '#9A9CB0'], ['enviado', 'Escritas, sin respuesta', '#6A5CFF'], ['respondio', 'Respondieron', '#25D366'],
   ['revision', 'Por aprobar', '#FFB547'], ['error', 'Revisar', '#FFB547'], ['baja', 'Bajas', '#FF6B7A'], ['sin_whatsapp', 'Sin WhatsApp', '#3A404D']];
 const CANALES = [['', 'Todos los canales'], ['wa', 'WhatsApp'], ['email', 'Email']];
+// Carpetas por nicho (21/10): placas solares es el activo; el resto se llena solo con los scrapers nuevos y aún no se les escribe
+const CARPETAS = [['solar', 'Placas solares', '#B7FF3C'], ['climatizacion', 'Climatización', '#3FD5FF'], ['oposiciones', 'Oposiciones', '#FFB547'],
+  ['formacion', 'Formación especializada', '#7E73FF'], ['idiomas', 'Idiomas', '#FF8AD8']];
+const carpetaDe = (p) => (p.canal === 'email' ? ((p.nicho || 'energia') === 'energia' ? 'solar' : p.nicho) : (p.nicho || 'solar'));
 // Un solo nombre por nicho, venga de la lista de WhatsApp o de la de email
 const NICHO_NOMBRE = (k) => /solar|placa|fotovolt|instaladores energ|^energia$/i.test(k) ? 'Placas solares' : k === 'luz' ? 'Comercializadoras de luz' : k === 'luz_coop' ? 'Cooperativas eléctricas' : k;
 // Estado de una empresa de la lista de email, con los mismos nombres que la de WhatsApp
@@ -155,12 +159,27 @@ function provCard(nombre, lista, onOpen) {
 const irA = (cambios) => { Object.assign(ui, cambios, { limit: 150 }); drawProspectos(); const l = $('#pb-pros-list'); if (l && l.getBoundingClientRect().top < 0) l.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 function drawProspectos() {
   const TODAS = S.empresas || [];
-  const P = ui.canal ? TODAS.filter((p) => p.canal === ui.canal) : TODAS;
+  ui.carpeta = ui.carpeta || 'solar';
+  const ENC = TODAS.filter((p) => carpetaDe(p) === ui.carpeta);
+  const P = ui.canal ? ENC.filter((p) => p.canal === ui.canal) : ENC;
+  // Fila de carpetas: una por nicho, con cuántas empresas lleva cada una
+  let cp = $('#pb-pros-carpetas');
+  if (!cp) { cp = el('div', 'pb-carpetas'); cp.id = 'pb-pros-carpetas'; $('#pb-pros-kpis').before(cp); }
+  cp.textContent = '';
+  CARPETAS.forEach(([k, l, col]) => {
+    const n = TODAS.filter((p) => carpetaDe(p) === k).length;
+    const b = el('button', 'pb-carpeta' + (ui.carpeta === k ? ' on' : '')); b.type = 'button'; b.style.setProperty('--c', col);
+    const ico = el('i'); b.append(ico, el('span', null, l), el('b', null, N(n)));
+    if (k !== 'solar') b.append(el('small', null, 'sin escribir'));
+    b.title = k === 'solar' ? 'Nicho activo: los agentes escriben a estas empresas' : 'Se llena sola con el scraper. Los agentes no escriben hasta que actives este nicho';
+    b.onclick = () => { ui.carpeta = k; ui.limit = 150; ui.lote = ''; drawProspectos(); };
+    cp.append(b);
+  });
   const cuenta = (k) => P.filter((p) => p.estado === k).length;
   const enviados = P.filter((p) => ['enviado', 'respondio', 'baja'].includes(p.estado) && p.enviado_at).length;
   const resp = cuenta('respondio') + P.filter((p) => p.estado === 'baja' && p.respondido_at).length;
   const pend = cuenta('pendiente');
-  const nWa = TODAS.filter((p) => p.canal === 'wa').length, nEm = TODAS.length - nWa;
+  const nWa = ENC.filter((p) => p.canal === 'wa').length, nEm = ENC.length - nWa;
   const kp = $('#pb-pros-kpis'); kp.textContent = '';
   [[true, 'Empresas', P.length, ui.canal ? (ui.canal === 'wa' ? 'con móvil: van por WhatsApp' : 'sin móvil: van por email') : N(nWa) + ' por WhatsApp · ' + N(nEm) + ' por email'],
     [false, 'Por escribir', pend, 'aún no les ha escrito nadie'], [false, 'Escritas', enviados, 'primer mensaje enviado'],

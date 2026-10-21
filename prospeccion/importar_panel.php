@@ -5,7 +5,7 @@
  * se quedan en el CSV maestro de la tirada y en el log del servidor.
  *
  * Canal por empresa (una sola lista, nunca las dos):
- *   php importar_panel.php <csv_whatsapp> "<lote>" [revision]       → prospectos (cola de WhatsApp): las que tienen móvil
+ *   php importar_panel.php <csv_whatsapp> "<lote>" [revision|pendiente] [nicho] → prospectos (cola de WhatsApp): las que tienen móvil
  *   php importar_panel.php <csv_solo_email> "<lote>" email <nicho>  → email_prospectos: sin móvil y con email de empresa
  */
 if (PHP_SAPI !== 'cli' || $argc < 3) {
@@ -22,6 +22,10 @@ if (($argv[3] ?? '') === 'email') {
     $estado = ($argv[3] ?? '') === 'revision' ? 'revision' : 'pendiente';
     $r = pebai_prospectos_importar($csv, 'Google Maps · ficha pública del negocio', $lote, $estado);
     $r['priorizados'] = pebai_prospectos_priorizar();   // solares puras primero (ver pebai_prospecto_tipo)
+    // Carpetas nuevas (climatización, oposiciones, formación, idiomas): se marcan con su nicho y los agentes no les escriben
+    if (($argv[4] ?? '') !== '' && $argv[4] !== 'solar') {
+        pebai_agentes_db()->prepare("UPDATE prospectos SET nicho = ? WHERE lote = ?")->execute([$argv[4], $lote]);
+    }
 }
 // Texto que escribió la IA tras leer su web (<csv>.ia.json: teléfono → mensaje, o email → asunto y cuerpo)
 $textos = is_file($argv[1] . '.ia.json') ? (json_decode((string)file_get_contents($argv[1] . '.ia.json'), true) ?: []) : [];

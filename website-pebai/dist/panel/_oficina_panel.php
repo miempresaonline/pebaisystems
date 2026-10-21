@@ -95,7 +95,7 @@ function of_whatsapp(): array
     }
     $v = pebai_wa_ventana();
     $latido = $e['latido_at'] !== '' ? strtotime($e['latido_at']) : 0;
-    $cola = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente'")->fetchColumn();
+    $cola = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND nicho = 'solar'")->fetchColumn();
     $resp = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'respondio'")->fetchColumn();
     $q = $db->prepare('SELECT COUNT(*) FROM prospectos WHERE respondido_at >= ?');
     $q->execute([date('Y-m-d 00:00:00')]);
@@ -269,7 +269,7 @@ function of_scraper(): array
     }
     $a['proxima'] = $parado ? 'Cuando se quite la pausa' : 'Sigue con la siguiente provincia';
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
-    $cola = (int)pebai_db()->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente'")->fetchColumn();
+    $cola = (int)pebai_db()->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND nicho = 'solar'")->fetchColumn();
     $a['datos'] = [['En cola de WhatsApp', (string)$cola], ['Encontradas hoy', (string)$enc], ['Útiles hoy', (string)$ent], ['Con móvil hoy', (string)$mov]];
     $a['acciones'] = ['ir' => 'prospectos'];
     foreach ($a['actividad'] as &$e) {

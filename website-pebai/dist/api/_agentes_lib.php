@@ -116,6 +116,11 @@ function pebai_agentes_db(): PDO
         }
         // Tipo de empresa y prioridad en la cola (auditoría del CEO de captación, 15/10/2026): primero las solares puras
         $colsP = array_column($db->query('PRAGMA table_info(prospectos)')->fetchAll(), 'name');
+        // Nicho de cada empresa (21/10): placas solares y las carpetas nuevas del scraper (climatización, oposiciones, formación, idiomas).
+        // Los agentes SOLO escriben a 'solar' hasta que Daniel active otro nicho.
+        if (!in_array('nicho', $colsP, true)) {
+            $db->exec("ALTER TABLE prospectos ADD COLUMN nicho TEXT NOT NULL DEFAULT 'solar'");
+        }
         if (!in_array('tipo', $colsP, true)) {
             $db->exec("ALTER TABLE prospectos ADD COLUMN tipo TEXT NOT NULL DEFAULT ''");
         }

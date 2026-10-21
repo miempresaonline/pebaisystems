@@ -32,6 +32,9 @@ CADENAS = re.compile(r'asisa|sanitas|caser|adeslas|vitaldent|dentix|ikea|leroy|b
                      r'r cable|telecable|avatel|adamo|finetwork|phone house|worten|media ?markt|centrica|bon preu', re.I)
 
 # Webs que no son el cliente final: administraciones, directorios y comparadores (venden leads, no los atienden), formación, software
+# Para los nichos de formación: solo administraciones y directorios (las escuelas y academias SÍ son clientes)
+NO_ADMIN = re.compile(r'junta de |gobierno|ayuntamiento|diputaci|consejer|ministerio|generalitat|xunta|\.gob\.|gencat|gva\.es|juntadeandalucia|madrid\.org|'
+                      r'directorio|comparador|evaluador|portal para|universidad|\bies\b|instituto de educaci[oó]n secundaria|colegio p[uú]blico|ceip', re.I)
 NO_CLIENTE = re.compile(r'junta de |gobierno|ayuntamiento|diputaci|consejer|ministerio|generalitat|xunta|\.gob\.|gencat|gva\.es|juntadeandalucia|madrid\.org|'
                         r'directorio|comparador|compara |mejores instaladores|evaluador|portal para|presupuestos? de .* gratis|'
                         r'school|escuela|máster|master en|curso|formación online|software|saas|solar design|'
@@ -315,7 +318,19 @@ def descarta(c: dict, vistos_tel: set, vistos_dom: set, excl: dict | None = None
         return 'actividad no segura (probable)'
     if reglas.get('sin_autonomos') and c['tamano'] == 'posible autónomo':
         return 'parece autónomo de una persona'
-    if NO_CLIENTE.search(' '.join([c['empresa'], c.get('titulo_web', ''), c['web_final']])):
+    if reglas.get('grandes') and re.search(reglas['grandes'], c['empresa'] + ' ' + dominio(c['web_final']), re.I):
+        return 'empresa demasiado grande, cadena o tienda'
+    if reglas.get('requiere_web') and not c['web_final']:
+        return 'sin web propia'
+    if reglas.get('min_resenas') and int(c.get('resenas') or 0) < reglas['min_resenas']:
+        return 'poca actividad en Google (pocas reseñas): empresa muy pequeña'
+    if reglas.get('no_oposiciones_ni_idiomas') and re.search(r'oposici|idioma|ingl[eé]s|english', c['empresa'] + ' ' + c.get('titulo_web', ''), re.I):
+        return 'es de oposiciones o idiomas (va en su propia carpeta)'
+    texto_cliente = ' '.join([c['empresa'], c.get('titulo_web', ''), c['web_final']])
+    if reglas.get('permite_formacion'):
+        if NO_ADMIN.search(texto_cliente):
+            return 'administración o directorio'
+    elif NO_CLIENTE.search(texto_cliente):
         return 'administración, directorio o formación'
     if c['fuente'] == 'buscador' and not (dominio(c['web_final']).endswith('.es') or c['movil'] or c['fijo']):
         return 'no parece de España'
