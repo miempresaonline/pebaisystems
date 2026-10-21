@@ -19,6 +19,9 @@ TIPOS = ('hito', 'espera', 'error', 'cambio')
 
 
 def agent_token():
+    # En la nube de Claude no hay private/config.php: el token llega como variable de entorno
+    if os.environ.get('PEBAI_AGENT_TOKEN'):
+        return os.environ['PEBAI_AGENT_TOKEN']
     with open(CONFIG, encoding='utf-8') as f:
         m = re.search(r"'agent_token'\s*=>\s*'([^']+)'", f.read())
     if not m:
