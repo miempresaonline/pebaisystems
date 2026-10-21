@@ -130,6 +130,8 @@ if ($isCli) {
         require_once __DIR__ . '/_ia_lib.php';
         pebai_preparar_whatsapp(4);
         pebai_preparar_email(3);
+        require_once __DIR__ . '/_conversaciones_lib.php';
+        pebai_conv_clasificar(10);
     } catch (Throwable $e) {
         pebai_log('PREPARAR WHATSAPP: ' . $e->getMessage());
     }

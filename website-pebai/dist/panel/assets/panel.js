@@ -50,7 +50,7 @@ const ui = { page: 'resumen', periodo: '30', estado: null, fuente: null, opcion:
 const readUrl = () => {
   const u = new URLSearchParams(location.search);
   if (u.get('id')) { ui.sel = Number(u.get('id')); ui.page = 'solicitudes'; }
-  else if (['resumen', 'solicitudes', 'citas', 'prospectos', 'mapa', 'qr', 'agentes', 'caja'].includes(u.get('tab'))) ui.page = u.get('tab');
+  else if (['resumen', 'solicitudes', 'citas', 'conversaciones', 'prospectos', 'mapa', 'qr', 'agentes', 'caja'].includes(u.get('tab'))) ui.page = u.get('tab');
   if (PERIODOS.includes(u.get('periodo'))) ui.periodo = u.get('periodo');
   ['estado', 'fuente', 'opcion', 'canal', 'q'].forEach((k) => { if (u.get(k)) ui[k] = u.get(k); });
 };
@@ -792,7 +792,6 @@ document.addEventListener('keydown', (e) => {
 function draw() {
   $$('#pb-periodo button').forEach((b) => b.classList.toggle('on', b.dataset.p === ui.periodo));
   $('#pb-leads-n').textContent = S.loaded ? N(S.leads.length) : '—';
-  { const n = $('#pb-clientes-n'); if (n) n.textContent = S.loaded ? N((S.clientes || []).length) : '—'; }
   $('#pb-citas-n').textContent = S.loaded ? N(citasClasificadas().filter((x) => x.tramo === 'proximas').length) : '—';
   if (!S.loaded) return;
   if (ui.page === 'resumen') drawResumen(ui.periodo);

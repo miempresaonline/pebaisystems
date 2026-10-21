@@ -72,7 +72,7 @@ switch ($in['accion'] ?? '') {
             pebai_actividad_espera('whatsapp', 'Cupo de hoy completo (' . $cfg['limite_dia'] . ' mensajes)');
             out(['ok' => true, 'esperar' => 3600, 'motivo' => 'cupo_completo']);
         }
-        $ultimo = (string)$db->query("SELECT MAX(ts) FROM agente_mensajes WHERE agente = 'whatsapp' AND sentido = 'sale'")->fetchColumn();
+        $ultimo = (string)$db->query("SELECT MAX(ts) FROM agente_mensajes WHERE agente = 'whatsapp' AND sentido = 'sale' AND plantilla <> 'manual'")->fetchColumn();
         if ($ultimo !== '' && strtotime($ultimo) > time() - $cfg['pausa_min']) {
             out(['ok' => true, 'esperar' => strtotime($ultimo) + $cfg['pausa_min'] - time() + random_int(30, 240), 'motivo' => 'pausa_entre_envios']);
         }
@@ -142,6 +142,33 @@ switch ($in['accion'] ?? '') {
         } else {
             pebai_actividad('whatsapp', 'respuesta', 'Respondió ' . ($p['empresa'] ?: $tel) . ' · plantilla ' . ($p['plantilla'] ?: '—') . ' (te toca contestar desde el móvil)', $texto, 'wa:' . $p['id']);
         }
+        out(['ok' => true]);
+
+    case 'foto':
+        // Foto de perfil de WhatsApp de una empresa contactada (para el CRM del panel)
+        $tel = pebai_phone_digits((string)($in['telefono'] ?? ''));
+        $img = base64_decode((string)($in['img'] ?? ''), true);
+        if (!preg_match('/^\d{9,15}$/', $tel) || !$img || strlen($img) > 400000 || substr($img, 0, 3) !== "ÿØÿ") {
+            out(['ok' => true, 'ignorado' => true]);
+        }
+        $dir = pebai_private_dir() . '/fotos';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0750, true);
+        }
+        file_put_contents($dir . '/' . $tel . '.jpg', $img);
+        out(['ok' => true]);
+
+    case 'manual':
+        // Mensaje que Daniel escribe desde su móvil a una empresa contactada: solo se guarda para ver la conversación completa
+        $tel = pebai_phone_digits((string)($in['telefono'] ?? ''));
+        $q = $db->prepare("SELECT id FROM prospectos WHERE telefono = ? AND enviado_at <> ''");
+        $q->execute([$tel]);
+        $pid = (int)$q->fetchColumn();
+        if (!$pid) {
+            out(['ok' => true, 'ignorado' => true]);
+        }
+        $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla) VALUES (?, 'whatsapp', ?, ?, 'sale', ?, 'manual')")
+           ->execute([$now, $pid, $tel, mb_substr(trim((string)($in['texto'] ?? '')), 0, 4000)]);
         out(['ok' => true]);
 }
 

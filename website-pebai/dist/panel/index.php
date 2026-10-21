@@ -119,7 +119,7 @@ if (is_file(__DIR__ . '/_oficina_panel.php')) {
     require __DIR__ . '/_oficina_panel.php';
 }
 // Captación › QRs para la calle y › Mapa de prospectos
-foreach (['_qr_panel.php', '_mapa_panel.php'] as $f) {
+foreach (['_qr_panel.php', '_mapa_panel.php', '_conversaciones_panel.php'] as $f) {
     if (is_file(__DIR__ . '/' . $f)) {
         require __DIR__ . '/' . $f;
     }
@@ -551,7 +551,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '39';
+$v = '40';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -572,6 +572,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <link rel="stylesheet" href="<?= BASE ?>assets/oficina.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/qr.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/mapa.css?v=<?= $v ?>">
+<link rel="stylesheet" href="<?= BASE ?>assets/conversaciones.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/cajas.css?v=<?= $v ?>">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="stylesheet" href="<?= BASE ?>assets/email.css?v=<?= $v ?>">
@@ -631,7 +632,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
       <button data-page="citas" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span>Citas</span><em id="pb-citas-n">—</em></button>
     </div>
     <div class="grp"><small>Captación</small>
-      <button data-page="clientes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Clientes</span><em id="pb-clientes-n">—</em></button>
+      <button data-page="conversaciones" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8 11h8M8 14h5"/></svg><span>Conversaciones</span><em id="pb-conv-n">—</em></button>
       <button data-page="prospectos" type="button"><svg class="pb-i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/></svg><span>Prospectos</span><em id="pb-pros-n">—</em></button>
       <button data-page="mapa" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span>Mapa</span></button>
       <button data-page="qr" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h3v4h-3"/></svg><span>QRs</span></button>
@@ -732,13 +733,23 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     </div>
   </section>
 
-  <section class="pb-page" id="page-clientes" data-page="clientes">
+  <section class="pb-page" id="page-conversaciones" data-page="conversaciones">
     <div class="pb-pagehead"><div>
-      <div class="pb-eyebrow">Captación · Trato directo</div>
-      <h1 class="pb-h1">Clientes, <i>en conversación</i></h1>
-      <p class="pb-lead">Empresas con las que hablamos directamente (WhatsApp, email o llamada) y que no han rellenado el formulario. Aquí tienes su enlace de reserva y su seguimiento. Las solicitudes del formulario siguen en <b>Solicitudes</b>.</p>
+      <div class="pb-eyebrow">Captación · CRM</div>
+      <h1 class="pb-h1">Conversaciones, <i>una a una</i></h1>
+      <p class="pb-lead">Todo lo que han enviado los agentes por WhatsApp y email, y lo que ha contestado cada empresa. La IA lee cada respuesta y la clasifica sola; si se equivoca, lo corriges en la conversación.</p>
     </div></div>
-    <div class="pb-list" id="pb-clientes-list"></div>
+    <div class="pc-kpis" id="pc-kpis"></div>
+    <div class="pc-bar">
+      <div class="pc-estados" id="pc-estados"></div>
+      <div class="pc-tools">
+        <div class="pc-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pc-q" type="search" placeholder="Buscar empresa, ciudad, teléfono, lo que contestaron…" aria-label="Buscar conversaciones"></div>
+        <div class="pb-seg" id="pc-canal" aria-label="Canal"><button data-c="" type="button">Todos</button><button data-c="whatsapp" type="button">WhatsApp</button><button data-c="email" type="button">Email</button></div>
+        <div class="pb-seg" id="pc-periodo" aria-label="Periodo"><button data-p="hoy" type="button">Hoy</button><button data-p="7" type="button">7 días</button><button data-p="30" type="button">30 días</button><button data-p="todo" type="button">Todo</button></div>
+      </div>
+    </div>
+    <div class="pc-head"><span>Empresa</span><span>Enviado</span><span>Estado</span><span>Qué ha dicho</span><span></span></div>
+    <div class="pc-lista" id="pc-lista"></div>
   </section>
 
   <section class="pb-page" id="page-prospectos" data-page="prospectos">
@@ -852,6 +863,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <script src="<?= BASE ?>assets/panel.js?v=<?= $v ?>" defer></script>
 <script>window.PB_TAB = new URLSearchParams(location.search).get('tab');</script>
 <script src="<?= BASE ?>assets/agentes.js?v=<?= $v ?>" defer></script>
+<script src="<?= BASE ?>assets/conversaciones.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/caja.js?v=<?= $v ?>" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" defer></script>
 <script src="<?= BASE ?>assets/qr.js?v=<?= $v ?>" defer></script>

@@ -53,6 +53,7 @@ let detalle = '';
 let codigo = '';
 let intentosVinculo = 0;
 let contactados = new Set();
+const enviadosAgente = new Set(); // ids de los mensajes que envía el agente (para no confundirlos con los que escribe Daniel)
 try { contactados = new Set(JSON.parse(fs.readFileSync(CONTACTADOS_FILE, 'utf8'))); } catch { /* primera vez */ }
 const guardaContactados = () => fs.writeFileSync(CONTACTADOS_FILE, JSON.stringify([...contactados]));
 
@@ -126,6 +127,7 @@ async function conectar() {
       estado = 'conectado'; codigo = ''; detalle = 'Conectado'; intentosVinculo = 0;
       log('Conectado a WhatsApp');
       await latido();
+      setTimeout(() => fotosPendientes().catch(() => {}), 60e3);
     }
     if (connection === 'close') {
       const code = lastDisconnect?.error?.output?.statusCode;
@@ -147,9 +149,13 @@ async function conectar() {
 
   // Respuestas: solo de números a los que ha escrito el agente (nunca chats personales). No se marcan como leídas.
   sock.ev.on('messages.upsert', async ({ messages, type }) => {
-    if (type !== 'notify') return;
+    if (type !== 'notify' && type !== 'append') return;
     for (const m of messages) {
-      if (!m.message || m.key.fromMe) continue;
+      if (!m.message) continue;
+      // Lo que escribe Daniel desde el móvil a una empresa contactada también se guarda, para ver la conversación completa en el panel.
+      // Lo que envía el propio agente ya está registrado: se reconoce por su id y se salta.
+      if (m.key.fromMe && enviadosAgente.has(m.key.id)) continue;
+      if (!m.key.fromMe && type !== 'notify') continue;
       let jid = m.key.remoteJidAlt || m.key.senderPn || m.key.remoteJid || '';
       if (isLidUser(jid)) jid = (await sock.signalRepository.lidMapping.getPNForLID(jid).catch(() => null)) || '';
       if (!jid.endsWith('@s.whatsapp.net')) continue;
@@ -158,6 +164,11 @@ async function conectar() {
       const msg = m.message;
       const texto = msg.conversation || msg.extendedTextMessage?.text || msg.imageMessage?.caption || msg.videoMessage?.caption
         || (msg.audioMessage ? '[nota de voz]' : msg.imageMessage ? '[imagen]' : msg.stickerMessage ? '[sticker]' : msg.documentMessage ? '[documento]' : '[mensaje]');
+      if (m.key.fromMe) {
+        log('Mensaje de Daniel desde el móvil a', tel);
+        await api('manual', { telefono: tel, texto });
+        continue;
+      }
       log('Respuesta de', tel);
       await api('entrante', { telefono: tel, texto });
     }
@@ -184,7 +195,8 @@ async function escribirComoPersona(jid, texto) {
   }
   await sock.sendPresenceUpdate('paused', jid);
   await sleep(rand(400, 1200));
-  await sock.sendMessage(jid, { text: texto });
+  const enviado = await sock.sendMessage(jid, { text: texto });
+  if (enviado?.key?.id) enviadosAgente.add(enviado.key.id);
   await sleep(rand(5e3, 20e3));                      // se queda un momento y cierra la app
   await sock.sendPresenceUpdate('unavailable');
 }
@@ -201,10 +213,34 @@ async function enviar(p, texto) {
     guardaContactados();
     await escribirComoPersona(res.jid, texto);
     log('Enviado a', p.empresa || tel);
-    return api('resultado', { id: p.id, ok: true, texto });
+    const r = await api('resultado', { id: p.id, ok: true, texto });
+    subeFoto(tel, res.jid).catch(() => {});
+    return r;
   } catch (e) {
     log('Error enviando a', tel, e.message);
     return api('resultado', { id: p.id, ok: false, error: String(e.message).slice(0, 250) });
+  }
+}
+
+/* ------------------------------------------- fotos de perfil (panel) --- */
+// La foto de perfil de WhatsApp de cada empresa contactada se guarda en el panel (si la tiene pública).
+const fotosHechas = new Set();
+async function subeFoto(tel, jid) {
+  if (fotosHechas.has(tel)) return;
+  fotosHechas.add(tel);
+  const url = await sock.profilePictureUrl(jid || tel + '@s.whatsapp.net', 'image').catch(() => null);
+  if (!url) return;
+  const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  if (!r.ok) return;
+  const buf = Buffer.from(await r.arrayBuffer());
+  if (buf.length > 400000) return;
+  await api('foto', { telefono: tel, img: buf.toString('base64') });
+}
+async function fotosPendientes() {
+  for (const tel of [...contactados]) {
+    if (estado !== 'conectado') return;
+    await subeFoto(tel).catch(() => {});
+    await sleep(rand(2e3, 5e3));
   }
 }
 
