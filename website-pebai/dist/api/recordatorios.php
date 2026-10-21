@@ -132,6 +132,7 @@ if ($isCli) {
         pebai_preparar_email(3);
         require_once __DIR__ . '/_conversaciones_lib.php';
         pebai_conv_clasificar(10);
+        pebai_conv_borradores(3);
     } catch (Throwable $e) {
         pebai_log('PREPARAR WHATSAPP: ' . $e->getMessage());
     }

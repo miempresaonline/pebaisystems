@@ -6,6 +6,8 @@
  *   POST action=conv_estado            → corregir a mano el estado (la IA ya no lo cambia).
  *   POST action=conv_notas             → notas del equipo.
  *   POST action=conv_reserva           → crea (si no existe) su ficha de cliente y devuelve el enlace de reserva.
+ *   POST action=conv_borrador          → la IA prepara otra respuesta (con una indicación opcional de Daniel).
+ *   POST action=conv_enviar            → Daniel aprueba la respuesta: WhatsApp a la cola del bot, email sale ya.
  */
 if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
     http_response_code(404);
@@ -36,7 +38,7 @@ if ($auth && isset($_GET['conv'])) {
     }
 }
 
-if ($auth && in_array($_POST['action'] ?? '', ['conv_estado', 'conv_notas', 'conv_reserva'], true)) {
+if ($auth && in_array($_POST['action'] ?? '', ['conv_estado', 'conv_notas', 'conv_reserva', 'conv_borrador', 'conv_enviar'], true)) {
     if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
         json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 400);
     }
@@ -73,17 +75,13 @@ if ($auth && in_array($_POST['action'] ?? '', ['conv_estado', 'conv_notas', 'con
                ->execute([$canal, $id, mb_substr(trim((string)($_POST['notas'] ?? '')), 0, 3000)]);
             json_out(['ok' => true]);
         case 'conv_reserva':
-            // Ficha de cliente de trato directo (no es una solicitud del formulario): sirve para el enlace de reserva y la cita
-            $leadId = pebai_conv_lead((string)($p['telefono'] ?? ''), $canal === 'email' ? (string)$p['email'] : '');
-            if (!$leadId) {
-                $now = date('Y-m-d H:i:s');
-                pebai_db()->prepare("INSERT INTO leads (created_at, estado, notas, empresa, telefono, cliente_email, fuente, medio, updated_at, canal_dueno, canal_auto, canal_motivo, canal_revisar, tipo)
-                                     VALUES (?, 'contactado', ?, ?, ?, ?, ?, 'salida', ?, 'salida_daniel', 'salida_daniel', ?, '', 'cliente')")
-                    ->execute([$now, 'Contestó al ' . ($canal === 'email' ? 'email' : 'WhatsApp') . ' en frío.', $quien, (string)($p['telefono'] ?? ''),
-                               $canal === 'email' ? (string)$p['email'] : '', $canal, $now, 'Respondió a la captación de salida de Daniel']);
-                $leadId = (int)pebai_db()->lastInsertId();
-                pebai_evento($leadId, 'contacto', 'Enlace de reserva creado desde Conversaciones', false);
-            }
+            $leadId = pebai_conv_lead_crear($canal, $p);
             json_out(['ok' => true, 'url' => pebai_booking_url($leadId), 'lead_id' => $leadId]);
+        case 'conv_borrador':
+            $r = pebai_conv_borrador($canal, $id, (string)($_POST['instruccion'] ?? ''));
+            json_out(isset($r['texto']) ? ['ok' => true, 'texto' => $r['texto']] : ['ok' => false, 'error' => $r['error']], isset($r['texto']) ? 200 : 422);
+        case 'conv_enviar':
+            $r = pebai_conv_enviar($canal, $id, (string)($_POST['texto'] ?? ''));
+            json_out(isset($r['ok']) ? $r : ['ok' => false, 'error' => $r['error']], isset($r['ok']) ? 200 : 422);
     }
 }

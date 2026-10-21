@@ -16,8 +16,9 @@ const guarda = () => { try { localStorage.setItem('pebai-conv-ui', JSON.stringif
 const EST = {
   sin_respuesta: ['Sin respuesta', '#6F7189'], auto: ['Contestador', '#9A9CB0'], pregunta: ['Contestó', '#3FD5FF'], pendiente_ia: ['Contestó', '#3FD5FF'],
   interesado: ['Interesado', '#B7FF3C'], no_interesado: ['No interesado', '#FF6B7A'], cita: ['Cita reservada', '#25D366'],
+  te_toca: ['Te toca responder', '#FFB547'],
 };
-const ORDEN = ['', 'interesado', 'cita', 'pregunta', 'sin_respuesta', 'auto', 'no_interesado'];
+const ORDEN = ['', 'te_toca', 'interesado', 'cita', 'pregunta', 'sin_respuesta', 'auto', 'no_interesado'];
 const grupo = (e) => (e === 'pendiente_ia' ? 'pregunta' : e);
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -96,7 +97,7 @@ const desde = () => { const d = new Date(); d.setHours(0, 0, 0, 0); if (ui.perio
 function base() { const d0 = desde(); return S.filas.filter((f) => (!ui.canal || f.canal === ui.canal) && parse(f.enviado_at) >= d0); }
 function visibles() {
   const q = ui.q.toLowerCase();
-  return base().filter((f) => (!ui.estado || grupo(f.estado) === ui.estado)
+  return base().filter((f) => (!ui.estado || (ui.estado === 'te_toca' ? f.te_toca : grupo(f.estado) === ui.estado))
     && (!q || [f.empresa, f.ciudad, f.contacto, f.resumen, f.notas, ...f.mensajes.map((m) => m.texto)].join(' ').toLowerCase().includes(q)));
 }
 
@@ -116,7 +117,7 @@ function drawKpis(B) {
 function drawFiltros(B) {
   const box = $('#pc-estados'); box.textContent = '';
   ORDEN.forEach((k) => {
-    const n = k ? B.filter((f) => grupo(f.estado) === k).length : B.length;
+    const n = k ? B.filter((f) => (k === 'te_toca' ? f.te_toca : grupo(f.estado) === k)).length : B.length;
     if (k && !n && ui.estado !== k) return;
     const [l, c] = k ? EST[k] : ['Todas', '#EFEDE7'];
     const b = el('button', 'pc-f' + (ui.estado === k ? ' on' : '')); b.type = 'button'; b.style.setProperty('--c', c);
@@ -138,6 +139,8 @@ function drawTabla(rows) {
     const d = parse(f.enviado_at);
     const env = el('div', 'pc-env'); env.append(el('b', null, dia(d)), el('span', null, hora(d)));
     const est = el('div', 'pc-est'); est.append(pill(f.estado)); if (f.manual) est.append(el('small', null, 'a mano'));
+    if (f.te_toca) est.append(el('small', 'pc-toca', f.borrador ? 'Respuesta lista' : 'Te toca'));
+    else if (f.cola.length) est.append(el('small', 'pc-toca cola', 'Enviando…'));
     const ult = el('div', 'pc-ult');
     const ultima = [...f.mensajes].reverse().find((m) => m.de === 'entra');
     if (f.resumen) ult.append(el('p', null, f.resumen));
@@ -211,7 +214,13 @@ function drawChat() {
     const d = parse(m.ts); const dd = dia(d);
     if (dd !== ultimoDia) { chat.append(el('div', 'pc-day', dd)); ultimoDia = dd; }
     const b = el('div', 'pc-b ' + (m.de === 'sale' ? 'yo' : 'ellos'));
-    b.append(el('p', null, m.texto), el('time', null, hora(d) + (m.de === 'sale' ? (m.manual ? ' · enviado por ti' : ' · enviado por el agente') : '')));
+    b.append(el('p', null, m.texto), el('time', null, hora(d) + (m.de === 'sale' ? (m.manual ? ' · enviado por ti' : m.respuesta ? ' · aprobada por ti' : ' · enviado por el agente') : '')));
+    chat.append(b);
+  });
+  // Respuestas aprobadas que el agente aún no ha enviado
+  f.cola.forEach((w) => {
+    const b = el('div', 'pc-b yo cola' + (w.estado === 'error' ? ' err' : ''));
+    b.append(el('p', null, w.texto), el('time', null, w.estado === 'error' ? 'No enviada: ' + w.error : 'En cola · el agente la está escribiendo'));
     chat.append(b);
   });
   if (!f.mensajes.some((m) => m.de === 'entra')) chat.append(el('div', 'pc-wait', 'Aún no ha contestado.'));
@@ -220,8 +229,42 @@ function drawChat() {
   const ta = el('textarea'); ta.value = f.notas || ''; ta.placeholder = 'Ej.: le interesa para la web y WhatsApp; llamar el jueves por la tarde.';
   let tm; ta.oninput = () => { clearTimeout(tm); tm = setTimeout(async () => { try { await post('conv_notas', { canal: f.canal, id: f.id, notas: ta.value }); f.notas = ta.value; } catch (e) { toast(e.message, true); } }, 700); };
   nt.append(ta);
-  drawer.append(hd, links, est, chat, nt);
+  drawer.append(hd, links, est, chat, responder(f), nt);
   requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; });
+}
+
+/* ============ responder (la IA propone, Daniel aprueba) ============ */
+function responder(f) {
+  const box = el('div', 'pc-resp');
+  if (f.estado === 'no_interesado') { box.append(el('p', 'pc-resp-no', 'No quiere más mensajes: aquí no se le contesta.')); return box; }
+  const via = f.canal === 'email' ? 'email' : 'WhatsApp';
+  box.append(el('small', null, f.borrador ? 'Respuesta preparada por la IA · revísala y envíala' : 'Responder por ' + via));
+  const ta = el('textarea'); ta.value = f.borrador || ''; ta.rows = 5;
+  ta.placeholder = f.te_toca ? 'La IA está preparando la respuesta (tarda unos minutos). También puedes pedirla ya con «Otra versión» o escribirla tú.' : 'Escribe aquí tu mensaje o pide uno a la IA con «Otra versión».';
+  const nota = el('p', 'pc-resp-nota', '[ENLACE_RESERVA] se cambia solo por su enlace para reservar la llamada.' + (f.canal === 'email' ? ' La firma y la opción de no recibir más se añaden solas.' : ''));
+  const fila = el('div', 'pc-resp-fila');
+  const ins = el('input'); ins.type = 'text'; ins.placeholder = 'Indicación para la IA (opcional): más corto, pregunta por su equipo…'; ins.maxLength = 300;
+  const otra = el('button', 'pc-btn', null); otra.type = 'button'; otra.append(el('span', null, f.borrador ? 'Otra versión' : 'Que la escriba la IA'));
+  const env = el('button', 'pc-btn main', null); env.type = 'button'; env.append(f.canal === 'email' ? ICO.mail() : ICO.wa(), el('span', null, 'Enviar por ' + via));
+  const ocupado = (on, b, txt) => { otra.disabled = env.disabled = on; if (b) $('span', b).textContent = txt; };
+  otra.onclick = async () => {
+    const antes = $('span', otra).textContent; ocupado(true, otra, 'Escribiendo…');
+    try { const r = await post('conv_borrador', { canal: f.canal, id: f.id, instruccion: ins.value }); ta.value = r.texto; f.borrador = r.texto; ins.value = ''; }
+    catch (e) { toast(e.message, true); }
+    ocupado(false, otra, antes);
+  };
+  env.onclick = async () => {
+    const texto = ta.value.trim(); if (!texto) { toast('El mensaje está vacío.', true); return; }
+    ocupado(true, env, 'Enviando…');
+    try {
+      const r = await post('conv_enviar', { canal: f.canal, id: f.id, texto });
+      toast(r.cola ? 'Aprobada: el agente la escribe en WhatsApp en un minuto.' : 'Email enviado en el mismo hilo.');
+      await load(); draw();
+    } catch (e) { toast(e.message, true); ocupado(false, env, 'Enviar por ' + via); }
+  };
+  fila.append(ins, otra);
+  box.append(ta, nota, fila, env);
+  return box;
 }
 
 /* ============ eventos y ciclo ============ */

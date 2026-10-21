@@ -108,3 +108,19 @@
 .pc-notas textarea{min-height:64px;background:var(--panel-2)}
 body[data-page=conversaciones] .pb-only-embudo{display:none}
 .pc-av img.foto{padding:0;object-fit:cover}
+.pc-toca{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,#FFB547 18%,transparent);color:#FFB547;font-weight:800}
+.pc-toca.cola{background:color-mix(in srgb,var(--cyan) 15%,transparent);color:var(--cyan)}
+.pc-b.cola{opacity:.75;border:1px dashed var(--line-2)}
+.pc-b.cola.err{opacity:1;border-color:#FF6B7A}
+.pc-b.cola.err time{color:#FF6B7A}
+.pc-resp{padding:12px 20px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px;background:color-mix(in srgb,#FFB547 4%,transparent)}
+.pc-resp small{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#FFB547}
+.pc-resp textarea{min-height:110px;background:var(--panel-2);font-size:13.5px;line-height:1.5}
+.pc-resp-nota{margin:0;font-size:11.5px;color:var(--muted)}
+.pc-resp-fila{display:flex;gap:6px}
+.pc-resp-fila input{flex:1;min-width:0;background:var(--panel-2)}
+.pc-resp .pc-btn.main{align-self:flex-end}
+.pc-resp button:disabled{opacity:.55;cursor:progress}
+.pc-resp-no{margin:0;font-size:12.5px;color:var(--muted)}
+.pc-drawer{overflow:auto}
+.pc-drawer .pc-chat{flex:1 0 220px}

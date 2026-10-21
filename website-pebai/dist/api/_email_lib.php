@@ -194,7 +194,7 @@ function pebai_email_primeros_total(): int
 
 function pebai_email_enviados_hoy(): int
 {
-    $q = pebai_email_db()->prepare("SELECT COUNT(*) FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale' AND ts >= ?");
+    $q = pebai_email_db()->prepare("SELECT COUNT(*) FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta') AND ts >= ?");
     $q->execute([date('Y-m-d 00:00:00')]);
     return (int)$q->fetchColumn();
 }
@@ -665,7 +665,7 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
         return pebai_email_espera("cupo de hoy completo ($hoy/$limite)", "Cupo de hoy completo: $hoy de $limite. Sigue mañana");
     }
     // Ritmo: reparte lo que queda de cupo en lo que queda de ventana, con azar, y nunca por debajo de la pausa mínima.
-    $ultimo = (string)$db->query("SELECT MAX(ts) FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale'")->fetchColumn();
+    $ultimo = (string)$db->query("SELECT MAX(ts) FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta')")->fetchColumn();
     if (!$forzarRitmo && $ultimo !== '') {
         $gap = max($cfg['pausa_min'], $v['restante'] / max(1, $limite - $hoy));
         $objetivo = $gap * (0.6 + mt_rand() / mt_getrandmax() * 0.7);
@@ -762,7 +762,7 @@ function pebai_email_salud(int $dias): array
 {
     $db = pebai_email_db();
     $desde = date('Y-m-d H:i:s', time() - $dias * 86400);
-    $q = $db->prepare("SELECT COUNT(*) FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale' AND ts >= ?");
+    $q = $db->prepare("SELECT COUNT(*) FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta') AND ts >= ?");
     $q->execute([$desde]);
     $env = (int)$q->fetchColumn();
     $q = $db->prepare("SELECT estado, COUNT(*) n FROM email_prospectos WHERE updated_at >= ? GROUP BY estado");
@@ -780,7 +780,7 @@ function pebai_email_salud(int $dias): array
 function pebai_email_revisar_rebotes(): void
 {
     $db = pebai_email_db();
-    $ids = $db->query("SELECT prospecto_id FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale' ORDER BY id DESC LIMIT 50")->fetchAll(PDO::FETCH_COLUMN);
+    $ids = $db->query("SELECT prospecto_id FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta') ORDER BY id DESC LIMIT 50")->fetchAll(PDO::FETCH_COLUMN);
     if (count($ids) < 20) {
         return;
     }

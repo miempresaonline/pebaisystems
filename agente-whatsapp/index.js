@@ -176,7 +176,14 @@ async function conectar() {
 }
 
 /* --------------------------------------------------- envío como persona --- */
-async function escribirComoPersona(jid, texto) {
+// Un envío cada vez: un primer mensaje y una respuesta aprobada nunca se escriben a la vez
+let turno = Promise.resolve();
+function escribirComoPersona(jid, texto) {
+  const t = turno.then(() => escribirAhora(jid, texto));
+  turno = t.catch(() => {});
+  return t;
+}
+async function escribirAhora(jid, texto) {
   await sock.sendPresenceUpdate('available');
   await sleep(rand(4e3, 14e3));                      // abre WhatsApp y busca el chat
   await sock.presenceSubscribe(jid).catch(() => {});
@@ -265,6 +272,29 @@ async function bucleEnvios() {
     await sleep(Math.max(60, res?.esperar || 300) * 1000);
   }
 }
+// Respuestas que Daniel ha aprobado en el panel (Captación › Conversaciones): salen en cuanto se puede, a cualquier hora
+async function bucleRespuestas() {
+  for (;;) {
+    await sleep(rand(25e3, 40e3));
+    if (estado !== 'conectado') continue;
+    const r = await api('salida');
+    const w = r?.salida;
+    if (!w) continue;
+    const tel = String(w.telefono);
+    try {
+      const [res] = (await sock.onWhatsApp(tel + '@s.whatsapp.net')) || [];
+      if (!res?.exists) throw new Error('El número no tiene WhatsApp');
+      contactados.add(tel);
+      guardaContactados();
+      await escribirComoPersona(res.jid, w.texto);
+      log('Respuesta aprobada enviada a', tel);
+      await api('salida_resultado', { id: w.id, ok: true });
+    } catch (e) {
+      log('Error enviando respuesta a', tel, e.message);
+      await api('salida_resultado', { id: w.id, ok: false, error: String(e.message).slice(0, 250) });
+    }
+  }
+}
 async function bucleLatidos() {
   for (;;) {
     await sleep(estado === 'conectado' ? 5 * 60e3 : 45e3);
@@ -280,3 +310,4 @@ await conectar();
 await latido();
 bucleLatidos();
 bucleEnvios();
+bucleRespuestas();
