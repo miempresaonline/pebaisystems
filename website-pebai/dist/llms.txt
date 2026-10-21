@@ -10,7 +10,7 @@ Versión ampliada: [llms-full.txt](https://pebaisystems.es/llms-full.txt)
 - [Chatbots con Inteligencia Artificial](https://pebaisystems.es/#servicios): asistentes conectados a los manuales, tarifas y documentos de la empresa. Resuelven dudas y avisan al equipo.
 - [Agentes de voz](https://pebaisystems.es/#servicios): atienden llamadas, responden consultas y agendan citas con voces naturales, también fuera de horario.
 - [Visibilidad en buscadores de Inteligencia Artificial (GEO)](https://pebaisystems.es/#servicios): que ChatGPT, Gemini o Perplexity recomienden la empresa cuando sus clientes preguntan qué contratar.
-- [Desarrollo web](https://pebaisystems.es/#servicios): webs rápidas y cuidadas en cada pantalla, pensadas para convertir visitas en conversaciones.
+- [Automatización de procesos](https://pebaisystems.es/#servicios): conexión de los programas que ya usa la empresa para que presupuestos, facturas, pedidos y avisos pasen de uno a otro sin copiar datos a mano.
 - [Formación a equipos](https://pebaisystems.es/#servicios): sesiones prácticas y manuales claros para que el personal use los sistemas con total independencia.
 
 ## Cómo empezar

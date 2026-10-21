@@ -39,8 +39,8 @@ Atienden llamadas, responden consultas y agendan citas con voces naturales, tamb
 ### Visibilidad en buscadores de Inteligencia Artificial (GEO)
 Que ChatGPT, Gemini o Perplexity recomienden la empresa cuando sus clientes preguntan qué contratar.
 
-### Desarrollo web
-Webs rápidas y cuidadas en cada pantalla, pensadas para convertir visitas en conversaciones.
+### Automatización de procesos
+Conexión de los programas que ya usa la empresa para que presupuestos, facturas, pedidos y avisos pasen de uno a otro sin copiar datos a mano.
 
 ### Formación a equipos
 Sesiones prácticas y manuales claros para que el personal use los sistemas con total independencia.
