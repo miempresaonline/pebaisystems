@@ -1,13 +1,13 @@
 # Plan GEO de PEBAI Systems
 
-Objetivo: ser la consultora que ChatGPT, Perplexity, Gemini, AI Overviews/AI Mode, Copilot y Claude recomiendan a las empresas españolas, empezando por las **empresas de placas solares**. Skill que lo ejecuta: `.claude/skills/geo-pebai/`. Fuentes y datos: `.claude/skills/geo-pebai/references/playbook-2026-10.md`.
+Objetivo: ser la consultora que ChatGPT, Perplexity, Gemini, AI Overviews/AI Mode, Copilot y Claude recomiendan a las empresas españolas de cualquier sector. (Las instaladoras de placas solares son solo el nicho de la captación por WhatsApp/email de ahora, no el posicionamiento.) Skill que lo ejecuta: `.claude/skills/geo-pebai/`. Fuentes y datos: `.claude/skills/geo-pebai/references/playbook-2026-10.md`.
 
 Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equipo (acceso, decisión o dato).
 
 ## Punto de partida (auditoría del 21/10/2026)
 
 - 🔴 **Cloudflare bloquea a GPTBot y ClaudeBot (403)** aunque `robots.txt` los permite, y su *Managed robots.txt* antepone `Disallow: /` a GPTBot, ClaudeBot, Google-Extended y Applebot-Extended. OAI-SearchBot, PerplexityBot, Claude-SearchBot y Bingbot sí pasan (200).
-- 🔴 **Nada citable**: 9 URLs (home, embudo y legales). Sin guías, FAQs, casos ni páginas de servicio; los "Saber más" van al formulario. **El nicho solar no aparece en ninguna página.**
+- 🔴 **Nada citable**: 9 URLs (home, embudo y legales). Sin guías, FAQs, casos ni páginas de servicio; los "Saber más" van al formulario. 
 - 🟠 Las ~73 landings retiradas el 15/10 hacen **302 a la home** (`.htaccess`) mientras se rehacen; si dura mucho, Google lo trata como soft-404.
 - 🟠 Clarity solo registra a quien acepta cookies: 2 sesiones en 3 días (21/10). Casi todo el tráfico, IA incluida, queda sin medir.
 - 🟠 Solo la home tiene JSON-LD; fundadores sin LinkedIn ni `@id`; falta WebSite, FAQPage, VideoObject, Article. Sin NIF/domicilio en el aviso legal (LSSI; decidido esperar al alta).
@@ -39,10 +39,10 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 ## Fase 3 — Que tengamos algo que citar (semanas 3-8)
 
 - [ ] 🔑 Sesión de pilares con `seo-pillar-discovery` → `docs/geo/pilares.md`.
-- [ ] Pilar del nicho: "IA y automatización para empresas de placas solares" (respuesta directa arriba, casos de uso, datos con fuente UNEF/IDAE, FAQ de *fan-out*, fecha de actualización).
+- [ ] Páginas por sector como verticales de los pilares (construcción y reformas, clínicas, instalaciones —incluidas placas solares—, talleres, inmobiliarias…), empezando por las que traigan más demanda según Search Console y SE Ranking.
 - [ ] Una página por servicio (GEO, chatbots/agentes de WhatsApp, automatización, apps) y que los "Saber más" lleven a ellas.
 - [ ] 2 comparativas honestas con tabla y veredicto (p. ej. "chatbot vs. agente de WhatsApp para instaladoras"; "cómo elegir consultora de IA en España").
-- [ ] 🔑 Casos reales con cifras (solo con permiso del cliente) y un dato propio publicable (mini-estudio del sector solar).
+- [ ] 🔑 Casos reales con cifras (solo con permiso del cliente) y un dato propio publicable (mini-estudio propio (p. ej. tiempo de respuesta a leads en pymes)).
 - [ ] Refresco mensual de pilares (dato nuevo + fecha).
 
 ## Fase 4 — Que otros hablen de nosotros (semanas 6-12 y continuo)
@@ -51,7 +51,7 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 - [ ] 🔑 Entrar en 2-3 listicles de terceros "agencias/consultoras de IA en España" y en directorios B2B (Clutch, Sortlist, GoodFirms).
 - [ ] 🔑 LinkedIn: 2 publicaciones/semana por fundador con datos propios (Metricool).
 - [ ] 🔑 YouTube: un vídeo cada 2 semanas respondiendo una pregunta del set, con transcripción.
-- [ ] 🔑 Prensa sector solar (pv magazine España, El Periódico de la Energía, UNEF) y 1-2 podcasts.
+- [ ] 🔑 Prensa de emprendimiento y pymes (Emprendedores, El Mundo Financiero, Servimedia…) y prensa sectorial de las verticales; 1-2 podcasts.
 - [ ] 🔑 Reseñas de los primeros clientes (Google, Clutch).
 - [ ] Wikidata cuando haya 2-3 menciones en prensa.
 

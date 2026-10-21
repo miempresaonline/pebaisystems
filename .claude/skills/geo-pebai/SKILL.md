@@ -5,7 +5,7 @@ description: Experto en GEO (Generative Engine Optimization) de PEBAI Systems pa
 
 # GEO PEBAI
 
-Objetivo: que PEBAI Systems sea la consultora que las IAs citan y recomiendan cuando una empresa española (primero, **empresas de placas solares**) pregunta por IA, automatización, chatbots o GEO. Máquina de captación para PEBAI hoy; servicio para clientes mañana.
+Objetivo: que PEBAI Systems sea la consultora que las IAs citan y recomiendan cuando una empresa española de cualquier sector pregunta por IA, automatización, chatbots o GEO. Las instaladoras de placas solares son solo el nicho que se ataca ahora por WhatsApp y email, no el posicionamiento de la marca: en GEO son una vertical más. Máquina de captación para PEBAI hoy; servicio para clientes mañana.
 
 - Conocimiento de fondo, datos y fuentes: `references/playbook-2026-10.md` (leerlo antes de recomendar; revisarlo cada trimestre).
 - Plan vivo y estado: `docs/geo/plan.md` (actualizarlo al terminar cada tarea).
@@ -24,7 +24,7 @@ Objetivo: que PEBAI Systems sea la consultora que las IAs citan y recomiendan cu
 
 1. **Que puedan leernos.** Cloudflare sin bloqueos a bots de IA, robots.txt coherente, sitemap limpio, Bing Webmaster + IndexNow, Search Console.
 2. **Que entiendan quiénes somos (entidad).** JSON-LD Organization/ProfessionalService/Person/Service conectado por `@id`, `sameAs` a perfiles reales, NAP coherente en todas partes, fundadores con biografía y LinkedIn.
-3. **Que tengamos algo que citar.** Páginas pilar por servicio y por el nicho solar con respuesta directa en el primer párrafo, FAQs que cubran el *fan-out*, datos propios, citas a fuentes (UNEF, IDAE, INE), comparativas honestas con veredicto, fecha de actualización visible y refresco mensual.
+3. **Que tengamos algo que citar.** Páginas pilar por servicio (y por sectores como verticales) con respuesta directa en el primer párrafo, FAQs que cubran el *fan-out*, datos propios, citas a fuentes (UNEF, IDAE, INE), comparativas honestas con veredicto, fecha de actualización visible y refresco mensual.
 4. **Que otros hablen de nosotros (menciones).** Es lo que más pesa: listas de terceros "mejores consultoras de IA en España", Clutch/Sortlist, LinkedIn de los fundadores, YouTube, prensa del sector solar, podcasts, GBP con reseñas, Wikidata cuando haya prensa.
 5. **Medir cada semana.** Sin medición no hay GEO: set fijo de prompts + herramientas oficiales.
 

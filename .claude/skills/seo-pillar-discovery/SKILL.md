@@ -18,10 +18,10 @@ Prohibido inventar cifras, tickets medios, ahorros o afirmar cosas como "este se
 
 ## 2. El idioma del cliente primero, el tecnicismo después
 
-El decisor (p. ej. el gerente de una empresa de placas solares) no busca "GEO". Busca cosas como:
-- "cómo conseguir clientes de placas solares"
+El decisor (p. ej. el gerente de una empresa de reformas, una clínica o una instaladora) no busca "GEO". Busca cosas como:
+- "cómo conseguir más clientes para mi empresa"
 - "aparecer en ChatGPT" / "que la IA recomiende mi empresa"
-- "automatizar presupuestos de fotovoltaica"
+- "automatizar presupuestos"
 - "chatbot para atender clientes por WhatsApp"
 
 GEO, AEO, RAG o LLM son la capa técnica de respaldo en el cuerpo del contenido, no el título, salvo que la demanda real lo justifique.
@@ -39,7 +39,7 @@ PEBAI Systems
               └── Puente hacia el pilar permanente
 ```
 
-Los pilares los fija el equipo en la sesión. Candidatos de partida (🟡 hipótesis, a validar): posicionamiento en IA (GEO), agentes y chatbots de IA, automatización de procesos, y la vertical de **empresas de placas solares** (nicho de captación actual).
+Los pilares los fija el equipo en la sesión. Candidatos de partida (🟡 hipótesis, a validar): posicionamiento en IA (GEO), agentes y chatbots de IA, automatización de procesos y software a medida. Los sectores (construcción, clínicas, instaladoras…) son verticales que cuelgan de los pilares, no pilares propios.
 
 ## 4. Pilar permanente vs. clúster de oportunidad
 

@@ -13,7 +13,7 @@ Un tema nunca se dispersa en artículos sueltos o landings finas. Se organiza as
 
 ```text
 /tema/                      URL madre: autoridad, marco y enrutamiento
-├── /tema/para-[publico]/   Subpilar por público (p. ej. empresas de placas solares)
+├── /tema/para-[publico]/   Subpilar por público (p. ej. empresas de reformas, clínicas, instaladoras)
 ├── /tema/[servicio]/       Subpilar por servicio o caso de uso
 └── /tema/[pregunta]/       Satélite que resuelve una duda concreta
 ```
@@ -47,7 +47,7 @@ Reglas:
 ### Paso 3: estructura del subpilar
 1. **H1 diferenciado**: concreta público o acción; no repite el término general de la madre.
 2. Enlace de vuelta: `<a href="/tema/">← Volver a la guía de [tema]</a>`.
-3. Casos de uso desglosados (por departamento o por oficio; para placas solares: captación, presupuestos, seguimiento de instalaciones, posventa…). Solo casos reales o marcados como ejemplo.
+3. Casos de uso desglosados (por departamento o por oficio; por ejemplo en una empresa de servicios: captación, presupuestos, seguimiento de instalaciones, posventa…). Solo casos reales o marcados como ejemplo.
 4. Método de implantación por fases (diagnóstico, selección, datos, pruebas, despliegue, medición).
 5. Seguridad y cumplimiento (RGPD, datos).
 6. CTA de diagnóstico.
