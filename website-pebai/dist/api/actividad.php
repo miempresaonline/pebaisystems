@@ -13,7 +13,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('X-Robots-Tag: noindex');
 header('Cache-Control: no-store');
 
-const AGENTES_EXTERNOS = ['prospeccion'];
+const AGENTES_EXTERNOS = ['prospeccion', 'geo'];
 
 $expected = (string)(pebai_config()['agent_token'] ?? '');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || $expected === '' || !hash_equals($expected, (string)($_SERVER['HTTP_X_AGENT_TOKEN'] ?? ''))) {

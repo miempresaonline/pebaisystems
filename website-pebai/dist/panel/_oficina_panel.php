@@ -273,6 +273,29 @@ function of_scraper(): array
     return $a;
 }
 
+/* ------------------------------------------------------------------ GEO --- */
+/** Agente GEO: tareas programadas en el ordenador del equipo (Claude) que apuntan cada paso en api/actividad.php. */
+function of_geo(): array
+{
+    $a = of_agente(['id' => 'geo', 'dept' => 'geo', 'nombre' => 'GEO', 'glifo' => 'lupa', 'rol' => 'Que ChatGPT, Gemini y Google recomienden a PEBAI', 'unidad' => 'tareas hechas']);
+    $a['actividad'] = of_actividad('geo', 30);
+    $a['errores'] = of_errores($a['actividad']);
+    $hoy = date('Y-m-d');
+    $hechasHoy = count(array_filter($a['actividad'], static fn($e) => substr($e['ts'], 0, 10) === $hoy && $e['tipo'] === 'hito'));
+    $mes = date('Y-m-d H:i:s', time() - 30 * 86400);
+    $hechasMes = count(array_filter($a['actividad'], static fn($e) => $e['ts'] >= $mes && $e['tipo'] === 'hito'));
+    $ult = $a['actividad'][0] ?? null;
+    $reciente = $ult && strtotime($ult['ts']) > time() - 7200 && $ult['tipo'] !== 'espera';
+    $a['hoy'] = $hechasHoy;
+    $a['st'] = $a['errores'] ? 'error' : ($reciente ? 'trabajando' : 'espera');
+    $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
+        : ($ult ? $ult['txt'] : 'Trabaja con tareas programadas: contenido de la web, Google Business, Localo y medición semanal.');
+    $a['proxima'] = 'Lunes 9:00: informe de visibilidad en IA';
+    $a['ultima'] = of_ultima($a['actividad'], ['hito']);
+    $a['datos'] = [['Tareas hoy', (string)$hechasHoy], ['Tareas en 30 días', (string)$hechasMes]];
+    return $a;
+}
+
 /* --------------------------------------------------------------- Embudo --- */
 function of_embudo(PDO $db): array
 {
@@ -347,7 +370,7 @@ function of_ultima(array $act, array $tipos): ?array
 function of_estado(PDO $db): array
 {
     $ags = [];
-    foreach (['of_scraper', 'of_whatsapp', 'of_email'] as $fn) {
+    foreach (['of_scraper', 'of_whatsapp', 'of_email', 'of_geo'] as $fn) {
         try {
             $ags[] = $fn();
         } catch (Throwable $e) {
