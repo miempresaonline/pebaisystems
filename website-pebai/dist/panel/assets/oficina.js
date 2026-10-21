@@ -172,6 +172,34 @@ function abrirNucleo() {
   $('#pb-of-preg').onclick = (e) => { e.stopPropagation(); qIn.focus(); };
   mostrar();
 }
+/* servidor de una sala: resumen con IA de lo que han hecho hoy sus agentes (index.php?oficina_resumen=<sala>) */
+async function abrirServidor(id, fresco) {
+  const d = DEPTS.find((x) => x.id === id); if (!d) return;
+  enfocarServidor(id);
+  const cab = `<div class="k">Servidor · ${esc(d.nombre)}</div><h2>Lo que han hecho hoy</h2><div class="rol">${esc(d.objetivo)}</div>`;
+  if (!d.activo || !agsDe(d.id).length) { sideIn.innerHTML = cab + '<div class="pb-of-state" style="--c:#5C5F73"><i></i><div><b>Sin agentes todavía</b><span>Cuando este departamento tenga bots, su servidor resumirá aquí lo que hacen cada día.</span></div></div>'; mostrar(); return; }
+  sideIn.innerHTML = cab + `<div class="pb-of-state" style="--c:${d.color}"><i></i><div><b>Un momento</b><span>La IA está leyendo lo que ha pasado hoy…</span></div></div>`; mostrar();
+  let j;
+  try {
+    const r = await fetch(BASE + '?oficina_resumen=' + encodeURIComponent(id) + (fresco ? '&fresco=1' : ''), { credentials: 'same-origin', cache: 'no-store' });
+    if (r.status === 401) { location.reload(); return; }
+    j = await r.json().catch(() => ({ ok: false }));
+    if (!j.ok) throw new Error(j.error || 'No se ha podido leer la actividad de hoy.');
+  } catch (e) { j = { ok: false, error: e.message }; }
+  if (!foco || foco.servidor !== id) return;  /* mientras tanto se ha abierto otra cosa */
+  if (!j.ok) { sideIn.innerHTML = cab + `<div class="pb-of-state" style="--c:#FF5E6C"><i></i><div><b>No ha salido</b><span>${esc(j.error)}</span></div></div>`; mostrar(); return; }
+  const lis = (l, cls) => l.map((t) => `<p${cls ? ` class="${cls}"` : ''}>${esc(t)}</p>`).join('');
+  sideIn.innerHTML = cab + `<div class="pb-of-state" style="--c:${d.color}"><i></i><div><b>${esc(j.titular)}</b><span>${esc(j.resumen)}</span></div></div>
+    <div class="pb-of-qa">
+    ${(j.logros || []).length ? q(j.ia ? 'Lo conseguido' : 'Lo último que han hecho', lis(j.logros)) : ''}
+    ${(j.problemas || []).length ? q('Problemas', lis(j.problemas, 'bad')) : j.entradas ? q('Problemas', '<p class="ok">Ninguno apuntado hoy.</p>') : ''}
+    ${j.siguiente ? q('Lo siguiente', `<p>${esc(j.siguiente)}</p>`) : ''}
+    ${q('De dónde sale', `<p class="sub">${j.ia ? 'Escrito por la IA' : 'Resumen automático sin IA'}, generado a las ${esc(hora(j.generado))} a partir de ${N(j.entradas)} ${j.entradas === 1 ? 'apunte' : 'apuntes'} de hoy.</p><div class="pb-of-acts"><button type="button" class="pb-of-btn ghost" id="pb-of-resfr">Actualizar</button></div>`)}
+    </div>`;
+  const b = $('#pb-of-resfr'); S.resFr = S.resFr || {};
+  if (b) b.onclick = (e) => { e.stopPropagation(); if (Date.now() - (S.resFr[id] || 0) < 60000) { toast('Espera un minuto entre actualizaciones.', true); return; } S.resFr[id] = Date.now(); abrirServidor(id, true); };
+  mostrar();
+}
 function vecino(dir) {
   if (!foco || !foco.agente || S.agentes.length < 2) return;
   const i = S.agentes.findIndex((a) => a.id === foco.agente);
@@ -183,7 +211,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && enPagina
 const ayuda = document.createElement('div'); ayuda.className = 'pb-of-ayuda';
 ayuda.innerHTML = '<button type="button" class="b" aria-label="Atajos y leyenda" title="Atajos y leyenda (?)">?</button><div class="c">'
   + '<h5>Colores</h5>' + ['trabajando', 'espera', 'dormido', 'error', 'apagado'].map((k) => `<div class="l"><i style="background:${ST[k][0]}"></i>${ST[k][1]}</div>`).join('')
-  + '<h5>Atajos</h5>' + [['Arrastrar', 'Moverse por la oficina'], ['Rueda', 'Acercar o alejar'], ['1 – ' + DEPTS.length, 'Ir a cada sala'], ['P', 'El núcleo'], ['← →', 'Agente anterior / siguiente'], ['/', 'Preguntar a PEBAI'], ['Esc', 'Volver a la vista general'], ['H', 'Ocultar la interfaz'], ['C', 'Modo cine (para grabar)']].map(([k, t]) => `<div class="k"><kbd>${k}</kbd><span>${t}</span></div>`).join('')
+  + '<h5>Atajos</h5>' + [['Arrastrar', 'Moverse por la oficina'], ['Rueda', 'Acercar o alejar'], ['1 – ' + DEPTS.length, 'Ir a cada sala'], ['P', 'El núcleo'], ['S', 'Servidor de la sala enfocada'], ['← →', 'Agente anterior / siguiente'], ['/', 'Preguntar a PEBAI'], ['Esc', 'Volver a la vista general'], ['H', 'Ocultar la interfaz'], ['C', 'Modo cine (para grabar)']].map(([k, t]) => `<div class="k"><kbd>${k}</kbd><span>${t}</span></div>`).join('')
   + '</div>';
 wrap.append(ayuda);
 ayuda.addEventListener('click', (e) => e.stopPropagation());
@@ -200,6 +228,7 @@ document.addEventListener('keydown', (e) => {
   if (/^[1-9]$/.test(k) && DEPTS[+k - 1]) abrirSala(DEPTS[+k - 1]);
   else if (k === '0') cerrar();
   else if (k === 'p') abrirNucleo();
+  else if (k === 's' && foco && (foco.sala || foco.agente || foco.servidor)) abrirServidor(foco.sala || foco.servidor || (ag(foco.agente) || {}).dept);
   else if (k === '/') { e.preventDefault(); e.stopImmediatePropagation(); abrirAsk(); }
   else if (k === 'ArrowRight') vecino(1);
   else if (k === 'ArrowLeft') vecino(-1);
@@ -291,6 +320,12 @@ function enfocarSala(d) {
   const f = Math.max(1, s.W / 8.6), panel = wrap.clientWidth > 760 ? 2.7 * f : 0;
   const c = s.g.position.clone();
   G.volar(c.clone().add(new G.THREE.Vector3(panel, 11 * f, 13.5 * f)), c.clone().add(new G.THREE.Vector3(panel, .9, -.9)));
+}
+function enfocarServidor(id) {
+  foco = { servidor: id }; wrap.classList.add('foco'); if (!G) return;
+  const s = G.salas.get(id); if (!s) return;
+  const c = s.g.position.clone(), panel = wrap.clientWidth > 760 ? 2.2 : 0;
+  G.volar(c.clone().add(new G.THREE.Vector3(panel, 5.4, 7.6)), c.clone().add(new G.THREE.Vector3(panel, 1.9, 0)));
 }
 function enfocarAgente(id) {
   foco = { agente: id }; wrap.classList.add('foco'); if (!G) return;
@@ -724,7 +759,7 @@ async function montar() {
     const g = new THREE.Group(); g.position.set(x, ALTO, z); scene.add(g);
     /* la columna de energía: base, cuerpo con luces de servidor, aros del color de la sala y el cristal que recibe el cable */
     sombra(g, 0, 0, 2.2, 2.2, .006);
-    en(g, new THREE.Mesh(new THREE.CylinderGeometry(.85, .95, .16, 48), metalCol), 0, .08, 0);
+    const baseCol = en(g, new THREE.Mesh(new THREE.CylinderGeometry(.85, .95, .16, 48), metalCol), 0, .08, 0);
     const rackCv = document.createElement('canvas'); rackCv.width = 64; rackCv.height = 160;
     const rackTex = new THREE.CanvasTexture(rackCv); rackTex.colorSpace = THREE.SRGBColorSpace; rackTex.magFilter = THREE.NearestFilter;
     rackTex.wrapS = THREE.RepeatWrapping; rackTex.repeat.set(5, 1);
@@ -732,13 +767,14 @@ async function montar() {
     cuerpo.position.y = .16 + (ALTA - .5) / 2; g.add(cuerpo);
     const ledsSala = { ctx: rackCv.getContext('2d'), tex: rackTex };
     const tiraRack = new THREE.MeshBasicMaterial({ color: col, toneMapped: false, transparent: true, opacity: on ? .5 : 0 });
-    [.55, 1.35, 2.15].forEach((yy) => { const aro = new THREE.Mesh(new THREE.TorusGeometry(.5, .03, 8, 48), tiraRack); aro.rotation.x = Math.PI / 2; aro.position.y = yy; g.add(aro); });
+    const aros = [.55, 1.35, 2.15].map((yy) => { const aro = new THREE.Mesh(new THREE.TorusGeometry(.5, .03, 8, 48), tiraRack); aro.rotation.x = Math.PI / 2; aro.position.y = yy; g.add(aro); return aro; });
     const tapa = new THREE.Mesh(new THREE.CylinderGeometry(.32, .42, .22, 40), metalCol); tapa.position.y = ALTA - .23; g.add(tapa);
     const recMat = new THREE.MeshBasicMaterial({ color: on ? col : new THREE.Color('#2e3146'), toneMapped: false, transparent: true, opacity: on ? .95 : .8 });
     const cristal = new THREE.Mesh(new THREE.OctahedronGeometry(.26, 0), recMat); cristal.position.y = ALTA + .18; cristal.scale.y = 1.4; g.add(cristal);
     const destello = new THREE.Sprite(new THREE.SpriteMaterial({ map: brillo, color: col, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })); destello.scale.setScalar(1.4); destello.position.y = ALTA + .18; g.add(destello);
     const auraCol = new THREE.Sprite(new THREE.SpriteMaterial({ map: brillo, color: col, transparent: true, opacity: on ? .22 : 0, depthWrite: false, blending: THREE.AdditiveBlending })); auraCol.scale.set(1.6, ALTA * 1.2, 1); auraCol.position.y = ALTA / 2; g.add(auraCol);
-    cuerpo.userData.sala = d; cristal.userData.sala = d; clicables.push(cuerpo, cristal);
+    /* la columna es el servidor de la sala: al pincharla, resumen con IA de lo que han hecho hoy sus agentes */
+    [baseCol, cuerpo, ...aros, tapa, cristal].forEach((m) => { m.userData.sala = d; m.userData.servidor = d.id; clicables.push(m); });
     /* cartel en el borde trasero de la sala, de cara a quien mira: así nunca tapa a los agentes */
     const sign = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, toneMapped: false, depthWrite: false })); sign.scale.set(4.4, 1.1, 1); sign.position.set(0, 1.1, -RSALA - .15); sign.center.set(.5, 0); g.add(sign);
     sign.userData.sala = d; plat.userData.sala = d; clicables.push(sign, plat);
@@ -911,6 +947,7 @@ async function montar() {
     if (!h) return null;
     const u = h.object.userData;
     if (u.puesto) { const a = u.puesto.a, [c, txt] = ST[a.st] || ST.espera; return { k: u.puesto.d.nombre, b: a.nombre, r: a.rol, c, txt: txt + (a.cupo ? ` · ${N(a.hoy)} de ${a.cupo} hoy` : a.hoy ? ` · ${N(a.hoy)} hoy` : ''), m: a.motivo }; }
+    if (u.servidor) { const d = u.sala; return { k: 'Servidor · ' + d.nombre, b: 'Lo que han hecho hoy', c: d.activo ? d.color : '#5C5F73', txt: d.activo ? 'Resumen escrito por la IA' : 'Sin agentes aún', m: 'Pincha para leer el resumen del día' }; }
     if (u.sala) { const d = u.sala, l = agsDe(d.id), tr = l.filter((a) => a.st === 'trabajando').length; return { k: 'Departamento', b: d.nombre, c: d.activo ? (tr ? '#3DDC84' : '#8E91A8') : '#5C5F73', txt: d.activo ? `${tr} de ${l.length} trabajando` : 'Sin agentes aún', m: d.objetivo }; }
     if (u.nucleo) { const pe = pendientes(); return { k: 'El núcleo', b: 'PEBAI', c: pe.some((p) => p.err) ? '#FF5E6C' : pe.length ? '#FFB547' : '#3DDC84', txt: pe.length ? (pe.length === 1 ? '1 aviso' : pe.length + ' avisos') : 'Todo en orden', m: 'Pincha para ver el resumen de la oficina' }; }
     return null;
@@ -961,6 +998,7 @@ async function montar() {
     const h = tocar(e);
     ficha.classList.remove('on');
     if (h && h.object.userData.puesto) { abrirAgente(h.object.userData.puesto.a.id); return; }
+    if (h && h.object.userData.servidor) { abrirServidor(h.object.userData.servidor); return; }
     if (h && h.object.userData.sala) { abrirSala(h.object.userData.sala); return; }
     if (h && h.object.userData.nucleo) { abrirNucleo(); return; }
     if (side.classList.contains('on') || foco) cerrar();
@@ -968,7 +1006,7 @@ async function montar() {
   new ResizeObserver(() => {
     if (!W0()) return; camera.aspect = W0() / H0(); camera.updateProjectionMatrix(); encajar();
     renderer.setSize(W0(), H0()); composer.setSize(W0(), H0());
-    if (!foco) { if (!intro) volar(HOME.p, HOME.t); } else if (foco.agente) enfocarAgente(foco.agente); else if (foco.nucleo) abrirNucleo(); else if (foco.sala) enfocarSala(DEPTS.find((x) => x.id === foco.sala));
+    if (!foco) { if (!intro) volar(HOME.p, HOME.t); } else if (foco.agente) enfocarAgente(foco.agente); else if (foco.nucleo) abrirNucleo(); else if (foco.servidor) enfocarServidor(foco.servidor); else if (foco.sala) enfocarSala(DEPTS.find((x) => x.id === foco.sala));
   }).observe(wrap);
 
   const clock = new THREE.Clock(); let ultPantalla = 0, tPrev = 0, ledPaso = -1, minuto = -1, medida = { n: 0, t: 0, prev: 0 };

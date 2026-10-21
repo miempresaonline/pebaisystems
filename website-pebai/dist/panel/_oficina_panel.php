@@ -11,7 +11,7 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
     http_response_code(404);
     exit;
 }
-foreach (['_agentes_lib.php', '_email_lib.php', '_actividad_lib.php'] as $f) {
+foreach (['_agentes_lib.php', '_email_lib.php', '_actividad_lib.php', '_ia_lib.php'] as $f) {
     if (is_file(dirname(__DIR__) . '/api/' . $f)) {
         require_once dirname(__DIR__) . '/api/' . $f;
     }
@@ -173,6 +173,10 @@ function of_email(): array
         $a['st'] = 'apagado';
         $a['motivo'] = 'Falta configurar el buzón desde el que escribe. Sin él no envía nada.';
         $a['necesita'][] = 'Configurar el buzón del email en frío (Captación › Email)';
+    } elseif ($e['latido_at'] !== '' && strtotime($e['latido_at']) < time() - 1800) {
+        $a['st'] = 'error';
+        $a['motivo'] = 'No da señales desde ' . of_hora(strtotime($e['latido_at'])) . '. El cron de hPanel que lo mueve cada 5 minutos puede haberse parado.';
+        $a['necesita'][] = 'Revisar el cron del agente de email en hPanel';
     } elseif ($a['errores']) {
         $a['st'] = 'error';
         $a['motivo'] = $a['errores'][0]['txt'];
@@ -255,9 +259,14 @@ function of_scraper(): array
         $ult = ['txt' => 'Buscando instaladoras de placas solares' . ($prov[1] ? ' en ' . end($prov[1]) : ''), 'ts' => date('Y-m-d H:i:s'), 'tipo' => 'espera'];
     }
     $parado = !$vivo && $ult && $ult['tipo'] === 'espera';
-    $a['st'] = $a['errores'] ? 'error' : ($reciente ? 'trabajando' : ($parado ? 'pausado' : 'dormido'));
+    $callado = !$reciente && !$parado && $ult && strtotime($ult['ts']) < time() - 12 * 3600;
+    $a['st'] = $a['errores'] || $callado ? 'error' : ($reciente ? 'trabajando' : ($parado ? 'pausado' : 'dormido'));
     $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
         : ($reciente ? ($buscando ? $ult['txt'] . '.' : 'Está buscando empresas ahora mismo.') : ($parado ? $ult['txt'] . ' (desde ' . of_hace($ult['ts']) . ').' : 'Corre en el servidor y recorre España sin parar buscando instaladoras de placas solares.'));
+    if ($callado && !$a['errores']) {
+        $a['motivo'] = 'No da señales desde ' . of_hace($ult['ts']) . ' y no está en pausa. El proceso del servidor puede haberse parado.';
+        $a['necesita'][] = 'Revisar el scraper en el servidor: no da señales';
+    }
     $a['proxima'] = $parado ? 'Cuando se quite la pausa' : 'Sigue con la siguiente provincia';
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
     $cola = (int)pebai_db()->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente'")->fetchColumn();
@@ -298,9 +307,16 @@ function of_geo_agente(string $id, string $nombre, string $rol, string $cuando):
     $a['hoy'] = count(array_filter($a['actividad'], static fn($e) => substr($e['ts'], 0, 10) === $hoy && $e['tipo'] === 'hito'));
     $ult = $a['actividad'][0] ?? null;
     $reciente = $ult && strtotime($ult['ts']) > time() - 1200 && $ult['tipo'] !== 'espera' && !preg_match('/^Termina/u', $ult['txt']);
-    $a['st'] = $a['errores'] ? 'error' : ($reciente ? 'trabajando' : 'espera');
+    // Los de cada día tienen turno a diario; los de L-V pueden pasar el fin de semana sin nada (de viernes tarde a lunes)
+    $hueco = str_starts_with($cuando, 'Cada día') ? 26 * 3600 : 74 * 3600;
+    $callado = $ult && strtotime($ult['ts']) < time() - $hueco;
+    $a['st'] = $a['errores'] || $callado ? 'error' : ($reciente ? 'trabajando' : 'espera');
     $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
-        : ($reciente ? $ult['txt'] : ($ult ? 'Descansando hasta su turno (' . $cuando . '). Lo último: ' . $ult['txt'] : 'Empieza en su próximo turno: ' . $cuando . '.'));
+        : ($callado ? 'Se ha saltado su turno: no hace nada desde ' . of_hace($ult['ts']) . '. Su rutina en la nube puede haberse parado.'
+        : ($reciente ? $ult['txt'] : ($ult ? 'Descansando hasta su turno (' . $cuando . '). Lo último: ' . $ult['txt'] : 'Empieza en su próximo turno: ' . $cuando . '.')));
+    if ($callado) {
+        $a['necesita'][] = 'Revisar su rutina en Claude (nube): no ha hecho su turno';
+    }
     $a['proxima'] = $cuando;
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
     $a['datos'] = [['Turno', $cuando], ['Tareas hoy', (string)$a['hoy']]];
@@ -479,7 +495,104 @@ function of_estado(PDO $db): array
     return $ags;
 }
 
+/* --------------------------------------------- servidor de cada sala --- */
+/** Agentes (id del registro común => nombre) de cada departamento, para el resumen del servidor de su sala. */
+function of_resumen_agentes(string $dept): array
+{
+    if ($dept === 'geo') {
+        return array_column(OF_GEO_AGENTES, 1, 0) + ['geo' => 'Jefe GEO'];  // 'geo': el primer agente GEO
+    }
+    return $dept === 'captacion' ? ['prospeccion' => 'Scraper', 'whatsapp' => 'WhatsApp', 'email' => 'Email'] : [];
+}
+
+/** Quita teléfonos y emails antes de mandar nada a la IA (datos mínimos). */
+function of_sin_datos(string $t): string
+{
+    $t = preg_replace('/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/u', '[email]', $t);
+    return preg_replace_callback('/(?<![\w-])\+?\d[\d \-.]{7,}\d(?![\w-])/u', static fn($m) => preg_match_all('/\d/', $m[0]) >= 9 ? '[teléfono]' : $m[0], $t);
+}
+
+/** Resumen sin IA (si Gemini falla o no hay nada que contar): apuntes por agente y las 5 últimas acciones. */
+function of_resumen_fijo(string $nombre, array $ents, array $ags): array
+{
+    if (!$ents) {
+        return ['titular' => 'Hoy todavía no hay apuntes', 'resumen' => 'Desde las 00:00 ningún agente de ' . $nombre . ' ha apuntado nada. Cuando empiecen su turno, lo verás aquí.',
+                'logros' => [], 'problemas' => [], 'siguiente' => ''];
+    }
+    $por = [];
+    foreach ($ents as $e) {
+        $por[$ags[$e['agente']]] = ($por[$ags[$e['agente']]] ?? 0) + 1;
+    }
+    $fmt = static fn($e) => substr($e['ts'], 11, 5) . ' · ' . $ags[$e['agente']] . ': ' . $e['txt'];
+    return ['titular' => count($ents) . (count($ents) === 1 ? ' apunte hoy en ' : ' apuntes hoy en ') . $nombre,
+            'resumen' => 'Apuntes de hoy por agente: ' . implode(', ', array_map(static fn($k, $n) => $k . ' ' . $n, array_keys($por), $por)) . '. Abajo, lo último que han hecho.',
+            'logros' => array_map($fmt, array_slice($ents, 0, 5)),
+            'problemas' => array_map($fmt, array_slice(array_values(array_filter($ents, static fn($e) => in_array($e['tipo'], ['error', 'freno'], true))), 0, 5)),
+            'siguiente' => ''];
+}
+
+/** Resumen de lo que han hecho hoy los agentes de un departamento. Caché de 10 min por departamento y nº de apuntes. */
+function of_resumen(string $dept, bool $fresco): array
+{
+    $nombres = ['captacion' => 'Captación', 'geo' => 'Visibilidad en IA', 'embudo' => 'Embudo'];
+    $ags = of_resumen_agentes($dept);
+    if (!$ags) {
+        return ['ok' => true, 'dept' => $dept, 'sin_ia' => true, 'titular' => isset($nombres[$dept]) ? 'Aún no hay resumen con IA para este departamento' : 'Sin agentes todavía',
+                'resumen' => 'Este departamento no tiene agentes que apunten su actividad en el registro común.', 'logros' => [], 'problemas' => [], 'siguiente' => '',
+                'generado' => date('Y-m-d H:i:s'), 'entradas' => 0];
+    }
+    $nombre = $nombres[$dept] ?? $dept;
+    $q = pebai_actividad_db()->prepare('SELECT ts, agente, tipo, resumen FROM agente_actividad WHERE agente IN (' . implode(',', array_fill(0, count($ags), '?')) . ') AND ts >= ? ORDER BY id DESC LIMIT 300');
+    $q->execute([...array_keys($ags), date('Y-m-d 00:00:00')]);
+    $ents = array_map(static fn($r) => ['ts' => $r['ts'], 'agente' => $r['agente'], 'tipo' => $r['tipo'], 'txt' => mb_substr(of_sin_datos((string)$r['resumen']), 0, 220)], $q->fetchAll());
+    $f = pebai_private_dir() . '/oficina-resumen-' . $dept . '.json';
+    $c = is_file($f) ? json_decode((string)file_get_contents($f), true) : null;
+    $edad = $c ? time() - (int)($c['t'] ?? 0) : PHP_INT_MAX;
+    // Se reutiliza si tiene menos de 1 min (también con «Actualizar») o menos de 10 min con los mismos apuntes
+    if ($c && isset($c['r']) && ($edad < 60 || (!$fresco && $edad < 600 && (int)($c['n'] ?? -1) === count($ents)))) {
+        return $c['r'] + ['cache' => true];
+    }
+    $r = null;
+    if ($ents && function_exists('pebai_ia_json')) {
+        $lineas = implode("\n", array_map(static fn($e) => substr($e['ts'], 11, 5) . ' · ' . $ags[$e['agente']] . ' · ' . $e['tipo'] . ' · ' . $e['txt'], array_reverse(array_slice($ents, 0, 150))));
+        $prompt = "Eres el servidor de la sala «{$nombre}» en la oficina de agentes automáticos de PEBAI Systems. Escribes para Daniel, uno de los dueños, "
+            . "un resumen de lo que han hecho HOY (desde las 00:00, hora de España; ahora son las " . date('H:i') . ") los agentes de esta sala.\n"
+            . "Agentes de la sala: " . implode(', ', array_unique($ags)) . ".\n"
+            . "Tipos de apunte: envio (mandó un mensaje), bloqueo (decidió no mandar y por qué), respuesta (contestó alguien), espera (por qué no trabaja ahora), "
+            . "freno (se paró por seguridad), error (algo falló), cambio (algo preparado o cambiado), hito (tarea hecha o paso importante).\n"
+            . "Responde SOLO con JSON: {\"titular\": \"una frase corta con lo más importante del día\", \"resumen\": \"de 3 a 6 frases claras para Daniel\", "
+            . "\"logros\": [\"lo conseguido, una frase cada uno, máximo 6\"], \"problemas\": [\"errores, frenos o bloqueos que importen, máximo 5; vacío si no hay\"], "
+            . "\"siguiente\": \"una frase con lo próximo que toca o lo que Daniel debería mirar\"}.\n"
+            . "Reglas: usa SOLO los apuntes de abajo; no inventes cifras ni hechos; cuenta solo lo que esté apuntado. Di qué agente hizo qué y a qué hora. "
+            . "Si hay pocos apuntes, dilo con honestidad. Español de España, tuteo, tono sobrio y claro. Sin emojis, sin exclamaciones, sin raya larga. "
+            . "No uses palabras como potenciar, impulsar, sinergia ni revolucionar.\n\n"
+            . "APUNTES DE HOY (" . count($ents) . ($ents && count($ents) > 150 ? ', se muestran los 150 últimos' : '') . "):\n" . $lineas;
+        $j = pebai_ia_json($prompt);
+        if (is_array($j) && trim((string)($j['resumen'] ?? '')) !== '') {
+            $limpia = static fn($s, $n) => mb_substr(trim(str_replace([' — ', '—', '¡', '!'], [', ', ', ', '', '.'], (string)$s)), 0, $n);
+            $lista = static fn($v, $n) => array_values(array_filter(array_map(static fn($s) => $limpia(is_scalar($s) ? $s : '', 300), array_slice(is_array($v) ? $v : [], 0, $n)), 'strlen'));
+            $r = ['titular' => $limpia($j['titular'] ?? '', 160), 'resumen' => $limpia($j['resumen'], 1200), 'logros' => $lista($j['logros'] ?? [], 6),
+                  'problemas' => $lista($j['problemas'] ?? [], 5), 'siguiente' => $limpia($j['siguiente'] ?? '', 300), 'ia' => true];
+        }
+    }
+    $r = ['ok' => true, 'dept' => $dept] + ($r ?? of_resumen_fijo($nombre, $ents, $ags) + ['ia' => false]) + ['generado' => date('Y-m-d H:i:s'), 'entradas' => count($ents)];
+    if ($r['ia'] || !$ents) {  // el resumen sin IA por fallo no se guarda: el siguiente clic vuelve a probar
+        @file_put_contents($f, json_encode(['t' => time(), 'n' => count($ents), 'r' => $r], JSON_UNESCAPED_UNICODE), LOCK_EX);
+    }
+    return $r;
+}
+
 /* ------------------------------------------------------------------ rutas --- */
+if ($auth && isset($_GET['oficina_resumen'])) {
+    $dept = preg_replace('/[^a-z]/', '', (string)$_GET['oficina_resumen']);
+    try {
+        json_out(of_resumen($dept, !empty($_GET['fresco'])));
+    } catch (Throwable $e) {
+        pebai_log('OFICINA resumen ' . $dept . ': ' . $e->getMessage());
+        json_out(['ok' => false, 'error' => 'No se ha podido leer la actividad de hoy.'], 500);
+    }
+}
+
 if ($auth && isset($_GET['oficina'])) {
     json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'agentes' => of_estado(pebai_db()),
               'ia' => is_file(pebai_private_dir() . '/ia.php')]);
