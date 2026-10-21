@@ -14,4 +14,7 @@ NICHO="${1:-solar}"
 # Tanda activa (la deja quien la lanza): el cron siempre pasa «energia», pero se retoma la que esté en curso
 [ -f "$HOME/prospeccion/NICHO_ACTIVO" ] && NICHO=$(cat "$HOME/prospeccion/NICHO_ACTIVO")
 mkdir -p "$HOME/scratch/prospeccion"
-exec flock -n /tmp/pebai-prospeccion.lock .venv/bin/python -u -m prospeccion.tanda "$NICHO" >> "$HOME/scratch/prospeccion/tanda_$NICHO.log" 2>&1
+# Se lanza aparte (setsid): el cron de hPanel corta sus tareas a los 30 min y una provincia grande tarda más.
+# Si ya hay un barrido en marcha, flock -n sale al momento y no se duplica.
+setsid nohup flock -n /tmp/pebai-prospeccion.lock .venv/bin/python -u -m prospeccion.tanda "$NICHO" >> "$HOME/scratch/prospeccion/tanda_$NICHO.log" 2>&1 < /dev/null &
+exit 0
