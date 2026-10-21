@@ -104,6 +104,7 @@ def google_maps(busquedas: list[str], ciudad: str, sector: str, max_puntos: int 
                     'sector': sector, 'ciudad': ciu or ciudad, 'provincia': prov, 'direccion': x.get('address') or '',
                     'resenas': int(x.get('review_count') or 0), 'valoracion': float(x.get('review_rating') or 0),
                     'fuente': 'google_maps', 'origen_dato': 'Google Maps · ficha pública del negocio',
+                    'categorias': [str(k) for k in (x.get('categories') or ([x['category']] if x.get('category') else [])) if k],
                     'extra': {'maps': x.get('link') or '', 'estado_maps': x.get('status') or '', 'horario': x.get('open_hours') or {}},
                 }
             print(f'  Maps · zona {i}/{len(puntos)}: {len(filas)} resultados, {nuevos} nuevos (total {len(out)})')

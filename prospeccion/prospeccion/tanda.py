@@ -10,6 +10,7 @@ Uso:
 """
 import argparse
 import math
+import re
 import csv
 import time
 from pathlib import Path
@@ -210,6 +211,69 @@ def apunta_cobertura(provincia: str, tramo: int) -> None:
     f.write_text(json.dumps(cob, ensure_ascii=False), encoding='utf-8')
 
 
+# Qué cuenta como instaladora solar ANTES de abrir su web (orden de Daniel, 21/10: no gastar en lo que no es del nicho).
+# Por categoría de Google Maps o por el nombre del negocio. Lo dudoso pasa (la web y la IA deciden después).
+_SOLAR_CAT = re.compile(r'solar|fotovolt|placas|paneles|autoconsumo|energ[ií]as? renovable|instalaciones el[eé]ctricas', re.I)
+_SOLAR_NOMBRE = re.compile(r'solar|fotovolt|placas|autoconsumo|renovable', re.I)
+
+
+def prefiltra(cands: list, prov: str, nicho: str) -> list:
+    """Separa lo que encuentra Maps antes de rastrear ninguna web:
+    - ya en el panel o con baja → se salta (no se vuelve a analizar);
+    - no es instaladora solar (ni por categoría ni por nombre) → se archiva con sus datos de Maps para proyectos futuros;
+    - el resto → se analiza (web, filtros e IA) como siempre."""
+    from .motor import exclusiones
+    from .contacto import normaliza_tel
+    from .web import dominio
+    excl = exclusiones()
+    analizar, archivar, ya = [], [], 0
+    for c in cands:
+        tel = normaliza_tel(c.get('telefono') or '')
+        dom = dominio(c.get('web') or '')
+        if (tel and tel in excl['tels']) or (dom and dom in excl['dominios']):
+            ya += 1
+            continue
+        cats = ' '.join(c.get('categorias') or [])
+        if not cats or _SOLAR_CAT.search(cats) or _SOLAR_NOMBRE.search(c.get('empresa') or ''):
+            analizar.append(c)
+        else:
+            archivar.append(c)
+    n = archiva(archivar, prov)
+    print(f'  antes de abrir webs: {ya} ya en el panel · {len(archivar)} no son instaladoras (archivadas, {n} nuevas en el archivo) · {len(analizar)} a analizar')
+    apunta(f'{prov}: {len(analizar)} a analizar de {len(cands)}', f'Ya en el panel: {ya}. Otros sectores archivados para el futuro: {len(archivar)}.', f'{nicho}_{prov}_prefiltro', tipo='espera')
+    return analizar
+
+
+def archiva(cands: list, prov: str) -> int:
+    # Empresas reales de otros sectores: se guardan (sin analizar) en el panel, tabla empresas_archivo, por si hacen falta.
+    import sqlite3
+    db_path = Path.home() / 'domains' / 'pebaisystems.es' / 'private' / 'leads.sqlite'
+    if not cands or not db_path.exists():
+        return 0
+    db = sqlite3.connect(str(db_path), timeout=10)
+    db.execute('PRAGMA busy_timeout = 10000')
+    db.execute('''CREATE TABLE IF NOT EXISTS empresas_archivo (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL, empresa TEXT NOT NULL, categorias TEXT NOT NULL DEFAULT '',
+        telefono TEXT NOT NULL DEFAULT '', web TEXT NOT NULL DEFAULT '', ciudad TEXT NOT NULL DEFAULT '', provincia TEXT NOT NULL DEFAULT '',
+        direccion TEXT NOT NULL DEFAULT '', resenas INTEGER NOT NULL DEFAULT 0, valoracion REAL NOT NULL DEFAULT 0, maps TEXT NOT NULL DEFAULT '',
+        estado_maps TEXT NOT NULL DEFAULT '', origen TEXT NOT NULL DEFAULT 'Google Maps · ficha pública del negocio')''')
+    db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_archivo_unico ON empresas_archivo(empresa, telefono)')
+    ahora = time.strftime('%Y-%m-%d %H:%M:%S')
+    antes = db.total_changes
+    for c in cands:
+        if (c.get('extra') or {}).get('estado_maps', '').upper().startswith('CLOSED'):
+            continue   # cerradas: no sirven ni para el futuro
+        db.execute('INSERT OR IGNORE INTO empresas_archivo (created_at, empresa, categorias, telefono, web, ciudad, provincia, direccion, resenas, valoracion, maps, estado_maps) '
+                   'VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+                   (ahora, c.get('empresa') or '', ' · '.join(c.get('categorias') or []), c.get('telefono') or '', c.get('web') or '', c.get('ciudad') or '',
+                    prov, c.get('direccion') or '', int(c.get('resenas') or 0), float(c.get('valoracion') or 0), (c.get('extra') or {}).get('maps', ''),
+                    (c.get('extra') or {}).get('estado_maps', '')))
+    db.commit()
+    n = db.total_changes - antes
+    db.close()
+    return n
+
+
 def zonas(provincia: str, max_pueblos: int = 30) -> tuple[list, list]:
     """Dónde buscar: la ciudad más grande de la provincia en detalle (cuadrícula de 3×3 zonas de 3 km alrededor de su
     centro) y los siguientes municipios por población (≥ 5.000 hab.). Tabla fija sacada de GeoNames (municipios_es.json):
@@ -268,6 +332,7 @@ def provincia(nicho: str, prov: str) -> Path | None:
             c['nicho_email'] = cfg['nicho_email']
         c['reglas'] = cfg.get('reglas', {})
     print(f'  {len(cands)} candidatos de {prov} ({len(fuera)} de otras provincias, se buscan en la suya)')
+    cands = prefiltra(cands, prov, nicho)
     destino.mkdir(parents=True, exist_ok=True)
     import prospeccion.motor as m
     antes = m.SALIDA
