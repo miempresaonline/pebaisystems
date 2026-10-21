@@ -145,20 +145,69 @@ ORDEN = ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Alicante', 'Málaga', 'M
 PUEBLOS_POR_TRAMO = 60
 
 
-def pueblos_pequenos(provincia: str, tramo: int) -> list:
-    """Vueltas 3+ (21/10: las ciudades de más de 5.000 habitantes ya están casi agotadas): núcleos de 1.000 habitantes o más
-    (municipios_es_1000.json, GeoNames) que no estén a menos de 4 km de los que ya se recorren, de 60 en 60 por vuelta.
-    Cuando se acaban, vuelve a empezar (las búsquedas cambian en cada vuelta)."""
+CELDA_KM = 8   # separación de la cuadrícula que cubre todo el territorio
+_PUNTOS = {}
+
+
+def _km(a_la, a_lo, b_la, b_lo) -> float:
+    return math.hypot((a_la - b_la) * 111, (a_lo - b_lo) * 111 * math.cos(math.radians(a_la)))
+
+
+def puntos_cobertura(provincia: str) -> list:
+    """Todo lo que queda por recorrer de una provincia después de sus ciudades (orden de Daniel, 21/10: «hasta que España se
+    quede sin instaladoras»): 1) los núcleos de 1.000 a 5.000 habitantes que no estén a menos de 4 km de las ciudades ya vistas
+    (GeoNames); 2) una cuadrícula cada 8 km por todo su territorio (polígonos, campo, pueblos pequeños), sin los puntos que ya
+    caen junto a un núcleo. Un punto es de la provincia si el núcleo más cercano de toda España es suyo y está a menos de 20 km."""
+    if provincia in _PUNTOS:
+        return _PUNTOS[provincia]
     import json
-    base = json.loads((Path(__file__).with_name('municipios_es.json')).read_text(encoding='utf-8'))['provincias'].get(provincia) or []
-    todos = json.loads((Path(__file__).with_name('municipios_es_1000.json')).read_text(encoding='utf-8'))['provincias'].get(provincia) or []
-    cerca = lambda la, lo: any(math.hypot((la - b[1]) * 111, (lo - b[2]) * 111 * math.cos(math.radians(la))) < 4 for b in base)
-    nuevos = [(la, lo) for _, la, lo, _ in todos if not cerca(la, lo)]
-    if not nuevos:
+    base_t = json.loads((Path(__file__).with_name('municipios_es.json')).read_text(encoding='utf-8'))['provincias']
+    mil_t = json.loads((Path(__file__).with_name('municipios_es_1000.json')).read_text(encoding='utf-8'))['provincias']
+    base = base_t.get(provincia) or []
+    mil = mil_t.get(provincia) or []
+    pueblos = [(la, lo) for _, la, lo, _ in mil if not any(_km(la, lo, b[1], b[2]) < 4 for b in base)]
+    propios = [(m[1], m[2]) for m in base + mil]
+    if not propios:
+        _PUNTOS[provincia] = pueblos
+        return pueblos
+    todos = [(m[1], m[2], prov) for prov, lista in list(base_t.items()) + list(mil_t.items()) for m in lista]
+    las = [x[0] for x in propios]; los = [x[1] for x in propios]
+    dla = CELDA_KM / 111
+    rejilla = []
+    la = min(las) - 0.15
+    while la <= max(las) + 0.15:
+        dlo = CELDA_KM / (111 * math.cos(math.radians(la)))
+        lo = min(los) - 0.2
+        while lo <= max(los) + 0.2:
+            cerca = min(todos, key=lambda t: _km(la, lo, t[0], t[1]))
+            if cerca[2] == provincia and _km(la, lo, cerca[0], cerca[1]) < 20 and not any(_km(la, lo, a, b) < 5 for a, b in propios):
+                rejilla.append((round(la, 5), round(lo, 5)))
+            lo += dlo
+        la += dla
+    _PUNTOS[provincia] = pueblos + rejilla
+    return _PUNTOS[provincia]
+
+
+def pueblos_pequenos(provincia: str, tramo: int) -> list:
+    """Los puntos de este tramo (60 por vuelta). Al acabar todos, vuelve a empezar con otras búsquedas."""
+    pts = puntos_cobertura(provincia)
+    if not pts:
         return []
-    bloques = math.ceil(len(nuevos) / PUEBLOS_POR_TRAMO)
+    bloques = math.ceil(len(pts) / PUEBLOS_POR_TRAMO)
     i = (tramo - 1) % bloques
-    return nuevos[i * PUEBLOS_POR_TRAMO:(i + 1) * PUEBLOS_POR_TRAMO]
+    return pts[i * PUEBLOS_POR_TRAMO:(i + 1) * PUEBLOS_POR_TRAMO]
+
+
+def apunta_cobertura(provincia: str, tramo: int) -> None:
+    """Cuánto de cada provincia se ha recorrido ya (lo lee el panel para el % de España)."""
+    import json
+    f = SALIDA / 'tandas' / 'cobertura.json'
+    cob = json.loads(f.read_text(encoding='utf-8')) if f.exists() else {}
+    total = max(1, math.ceil(len(puntos_cobertura(provincia)) / PUEBLOS_POR_TRAMO))
+    antes = cob.get(provincia, {}).get('hecho', 0)
+    cob[provincia] = {'hecho': min(total, max(antes, tramo)), 'total': total, 'vueltas': max(cob.get(provincia, {}).get('vueltas', 0), (tramo - 1) // total)}
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_text(json.dumps(cob, ensure_ascii=False), encoding='utf-8')
 
 
 def zonas(provincia: str, max_pueblos: int = 30) -> tuple[list, list]:
@@ -202,7 +251,7 @@ def provincia(nicho: str, prov: str) -> Path | None:
             extra = pueblos_pequenos(prov, cfg['tramo'])
             if extra:
                 cap, pueblos = [], extra
-                print(f'  vuelta de pueblos: {len(extra)} núcleos de 1.000 a 5.000 habitantes (tramo {cfg["tramo"]})')
+                print(f'  vuelta de pueblos y territorio: {len(extra)} puntos (tramo {cfg["tramo"]} de {math.ceil(len(puntos_cobertura(prov)) / PUEBLOS_POR_TRAMO)})')
         print(f'  capital en 9 zonas + {len(pueblos)} municipios')
         cands = google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=cap, paso_km=3.0, zoom=14) if cap else []
         vistos = {c['empresa'] + c['telefono'] for c in cands}
@@ -227,6 +276,8 @@ def provincia(nicho: str, prov: str) -> Path | None:
         guarda(nombre, enriquece(cands, raices(cfg['sector'] + ' ' + cfg['palabras'])), 100000)
     finally:
         m.SALIDA = antes
+    if cfg.get('tramo'):
+        apunta_cobertura(prov, cfg['tramo'])
     importar_panel(destino / f'{nombre}_whatsapp.csv', f'{cfg.get("lote", cfg["sector"])} · {prov}', cfg)
     print(f'  {prov} hecha en {(time.time() - t0) / 60:.0f} min')
     return hecho
@@ -315,6 +366,14 @@ def main():
     if a.nicho == 'solar':
         a.nicho = pasada_solar()
         print(f'Barrido continuo de instaladoras solares: vuelta {a.nicho} · búsquedas: {", ".join(NICHOS[a.nicho]["busquedas"])}')
+        # Para el % de España del panel: todas las provincias con su total, aunque aún no se hayan tocado
+        import json
+        fc = SALIDA / 'tandas' / 'cobertura.json'
+        cob = json.loads(fc.read_text(encoding='utf-8')) if fc.exists() else {}
+        for p in ORDEN:
+            cob.setdefault(p, {'hecho': 0, 'total': max(1, math.ceil(len(puntos_cobertura(p)) / PUEBLOS_POR_TRAMO)), 'vueltas': 0})
+        fc.parent.mkdir(parents=True, exist_ok=True)
+        fc.write_text(json.dumps(cob, ensure_ascii=False), encoding='utf-8')
     if not a.unir:
         lista = a.provincias or ORDEN
         hechas = 0

@@ -513,11 +513,13 @@ function scraperCard(sc) {
   const g = el('div', 'pw-scr-g');
   // 1) por dónde va: anillo de provincias de esta vuelta
   const vu = el('div', 'pw-chart pw-scr-vuelta');
-  const R = 42, C = 2 * Math.PI * R, f = Math.min(1, sc.hechas / (sc.total || 52));
+  // Cuánto de España se ha recorrido (pueblos y territorio entero): al llegar al 100 % ya no quedan instaladoras por encontrar
+  const R = 42, C = 2 * Math.PI * R, f = Math.min(1, (sc.cobertura || 0) / 100);
   const s = sv('svg', { viewBox: '0 0 100 100', class: 'pw-svg' });
-  s.append(sv('circle', { cx: 50, cy: 50, r: R, class: 'track', 'stroke-width': 9 }), sv('circle', { cx: 50, cy: 50, r: R, fill: 'none', stroke: 'var(--ch-wa)', 'stroke-width': 9, 'stroke-linecap': 'round', 'stroke-dasharray': C, 'stroke-dashoffset': C * (1 - f), transform: 'rotate(-90 50 50)' }));
-  s.append(svt({ x: 50, y: 52, class: 'big', 'text-anchor': 'middle' }, `${sc.hechas}/${sc.total}`), svt({ x: 50, y: 68, class: 'ax', 'text-anchor': 'middle' }, 'provincias'));
-  vu.append(el('h3', null, `Vuelta ${sc.vuelta || 1}`), el('p', 'note', sc.pueblos ? 'Pueblos de 1.000 a 5.000 habitantes' : 'Ciudades de más de 5.000'), s);
+  s.append(sv('circle', { cx: 50, cy: 50, r: R, class: 'track', 'stroke-width': 9 }), sv('circle', { cx: 50, cy: 50, r: R, fill: 'none', stroke: 'var(--ch-line)', 'stroke-width': 9, 'stroke-linecap': 'round', 'stroke-dasharray': C, 'stroke-dashoffset': C * (1 - f), transform: 'rotate(-90 50 50)' }));
+  s.append(svt({ x: 50, y: 54, class: 'big', 'text-anchor': 'middle' }, `${sc.cobertura || 0}%`), svt({ x: 50, y: 70, class: 'ax', 'text-anchor': 'middle' }, 'de España'));
+  vu.append(el('h3', null, 'España recorrida'), el('p', 'note', `${sc.prov_completas || 0} de 52 provincias completas · vuelta ${sc.vuelta || 1}: ${sc.hechas}/${sc.total}`), s);
+  vu.title = 'Ciudades, pueblos de más de 1.000 habitantes y una cuadrícula cada 8 km por todo el territorio';
   // 2) hoy: de lo encontrado a la cola
   const hoy = sc.dias[sc.dias.length - 1] || { enc: 0, ent: 0, cola: 0 };
   const fu = el('div', 'pw-chart pw-scr-hoy'); fu.append(el('h3', null, 'Hoy'));
