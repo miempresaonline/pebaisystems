@@ -263,7 +263,7 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
           . 'Sin repetir el primer mensaje: una frase que diga a qué se dedica PEBAI con ellos (que nadie que les pida presupuesto se quede sin respuesta) '
           . 'y UNA pregunta muy fácil de contestar (p. ej. quién lleva los mensajes de presupuesto o si les vendría bien). '
           . 'Nadie lo ha leído aún: NO digas «perdona», «no me expliqué bien» ni nada que suene a corregirles, y no menciones el contestador automático. '
-          . 'Empieza de forma natural y distinta cada vez (p. ej. «Buenos días», «Hola de nuevo», «Hola, ¿qué tal?») y menciona algo de su empresa o su zona si lo sabes. '
+          . 'Empieza de forma natural y distinta cada vez (p. ej. «Buenos días», «Hola de nuevo», «Hola, ¿qué tal?») y, si quieres, nombra su empresa o su ciudad, pero no supongas nada que no sepas (que tienen mucho trabajo, lío, faena…). '
           . 'PROHIBIDO: llamada, reunión, enlaces, plazas, «gratis», cualquier oferta.'
         : ($enlaceDado
         ? 'Ya tiene el enlace para reservar. Resuelve lo que pregunte y, si hace falta, recuérdale con suavidad que puede elegir hora cuando quiera. No repitas el enlace salvo que lo pida (entonces pon ' . PEBAI_CONV_ENLACE . ').'
