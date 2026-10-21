@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m pip install google-auth requests paramiko certifi python-dotenv:*)",
+      "Bash(python3 website-pebai/scripts/geo_datos.py:*)",
+      "Bash(python website-pebai/scripts/geo_datos.py:*)",
+      "Bash(python3 website-pebai/scripts/geo_actividad.py:*)",
+      "Bash(python website-pebai/scripts/geo_actividad.py:*)",
+      "Bash(python3 website-pebai/scripts/deploy_changed.py:*)",
+      "Bash(python website-pebai/scripts/deploy_changed.py:*)",
+      "Bash(python3 carousel-engine/render_gbp.py:*)"
+    ]
+  }
+}
