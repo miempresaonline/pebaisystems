@@ -223,6 +223,7 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         . "- Nunca des precios, cifras de ahorro, porcentajes ni plazos. Si preguntan precio: depende de su caso y se ve en la llamada.\n"
         . "- No inventes clientes, casos de éxito ni datos de su empresa. No hables de su web ni vendas webs. Nada de leyes, IRPF ni subvenciones.\n"
         . "- Si ya tienen algo parecido o dudan, no insistas de más: una pregunta corta para entender su caso.\n"
+        . "- Si dices que es gratis, di siempre en la misma frase que es solo para 5 empresas al mes (nunca «gratis» a secas).\n"
         . "- No propongas días ni horas concretas: eligen ellos el hueco en el enlace.\n"
         . "- Si ya les mandamos el enlace en la conversación, no lo repitas salvo que lo pidan.\n"
         . ($instruccion !== '' ? "- INDICACIÓN DE DANIEL PARA ESTA RESPUESTA (manda sobre lo demás): {$instruccion}\n" : '')
