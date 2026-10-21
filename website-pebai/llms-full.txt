@@ -80,6 +80,10 @@ Más información: https://pebaisystems.es/#equipo
 
 PEBAI Systems trabaja con empresas con equipo de cualquier sector en España: construcción y reformas, instalaciones (placas solares, climatización, electricidad), clínicas, talleres, distribución, inmobiliarias y servicios profesionales, entre otros. Los mismos servicios se adaptan a la operativa de cada una: atención de clientes y solicitudes, presupuestos, partes de trabajo y conexión con los programas que ya usan.
 
+## Guías
+
+- [Cómo aparecer en ChatGPT y en las respuestas de IA de Google](https://pebaisystems.es/posicionamiento-en-ia/): guía para empresas sobre posicionamiento en Inteligencia Artificial (GEO), con lo que vimos en 63 respuestas de IA en España.
+
 ## Contacto
 
 - Email: equipo@pebaisystems.es

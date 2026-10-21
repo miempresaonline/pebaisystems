@@ -13,6 +13,10 @@ Versión ampliada: [llms-full.txt](https://pebaisystems.es/llms-full.txt)
 - [Automatización de procesos](https://pebaisystems.es/#servicios): conexión de los programas que ya usa la empresa para que presupuestos, facturas, pedidos y avisos pasen de uno a otro sin copiar datos a mano.
 - [Formación a equipos](https://pebaisystems.es/#servicios): sesiones prácticas y manuales claros para que el personal use los sistemas con total independencia.
 
+## Guías
+
+- [Cómo aparecer en ChatGPT y en las respuestas de IA de Google](https://pebaisystems.es/posicionamiento-en-ia/): guía para empresas sobre posicionamiento en Inteligencia Artificial (GEO), con lo que vimos en 63 respuestas de IA en España.
+
 ## Cómo empezar
 
 - [Consultoría gratuita](https://pebaisystems.es/consultoria-gratuita/): sesión técnica de 25 minutos por videollamada en pantalla compartida, sin compromiso. Plazas limitadas: solo es gratuita para cinco empresas seleccionadas al mes; cuando se completan, la consultoría es de pago.
