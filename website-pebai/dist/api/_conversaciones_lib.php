@@ -239,6 +239,21 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         $ej .= "Mensaje que escribió Daniel él mismo:\n{$e['texto']}\n---\n";
     }
     $email = $canal === 'email';
+    $q = $db->prepare('SELECT clasificacion FROM conversaciones WHERE canal = ? AND prospecto_id = ?');
+    $q->execute([$canal, (int)$p['id']]);
+    $interes = (string)$q->fetchColumn() === 'interesado';
+    $enlaceDado = str_contains($hilo, '/reservar/?s=');
+    // Por pasos (orden de Daniel, 21/10): 1) ver si le interesa, sin llamada ni enlace; 2) si muestra interés, proponer la llamada
+    // y preguntar si quiere el enlace; 3) el enlace solo cuando lo acepta o lo pide
+    $etapa = $enlaceDado
+        ? 'Ya tiene el enlace para reservar. Resuelve lo que pregunte y, si hace falta, recuérdale con suavidad que puede elegir hora cuando quiera. No repitas el enlace salvo que lo pida (entonces pon ' . PEBAI_CONV_ENLACE . ').'
+        : ($interes
+            ? 'Ha mostrado interés. Responde a lo que pregunta, cuéntale en una o dos frases cómo le ayudaría (dolor + beneficio) y proponle con suavidad una videollamada de 25 minutos '
+              . 'con Adrián o Dani, en la que ve su caso y se lleva un mapa de lo que se puede automatizar y una estimación del ahorro. Pregúntale si le va bien que le pases un enlace para elegir hora. '
+              . 'Pon el enlace (exactamente ' . PEBAI_CONV_ENLACE . ') SOLO si en la conversación ya ha aceptado la llamada o ha pedido el enlace, la cita o hablar.'
+            : 'Aún NO ha mostrado interés. Este mensaje solo busca que entienda qué hacemos y saber si le interesa: dale las gracias por contestar, explica en una frase sencilla cómo le ayudaríamos '
+              . '(que nadie que les escriba pidiendo presupuesto se quede sin respuesta, también fuera de horario) y termina con UNA pregunta abierta y fácil para ver si le interesa. '
+              . 'PROHIBIDO en este mensaje: proponer llamada o reunión, enlaces, plazas, «gratis» o cualquier oferta.');
     $prompt = "Eres Daniel, de PEBAI Systems, una consultora de procesos e Inteligencia Artificial. Escribimos en frío a {$p['empresa']}"
         . ($p['ciudad'] ? " ({$p['ciudad']})" : '') . ", una empresa instaladora de placas solares, y nos han contestado. Escribe la siguiente respuesta de Daniel por "
         . ($email ? 'email' : 'WhatsApp') . ".\n\n"
@@ -246,28 +261,26 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         . "(también fuera de horario y en fin de semana), resuelve dudas, cualifica a los interesados y les agenda la visita. También quitamos tareas manuales "
         . "repetitivas y lo conectamos con los programas que ya usan. Sus dolores típicos: mensajes que se quedan sin contestar fuera de horario, clientes que se van "
         . "a la competencia por tardar, y horas del equipo contestando lo mismo a mano.\n"
-        . "OBJETIVO: que reserven una videollamada de 25 minutos con un experto (les atenderán Adrián o Dani) donde vemos su caso y salen con un mapa técnico de lo "
-        . "que se puede automatizar y una estimación del ahorro. Es gratuita solo para 5 empresas al mes (por tiempo limitado) y este mes quedan plazas. "
-        . "Cuando tenga sentido proponer la llamada, pon exactamente " . PEBAI_CONV_ENLACE . " donde va el enlace para reservar (se cambia solo por el enlace real).\n\n"
-        . "REGLAS:\n- Tutea, tono cercano y profesional, español de España. Ve al grano: "
-        . ($email ? 'máximo 110 palabras, sin firma (se añade sola), sin asunto.' : 'máximo 70 palabras, como un WhatsApp de verdad, sin saludo largo ni firma.') . "\n"
-        . "- Si no han entendido nuestro mensaje o creen que les pedimos presupuesto de placas, acláralo primero en una frase sencilla: no somos clientes, ayudamos a instaladoras como ellos a no perder clientes contestando al momento.
-"
-        . "- Contesta primero a lo que han dicho o preguntado; después dolor + beneficio en una o dos frases y la invitación a la llamada.\n"
-        . "- Nunca des precios, cifras de ahorro, porcentajes ni plazos. Si preguntan precio: depende de su caso y se ve en la llamada.\n"
+        . "CÓMO VAMOS (orden de Daniel, 21/10: con calma, sin prisa por vender): " . $etapa . "\n\n"
+        . "REGLAS:\n- Tutea, tono cercano, amable y profesional, español de España. Breve: "
+        . ($email ? 'máximo 90 palabras, sin firma (se añade sola), sin asunto.' : 'máximo 55 palabras, como un WhatsApp de verdad, sin saludo largo ni firma.') . "\n"
+        . "- Contesta primero a lo que han dicho o preguntado, con naturalidad.\n"
+        . "- Si no han entendido nuestro mensaje o creen que les pedimos presupuesto, acláralo con suavidad y sin corregirles (nada de «nada de…» ni «soy yo quien…»): "
+        . "p. ej. «Perdona, no me expliqué bien: …» y en una frase sencilla qué hacemos por ellos.\n"
+        . "- Nunca des precios, cifras de ahorro, porcentajes ni plazos. Si preguntan precio: depende de su caso.\n"
         . "- No inventes clientes, casos de éxito ni datos de su empresa. No hables de su web ni vendas webs. Nada de leyes, IRPF ni subvenciones.\n"
-        . "- Si ya tienen algo parecido o dudan, no insistas de más: una pregunta corta para entender su caso.\n"
-        . "- Si dices que es gratis, di siempre en la misma frase que es solo para 5 empresas al mes (nunca «gratis» a secas).\n"
-        . "- No propongas días ni horas concretas: eligen ellos el hueco en el enlace.\n"
-        . "- Si ya les mandamos el enlace en la conversación, no lo repitas salvo que lo pidan.\n"
+        . "- Si ya tienen algo parecido o dudan, no insistas: una pregunta corta para entender su caso.\n"
+        . "- Si dices que la llamada es gratis, di siempre en la misma frase que es solo para 5 empresas al mes (nunca «gratis» a secas).\n"
+        . "- No propongas días ni horas concretas: si llega el momento, eligen ellos el hueco en el enlace.\n"
         . ($instruccion !== '' ? "- INDICACIÓN DE DANIEL PARA ESTA RESPUESTA (manda sobre lo demás): {$instruccion}\n" : '')
         . ($ej !== '' ? "\nASÍ ESCRIBE DANIEL (imita su estilo y sus correcciones):\n{$ej}" : '')
         . "\nCONVERSACIÓN HASTA AHORA:\n{$hilo}\nResponde SOLO JSON {\"respuesta\": \"texto del mensaje\"}.";
-    for ($i = 0; $i < 2; $i++) {
+    for ($i = 0; $i < 3; $i++) {
         $r = pebai_ia_json($prompt);
         $t = trim(str_replace("\r", '', (string)($r['respuesta'] ?? '')));
         $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
-        if ($t !== '' && $n <= ($email ? 150 : 100) && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t)) {
+        $prisa = !$interes && !$enlaceDado && preg_match('/' . preg_quote(PEBAI_CONV_ENLACE, '/') . '|videollamada|llamada|reuni[oó]n|25 minutos|gratis|gratuit|plazas/iu', $t);
+        if ($t !== '' && !$prisa && $n <= ($email ? 130 : 85) && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t)) {
             return ['texto' => $t];
         }
     }
