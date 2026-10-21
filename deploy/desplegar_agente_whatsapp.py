@@ -75,13 +75,19 @@ def main():
         print(run(client, f'cd {REMOTO} && npm ci --omit=dev --no-audit --no-fund 2>&1 | tail -3'))
         print('== PM2')
         print(run(client, 'command -v pm2 >/dev/null || npm install -g pm2 --prefix ~/.npm-global 2>&1 | tail -1'))
-        print(run(client, f'cd {REMOTO} && (pm2 describe {NOMBRE} >/dev/null 2>&1 && pm2 restart {NOMBRE} --update-env || pm2 start ecosystem.config.cjs) && pm2 save'))
+        # Reinicio limpio: «pm2 restart» dejaba a veces el bot viejo vivo fuera del control de PM2 y PM2 lanzaba copias que
+        # se paraban por el candado. Se para, se mata cualquier resto (el patrón con ^node no coincide con este shell),
+        # se quita el candado y se arranca uno solo.
+        print(run(client, f'cd {REMOTO} && (pm2 describe {NOMBRE} >/dev/null 2>&1 && pm2 stop {NOMBRE} >/dev/null; '
+                          f'pkill -f "^node {REMOTO}/index[.]js"; sleep 3; pkill -9 -f "^node {REMOTO}/index[.]js"; rm -f agente.pid; '
+                          f'pm2 describe {NOMBRE} >/dev/null 2>&1 && pm2 start {NOMBRE} --update-env || pm2 start ecosystem.config.cjs) && pm2 save'))
 
         # Hostinger no da crontab por SSH: el respaldo tras un reinicio del servidor se crea en hPanel → Avanzado → Cron.
         print('== Cron de respaldo para hPanel (cada 10 min):\n   ' + CRON_HPANEL)
 
         print('\n== Últimos logs')
         print(run(client, f'sleep 8; pm2 logs {NOMBRE} --lines 20 --nostream'))
+        print('\n== Procesos del bot (tiene que haber uno):\n' + run(client, f'ps -eo pid,etime,cmd | grep "^ *[0-9]* *[0-9:-]* node {REMOTO}/index[.]js"'))
         print('\nListo. Abre https://panel.pebaisystems.es/?tab=agentes: si es la primera vez, ahí sale el código para vincular el WhatsApp.')
     finally:
         client.close()

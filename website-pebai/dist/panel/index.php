@@ -294,6 +294,16 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 json_out(['ok' => false, 'error' => 'Horario no válido. Ejemplo: 08:30-13:00, 17:00-20:00'], 400);
             }
             $cfg['ventanas'] = $ventanas;
+            if (isset($_POST['pausa_min'], $_POST['pausa_max'])) {
+                $cfg['pausa_min'] = max(2, min(120, (int)$_POST['pausa_min'])) * 60;
+                $cfg['pausa_max'] = max($cfg['pausa_min'] / 60, min(180, (int)$_POST['pausa_max'])) * 60;
+            }
+            if (isset($_POST['dias'])) {
+                $cfg['dias'] = array_values(array_intersect([1, 2, 3, 4, 5, 6, 7], array_map('intval', (array)$_POST['dias'])));
+                if (!$cfg['dias']) {
+                    json_out(['ok' => false, 'error' => 'Elige al menos un día.'], 400);
+                }
+            }
             // Plantillas por nicho: un cuadro por nicho, variantes separadas por una línea "---" y con su letra delante ("A: …").
             $nichos = [];
             foreach ((array)($_POST['plantillas'] ?? []) as $k => $txt) {
@@ -318,9 +328,12 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 }
             }
             pebai_agentes_db()->prepare("UPDATE agente_estado SET config = ? WHERE agente = 'whatsapp'")
-                ->execute([json_encode(['limite_dia' => $cfg['limite_dia'], 'ventanas' => $cfg['ventanas'], 'nichos' => $nichos], JSON_UNESCAPED_UNICODE)]);
-            pebai_actividad('whatsapp', 'cambio', 'Ajustes cambiados: ' . $cfg['limite_dia'] . ' al día, horario ' . implode(', ', array_map(fn($v) => implode('–', $v), $ventanas)));
-            json_out(['ok' => true]);
+                ->execute([json_encode(['limite_dia' => $cfg['limite_dia'], 'ventanas' => $cfg['ventanas'], 'pausa_min' => $cfg['pausa_min'], 'pausa_max' => $cfg['pausa_max'],
+                                        'dias' => $cfg['dias'], 'nichos' => $nichos ?: (json_decode(pebai_agente('whatsapp')['config'] ?: '{}', true)['nichos'] ?? [])], JSON_UNESCAPED_UNICODE)]);
+            $nd = ['', 'L', 'M', 'X', 'J', 'V', 'S', 'D'];
+            pebai_actividad('whatsapp', 'cambio', 'Ajustes cambiados: ' . $cfg['limite_dia'] . ' al día, ' . implode('', array_map(fn($d) => $nd[$d], $cfg['dias'])) . ', '
+                . implode(', ', array_map(fn($v) => implode('–', $v), $ventanas)) . ', entre ' . ($cfg['pausa_min'] / 60) . ' y ' . ($cfg['pausa_max'] / 60) . ' min entre mensajes');
+            json_out(['ok' => true, 'caben' => pebai_wa_caben($cfg)]);
         /* ---- Empresa › Caja ---- */
         case 'caja_guardar':
             $cdb = pebai_caja_db();
@@ -543,15 +556,49 @@ if ($auth && isset($_GET['agentes'])) {
         $p['id'] = (int)$p['id'];
     }
     unset($p);
-    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'prospectos' => $pros, 'email_prospectos' => $emailPros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
+    // Gráficas: primeros mensajes y respuestas por día y canal (60 días) y en qué punto está cada conversación
+    $q2 = $adb->prepare("SELECT substr(ts, 1, 10) d, agente, sentido, COUNT(*) n FROM agente_mensajes
+                         WHERE ts >= ? AND prospecto_id > 0 AND plantilla NOT IN ('manual', 'respuesta') GROUP BY d, agente, sentido");
+    $q2->execute([date('Y-m-d', strtotime('-59 days'))]);
+    $graf = ['dias' => array_values(array_filter($q2->fetchAll(), fn($r) => $r['sentido'] === 'sale')), 'estados' => []];
+    // Respuestas = empresas que contestan (el día de su primera respuesta), sin contar los contestadores automáticos
+    $q3 = $adb->prepare("SELECT substr(MIN(m.ts), 1, 10) d, m.agente, 'entra' sentido, m.prospecto_id FROM agente_mensajes m
+                         LEFT JOIN conversaciones c ON c.canal = m.agente AND c.prospecto_id = m.prospecto_id
+                         WHERE m.sentido = 'entra' AND m.prospecto_id > 0 AND COALESCE(c.clasificacion, '') <> 'auto' GROUP BY m.agente, m.prospecto_id");
+    try {
+        $q3->execute();
+        $por = [];
+        foreach ($q3->fetchAll() as $r) {
+            if ($r['d'] >= date('Y-m-d', strtotime('-59 days'))) {
+                $k = $r['d'] . '|' . $r['agente'];
+                $por[$k] = ($por[$k] ?? 0) + 1;
+            }
+        }
+        foreach ($por as $k => $n) {
+            [$d, $ag] = explode('|', $k);
+            $graf['dias'][] = ['d' => $d, 'agente' => $ag, 'sentido' => 'entra', 'n' => $n];
+        }
+    } catch (Throwable $e) {
+        pebai_log('GRAFICAS respuestas: ' . $e->getMessage());
+    }
+    try {
+        require_once dirname(__DIR__) . '/api/_conversaciones_lib.php';
+        foreach (pebai_conv_datos() as $f) {
+            $graf['estados'][$f['estado'] === 'pendiente_ia' ? 'pregunta' : $f['estado']] = ($graf['estados'][$f['estado'] === 'pendiente_ia' ? 'pregunta' : $f['estado']] ?? 0) + 1;
+        }
+    } catch (Throwable $e) {
+        pebai_log('GRAFICAS: ' . $e->getMessage());
+    }
+    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'graficas' => $graf, 'prospectos' => $pros, 'email_prospectos' => $emailPros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
               'bajas' => (int)$adb->query('SELECT COUNT(*) FROM bajas')->fetchColumn(),
               'nichos' => $nichosOut, 'stats' => pebai_wa_stats(), 'actividad' => pebai_actividad_ultimas('whatsapp', 150),
               'whatsapp' => ['estado' => $wa['estado'], 'latido_at' => $wa['latido_at'], 'detalle' => $wa['detalle'], 'codigo' => $wa['codigo'], 'pausado' => (int)$wa['pausado'],
                              'enviados_hoy' => pebai_wa_enviados_hoy(), 'limite_dia' => $cfg['limite_dia'], 'ventanas' => $cfg['ventanas'],
+                             'dias' => $cfg['dias'], 'pausa_min' => $cfg['pausa_min'], 'pausa_max' => $cfg['pausa_max'], 'caben' => pebai_wa_caben($cfg),
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '42';
+$v = '43';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">

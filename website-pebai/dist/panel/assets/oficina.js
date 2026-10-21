@@ -127,7 +127,7 @@ function abrirAgente(id) {
   const boton = (cls, t, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'pb-of-btn ' + cls; b.textContent = t; b.onclick = (e) => { e.stopPropagation(); fn(b); }; acts.append(b); };
   const A = a.acciones || {};
   if (A.pausa) boton(a.pausado ? 'primary' : '', a.pausado ? 'Reanudar' : 'Pausar', (b) => accion(A.pausa, { pausado: a.pausado ? '0' : '1' }, a.pausado ? `${a.nombre} reanudado.` : `${a.nombre} en pausa: no enviará nada.`, b));
-  if (A.ajustes) boton('ghost', 'Horario, cupo y mensajes', () => { document.body.classList.add('pb-ag-ajustes'); document.dispatchEvent(new CustomEvent('pb:agview')); setTimeout(() => { const t = document.getElementById('pb-ag-wa'); if (t) t.scrollIntoView({ behavior: 'smooth' }); }, 60); });
+  if (A.ajustes) boton('ghost', 'Control y gráficas', () => { document.body.classList.add('pb-ag-ajustes'); document.dispatchEvent(new CustomEvent('pb:agview')); setTimeout(() => { const t = document.getElementById('pb-ag-wa'); if (t) t.scrollIntoView({ behavior: 'smooth' }); }, 60); });
   if (A.ir) boton('ghost', A.ir === 'email' ? 'Ver su lista de empresas' : 'Ver las empresas', () => { const b = document.querySelector(`#pb-tabs button[data-page="${A.ir}"]`); if (b) b.click(); });
   if (!acts.childElementCount) acts.remove();
   sideIn.querySelectorAll('.pb-of-nav button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); vecino(+b.dataset.d); }; });

@@ -27,6 +27,7 @@ const NUMERO = (process.env.WA_NUMERO || '').replace(/\D/g, '');
 const VINCULO = (process.env.WA_VINCULO || 'qr').toLowerCase();
 const SESION = path.join(DIR, 'sesion');
 const CONTACTADOS_FILE = path.join(DIR, 'contactados.json');
+const ULTIMOS_FILE = path.join(DIR, 'ultimos.json'); // último mensaje de cada chat (ancla para pedir su historial al móvil)
 if (!TOKEN || !NUMERO) {
   console.error('Faltan AGENT_TOKEN o WA_NUMERO en .env');
   process.exit(1);
@@ -128,6 +129,7 @@ async function conectar() {
       log('Conectado a WhatsApp');
       await latido();
       setTimeout(() => fotosPendientes().catch(() => {}), 60e3);
+      setTimeout(() => historialTodos().catch((e) => log('Historial: error', e.message)), 90e3);
     }
     if (connection === 'close') {
       const code = lastDisconnect?.error?.output?.statusCode;
@@ -152,11 +154,12 @@ async function conectar() {
     if (type !== 'notify' && type !== 'append') return;
     for (const m of messages) {
       if (!m.message) continue;
-      // Lo que envía el propio agente ya está registrado: se reconoce por su id y se salta.
-      if (m.key.fromMe && enviadosAgente.has(m.key.id)) continue;
+      // Lo que envía el propio agente ya está registrado: se reconoce por su id y se salta (pero sirve de ancla del historial).
+      if (m.key.fromMe && enviadosAgente.has(m.key.id)) { const t = await telDelChat(m.key); if (t) apuntaUltimo(t, m); continue; }
       if (!m.key.fromMe && type !== 'notify') continue;
       const tel = await telDelChat(m.key);
       if (!tel || !contactados.has(tel)) continue;
+      apuntaUltimo(tel, m);
       const texto = textoDe(m.message);
       if (m.key.fromMe) {
         // Lo que escribe Daniel desde el móvil a una empresa contactada también se guarda, para ver la conversación completa en el panel
@@ -170,8 +173,9 @@ async function conectar() {
     }
   });
   // Historial que manda el móvil cuando se le pide (recuperaHistorial): solo se guardan los mensajes de Daniel que faltan
-  sock.ev.on('messaging-history.set', async ({ messages = [] }) => {
+  sock.ev.on('messaging-history.set', async ({ messages = [], syncType }) => {
     let n = 0;
+    log('Historial recibido del móvil:', messages.length, 'mensajes (tipo ' + syncType + ')');
     for (const m of messages) {
       if (!m.message || !m.key?.fromMe || enviadosAgente.has(m.key.id)) continue;
       const tel = await telDelChat(m.key);
@@ -197,12 +201,34 @@ function textoDe(msg) {
   return msg.conversation || msg.extendedTextMessage?.text || msg.imageMessage?.caption || msg.videoMessage?.caption
     || (msg.audioMessage ? '[nota de voz]' : msg.imageMessage ? '[imagen]' : msg.stickerMessage ? '[sticker]' : msg.documentMessage ? '[documento]' : '[mensaje]');
 }
-// Una vez por chat y arranque: pide al móvil los mensajes anteriores para recuperar lo que Daniel escribió y no se guardó
+// Último mensaje de cada chat contactado: el móvil solo manda historial «anterior a» un mensaje que conozca
+let ultimos = {};
+try { ultimos = JSON.parse(fs.readFileSync(ULTIMOS_FILE, 'utf8')); } catch { /* primera vez */ }
+function apuntaUltimo(tel, m) {
+  const ts = Number(m.messageTimestamp) || Math.floor(Date.now() / 1000);
+  if (ultimos[tel] && ultimos[tel].ts > ts) return;
+  ultimos[tel] = { key: { remoteJid: m.key.remoteJid, fromMe: !!m.key.fromMe, id: m.key.id }, ts };
+  try { fs.writeFileSync(ULTIMOS_FILE, JSON.stringify(ultimos)); } catch { /* nada */ }
+}
+// Pide al móvil los últimos mensajes de un chat para recuperar lo que Daniel escribió y no se guardó. Una vez por chat y arranque.
 const historialPedido = new Set();
 async function recuperaHistorial(tel, m) {
   if (historialPedido.has(tel)) return;
   historialPedido.add(tel);
-  await sock.fetchMessageHistory(50, m.key, Number(m.messageTimestamp) || Math.floor(Date.now() / 1000));
+  const u = m ? { key: m.key, ts: Number(m.messageTimestamp) } : ultimos[tel];
+  // Sin ancla conocida se prueba con «ahora»: el móvil devuelve los mensajes anteriores a ese momento
+  const key = u?.key || { remoteJid: tel + '@s.whatsapp.net', fromMe: true, id: '3EB0' + Date.now().toString(16).toUpperCase() };
+  const ms = (u?.ts ? u.ts + 1 : Math.floor(Date.now() / 1000)) * 1000;
+  await sock.fetchMessageHistory(50, key, ms);
+}
+async function historialTodos() {
+  const tels = [...contactados];
+  for (const tel of tels) {
+    if (estado !== 'conectado') return;
+    await recuperaHistorial(tel).catch((e) => log('Historial de', tel, 'falló:', e.message));
+    await sleep(rand(3e3, 6e3));
+  }
+  log('Historial pedido al móvil para', tels.length, 'chats');
 }
 
 /* --------------------------------------------------- envío como persona --- */

@@ -184,16 +184,14 @@ function drawChat() {
   if (f.web) { const a = el('a', 'pc-btn'); a.href = f.web; a.target = '_blank'; a.rel = 'noopener'; a.append(ICO.ext(), el('span', null, 'Web')); links.append(a); }
   if (f.canal === 'whatsapp') { const a = el('a', 'pc-btn wa'); a.href = 'https://wa.me/' + String(f.contacto).replace(/\D/g, ''); a.target = '_blank'; a.rel = 'noopener'; a.append(ICO.wa(), el('span', null, 'Abrir en WhatsApp')); links.append(a); }
   else { const a = el('a', 'pc-btn'); a.href = 'mailto:' + f.contacto; a.append(ICO.mail(), el('span', null, 'Escribir email')); links.append(a); }
-  const rb = el('button', 'pc-btn main', null); rb.type = 'button'; rb.append(ICO.cal(), el('span', null, f.reserva ? 'Copiar enlace de reserva' : 'Crear enlace de reserva'));
+  // Enlace de reserva de esta empresa: se ve aquí y va metido en la respuesta (no hay que copiarlo a mano)
+  const rb = el('button', 'pc-btn', null); rb.type = 'button'; rb.title = 'Copiar el enlace';
+  rb.append(ICO.cal(), el('span', null, f.reserva ? 'Copiar enlace' : 'Crear enlace de reserva'));
   rb.onclick = async () => {
-    try {
-      const url = f.reserva || (await post('conv_reserva', { canal: f.canal, id: f.id })).url;
-      await navigator.clipboard.writeText(url).catch(() => {});
-      toast('Enlace de reserva copiado: pégalo en la conversación.');
-      await load(); draw();
-    } catch (e) { toast(e.message, true); }
+    try { const url = await enlace(f); await navigator.clipboard.writeText(url).catch(() => {}); toast('Enlace copiado.'); drawChat(); } catch (e) { toast(e.message, true); }
   };
   links.append(rb);
+  if (f.reserva) { const a = el('a', 'pc-enlace', f.reserva.replace(/^https?:\/\//, '')); a.href = f.reserva; a.target = '_blank'; a.rel = 'noopener'; a.title = 'Su enlace para reservar la llamada'; links.append(a); }
   // Estado: lo pone la IA al leer la respuesta (no se cambia a mano)
   const est = el('div', 'pc-dest'); est.append(el('small', null, 'Estado (lo pone la IA al leer la respuesta)'));
   const seg = el('div', 'pc-seg'); seg.append(pill(f.estado)); if (f.resumen) seg.append(el('span', 'pc-resumen', f.resumen));
@@ -226,22 +224,43 @@ function drawChat() {
 }
 
 /* ============ responder (la IA propone, Daniel aprueba) ============ */
+const ENLACE = '[ENLACE_RESERVA]';
+async function enlace(f) {
+  if (!f.reserva) { const r = await post('conv_reserva', { canal: f.canal, id: f.id }); f.reserva = r.url; f.lead_id = r.lead_id; }
+  return f.reserva;
+}
 function responder(f) {
   const box = el('div', 'pc-resp');
   if (f.estado === 'no_interesado') { box.append(el('p', 'pc-resp-no', 'No quiere más mensajes: aquí no se le contesta.')); return box; }
   const via = f.canal === 'email' ? 'email' : 'WhatsApp';
   box.append(el('small', null, f.borrador ? 'Respuesta preparada por la IA · revísala y envíala' : 'Responder por ' + via));
-  const ta = el('textarea'); ta.value = f.borrador || ''; ta.rows = 5;
+  const ta = el('textarea'); ta.value = (f.borrador || '').split(ENLACE).join(f.reserva || ENLACE); ta.rows = 5;
+  // Si la IA propone la llamada, el enlace real de la empresa va ya escrito en el mensaje
+  if (ta.value.includes(ENLACE)) enlace(f).then((u) => { ta.value = ta.value.split(ENLACE).join(u); drawLinks(); }).catch(() => {});
+  const drawLinks = () => { if (ui.abierta === f.k && !$('.pc-enlace', drawer)) { const a = el('a', 'pc-enlace', f.reserva.replace(/^https?:\/\//, '')); a.href = f.reserva; a.target = '_blank'; a.rel = 'noopener'; $('.pc-links', drawer)?.append(a); } };
   ta.placeholder = f.te_toca ? 'La IA está preparando la respuesta (tarda unos minutos). También puedes pedirla ya con «Otra versión» o escribirla tú.' : 'Escribe aquí tu mensaje o pide uno a la IA con «Otra versión».';
-  const nota = el('p', 'pc-resp-nota', '[ENLACE_RESERVA] se cambia solo por su enlace para reservar la llamada.' + (f.canal === 'email' ? ' La firma y la opción de no recibir más se añaden solas.' : ''));
+  const nota = el('p', 'pc-resp-nota', f.canal === 'email' ? 'La firma y la opción de no recibir más se añaden solas.' : '');
   const fila = el('div', 'pc-resp-fila');
   const ins = el('input'); ins.type = 'text'; ins.placeholder = 'Indicación para la IA (opcional): más corto, pregunta por su equipo…'; ins.maxLength = 300;
+  const pon = el('button', 'pc-btn', null); pon.type = 'button'; pon.append(ICO.cal(), el('span', null, 'Poner enlace'));
+  pon.title = 'Añade su enlace de reserva al mensaje';
+  pon.onclick = async () => {
+    try {
+      const u = await enlace(f);
+      if (ta.value.includes(u)) { toast('El enlace ya está en el mensaje.'); return; }
+      const p = ta.selectionStart ?? ta.value.length;
+      ta.value = ta.value.slice(0, p).replace(/\s*$/, ' ') + u + ta.value.slice(p); drawLinks();
+    } catch (e) { toast(e.message, true); }
+  };
   const otra = el('button', 'pc-btn', null); otra.type = 'button'; otra.append(el('span', null, f.borrador ? 'Otra versión' : 'Que la escriba la IA'));
   const env = el('button', 'pc-btn main', null); env.type = 'button'; env.append(f.canal === 'email' ? ICO.mail() : ICO.wa(), el('span', null, 'Enviar por ' + via));
   const ocupado = (on, b, txt) => { otra.disabled = env.disabled = on; if (b) $('span', b).textContent = txt; };
   otra.onclick = async () => {
     const antes = $('span', otra).textContent; ocupado(true, otra, 'Escribiendo…');
-    try { const r = await post('conv_borrador', { canal: f.canal, id: f.id, instruccion: ins.value }); ta.value = r.texto; f.borrador = r.texto; ins.value = ''; }
+    try {
+      const r = await post('conv_borrador', { canal: f.canal, id: f.id, instruccion: ins.value }); f.borrador = r.texto; ins.value = '';
+      ta.value = r.texto.includes(ENLACE) ? r.texto.split(ENLACE).join(await enlace(f)) : r.texto; drawLinks();
+    }
     catch (e) { toast(e.message, true); }
     ocupado(false, otra, antes);
   };
@@ -254,7 +273,7 @@ function responder(f) {
       await load(); draw();
     } catch (e) { toast(e.message, true); ocupado(false, env, 'Enviar por ' + via); }
   };
-  fila.append(ins, otra);
+  fila.append(ins, otra, pon);
   box.append(ta, nota, fila, env);
   return box;
 }

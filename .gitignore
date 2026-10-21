@@ -40,6 +40,7 @@ assets/clients/
 # Sesión de WhatsApp del agente y números contactados (solo en el servidor)
 agente-whatsapp/sesion/
 agente-whatsapp/contactados.json
+agente-whatsapp/ultimos.json
 agente-whatsapp/agente.pid
 # Prospección: binarios descargados (scraper de gosom) y caché local
 prospeccion/bin/
@@ -94,3 +95,6 @@ desktop.ini
 # Configuración privada del embudo (SMTP, panel)
 website-pebai/private/*
 !website-pebai/private/config.example.php
+
+# Informes del modo Audit de design-motion-principles
+motion-audits/

@@ -397,27 +397,11 @@ function drawAgentes() {
   card.append(stats);
   box.append(card);
 
-  // Actividad de 30 días + últimos mensajes
-  const body = el('div', 'pb-agent-body');
-  const act = el('div', 'pb-card');
-  act.append(el('h2', null, 'Actividad · 30 días'), el('p', 'note', 'Mensajes enviados (violeta) y respuestas (lima) por día. Fines de semana y festivos, en reposo.'));
-  const bars = el('div', 'pb-bars'); const dias = [];
-  for (let i = 29; i >= 0; i--) { const d = new Date(S.ahora); d.setDate(d.getDate() - i); dias.push(d); }
-  const k = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  const val = (d, s) => Number(((S.por_dia || []).find((x) => x.d === k(d) && x.sentido === s) || {}).n || 0);
-  const max = Math.max(5, ...dias.map((d) => val(d, 'sale') + val(d, 'entra')));
-  dias.forEach((d, i) => {
-    const o = val(d, 'sale'), n = val(d, 'entra'); const c = el('div', i === 29 ? 'hoy' : '');
-    c.dataset.t = `${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()]}: ${o} enviados · ${n} respuestas`;
-    if (n) { const b = el('i', 'in'); b.style.height = (n / max * 100) + '%'; b.style.animationDelay = i * 15 + 'ms'; c.append(b); }
-    const b = el('i'); b.style.height = (o / max * 100) + '%'; b.style.animationDelay = i * 15 + 'ms'; if (!o) b.style.opacity = '.25'; c.append(b);
-    bars.append(c);
-  });
-  const axis = el('div', 'pb-axis'); axis.append(el('span', null, `${dias[0].getDate()} ${MESES[dias[0].getMonth()]}`), el('span', null, 'hoy'));
-  act.append(bars, axis);
+  box.append(controlCard(w));
+  box.append(rendimientoCard());
 
   const feedC = el('div', 'pb-card');
-  feedC.append(el('h2', null, 'Últimos mensajes'), el('p', 'note', 'Lo que ha enviado el agente y lo que han contestado. Contestas tú desde el móvil.'));
+  feedC.append(el('h2', null, 'Últimos mensajes'), el('p', 'note', 'Lo que ha enviado el agente y lo que han contestado. Las respuestas se aprueban en Captación › Conversaciones.'));
   const feed = el('div', 'pb-feed');
   const ms = (S.mensajes || []).slice(0, 60);
   if (!ms.length) feed.append(el('div', 'pb-empty', 'Todavía no ha enviado nada.'));
@@ -429,40 +413,229 @@ function drawAgentes() {
     c.append(h, el('div', 'bub', m.texto)); it.append(av, c); feed.append(it);
   });
   feedC.append(feed);
-  body.append(act, feedC);
+  const body = el('div', 'pb-agent-body');
+  body.append(feedC, registroCard());
   box.prepend(queHace(w));
   box.append(body);
-  box.append(statsCard());
-  box.append(registroCard());
-  box.append(configCard(w));
 }
 
 /* Qué hace el agente, en una frase. */
+const NOMDIA = ['', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+const diasTxt = (d) => { const a = (d || []).map(Number).sort(); return a.join() === '1,2,3,4,5' ? 'de lunes a viernes' : a.map((x) => NOMDIA[x]).join(', '); };
 function queHace(w) {
   const v = (w.ventanas || []).map((x) => x.join('–')).join(' y ');
-  const nichos = (S.nichos || []).map((n) => n.nombre + ' (' + Object.keys(n.plantillas || {}).join(' / ') + ')').join(', ');
-  return el('p', 'pw-que', `Cada día laborable (${v}) escribe a un máximo de ${w.limite_dia} empresas, una a una, como Daniel y con pausas de persona. `
-    + `Solo manda el primer mensaje: si contestan, te avisa y contestas tú. A quien no contesta no le vuelve a escribir. `
-    + `Elige el mensaje según el nicho y reparte las variantes a partes iguales para ver cuál funciona: ${nichos}.`);
+  const dt = diasTxt(w.dias);
+  return el('p', 'pw-que', `${dt[0].toUpperCase() + dt.slice(1)} (${v}) escribe a un máximo de ${w.limite_dia} empresas nuevas, una a una, como Daniel, `
+    + `con un mensaje propio para cada una que la IA escribe después de leer su web, y espera entre ${Math.round((w.pausa_min || 240) / 60)} y ${Math.round((w.pausa_max || 1800) / 60)} minutos al azar entre un mensaje y otro. `
+    + 'Si contestan, la IA te deja la respuesta preparada en Conversaciones y sale cuando tú la apruebas. A quien no contesta no le vuelve a escribir.');
 }
 
-/* Qué mensaje funciona mejor: resultados por plantilla (nicho y variante). */
-function statsCard() {
-  const c = el('div', 'pb-card pw-card');
-  c.append(el('h2', null, 'Qué mensaje funciona mejor'), el('p', 'note', 'Por cada plantilla: a cuántos se ha enviado y cuántos han contestado. Con menos de 50 envíos por variante las diferencias aún no significan nada.'));
-  const st = S.stats || [];
-  if (!st.length) { c.append(el('div', 'pb-empty', 'Todavía no se ha enviado ningún mensaje con plantilla.')); return c; }
-  const nombre = (k) => { const [n, v] = String(k).split('-'); const ni = (S.nichos || []).find((x) => x.clave === n); return (ni ? ni.nombre : n) + ' · ' + (v || ''); };
-  const t = el('table', 'pb-table'); const th = el('thead'); const hr = el('tr');
-  ['Plantilla', 'Enviados', 'Respondieron', '% respuesta', 'Bajas', 'Sin WhatsApp'].forEach((h, i) => { const x = el('th', i ? 'n' : '', h); hr.append(x); });
-  th.append(hr); const tb = el('tbody');
-  st.forEach((r) => {
-    const tr = el('tr'); const env = Number(r.enviados), resp = Number(r.respondieron);
-    [nombre(r.plantilla), N(env), N(resp), pct(resp, env), N(Number(r.bajas)), N(Number(r.sin_whatsapp))].forEach((v, i) => tr.append(el('td', i ? 'n' : 'k', v)));
-    tb.append(tr);
+/* ============ control del agente: cupo, días, horario y espera al azar ============ */
+function controlCard(w) {
+  const c = el('div', 'pb-card pw-ctl');
+  c.append(el('h2', null, 'Control del agente'), el('p', 'note', 'Cuántas empresas nuevas al día, qué días, en qué horario y cuánto espera entre un mensaje y otro. El momento exacto se elige al azar dentro de ese margen, repartido para llegar al cupo. Las respuestas que apruebas no cuentan.'));
+  const d = ui.ctl || (ui.ctl = { limite: w.limite_dia, dias: (w.dias || [1, 2, 3, 4, 5]).map(Number), ventanas: (w.ventanas || []).map((v) => v.join('-')).join(', '),
+    min: Math.round((w.pausa_min || 240) / 60), max: Math.round((w.pausa_max || 1800) / 60), cambiado: false });
+  const f = el('form', 'pw-ctl-f');
+  // Cupo: deslizador + número
+  const cl = el('label', 'pb-field'); cl.append(el('span', null, 'Mensajes nuevos al día'));
+  const fila = el('div', 'pw-ctl-row'); const rg = el('input'); rg.type = 'range'; rg.min = 0; rg.max = 60; rg.value = Math.min(60, d.limite);
+  const nm = el('input'); nm.type = 'number'; nm.min = 0; nm.max = 200; nm.value = d.limite;
+  fila.append(rg, nm); cl.append(fila);
+  // Días
+  const dl = el('div', 'pb-field'); dl.append(el('span', null, 'Días'));
+  const chips = el('div', 'pw-ctl-dias');
+  ['L', 'M', 'X', 'J', 'V', 'S', 'D'].forEach((t, i) => {
+    const b = el('button', d.dias.includes(i + 1) ? 'on' : '', t); b.type = 'button'; b.title = NOMDIA[i + 1];
+    b.onclick = () => { d.dias = d.dias.includes(i + 1) ? d.dias.filter((x) => x !== i + 1) : [...d.dias, i + 1].sort(); b.classList.toggle('on'); cambia(); };
+    chips.append(b);
   });
-  t.append(th, tb); const sc = el('div', 'pb-scroll'); sc.append(t); c.append(sc);
+  dl.append(chips);
+  // Horario
+  const hl = el('label', 'pb-field'); hl.append(el('span', null, 'Horario'));
+  const hi = el('input'); hi.value = d.ventanas; hi.placeholder = '08:30-13:00, 17:00-20:00'; hl.append(hi);
+  // Espera entre mensajes
+  const el2 = el('div', 'pb-field'); el2.append(el('span', null, 'Espera entre mensajes, al azar'));
+  const pr = el('div', 'pw-ctl-row');
+  const mi = el('input'); mi.type = 'number'; mi.min = 2; mi.max = 120; mi.value = d.min; mi.title = 'Mínimo (minutos)';
+  const ma = el('input'); ma.type = 'number'; ma.min = 2; ma.max = 180; ma.value = d.max; ma.title = 'Máximo (minutos)';
+  pr.append(el('small', null, 'entre'), mi, el('small', null, 'y'), ma, el('small', null, 'min'));
+  el2.append(pr);
+  // Simulación en directo: ¿cabe el cupo?
+  const sim = el('div', 'pw-ctl-sim');
+  const save = btn('primary', null, 'Guardar'); save.type = 'submit';
+  const deshacer = btn('ghost', null, 'Descartar', () => { ui.ctl = null; drawAgentes(); });
+  const pie = el('div', 'pw-ctl-pie'); pie.append(sim, deshacer, save);
+  const minutosVentana = () => d.ventanas.split(/[,\n]+/).reduce((a, t) => {
+    const m = t.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
+    return m ? a + Math.max(0, (m[3] * 60 + Number(m[4])) - (m[1] * 60 + Number(m[2]))) : a;
+  }, 0);
+  function pinta() {
+    const mins = minutosVentana(); const caben = d.min > 0 ? Math.floor(mins / (d.min + 1.5)) + 1 : 0;
+    const media = d.limite > 1 ? mins / d.limite : mins;
+    sim.textContent = ''; sim.classList.remove('mal');
+    const mal = (b, x) => { sim.classList.add('mal'); sim.append(el('b', null, b)); if (x) sim.append(el('span', null, ' ' + x)); };
+    if (!mins) mal('Horario no válido.', 'Ejemplo: 08:30-13:00, 17:00-20:00');
+    else if (d.min < 2 || d.max < 2) mal('La espera mínima es de 2 minutos.');
+    else if (d.min > d.max) mal('El mínimo es mayor que el máximo.');
+    else if (!d.dias.length) mal('Elige al menos un día.');
+    else if (caben < d.limite) mal(`No caben ${d.limite}: con ${d.min} min de espera mínima, en ${Math.round(mins / 6) / 10} h caben unos ${caben}.`, 'Baja la espera mínima, amplía el horario o baja el cupo.');
+    else {
+      const tope = Math.min(d.max, Math.max(d.min, Math.round(2 * media - d.min)));
+      sim.append(el('b', null, `${d.limite} al día · uno cada ~${Math.round((d.min + tope) / 2)} min de media`), el('span', null, ` (al azar entre ${d.min} y ${tope} min) · ${diasTxt(d.dias)}`));
+    }
+    save.disabled = sim.classList.contains('mal') || !d.cambiado; deshacer.hidden = !d.cambiado;
+  }
+  function cambia() { d.cambiado = true; pinta(); }
+  rg.oninput = () => { d.limite = Number(rg.value); nm.value = rg.value; cambia(); };
+  nm.oninput = () => { d.limite = Math.max(0, Number(nm.value) || 0); rg.value = Math.min(60, d.limite); cambia(); };
+  hi.oninput = () => { d.ventanas = hi.value; cambia(); };
+  mi.oninput = () => { d.min = Number(mi.value) || 0; cambia(); };
+  ma.oninput = () => { d.max = Number(ma.value) || 0; cambia(); };
+  f.append(cl, dl, hl, el2, pie);
+  f.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fd = new URLSearchParams(); fd.set('limite_dia', d.limite); fd.set('ventanas', d.ventanas); fd.set('pausa_min', d.min); fd.set('pausa_max', d.max);
+    d.dias.forEach((x) => fd.append('dias[]', x));
+    post('agente_config', fd, save).then(() => { ui.ctl = null; toast('Guardado. El agente lo usa desde el siguiente mensaje.'); refrescar(); }).catch((er) => toast(er.message, true));
+  });
+  c.append(f); pinta();
   return c;
+}
+
+/* ============ rendimiento: columnas por día, estado de las conversaciones y curva de respuestas ============ */
+const CANAL = { whatsapp: ['WhatsApp', 'var(--ch-wa)'], email: ['Email', 'var(--ch-em)'] };
+const ESTADOS = [['sin_respuesta', 'Sin respuesta', '#6F7189'], ['pregunta', 'Contestó', '#3FD5FF'], ['interesado', 'Interesado', '#B7FF3C'], ['cita', 'Cita', '#25D366'],
+  ['auto', 'Contestador', '#9A9CB0'], ['no_interesado', 'No interesado', '#FF6B7A']];
+const sv = (tag, attrs) => { const e = document.createElementNS('http://www.w3.org/2000/svg', tag); Object.entries(attrs || {}).forEach(([k, v]) => e.setAttribute(k, v)); return e; };
+const svt = (attrs, txt) => { const t = sv('text', attrs); t.textContent = txt; return t; };
+const kdia = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const fdia = (d) => `${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()]}`;
+function tip(box) {
+  const t = el('div', 'pw-tip'); box.append(t);
+  return {
+    show(x, y, lines) { t.textContent = ''; lines.forEach((l, i) => t.append(el(i ? 'span' : 'b', null, l))); t.style.left = x + 'px'; t.style.top = y + 'px'; t.classList.add('on'); },
+    hide() { t.classList.remove('on'); },
+  };
+}
+function ultimosDias(n) { const out = []; for (let i = n - 1; i >= 0; i--) { const d = new Date(S.ahora); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - i); out.push(d); } return out; }
+function serie(n) {
+  const G = (S.graficas && S.graficas.dias) || [];
+  const v = (d, ag, se) => Number((G.find((x) => x.d === kdia(d) && x.agente === ag && x.sentido === se) || {}).n || 0);
+  return ultimosDias(n).map((d) => ({ d, wa: v(d, 'whatsapp', 'sale'), em: v(d, 'email', 'sale'), resp: v(d, 'whatsapp', 'entra') + v(d, 'email', 'entra') }));
+}
+function leyenda(items, cls) {
+  const l = el('div', 'pw-leg' + (cls ? ' ' + cls : ''));
+  items.forEach(([t, c, v]) => { const i = el('span'); const dot = el('i'); dot.style.background = c; i.append(dot, el('span', null, t)); if (v != null) i.append(el('b', null, v)); l.append(i); });
+  return l;
+}
+function ejeY(s, W, L, Y, paso) {
+  for (let k = 0; k <= 4; k++) { const y = Y(k * paso); s.append(sv('line', { x1: L, x2: W, y1: y, y2: y, class: 'grid' }), svt({ x: L - 6, y: y + 3, class: 'ax', 'text-anchor': 'end' }, k * paso)); }
+}
+
+function rendimientoCard() {
+  const c = el('div', 'pb-card pw-rend');
+  const hd = el('div', 'pw-rend-h'); hd.append(el('h2', null, 'Rendimiento'));
+  const per = el('div', 'pb-subtabs'); ui.rdias = ui.rdias || 30;
+  [[14, '14 días'], [30, '30 días'], [60, '60 días']].forEach(([n, t]) => { const b = el('button', ui.rdias === n ? 'on' : '', t); b.type = 'button'; b.onclick = () => { ui.rdias = n; drawAgentes(); }; per.append(b); });
+  hd.append(per); c.append(hd);
+  const data = serie(ui.rdias);
+  const g = el('div', 'pw-rend-g');
+  g.append(columnas(data), donut(), curva(data));
+  c.append(g);
+  return c;
+}
+
+function columnas(data) {
+  const box = el('div', 'pw-chart pw-cols');
+  const twa = data.reduce((a, x) => a + x.wa, 0), tem = data.reduce((a, x) => a + x.em, 0);
+  box.append(el('h3', null, 'Primeros mensajes por día'), el('p', 'note', `${N(twa + tem)} en ${data.length} días · las respuestas que apruebas no cuentan`));
+  box.append(leyenda([['WhatsApp', CANAL.whatsapp[1], N(twa)], ['Email', CANAL.email[1], N(tem)]]));
+  const W = 640, H = 200, L = 30, B = 22, T = 8;
+  const paso = Math.max(1, Math.ceil(Math.max(4, ...data.map((x) => x.wa + x.em)) / 4)); const top = paso * 4;
+  const Y = (v) => T + (H - B - T) * (1 - v / top);
+  const s = sv('svg', { viewBox: `0 0 ${W} ${H}`, class: 'pw-svg', role: 'img', 'aria-label': 'Primeros mensajes enviados por día, WhatsApp y email' });
+  ejeY(s, W, L, Y, paso);
+  const bw = (W - L) / data.length; const t = tip(box);
+  const cada = Math.ceil(data.length / 7);
+  data.forEach((x, i) => {
+    const gx = L + i * bw; const w = Math.max(2, bw * 0.68); const x0 = gx + (bw - w) / 2; const r = Math.min(4, w / 2);
+    let base = H - B;
+    const capas = [['wa', CANAL.whatsapp[1], x.wa], ['em', CANAL.email[1], x.em]].filter((c) => c[2]);
+    capas.forEach(([, col, n], j) => {
+      const h = (H - B - T) * n / top; const yy = base - h + (j ? 2 : 0);   // 2 px de separación entre capas
+      const arriba = j === capas.length - 1;
+      const d = arriba ? `M${x0},${base} V${yy + r} Q${x0},${yy} ${x0 + r},${yy} H${x0 + w - r} Q${x0 + w},${yy} ${x0 + w},${yy + r} V${base} Z` : `M${x0},${base} V${yy} H${x0 + w} V${base} Z`;
+      s.append(sv('path', { d, fill: col, class: 'bar' })); base -= h;
+    });
+    if (!capas.length) s.append(sv('rect', { x: x0, y: H - B - 2, width: w, height: 2, rx: 1, class: 'cero' }));
+    if (i === data.length - 1 || (i % cada === 0 && i < data.length - cada / 2)) s.append(svt({ x: gx + bw / 2, y: H - 6, class: 'ax', 'text-anchor': 'middle' }, i === data.length - 1 ? 'hoy' : `${x.d.getDate()} ${MESES[x.d.getMonth()]}`));
+    const hit = sv('rect', { x: gx, y: 0, width: bw, height: H - B, class: 'hit' });
+    hit.addEventListener('mouseenter', () => { const rc = s.getBoundingClientRect(); t.show((gx + bw / 2) / W * rc.width, 8, [fdia(x.d), `WhatsApp: ${x.wa}`, `Email: ${x.em}`, `Empresas que contestaron: ${x.resp}`]); hit.classList.add('on'); });
+    hit.addEventListener('mouseleave', () => { t.hide(); hit.classList.remove('on'); });
+    s.append(hit);
+  });
+  box.append(s); return box;
+}
+
+function donut() {
+  const box = el('div', 'pw-chart pw-donut');
+  const E = (S.graficas && S.graficas.estados) || {};
+  const rows = ESTADOS.map(([k, t, c]) => [k, t, c, Number(E[k] || 0)]).filter((r) => r[3]);
+  const tot = rows.reduce((a, r) => a + r[3], 0);
+  box.append(el('h3', null, 'Cómo van las conversaciones'), el('p', 'note', 'Cada empresa escrita, según lo último que ha pasado'));
+  const wrap = el('div', 'pw-donut-w');
+  const R = 62, C = 2 * Math.PI * R;
+  const s = sv('svg', { viewBox: '0 0 160 160', class: 'pw-svg', role: 'img', 'aria-label': 'Estado de las conversaciones' });
+  s.append(sv('circle', { cx: 80, cy: 80, r: R, class: 'track' }));
+  let acc = 0; const segs = {};
+  rows.forEach(([k, , col, n]) => {
+    const len = C * n / tot; const gap = rows.length > 1 ? Math.min(3, len / 2) : 0;
+    const ci = sv('circle', { cx: 80, cy: 80, r: R, fill: 'none', stroke: col, 'stroke-width': 18, 'stroke-dasharray': `${Math.max(0.5, len - gap)} ${C}`, 'stroke-dashoffset': -acc, transform: 'rotate(-90 80 80)', class: 'seg' });
+    segs[k] = ci; s.append(ci); acc += len;
+  });
+  s.append(svt({ x: 80, y: 82, class: 'big', 'text-anchor': 'middle' }, N(tot)), svt({ x: 80, y: 100, class: 'ax', 'text-anchor': 'middle' }, 'conversaciones'));
+  const leg = el('div', 'pw-leg col');
+  rows.forEach(([k, t, col, n]) => {
+    const i = el('span'); const dot = el('i'); dot.style.background = col; i.append(dot, el('span', null, t), el('b', null, `${N(n)} · ${pct(n, tot)}`)); leg.append(i);
+    const on = (v) => { Object.entries(segs).forEach(([kk, x]) => x.classList.toggle('dim', v && kk !== k)); i.classList.toggle('on', v); };
+    [i, segs[k]].forEach((x) => { x.addEventListener('mouseenter', () => on(true)); x.addEventListener('mouseleave', () => on(false)); });
+  });
+  if (!tot) leg.append(el('div', 'pb-empty', 'Aún no se ha escrito a nadie.'));
+  wrap.append(s, leg); box.append(wrap); return box;
+}
+
+function curva(data) {
+  // Estilo «trading»: respuestas acumuladas del periodo; al pasar el ratón, la tasa de respuesta en ese punto
+  const box = el('div', 'pw-chart pw-curva');
+  let se = 0, sr = 0; const pts = data.map((x) => { se += x.wa + x.em; sr += x.resp; return { d: x.d, env: se, resp: sr, dia: x.resp }; });
+  const fin = pts[pts.length - 1];
+  const semana = pts.slice(-7).reduce((a, p) => a + p.dia, 0);
+  const h = el('div', 'pw-curva-h');
+  const hl = el('div'); hl.append(el('h3', null, 'Empresas que han contestado'), el('p', 'note', `Tasa de respuesta del periodo: ${pct(fin.resp, fin.env)} (${N(fin.resp)} de ${N(fin.env)} escritas)`));
+  const big = el('div', 'pw-ticker'); big.append(el('b', null, N(fin.resp)), el('em', semana ? 'up' : '', (semana ? '▲ +' : '') + N(semana) + ' en 7 días'));
+  h.append(hl, big); box.append(h);
+  const W = 1000, H = 190, L = 30, B = 22, T = 10;
+  const paso = Math.max(1, Math.ceil(Math.max(4, fin.resp) / 4)); const top = paso * 4;
+  const X = (i) => L + (W - L - 4) * (pts.length > 1 ? i / (pts.length - 1) : 0.5); const Y = (v) => T + (H - B - T) * (1 - v / top);
+  const s = sv('svg', { viewBox: `0 0 ${W} ${H}`, class: 'pw-svg', role: 'img', 'aria-label': 'Respuestas acumuladas en el periodo' });
+  const defs = sv('defs'); const lg = sv('linearGradient', { id: 'pw-area', x1: 0, x2: 0, y1: 0, y2: 1 });
+  lg.append(sv('stop', { offset: 0, class: 'a0' }), sv('stop', { offset: 1, class: 'a1' })); defs.append(lg); s.append(defs);
+  ejeY(s, W, L, Y, paso);
+  let dl = `M${X(0)},${Y(pts[0].resp)}`; pts.forEach((p, i) => { if (i) dl += ` H${X(i)} V${Y(p.resp)}`; });   // escalones: sube el día que llega una respuesta
+  s.append(sv('path', { d: `${dl} V${H - B} H${X(0)} Z`, fill: 'url(#pw-area)' }), sv('path', { d: dl, class: 'line' }));
+  [0, Math.floor((pts.length - 1) / 2), pts.length - 1].forEach((i, n) => s.append(svt({ x: X(i), y: H - 6, class: 'ax', 'text-anchor': ['start', 'middle', 'end'][n] }, n === 2 ? 'hoy' : `${pts[i].d.getDate()} ${MESES[pts[i].d.getMonth()]}`)));
+  const cross = sv('line', { y1: T, y2: H - B, class: 'cross' }); const dot = sv('circle', { r: 5, class: 'dot' }); s.append(cross, dot);
+  const t = tip(box);
+  const hit = sv('rect', { x: L, y: 0, width: W - L, height: H - B, class: 'hit' });
+  hit.addEventListener('mousemove', (ev) => {
+    const rc = s.getBoundingClientRect(); const xs = (ev.clientX - rc.left) / rc.width * W;
+    const i = Math.max(0, Math.min(pts.length - 1, Math.round((xs - L) / (W - L - 4) * (pts.length - 1)))); const p = pts[i];
+    cross.setAttribute('x1', X(i)); cross.setAttribute('x2', X(i)); dot.setAttribute('cx', X(i)); dot.setAttribute('cy', Y(p.resp)); s.classList.add('hov');
+    t.show(X(i) / W * rc.width, 8, [fdia(p.d), `Han contestado: ${N(p.resp)}${p.dia ? ' (+' + p.dia + ' ese día)' : ''}`, `Escritas: ${N(p.env)}`, `Tasa: ${pct(p.resp, p.env)}`]);
+  });
+  hit.addEventListener('mouseleave', () => { s.classList.remove('hov'); t.hide(); });
+  s.append(hit); box.append(s); return box;
 }
 
 /* Registro de actividad: cada decisión del agente (regla común de todos los agentes). */
@@ -487,34 +660,6 @@ function registroCard() {
   });
   c.append(chips, list); return c;
 }
-function configCard(w) {
-  const d = el('details', 'pb-histbox pb-config');
-  const s = el('summary'); s.append(svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'), 'Ajustes del agente', el('em', null, (w.limite_dia || 0) + '/día · ' + (w.ventanas || []).map((v) => v.join('–')).join(', ')));
-  d.append(s);
-  const f = el('form'); const g = el('div', 'grid');
-  const left = el('div'); left.style.cssText = 'display:flex;flex-direction:column;gap:12px';
-  const lim = el('label', 'pb-field'); lim.append(el('span', null, 'Mensajes nuevos al día')); const li = el('input'); li.name = 'limite_dia'; li.type = 'number'; li.min = 0; li.max = 200; li.value = w.limite_dia; lim.append(li);
-  const ven = el('label', 'pb-field'); ven.append(el('span', null, 'Horario (lun–vie)')); const vi = el('input'); vi.name = 'ventanas'; vi.value = (w.ventanas || []).map((v) => v.join('-')).join(', '); ven.append(vi);
-  left.append(lim, ven, el('p', 'note', 'Subir de golpe el cupo dispara los bloqueos de WhatsApp. Mejor de 10 en 10 por semana.'));
-  const pl = el('div'); pl.style.cssText = 'display:flex;flex-direction:column;gap:12px';
-  (S.nichos || []).forEach((n) => {
-    const lab = el('label', 'pb-field'); lab.append(el('span', null, 'Primer mensaje · ' + n.nombre + ' · una variante por bloque («A: …»), separadas con una línea ---'));
-    const ta = el('textarea'); ta.name = 'plantillas[' + n.clave + ']';
-    ta.value = Object.entries(n.plantillas || {}).map(([k, t]) => k + ': ' + t).join('\n---\n'); lab.append(ta); pl.append(lab);
-  });
-  g.append(left, pl);
-  const foot = el('div', 'foot');
-  foot.append(el('p', null, '[saludo] = Buenos días / Buenas tardes · [nombre] = «, Ana» si lo sabemos · [empresa] · {a|b} elige una variante al azar. Cada plantilla debe presentarse como Daniel y ofrecer no volver a escribir.'));
-  const sb = btn('primary', null, 'Guardar ajustes'); sb.type = 'submit'; foot.append(sb);
-  f.append(g, foot);
-  f.addEventListener('submit', (e) => { e.preventDefault(); post('agente_config', new URLSearchParams(new FormData(f)), sb).then(() => toast('Ajustes guardados. El agente los usa desde el siguiente envío.')).catch((er) => toast(er.message, true)); });
-  d.append(f);
-  if (configCard.abierto) d.open = true;
-  d.addEventListener('toggle', () => { configCard.abierto = d.open; });
-  return d;
-}
-
-/* ============ ciclo ============ */
 function pagina() { return document.body.dataset.page || 'resumen'; }
 function crumb(p) { const [a, b] = PAGINAS[p] || PAGINAS.resumen; const c = $('#pb-crumb'); c.textContent = ''; c.append(el('span', null, a), el('b', null, b)); }
 function draw() {

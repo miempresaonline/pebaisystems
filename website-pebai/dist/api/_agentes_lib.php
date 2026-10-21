@@ -47,6 +47,7 @@ const PEBAI_WA_CONFIG = [
     'ventanas' => [['08:30', '13:00'], ['17:00', '20:00']],
     'dias' => [1, 2, 3, 4, 5],          // lunes a viernes
     'pausa_min' => 240,                  // nunca dos envíos con menos de 4 minutos
+    'pausa_max' => 1800,                 // ni más de 30 minutos entre uno y otro (se eligen en el panel, en minutos)
     'nichos' => PEBAI_WA_NICHOS,
 ];
 
@@ -54,7 +55,7 @@ const PEBAI_WA_CONFIG = [
 const PEBAI_FESTIVOS = ['01-01', '01-06', '05-01', '08-15', '10-12', '11-01', '12-06', '12-08', '12-25'];
 
 // Palabras que convierten una respuesta en baja automática (además de marcarla a mano en el panel).
-const PEBAI_BAJA_RE = '/\b(baja|no me interesa|no nos interesa|no interesa|no (me |nos )?escrib|no (me |nos )?molest|stop|borr(a|ad|en)|elimin(a|ad|en)|spam|denunci|d[ée]jal[oa]|d[ée]jame|d[ée]janos|no gracias|no,? gracias|no estamos interesad|no me hace falta|no necesit)/iu';
+const PEBAI_BAJA_RE = '/\b(baja|no me interesa|no nos interesa|no interesa|no (me |nos )?escrib|no (me |nos )?molest|stop|borr(a|ad|en)|elimin(a|ad|en)|spam|denunci|d[ée]jal[oa]|d[ée]jame|d[ée]janos|no gracias|no,? gracias|no estamos interesad|no me hace falta|no necesit|no m\x27interessa|no ens interessa|deixa\x27?ns|deixa\x27?m|no (m\x27|ens )?escrigu)/iu';
 
 function pebai_agentes_db(): PDO
 {
@@ -142,6 +143,9 @@ function pebai_wa_config(): array
     $saved = json_decode(pebai_agente('whatsapp')['config'] ?: '{}', true) ?: [];
     $cfg = array_merge(PEBAI_WA_CONFIG, array_intersect_key($saved, PEBAI_WA_CONFIG));
     $cfg['limite_dia'] = max(0, min(200, (int)$cfg['limite_dia']));
+    $cfg['pausa_min'] = max(120, min(7200, (int)$cfg['pausa_min']));
+    $cfg['pausa_max'] = max($cfg['pausa_min'], min(10800, (int)$cfg['pausa_max']));
+    $cfg['dias'] = array_values(array_intersect([1, 2, 3, 4, 5, 6, 7], array_map('intval', (array)$cfg['dias']))) ?: [1, 2, 3, 4, 5];
     // Nichos guardados desde el panel; los que falten (o sin plantillas) vuelven a los de serie
     $nichos = PEBAI_WA_NICHOS;
     foreach ((array)($saved['nichos'] ?? []) as $k => $n) {
@@ -281,7 +285,10 @@ function pebai_wa_stats(): array
         FROM prospectos WHERE plantilla <> '' GROUP BY plantilla ORDER BY plantilla")->fetchAll();
 }
 
-/** Pausa recomendada hasta el siguiente envío: reparte lo que queda de cupo en lo que queda de ventana, con azar. */
+/**
+ * Pausa hasta el siguiente envío: un tiempo al azar entre la espera mínima y la máxima que pone Daniel en el panel,
+ * centrado en lo que hace falta para repartir el cupo que queda en lo que queda de horario (así se llega al cupo).
+ */
 function pebai_wa_pausa(): int
 {
     $cfg = pebai_wa_config();
@@ -290,8 +297,20 @@ function pebai_wa_pausa(): int
     if ($quedan <= 0 || $v['restante'] <= 0) {
         return 1800;
     }
-    $media = $v['restante'] / $quedan;
-    return (int)max($cfg['pausa_min'], min(5400, $media * (0.55 + mt_rand() / mt_getrandmax() * 0.9)));
+    [$min, $max] = [$cfg['pausa_min'], $cfg['pausa_max']];
+    $media = $v['restante'] / $quedan - 90;          // ~1,5 min se van en «escribir» cada mensaje
+    $techo = (int)max($min, min($max, 2 * $media - $min)); // media de [min, techo] = la que hace falta (si cabe)
+    return random_int($min, $techo);
+}
+
+/** Cuántos mensajes caben en un día con ese horario y esas esperas (para avisar en el panel si el cupo no cabe). */
+function pebai_wa_caben(array $cfg): int
+{
+    $seg = 0;
+    foreach ($cfg['ventanas'] as [$a, $b]) {
+        $seg += max(0, strtotime($b) - strtotime($a));
+    }
+    return (int)floor($seg / ($cfg['pausa_min'] + 90)) + 1;
 }
 
 /** Teléfonos que ya son solicitudes del embudo (a esos no se les escribe en frío). */

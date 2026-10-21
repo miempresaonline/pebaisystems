@@ -23,6 +23,18 @@ const PEBAI_IA_MODELOS = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', '
 const PEBAI_IA_PRESENTA = 'Hola, soy Daniel, de PEBAI Systems.';
 const PEBAI_IA_BAJA_WA = 'Si no te interesa, dímelo y no te escribo más.';
 const PEBAI_IA_BAJA_EMAIL = 'Si no te interesa, dímelo y no vuelvo a escribirte.';
+// Webs solo en catalán/valenciano (orden de Daniel, 21/10): ahí se escribe en su idioma; si hay algo en castellano, en castellano
+const PEBAI_IA_CA = ['presenta' => 'Hola, sóc el Daniel, de PEBAI Systems.', 'baja_wa' => "Si no t'interessa, digues-m'ho i no t'escric més.",
+                     'baja_email' => "Si no t'interessa, digues-m'ho i no et tornaré a escriure."];
+
+/** ¿La web está solo en catalán/valenciano? Cuenta palabras muy frecuentes de cada idioma (las que no comparten). */
+function pebai_ia_solo_catalan(string $texto): bool
+{
+    $t = ' ' . mb_strtolower(preg_replace('/[^\p{L}·]+/u', ' ', $texto)) . ' ';
+    $es = preg_match_all('/(?<= )(los|las|del|para|con|nuestros|nuestras|nosotros|somos|también|más|hacemos|empresa|instalación|instalaciones|placas)(?= )/u', $t);
+    $ca = preg_match_all('/(?<= )(els|les|amb|per|nostres|nosaltres|som|també|més|fem|empresa|instal·lació|instal·lacions|plaques|dels|una|i)(?= )/u', $t);
+    return $ca >= 15 && $es * 4 < $ca;
+}
 const PEBAI_IA_PROHIBIDO = '/https?:|www\.|irpf|impuesto|deducci|\bley\b|normativa|garantiz|te prometo|clientes nuestros|otras instaladoras|\d+ ?%|€/iu';
 
 function pebai_ia_clave(): string
@@ -99,12 +111,16 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
         return ['error' => 'La web no responde o está vacía'];
     }
     $email = $canal === 'email';
+    $ca = pebai_ia_solo_catalan($w['texto']);
+    $presenta = $ca ? PEBAI_IA_CA['presenta'] : PEBAI_IA_PRESENTA;
+    $bajaWa = $ca ? PEBAI_IA_CA['baja_wa'] : PEBAI_IA_BAJA_WA;
+    $bajaEmail = $ca ? PEBAI_IA_CA['baja_email'] : PEBAI_IA_BAJA_EMAIL;
     $formato = $email
         ? '"asunto": asunto corto en minúsculas con el nombre corto de la empresa y el tema (máximo 7 palabras, sin signos raros), '
           . '"cuerpo": email de 60 a 90 palabras que empiece por "Hola:" en una línea, luego el detalle real de su web, una frase de por qué importa para no perder clientes, '
-          . 'qué hacemos en una frase ("En PEBAI montamos asistentes que contestan en minutos, también fuera de horario."), UNA pregunta, y termine exactamente con "' . PEBAI_IA_BAJA_EMAIL . '". Sin firma.'
-        : '"mensaje": WhatsApp de 40 a 60 palabras que empiece exactamente por "' . PEBAI_IA_PRESENTA . '", mencione el detalle real de su web, razone en una frase por qué importa para no perder clientes, '
-          . 'haga UNA sola pregunta fácil de contestar sobre cómo atienden a quien pide presupuesto, y termine exactamente con "' . PEBAI_IA_BAJA_WA . '".';
+          . 'qué hacemos en una frase ("En PEBAI montamos asistentes que contestan en minutos, también fuera de horario."), UNA pregunta, y termine exactamente con "' . $bajaEmail . '". Sin firma.'
+        : '"mensaje": WhatsApp de 40 a 60 palabras que empiece exactamente por "' . $presenta . '", mencione el detalle real de su web, razone en una frase por qué importa para no perder clientes, '
+          . 'haga UNA sola pregunta fácil de contestar sobre cómo atienden a quien pide presupuesto, y termine exactamente con "' . $bajaWa . '".';
     $prompt = "Eres Daniel, comercial de PEBAI Systems. PEBAI monta asistentes que contestan al momento por WhatsApp y web, hacen las preguntas clave y agendan la visita, "
         . "para que las instaladoras de placas solares no pierdan peticiones de presupuesto.\n"
         . "Te paso el texto de la portada de la web de una empresa. Responde SOLO con JSON.\n"
@@ -114,7 +130,9 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
         . "web abandonada, hackeada o en otro idioma que no sea español o catalán, o si no queda claro. Ante la duda, false. \"motivo\": una frase.\n"
         . "2) Si encaja: \"dato\": copia LITERAL (exacta, de 2 a 12 palabras) del fragmento de su web en que te basas; elige el detalle más concreto y propio de esa empresa "
         . "(un servicio poco común, una frase suya, sus zonas, idiomas, una herramienta de su web…), no algo genérico como «presupuesto gratis» si hay algo mejor. " . $formato . "\n"
-        . "Tuteo, español de España, natural y cercano. Prohibido: enlaces, precios, porcentajes, cifras que no estén en la web, leyes, impuestos, ayudas, decir que son lentos o malos, "
+        . ($ca ? "IDIOMA: su web está solo en catalán/valenciano: escribe TODO (asunto incluido) en el mismo idioma y variante que su web, tuteo, natural y cercano."
+               : "IDIOMA: escribe TODO en español de España, aunque la web tenga partes en catalán, valenciano, euskera, gallego o inglés; el «dato» cópialo de una parte en español. Tuteo, natural y cercano.")
+        . " Prohibido: enlaces, precios, porcentajes, cifras que no estén en la web, leyes, impuestos, ayudas, decir que son lentos o malos, "
         . "prometer resultados, hablar de otros clientes nuestros.\n"
         . "Ejemplos de buen WhatsApp:\n- \"Hola, soy Daniel, de PEBAI Systems. He visto que la web de EcoNítida está en español, inglés y alemán. En la costa de Granada os escribirán muchos extranjeros. "
         . "Cuando alguien os escribe en inglés o alemán, ¿quién le contesta y cuánto tarda? Si no te interesa, dímelo y no te escribo más.\"\n"
@@ -137,7 +155,7 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
         $asunto = trim((string)($r['asunto'] ?? ''));
         $cuerpo = trim(str_replace("\r", '', (string)($r['cuerpo'] ?? '')));
         $n = str_word_count(preg_replace('/[^\p{L}\s]/u', ' ', $cuerpo));
-        if ($asunto === '' || mb_strlen($asunto) > 70 || !str_starts_with($cuerpo, 'Hola') || !str_ends_with($cuerpo, PEBAI_IA_BAJA_EMAIL)
+        if ($asunto === '' || mb_strlen($asunto) > 70 || !str_starts_with($cuerpo, 'Hola') || !str_ends_with($cuerpo, $bajaEmail)
             || preg_match(PEBAI_IA_PROHIBIDO, $asunto . ' ' . $cuerpo) || $n < 45 || $n > 110 || substr_count($cuerpo, '?') !== 1) {
             return ['error' => 'El email no pasa el control de calidad'];
         }
@@ -145,7 +163,7 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
     }
     $m = trim(preg_replace('/\s+/u', ' ', (string)($r['mensaje'] ?? '')));
     $n = count(preg_split('/\s+/u', $m));
-    if (!str_starts_with($m, PEBAI_IA_PRESENTA) || !str_ends_with($m, PEBAI_IA_BAJA_WA) || preg_match(PEBAI_IA_PROHIBIDO, $m)
+    if (!str_starts_with($m, $presenta) || !str_ends_with($m, $bajaWa) || preg_match(PEBAI_IA_PROHIBIDO, $m)
         || $n < 32 || $n > 75 || substr_count($m, '?') !== 1) {
         return ['error' => 'El mensaje no pasa el control de calidad'];
     }
