@@ -141,7 +141,7 @@ function abrirSala(d) {
   if (!d.activo) {
     const autos = d.id === 'embudo' ? S.autos : [];
     sideIn.innerHTML = `<div class="k">Departamento</div><h2>${esc(d.nombre)}</h2><div class="rol">${esc(d.objetivo)}</div><div class="pb-of-state" style="--c:#5C5F73"><i></i><div><b>Sin agentes todavía</b><span>Cuando montemos un bot para este departamento aparecerá aquí, conectado al núcleo.</span></div></div>`
-      + (autos.length ? '<div class="pb-of-qa">' + q('Lo que ya funciona solo', autos.map((a) => `<div class="pb-of-auto"><div class="h">${tileHtml(a, 't')}<b>${esc(a.nombre)}</b><span><i style="background:${(ST[a.st] || ST.espera)[0]}"></i>${a.st === 'espera' ? 'Atento' : (ST[a.st] || ST.espera)[1]}</span></div><p>${esc(a.motivo)}</p>${(a.necesita || []).map((n) => `<p class="warn">${esc(n)}</p>`).join('')}</div>`).join('')) + '</div>' : '');
+      + (autos.length ? '<div class="pb-of-qa">' + q('Lo que ya funciona solo', autos.map((a) => `<div class="pb-of-auto"><div class="h">${tileHtml(a, 't')}<b>${esc(a.nombre)}${a.rol ? `<small>${esc(a.rol)}</small>` : ''}</b><span><i style="background:${(ST[a.st] || ST.espera)[0]}"></i>${a.st === 'espera' ? 'Atento' : (ST[a.st] || ST.espera)[1]}</span></div><p>${esc(a.motivo)}</p>${(a.necesita || []).map((n) => `<p class="warn">${esc(n)}</p>`).join('')}</div>`).join('')) + '</div>' : '');
     mostrar(); return;
   }
   const lista = agsDe(d.id); const e = estadoDept(d.id);
@@ -150,7 +150,7 @@ function abrirSala(d) {
     <div class="pb-of-state" style="--c:${e === 'error' ? '#FF5E6C' : e === 'aviso' ? '#FFB547' : '#3DDC84'}"><i></i><div><b>${e === 'error' ? 'Hay un error' : e === 'aviso' ? 'Funciona, pero os necesita' : 'Todo en orden'}</b><span>${lista.filter((a) => a.st === 'trabajando').length} de ${lista.length} agentes trabajando ahora</span></div></div>
     <div class="pb-of-qa">
     ${pend.length ? q('Necesita de vosotros', pend.map((p) => `<p class="${p.err ? 'bad' : 'warn'}"><b>${esc(p.a.nombre)}</b>: ${esc(p.txt)}</p>`).join('')) : ''}
-    ${q('Agentes', lista.map((a) => `<div class="pb-of-row" data-id="${esc(a.id)}">${tileHtml(a, 't')}<b>${esc(a.nombre)}</b><span><i style="background:${(ST[a.st] || ST.espera)[0]}"></i>${(ST[a.st] || ST.espera)[1]}</span></div>`).join(''))}
+    ${q('Agentes', lista.map((a) => `<div class="pb-of-row" data-id="${esc(a.id)}">${tileHtml(a, 't')}<b>${esc(a.nombre)}${a.rol ? `<small>${esc(a.rol)}</small>` : ''}</b><span><i style="background:${(ST[a.st] || ST.espera)[0]}"></i>${(ST[a.st] || ST.espera)[1]}</span></div>`).join(''))}
     </div>`;
   sideIn.querySelectorAll('.pb-of-row').forEach((r) => r.addEventListener('click', () => abrirAgente(r.dataset.id)));
   mostrar();
@@ -463,6 +463,11 @@ async function montar() {
     g.fillStyle = apag ? '#1c1f33' : (FONDO[a.id] || '#3a3d52'); g.beginPath(); g.roundRect(34, 54, 150, 150, 36); g.fill();
     icono(g, a, 64, 84, 3.75, apag ? '#4a4d62' : '#ffffff');
     g.fillStyle = apag ? '#4a4d62' : '#EFEDE7'; g.font = '800 34px Manrope, sans-serif'; g.textAlign = 'center'; g.fillText(a.nombre, 109, 252); g.textAlign = 'left';
+    if (a.rol) { /* qué hace, en una línea arriba de la pantalla */
+      g.font = '600 21px Manrope, sans-serif'; g.fillStyle = apag ? '#3a3d52' : '#9A9CB0'; let r = a.rol;
+      while (g.measureText(r).width > 444 && r.length > 4) r = r.slice(0, -2).trimEnd() + '…';
+      g.fillText(r, 34, 36);
+    }
     const x0 = 214;
     if (st === 'trabajando') {
       for (let i = 0; i < 5; i++) {
@@ -748,19 +753,7 @@ async function montar() {
     /* lo que identifica a las salas sin bots, en un panel detrás de la columna */
     const atras = -RD - .2;
     const panelPie = (px, ancho) => { en(g, new THREE.Mesh(new THREE.BoxGeometry(.06, 1.05, .06), M.marco), px - ancho * .35, .52, atras - .03); en(g, new THREE.Mesh(new THREE.BoxGeometry(.06, 1.05, .06), M.marco), px + ancho * .35, .52, atras - .03); };
-    if (d.id === 'embudo') {
-      S.autos.forEach((a, k) => {
-        const cv = document.createElement('canvas'); cv.width = 512; cv.height = 300;
-        const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 4;
-        const ang = (k - (S.autos.length - 1) / 2) * .62, px = Math.sin(ang) * (RD + .2), pz = -Math.cos(ang) * (RD + .2);
-        const grupo = new THREE.Group(); grupo.position.set(px, 0, pz); grupo.rotation.y = -ang; g.add(grupo);
-        const m = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.11), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false })); m.position.set(0, 1.6, 0); grupo.add(m);
-        const fr = caja(2, 1.2, .05, M.marco, .02); fr.position.set(0, 1.6, -.03); grupo.add(fr);
-        en(grupo, new THREE.Mesh(new THREE.BoxGeometry(.06, 1.05, .06), M.marco), 0, .52, -.03);
-        m.userData.sala = d; clicables.push(m);
-        autosPared.push({ a, ctx: cv.getContext('2d'), tx, d });
-      });
-    } else if (d.id === 'redes') {
+    if (d.id === 'redes') {
       const yt = brand('youtube');
       cuadroPared(g, 2.4, 1.35, 0, 1.6, atras, (c) => {
         c.fillStyle = '#0d0f1c'; c.fillRect(0, 0, 480, 270);
@@ -768,9 +761,6 @@ async function montar() {
         if (yt) { c.fillStyle = '#FF0000'; c.fill(new Path2D(yt)); } else { c.fillStyle = '#FF0000'; c.beginPath(); c.roundRect(0, 4, 24, 16, 5); c.fill(); }
         c.restore();
       });
-      panelPie(0, 2.4);
-    } else if (d.id === 'operaciones') {
-      cuadroPared(g, 2.4, 1.1, 0, 1.6, atras, (c) => { c.fillStyle = '#e9e7f2'; c.fillRect(0, 0, 480, 220); ['Por hacer', 'En marcha', 'Entregado'].forEach((h, k) => { c.fillStyle = '#3a3d52'; c.font = '700 20px Manrope, sans-serif'; c.fillText(h, 22 + k * 155, 34); [0, 1, 2].slice(0, 3 - k % 2).forEach((q) => { c.fillStyle = ['#FFB547', '#3FD5FF', '#B7FF3C'][k]; c.fillRect(22 + k * 155, 52 + q * 52, 120, 40); }); }); });
       panelPie(0, 2.4);
     }
     const s = { d, g, sign, W, tronco, ledsSala, reloj: null, bus: null, banda, bandaBase, destello, tiraRack, recMat, flash: 0, cristal, auraCol };
@@ -920,7 +910,7 @@ async function montar() {
   const fichaDe = (h) => {
     if (!h) return null;
     const u = h.object.userData;
-    if (u.puesto) { const a = u.puesto.a, [c, txt] = ST[a.st] || ST.espera; return { k: u.puesto.d.nombre, b: a.nombre, c, txt: txt + (a.cupo ? ` · ${N(a.hoy)} de ${a.cupo} hoy` : a.hoy ? ` · ${N(a.hoy)} hoy` : ''), m: a.motivo }; }
+    if (u.puesto) { const a = u.puesto.a, [c, txt] = ST[a.st] || ST.espera; return { k: u.puesto.d.nombre, b: a.nombre, r: a.rol, c, txt: txt + (a.cupo ? ` · ${N(a.hoy)} de ${a.cupo} hoy` : a.hoy ? ` · ${N(a.hoy)} hoy` : ''), m: a.motivo }; }
     if (u.sala) { const d = u.sala, l = agsDe(d.id), tr = l.filter((a) => a.st === 'trabajando').length; return { k: 'Departamento', b: d.nombre, c: d.activo ? (tr ? '#3DDC84' : '#8E91A8') : '#5C5F73', txt: d.activo ? `${tr} de ${l.length} trabajando` : 'Sin agentes aún', m: d.objetivo }; }
     if (u.nucleo) { const pe = pendientes(); return { k: 'El núcleo', b: 'PEBAI', c: pe.some((p) => p.err) ? '#FF5E6C' : pe.length ? '#FFB547' : '#3DDC84', txt: pe.length ? (pe.length === 1 ? '1 aviso' : pe.length + ' avisos') : 'Todo en orden', m: 'Pincha para ver el resumen de la oficina' }; }
     return null;
@@ -961,7 +951,7 @@ async function montar() {
     const h = tocar(e); const o = h && h.object.userData.puesto ? h.object.userData.puesto : null;
     const f = foco ? null : fichaDe(h);
     renderer.domElement.style.cursor = h && (o || h.object.userData.sala || h.object.userData.nucleo) ? 'pointer' : 'default';
-    if (f) { ficha.innerHTML = `<small>${esc(f.k)}</small><b>${esc(f.b)}</b><span><i style="background:${f.c}"></i>${esc(f.txt)}</span>` + (f.m ? `<em>${esc(f.m)}</em>` : ''); ficha.classList.add('on'); } else ficha.classList.remove('on');
+    if (f) { ficha.innerHTML = `<small>${esc(f.k)}</small><b>${esc(f.b)}</b>` + (f.r ? `<p class="rol">${esc(f.r)}</p>` : '') + `<span><i style="background:${f.c}"></i>${esc(f.txt)}</span>` + (f.m ? `<em>${esc(f.m)}</em>` : ''); ficha.classList.add('on'); } else ficha.classList.remove('on');
     hover = o; salaHover = o ? o.d.id : h && h.object.userData.sala ? h.object.userData.sala.id : null;
   });
   renderer.domElement.addEventListener('pointerleave', () => { ficha.classList.remove('on'); hover = null; salaHover = null; });

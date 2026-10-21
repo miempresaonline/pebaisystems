@@ -207,3 +207,8 @@ body:not(.pb-ag-ajustes) #pb-ag-ajustes{display:none}
 /* en modo cine desaparece también el menú del panel: pantalla entera para grabar */
 body.pb-of-cine .pb-app{grid-template-columns:minmax(0,1fr)}
 body.pb-of-cine .pb-side{display:none}
+/* qué hace cada agente: en la ficha al pasar el ratón y en la lista de su sala */
+.pb-of-hov .rol{margin:0 0 6px;font-size:12px;line-height:1.4;color:#C9CBDA}
+.pb-of-row b small,.pb-of-auto .h b small{display:block;font-size:11.5px;font-weight:500;color:#8C8FA3;line-height:1.35;margin-top:1px}
+.pb-of-row b{flex:1;min-width:0}
+
