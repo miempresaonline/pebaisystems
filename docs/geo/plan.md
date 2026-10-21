@@ -81,3 +81,16 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 - Bing Webmaster: enviadas `/` y `/consultoria-gratuita/`; sin errores de rastreo; sitemap leído (aún la versión antigua de 9 URLs, se actualizará).
 - Search Console: sitemap enviado por API.
 - Cloudflare: IA permitida (Search, Agent y Training), sin robots.txt gestionado, email visible, token `claude-geo` solo con purga de caché (sin permiso de ajustes de zona).
+
+## Prioridades de la semana
+
+(La reescribe el Jefe GEO los lunes y jueves.)
+
+1. Contenido: publicar /agentes-ia/ y /ia-para-empresas/.
+2. Local: cerrar las tareas de Localo y seguir las posiciones.
+3. Redes: preparar el sistema de imágenes nuevas para los posts (pendiente de visto bueno).
+4. Equipo: página de LinkedIn (verificación pendiente) y casos reales.
+
+## Propuestas del Vigía
+
+(El Vigía añade aquí lo que cambie el plan; el Jefe las resuelve.)
