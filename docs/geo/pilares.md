@@ -219,3 +219,8 @@ Es la demanda más alta medida (agentes de IA 810-880; bot/chatbot WhatsApp 480/
 - Google Search Console API, propiedad `https://pebaisystems.es/`, 23/07–21/10/2026 (sin filas).
 - `docs/geo/mediciones/2026-10-21.md`, `.claude/skills/geo-pebai/references/playbook-2026-10.md`, `website-pebai/dist/llms-full.txt`, `website-pebai/dist/.htaccess`, `website-pebai/seo-engine/pages_mass_data.json`.
 - SERP (WebSearch, 21/10/2026): upliora.es y javadex.es (guías GEO y precios de IA), geotoolbox.ai, wati.io, eesel.ai, aunoa.ai; TeamSystem, Infoautónomos, Billin, Quaderno (VeriFactu); copilotgestoria.com, Red.es (Kit Digital); Legal Today, Osborne Clarke, Ainora (AI Act art. 4); Heraldo/ITA (IA en construcción).
+
+## Decisiones del 21/10/2026 (Daniel)
+- **4 pilares.** El software a medida va dentro de `/automatizacion-de-procesos/` como subpilar, no como pilar propio.
+- **Precios:** dependen de cada empresa. Las páginas de coste explican de qué depende el precio, que se presupuesta tras el diagnóstico y el único dato público: los proyectos parten de 1.500 €. Sin rangos inventados.
+- **Kit Digital:** PEBAI no es agente digitalizador. Fuera del plan por ahora (posible tema futuro de ayudas a empresas).
