@@ -183,7 +183,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && enPagina
 const ayuda = document.createElement('div'); ayuda.className = 'pb-of-ayuda';
 ayuda.innerHTML = '<button type="button" class="b" aria-label="Atajos y leyenda" title="Atajos y leyenda (?)">?</button><div class="c">'
   + '<h5>Colores</h5>' + ['trabajando', 'espera', 'dormido', 'error', 'apagado'].map((k) => `<div class="l"><i style="background:${ST[k][0]}"></i>${ST[k][1]}</div>`).join('')
-  + '<h5>Atajos</h5>' + [['1 – 4', 'Ir a cada sala'], ['P', 'El núcleo'], ['← →', 'Agente anterior / siguiente'], ['/', 'Preguntar a PEBAI'], ['Esc', 'Volver a la vista general'], ['H', 'Ocultar la interfaz'], ['C', 'Modo cine (para grabar)']].map(([k, t]) => `<div class="k"><kbd>${k}</kbd><span>${t}</span></div>`).join('')
+  + '<h5>Atajos</h5>' + [['Arrastrar', 'Moverse por la oficina'], ['Rueda', 'Acercar o alejar'], ['1 – ' + DEPTS.length, 'Ir a cada sala'], ['P', 'El núcleo'], ['← →', 'Agente anterior / siguiente'], ['/', 'Preguntar a PEBAI'], ['Esc', 'Volver a la vista general'], ['H', 'Ocultar la interfaz'], ['C', 'Modo cine (para grabar)']].map(([k, t]) => `<div class="k"><kbd>${k}</kbd><span>${t}</span></div>`).join('')
   + '</div>';
 wrap.append(ayuda);
 ayuda.addEventListener('click', (e) => e.stopPropagation());
@@ -687,13 +687,21 @@ async function montar() {
   const plaza = new THREE.Mesh(new THREE.CylinderGeometry(PLAZA, PLAZA + .08, .1, 96), [new THREE.MeshStandardMaterial({ color: 0x14172e, roughness: .4, metalness: .5 }), new THREE.MeshStandardMaterial({ map: plazaTex, roughness: .45, metalness: .45 }), new THREE.MeshStandardMaterial({ color: 0x14172e })]);
   plaza.position.y = .05; plaza.receiveShadow = true; scene.add(plaza);
   const plazaFilo = new THREE.Mesh(new THREE.TorusGeometry(PLAZA + .02, .025, 8, 160), new THREE.MeshBasicMaterial({ color: 0x9C93FF, toneMapped: false })); plazaFilo.rotation.x = Math.PI / 2; plazaFilo.position.y = .1; scene.add(plazaFilo);
-  DEPTS.forEach((d, idx) => {
+  /* Distribución simétrica para cualquier número de departamentos: dos filas centradas, la burbuja en medio.
+     Delante (más cerca de la cámara) van las salas con bots; detrás, las que aún no tienen. */
+  const ordenSalas = [...DEPTS].sort((a, b) => (b.activo ? 1 : 0) - (a.activo ? 1 : 0));
+  const nDelante = Math.max(1, Math.floor(ordenSalas.length / 2));
+  const SEP = 2.6, ZFILA = PLAZA + 1 + D / 2;
+  const sitio = new Map();
+  [ordenSalas.slice(0, nDelante), ordenSalas.slice(nDelante)].forEach((fila, f) => fila.forEach((d, i) => {
+    sitio.set(d.id, { x: (i - (fila.length - 1) / 2) * (WSALA + SEP), z: f === 0 ? ZFILA : -ZFILA });
+  }));
+  ordenSalas.forEach((d) => {
     const lista = d.activo ? agsDe(d.id) : [];
     const W = WSALA;
-    const lado = idx % 2 === 0 ? -1 : 1, fila = Math.floor(idx / 2);
-    const z = ((filas - 1) / 2 - fila) * (D + GAP_Z);
-    const x = lado * (GAP_X + W / 2);
-    const col = new THREE.Color(d.color), on = d.activo, IN = -lado; /* IN: lado de la sala que mira al núcleo */
+    const { x, z } = sitio.get(d.id);
+    const col = new THREE.Color(d.color), on = d.activo;
+    const IN = x > .01 ? -1 : 1; /* IN: lado de la sala que mira al centro (por ahí llega el cable del núcleo) */
     const plat = new THREE.Mesh(new RoundedBoxGeometry(W, ALTO, D, 3, .08), new THREE.MeshStandardMaterial({ color: on ? 0x191d3a : 0x181b33, roughness: .5, metalness: .3 })); plat.position.set(x, ALTO / 2, z); plat.receiveShadow = true; plat.castShadow = true; scene.add(plat);
     const banda = new THREE.Mesh(new THREE.BoxGeometry(W + .02, .03, D + .02), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: on ? .85 : .25, toneMapped: false })); banda.position.set(x, ALTO - .06, z); scene.add(banda); const bandaBase = on ? .85 : .25;
     const g = new THREE.Group(); g.position.set(x, ALTO, z); scene.add(g);
@@ -739,45 +747,34 @@ async function montar() {
     en(g, new THREE.Mesh(new THREE.BoxGeometry(.02, 1.5, .02), tiraRack), rx + IN * .36, .85, rz + .31);
     /* muebles: cada sala con su carácter */
     const OUT = -IN;
-    planta(g, OUT * (W / 2 - .55), D / 2 - .55, 1.05);
     if (on) {
       lampara(g, IN * (W / 2 - .5), -D / 2 + .6);
     } else if (d.id === 'embudo') {
-      alfombra(g, 3.4, 2.6, 0, .2, d.color);
-      const mesa = caja(2.2, .07, 1.1, M.madera, .03); mesa.position.set(0, .74, .2); g.add(mesa);
-      [-.8, .8].forEach((lx) => en(g, new THREE.Mesh(new THREE.BoxGeometry(.06, .72, .8), M.marco), lx, .36, .2));
-      [[-.55, -.55, 0], [.55, -.55, 0], [-.55, .95, Math.PI], [.55, .95, Math.PI]].forEach(([sx, sz, ry]) => { const s2 = silla(); s2.position.set(sx, 0, sz + .2); s2.rotation.y = ry; s2.scale.setScalar(.9); s2.children.slice(0, 2).forEach((m) => { m.material = M.tela; }); g.add(s2); });
       /* las automatizaciones del embudo, cada una en su pantalla de pared */
-      S.autos.forEach((a, i) => {
+      S.autos.forEach((a, k) => {
         const cv = document.createElement('canvas'); cv.width = 512; cv.height = 300;
         const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 4;
-        const px = (i - (S.autos.length - 1) / 2) * 2.7;
+        const px = (k - (S.autos.length - 1) / 2) * 2.7;
         const m = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.29), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false })); m.position.set(px, 1.22, -D / 2 + .17); g.add(m);
         const fr = caja(2.3, 1.39, .05, M.marco, .02); fr.position.set(px, 1.22, -D / 2 + .14); fr.castShadow = false; g.add(fr);
         m.userData.sala = d; clicables.push(m);
         autosPared.push({ a, ctx: cv.getContext('2d'), tx, d });
       });
-      planta(g, IN * (W / 2 - .5), -D / 2 + .55, .9);
       lampara(g, OUT * (W / 2 - .5), -D / 2 + .6);
     } else if (d.id === 'redes') {
-      alfombra(g, 3.6, 2.6, 0, .3, d.color);
-      sofa(g, 0, 1.25, 0, new THREE.MeshStandardMaterial({ color: 0x3b2c55, roughness: .9 }));
-      mesaBaja(g, 0, .1);
-      cuadroPared(g, 2.2, 1.24, 0, 1.2, -D / 2 + .16, (c) => { const gr = c.createLinearGradient(0, 0, 440, 248); gr.addColorStop(0, '#2a1240'); gr.addColorStop(1, '#0d1030'); c.fillStyle = gr; c.fillRect(0, 0, 440, 248); c.fillStyle = 'rgba(255,255,255,.9)'; c.beginPath(); c.moveTo(200, 84); c.lineTo(200, 164); c.lineTo(266, 124); c.closePath(); c.fill(); });
+      /* una pantalla con el logo de YouTube: es lo que dirá esta sala cuando tenga sus bots */
+      const yt = brand('youtube');
+      cuadroPared(g, 2.6, 1.46, 0, 1.2, -D / 2 + .16, (c) => {
+        c.fillStyle = '#0d0f1c'; c.fillRect(0, 0, 520, 292);
+        c.save(); c.translate(260 - 96, 146 - 96); c.scale(8, 8);
+        if (yt) { c.fillStyle = '#FF0000'; c.fill(new Path2D(yt)); } else { c.fillStyle = '#FF0000'; c.beginPath(); c.roundRect(0, 4, 24, 16, 5); c.fill(); c.fillStyle = '#fff'; c.beginPath(); c.moveTo(9.5, 8); c.lineTo(16, 12); c.lineTo(9.5, 16); c.closePath(); c.fill(); }
+        c.restore();
+      });
       lampara(g, OUT * (W / 2 - .5), -D / 2 + .6);
-      planta(g, IN * (W / 2 - .5), -D / 2 + .55, .85);
-      [-1, 1].forEach((sx) => cuadroPared(g, .8, 1.05, sx * 2.2, 1.25, -D / 2 + .16, (c) => { const gr = c.createLinearGradient(0, 0, 160, 210); gr.addColorStop(0, sx < 0 ? '#E25CFF' : '#3FD5FF'); gr.addColorStop(1, '#1a1440'); c.fillStyle = gr; c.fillRect(0, 0, 160, 210); c.fillStyle = 'rgba(255,255,255,.85)'; c.beginPath(); c.arc(80, 90, sx < 0 ? 34 : 24, 0, 7); c.fill(); c.fillRect(30, 150, 100, 10); c.fillRect(30, 170, 70, 10); }));
     } else {
-      estanteria(g, OUT * (W / 2 - .4), -.6, OUT * Math.PI / 2, true);
-      estanteria(g, OUT * (W / 2 - .4), .5, OUT * Math.PI / 2, true);
-      const banco = caja(1.8, .08, .8, M.madera, .02); banco.position.set(0, .82, -.2); g.add(banco);
-      [-.8, .8].forEach((lx) => en(g, new THREE.Mesh(new THREE.BoxGeometry(.06, .8, .7), M.marco), lx, .4, -.2));
-      en(g, caja(.5, .4, .4, M.carton, .02), -.4, 1.06, -.25); en(g, caja(.36, .3, .3, M.carton, .02), .35, 1.01, -.15);
-      en(g, caja(.6, .5, .5, M.carton, .02), .6, .25, 1.3, .3); en(g, caja(.5, .4, .45, M.carton, .02), .55, .7, 1.3, .1); en(g, caja(.55, .45, .5, M.carton, .02), -.2, .225, 1.5, -.2);
-      lampara(g, OUT * (W / 2 - .6), D / 2 - .6);
-      planta(g, IN * (W / 2 - .5), -D / 2 + .55, .8);
       /* tablero de proyectos en la pared: columnas con notas */
-      cuadroPared(g, 2.4, 1.1, -.2, 1.25, -D / 2 + .16, (c) => { c.fillStyle = '#e9e7f2'; c.fillRect(0, 0, 480, 220); ['Por hacer', 'En marcha', 'Entregado'].forEach((h, i) => { c.fillStyle = '#3a3d52'; c.font = '700 20px Manrope, sans-serif'; c.fillText(h, 22 + i * 155, 34); [0, 1, 2].slice(0, 3 - i % 2).forEach((k) => { c.fillStyle = ['#FFB547', '#3FD5FF', '#B7FF3C'][i]; c.fillRect(22 + i * 155, 52 + k * 52, 120, 40); }); }); });
+      cuadroPared(g, 2.4, 1.1, 0, 1.25, -D / 2 + .16, (c) => { c.fillStyle = '#e9e7f2'; c.fillRect(0, 0, 480, 220); ['Por hacer', 'En marcha', 'Entregado'].forEach((h, k) => { c.fillStyle = '#3a3d52'; c.font = '700 20px Manrope, sans-serif'; c.fillText(h, 22 + k * 155, 34); [0, 1, 2].slice(0, 3 - k % 2).forEach((q) => { c.fillStyle = ['#FFB547', '#3FD5FF', '#B7FF3C'][k]; c.fillRect(22 + k * 155, 52 + q * 52, 120, 40); }); }); });
+      lampara(g, OUT * (W / 2 - .5), -D / 2 + .6);
     }
     /* reloj de pared de verdad en la sala con agentes */
     let reloj = null;
@@ -810,17 +807,24 @@ async function montar() {
     });
   });
   /* encuadre de la vista general a partir de lo que ocupa la oficina */
-  const cajaVista = new THREE.Box3(); salas.forEach((s) => cajaVista.expandByObject(s.g)); cajaVista.expandByPoint(new THREE.Vector3(0, 0, 3.5));
+  const cajaVista = new THREE.Box3(); salas.forEach((s) => cajaVista.expandByObject(s.g)); cajaVista.expandByPoint(new THREE.Vector3(-PLAZA, 0, -PLAZA)); cajaVista.expandByPoint(new THREE.Vector3(PLAZA, 0, PLAZA));
   const HOME = { p: new THREE.Vector3(), t: new THREE.Vector3() };
+  const camPrueba = new THREE.PerspectiveCamera();
   const encajar = () => {
-    const c = cajaVista.getCenter(new THREE.Vector3()), size = cajaVista.getSize(new THREE.Vector3());
-    const vf = THREE.MathUtils.degToRad(camera.fov), hf = 2 * Math.atan(Math.tan(vf / 2) * camera.aspect);
-    const dist = Math.max((size.x * 1.14) / (2 * Math.tan(hf / 2)), (size.z * .9) / (2 * Math.tan(vf / 2))) + 1.5;
+    const c = cajaVista.getCenter(new THREE.Vector3());
+    const esquinas = [];
+    [cajaVista.min.x, cajaVista.max.x].forEach((ex) => [0, 4.4].forEach((ey) => [cajaVista.min.z, cajaVista.max.z].forEach((ez) => esquinas.push(new THREE.Vector3(ex, ey, ez)))));
+    const retrato = camera.aspect < .9;
+    const t0 = retrato ? new THREE.Vector3(c.x, 0, c.z - .6) : new THREE.Vector3(c.x, 0, c.z - 1.2);
+    const dir = (retrato ? new THREE.Vector3(0, .93, .38) : new THREE.Vector3(0, .76, .66)).normalize();
+    camPrueba.fov = camera.fov; camPrueba.aspect = camera.aspect; camPrueba.near = .1; camPrueba.far = 1000; camPrueba.updateProjectionMatrix();
+    const cabe = (dd) => { camPrueba.position.copy(t0).addScaledVector(dir, dd); camPrueba.lookAt(t0); camPrueba.updateMatrixWorld(); return esquinas.every((v) => { const q = v.clone().project(camPrueba); return Math.abs(q.x) < .97 && q.y < .9 && q.y > -.95; }); };
+    let lo = 4, hi = 400; for (let k = 0; k < 26; k++) { const mid = (lo + hi) / 2; if (cabe(mid)) hi = mid; else lo = mid; }
+    const dist = hi;
     /* un poco a la derecha, para que la tarjeta de avisos de arriba a la izquierda no tape ninguna sala */
     const dx = 0;
     /* en vertical (móvil) la vista es más cenital, para aprovechar el alto de la pantalla */
-    if (camera.aspect < .9) { HOME.t.set(c.x, 0, c.z - .6); HOME.p.set(c.x, dist * .93, c.z + dist * .38); }
-    else { HOME.t.set(c.x + dx, 0, c.z - 2.4); HOME.p.set(c.x + dx, dist * .76, c.z + dist * .66); }
+    HOME.t.copy(t0); HOME.p.copy(t0).addScaledVector(dir, dist); HOME.t.x += dx; HOME.p.x += dx; HOME.dist = dist;
     /* la niebla empieza detrás de la oficina, así no se come las salas cuando la cámara está lejos */
     scene.fog.near = dist * 1.05 + 6; scene.fog.far = dist * 2.1 + 30; camera.far = dist * 3 + 60; camera.updateProjectionMatrix();
   };
@@ -908,7 +912,8 @@ async function montar() {
 
   /* ---------- cámara con clics ---------- */
   let fly = null, intro = calma ? null : { k: 0 }, deriva = 0;
-  const volar = (p, t) => { intro = null; if (!Number.isFinite(camera.position.x)) { camera.position.copy(p); target.copy(t); } fly = { p0: camera.position.clone(), t0: target.clone(), p1: p.clone(), t1: t.clone(), k: 0 }; };
+  let libre = false, arrastre = null, arrastrado = false;
+  const volar = (p, t) => { intro = null; libre = false; if (!Number.isFinite(camera.position.x)) { camera.position.copy(p); target.copy(t); } fly = { p0: camera.position.clone(), t0: target.clone(), p1: p.clone(), t1: t.clone(), k: 0 }; };
   const enIntro = (e) => { const off = HOME.p.clone().sub(HOME.t), ang = (1 - e) * 1.1; off.applyAxisAngle(new THREE.Vector3(0, 1, 0), ang).multiplyScalar(1 + (1 - e) * .35); camera.position.copy(HOME.t).add(off); camera.position.y += (1 - e) * 6; target.copy(HOME.t).add(new THREE.Vector3(0, (1 - e) * 2, 0)); };
   if (intro) enIntro(0); else { camera.position.copy(HOME.p); target.copy(HOME.t); }
   const ray = new THREE.Raycaster(), m2 = new THREE.Vector2();
@@ -923,6 +928,32 @@ async function montar() {
     if (u.nucleo) { const pe = pendientes(); return { k: 'El núcleo', b: 'PEBAI', c: pe.some((p) => p.err) ? '#FF5E6C' : pe.length ? '#FFB547' : '#3DDC84', txt: pe.length ? (pe.length === 1 ? '1 aviso' : pe.length + ' avisos') : 'Todo en orden', m: 'Pincha para ver el resumen de la oficina' }; }
     return null;
   };
+  const cv3 = renderer.domElement;
+  cv3.style.touchAction = 'none';
+  cv3.addEventListener('pointerdown', (e) => { if (e.button !== 0) return; arrastre = { x: e.clientX, y: e.clientY, mov: false }; arrastrado = false; });
+  window.addEventListener('pointerup', () => { if (arrastre && arrastre.mov) { arrastrado = true; setTimeout(() => { arrastrado = false; }, 60); } arrastre = null; cv3.style.cursor = ''; });
+  window.addEventListener('pointermove', (e) => {
+    if (!arrastre || cine) return;
+    const dx = e.clientX - arrastre.x, dy = e.clientY - arrastre.y;
+    if (!arrastre.mov && Math.hypot(dx, dy) < 5) return;
+    arrastre.mov = true; arrastre.x = e.clientX; arrastre.y = e.clientY; cv3.style.cursor = 'grabbing';
+    fly = null; intro = null; libre = true;
+    const der = new THREE.Vector3().subVectors(camera.position, target).cross(camera.up).normalize().negate();
+    const fre = new THREE.Vector3().subVectors(target, camera.position).setY(0).normalize();
+    const k = camera.position.distanceTo(target) * .0016;
+    const mov = der.multiplyScalar(-dx * k).add(fre.multiplyScalar(dy * k));
+    const c = cajaVista.getCenter(new THREE.Vector3()), lim = cajaVista.getSize(new THREE.Vector3()).multiplyScalar(.6);
+    const nt = target.clone().add(mov);
+    nt.x = THREE.MathUtils.clamp(nt.x, c.x - lim.x, c.x + lim.x); nt.z = THREE.MathUtils.clamp(nt.z, c.z - lim.z, c.z + lim.z);
+    camera.position.add(nt.clone().sub(target)); target.copy(nt);
+  });
+  cv3.addEventListener('wheel', (e) => {
+    if (cine) return; e.preventDefault();
+    fly = null; intro = null; libre = true;
+    const off = new THREE.Vector3().subVectors(camera.position, target);
+    const d = THREE.MathUtils.clamp(off.length() * Math.exp(e.deltaY * .0011), 5, (HOME.dist || 60) * 1.35);
+    camera.position.copy(target).add(off.setLength(d));
+  }, { passive: false });
   renderer.domElement.addEventListener('pointermove', (e) => {
     const r = renderer.domElement.getBoundingClientRect();
     ficha.style.transform = `translate(${Math.min(e.clientX - r.left + 16, r.width - 260)}px, ${e.clientY - r.top + 18}px)`;
@@ -935,6 +966,7 @@ async function montar() {
   });
   renderer.domElement.addEventListener('pointerleave', () => { ficha.classList.remove('on'); hover = null; salaHover = null; });
   renderer.domElement.addEventListener('click', (e) => {
+    if (arrastrado) { arrastrado = false; return; }
     if (cine) { alternarCine(); return; }
     const h = tocar(e);
     ficha.classList.remove('on');
@@ -1065,7 +1097,7 @@ async function montar() {
     if (intro) { intro.k = Math.min(1, intro.k + dtReal / 3.2); const e = intro.k < .5 ? 4 * intro.k ** 3 : 1 - Math.pow(-2 * intro.k + 2, 3) / 2; enIntro(e); if (intro.k >= 1) { intro = null; deriva = 0; } }
     if (fly) { fly.k = Math.min(1, fly.k + dtReal / 1.1); const e = 1 - Math.pow(1 - fly.k, 3); camera.position.lerpVectors(fly.p0, fly.p1, e); target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) { fly = null; deriva = 0; } }
     if (cine) { cineAng += dtReal * .07; const off = HOME.p.clone().sub(HOME.t).applyAxisAngle(new THREE.Vector3(0, 1, 0), cineAng).multiplyScalar(.82); camera.position.copy(HOME.t).add(off); camera.position.y += Math.sin(t * .2) * .6; target.copy(HOME.t).add(new THREE.Vector3(0, .6, 0)); fly = null; intro = null; }
-    else if (!fly && !intro && !foco && !calma) { deriva = Math.min(1, deriva + dt / 2.5); const off = HOME.p.clone().sub(HOME.t).applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.sin(t * .11) * .045 * deriva); camera.position.copy(HOME.t).add(off); camera.position.y += Math.sin(t * .17) * .25 * deriva; target.copy(HOME.t); }
+    else if (!fly && !intro && !foco && !calma && !libre) { deriva = Math.min(1, deriva + dt / 2.5); const off = HOME.p.clone().sub(HOME.t).applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.sin(t * .11) * .045 * deriva); camera.position.copy(HOME.t).add(off); camera.position.y += Math.sin(t * .17) * .25 * deriva; target.copy(HOME.t); }
     camera.lookAt(target);
     composer.render();
   }
