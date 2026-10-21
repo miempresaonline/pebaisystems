@@ -604,7 +604,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '59';
+$v = '60';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -696,7 +696,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     </div>
     <div class="grp"><small>Automático</small>
       <button data-page="agentes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg><span>Agentes</span><i class="pb-live" id="pb-ag-live" title="Estado de los agentes"></i></button>
-      <button data-page="agentes" id="pb-nav-control" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span>Control de envíos</span></button>
+      <button data-page="agentes" id="pb-nav-control" type="button" hidden><svg class="pb-i" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span>Control de envíos</span></button>
     </div>
   </nav>
   <div class="pb-side-foot">
@@ -940,7 +940,8 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
   if (ctl) ctl.addEventListener('click', () => { vista(true); setTimeout(() => { marca(); const t = document.querySelector('.pw-ctl'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120); });
   document.addEventListener('pb:page', () => setTimeout(marca, 0));
   document.addEventListener('pb:agview', () => setTimeout(marca, 0));
-  try { if (sessionStorage.getItem('pb-ag-vista') === 'ajustes') document.body.classList.add('pb-ag-ajustes'); } catch (e) {}
+  // Control de envíos ya va dentro de la ficha de cada agente (pestañas Ajustes y Rendimiento): siempre se abre la oficina
+  try { sessionStorage.removeItem('pb-ag-vista'); } catch (e) {}
 })();
 </script>
 <?php endif; ?>

@@ -124,35 +124,69 @@ function abrirAgente(id) {
   const d = DEPTS.find((x) => x.id === a.dept); enfocarAgente(a.id);
   const [c, txt] = ST[a.st] || ST.espera;
   const pct = a.cupo ? Math.min(100, Math.round(a.hoy / a.cupo * 100)) : 0;
-  const hist = (a.actividad || []).slice(0, S.verTodo ? 30 : 6);
+  const F = (window.PB_FICHA || {})[a.id] || {};
+  const tabs = [['estado', 'Estado'], ['actividad', 'Actividad'], F.ajustes && ['ajustes', 'Ajustes'], F.rendimiento && ['rendimiento', 'Rendimiento']].filter(Boolean);
+  if (!tabs.some(([k]) => k === S.tab)) S.tab = 'estado';
   sideIn.innerHTML = (S.agentes.length > 1 ? '<div class="pb-of-nav"><button type="button" data-d="-1" aria-label="Agente anterior" title="Anterior (←)">‹</button><button type="button" data-d="1" aria-label="Agente siguiente" title="Siguiente (→)">›</button></div>' : '')
     + `<div class="k">${esc(d.nombre)}</div><h2>${tileHtml(a)}${esc(a.nombre)}</h2><div class="rol">${esc(a.rol || '')}</div>
     <div class="pb-of-state" style="--c:${c}"><i></i><div><b>${txt}</b><span>${esc(a.motivo)}</span></div></div>
     <div class="pb-of-acts" id="pb-of-acts"></div>
     ${a.codigo && String(a.codigo).startsWith('QR:') ? `<div class="pb-of-code"><small>Escanea este QR con WhatsApp</small><div class="pb-of-qr" data-qr="${esc(String(a.codigo).slice(3))}" style="background:#fff;padding:12px;border-radius:12px;display:inline-block;line-height:0;margin:8px 0"></div><span>En el móvil: WhatsApp › Dispositivos vinculados › Vincular un dispositivo, y apunta la cámara aquí. Se renueva solo cada pocos segundos.</span></div>` : ''}
     ${a.codigo && !String(a.codigo).startsWith('QR:') ? `<div class="pb-of-code"><small>Código para vincular WhatsApp</small><b>${esc(String(a.codigo).replace(/[^A-Z0-9]/gi, '').toUpperCase().replace(/(.{4})(?=.)/g, '$1-'))}</b><span>En el móvil: WhatsApp › Dispositivos vinculados › Vincular con el número de teléfono.</span></div>` : ''}
-    <div class="pb-of-qa">
+    <div class="pb-of-tabs" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" data-t="${k}" aria-selected="${k === S.tab}">${t}</button>`).join('')}</div>
+    <div class="pb-of-tab" id="pb-of-tab">${S.tab !== 'estado' ? '' : `<div class="pb-of-qa">
     ${q('Hoy', `<p><b class="big">${N(a.hoy)}</b> ${esc(a.unidad)}${a.cupo ? ` de ${a.cupo} posibles` : ''}</p>${a.cupo ? `<div class="bar" style="--c:${d.color}"><i data-w="${pct}%"></i></div>` : ''}`)}
     ${q('Lo último que hizo', a.ultima ? `<p>${esc(a.ultima.txt)}</p><p class="sub">${esc(a.ultima.hace)}</p>` : '<p>Todavía no ha hecho nada.</p>')}
     ${(a.necesita || []).length ? q('Necesita de vosotros', a.necesita.map((n) => `<p class="warn">${esc(n)}</p>`).join('')) : ''}
     ${q('¿Ha fallado algo?', (a.errores || []).length ? a.errores.map((e) => `<p class="bad"><b>${esc(hora(e.ts))}</b> · ${esc(e.txt)}</p>`).join('') : '<p class="ok">No, nada en las últimas 24 horas.</p>')}
     ${a.proxima ? q('Qué hará ahora', `<p>${esc(a.proxima)}</p>`) : ''}
     ${(a.datos || []).length ? q('Datos', `<dl>${a.datos.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`) : ''}
-    ${hist.length ? q('Historial', hist.map((e) => `<div class="pb-of-ev"><time>${esc(e.hace)}</time><span>${esc(e.txt)}</span></div>`).join('') + ((a.actividad || []).length > 6 ? `<button class="pb-of-more" id="pb-of-more" type="button">${S.verTodo ? 'Ver menos' : 'Ver todo el historial'}</button>` : '')) : ''}
-    </div>`;
+    </div>`}</div>`;
+  side.classList.toggle('ancho', ['ajustes', 'rendimiento'].includes(S.tab));
+  sideIn.querySelectorAll('.pb-of-tabs button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); S.tab = b.dataset.t; abrirAgente(a.id); }; });
+  const caja = $('#pb-of-tab');
+  if (S.tab === 'actividad') caja.append(lineaTiempo(a));
+  else if (S.tab !== 'estado') {
+    let n = null; try { n = F[S.tab](() => abrirAgente(a.id)); } catch (er) { console.error(er); }
+    caja.append(n || Object.assign(document.createElement('p'), { className: 'pb-of-vacio', textContent: n === null ? 'Cargando…' : 'No se ha podido mostrar esta parte.' }));
+    if (!n) setTimeout(() => { if (foco && foco.agente === a.id && S.tab !== 'estado') abrirAgente(a.id); }, 1500);
+  }
   const acts = $('#pb-of-acts');
   const boton = (cls, t, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'pb-of-btn ' + cls; b.textContent = t; b.onclick = (e) => { e.stopPropagation(); fn(b); }; acts.append(b); };
   const A = a.acciones || {};
   if (A.pausa) boton(a.pausado ? 'primary' : '', a.pausado ? 'Reanudar' : 'Pausar', (b) => accion(A.pausa, { pausado: a.pausado ? '0' : '1' }, a.pausado ? `${a.nombre} reanudado.` : `${a.nombre} en pausa: no enviará nada.`, b));
-  if (A.ajustes) boton('ghost', 'Control y gráficas', () => { document.body.classList.add('pb-ag-ajustes'); document.dispatchEvent(new CustomEvent('pb:agview')); setTimeout(() => { const t = document.getElementById('pb-ag-wa'); if (t) t.scrollIntoView({ behavior: 'smooth' }); }, 60); });
   if (A.ir) boton('ghost', A.ir === 'email' ? 'Ver su lista de empresas' : 'Ver las empresas', () => { const b = document.querySelector(`#pb-tabs button[data-page="${A.ir}"]`); if (b) b.click(); });
   if (!acts.childElementCount) acts.remove();
   sideIn.querySelectorAll('.pb-of-nav button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); vecino(+b.dataset.d); }; });
   pintaQRs();
-  const more = $('#pb-of-more'); if (more) more.onclick = (e) => { e.stopPropagation(); S.verTodo = !S.verTodo; abrirAgente(a.id); };
   mostrar();
 }
+/* Actividad paso a paso, por días, como un registro de ejecuciones: cada punto es una acción y su color dice cómo salió. */
+const TIPO = { hito: ['#3DDC84', 'Hecho'], envio: ['#3DDC84', 'Envío'], respuesta: ['#3FD5FF', 'Respuesta'], error: ['#FF5E6C', 'Fallo'], freno: ['#FF5E6C', 'Frenado'], espera: ['#5C5F73', 'Espera'], cambio: ['#FFB547', 'Cambio'] };
+function lineaTiempo(a) {
+  const box = document.createElement('div'); box.className = 'pb-of-tl';
+  const todo = a.actividad || [], fallos = todo.filter((e) => ['error', 'freno'].includes(e.tipo));
+  const fil = document.createElement('div'); fil.className = 'pb-of-tlf';
+  [['', 'Todo · ' + todo.length], ['fallos', 'Fallos · ' + fallos.length]].forEach(([k, t]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = t; b.className = (S.tlf || '') === k ? 'on' : '';
+    b.onclick = (e) => { e.stopPropagation(); S.tlf = k; box.replaceWith(lineaTiempo(a)); }; fil.append(b);
+  });
+  box.append(fil);
+  const lista = S.tlf === 'fallos' ? fallos : todo;
+  if (!lista.length) { const p = document.createElement('p'); p.className = 'pb-of-vacio'; p.textContent = S.tlf === 'fallos' ? 'Ningún fallo en lo que tiene apuntado.' : 'Todavía no ha apuntado nada.'; box.append(p); return box; }
+  const hoy = new Date(); const dia = (ts) => { const d = new Date(String(ts).replace(' ', 'T')); const k = Math.round((new Date(hoy.toDateString()) - new Date(d.toDateString())) / 864e5); return k === 0 ? 'Hoy' : k === 1 ? 'Ayer' : d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); };
+  let ult = '';
+  lista.forEach((e) => {
+    const dd = dia(e.ts); if (dd !== ult) { ult = dd; const h = document.createElement('div'); h.className = 'pb-of-tld'; h.textContent = dd; box.append(h); }
+    const [c, t] = TIPO[e.tipo] || ['#8C8FA3', e.tipo || ''];
+    const r = document.createElement('div'); r.className = 'pb-of-tle'; r.style.setProperty('--c', c);
+    r.innerHTML = `<i></i><time>${esc(String(e.ts).slice(11, 16))}</time><div><span>${esc(e.txt)}</span><small>${esc(t)}</small></div>`;
+    box.append(r);
+  });
+  return box;
+}
 function abrirSala(d) {
+  side.classList.remove('ancho');
   enfocarSala(d);
   if (!d.activo) {
     const autos = d.id === 'embudo' ? S.autos : [];
@@ -222,7 +256,7 @@ function vecino(dir) {
   abrirAgente(S.agentes[(i + dir + S.agentes.length) % S.agentes.length].id);
 }
 function mostrar() { side.classList.add('on'); side.scrollTop = 0; setTimeout(() => side.querySelectorAll('.bar i').forEach((b) => { b.style.width = b.dataset.w; }), 300); }
-function cerrar() { side.classList.remove('on'); foco = null; S.verTodo = false; wrap.classList.remove('foco'); if (G) G.volar(G.HOME.p, G.HOME.t); }
+function cerrar() { side.classList.remove('on', 'ancho'); foco = null; S.verTodo = false; wrap.classList.remove('foco'); if (G) G.volar(G.HOME.p, G.HOME.t); }
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && enPagina() && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { if (cine) alternarCine(); else cerrar(); } });
 const ayuda = document.createElement('div'); ayuda.className = 'pb-of-ayuda';
 ayuda.innerHTML = '<button type="button" class="b" aria-label="Atajos y leyenda" title="Atajos y leyenda (?)">?</button><div class="c">'

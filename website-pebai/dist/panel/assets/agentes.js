@@ -436,7 +436,7 @@ function queHace(w) {
 }
 
 /* ============ control del agente: cupo, días, horario y espera al azar ============ */
-function controlCard(w) {
+function controlCard(w, alCambiar) {
   const c = el('div', 'pb-card pw-ctl');
   c.append(el('h2', null, 'Control del agente'), el('p', 'note', 'Cuántas empresas nuevas al día, qué días, en qué horario y cuánto espera entre un mensaje y otro. El momento exacto se elige al azar dentro de ese margen, repartido para llegar al cupo. Las respuestas que apruebas no cuentan.'));
   const d = ui.ctl || (ui.ctl = { limite: w.limite_dia, dias: (w.dias || [1, 2, 3, 4, 5]).map(Number), ventanas: (w.ventanas || []).map((v) => v.join('-')).join(', '),
@@ -469,7 +469,7 @@ function controlCard(w) {
   // Simulación en directo: ¿cabe el cupo?
   const sim = el('div', 'pw-ctl-sim');
   const save = btn('primary', null, 'Guardar'); save.type = 'submit';
-  const deshacer = btn('ghost', null, 'Descartar', () => { ui.ctl = null; drawAgentes(); });
+  const deshacer = btn('ghost', null, 'Descartar', () => { ui.ctl = null; (alCambiar || drawAgentes)(); });
   const pie = el('div', 'pw-ctl-pie'); pie.append(sim, deshacer, save);
   const minutosVentana = () => d.ventanas.split(/[,\n]+/).reduce((a, t) => {
     const m = t.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
@@ -502,7 +502,7 @@ function controlCard(w) {
     e.preventDefault();
     const fd = new URLSearchParams(); fd.set('limite_dia', d.limite); fd.set('ventanas', d.ventanas); fd.set('pausa_min', d.min); fd.set('pausa_max', d.max);
     d.dias.forEach((x) => fd.append('dias[]', x));
-    post('agente_config', fd, save).then(() => { ui.ctl = null; toast('Guardado. El agente lo usa desde el siguiente mensaje.'); refrescar(); }).catch((er) => toast(er.message, true));
+    post('agente_config', fd, save).then(() => { ui.ctl = null; toast('Guardado. El agente lo usa desde el siguiente mensaje.'); return refrescar(); }).then(() => { if (alCambiar) alCambiar(); }).catch((er) => toast(er.message, true));
   });
   c.append(f); pinta();
   return c;
@@ -582,11 +582,11 @@ function ejeY(s, W, L, Y, paso) {
   for (let k = 0; k <= 4; k++) { const y = Y(k * paso); s.append(sv('line', { x1: L, x2: W, y1: y, y2: y, class: 'grid' }), svt({ x: L - 6, y: y + 3, class: 'ax', 'text-anchor': 'end' }, k * paso)); }
 }
 
-function rendimientoCard() {
+function rendimientoCard(alCambiar) {
   const c = el('div', 'pb-card pw-rend');
   const hd = el('div', 'pw-rend-h'); hd.append(el('h2', null, 'Rendimiento'));
   const per = el('div', 'pb-subtabs'); ui.rdias = ui.rdias || 30;
-  [[14, '14 días'], [30, '30 días'], [60, '60 días']].forEach(([n, t]) => { const b = el('button', ui.rdias === n ? 'on' : '', t); b.type = 'button'; b.onclick = () => { ui.rdias = n; drawAgentes(); }; per.append(b); });
+  [[14, '14 días'], [30, '30 días'], [60, '60 días']].forEach(([n, t]) => { const b = el('button', ui.rdias === n ? 'on' : '', t); b.type = 'button'; b.onclick = () => { ui.rdias = n; (alCambiar || drawAgentes)(); }; per.append(b); });
   hd.append(per); c.append(hd);
   const data = serie(ui.rdias);
   const g = el('div', 'pw-rend-g');
@@ -709,6 +709,11 @@ function registroCard() {
   });
   c.append(chips, list); return c;
 }
+/* Piezas para la ficha de cada agente en la oficina (pestañas Ajustes y Rendimiento). Devuelven null si aún no hay datos. */
+window.PB_FICHA = Object.assign(window.PB_FICHA || {}, {
+  whatsapp: { ajustes: (re) => S.loaded ? controlCard(S.whatsapp || {}, re) : null, rendimiento: (re) => S.loaded ? rendimientoCard(re) : null },
+  scraper: { rendimiento: () => S.loaded && S.scraper ? scraperCard(S.scraper) : null },
+});
 function pagina() { return document.body.dataset.page || 'resumen'; }
 function crumb(p) { const [a, b] = PAGINAS[p] || PAGINAS.resumen; const c = $('#pb-crumb'); c.textContent = ''; c.append(el('span', null, a), el('b', null, b)); }
 function draw() {

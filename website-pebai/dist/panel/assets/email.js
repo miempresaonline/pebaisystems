@@ -220,6 +220,10 @@ function tarjetaAjustes() {
   d.append(f1, f2); return d;
 }
 
+window.PB_FICHA = Object.assign(window.PB_FICHA || {}, {
+  email: { ajustes: () => { if (!S.loaded || !S.cfg) return null; const d = tarjetaAjustes(); d.open = true; return d; } },
+});
+
 /* ============ tarjeta en Agentes ============ */
 function tarjetaAgente() {
   const box = $('#pe-agente'); if (!box) return; box.textContent = '';
