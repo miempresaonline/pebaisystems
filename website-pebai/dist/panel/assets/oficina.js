@@ -812,15 +812,25 @@ async function montar() {
   const camPrueba = new THREE.PerspectiveCamera();
   const encajar = () => {
     const c = cajaVista.getCenter(new THREE.Vector3());
+    /* las esquinas reales de cada sala (con su cartel) y de la plaza: una caja que lo envolviera todo
+       metería esquinas vacías cerca de la cámara y alejaría la vista sin necesidad */
     const esquinas = [];
-    [cajaVista.min.x, cajaVista.max.x].forEach((ex) => [0, 4.4].forEach((ey) => [cajaVista.min.z, cajaVista.max.z].forEach((ez) => esquinas.push(new THREE.Vector3(ex, ey, ez)))));
+    salas.forEach((sa) => { const b = new THREE.Box3().setFromObject(sa.g); [b.min.x, b.max.x].forEach((ex) => [0, b.max.y].forEach((ey) => [b.min.z, b.max.z].forEach((ez) => esquinas.push(new THREE.Vector3(ex, ey, ez))))); });
+    [[-PLAZA, 0], [PLAZA, 0], [0, PLAZA], [0, -PLAZA]].forEach(([ex, ez]) => esquinas.push(new THREE.Vector3(ex, 0, ez)));
     const retrato = camera.aspect < .9;
     const t0 = retrato ? new THREE.Vector3(c.x, 0, c.z - .6) : new THREE.Vector3(c.x, 0, c.z - 1.2);
-    const dir = (retrato ? new THREE.Vector3(0, .93, .38) : new THREE.Vector3(0, .76, .66)).normalize();
+    const dir = (retrato ? new THREE.Vector3(0, .9, .44) : new THREE.Vector3(0, .6, .8)).normalize();
     camPrueba.fov = camera.fov; camPrueba.aspect = camera.aspect; camPrueba.near = .1; camPrueba.far = 1000; camPrueba.updateProjectionMatrix();
-    const cabe = (dd) => { camPrueba.position.copy(t0).addScaledVector(dir, dd); camPrueba.lookAt(t0); camPrueba.updateMatrixWorld(); return esquinas.every((v) => { const q = v.clone().project(camPrueba); return Math.abs(q.x) < .97 && q.y < .9 && q.y > -.95; }); };
-    let lo = 4, hi = 400; for (let k = 0; k < 26; k++) { const mid = (lo + hi) / 2; if (cabe(mid)) hi = mid; else lo = mid; }
-    const dist = hi;
+    const cabe = (dd) => { camPrueba.position.copy(t0).addScaledVector(dir, dd); camPrueba.lookAt(t0); camPrueba.updateMatrixWorld(); return esquinas.every((v) => { const q = v.clone().project(camPrueba); return Math.abs(q.x) < .96 && q.y < .88 && q.y > -.92; }); };
+    /* distancia justa para que quepa todo y, después, centrado en vertical (se repite porque una cosa afecta a la otra) */
+    let dist = 60;
+    for (let vuelta = 0; vuelta < 4; vuelta++) {
+      let lo = 4, hi = 400; for (let k = 0; k < 24; k++) { const mid = (lo + hi) / 2; if (cabe(mid)) hi = mid; else lo = mid; }
+      dist = hi; cabe(dist);
+      const ys = esquinas.map((v) => v.clone().project(camPrueba).y), centroY = (Math.max(...ys) + Math.min(...ys)) / 2 - .02;
+      if (Math.abs(centroY) < .01) break;
+      t0.z -= centroY * dist * .45;
+    }
     /* un poco a la derecha, para que la tarjeta de avisos de arriba a la izquierda no tape ninguna sala */
     const dx = 0;
     /* en vertical (móvil) la vista es más cenital, para aprovechar el alto de la pantalla */
@@ -913,7 +923,8 @@ async function montar() {
   /* ---------- cámara con clics ---------- */
   let fly = null, intro = calma ? null : { k: 0 }, deriva = 0;
   let libre = false, arrastre = null, arrastrado = false;
-  const volar = (p, t) => { intro = null; libre = false; if (!Number.isFinite(camera.position.x)) { camera.position.copy(p); target.copy(t); } fly = { p0: camera.position.clone(), t0: target.clone(), p1: p.clone(), t1: t.clone(), k: 0 }; };
+  const inercia = new THREE.Vector3(); let zoomObj = 0;
+  const volar = (p, t) => { intro = null; libre = false; zoomObj = 0; inercia.set(0, 0, 0); if (!Number.isFinite(camera.position.x)) { camera.position.copy(p); target.copy(t); } fly = { p0: camera.position.clone(), t0: target.clone(), p1: p.clone(), t1: t.clone(), k: 0 }; };
   const enIntro = (e) => { const off = HOME.p.clone().sub(HOME.t), ang = (1 - e) * 1.1; off.applyAxisAngle(new THREE.Vector3(0, 1, 0), ang).multiplyScalar(1 + (1 - e) * .35); camera.position.copy(HOME.t).add(off); camera.position.y += (1 - e) * 6; target.copy(HOME.t).add(new THREE.Vector3(0, (1 - e) * 2, 0)); };
   if (intro) enIntro(0); else { camera.position.copy(HOME.p); target.copy(HOME.t); }
   const ray = new THREE.Raycaster(), m2 = new THREE.Vector2();
@@ -930,7 +941,7 @@ async function montar() {
   };
   const cv3 = renderer.domElement;
   cv3.style.touchAction = 'none';
-  cv3.addEventListener('pointerdown', (e) => { if (e.button !== 0) return; arrastre = { x: e.clientX, y: e.clientY, mov: false }; arrastrado = false; });
+  cv3.addEventListener('pointerdown', (e) => { if (e.button !== 0) return; arrastre = { x: e.clientX, y: e.clientY, mov: false }; arrastrado = false; inercia.set(0, 0, 0); });
   window.addEventListener('pointerup', () => { if (arrastre && arrastre.mov) { arrastrado = true; setTimeout(() => { arrastrado = false; }, 60); } arrastre = null; cv3.style.cursor = ''; });
   window.addEventListener('pointermove', (e) => {
     if (!arrastre || cine) return;
@@ -940,19 +951,22 @@ async function montar() {
     fly = null; intro = null; libre = true;
     const der = new THREE.Vector3().subVectors(camera.position, target).cross(camera.up).normalize().negate();
     const fre = new THREE.Vector3().subVectors(target, camera.position).setY(0).normalize();
-    const k = camera.position.distanceTo(target) * .0016;
+    const k = camera.position.distanceTo(target) * .00085;
     const mov = der.multiplyScalar(-dx * k).add(fre.multiplyScalar(dy * k));
-    const c = cajaVista.getCenter(new THREE.Vector3()), lim = cajaVista.getSize(new THREE.Vector3()).multiplyScalar(.6);
+    moverVista(mov); inercia.copy(mov);
+  });
+  /* mueve la vista sin salirse de la oficina */
+  const moverVista = (mov) => {
+    const c = cajaVista.getCenter(new THREE.Vector3()), lim = cajaVista.getSize(new THREE.Vector3()).multiplyScalar(.55);
     const nt = target.clone().add(mov);
     nt.x = THREE.MathUtils.clamp(nt.x, c.x - lim.x, c.x + lim.x); nt.z = THREE.MathUtils.clamp(nt.z, c.z - lim.z, c.z + lim.z);
     camera.position.add(nt.clone().sub(target)); target.copy(nt);
-  });
+  };
   cv3.addEventListener('wheel', (e) => {
     if (cine) return; e.preventDefault();
     fly = null; intro = null; libre = true;
-    const off = new THREE.Vector3().subVectors(camera.position, target);
-    const d = THREE.MathUtils.clamp(off.length() * Math.exp(e.deltaY * .0011), 5, (HOME.dist || 60) * 1.35);
-    camera.position.copy(target).add(off.setLength(d));
+    const actual = camera.position.distanceTo(target);
+    zoomObj = THREE.MathUtils.clamp((zoomObj || actual) * Math.exp(Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 120) * .0009), 6, (HOME.dist || 60) * 1.3);
   }, { passive: false });
   renderer.domElement.addEventListener('pointermove', (e) => {
     const r = renderer.domElement.getBoundingClientRect();
@@ -1098,6 +1112,8 @@ async function montar() {
     if (fly) { fly.k = Math.min(1, fly.k + dtReal / 1.1); const e = 1 - Math.pow(1 - fly.k, 3); camera.position.lerpVectors(fly.p0, fly.p1, e); target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) { fly = null; deriva = 0; } }
     if (cine) { cineAng += dtReal * .07; const off = HOME.p.clone().sub(HOME.t).applyAxisAngle(new THREE.Vector3(0, 1, 0), cineAng).multiplyScalar(.82); camera.position.copy(HOME.t).add(off); camera.position.y += Math.sin(t * .2) * .6; target.copy(HOME.t).add(new THREE.Vector3(0, .6, 0)); fly = null; intro = null; }
     else if (!fly && !intro && !foco && !calma && !libre) { deriva = Math.min(1, deriva + dt / 2.5); const off = HOME.p.clone().sub(HOME.t).applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.sin(t * .11) * .045 * deriva); camera.position.copy(HOME.t).add(off); camera.position.y += Math.sin(t * .17) * .25 * deriva; target.copy(HOME.t); }
+    if (!arrastre && inercia.lengthSq() > 1e-7) { moverVista(inercia); inercia.multiplyScalar(Math.pow(.9, dtReal * 60)); }
+    if (zoomObj) { const off = new THREE.Vector3().subVectors(camera.position, target), d = off.length(); const nd = d + (zoomObj - d) * Math.min(1, dtReal * 9); camera.position.copy(target).add(off.setLength(nd)); if (Math.abs(zoomObj - nd) < .02) zoomObj = 0; }
     camera.lookAt(target);
     composer.render();
   }
