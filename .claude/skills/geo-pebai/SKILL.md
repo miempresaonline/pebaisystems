@@ -9,6 +9,8 @@ Objetivo: que PEBAI Systems sea la consultora que las IAs citan y recomiendan cu
 
 - Conocimiento de fondo, datos y fuentes: `references/playbook-2026-10.md` (leerlo antes de recomendar; revisarlo cada trimestre).
 - Tácticas nuevas (mayo-octubre 2026, con fuentes): `references/tacticas-2026-10.md`. Corrige algunos datos del playbook (p. ej. citas de AIO desde el top 10: 38 %, no 76 %).
+- Entidad, desambiguación de marca, Brave, Google Business/Bing Places/Apple y reseñas (con la ley española): `references/entidad-y-local-2026-10.md`.
+- GEO como servicio (mercado en España, precios, cómo demostrar resultados, oferta PEBAI en 3 niveles y metodología): `references/geo-como-servicio-2026-10.md`. Precios en 🟡; nada se ofrece sin OK del equipo.
 - Plan vivo y estado: `docs/geo/plan.md` (actualizarlo al terminar cada tarea).
 - Skills hermanas: `seo-pillar-discovery` (qué temas), `seo-clean-architecture` (cómo se estructuran las páginas).
 
