@@ -395,9 +395,9 @@ function drawAgentes() {
   [['Enviados · 30 días', N(env30), null], ['Respondieron', N(respondieron), pct(respondieron, enviadosTot)], ['Bajas', N(S.bajas || 0), null], ['En cola', N(P.filter((p) => p.estado === 'pendiente').length), null]]
     .forEach(([l, v, x]) => { const d = el('div'); const b = el('b', null, v); if (x) b.append(el('em', null, x)); d.append(el('small', null, l), b); stats.append(d); });
   card.append(stats);
+  box.append(controlCard(w));
   box.append(card);
 
-  box.append(controlCard(w));
   box.append(rendimientoCard());
 
   const feedC = el('div', 'pb-card');

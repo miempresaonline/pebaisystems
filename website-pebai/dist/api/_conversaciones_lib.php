@@ -62,6 +62,12 @@ function pebai_conv_db(): PDO
             enviado_at TEXT NOT NULL DEFAULT "",
             error TEXT NOT NULL DEFAULT ""
         )');
+        $colsW = array_column($db->query('PRAGMA table_info(wa_salida)')->fetchAll(), 'name');
+        foreach (['no_antes' => 'TEXT NOT NULL DEFAULT ""', 'plantilla' => 'TEXT NOT NULL DEFAULT "respuesta"'] as $col => $def) {
+            if (!in_array($col, $colsW, true)) {
+                $db->exec("ALTER TABLE wa_salida ADD COLUMN $col $def");
+            }
+        }
         $ready = true;
     }
     return $db;
@@ -129,6 +135,40 @@ function pebai_conv_clasificar(int $max = 10): int
     return $hechas;
 }
 
+/**
+ * Contestador automático (orden de Daniel, 21/10): si salta justo después de nuestro primer mensaje, el agente espera 3-5 minutos,
+ * como haría una persona, y contesta solo con una frase muy breve (el mensaje ya lo tienen arriba y lo verán cuando estén activos).
+ * Una sola vez, solo por WhatsApp y solo si es la respuesta a nuestro primer mensaje (en las 3 horas siguientes).
+ */
+const PEBAI_CORTESIA = [
+    '¡Gracias! Os lo dejo aquí arriba para cuando lo veáis.',
+    'Perfecto, gracias. Cuando tengáis un momento lo veis arriba.',
+    'Gracias, sin prisa. Lo tenéis justo arriba cuando podáis.',
+    '¡Genial, gracias! Cuando lo leáis me decís.',
+    'Gracias. Lo dejo por aquí para cuando estéis.',
+];
+
+function pebai_conv_cortesia(string $canal, array $p, array $msgs): void
+{
+    $salen = array_values(array_filter($msgs, static fn($m) => $m['sentido'] === 'sale'));
+    // El contestador suele saltar antes de que el agente apunte el envío: entonces aún no hay «sale» y vale la hora en que empezó a escribir
+    $env = (string)(($p['enviado_at'] ?? '') ?: ($p['enviando_at'] ?? ''));
+    if ($canal !== 'whatsapp' || count($salen) > 1 || $env === '' || strtotime($env) < time() - 3 * 3600 || pebai_conv_es_baja($canal, $p)) {
+        return;
+    }
+    $db = pebai_conv_db();
+    $q = $db->prepare('SELECT COUNT(*) FROM wa_salida WHERE prospecto_id = ?');
+    $q->execute([$p['id']]);
+    if ((int)$q->fetchColumn()) {
+        return;
+    }
+    $texto = PEBAI_CORTESIA[array_rand(PEBAI_CORTESIA)];
+    $cuando = date('Y-m-d H:i:s', time() + random_int(180, 300));
+    $db->prepare("INSERT INTO wa_salida (ts, prospecto_id, telefono, texto, no_antes, plantilla) VALUES (?, ?, ?, ?, ?, 'cortesia')")
+       ->execute([date('Y-m-d H:i:s'), $p['id'], $p['telefono'], $texto, $cuando]);
+    pebai_actividad('whatsapp', 'respuesta', 'Contestador de ' . ($p['empresa'] ?: $p['telefono']) . ': le contesta en unos minutos con «' . $texto . '»', '', 'wa:' . $p['id']);
+}
+
 /** Clasifica una conversación ya (al llegar una respuesta) y, si toca contestar, prepara el borrador. */
 function pebai_conv_al_momento(string $canal, int $id): void
 {
@@ -153,6 +193,10 @@ function pebai_conv_al_momento(string $canal, int $id): void
     $db->prepare('INSERT INTO conversaciones (canal, prospecto_id, clasificacion, resumen, ultimo_msg, clasificado_at) VALUES (?, ?, ?, ?, ?, ?)
                   ON CONFLICT(canal, prospecto_id) DO UPDATE SET clasificacion = excluded.clasificacion, resumen = excluded.resumen, ultimo_msg = excluded.ultimo_msg, clasificado_at = excluded.clasificado_at')
        ->execute([$canal, $id, $res['estado'], $res['resumen'], $ult, date('Y-m-d H:i:s')]);
+    if ($res['estado'] === 'auto') {
+        pebai_conv_cortesia($canal, $p, $msgs);
+        return;
+    }
     if (!in_array($res['estado'], ['auto', 'no_interesado'], true) && !pebai_conv_es_baja($canal, $p) && end($msgs)['sentido'] === 'entra') {
         $b = pebai_conv_borrador($canal, $id);
         if (isset($b['texto'])) {
@@ -184,7 +228,7 @@ function pebai_conv_lead(string $telefono, string $email): int
 function pebai_conv_toca_contestador(string $clasificacion, array $msgs, string $enviadoAt): bool
 {
     $salen = count(array_filter($msgs, static fn($m) => ($m['sentido'] ?? $m['de'] ?? '') === 'sale'));
-    return $clasificacion === 'auto' && $salen === 1 && $enviadoAt !== '' && substr($enviadoAt, 0, 10) < date('Y-m-d');
+    return false;   // 21/10: sustituido por la respuesta automática a los 3-5 minutos (pebai_conv_cortesia)
 }
 
 const PEBAI_CONV_ENLACE = '[ENLACE_RESERVA]';
@@ -336,8 +380,8 @@ function pebai_conv_borradores(int $max = 3): int
 {
     $db = pebai_conv_db();
     $hechos = 0;
-    // Contestadores del día anterior: su único mensaje corto
-    foreach ($db->query("SELECT canal, prospecto_id FROM conversaciones WHERE clasificacion = 'auto' AND manual = 0 AND borrador = ''")->fetchAll() as $c) {
+    // (Los contestadores ya no esperan al día siguiente: se contestan solos al momento, ver pebai_conv_cortesia)
+    foreach ([] as $c) {
         if ($hechos >= $max) {
             break;
         }
@@ -447,7 +491,7 @@ function pebai_conv_datos(): array
     }
     $msgs = [];
     foreach ($db->query("SELECT id, ts, agente, prospecto_id, sentido, texto, plantilla FROM agente_mensajes WHERE prospecto_id > 0 ORDER BY ts, id") as $m) {
-        $msgs[($m['agente'] === 'email' ? 'email' : 'whatsapp') . ':' . $m['prospecto_id']][] = ['id' => (int)$m['id'], 'ts' => $m['ts'], 'de' => $m['sentido'], 'texto' => $m['texto'], 'manual' => $m['plantilla'] === 'manual' ? 1 : 0, 'respuesta' => $m['plantilla'] === 'respuesta' ? 1 : 0];
+        $msgs[($m['agente'] === 'email' ? 'email' : 'whatsapp') . ':' . $m['prospecto_id']][] = ['id' => (int)$m['id'], 'ts' => $m['ts'], 'de' => $m['sentido'], 'texto' => $m['texto'], 'manual' => $m['plantilla'] === 'manual' ? 1 : 0, 'respuesta' => $m['plantilla'] === 'respuesta' ? 1 : 0, 'cortesia' => $m['plantilla'] === 'cortesia' ? 1 : 0];
     }
     $cola = [];
     foreach ($db->query("SELECT prospecto_id, texto, estado, error FROM wa_salida WHERE estado <> 'enviado' ORDER BY id") as $w) {

@@ -199,7 +199,7 @@ function pebai_wa_ventana(?int $now = null): array
 
 function pebai_wa_enviados_hoy(): int
 {
-    $q = pebai_agentes_db()->prepare("SELECT COUNT(*) FROM agente_mensajes WHERE agente = 'whatsapp' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta') AND ts >= ?");
+    $q = pebai_agentes_db()->prepare("SELECT COUNT(*) FROM agente_mensajes WHERE agente = 'whatsapp' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta','cortesia') AND ts >= ?");
     $q->execute([date('Y-m-d 00:00:00')]);
     return (int)$q->fetchColumn();
 }

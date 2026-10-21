@@ -61,10 +61,36 @@ if ($auth && isset($_GET['global'])) {
             'no' => $cuenta(static fn($f) => $f['estado'] === 'no_interesado'),
             'te_toca' => $cuenta(static fn($f) => (bool)$f['te_toca']),
             'listas_para_aprobar' => $cuenta(static fn($f) => $f['te_toca'] && $f['borrador'] !== ''),
+            'estados' => array_count_values(array_map(static fn($f) => $f['estado'] === 'pendiente_ia' ? 'pregunta' : $f['estado'], $filas)),
             'te_toca_lista' => array_values(array_map(static fn($f) => ['empresa' => $f['empresa'], 'canal' => $f['canal'], 'resumen' => $f['resumen'], 'k' => $f['k'], 'lista' => $f['borrador'] !== ''],
                 array_slice(array_filter($filas, static fn($f) => (bool)$f['te_toca']), 0, 6))),
         ];
     }, 'salida');
+
+    // Tendencia de 14 días: primeros mensajes enviados y empresas que contestan por primera vez (sin contestadores)
+    $out['serie'] = gl_bloque(static function () {
+        $adb = pebai_agentes_db();
+        $desde = date('Y-m-d', strtotime('-13 days'));
+        $dias = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $dias[date('Y-m-d', strtotime("-$i days"))] = ['env' => 0, 'resp' => 0];
+        }
+        $q = $adb->prepare("SELECT substr(ts, 1, 10) d, COUNT(*) n FROM agente_mensajes WHERE sentido = 'sale' AND prospecto_id > 0 AND plantilla NOT IN ('manual', 'respuesta', 'cortesia') AND ts >= ? GROUP BY d");
+        $q->execute([$desde]);
+        foreach ($q as $r) {
+            if (isset($dias[$r['d']])) {
+                $dias[$r['d']]['env'] = (int)$r['n'];
+            }
+        }
+        $q = $adb->query("SELECT substr(MIN(m.ts), 1, 10) d FROM agente_mensajes m LEFT JOIN conversaciones c ON c.canal = m.agente AND c.prospecto_id = m.prospecto_id
+                          WHERE m.sentido = 'entra' AND m.prospecto_id > 0 AND COALESCE(c.clasificacion, '') <> 'auto' GROUP BY m.agente, m.prospecto_id");
+        foreach ($q as $r) {
+            if (isset($dias[$r['d']])) {
+                $dias[$r['d']]['resp']++;
+            }
+        }
+        return array_map(static fn($d, $v) => ['d' => $d] + $v, array_keys($dias), $dias);
+    }, 'serie');
 
     // Embudo de entrada: solicitudes del formulario (las de trato directo, aparte)
     $out['entrada'] = gl_bloque(static function () {

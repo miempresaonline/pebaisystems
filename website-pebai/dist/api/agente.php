@@ -72,7 +72,7 @@ switch ($in['accion'] ?? '') {
             pebai_actividad_espera('whatsapp', 'Cupo de hoy completo (' . $cfg['limite_dia'] . ' mensajes)');
             out(['ok' => true, 'esperar' => 3600, 'motivo' => 'cupo_completo']);
         }
-        $ultimo = (string)$db->query("SELECT MAX(ts) FROM agente_mensajes WHERE agente = 'whatsapp' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta')")->fetchColumn();
+        $ultimo = (string)$db->query("SELECT MAX(ts) FROM agente_mensajes WHERE agente = 'whatsapp' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta','cortesia')")->fetchColumn();
         if ($ultimo !== '' && strtotime($ultimo) > time() - $cfg['pausa_min']) {
             out(['ok' => true, 'esperar' => strtotime($ultimo) + $cfg['pausa_min'] - time() + random_int(30, 240), 'motivo' => 'pausa_entre_envios']);
         }
@@ -194,7 +194,9 @@ switch ($in['accion'] ?? '') {
         // Si el bot se cayó a mitad de un envío no se reintenta (podría salir dos veces): queda como error para que Daniel lo mire
         $db->prepare("UPDATE wa_salida SET estado = 'error', error = 'Sin confirmar: revisa en el móvil si salió' WHERE estado = 'enviando' AND enviado_at < ?")->execute([date('Y-m-d H:i:s', time() - 1800)]);
         $db->exec("UPDATE wa_salida SET estado = 'error', error = 'Baja: no se envía' WHERE estado = 'pendiente' AND telefono IN (SELECT telefono FROM bajas)");
-        $w = $db->query("SELECT id, prospecto_id, telefono, texto FROM wa_salida WHERE estado = 'pendiente' ORDER BY id LIMIT 1")->fetch();
+        $q = $db->prepare("SELECT id, prospecto_id, telefono, texto FROM wa_salida WHERE estado = 'pendiente' AND (no_antes = '' OR no_antes <= ?) ORDER BY id LIMIT 1");
+        $q->execute([$now]);
+        $w = $q->fetch();
         if ($w) {
             $db->prepare("UPDATE wa_salida SET estado = 'enviando', enviado_at = ? WHERE id = ?")->execute([$now, $w['id']]);
         }
@@ -214,8 +216,8 @@ switch ($in['accion'] ?? '') {
         $quien = (string)$q->fetchColumn() ?: $w['telefono'];
         if (!empty($in['ok'])) {
             $db->prepare("UPDATE wa_salida SET estado = 'enviado', enviado_at = ?, error = '' WHERE id = ?")->execute([$now, $w['id']]);
-            $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla) VALUES (?, 'whatsapp', ?, ?, 'sale', ?, 'respuesta')")
-               ->execute([$now, $w['prospecto_id'], $w['telefono'], $w['texto']]);
+            $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla) VALUES (?, 'whatsapp', ?, ?, 'sale', ?, ?)")
+               ->execute([$now, $w['prospecto_id'], $w['telefono'], $w['texto'], $w['plantilla'] ?: 'respuesta']);
             pebai_actividad('whatsapp', 'envio', 'Respuesta enviada a ' . $quien, $w['texto'], 'wa:' . $w['prospecto_id']);
         } else {
             $err = mb_substr((string)($in['error'] ?? 'error'), 0, 250);

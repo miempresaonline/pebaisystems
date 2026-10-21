@@ -558,7 +558,7 @@ if ($auth && isset($_GET['agentes'])) {
     unset($p);
     // Gráficas: primeros mensajes y respuestas por día y canal (60 días) y en qué punto está cada conversación
     $q2 = $adb->prepare("SELECT substr(ts, 1, 10) d, agente, sentido, COUNT(*) n FROM agente_mensajes
-                         WHERE ts >= ? AND prospecto_id > 0 AND plantilla NOT IN ('manual', 'respuesta') GROUP BY d, agente, sentido");
+                         WHERE ts >= ? AND prospecto_id > 0 AND plantilla NOT IN ('manual', 'respuesta', 'cortesia') GROUP BY d, agente, sentido");
     $q2->execute([date('Y-m-d', strtotime('-59 days'))]);
     $graf = ['dias' => array_values(array_filter($q2->fetchAll(), fn($r) => $r['sentido'] === 'sale')), 'estados' => []];
     // Respuestas = empresas que contestan (el día de su primera respuesta), sin contar los contestadores automáticos
@@ -598,7 +598,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '46';
+$v = '48';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -690,6 +690,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     </div>
     <div class="grp"><small>Automático</small>
       <button data-page="agentes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg><span>Agentes</span><i class="pb-live" id="pb-ag-live" title="Estado de los agentes"></i></button>
+      <button data-page="agentes" id="pb-nav-control" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span>Control de envíos</span></button>
     </div>
   </nav>
   <div class="pb-side-foot">
@@ -926,6 +927,13 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
   const ir = document.getElementById('pb-of-ajustes'), vuelve = document.getElementById('pb-of-volver');
   if (ir) ir.addEventListener('click', (e) => { e.stopPropagation(); vista(true); });
   if (vuelve) vuelve.addEventListener('click', () => vista(false));
+  // Menú: «Agentes» abre la oficina; «Control de envíos» va directo al cupo, el horario, la espera y las gráficas
+  const nav = document.querySelector('#pb-tabs button[data-page="agentes"]:not(#pb-nav-control)'), ctl = document.getElementById('pb-nav-control');
+  const marca = () => { const on = document.body.dataset.page === 'agentes'; const aj = document.body.classList.contains('pb-ag-ajustes'); if (nav) nav.classList.toggle('on', on && !aj); if (ctl) ctl.classList.toggle('on', on && aj); };
+  if (nav) nav.addEventListener('click', () => { vista(false); setTimeout(marca, 0); });
+  if (ctl) ctl.addEventListener('click', () => { vista(true); setTimeout(() => { marca(); const t = document.querySelector('.pw-ctl'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120); });
+  document.addEventListener('pb:page', () => setTimeout(marca, 0));
+  document.addEventListener('pb:agview', () => setTimeout(marca, 0));
   try { if (sessionStorage.getItem('pb-ag-vista') === 'ajustes') document.body.classList.add('pb-ag-ajustes'); } catch (e) {}
 })();
 </script>
