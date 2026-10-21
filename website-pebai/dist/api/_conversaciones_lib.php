@@ -262,7 +262,9 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
           . 'así que tiene que ser muy corto (máximo 30 palabras), amable y natural, como si lo escribiera Daniel desde el móvil al día siguiente. '
           . 'Sin repetir el primer mensaje: una frase que diga a qué se dedica PEBAI con ellos (que nadie que les pida presupuesto se quede sin respuesta) '
           . 'y UNA pregunta muy fácil de contestar (p. ej. quién lleva los mensajes de presupuesto o si les vendría bien). '
-          . 'No menciones el contestador automático. PROHIBIDO: llamada, reunión, enlaces, plazas, «gratis», cualquier oferta.'
+          . 'Nadie lo ha leído aún: NO digas «perdona», «no me expliqué bien» ni nada que suene a corregirles, y no menciones el contestador automático. '
+          . 'Empieza de forma natural y distinta cada vez (p. ej. «Buenos días», «Hola de nuevo», «Hola, ¿qué tal?») y menciona algo de su empresa o su zona si lo sabes. '
+          . 'PROHIBIDO: llamada, reunión, enlaces, plazas, «gratis», cualquier oferta.'
         : ($enlaceDado
         ? 'Ya tiene el enlace para reservar. Resuelve lo que pregunte y, si hace falta, recuérdale con suavidad que puede elegir hora cuando quiera. No repitas el enlace salvo que lo pida (entonces pon ' . PEBAI_CONV_ENLACE . ').'
         : ($interes
@@ -291,13 +293,13 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         . "- Si dices que la llamada es gratis, di siempre en la misma frase que es solo para 5 empresas al mes (nunca «gratis» a secas).\n"
         . "- No propongas días ni horas concretas: si llega el momento, eligen ellos el hueco en el enlace.\n"
         . ($instruccion !== '' ? "- INDICACIÓN DE DANIEL PARA ESTA RESPUESTA (manda sobre lo demás): {$instruccion}\n" : '')
-        . ($ej !== '' ? "\nASÍ ESCRIBE DANIEL (imita su estilo y sus correcciones):\n{$ej}" : '')
+        . ($ej !== '' && !$auto ? "\nASÍ ESCRIBE DANIEL (imita su estilo y sus correcciones):\n{$ej}" : '')
         . "\nCONVERSACIÓN HASTA AHORA:\n{$hilo}\nResponde SOLO JSON {\"respuesta\": \"texto del mensaje\"}.";
     for ($i = 0; $i < 3; $i++) {
         $r = pebai_ia_json($prompt);
         $t = trim(str_replace("\r", '', (string)($r['respuesta'] ?? '')));
         $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
-        $prisa = !$interes && !$enlaceDado && preg_match('/' . preg_quote(PEBAI_CONV_ENLACE, '/') . '|videollamada|llamada|reuni[oó]n|25 minutos|gratis|gratuit|plazas/iu', $t);
+        $prisa = ($auto && preg_match('/perdon|no me expliqu/iu', $t)) || !$interes && !$enlaceDado && preg_match('/' . preg_quote(PEBAI_CONV_ENLACE, '/') . '|videollamada|llamada|reuni[oó]n|25 minutos|gratis|gratuit|plazas/iu', $t);
         if ($t !== '' && !$prisa && $n <= ($auto ? ($email ? 60 : 40) : ($email ? 130 : 85)) && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t)) {
             // Segundo mensaje a quien aún no ha leído nada: vuelve a ofrecer no escribir más (regla legal)
             if ($auto && !preg_match('/no (os |te )?(escribo|vuelvo|molesto)|no os escribir|digáis|dímelo|me lo dices/iu', $t)) {
