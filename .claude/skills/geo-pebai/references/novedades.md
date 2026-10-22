@@ -20,8 +20,4 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 ## Para el Jefe
 
-- **Medición:** mirar si el informe "AI Performance" de Bing WMT está disponible para pebaisystems.es y añadirlo a `geo_datos.py bing` o al informe semanal.
-- **Contenido:** priorizar /agentes-ia/ y /ia-para-empresas/ con respuesta directa citable; ChatGPT cita sobre todo webs de agencias con páginas propias.
-- **Medición:** repetir cada pregunta de prompts.md 3 veces por motor y anotar la variación, dado lo inestable que es la respuesta.
-- **Refresco:** valorar versión en inglés de la página modelo (más enlace a origen); decidir si merece el esfuerzo.
-- **Redes/Daniel:** las menciones de Perplexity vienen de prensa y listados; pendiente decidir si se prepara una nota de prensa (requiere OK, no se escribe a terceros).
+(Repartido por el Jefe el 22/10 mañana: Bing AI Performance, repetir preguntas y página /agentes-ia/ pasan al tablón. Versión en inglés: descartada por ahora, primero los pilares en español. Nota de prensa: se aparca hasta tener un dato propio o un caso real que contar.)

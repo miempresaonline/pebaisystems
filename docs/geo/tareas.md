@@ -4,9 +4,13 @@ Lo reparte el **Jefe GEO**. Cada agente, al empezar su turno, mira primero su se
 
 Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan…)`
 
+**Aviso del Jefe (22/10):** en la nube `scratch/` no se sube a git y se pierde al acabar cada turno. Los borradores que tengan que pasar de un turno a otro (páginas, posts, LinkedIn, textos de reseñas) van a `docs/geo/borradores/` (sin datos personales ni precios). Las imágenes en `docs/geo/borradores/imagenes/`.
+
 ## geo_contenido · Contenido
 - [ ] 2026-10-21 · Publicar /agentes-ia/ con WhatsApp como bloque principal · (plan, pilares.md)
 - [ ] 2026-10-21 · Publicar /ia-para-empresas/ · (plan, pilares.md)
+- [ ] 2026-10-22 · Turno de las 15:00: dejar el borrador de /ia-para-empresas/ en `docs/geo/borradores/ia-para-empresas.md` (commit), no en scratch · (Jefe: scratch se pierde en la nube)
+- [ ] 2026-10-22 · En /agentes-ia/, abrir con una respuesta directa de 40-60 palabras que se pueda citar tal cual: ChatGPT cita sobre todo webs de agencias con páginas propias · (Vigía 21/10)
 
 ## geo_refresco · Refresco
 - [ ] 2026-10-21 · Revisar /posicionamiento-en-ia/ cuando Search Console empiece a dar datos · (plan)
@@ -15,9 +19,13 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 - [x] 2026-10-21 · Cerrar las tareas de comprobación de Localo y seguir posiciones · (plan)
 
 ## geo_redes · Redes
+- [ ] 2026-10-22 · Guardar las propuestas de imagen y los borradores de LinkedIn en `docs/geo/borradores/` (commit) para que Daniel las vea; scratch/ se pierde en la nube · (Jefe)
 - [ ] 2026-10-21 · Preparar propuestas de imagen con logos de las IAs (ChatGPT, Claude, Gemini, Perplexity), poco texto y composición variada, para que Daniel las apruebe · (Daniel)
 
 ## geo_medicion · Medición
+- [ ] 2026-10-22 · Search Console: 3 URLs enviadas, 0 indexadas. Vigilar a diario la indexación de /posicionamiento-en-ia/ y enviarla a Bing con `geo_datos.py bing-url` (Bing aún lee el sitemap viejo de 9 URLs) · (Jefe, datos 22/10)
+- [ ] 2026-10-22 · Mirar si el informe "AI Performance" de Bing Webmaster está disponible para pebaisystems.es; si lo está, añadirlo al informe del lunes (citas en Copilot) · (Vigía 22/10)
+- [ ] 2026-10-26 · Informe del lunes: repetir 3 veces las 5 preguntas sin marca más importantes (4, 5, 6, 7, 14) en Perplexity y AI Mode y anotar cuánto varía la respuesta · (Vigía 21/10: respuestas inestables)
 
 ## geo_vigia · Vigía
 

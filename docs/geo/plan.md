@@ -17,7 +17,7 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 
 ## Fase 1 — Que puedan leernos (semanas 1-2)
 
-- [~] Cloudflare (21/10): AI bot policies con Search, Agent y Training en Allow y *Bot Preference Sync* desactivado. robots.txt servido = el nuestro. ClaudeBot, Google-Extended, Applebot-Extended, OAI-SearchBot, PerplexityBot y Bingbot dan 200. **GPTBot da 429** desde una IP que no es de OpenAI (posible control anti-suplantación o propagación): confirmar con las visitas reales en Clarity (actividad de bots, conectada a Cloudflare el 21/10) o en AI Crawl Control.
+- [~] Cloudflare (21/10): AI bot policies con Search, Agent y Training en Allow y *Bot Preference Sync* desactivado. robots.txt servido = el nuestro. ClaudeBot, Google-Extended, Applebot-Extended, OAI-SearchBot, PerplexityBot y Bingbot dan 200. (22/10: GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot ya dan 200 con curl -A; antes) **GPTBot daba 429** desde una IP que no es de OpenAI (posible control anti-suplantación o propagación): confirmar con las visitas reales en Clarity (actividad de bots, conectada a Cloudflare el 21/10) o en AI Crawl Control.
 - [~] Bing Webmaster: la importación desde Search Console falló (21/10, "not able to fetch data"); pasar a verificación manual con `BingSiteAuth.xml`. Search Console: archivo de verificación subido (commit 9dad61a). Clarity: Cita (dominio conectado) y actividad de bots (Cloudflare) configurados el 21/10.
 - [x] `robots.txt`: añadir Claude-SearchBot, Claude-User y Perplexity-User.
 - [x] `sitemap.xml`: solo URLs indexables; commitear el estado real.
@@ -65,8 +65,8 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 
 | Herramienta | Estado |
 |---|---|
-| Search Console | 🔑 falta la cuenta de servicio `seo-pebai-automation.json` en `C:/programacion/APIs/` (está referenciada pero no existe) o dar acceso a otra |
-| Bing Webmaster | 🔑 clave del ZIP pendiente de copiar; verificar el sitio |
+| Search Console | funciona desde la nube (`geo_datos.py gsc`); 22/10: sitemap de 3 URLs leído, 0 indexadas aún |
+| Bing Webmaster | funciona desde la nube (`geo_datos.py bing`); 22/10: aún lee el sitemap viejo de 9 URLs, sin datos de tráfico |
 | IndexNow | clave pública en `dist/`; falta automatizar |
 | SE Ranking | `se_ranking_site_id` configurado; claves del ZIP pendientes de copiar; probar acceso |
 | GA4 | `ga4_property_id` configurado; falta canal IA |
@@ -86,10 +86,12 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 
 (La reescribe el Jefe GEO los lunes y jueves.)
 
-1. Contenido: publicar /agentes-ia/ y /ia-para-empresas/.
-2. Local: cerrar las tareas de Localo y seguir las posiciones.
-3. Redes: preparar el sistema de imágenes nuevas para los posts (pendiente de visto bueno).
-4. Equipo: página de LinkedIn (verificación pendiente) y casos reales.
+Jueves 22/10 (Jefe):
+1. Contenido: publicar /agentes-ia/ (hoy) y /ia-para-empresas/ (borrador hoy a las 15:00, publicar el viernes). Es lo único que mueve el 0 % de presencia sin marca. (geo_contenido)
+2. Medición: que Google y Bing indexen /posicionamiento-en-ia/ (0 de 3 URLs indexadas en Search Console) y ver si Bing da el informe AI Performance. (geo_medicion)
+3. Redes: propuestas de imagen para los posts de Google Business, guardadas en `docs/geo/borradores/` para que Daniel las apruebe. (geo_redes)
+4. Local: seguir las posiciones y tareas de Localo. (geo_local)
+5. Equipo: página de LinkedIn (verificación pendiente) y casos reales. (Daniel)
 
 ## Propuestas del Vigía
 
