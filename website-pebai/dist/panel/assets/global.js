@@ -14,7 +14,7 @@ const euros = (c) => new Intl.NumberFormat('es-ES', { style: 'currency', currenc
 const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const ir = (p) => { const b = document.querySelector(`#pb-tabs button[data-page="${p}"]:not(#pb-nav-control)`); if (b) b.click(); };
 const ST = { trabajando: ['var(--green)', 'Trabajando'], espera: ['var(--cyan)', 'En espera'], dormido: ['var(--muted-2)', 'Dormido'], pausado: ['var(--amber)', 'En pausa'], error: ['var(--red)', 'Revisar'] };
-const ESTADOS = [['interesado', 'Interesadas', '#B7FF3C'], ['cita', 'Citas', '#25D366'], ['pregunta', 'Contestaron', '#3FD5FF'], ['sin_respuesta', 'Sin respuesta', '#6F7189'],
+const ESTADOS = [['interesado', 'Interesadas', '#B7FF3C'], ['cita', 'Citas', '#25D366'], ['info_enviada', 'Info enviada', '#7E73FF'], ['pregunta', 'Contestaron', '#3FD5FF'], ['sin_respuesta', 'Sin respuesta', '#6F7189'],
   ['auto', 'Contestador', '#9A9CB0'], ['no_interesado', 'No quieren', '#FF6B7A']];
 let G = null;
 

@@ -16,9 +16,9 @@ const guarda = () => { try { localStorage.setItem('pebai-conv-ui', JSON.stringif
 const EST = {
   sin_respuesta: ['Sin respuesta', '#6F7189'], auto: ['Contestador', '#9A9CB0'], pregunta: ['Contestó', '#3FD5FF'], pendiente_ia: ['Contestó', '#3FD5FF'],
   interesado: ['Interesado', '#B7FF3C'], no_interesado: ['No interesado', '#FF6B7A'], cita: ['Cita reservada', '#25D366'],
-  te_toca: ['Te toca responder', '#FFB547'],
+  te_toca: ['Te toca responder', '#FFB547'], info_enviada: ['Info enviada', '#7E73FF'],
 };
-const ORDEN = ['', 'te_toca', 'interesado', 'cita', 'pregunta', 'sin_respuesta', 'auto', 'no_interesado'];
+const ORDEN = ['', 'te_toca', 'interesado', 'cita', 'info_enviada', 'pregunta', 'sin_respuesta', 'auto', 'no_interesado'];
 const grupo = (e) => (e === 'pendiente_ia' ? 'pregunta' : e);
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];

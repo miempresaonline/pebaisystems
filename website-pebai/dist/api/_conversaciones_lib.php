@@ -17,7 +17,7 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
 require_once __DIR__ . '/_agentes_lib.php';
 require_once __DIR__ . '/_ia_lib.php';
 
-const PEBAI_CONV_ESTADOS = ['auto', 'interesado', 'no_interesado', 'pregunta', 'neutral'];
+const PEBAI_CONV_ESTADOS = ['auto', 'interesado', 'no_interesado', 'pregunta', 'neutral', 'info_enviada'];
 
 function pebai_conv_db(): PDO
 {
@@ -246,9 +246,10 @@ PEBAI Systems";
     $despedida = (int)date('G') >= 14 ? '¡Buena tarde!' : '¡Buen día!';
     pebai_conv_db()->prepare("INSERT INTO wa_salida (ts, prospecto_id, telefono, texto, no_antes, plantilla) VALUES (?, ?, ?, ?, ?, 'respuesta')")
         ->execute([$now, $p['id'], (string)$p['telefono'], "Perfecto, ya te lo he enviado a {$to} 👍\n\nCualquier cosa me dices por aquí. {$despedida}", date('Y-m-d H:i:s', time() + random_int(180, 300))]);
-    pebai_conv_db()->prepare("INSERT INTO conversaciones (canal, prospecto_id, clasificacion, resumen, manual, borrador, clasificado_at) VALUES ('whatsapp', ?, 'interesado', ?, 1, '', ?)
-                              ON CONFLICT(canal, prospecto_id) DO UPDATE SET clasificacion = 'interesado', resumen = excluded.resumen, manual = 1, borrador = '', clasificado_at = excluded.clasificado_at")
-        ->execute([$p['id'], 'Pidió la información por email: se la enviamos a ' . $to, $now]);
+    $ult = (int)pebai_conv_db()->query('SELECT MAX(id) FROM agente_mensajes WHERE agente = \'whatsapp\' AND prospecto_id = ' . (int)$p['id'])->fetchColumn();
+    pebai_conv_db()->prepare("INSERT INTO conversaciones (canal, prospecto_id, clasificacion, resumen, manual, ultimo_msg, borrador, clasificado_at) VALUES ('whatsapp', ?, 'info_enviada', ?, 0, ?, '', ?)
+                              ON CONFLICT(canal, prospecto_id) DO UPDATE SET clasificacion = 'info_enviada', resumen = excluded.resumen, manual = 0, ultimo_msg = excluded.ultimo_msg, borrador = '', clasificado_at = excluded.clasificado_at")
+        ->execute([$p['id'], 'Pidió la información por email: se la enviamos a ' . $to . '. Pendiente de que conteste.', $ult, $now]);
     pebai_actividad('email', 'envio', 'Información enviada por email a ' . ($p['empresa'] ?: $to) . ' (la pidió por WhatsApp)', $to, 'wa:' . $p['id']);
     return true;
 }
@@ -667,7 +668,7 @@ function pebai_conv_datos(): array
                 // y Daniel no ha marcado que ya le contestó por su cuenta (un mensaje nuevo de la empresa lo vuelve a activar)
                 'te_toca' => empty($cola[$k]) && (!$hilo || (int)($c['contestado_hasta'] ?? 0) < end($hilo)['id'])
                     && !pebai_conv_cerrada($hilo)
-                    && (($hilo && end($hilo)['de'] === 'entra' && !in_array($estado, ['no_interesado', 'auto', 'cita'], true))
+                    && (($hilo && end($hilo)['de'] === 'entra' && !in_array($estado, ['no_interesado', 'auto', 'cita', 'info_enviada'], true))
                     || ($estado === 'auto' && pebai_conv_toca_contestador('auto', $hilo, (string)$p['enviado_at']))) ? 1 : 0,
                 'contestado' => $hilo && (int)($c['contestado_hasta'] ?? 0) >= end($hilo)['id'] ? 1 : 0,
                 'contestador' => $estado === 'auto' && pebai_conv_toca_contestador('auto', $hilo, (string)$p['enviado_at']) ? 1 : 0,
