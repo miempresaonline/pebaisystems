@@ -298,7 +298,7 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
             ? "Respuesta que Daniel aprobó tal cual:\n{$e['final']}\n---\n"
             : "La IA propuso:\n{$e['borrador']}\nDaniel lo cambió y envió:\n{$e['final']}\n---\n";
     }
-    foreach ($db->query("SELECT texto FROM agente_mensajes WHERE sentido = 'sale' AND plantilla = 'manual' AND LENGTH(texto) > 60 ORDER BY id DESC LIMIT 4") as $e) {
+    foreach ($db->query("SELECT texto FROM agente_mensajes WHERE sentido = 'sale' AND plantilla = 'manual' AND LENGTH(texto) > 20 ORDER BY id DESC LIMIT 8") as $e) {
         $ej .= "Mensaje que escribió Daniel él mismo:\n{$e['texto']}\n---\n";
     }
     $email = $canal === 'email';
