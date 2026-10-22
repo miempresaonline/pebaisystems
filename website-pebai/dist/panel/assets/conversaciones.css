@@ -152,3 +152,21 @@ body[data-page=conversaciones] .pb-only-embudo{display:none}
 .pc-chip.ia{border-style:dashed}
 .pc-ya{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 12px;margin-bottom:10px;border-radius:12px;background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.25);font-size:13px}
 .pc-ya.hecho{background:rgba(61,220,132,.07);border-color:rgba(61,220,132,.25)}
+/* Barra de escribir tipo WhatsApp (22/10) */
+.pc-resp{position:sticky;bottom:0;z-index:2;padding:10px 14px 14px;gap:6px;background:var(--ink-2);border-top:1px solid var(--line)}
+.pc-ia{font-size:11.5px!important;font-weight:700!important;letter-spacing:0!important;text-transform:none!important;color:#FFB547!important;padding-left:6px}
+.pc-barra{display:flex;align-items:flex-end;gap:8px}
+.pc-barra textarea{flex:1;min-height:42px;max-height:220px;resize:none;overflow-y:auto;padding:10px 16px;border-radius:22px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--fg);font:inherit;font-size:14px;line-height:1.45}
+.pc-barra textarea:focus{outline:none;border-color:#25D366}
+.pc-enviar{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:#25D366;color:#0B0F14;display:grid;place-items:center;cursor:pointer;transition:transform .15s,filter .2s}
+.pc-enviar:hover{filter:brightness(1.08);transform:scale(1.05)}
+.pc-enviar:disabled{opacity:.5;cursor:progress;transform:none}
+.pc-enviar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.pc-ya{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);padding:0 4px}
+.pc-ya .pc-btn{padding:4px 10px;font-size:11.5px}
+.pc-notas{padding:8px 20px}
+.pc-notas summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);list-style:none}
+.pc-notas summary::-webkit-details-marker{display:none}
+.pc-notas summary:hover{color:var(--fg)}
+.pc-notas[open] summary{margin-bottom:6px}
+.pc-notas textarea{min-height:56px}

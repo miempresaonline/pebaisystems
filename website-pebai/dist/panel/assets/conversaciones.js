@@ -241,12 +241,13 @@ function drawChat() {
     chat.append(b);
   });
   if (!f.mensajes.some((m) => m.de === 'entra')) chat.append(el('div', 'pc-wait', 'Aún no ha contestado.'));
-  // Notas
-  const nt = el('div', 'pc-notas'); nt.append(el('small', null, 'Notas del equipo'));
-  const ta = el('textarea'); ta.value = f.notas || ''; ta.placeholder = 'Ej.: le interesa para la web y WhatsApp; llamar el jueves por la tarde.';
+  // Notas internas: apuntes del equipo sobre esta empresa (el cliente no las ve)
+  const nt = el('details', 'pc-notas'); if (f.notas) nt.open = true;
+  nt.append(el('summary', null, '🔒 Notas internas · solo las veis vosotros, el cliente no las ve'));
+  const ta = el('textarea'); ta.value = f.notas || ''; ta.placeholder = 'Apuntes para el equipo. Ej.: «llamar el jueves por la tarde», «tienen 3 naves», «decide el gerente».';
   let tm; ta.oninput = () => { clearTimeout(tm); tm = setTimeout(async () => { try { await post('conv_notas', { canal: f.canal, id: f.id, notas: ta.value }); f.notas = ta.value; } catch (e) { toast(e.message, true); } }, 700); };
   nt.append(ta);
-  drawer.append(hd, links, est, chat, faltaMio(f), responder(f), nt);
+  drawer.append(hd, links, est, nt, chat, responder(f));
   requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; });
 }
 
@@ -277,72 +278,32 @@ function responder(f) {
     ya.append(b); box.append(ya);
     if (f.contestado) return box;
   }
-  box.append(el('small', null, f.contestador ? 'Solo contestó su contestador · un único mensaje corto, revísalo' : f.borrador ? 'Respuesta preparada por la IA · revísala y envíala' : 'Responder por ' + via));
-  const ta = el('textarea'); ta.value = conVideo(f.borrador).split(ENLACE).join(f.reserva || ENLACE); ta.rows = 5;
-  // Si la IA propone la llamada, el enlace real de la empresa va ya escrito en el mensaje
-  if (ta.value.includes(ENLACE)) enlace(f).then((u) => { ta.value = ta.value.split(ENLACE).join(u); drawLinks(); }).catch(() => {});
-  const drawLinks = () => { if (ui.abierta === f.k && !$('.pc-enlace', drawer)) { const a = el('a', 'pc-enlace', f.reserva.replace(/^https?:\/\//, '')); a.href = f.reserva; a.target = '_blank'; a.rel = 'noopener'; $('.pc-links', drawer)?.append(a); } };
-  ta.placeholder = f.te_toca ? 'La IA está preparando la respuesta (tarda unos minutos). También puedes pedirla ya con «Otra versión» o escribirla tú.' : 'Escribe aquí tu mensaje o pide uno a la IA con «Otra versión».';
-  const nota = el('p', 'pc-resp-nota', f.canal === 'email' ? 'La firma y la opción de no recibir más se añaden solas.' : 'Cada bloque separado por una línea en blanco sale como un WhatsApp aparte.');
-  const fila = el('div', 'pc-resp-fila');
-  const ins = el('input'); ins.type = 'text'; ins.placeholder = 'Indicación para la IA (opcional): más corto, pregunta por su equipo…'; ins.maxLength = 300;
-  const pon = el('button', 'pc-btn', null); pon.type = 'button'; pon.append(ICO.cal(), el('span', null, 'Poner enlace'));
-  pon.title = 'Añade su enlace de reserva al mensaje';
-  pon.onclick = async () => {
-    try {
-      const u = await enlace(f);
-      if (ta.value.includes(u)) { toast('El enlace ya está en el mensaje.'); return; }
-      const p = ta.selectionStart ?? ta.value.length;
-      ta.value = ta.value.slice(0, p).replace(/\s*$/, ' ') + u + ta.value.slice(p); drawLinks();
-    } catch (e) { toast(e.message, true); }
-  };
-  const otra = el('button', 'pc-btn', null); otra.type = 'button'; otra.append(el('span', null, f.borrador ? 'Otra versión' : 'Que la escriba la IA'));
-  const env = el('button', 'pc-btn main', null); env.type = 'button'; env.append(f.canal === 'email' ? ICO.mail() : ICO.wa(), el('span', null, 'Enviar por ' + via));
-  const ocupado = (on, b, txt) => { otra.disabled = env.disabled = on; if (b) $('span', b).textContent = txt; };
-  otra.onclick = async () => {
-    const antes = $('span', otra).textContent; ocupado(true, otra, 'Escribiendo…');
-    try {
-      const r = await post('conv_borrador', { canal: f.canal, id: f.id, instruccion: ins.value }); f.borrador = r.texto; ins.value = '';
-      ta.value = conVideo(r.texto.includes(ENLACE) ? r.texto.split(ENLACE).join(await enlace(f)) : r.texto); drawLinks();
-    }
-    catch (e) { toast(e.message, true); }
-    ocupado(false, otra, antes);
-  };
-  env.onclick = async () => {
+  if (f.borrador) box.append(el('small', 'pc-ia', '✨ La IA te ha dejado la respuesta escrita: revísala y envía'));
+  const barra = el('div', 'pc-barra');
+  const ta = el('textarea'); ta.rows = 1;
+  ta.value = conVideo(f.borrador).split(ENLACE).join(f.reserva || ENLACE);
+  ta.placeholder = f.te_toca && !f.borrador ? 'La IA está preparando la respuesta… o escríbela tú' : 'Escribe un mensaje';
+  ta.title = f.canal === 'email' ? 'La firma y la opción de no recibir más se añaden solas' : 'Cada bloque separado por una línea en blanco sale como un WhatsApp aparte · Ctrl+Enter para enviar';
+  const crece = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 220) + 'px'; };
+  ta.oninput = crece; requestAnimationFrame(crece);
+  // Si la respuesta lleva la reserva, su enlace real va ya escrito
+  if (ta.value.includes(ENLACE)) enlace(f).then((u) => { ta.value = ta.value.split(ENLACE).join(u); crece(); }).catch(() => {});
+  const env = el('button', 'pc-enviar'); env.type = 'button'; env.title = 'Enviar';
+  env.append(svg('<path d="M4 12 20 4l-6 16-3-7z"/><path d="m11 13 9-9"/>'));
+  const enviar = async () => {
     const texto = ta.value.trim(); if (!texto) { toast('El mensaje está vacío.', true); return; }
-    ocupado(true, env, 'Enviando…');
+    env.disabled = true; ta.disabled = true;
     try {
       const r = await post('conv_enviar', { canal: f.canal, id: f.id, texto });
-      toast(r.cola ? 'Aprobada: el agente la escribe en WhatsApp en un minuto.' : 'Email enviado en el mismo hilo.');
+      toast(r.cola ? 'Enviado: sale en WhatsApp en un momento.' : 'Email enviado.');
       await load(); draw();
-    } catch (e) { toast(e.message, true); ocupado(false, env, 'Enviar por ' + via); }
+    } catch (e) { toast(e.message, true); env.disabled = false; ta.disabled = false; }
   };
-  fila.append(ins, otra, pon);
-  box.append(ta, nota, fila, env);
+  env.onclick = enviar;
+  ta.onkeydown = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); enviar(); } };
+  barra.append(ta, env);
+  box.append(barra);
   return box;
-}
-
-/* ============ mensajes de Daniel que no se guardaron: se pegan con su fecha ============ */
-function faltaMio(f) {
-  const d = el('details', 'pc-mio'); if (ui.mio === f.k) d.open = true;
-  d.addEventListener('toggle', () => { ui.mio = d.open ? f.k : null; });
-  const s = el('summary', null, '¿Falta algún mensaje tuyo? Pégalo aquí');
-  const ta = el('textarea'); ta.rows = 3; ta.placeholder = 'Pega el mensaje tal cual lo enviaste desde ' + (f.canal === 'email' ? 'tu correo' : 'el móvil') + '.';
-  const fila = el('div', 'pc-mio-fila');
-  const fe = el('input'); fe.type = 'datetime-local';
-  const ahora = new Date(); const loc = (x) => `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}T${pad(x.getHours())}:${pad(x.getMinutes())}`;
-  fe.max = loc(ahora); fe.value = loc(ahora); const ini = parse(f.enviado_at); if (ini) fe.min = loc(ini);
-  fe.title = 'Cuándo lo enviaste';
-  const b = el('button', 'pc-btn main', null); b.type = 'button'; b.append(el('span', null, 'Añadir a la conversación'));
-  b.onclick = async () => {
-    if (!ta.value.trim()) { toast('Pega el texto del mensaje.', true); return; }
-    b.disabled = true;
-    try { await post('conv_mio', { canal: f.canal, id: f.id, texto: ta.value, fecha: fe.value }); toast('Añadido a la conversación en su fecha.'); await load(); draw(); }
-    catch (e) { toast(e.message, true); b.disabled = false; }
-  };
-  fila.append(el('small', null, 'Enviado el'), fe, b);
-  d.append(s, ta, fila);
-  return d;
 }
 
 /* ============ eventos y ciclo ============ */
