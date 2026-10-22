@@ -33,6 +33,6 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 
 ## Para Daniel (lo que ningún agente puede hacer)
 El Jefe lo apunta aquí y se lo manda por email a equipo@pebaisystems.es. Daniel lo borra cuando esté hecho.
-- [ ] LinkedIn: página creada (22/10, https://www.linkedin.com/company/pebai-systems/, ya en el sameAs de la portada). Daniel la gestiona desde otra cuenta hasta que soporte le deje verificarse. Falta: completar la fichay conectarla a Metricool.
-- [ ] Casos reales (4-5): datos y permiso de cada cliente.
+- [x] LinkedIn: página completa y conectada a Metricool (22/10). Publicaciones de LinkedIn: solo como borrador en Metricool para que Daniel las revise; el calendario de Reels está en Google Calendar (azul turquesa). Daniel la lleva desde otra cuenta hasta que soporte le deje verificarse.
+- [ ] Casos reales: Daniel pasa sector, problema, solución, resultado con cifras, permiso para nombrar al cliente e imágenes (tiene 3 de aplicaciones y chatbots; vienen más: residencia, app de fútbol, coworking).
 - [ ] Portada (`index.html:818`): "8 de 10 empresas en España todavía no usan IA · INE, 2025" está desfasado. El INE publicó el 22/10/2026 el 1T 2026: usa IA el 33,6 % de las empresas de 10 o más empleados y el 21,4 % de las de menos de 10. Propuesta: "2 de cada 3 empresas de 10 o más empleados todavía no usan Inteligencia Artificial · INE, 1T 2026" (o "8 de cada 10 pequeñas empresas…", que sigue siendo cierto para las de menos de 10). La portada no la tocan los agentes: decide Daniel. (22/10)
