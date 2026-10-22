@@ -151,6 +151,10 @@ switch ($in['accion'] ?? '') {
             // En el momento: la IA lee la respuesta, la clasifica y deja preparada la contestación (sin esperar al cron)
             try {
                 require_once __DIR__ . '/_conversaciones_lib.php';
+                // «Mándame la información a este correo»: se envía sola (email + aviso por WhatsApp)
+                if (pebai_conv_info_por_email($p, $texto)) {
+                    out(['ok' => true]);
+                }
                 pebai_conv_al_momento('whatsapp', (int)$p['id']);
             } catch (Throwable $e) {
                 pebai_log('CONVERSACION AL MOMENTO: ' . $e->getMessage());

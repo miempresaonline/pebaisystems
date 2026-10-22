@@ -172,6 +172,87 @@ function pebai_conv_cortesia(string $canal, array $p, array $msgs): void
     pebai_actividad('whatsapp', 'respuesta', 'Contestador de ' . ($p['empresa'] ?: $p['telefono']) . ': le contesta en unos minutos con «' . $texto . '»', '', 'wa:' . $p['id']);
 }
 
+/**
+ * «Mándame la información a este correo» (orden de Daniel, 22/10, aprobado con Innovasol): si una empresa contesta por WhatsApp
+ * dando un correo y pidiendo la información, se le envía al momento el email de presentación desde el buzón de Daniel y,
+ * a los 3-5 minutos, un WhatsApp corto avisando. Una sola vez por empresa. Devuelve true si lo ha hecho.
+ */
+function pebai_conv_info_por_email(array $p, string $texto): bool
+{
+    if (!preg_match('/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i', $texto, $m)
+        || !preg_match('/correo|e-?mail|\bmail\b|informaci|info\b|env[ií]a|manda|p[aá]sa|escrib/iu', $texto)) {
+        return false;
+    }
+    $to = strtolower($m[0]);
+    require_once __DIR__ . '/_email_lib.php';
+    $b = pebai_email_buzon();
+    if (!$b || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    $db = pebai_email_db();
+    $q = $db->prepare('SELECT * FROM email_prospectos WHERE email = ?');
+    $q->execute([$to]);
+    $e = $q->fetch();
+    if ($e && in_array($e['estado'], ['respondio', 'baja'], true) && $e['asunto'] === 'Lo que te comentaba por WhatsApp') {
+        return false;   // ya se le mandó
+    }
+    $q = $db->prepare('SELECT COUNT(*) FROM bajas_email WHERE email = ?');
+    $q->execute([$to]);
+    if ((int)$q->fetchColumn()) {
+        return false;
+    }
+    // Nombre si el correo es de una persona (mario@… → Mario); empresa sin la coletilla de Google Maps
+    $local = explode('@', $to)[0];
+    $nombre = preg_match('/^[a-záéíóúñ]{3,14}$/iu', $local) && !preg_match('/^(info|contacto|hola|admin|ventas|comercial|oficina|presupuestos?|administracion|gerencia|empresa)$/i', $local)
+        ? mb_convert_case($local, MB_CASE_TITLE) : '';
+    $empresa = trim(preg_split('/\s+[-|·–]\s+/u', (string)$p['empresa'])[0]) ?: 'vuestra empresa';
+    $asunto = 'Lo que te comentaba por WhatsApp';
+    $cuerpo = ($nombre ? "Hola, {$nombre}:" : 'Hola:') . "
+
+Gracias por darme tu correo. Te resumo rápido quiénes somos y qué hacemos.
+
+En PEBAI Systems somos una consultora de procesos e inteligencia artificial. Con instaladoras como {$empresa} solemos empezar por lo que más tiempo se come: atender a quien pide presupuesto.
+
+Montamos un asistente a medida, con toda la información de vuestra empresa, que contesta por WhatsApp y por la web como lo haríais vosotros, a cualquier hora. Resuelve las dudas de siempre, filtra a los curiosos y os deja la visita agendada con los que van en serio.
+
+Aquí tienes un vídeo corto donde lo explicamos:
+" . PEBAI_CONV_VIDEO_URL . "
+
+Este mes hacemos 5 consultorías sin coste (normalmente se cobran): 25 minutos con uno de nuestros expertos para ver vuestro caso y salir con un mapa de lo que se puede automatizar y una estimación del ahorro. Si te encaja, rellena este formulario cortito y te paso hora:
+" . PEBAI_CONV_FORM_URL . "
+
+Cualquier duda, me escribes aquí o por WhatsApp. Si no te interesa, dímelo y no vuelvo a escribirte.
+
+Un saludo,
+Daniel
+PEBAI Systems";
+    $token = $e['token'] ?? '' ?: bin2hex(random_bytes(16));
+    $now = date('Y-m-d H:i:s');
+    try {
+        $msgid = pebai_email_smtp($b, $to, $asunto, pebai_email_firmar($cuerpo), $token);
+    } catch (Throwable $ex) {
+        pebai_actividad('email', 'error', 'No salió el email de información a ' . ($p['empresa'] ?: $to), $ex->getMessage(), 'wa:' . $p['id']);
+        return false;
+    }
+    if ($e) {
+        $db->prepare("UPDATE email_prospectos SET estado = 'respondio', paso = 2, token = ?, msgid = ?, asunto = ?, updated_at = ? WHERE id = ?")->execute([$token, $msgid, $asunto, $now, $e['id']]);
+    } else {
+        $db->prepare("INSERT INTO email_prospectos (created_at, updated_at, empresa, nombre, email, dominio, telefono, sector, nicho, ciudad, web, estado, paso, asunto, msgid, enviado1_at, token, notas)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'respondio', 2, ?, ?, ?, ?, 'Pidió la información por WhatsApp')")
+           ->execute([$now, $now, $empresa, $nombre, $to, explode('@', $to)[1], (string)$p['telefono'], (string)($p['sector'] ?? ''), 'energia', (string)$p['ciudad'], (string)$p['web'], $asunto, $msgid, $now, $token]);
+    }
+    $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla) VALUES (?, 'whatsapp', ?, ?, 'sale', ?, 'respuesta')")
+       ->execute([$now, $p['id'], (string)$p['telefono'], "📧 Email enviado a {$to} · Asunto: {$asunto}\n\n" . pebai_email_firmar($cuerpo)]);
+    $despedida = (int)date('G') >= 14 ? '¡Buena tarde!' : '¡Buen día!';
+    pebai_conv_db()->prepare("INSERT INTO wa_salida (ts, prospecto_id, telefono, texto, no_antes, plantilla) VALUES (?, ?, ?, ?, ?, 'respuesta')")
+        ->execute([$now, $p['id'], (string)$p['telefono'], "Perfecto, ya te lo he enviado a {$to} 👍\n\nCualquier cosa me dices por aquí. {$despedida}", date('Y-m-d H:i:s', time() + random_int(180, 300))]);
+    pebai_conv_db()->prepare("INSERT INTO conversaciones (canal, prospecto_id, clasificacion, resumen, manual, borrador, clasificado_at) VALUES ('whatsapp', ?, 'interesado', ?, 1, '', ?)
+                              ON CONFLICT(canal, prospecto_id) DO UPDATE SET clasificacion = 'interesado', resumen = excluded.resumen, manual = 1, borrador = '', clasificado_at = excluded.clasificado_at")
+        ->execute([$p['id'], 'Pidió la información por email: se la enviamos a ' . $to, $now]);
+    pebai_actividad('email', 'envio', 'Información enviada por email a ' . ($p['empresa'] ?: $to) . ' (la pidió por WhatsApp)', $to, 'wa:' . $p['id']);
+    return true;
+}
+
 /** Clasifica una conversación ya (al llegar una respuesta) y, si toca contestar, prepara el borrador. */
 function pebai_conv_al_momento(string $canal, int $id): void
 {
