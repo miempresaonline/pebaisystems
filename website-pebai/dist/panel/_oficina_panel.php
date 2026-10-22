@@ -305,6 +305,13 @@ function of_geo_agente(string $id, string $nombre, string $rol, string $cuando):
         usort($a['actividad'], static fn($x, $y) => strcmp($y['ts'], $x['ts']));
     }
     $a['errores'] = of_errores($a['actividad']);
+    // Un "Resuelto: …" apuntado después de un error lo quita del cartel rojo
+    foreach ($a['actividad'] as $e) {
+        if ($e['tipo'] === 'hito' && preg_match('/^Resuelto/u', $e['txt'])) {
+            $a['errores'] = array_values(array_filter($a['errores'], static fn($ev) => $ev['ts'] > $e['ts']));
+            break;
+        }
+    }
     $hoy = date('Y-m-d');
     $a['hoy'] = count(array_filter($a['actividad'], static fn($e) => substr($e['ts'], 0, 10) === $hoy && $e['tipo'] === 'hito'));
     $ult = $a['actividad'][0] ?? null;
