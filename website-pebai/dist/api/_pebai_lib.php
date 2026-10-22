@@ -133,6 +133,8 @@ const PEBAI_CANALES = [
     'salida_adrian' => ['Salida · Adrián', 'adrian'],
     'salida_daniel' => ['Salida · Daniel', 'daniel'],
     'seo_geo' => ['SEO/GEO · Daniel', 'daniel'],
+    // LinkedIn lo lleva Daniel (la página cuelga de la empresa de su padre y solo él tiene acceso): hasta la revisión de los 3 meses
+    'linkedin_daniel' => ['LinkedIn · Daniel', 'daniel'],
     'anuncios' => ['Anuncios · 5/5', 'compartido'],
     'redes' => ['Redes · 5/5', 'compartido'],
     'pendiente' => ['Sin asignar', ''],
@@ -186,7 +188,10 @@ function pebai_canal_toque(array $t): array
     if (in_array($src, ['google', 'bing', 'duckduckgo', 'yahoo', 'ecosia', 'chatgpt', 'perplexity', 'gemini', 'copilot', 'claude'], true)) {
         return ['seo_geo', $src . ($med ? ' · ' . $med : '')];
     }
-    if (preg_match('/instagram|tiktok|youtube|facebook|linkedin|^x$|twitter|threads/', $src)) {
+    if (strpos($src, 'linkedin') !== false) {
+        return ['linkedin_daniel', $src . ($med ? ' · ' . $med : '')];
+    }
+    if (preg_match('/instagram|tiktok|youtube|facebook|^x$|twitter|threads/', $src)) {
         return ['redes', $src . ($med ? ' · ' . $med : '')];
     }
     return ['', ''];
@@ -203,7 +208,7 @@ function pebai_canal_respuesta(string $conocio): string
  * Canal y dueño de una solicitud:
  *  1) Enlace con persona (?origen=adrian|daniel, /t/adrian) → captación de salida de esa persona.
  *  2) gclid/fbclid/ttclid o utm_medium de pago → anuncios (5/5).
- *  3) google, bing, chatgpt, perplexity, gemini → SEO/GEO (Daniel).   4) Redes orgánicas → 5/5.
+ *  3) google, bing, chatgpt, perplexity, gemini → SEO/GEO (Daniel).   4) LinkedIn → Daniel; resto de redes orgánicas → 5/5.
  *  5) Sin señal en los utm (directo, sin consentimiento) → lo dice la respuesta del formulario.
  *  6) Si utm y respuesta no coinciden, decide la respuesta y se marca "revisar".
  * Salida sin persona o recomendación quedan "Sin asignar" y se revisan; sin ningún dato, redes (acuerdo).
@@ -252,7 +257,8 @@ function pebai_canal(array $lead): array
     }
     $coinciden = $utm === $resp
         || ($resp === 'salida' && strpos($utm, 'salida') === 0)
-        || (in_array($utm, ['anuncios', 'redes'], true) && in_array($resp, ['anuncios', 'redes'], true)); // mismo reparto 5/5
+        || (in_array($utm, ['anuncios', 'redes'], true) && in_array($resp, ['anuncios', 'redes'], true)) // mismo reparto 5/5
+        || ($utm === 'linkedin_daniel' && $resp === 'redes'); // dijo «redes» y vino de LinkedIn
     if ($coinciden) {
         $c = $asignar($utm);
         return ['canal' => $c, 'revisar' => $choque || $c === 'pendiente', 'motivo' => $porque . ' · ' . $respTxt . ' coincide'];

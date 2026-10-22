@@ -65,7 +65,8 @@ Al llegar una solicitud, la web decide su canal con los utm y con la respuesta a
 | `?origen=adrian` / `?origen=daniel` o tarjeta `/t/…` | Salida de esa persona |
 | `gclid`, `fbclid`, `ttclid` o `utm_medium` de pago (cpc…) | Anuncios · 5/5 |
 | Google, Bing, ChatGPT, Perplexity o Gemini | SEO/GEO · Daniel |
-| Instagram, TikTok, YouTube, Facebook, LinkedIn, X | Redes · 5/5 |
+| LinkedIn (página de PEBAI y perfil de Daniel) | LinkedIn · Daniel (hasta la revisión de los 3 meses; la página solo la puede llevar Daniel) |
+| Instagram, TikTok, YouTube, Facebook, X | Redes · 5/5 |
 | Sin utm (directo o sin aceptar cookies) | Lo que responda en el formulario |
 | Sin ningún dato | Redes · 5/5 (como dice el acuerdo) |
 

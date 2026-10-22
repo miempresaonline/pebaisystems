@@ -19,7 +19,7 @@ const EVENTOS = {
   unida: 'Reserva unida', contacto: 'Contacto', canal: 'Canal',
 };
 /* Canal y dueño (acuerdo de colaboración). Las etiquetas llegan del servidor (PEBAI_CANALES); estos son los colores. */
-const CANAL_COLOR = { salida_adrian: '#FFB547', salida_daniel: '#3FD5FF', seo_geo: '#B7FF3C', anuncios: '#FF6BD6', redes: '#6A5CFF', pendiente: '#3A404D' };
+const CANAL_COLOR = { salida_adrian: '#FFB547', salida_daniel: '#3FD5FF', seo_geo: '#B7FF3C', linkedin_daniel: '#0A66C2', anuncios: '#FF6BD6', redes: '#6A5CFF', pendiente: '#3A404D' };
 const canalInfo = (k) => (S.canales || []).find((c) => c.clave === k) || { clave: k || 'pendiente', label: k || 'Sin asignar', dueno: '' };
 const DUENO = { adrian: 'Adrián', daniel: 'Daniel', compartido: 'Compartido 5/5', '': 'Sin dueño' };
 const FASES = [['Solicitud', ['nuevo']], ['Revisión', ['contactado']], ['Reserva', ['cita', 'reserva']], ['Sesión', ['sesion']]];
