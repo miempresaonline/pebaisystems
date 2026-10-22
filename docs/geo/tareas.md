@@ -13,6 +13,8 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 - [x] 2026-10-22 · En /agentes-ia/, abrir con una respuesta directa de 40-60 palabras que se pueda citar tal cual: ChatGPT cita sobre todo webs de agencias con páginas propias · (Vigía 21/10) · hecho 22/10
 
 ## geo_refresco · Refresco
+- [ ] 2026-10-22 · /agentes-ia/ (publicada hoy) cita el INE de 2025 (21,1 %). El INE publicó el 22/10/2026 el 1T 2026: 33,6 % en empresas de 10 o más empleados y 21,4 % en las de menos de 10 (https://www.ine.es/dyngs/Prensa/ETICCE20251T2026.htm). Actualizar el dato, la fuente y la lista de fuentes, avisando de que el INE dice que no son estrictamente comparables con años anteriores (no restar puntos). dateModified de hoy · (Jefe, aviso de Contenido en el borrador)
+- [ ] 2026-10-23 · Cuando Contenido publique /ia-para-empresas/, enlazarla desde /agentes-ia/ y /posicionamiento-en-ia/ (un enlace en contexto en cada una) · (Jefe, checklist del borrador)
 - [ ] 2026-10-21 · Revisar /posicionamiento-en-ia/ cuando Search Console empiece a dar datos · (plan)
 
 ## geo_local · Local
@@ -33,3 +35,4 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 El Jefe lo apunta aquí y se lo manda por email a equipo@pebaisystems.es. Daniel lo borra cuando esté hecho.
 - [ ] Página de empresa de LinkedIn: pendiente de la respuesta de soporte de LinkedIn.
 - [ ] Casos reales (4-5): datos y permiso de cada cliente.
+- [ ] Portada (`index.html:818`): "8 de 10 empresas en España todavía no usan IA · INE, 2025" está desfasado. El INE publicó el 22/10/2026 el 1T 2026: usa IA el 33,6 % de las empresas de 10 o más empleados y el 21,4 % de las de menos de 10. Propuesta: "2 de cada 3 empresas de 10 o más empleados todavía no usan Inteligencia Artificial · INE, 1T 2026" (o "8 de cada 10 pequeñas empresas…", que sigue siendo cierto para las de menos de 10). La portada no la tocan los agentes: decide Daniel. (22/10)
