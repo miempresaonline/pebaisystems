@@ -16,6 +16,7 @@ Versión ampliada: [llms-full.txt](https://pebaisystems.es/llms-full.txt)
 ## Guías
 
 - [Cómo aparecer en ChatGPT y en las respuestas de IA de Google](https://pebaisystems.es/posicionamiento-en-ia/): guía para empresas sobre posicionamiento en Inteligencia Artificial (GEO), con lo que vimos en 63 respuestas de IA en España.
+- [Agentes de IA para empresas: cómo atender a tus clientes por WhatsApp, teléfono y web](https://pebaisystems.es/agentes-ia/): qué es un agente de Inteligencia Artificial y en qué se diferencia de un chatbot, qué exige y cobra Meta para usarlo en WhatsApp desde el 1/10/2026, agentes de voz, qué dice el Reglamento de IA y cuándo no conviene.
 
 ## Cómo empezar
 
