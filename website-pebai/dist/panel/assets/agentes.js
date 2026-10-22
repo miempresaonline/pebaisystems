@@ -120,7 +120,7 @@ function pintaSidebar() {
 
 /* ============ Captación · prospectos ============ */
 /* Cajas: nicho → provincia → lista. El nicho es el sector del scraper; la provincia, lo que va tras «·» en el lote. */
-const nichoDe = (p) => NICHO_NOMBRE(p.sector || (p.lote && p.lote.includes('·') ? p.lote.split('·')[0].trim() : '') || 'Sin nicho');
+const nichoDe = (p) => { const k = carpetaDe(p); const c = CARPETAS.find((x) => x[0] === k); return c ? c[1] : NICHO_NOMBRE(k); };
 const provDe = (p) => (p.lote && p.lote.includes('·') ? p.lote.slice(p.lote.lastIndexOf('·') + 1).trim() : '') || p.ciudad || 'Sin provincia';
 const fijoDe = (p) => { const m = /\bfijo (\d{9})\b/.exec(p.notas || ''); return m ? m[1] : ''; };
 const telFijo = (t) => '+34 ' + t.slice(0, 3) + ' ' + t.slice(3, 5) + ' ' + t.slice(5, 7) + ' ' + t.slice(7);
@@ -130,7 +130,11 @@ function barraEstados(lista) {
   BARRA.forEach(([k, c]) => { const n = lista.filter((p) => p.estado === k).length; if (!n) return; const i = el('i'); i.style.cssText = `flex:${n / t};background:${c}`; i.title = (PE[k] ? PE[k][0] : k) + ': ' + N(n); b.append(i); });
   return b;
 }
-const ICO_CAJA = (nicho) => /solar|placa|fotovolt/i.test(nicho)
+const ICO_CAJA = (nicho) => /climatiz/i.test(nicho) ? svg('<path d="M12 2v20M4.9 7l14.2 10M4.9 17 19.1 7M9 4l3 2 3-2M9 20l3-2 3 2"/>')
+  : /oposici/i.test(nicho) ? svg('<path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M4 17a3 3 0 0 1 3-3h11"/>')
+  : /formaci/i.test(nicho) ? svg('<path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>')
+  : /idioma/i.test(nicho) ? svg('<path d="M4 5h10v8H8l-4 3z"/><path d="M14 9h6v8l-3-2h-5v-2"/>')
+  : /solar|placa|fotovolt/i.test(nicho)
   ? svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>')
   : /energ|electr/i.test(nicho) ? svg('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>') : svg('<path d="M3 7h18v13H3zM3 7l2-4h14l2 4M9 11h6"/>');
 function migas(partes) {
@@ -159,29 +163,15 @@ function provCard(nombre, lista, onOpen) {
 const irA = (cambios) => { Object.assign(ui, cambios, { limit: 150 }); drawProspectos(); const l = $('#pb-pros-list'); if (l && l.getBoundingClientRect().top < 0) l.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 function drawProspectos() {
   const TODAS = S.empresas || [];
-  ui.carpeta = ui.carpeta || 'solar';
-  const ENC = TODAS.filter((p) => carpetaDe(p) === ui.carpeta);
-  const P = ui.canal ? ENC.filter((p) => p.canal === ui.canal) : ENC;
-  // Fila de carpetas: una por nicho, con cuántas empresas lleva cada una
-  let cp = $('#pb-pros-carpetas');
-  if (!cp) { cp = el('div', 'pb-carpetas'); cp.id = 'pb-pros-carpetas'; $('#pb-pros-kpis').before(cp); }
-  cp.textContent = '';
-  CARPETAS.forEach(([k, l, col]) => {
-    const n = TODAS.filter((p) => carpetaDe(p) === k).length;
-    const b = el('button', 'pb-carpeta' + (ui.carpeta === k ? ' on' : '')); b.type = 'button'; b.style.setProperty('--c', col);
-    const ico = el('i'); b.append(ico, el('span', null, l), el('b', null, N(n)));
-    if (k !== 'solar') b.append(el('small', null, 'sin escribir'));
-    b.title = k === 'solar' ? 'Nicho activo: los agentes escriben a estas empresas' : 'Se llena sola con el scraper. Los agentes no escriben hasta que actives este nicho';
-    b.onclick = () => { ui.carpeta = k; ui.limit = 150; ui.lote = ''; drawProspectos(); };
-    cp.append(b);
-  });
+  const ENC = TODAS;
+  const P = ENC;
   const cuenta = (k) => P.filter((p) => p.estado === k).length;
   const enviados = P.filter((p) => ['enviado', 'respondio', 'baja'].includes(p.estado) && p.enviado_at).length;
   const resp = cuenta('respondio') + P.filter((p) => p.estado === 'baja' && p.respondido_at).length;
   const pend = cuenta('pendiente');
-  const nWa = ENC.filter((p) => p.canal === 'wa').length, nEm = ENC.length - nWa;
+  const nCarpetas = new Set(ENC.map((p) => nichoDe(p))).size;
   const kp = $('#pb-pros-kpis'); kp.textContent = '';
-  [[true, 'Empresas', P.length, ui.canal ? (ui.canal === 'wa' ? 'con móvil: van por WhatsApp' : 'sin móvil: van por email') : N(nWa) + ' por WhatsApp · ' + N(nEm) + ' por email'],
+  [[true, 'Empresas', P.length, 'en ' + N(nCarpetas) + ' carpetas'],
     [false, 'Por escribir', pend, 'aún no les ha escrito nadie'], [false, 'Escritas', enviados, 'primer mensaje enviado'],
     [false, 'Respondieron', resp, pct(resp, enviados) + ' de las escritas'], [false, 'Bajas', cuenta('baja'), 'no se les vuelve a escribir']]
     .forEach(([hero, l, v, d], i) => {
@@ -203,12 +193,9 @@ function drawProspectos() {
     const v = el('div', 'pb-seg'); v.id = 'pb-pros-vista'; v.setAttribute('role', 'radiogroup'); v.setAttribute('aria-label', 'Vista');
     [['cajas', 'Cajas'], ['lista', 'Lista']].forEach(([k, l]) => { const b = el('button', null, l); b.type = 'button'; b.dataset.v = k; b.onclick = () => { ui.vista = k; try { localStorage.setItem('pebai-pros-vista', k); } catch (e) { /* nada */ } drawProspectos(); }; v.append(b); });
     const fj = el('button', 'pb-chipfijo'); fj.type = 'button'; fj.id = 'pb-pros-fijo'; fj.textContent = 'Con fijo'; fj.title = 'Solo las que tienen también teléfono fijo (para llamar)'; fj.onclick = () => { ui.fijo = !ui.fijo; ui.limit = 150; drawProspectos(); };
-    const cn = el('div', 'pb-seg'); cn.id = 'pb-pros-canal'; cn.setAttribute('aria-label', 'Canal');
-    CANALES.forEach(([k, l]) => { const b = el('button', null, l); b.type = 'button'; b.dataset.c = k; b.onclick = () => { ui.canal = k; ui.limit = 150; drawProspectos(); }; cn.append(b); });
-    $('.pb-filters', $('#page-prospectos')).append(cn, fj, v);
+    $('.pb-filters', $('#page-prospectos')).append(fj, v);
     const pie = el('p', 'note pb-pros-pie'); pie.id = 'pb-pros-pie'; $('#page-prospectos').append(pie);
   }
-  $$('#pb-pros-canal button').forEach((b) => b.classList.toggle('on', b.dataset.c === ui.canal));
   $('#pb-pros-pie').textContent = S.descartadas ? N(S.descartadas) + ' empresas encontradas por el Scraper no eran del nicho y se descartaron: no cuentan ni salen aquí.' : '';
   $$('#pb-pros-vista button').forEach((b) => b.classList.toggle('on', b.dataset.v === ui.vista));
   $('#pb-pros-fijo').classList.toggle('on', ui.fijo);
