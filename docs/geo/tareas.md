@@ -19,7 +19,7 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 - [x] 2026-10-21 · Cerrar las tareas de comprobación de Localo y seguir posiciones · (plan)
 
 ## geo_redes · Redes
-- [ ] 2026-10-22 · Guardar las propuestas de imagen y los borradores de LinkedIn en `docs/geo/borradores/` (commit) para que Daniel las vea; scratch/ se pierde en la nube · (Jefe)
+- [x] 2026-10-22 · Guardar las propuestas de imagen y los borradores de LinkedIn en `docs/geo/borradores/` (commit) para que Daniel las vea; scratch/ se pierde en la nube · (Jefe) · hecho 22/10: imágenes en borradores/imagenes, LinkedIn en borradores/linkedin, post GBP 28/10 en borradores/gbp/2026-10-28
 - [x] 2026-10-21 · Preparar propuestas de imagen con logos de las IAs (ChatGPT, Claude, Gemini, Perplexity), poco texto y composición variada, para que Daniel las apruebe · (Daniel) · hecho 22/10: plantilla `d-ias` (layouts orbita, pregunta, mosaico, foco), muestras en `docs/geo/borradores/imagenes/d-*.png`; aprobadas por Daniel el 22/10
 
 ## geo_medicion · Medición
