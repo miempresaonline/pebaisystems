@@ -26,8 +26,8 @@ Versión ampliada: [llms-full.txt](https://pebaisystems.es/llms-full.txt)
 
 ## Equipo
 
-- [Daniel Peñuela Ruiz](https://pebaisystems.es/#equipo): ingeniería de procesos y sistemas. Cofundador.
-- [Adrián Ballesteros Moscardó](https://pebaisystems.es/#equipo): dirección de proyectos y consultoría. Cofundador.
+- [Daniel Peñuela Ruiz](https://pebaisystems.es/#equipo): ingeniería de procesos y sistemas. Fundador.
+- [Adrián Ballesteros Moscardó](https://pebaisystems.es/#equipo): responsable comercial.
 
 ## Contacto
 
