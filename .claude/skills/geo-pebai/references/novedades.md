@@ -2,6 +2,15 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-22 (tarde: mercado español y competencia)
+
+1. **Javadex y Upliora ocupan las respuestas de "mejores consultoras de IA" con rankings propios** [V]. Upliora publica comparativas y rankings (21 comparativas, 290+ artículos, artículos del 19 al 22/10/2026) y Javadex (freelance) sale primero en casi todos; Upliora enlaza a Javadex y se dice independiente. Fuentes: https://www.upliora.es/blog/mejores-consultoras-ia-pymes-espana-2026-ranking-editorial y https://www.javadex.es/blog/mejores-consultoras-inteligencia-artificial-espana-2026-ranking-medianas-empresas (consultadas 22/10/2026). Encaja con Sourcelift (Marketing Directo, 15/10/2026): 4 de 5 menciones de la agencia más nombrada salieron de un ranking de otra agencia [S].
+   *Qué cambia para PEBAI:* las IAs se alimentan de rankings escritos por los propios competidores. Ninguno de los dos tiene páginas GEO ni de agentes de WhatsApp para pymes; ahí PEBAI puede ser la fuente citable.
+2. **Upliora no habla de GEO** [V]. Su portada vende consultoría y formación en IA con diagnóstico gratuito de 30 min; sin página GEO propia. Fuente: https://www.upliora.es (22/10/2026). *Para PEBAI:* hueco en "GEO para empresas" confirmado, y su oferta gratuita de 30 min es muy parecida a nuestra consultoría de 25 min: conviene dejar claro lo diferencial (5 plazas, medición abierta).
+3. Otras agencias GEO españolas que salen en búsqueda (Deslumbra IA, La Buhardilla del Marketing) son autopromoción sin datos verificables [S]; solo vigilar.
+
+Comprobación técnica 18:00: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-22 (mediodía: estudios y casos)
 
 Sin novedades útiles en las últimas 48 h: las búsquedas de estudios de Ahrefs, Semrush y SE Ranking solo devuelven comparativas de herramientas y blogs de agencias sin fecha de octubre. Descartado por no ser fuente fiable ni reciente (p. ej. el test de agosto 2026 de Something Inc., 30 preguntas, solapamiento bajo entre motores: https://somethinginc.com/blog/ai-engine-citation-overlap-study/ [S]; coincide con la inestabilidad ya anotada y refuerza repetir cada pregunta varias veces).
@@ -25,4 +34,6 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 ## Para el Jefe
 
+- (Vigía 22/10 tarde) Contenido: en /agentes-ia/ y /ia-para-empresas/ incluir un bloque "cómo elegir consultora de IA" con criterios honestos (sin nombrar competidores ni precios), porque los competidores dominan esas respuestas con rankings propios. Por qué: es la pregunta de compra que hoy responden Javadex y Upliora.
+- (Vigía 22/10 tarde) Daniel: decidir si PEBAI figura en listados de terceros (Clutch, Sortlist) para tener menciones fuera de la web; ningún agente escribe a terceros.
 (Repartido por el Jefe el 22/10 mañana: Bing AI Performance, repetir preguntas y página /agentes-ia/ pasan al tablón. Versión en inglés: descartada por ahora, primero los pilares en español. Nota de prensa: se aparca hasta tener un dato propio o un caso real que contar.)
