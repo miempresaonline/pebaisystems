@@ -254,7 +254,8 @@ function drawChat() {
 const ENLACE = '[ENLACE_RESERVA]';
 // Vídeo de la consultoría (primer paso del embudo): enlace fijo, se ve ya escrito en el borrador
 const VIDEO = '[ENLACE_VIDEO]', VIDEO_URL = 'https://pebaisystems.es/consultoria-gratuita/?origen=daniel';
-const conVideo = (t) => String(t || '').split(VIDEO).join(VIDEO_URL);
+const FORM = '[ENLACE_FORMULARIO]', FORM_URL = 'https://pebaisystems.es/diagnostico/?origen=daniel';
+const conVideo = (t) => String(t || '').split(VIDEO).join(VIDEO_URL).split(FORM).join(FORM_URL);
 async function enlace(f) {
   if (!f.reserva) { const r = await post('conv_reserva', { canal: f.canal, id: f.id }); f.reserva = r.url; f.lead_id = r.lead_id; }
   return f.reserva;
