@@ -144,3 +144,11 @@ body[data-page=conversaciones] .pb-only-embudo{display:none}
 .pc-mio-fila small{color:var(--muted);font-weight:700}
 .pc-mio-fila input{background:var(--panel-2);width:auto}
 .pc-mio-fila .pc-btn{margin-left:auto}
+/* estado a mano y «Ya le he contestado» */
+.pc-cambia{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pc-chip{padding:5px 11px;border-radius:999px;border:1px solid var(--line,rgba(255,255,255,.12));background:transparent;color:var(--muted,#8C8FA3);font:600 12px var(--sans);cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.pc-chip:hover:not(:disabled){color:var(--ink,#fff);border-color:rgba(255,255,255,.3)}
+.pc-chip.on{background:rgba(255,255,255,.1);color:var(--ink,#fff);cursor:default}
+.pc-chip.ia{border-style:dashed}
+.pc-ya{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 12px;margin-bottom:10px;border-radius:12px;background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.25);font-size:13px}
+.pc-ya.hecho{background:rgba(61,220,132,.07);border-color:rgba(61,220,132,.25)}

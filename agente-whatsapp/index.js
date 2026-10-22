@@ -158,6 +158,8 @@ async function conectar() {
       if (m.key.fromMe && enviadosAgente.has(m.key.id)) { const t = await telDelChat(m.key); if (t) apuntaUltimo(t, m); continue; }
       if (!m.key.fromMe && type !== 'notify') continue;
       const tel = await telDelChat(m.key);
+      // Diagnóstico: un mensaje tuyo cuyo chat no se ha podido traducir a número (sin contenido ni números en el registro)
+      if (!tel && m.key.fromMe) { log('Mensaje de Daniel sin número de chat (' + String(m.key.remoteJid || '').split('@')[1] + ', ' + type + '): no se puede guardar'); continue; }
       if (!tel || !contactados.has(tel)) continue;
       apuntaUltimo(tel, m);
       const texto = textoDe(m.message);

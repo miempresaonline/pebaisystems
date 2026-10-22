@@ -96,7 +96,9 @@ function of_whatsapp(): array
     $v = pebai_wa_ventana();
     $latido = $e['latido_at'] !== '' ? strtotime($e['latido_at']) : 0;
     $cola = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND nicho = 'solar'")->fetchColumn();
-    $resp = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'respondio'")->fetchColumn();
+    // Respuestas pendientes: lo mismo que «Te toca» en Conversaciones (sin las que ya contestaste desde el móvil)
+    require_once dirname(__DIR__) . '/api/_conversaciones_lib.php';
+    $resp = count(array_filter(pebai_conv_datos(), static fn($f) => $f['canal'] === 'whatsapp' && $f['te_toca']));
     $q = $db->prepare('SELECT COUNT(*) FROM prospectos WHERE respondido_at >= ?');
     $q->execute([date('Y-m-d 00:00:00')]);
     $respHoy = (int)$q->fetchColumn();

@@ -192,10 +192,25 @@ function drawChat() {
   };
   links.append(rb);
   if (f.reserva) { const a = el('a', 'pc-enlace', f.reserva.replace(/^https?:\/\//, '')); a.href = f.reserva; a.target = '_blank'; a.rel = 'noopener'; a.title = 'Su enlace para reservar la llamada'; links.append(a); }
-  // Estado: lo pone la IA al leer la respuesta (no se cambia a mano)
-  const est = el('div', 'pc-dest'); est.append(el('small', null, 'Estado (lo pone la IA al leer la respuesta)'));
+  // Estado: lo pone la IA al leer la respuesta; si se equivoca, se corrige aquí con un clic (y deja de tocarlo)
+  const est = el('div', 'pc-dest'); est.append(el('small', null, f.manual ? 'Estado (puesto por ti)' : 'Estado (lo pone la IA al leer la respuesta; si se equivoca, cámbialo)'));
   const seg = el('div', 'pc-seg'); seg.append(pill(f.estado)); if (f.resumen) seg.append(el('span', 'pc-resumen', f.resumen));
   est.append(seg);
+  if (f.respuestas && f.estado !== 'cita') {
+    const cambia = el('div', 'pc-cambia');
+    [['interesado', 'Interesado'], ['neutral', 'Solo pregunta'], ['no_interesado', 'No interesado'], ['auto', 'Contestador']].forEach(([v, t]) => {
+      const actual = grupo(f.estado) === (v === 'neutral' ? 'pregunta' : v);
+      const b = el('button', 'pc-chip' + (actual ? ' on' : ''), t); b.type = 'button'; b.disabled = actual;
+      b.onclick = async () => { try { await post('conv_estado', { canal: f.canal, id: f.id, estado: v }); toast('Estado cambiado: ' + t + '.'); await load(); draw(); } catch (e) { toast(e.message, true); } };
+      cambia.append(b);
+    });
+    if (f.manual) {
+      const b = el('button', 'pc-chip ia', 'Que lo decida la IA'); b.type = 'button';
+      b.onclick = async () => { try { await post('conv_estado', { canal: f.canal, id: f.id, estado: '' }); toast('La IA lo vuelve a decidir con el próximo mensaje.'); await load(); draw(); } catch (e) { toast(e.message, true); } };
+      cambia.append(b);
+    }
+    est.append(cambia);
+  }
   if (f.estado === 'cita' && f.cita) est.append(el('p', 'pc-cita', 'Cita reservada: ' + dia(new Date(f.cita)) + ' a las ' + hora(new Date(f.cita))));
   // Hilo
   const chat = el('div', 'pc-chat ' + f.canal);
@@ -239,6 +254,19 @@ function responder(f) {
   const box = el('div', 'pc-resp');
   if (f.estado === 'no_interesado') { box.append(el('p', 'pc-resp-no', 'No quiere más mensajes: aquí no se le contesta.')); return box; }
   const via = f.canal === 'email' ? 'email' : 'WhatsApp';
+  // Si Daniel ya contestó desde el móvil o su correo (y no se guardó), un clic quita el «Te toca» hasta que la empresa vuelva a escribir
+  if (f.te_toca || f.contestado) {
+    const ya = el('div', 'pc-ya' + (f.contestado ? ' hecho' : ''));
+    ya.append(el('span', null, f.contestado ? 'Marcado como contestado por ti. Si la empresa vuelve a escribir, saldrá otra vez «Te toca».' : '¿Ya le has contestado tú desde ' + (f.canal === 'email' ? 'tu correo' : 'el móvil') + '?'));
+    const b = el('button', 'pc-btn' + (f.contestado ? '' : ' main'), null); b.type = 'button'; b.append(el('span', null, f.contestado ? 'Deshacer' : 'Ya le he contestado'));
+    b.onclick = async () => {
+      b.disabled = true;
+      try { await post('conv_contestado', { canal: f.canal, id: f.id, deshacer: f.contestado ? '1' : '0' }); toast(f.contestado ? 'Vuelve a salir como pendiente.' : 'Listo: ya no sale «Te toca».'); await load(); draw(); }
+      catch (e) { toast(e.message, true); b.disabled = false; }
+    };
+    ya.append(b); box.append(ya);
+    if (f.contestado) return box;
+  }
   box.append(el('small', null, f.contestador ? 'Solo contestó su contestador · un único mensaje corto, revísalo' : f.borrador ? 'Respuesta preparada por la IA · revísala y envíala' : 'Responder por ' + via));
   const ta = el('textarea'); ta.value = (f.borrador || '').split(ENLACE).join(f.reserva || ENLACE); ta.rows = 5;
   // Si la IA propone la llamada, el enlace real de la empresa va ya escrito en el mensaje

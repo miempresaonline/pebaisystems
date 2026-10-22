@@ -36,7 +36,7 @@ function pebai_conv_db(): PDO
             PRIMARY KEY (canal, prospecto_id)
         )');
         $cols = array_column($db->query('PRAGMA table_info(conversaciones)')->fetchAll(), 'name');
-        foreach (['borrador' => 'TEXT NOT NULL DEFAULT ""', 'borrador_para' => 'INTEGER NOT NULL DEFAULT 0', 'borrador_at' => 'TEXT NOT NULL DEFAULT ""'] as $col => $def) {
+        foreach (['borrador' => 'TEXT NOT NULL DEFAULT ""', 'borrador_para' => 'INTEGER NOT NULL DEFAULT 0', 'borrador_at' => 'TEXT NOT NULL DEFAULT ""', 'contestado_hasta' => 'INTEGER NOT NULL DEFAULT 0'] as $col => $def) {
             if (!in_array($col, $cols, true)) {
                 $db->exec("ALTER TABLE conversaciones ADD COLUMN $col $def");
             }
@@ -404,11 +404,11 @@ function pebai_conv_borradores(int $max = 3): int
             break;
         }
         $canal = $r['agente'] === 'email' ? 'email' : 'whatsapp';
-        $q = $db->prepare('SELECT clasificacion, borrador_para FROM conversaciones WHERE canal = ? AND prospecto_id = ?');
+        $q = $db->prepare('SELECT clasificacion, borrador_para, contestado_hasta FROM conversaciones WHERE canal = ? AND prospecto_id = ?');
         $q->execute([$canal, $r['prospecto_id']]);
         $c = $q->fetch();
-        // Primero la clasifica la IA; a contestadores automáticos y a quien no quiere no se les contesta
-        if (!$c || in_array($c['clasificacion'], ['', 'auto', 'no_interesado'], true) || (int)$c['borrador_para'] >= (int)$r['id']) {
+        // Primero la clasifica la IA; a contestadores automáticos, a quien no quiere y a lo que Daniel ya contestó por su cuenta no se les prepara nada
+        if (!$c || in_array($c['clasificacion'], ['', 'auto', 'no_interesado'], true) || (int)$c['borrador_para'] >= (int)$r['id'] || (int)$c['contestado_hasta'] >= (int)$r['id']) {
             continue;
         }
         $p = pebai_conv_prospecto($canal, (int)$r['prospecto_id']);
@@ -541,9 +541,12 @@ function pebai_conv_datos(): array
                 'lead_id' => $lead ? (int)$lead['id'] : 0, 'reserva' => $lead ? pebai_booking_url((int)$lead['id']) : '', 'cita' => $lead ? (string)$lead['cita_inicio'] : '',
                 'foto' => $canal === 'whatsapp' && is_file(pebai_private_dir() . '/fotos/' . preg_replace('/\D/', '', (string)$p['telefono']) . '.jpg') ? preg_replace('/\D/', '', (string)$p['telefono']) : '',
                 'mensajes' => $hilo, 'cola' => $cola[$k] ?? [], 'borrador' => $c['borrador'] ?? '',
-                // Le toca contestar a Daniel: lo último lo escribió la empresa y no es un contestador ni alguien que no quiere
-                'te_toca' => empty($cola[$k]) && (($hilo && end($hilo)['de'] === 'entra' && !in_array($estado, ['no_interesado', 'auto', 'cita'], true))
+                // Le toca contestar a Daniel: lo último lo escribió la empresa, no es un contestador ni alguien que no quiere,
+                // y Daniel no ha marcado que ya le contestó por su cuenta (un mensaje nuevo de la empresa lo vuelve a activar)
+                'te_toca' => empty($cola[$k]) && (!$hilo || (int)($c['contestado_hasta'] ?? 0) < end($hilo)['id'])
+                    && (($hilo && end($hilo)['de'] === 'entra' && !in_array($estado, ['no_interesado', 'auto', 'cita'], true))
                     || ($estado === 'auto' && pebai_conv_toca_contestador('auto', $hilo, (string)$p['enviado_at']))) ? 1 : 0,
+                'contestado' => $hilo && (int)($c['contestado_hasta'] ?? 0) >= end($hilo)['id'] ? 1 : 0,
                 'contestador' => $estado === 'auto' && pebai_conv_toca_contestador('auto', $hilo, (string)$p['enviado_at']) ? 1 : 0,
             ];
         }

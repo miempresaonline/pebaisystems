@@ -8,6 +8,8 @@
  *   POST action=conv_borrador          → la IA prepara otra respuesta (con una indicación opcional de Daniel).
  *   POST action=conv_mio               → Daniel pega un mensaje suyo que no se guardó (con su fecha y hora); conv_mio_quitar lo borra.
  *   POST action=conv_enviar            → Daniel aprueba la respuesta: WhatsApp a la cola del bot, email sale ya.
+ *   POST action=conv_contestado        → «Ya le he contestado» por mi cuenta: deja de salir «Te toca» hasta que la empresa escriba otra vez.
+ *   POST action=conv_estado            → Daniel corrige el estado que puso la IA (o lo devuelve a la IA con estado vacío).
  */
 if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
     http_response_code(404);
@@ -38,7 +40,7 @@ if ($auth && isset($_GET['conv'])) {
     }
 }
 
-if ($auth && in_array($_POST['action'] ?? '', ['conv_notas', 'conv_reserva', 'conv_borrador', 'conv_enviar', 'conv_mio', 'conv_mio_quitar'], true)) {
+if ($auth && in_array($_POST['action'] ?? '', ['conv_notas', 'conv_reserva', 'conv_borrador', 'conv_enviar', 'conv_mio', 'conv_mio_quitar', 'conv_contestado', 'conv_estado'], true)) {
     if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
         json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 400);
     }
@@ -60,7 +62,8 @@ if ($auth && in_array($_POST['action'] ?? '', ['conv_notas', 'conv_reserva', 'co
             json_out(['ok' => true]);
         case 'conv_mio':
             // Mensaje que Daniel escribió desde el móvil o su correo y no se guardó: entra en el hilo en su sitio, como «enviado por ti»
-            $texto = mb_substr(trim(str_replace("", '', (string)($_POST['texto'] ?? ''))), 0, 4000);
+            $texto = mb_substr(trim(str_replace("
+", '', (string)($_POST['texto'] ?? ''))), 0, 4000);
             $f = DateTime::createFromFormat('Y-m-d\TH:i', (string)($_POST['fecha'] ?? ''));
             if ($texto === '') {
                 json_out(['ok' => false, 'error' => 'Pega el texto del mensaje.'], 422);
@@ -82,6 +85,24 @@ if ($auth && in_array($_POST['action'] ?? '', ['conv_notas', 'conv_reserva', 'co
             // Solo se pueden quitar mensajes «enviados por ti» (por si se pegó mal); lo del agente y lo que contestan, nunca
             $db->prepare("DELETE FROM agente_mensajes WHERE id = ? AND prospecto_id = ? AND agente = ? AND plantilla = 'manual'")
                ->execute([(int)($_POST['msg'] ?? 0), $id, $canal === 'email' ? 'email' : 'whatsapp']);
+            json_out(['ok' => true]);
+        case 'conv_contestado':
+            $q = $db->prepare('SELECT COALESCE(MAX(id), 0) FROM agente_mensajes WHERE agente = ? AND prospecto_id = ?');
+            $q->execute([$canal === 'email' ? 'email' : 'whatsapp', $id]);
+            $hasta = ($_POST['deshacer'] ?? '') === '1' ? 0 : (int)$q->fetchColumn();
+            $db->prepare("INSERT INTO conversaciones (canal, prospecto_id, contestado_hasta, borrador) VALUES (?, ?, ?, '')
+                          ON CONFLICT(canal, prospecto_id) DO UPDATE SET contestado_hasta = excluded.contestado_hasta, borrador = CASE WHEN excluded.contestado_hasta > 0 THEN '' ELSE borrador END")
+               ->execute([$canal, $id, $hasta]);
+            json_out(['ok' => true]);
+        case 'conv_estado':
+            $v = (string)($_POST['estado'] ?? '');
+            if (!in_array($v, ['', 'interesado', 'neutral', 'no_interesado', 'auto'], true)) {
+                json_out(['ok' => false, 'error' => 'Estado no válido.'], 422);
+            }
+            // Vacío: vuelve a decidirlo la IA con el próximo mensaje (ultimo_msg = 0 fuerza a reclasificar)
+            $db->prepare('INSERT INTO conversaciones (canal, prospecto_id, clasificacion, manual) VALUES (?, ?, ?, ?)
+                          ON CONFLICT(canal, prospecto_id) DO UPDATE SET clasificacion = excluded.clasificacion, manual = excluded.manual, ultimo_msg = CASE WHEN excluded.manual = 0 THEN 0 ELSE ultimo_msg END')
+               ->execute([$canal, $id, $v, $v === '' ? 0 : 1]);
             json_out(['ok' => true]);
         case 'conv_reserva':
             $leadId = pebai_conv_lead_crear($canal, $p);
