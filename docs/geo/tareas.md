@@ -7,6 +7,7 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 **Aviso del Jefe (22/10):** en la nube `scratch/` no se sube a git y se pierde al acabar cada turno. Los borradores que tengan que pasar de un turno a otro (páginas, posts, LinkedIn, textos de reseñas) van a `docs/geo/borradores/` (sin datos personales ni precios). Las imágenes en `docs/geo/borradores/imagenes/`.
 
 ## geo_contenido · Contenido
+- [ ] 2026-10-22 · PRIORIDAD: publicar `/casos/` (página madre) y una página por caso (Fran García Cars, Construcciones Gargom, Suministros Santacruz, Residencia El Amparo) con los datos e imágenes de `docs/geo/borradores/casos.md`. Son la prueba que más pesa para las IAs. Una página por turno; la madre primero con los 4 resúmenes · (Daniel, 22/10)
 - [x] 2026-10-21 · Publicar /agentes-ia/ con WhatsApp como bloque principal · (plan, pilares.md) · hecho 22/10
 - [ ] 2026-10-21 · Publicar /ia-para-empresas/ · (plan, pilares.md)
 - [x] 2026-10-22 · Turno de las 15:00: dejar el borrador de /ia-para-empresas/ en `docs/geo/borradores/ia-para-empresas.md` (commit), no en scratch · (Jefe: scratch se pierde en la nube) · hecho 22/10: texto completo, 7 fuentes verificadas (INE 1T 2026 publicado hoy, Reglamento 2026/1744, Red.es), listo para publicar el viernes
@@ -34,5 +35,5 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 ## Para Daniel (lo que ningún agente puede hacer)
 El Jefe lo apunta aquí y se lo manda por email a equipo@pebaisystems.es. Daniel lo borra cuando esté hecho.
 - [x] LinkedIn: página completa y conectada a Metricool (22/10). Publicaciones de LinkedIn: solo como borrador en Metricool para que Daniel las revise; el calendario de Reels está en Google Calendar (azul turquesa). Daniel la lleva desde otra cuenta hasta que soporte le deje verificarse.
-- [ ] Casos reales: Daniel pasa sector, problema, solución, resultado con cifras, permiso para nombrar al cliente e imágenes (tiene 3 de aplicaciones y chatbots; vienen más: residencia, app de fútbol, coworking).
+- [ ] Casos reales: frase real y permiso de cada contacto para citarlo (Fran García, Santi de El Amparo, Pedro de Santacruz); pedir a Fran García Cars una mención o un enlace «desarrollado por PEBAI» y una reseña en Google.
 - [ ] Portada (`index.html:818`): "8 de 10 empresas en España todavía no usan IA · INE, 2025" está desfasado. El INE publicó el 22/10/2026 el 1T 2026: usa IA el 33,6 % de las empresas de 10 o más empleados y el 21,4 % de las de menos de 10. Propuesta: "2 de cada 3 empresas de 10 o más empleados todavía no usan Inteligencia Artificial · INE, 1T 2026" (o "8 de cada 10 pequeñas empresas…", que sigue siendo cierto para las de menos de 10). La portada no la tocan los agentes: decide Daniel. (22/10)
