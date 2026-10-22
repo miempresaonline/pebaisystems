@@ -312,7 +312,8 @@ function of_geo_agente(string $id, string $nombre, string $rol, string $cuando):
     // Los de cada día tienen turno a diario; los de L-V pueden pasar el fin de semana sin nada (de viernes tarde a lunes)
     $hueco = str_starts_with($cuando, 'Cada día') ? 26 * 3600 : 74 * 3600;
     $callado = $ult && strtotime($ult['ts']) < time() - $hueco;
-    $a['st'] = $a['errores'] || $callado ? 'error' : ($reciente ? 'trabajando' : 'espera');
+    // Entre turno y turno descansa: duerme en la oficina, igual que los de Captación fuera de horario
+    $a['st'] = $a['errores'] || $callado ? 'error' : ($reciente ? 'trabajando' : 'dormido');
     $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
         : ($callado ? 'Se ha saltado su turno: no hace nada desde ' . of_hace($ult['ts']) . '. Su rutina en la nube puede haberse parado.'
         : ($reciente ? $ult['txt'] : ($ult ? 'Descansando hasta su turno (' . $cuando . '). Lo último: ' . $ult['txt'] : 'Empieza en su próximo turno: ' . $cuando . '.')));
