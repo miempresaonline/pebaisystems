@@ -171,7 +171,8 @@ async function conectar() {
       }
       log('Respuesta de', tel);
       // Notas de voz (22/10): se descargan y el panel las transcribe con la IA para leer lo que dijeron
-      const audioMsg = (msg.deviceSentMessage?.message || msg.ephemeralMessage?.message || msg).audioMessage;
+      const crudo = m.message;
+      const audioMsg = (crudo.deviceSentMessage?.message || crudo.ephemeralMessage?.message || crudo).audioMessage;
       let audio = null;
       if (audioMsg) {
         try {
