@@ -2,7 +2,7 @@
 
 > PEBAI Systems (https://pebaisystems.es) es una consultoría de procesos e Inteligencia Artificial para empresas en España. Implanta sistemas que atienden a los clientes, eliminan tareas manuales y se conectan a los programas y al CRM que la empresa ya usa. Primero entiende la operativa; después, construye.
 
-Última actualización: 2026-10-21
+Última actualización: 2026-10-22
 
 Versión resumida: [llms.txt](https://pebaisystems.es/llms.txt)
 

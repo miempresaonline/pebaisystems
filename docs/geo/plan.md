@@ -80,6 +80,7 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 - GA4: eventos clave `lead_funnel_diagnostic` y `conversion_whatsapp`; retención de datos de 2 a 14 meses; grupo de canales "PEBAI (IA primero)".
 - Bing Webmaster: enviadas `/` y `/consultoria-gratuita/`; sin errores de rastreo; sitemap leído (aún la versión antigua de 9 URLs, se actualizará).
 - Search Console: sitemap enviado por API.
+- Hostinger (22/10): auto-despliegue en el servidor (`pebai-autodeploy`): los agentes de la nube publican con un push a `main`; ya no necesitan SSH ni a Daniel.
 - Cloudflare: IA permitida (Search, Agent y Training), sin robots.txt gestionado, email visible, token `claude-geo` solo con purga de caché (sin permiso de ajustes de zona).
 
 ## Prioridades de la semana
