@@ -11,3 +11,8 @@ Lo que el Agente GEO puede hacer solo y lo que espera el visto bueno de Daniel. 
 | Promesa de "medición abierta" del antes y el después | **aprobado** | 21/10/2026 |
 | Completar tareas de Localo que no publican nada (revisiones, palabras clave) | **aprobado** | 21/10/2026 |
 | Escribir a terceros (medios, directorios, clientes) | **no**, nunca sin OK en el chat | — |
+
+## Qué se publica en cada red (Daniel, 22/10/2026)
+- TikTok, Instagram, Facebook, YouTube: solo los Reels de Daniel y Adrián. **Ningún agente prepara publicaciones de imagen con texto para estas redes**, aunque estén conectadas en Metricool.
+- LinkedIn: los Reels de Daniel con su texto (calendario en Google Calendar, color azul turquesa) y, más adelante, un artículo al mes. Nada de Adrián de momento.
+- Google Business: un post con imagen `d-ias` por semana (aprobado).
