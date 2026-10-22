@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>GBP D · IAs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="_gbp.css">
+<style>
+  /* Plantilla visual: los logos mandan, el texto es un titular de 3-6 palabras.
+     layout: orbita | pregunta | mosaico | foco. seed cambia posiciones y giros. */
+  .rail,.cross{display:none}
+  .wrap{position:absolute;inset:0;overflow:hidden}
+  .head{position:absolute;left:150px;right:150px;text-align:center;font-family:var(--serif);font-weight:400;font-size:88px;line-height:1;letter-spacing:-.02em;color:var(--fg)}
+  .head em{font-style:italic;color:var(--accent)}
+  .brand{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);display:flex;align-items:center;gap:18px}
+  .brand .logo{height:44px;width:150px}
+  .brand .url{font-family:var(--mono);font-size:15px;letter-spacing:.14em;color:var(--fg-45)}
+  .mark{background:url('../../../assets/brand/pebai-systems/logo-kit-v2/pebai-avatar-transparent-512.png') center/contain no-repeat}
+  .ia{position:absolute;display:grid;place-items:center;border-radius:30%;background:var(--s1);
+      box-shadow:0 30px 60px -30px rgba(0,0,0,.8),0 0 0 1px var(--fg-12)}
+  [data-theme="light"] .ia{background:#fff;box-shadow:0 30px 60px -34px rgba(18,18,26,.35),0 0 0 1px var(--fg-12)}
+  .ia svg{width:56%;height:56%}
+  .ring{position:absolute;border-radius:50%;border:1px dashed var(--fg-12)}
+  .glow{position:absolute;border-radius:50%;filter:blur(60px)}
+
+  /* pregunta: barra de búsqueda gigante */
+  .prompt{position:absolute;left:150px;right:150px;top:330px;height:120px;border-radius:60px;background:var(--s1);
+          box-shadow:0 40px 80px -40px rgba(0,0,0,.85),0 0 0 1px var(--fg-12);display:flex;align-items:center;gap:22px;padding:0 22px 0 40px}
+  [data-theme="light"] .prompt{background:#fff}
+  .prompt p{flex:1;font-size:30px;font-weight:600;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .prompt p i{display:inline-block;width:3px;height:34px;background:var(--accent);vertical-align:-6px;margin-left:4px}
+  .prompt .go{width:76px;height:76px;border-radius:50%;background:var(--chip-bg);display:grid;place-items:center;flex:none}
+  .prompt .go svg{width:32px;height:32px;color:var(--chip-fg)}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap"></div>
+<script src="_gbp.js"></script>
+<script src="_logos.js"></script>
+<script>
+var COLORES = {
+  openai: {fill: 'var(--fg)'},
+  claude: {fill: '#D97757'},
+  googlegemini: {grad: ['#4796E3', '#9177C7', '#CA6673']},
+  perplexity: {fill: '#20B8CD'}
+};
+var ORDEN = ['openai', 'claude', 'googlegemini', 'perplexity'];
+
+function rnd(seed) { var s = (seed * 9301 + 49297) % 233280 || 7; return function () { s = (s * 9301 + 49297) % 233280; return s / 233280; }; }
+function logo(n, id) {
+  var c = COLORES[n], fill = c.fill, defs = '';
+  if (c.grad) {
+    defs = '<defs><linearGradient id="g' + id + '" x1="0" y1="1" x2="1" y2="0">' +
+      c.grad.map(function (col, i) { return '<stop offset="' + (i / (c.grad.length - 1)) + '" stop-color="' + col + '"/>'; }).join('') +
+      '</linearGradient></defs>';
+    fill = 'url(#g' + id + ')';
+  }
+  return '<svg viewBox="0 0 24 24">' + defs + '<path fill="' + fill + '" d="' + IA_LOGOS[n] + '"/></svg>';
+}
+function tile(n, x, y, size, rot, id, extra) {
+  return '<div class="ia" style="left:' + (x - size / 2) + 'px;top:' + (y - size / 2) + 'px;width:' + size + 'px;height:' + size +
+    'px;transform:rotate(' + (rot || 0) + 'deg);' + (extra || '') + '">' + logo(n, id) + '</div>';
+}
+
+GBP.boot({theme: 'dark', layout: 'orbita', seed: 1, title: 'Que la IA *te recomiende*',
+          question: '¿Qué consultora me ayuda a automatizar mi empresa?'},
+function (d) {
+  var r = rnd(Number(d.seed) || 1), w = document.getElementById('wrap'), h = '';
+  var orden = ORDEN.slice().sort(function () { return r() - .5; });
+  var title = '<h1 class="head" id="title" style="top:TOPpx">' + GBP.md(d.title) + '</h1>';
+  var brand = '<div class="brand"><div class="logo" role="img" aria-label="PEBAI Systems"></div><span class="url">PEBAISYSTEMS.ES</span></div>';
+
+  if (d.layout === 'pregunta') {
+    h += '<div class="glow" style="left:300px;top:250px;width:600px;height:300px;background:var(--glow-1)"></div>';
+    h += title.replace('TOP', 120);
+    h += '<div class="prompt"><p>' + GBP.esc(d.question) + '<i></i></p><div class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div>';
+    orden.forEach(function (n, i) { h += tile(n, 330 + i * 180, 590, 128, (r() - .5) * 14, i); });
+    h += brand;
+  } else if (d.layout === 'mosaico') {
+    var pos = [[420, 330], [780, 330], [420, 620], [780, 620]];
+    orden.forEach(function (n, i) { h += tile(n, pos[i][0], pos[i][1], 260, (r() - .5) * 8, i, 'border-radius:44px'); });
+    h += '<div class="glow" style="left:450px;top:325px;width:300px;height:300px;background:var(--accent);opacity:.35"></div>';
+    h += '<div class="ia" style="left:510px;top:385px;width:180px;height:180px;border-radius:50%;box-shadow:0 0 0 10px var(--bg),0 0 0 12px var(--accent-line),0 40px 80px -30px rgba(0,0,0,.9)"><div class="mark" style="width:70%;height:70%"></div></div>';
+    h += title.replace('TOP', '64px;font-size:72').replace('class="head"', 'class="head" data-fit="56"');
+    h += brand;
+  } else if (d.layout === 'foco') {
+    var puestos = [];
+    for (var k = 0, intentos = 0; k < 9 && intentos < 400; intentos++) {
+      var n = ORDEN[k % 4], x = 110 + r() * 980, y = 90 + r() * 680;
+      if (Math.abs(x - 600) < 300 && Math.abs(y - 420) < 250) continue; /* fuera del foco */
+      if (puestos.some(function (p) { return Math.hypot(p[0] - x, p[1] - y) < 190; })) continue; /* sin amontonar */
+      puestos.push([x, y]); k++;
+      h += tile(n, x, y, 70 + r() * 70, (r() - .5) * 40, 'f' + k, 'opacity:' + (.25 + r() * .35) + ';filter:blur(' + (r() * 2.5).toFixed(1) + 'px)');
+    }
+    h += '<div class="glow" style="left:390px;top:220px;width:420px;height:420px;background:var(--glow-1);opacity:1"></div>';
+    h += '<div class="mark" style="position:absolute;left:480px;top:250px;width:240px;height:240px"></div>';
+    h += title.replace('TOP', 540);
+    h += brand;
+  } else { /* orbita */
+    var cx = 600, cy = 480, R = 250, a0 = r() * Math.PI * 2;
+    h += '<div class="glow" style="left:' + (cx - 220) + 'px;top:' + (cy - 220) + 'px;width:440px;height:440px;background:var(--glow-1)"></div>';
+    h += '<div class="ring" style="left:' + (cx - R) + 'px;top:' + (cy - R) + 'px;width:' + 2 * R + 'px;height:' + 2 * R + 'px"></div>';
+    h += '<div class="ring" style="left:' + (cx - 150) + 'px;top:' + (cy - 150) + 'px;width:300px;height:300px;border-style:solid;border-color:var(--accent-line)"></div>';
+    h += '<div class="mark" style="position:absolute;left:' + (cx - 95) + 'px;top:' + (cy - 95) + 'px;width:190px;height:190px"></div>';
+    orden.forEach(function (n, i) {
+      var a = a0 + i * Math.PI / 2;
+      h += tile(n, cx + Math.cos(a) * R * 1.25, cy + Math.sin(a) * R * .95, 128, (r() - .5) * 16, i);
+    });
+    h += title.replace('TOP', '70px;font-size:76');
+    h += brand.replace('class="brand"', 'class="brand" style="bottom:30px"');
+  }
+  w.innerHTML = h;
+});
+</script>
+</body>
+</html>

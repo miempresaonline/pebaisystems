@@ -28,6 +28,7 @@ TEMPLATES = {
     "a": "a-pregunta.html", "a-pregunta": "a-pregunta.html", "pregunta": "a-pregunta.html",
     "b": "b-proceso.html", "b-proceso": "b-proceso.html", "proceso": "b-proceso.html",
     "c": "c-consultoria.html", "c-consultoria": "c-consultoria.html", "consultoria": "c-consultoria.html",
+    "d": "d-ias.html", "d-ias": "d-ias.html", "ias": "d-ias.html",
 }
 W, H = 1200, 900
 
