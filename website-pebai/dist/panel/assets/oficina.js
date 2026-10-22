@@ -125,7 +125,7 @@ function abrirAgente(id) {
   const [c, txt] = ST[a.st] || ST.espera;
   const pct = a.cupo ? Math.min(100, Math.round(a.hoy / a.cupo * 100)) : 0;
   const F = (window.PB_FICHA || {})[a.id] || {};
-  const tabs = [['estado', 'Estado'], ['actividad', 'Actividad'], F.ajustes && ['ajustes', 'Ajustes'], F.rendimiento && ['rendimiento', 'Rendimiento']].filter(Boolean);
+  const tabs = [['estado', 'Estado'], a.entregas && ['trabajo', 'Su trabajo'], ['actividad', 'Actividad'], F.ajustes && ['ajustes', 'Ajustes'], F.rendimiento && ['rendimiento', 'Rendimiento']].filter(Boolean);
   if (!tabs.some(([k]) => k === S.tab)) S.tab = 'estado';
   sideIn.innerHTML = (S.agentes.length > 1 ? '<div class="pb-of-nav"><button type="button" data-d="-1" aria-label="Agente anterior" title="Anterior (←)">‹</button><button type="button" data-d="1" aria-label="Agente siguiente" title="Siguiente (→)">›</button></div>' : '')
     + `<div class="k">${esc(d.nombre)}</div><h2>${tileHtml(a)}${esc(a.nombre)}</h2><div class="rol">${esc(a.rol || '')}</div>
@@ -146,6 +146,7 @@ function abrirAgente(id) {
   sideIn.querySelectorAll('.pb-of-tabs button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); S.tab = b.dataset.t; abrirAgente(a.id); }; });
   const caja = $('#pb-of-tab');
   if (S.tab === 'actividad') caja.append(lineaTiempo(a));
+  else if (S.tab === 'trabajo') caja.append(suTrabajo(a));
   else if (S.tab !== 'estado') {
     let n = null; try { n = F[S.tab](() => abrirAgente(a.id)); } catch (er) { console.error(er); }
     caja.append(n || Object.assign(document.createElement('p'), { className: 'pb-of-vacio', textContent: n === null ? 'Cargando…' : 'No se ha podido mostrar esta parte.' }));
@@ -162,7 +163,34 @@ function abrirAgente(id) {
   mostrar();
 }
 /* Actividad paso a paso, por días, como un registro de ejecuciones: cada punto es una acción y su color dice cómo salió. */
-const TIPO = { hito: ['#3DDC84', 'Hecho'], envio: ['#3DDC84', 'Envío'], respuesta: ['#3FD5FF', 'Respuesta'], error: ['#FF5E6C', 'Fallo'], freno: ['#FF5E6C', 'Frenado'], espera: ['#5C5F73', 'Espera'], cambio: ['#FFB547', 'Cambio'] };
+const TIPO = { entrega: ['#B7FF3C', 'Entregado'], hito: ['#3DDC84', 'Hecho'], envio: ['#3DDC84', 'Envío'], respuesta: ['#3FD5FF', 'Respuesta'], error: ['#FF5E6C', 'Fallo'], freno: ['#FF5E6C', 'Frenado'], espera: ['#5C5F73', 'Espera'], cambio: ['#FFB547', 'Cambio'] };
+/* «Su trabajo»: lo que el agente ha entregado (páginas, borradores, posts, informes…), agrupado y con enlace.
+   Sale de los apuntes tipo 'entrega' (geo_actividad.py entrega …); sin IA, tal cual lo apuntó. */
+const CLASES = [['pagina', 'Páginas publicadas'], ['post', 'Posts de Google'], ['borrador', 'Borradores'], ['linkedin', 'Borradores de LinkedIn'],
+  ['informe', 'Informes y cifras'], ['posiciones', 'Posiciones en Google Maps'], ['novedad', 'Novedades encontradas'], ['encargo', 'Encargos repartidos'], ['mejora', 'Mejoras hechas']];
+function suTrabajo(a) {
+  const box = document.createElement('div'); box.className = 'pb-of-work';
+  const todo = a.entregas || [];
+  if (!todo.length) { const p = document.createElement('p'); p.className = 'pb-of-vacio'; p.textContent = 'Todavía no ha entregado nada. Cuando termine algo, aparecerá aquí con su enlace.'; box.append(p); return box; }
+  const fecha = (ts) => new Date(String(ts).replace(' ', 'T')).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  const grupos = CLASES.concat([...new Set(todo.map((e) => e.clase))].filter((c) => !CLASES.some(([k]) => k === c)).map((c) => [c, 'Otros']));
+  grupos.forEach(([k, t]) => {
+    const items = todo.filter((e) => e.clase === k); if (!items.length) return;
+    const h = document.createElement('div'); h.className = 'pb-of-tld'; h.textContent = `${t} · ${items.length}`; box.append(h);
+    items.forEach((e) => {
+      const c = document.createElement(e.url ? 'a' : 'div'); c.className = 'pb-of-wi';
+      if (e.url) { c.href = e.url; c.target = '_blank'; c.rel = 'noopener'; }
+      if (e.img) { const im = document.createElement('img'); im.src = e.img; im.alt = ''; im.loading = 'lazy'; c.append(im); }
+      const tx = document.createElement('div');
+      const b = document.createElement('b'); b.textContent = e.titulo;
+      const m = document.createElement('small'); m.textContent = fecha(e.ts) + (e.url ? ' · abrir ↗' : '');
+      tx.append(b);
+      if (e.texto) { const p = document.createElement('p'); p.textContent = e.texto; tx.append(p); }
+      tx.append(m); c.append(tx); box.append(c);
+    });
+  });
+  return box;
+}
 function lineaTiempo(a) {
   const box = document.createElement('div'); box.className = 'pb-of-tl';
   const todo = a.actividad || [], fallos = todo.filter((e) => ['error', 'freno'].includes(e.tipo));

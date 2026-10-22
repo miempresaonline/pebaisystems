@@ -13,6 +13,8 @@
  *   error      → algo falló
  *   cambio     → alguien cambió algo desde el panel (pausa, ajustes, fichas, importación)
  *   hito       → subió de escalón, se conectó, etc.
+ *   entrega    → trabajo terminado que Daniel puede ver (página, borrador, post, informe…). ref = clase;
+ *                detalle = JSON {url, img, texto}. Sale en la pestaña «Su trabajo» de la oficina.
  * Solo se guardan datos mínimos (empresa y email/teléfono del prospecto), nunca contraseñas.
  */
 if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
@@ -21,7 +23,7 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
 }
 require_once __DIR__ . '/_pebai_lib.php';
 
-const PEBAI_ACTIVIDAD_TIPOS = ['envio', 'bloqueo', 'respuesta', 'espera', 'freno', 'error', 'cambio', 'hito'];
+const PEBAI_ACTIVIDAD_TIPOS = ['envio', 'bloqueo', 'respuesta', 'espera', 'freno', 'error', 'cambio', 'hito', 'entrega'];
 
 function pebai_actividad_db(): PDO
 {

@@ -296,6 +296,21 @@ const OF_GEO_AGENTES = [  // horas de España (en verano, una hora más)
     ['geo_medicion', 'Medición', 'Mide la visibilidad en IA (informe completo los lunes)', 'L-V 8:30'],
 ];
 
+/** Trabajo entregado por un agente GEO (pestaña «Su trabajo»): lo último primero; solo enlaces https. */
+function of_entregas(string $agente, int $n = 40): array
+{
+    $q = pebai_actividad_db()->prepare("SELECT ts, resumen, detalle, ref FROM agente_actividad WHERE agente = ? AND tipo = 'entrega' ORDER BY id DESC LIMIT " . $n);
+    $q->execute([$agente]);
+    $https = static fn($u) => is_string($u) && str_starts_with($u, 'https://') ? $u : '';
+    $out = [];
+    foreach ($q as $r) {
+        $d = json_decode((string)$r['detalle'], true) ?: ['texto' => (string)$r['detalle']];
+        $out[] = ['ts' => $r['ts'], 'clase' => (string)$r['ref'], 'titulo' => $r['resumen'],
+                  'texto' => (string)($d['texto'] ?? ''), 'url' => $https($d['url'] ?? ''), 'img' => $https($d['img'] ?? '')];
+    }
+    return $out;
+}
+
 function of_geo_agente(string $id, string $nombre, string $rol, string $cuando): array
 {
     $a = of_agente(['id' => $id, 'dept' => 'geo', 'nombre' => $nombre, 'glifo' => 'lupa', 'rol' => $rol, 'unidad' => 'tareas hechas']);
@@ -330,6 +345,7 @@ function of_geo_agente(string $id, string $nombre, string $rol, string $cuando):
     $a['proxima'] = $cuando;
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
     $a['datos'] = [['Turno', $cuando], ['Tareas hoy', (string)$a['hoy']]];
+    $a['entregas'] = of_entregas($id);
     return $a;
 }
 

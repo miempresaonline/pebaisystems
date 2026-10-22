@@ -248,3 +248,14 @@ body.pb-of-cine .pb-side{display:none}
 .pb-of-tab .pw-ctl-pie{flex-wrap:wrap}
 .pb-of-tab .pw-rend-g,.pb-of-tab .pw-scr-g{grid-template-columns:1fr}
 .pb-of-tab .pw-rend-h{flex-wrap:wrap;gap:8px}
+
+/* «Su trabajo»: entregas de cada agente, con enlace y miniatura */
+.pb-of-work{margin-top:4px}
+.pb-of-wi{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;margin:8px 0;padding:12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:inherit;text-decoration:none;transition:background .2s,border-color .2s}
+a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.35)}
+.pb-of-wi img{width:96px;height:72px;object-fit:cover;border-radius:8px;background:#0A0912}
+.pb-of-wi>div{grid-column:2;min-width:0}
+.pb-of-wi:not(:has(img))>div{grid-column:1/-1}
+.pb-of-wi b{display:block;font-size:13.5px;line-height:1.35;color:#EFEDE7}
+.pb-of-wi p{margin:4px 0 0;font-size:12.5px;line-height:1.45;color:#A9ABBD}
+.pb-of-wi small{display:block;margin-top:6px;font:600 11px var(--sans);color:#B7FF3C}
