@@ -72,6 +72,35 @@ function pebai_ia_json(string $prompt): ?array
     return null;
 }
 
+/** Transcribe una nota de voz (bytes del audio) con Gemini. null si no se ha podido. */
+function pebai_ia_transcribir(string $audio, string $mime = 'audio/ogg'): ?string
+{
+    $key = pebai_ia_clave();
+    if ($key === '' || $audio === '' || strlen($audio) > 3000000) {
+        return null;
+    }
+    $body = json_encode(['contents' => [['parts' => [
+        ['text' => 'Transcribe literalmente esta nota de voz de WhatsApp, en el idioma en que se habla. Devuelve solo el texto, sin comillas ni comentarios.'],
+        ['inline_data' => ['mime_type' => $mime ?: 'audio/ogg', 'data' => base64_encode($audio)]],
+    ]]], 'generationConfig' => ['temperature' => 0, 'maxOutputTokens' => 1024]]);
+    foreach (PEBAI_IA_MODELOS as $modelo) {
+        $ch = curl_init('https://generativelanguage.googleapis.com/v1beta/models/' . $modelo . ':generateContent');
+        curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $body, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 60,
+                                CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'x-goog-api-key: ' . $key]]);
+        $raw = (string)curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $txt = '';
+        foreach (json_decode($raw, true)['candidates'][0]['content']['parts'] ?? [] as $p) {
+            $txt .= (string)($p['text'] ?? '');
+        }
+        if ($code === 200 && trim($txt) !== '') {
+            return mb_substr(trim($txt), 0, 2000);
+        }
+    }
+    return null;
+}
+
 /** Texto visible de la portada de una web (y si tiene botón de WhatsApp). null si no responde. */
 function pebai_web_texto(string $url): ?array
 {

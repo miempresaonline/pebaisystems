@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pino from 'pino';
-import makeWASocket, { Browsers, DisconnectReason, fetchLatestBaileysVersion, isLidUser, useMultiFileAuthState } from 'baileys';
+import makeWASocket, { Browsers, DisconnectReason, downloadMediaMessage, fetchLatestBaileysVersion, isLidUser, useMultiFileAuthState } from 'baileys';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 for (const line of (fs.existsSync(path.join(DIR, '.env')) ? fs.readFileSync(path.join(DIR, '.env'), 'utf8') : '').split(/\r?\n/)) {
@@ -170,7 +170,16 @@ async function conectar() {
         continue;
       }
       log('Respuesta de', tel);
-      await api('entrante', { telefono: tel, texto });
+      // Notas de voz (22/10): se descargan y el panel las transcribe con la IA para leer lo que dijeron
+      const audioMsg = (msg.deviceSentMessage?.message || msg.ephemeralMessage?.message || msg).audioMessage;
+      let audio = null;
+      if (audioMsg) {
+        try {
+          const buf = await downloadMediaMessage(m, 'buffer', {}, { logger, reuploadRequest: sock.updateMediaMessage });
+          if (buf && buf.length < 3e6) audio = { audio: buf.toString('base64'), mime: String(audioMsg.mimetype || 'audio/ogg').split(';')[0] };
+        } catch (e) { log('No se pudo descargar la nota de voz de', tel, e.message); }
+      }
+      await api('entrante', { telefono: tel, texto, ...(audio || {}) });
       recuperaHistorial(tel, m).catch(() => {});
     }
   });

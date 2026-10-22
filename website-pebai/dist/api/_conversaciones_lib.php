@@ -281,7 +281,7 @@ function pebai_conv_al_momento(string $canal, int $id): void
         pebai_conv_cortesia($canal, $p, $msgs);
         return;
     }
-    if (!in_array($res['estado'], ['auto', 'no_interesado'], true) && !pebai_conv_es_baja($canal, $p) && end($msgs)['sentido'] === 'entra') {
+    if (!in_array($res['estado'], ['auto', 'no_interesado'], true) && !pebai_conv_es_baja($canal, $p) && end($msgs)['sentido'] === 'entra' && !pebai_conv_cerrada($msgs)) {
         $b = pebai_conv_borrador($canal, $id);
         if (isset($b['texto'])) {
             pebai_actividad($canal, 'respuesta', 'Respuesta preparada para ' . ($p['empresa'] ?: '#' . $id) . ': espera tu aprobación en Conversaciones', $b['texto'], ($canal === 'email' ? 'em:' : 'wa:') . $id);
@@ -666,6 +666,7 @@ function pebai_conv_datos(): array
                 // Le toca contestar a Daniel: lo último lo escribió la empresa, no es un contestador ni alguien que no quiere,
                 // y Daniel no ha marcado que ya le contestó por su cuenta (un mensaje nuevo de la empresa lo vuelve a activar)
                 'te_toca' => empty($cola[$k]) && (!$hilo || (int)($c['contestado_hasta'] ?? 0) < end($hilo)['id'])
+                    && !pebai_conv_cerrada($hilo)
                     && (($hilo && end($hilo)['de'] === 'entra' && !in_array($estado, ['no_interesado', 'auto', 'cita'], true))
                     || ($estado === 'auto' && pebai_conv_toca_contestador('auto', $hilo, (string)$p['enviado_at']))) ? 1 : 0,
                 'contestado' => $hilo && (int)($c['contestado_hasta'] ?? 0) >= end($hilo)['id'] ? 1 : 0,
@@ -675,4 +676,32 @@ function pebai_conv_datos(): array
     }
     usort($filas, static fn($a, $b) => strcmp($b['ultimo_at'], $a['ultimo_at']));
     return $filas;
+}
+
+/**
+ * ¿Conversación cerrada? (22/10, Ecoquinto): nos despedimos nosotros y ellos solo contestan con un «igualmente», «gracias»
+ * o un emoji. Ahí no hay nada que responder: ni «Te toca» ni borrador.
+ */
+function pebai_conv_cerrada(array $msgs): bool
+{
+    $n = count($msgs);
+    if ($n < 2) {
+        return false;
+    }
+    $ult = $msgs[$n - 1];
+    $de = static fn($m) => $m['sentido'] ?? $m['de'] ?? '';
+    if ($de($ult) !== 'entra') {
+        return false;
+    }
+    $t = trim((string)$ult['texto']);
+    $corto = mb_strlen($t) <= 40 && preg_match('/^[\s\p{P}\p{So}\p{Sk}]*(igualmente|gracias|muchas gracias|ok|vale|perfecto|de nada|un saludo|saludos|buen d[ií]a|buenas tardes|igual|lo mismo|a ti|igualmente gracias)?[\s\p{P}\p{So}\p{Sk}]*$/iu', $t);
+    if (!$corto) {
+        return false;
+    }
+    for ($i = $n - 2; $i >= 0; $i--) {
+        if ($de($msgs[$i]) === 'sale') {
+            return (bool)preg_match('/suerte|buen d[ií]a|buena tarde|buen fin de semana|un saludo|saludos|cuídate|hasta pronto|que vaya bien|muy amable/iu', (string)$msgs[$i]['texto']);
+        }
+    }
+    return false;
 }

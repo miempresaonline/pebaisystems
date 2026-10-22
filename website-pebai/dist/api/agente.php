@@ -131,6 +131,11 @@ switch ($in['accion'] ?? '') {
             out(['ok' => true, 'ignorado' => true]);
         }
         $texto = mb_substr(trim((string)($in['texto'] ?? '')), 0, 2000);
+        if (!empty($in['audio'])) {
+            require_once __DIR__ . '/_ia_lib.php';
+            $tr = pebai_ia_transcribir((string)base64_decode((string)$in['audio'], true), (string)($in['mime'] ?? 'audio/ogg'));
+            $texto = $tr !== null ? '🎤 ' . $tr : '[nota de voz: no se pudo transcribir]';
+        }
         // Si había una respuesta de cortesía a su contestador esperando a salir y ahora escribe una persona, ya no se manda
         // (22/10, Ecoquinto: contestó una persona a los 2 minutos y aun así salió «lo dejo por aquí para cuando estéis»)
         if (!pebai_es_contestador($texto)) {
