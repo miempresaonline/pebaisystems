@@ -12,6 +12,9 @@ No hace falta escribir UTMs a mano. Copia el enlace de esta tabla y el panel sab
 | Bio de X | `pebaisystems.es/x` |
 | Enlaces del canal de YouTube | `pebaisystems.es/yt` |
 | Perfil de LinkedIn | `pebaisystems.es/li` |
+| Página de empresa de LinkedIn (botón) | `pebaisystems.es/li/empresa` |
+| LinkedIn empresa: guía de posicionamiento en IA | `pebaisystems.es/li/geo` |
+| LinkedIn empresa: guía de agentes de IA | `pebaisystems.es/li/agentes` |
 
 Todos llevan al vídeo (`/consultoria-gratuita/`) con el origen ya puesto.
 

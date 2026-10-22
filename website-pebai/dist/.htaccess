@@ -43,6 +43,10 @@ RewriteRule ^yt/?$ consultoria-gratuita/?utm_source=youtube&utm_medium=canal [R=
 RewriteRule ^fb/?$ consultoria-gratuita/?utm_source=facebook&utm_medium=bio [R=302,L,QSA,NE]
 RewriteRule ^x/?$ consultoria-gratuita/?utm_source=x&utm_medium=bio [R=302,L,QSA,NE]
 RewriteRule ^li/?$ consultoria-gratuita/?utm_source=linkedin&utm_medium=perfil [R=302,L,QSA,NE]
+# Página de empresa de LinkedIn (botón y datos de interés)
+RewriteRule ^li/empresa/?$ consultoria-gratuita/?utm_source=linkedin&utm_medium=empresa [R=302,L,QSA,NE]
+RewriteRule ^li/geo/?$ posicionamiento-en-ia/?utm_source=linkedin&utm_medium=empresa [R=302,L,QSA,NE]
+RewriteRule ^li/agentes/?$ agentes-ia/?utm_source=linkedin&utm_medium=empresa [R=302,L,QSA,NE]
 # Tarjetas de visita (QR) para puerta fría: /t/adrian, /t/dani (ver assets/brand/pebai-systems/tarjetas/)
 # /t/adrian y /t/dani son tarjetas digitales (carpetas en dist/t/): solo se redirige si no existe la carpeta
 RewriteCond %{REQUEST_FILENAME} !-d
