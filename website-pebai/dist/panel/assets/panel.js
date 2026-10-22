@@ -794,8 +794,8 @@ function draw() {
   $('#pb-leads-n').textContent = S.loaded ? N(S.leads.length) : '—';
   $('#pb-citas-n').textContent = S.loaded ? N(citasClasificadas().filter((x) => x.tramo === 'proximas').length) : '—';
   if (!S.loaded) return;
-  if (ui.page === 'resumen') drawResumen(ui.periodo);
-  if (ui.page === 'solicitudes') drawSolicitudes();
+  // El resumen de toda la app lo pinta global.js; el análisis del formulario vive en Solicitudes
+  if (ui.page === 'solicitudes') { drawResumen(ui.periodo); drawSolicitudes(); }
   if (ui.page === 'clientes') drawClientes();
   if (ui.page === 'citas') { pintaPlazas($('#pb-plazas-citas')); drawAgenda($('#pb-proximas'), 'proximas'); drawAgenda($('#pb-pasadas'), 'pasadas'); drawAgenda($('#pb-sinvincular'), 'sin_vincular'); }
   drawDetalle();
@@ -811,5 +811,7 @@ marcaPagina(ui.page);
 fQ.value = ui.q || '';
 if (ui.sel != null) { $('#pb-drawer').classList.add('on'); $('#pb-veil').classList.add('on'); document.body.classList.add('pb-locked'); }
 writeUrl(); draw();
+// Al abrir el análisis plegable, se repinta con su ancho real (cerrado no tiene tamaño)
+{ const an = $('#pb-analisis'); if (an) { try { an.open = localStorage.getItem('pb-analisis') === '1'; } catch (e) { /* nada */ } an.addEventListener('toggle', () => { try { localStorage.setItem('pb-analisis', an.open ? '1' : '0'); } catch (e) { /* nada */ } if (an.open) draw(); }); } }
 load().then(() => { draw(); if (ui.sel != null) marcarVista(ui.sel); }).catch((e) => { toast(e.message || 'No se han podido cargar los datos.', true); $$('.pb-skel').forEach((x) => x.classList.remove('pb-skel')); });
 })();

@@ -604,7 +604,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '70';
+$v = '71';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -718,12 +718,19 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
   <section class="pb-page" id="page-resumen" data-page="resumen">
     <h1 class="pb-h1">PEBAI, <i>de un vistazo</i></h1>
     <div id="pb-global" class="pg"></div>
-    <p class="pb-lead" id="pb-takeaway">—</p>
+  </section>
+
+  <section class="pb-page" id="page-solicitudes" data-page="solicitudes">
+    <h1 class="pb-h1">Solicitudes, <i>una a una</i></h1>
+    <p class="pb-lead">Cada empresa que ha rellenado el diagnóstico. Pulsa una fila para abrir su ficha, contactar por WhatsApp y anotar el seguimiento.</p>
     <div class="pb-plazas" id="pb-plazas"></div>
     <div class="pb-card pb-pendientes pb-anim" id="pb-pendientes" style="--i:0;margin-bottom:14px">
       <div class="hd"><div><h2>Qué toca ahora</h2><p class="note">Se actualiza solo cada minuto. Las fases avanzan solas; aquí queda lo que necesita una persona.</p></div></div>
       <div class="pb-pend-list" id="pb-pend-list"></div>
     </div>
+    <details class="pb-analisis" id="pb-analisis">
+      <summary><b>Análisis de las solicitudes</b><span>Embudo, ritmo de entrada y de dónde vienen · periodo de arriba</span></summary>
+      <p class="pb-lead" id="pb-takeaway">—</p>
     <div class="pb-grid k" id="pb-kpis">
       <div class="pb-card pb-kpi hero pb-anim" style="--i:0"><div class="l">Solicitudes</div><div class="v" data-k="total">—</div><div class="d"><span class="delta" data-k="d_total">—</span><span>vs periodo anterior</span></div><div class="spark"><svg></svg></div></div>
       <div class="pb-card pb-kpi pb-anim" style="--i:1"><div class="l">Con presupuesto (A)</div><div class="v" data-k="con_presupuesto">—</div><div class="d"><span class="lime mono" data-k="p_presupuesto">—</span><span>de las solicitudes</span></div></div>
@@ -759,11 +766,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
         <div class="pb-agenda" id="pb-proximas-mini"></div>
       </div>
     </div>
-  </section>
-
-  <section class="pb-page" id="page-solicitudes" data-page="solicitudes">
-    <h1 class="pb-h1">Solicitudes, <i>una a una</i></h1>
-    <p class="pb-lead">Cada empresa que ha rellenado el diagnóstico. Pulsa una fila para abrir su ficha, contactar por WhatsApp y anotar el seguimiento.</p>
+    </details>
     <div class="pb-chips" id="pb-chips"></div>
     <div class="pb-filters">
       <div class="grow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pb-q" type="search" placeholder="Buscar empresa, teléfono, email, notas…" aria-label="Buscar"><span class="pb-kbd">/</span></div>

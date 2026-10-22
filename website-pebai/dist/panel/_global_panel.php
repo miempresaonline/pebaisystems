@@ -103,9 +103,59 @@ if ($auth && isset($_GET['global'])) {
 
     // Agentes: el mismo estado que la oficina, en corto
     $out['agentes'] = gl_bloque(static function () {
-        return array_map(static fn($a) => ['id' => $a['id'], 'nombre' => $a['nombre'], 'st' => $a['st'], 'motivo' => $a['motivo'], 'hoy' => $a['hoy'], 'cupo' => $a['cupo'], 'unidad' => $a['unidad']],
+        return array_map(static fn($a) => ['id' => $a['id'], 'dept' => $a['dept'], 'nombre' => $a['nombre'], 'st' => $a['st'], 'motivo' => $a['motivo'], 'hoy' => $a['hoy'], 'cupo' => $a['cupo'], 'unidad' => $a['unidad']],
             function_exists('of_estado') ? of_estado(pebai_db()) : []);
     }, 'agentes');
+
+    // Una cifra por sección del menú (para las tarjetas del resumen)
+    $catorce = static function (PDO $db, string $sql, array $a = []): array {
+        $dias = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $dias[date('Y-m-d', strtotime("-$i days"))] = 0;
+        }
+        $q = $db->prepare($sql);
+        $q->execute(array_merge([date('Y-m-d', strtotime('-13 days'))], $a));
+        foreach ($q as $r) {
+            if (isset($dias[$r['d']])) {
+                $dias[$r['d']] = (int)$r['n'];
+            }
+        }
+        return array_values($dias);
+    };
+    $out['secciones'] = [
+        'solicitudes' => gl_bloque(static function () use ($catorce) {
+            $db = pebai_db();
+            return ['serie' => $catorce($db, "SELECT substr(created_at, 1, 10) d, COUNT(*) n FROM leads WHERE tipo <> 'cliente' AND created_at >= ? GROUP BY d"),
+                    'mes' => (int)$db->query("SELECT COUNT(*) FROM leads WHERE tipo <> 'cliente' AND created_at >= '" . date('Y-m-d', strtotime('-29 days')) . "'")->fetchColumn(),
+                    'sin_revisar' => (int)$db->query("SELECT COUNT(*) FROM leads WHERE tipo <> 'cliente' AND estado = 'nuevo'")->fetchColumn()];
+        }, 'sec_solicitudes'),
+        'citas' => gl_bloque(static function () {
+            $q = pebai_db()->prepare("SELECT inicio FROM citas WHERE estado = 'reservada' AND inicio >= ? ORDER BY inicio");
+            $q->execute([gmdate('Y-m-d\TH:i:s')]);
+            $ini = $q->fetchAll(PDO::FETCH_COLUMN);
+            return ['lista' => array_slice($ini, 0, 40), 'proximas' => count($ini), 'siguiente' => $ini[0] ?? '', 'semana' => count(array_filter($ini, static fn($i) => strtotime($i) < time() + 7 * 86400))];
+        }, 'sec_citas'),
+        'prospectos' => gl_bloque(static function () {
+            $adb = pebai_agentes_db();
+            $n = static fn(string $sql) => (int)$adb->query($sql)->fetchColumn();
+            return ['cola' => $n("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente'") + $n("SELECT COUNT(*) FROM email_prospectos WHERE estado = 'pendiente'"),
+                    'escritas' => $n("SELECT COUNT(*) FROM prospectos WHERE enviado_at <> ''") + $n("SELECT COUNT(*) FROM email_prospectos WHERE enviado1_at <> ''"),
+                    'revisar' => $n("SELECT COUNT(*) FROM prospectos WHERE estado = 'revision'")];
+        }, 'sec_prospectos'),
+        'mapa' => gl_bloque(static function () {
+            if (!function_exists('of_scraper_seguimiento')) {
+                return null;
+            }
+            $s = of_scraper_seguimiento();
+            return ['cobertura' => (int)$s['cobertura'], 'prov_completas' => (int)$s['prov_completas'], 'ahora' => (string)($s['ahora'] ?? '')];
+        }, 'sec_mapa'),
+        'qr' => gl_bloque(static function () use ($catorce) {
+            require_once dirname(__DIR__) . '/api/_qr_lib.php';
+            $db = pebai_qr_db();
+            return ['serie' => $catorce($db, 'SELECT substr(ts, 1, 10) d, COUNT(*) n FROM qr_escaneos WHERE ts >= ? GROUP BY d'),
+                    'mes' => (int)$db->query("SELECT COUNT(*) FROM qr_escaneos WHERE ts >= '" . date('Y-m-d', strtotime('-29 days')) . "'")->fetchColumn()];
+        }, 'sec_qr'),
+    ];
 
     // Caja del mes
     $out['caja'] = gl_bloque(static function () {
