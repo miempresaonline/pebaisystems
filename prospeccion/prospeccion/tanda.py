@@ -425,9 +425,11 @@ def provincia(nicho: str, prov: str) -> Path | None:
                 cap, pueblos = [], extra
                 print(f'  vuelta de pueblos y territorio: {len(extra)} puntos (tramo {cfg["tramo"]} de {math.ceil(len(puntos_cobertura(prov)) / PUEBLOS_POR_TRAMO)})')
         print(f'  capital en 9 zonas + {len(pueblos)} municipios')
-        cands = google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=cap, paso_km=3.0, zoom=14) if cap else []
+        cands = google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=cap, paso_km=3.0, zoom=14,
+                            avance=bruto.with_name(bruto.stem + '.cap.avance.json')) if cap else []
         vistos = {c['empresa'] + c['telefono'] for c in cands}
-        for c in google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=pueblos, paso_km=6.0, zoom=14):
+        for c in google_maps(cfg['busquedas'], prov, cfg['sector'], puntos=pueblos, paso_km=6.0, zoom=14,
+                             avance=bruto.with_name(bruto.stem + '.pue.avance.json')):
             if c['empresa'] + c['telefono'] not in vistos:
                 cands.append(c)
         bruto.parent.mkdir(parents=True, exist_ok=True)

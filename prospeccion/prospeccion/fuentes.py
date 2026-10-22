@@ -61,7 +61,7 @@ def rejilla(caja: list[float], paso_km: float, max_puntos: int) -> list[tuple[fl
 
 
 def google_maps(busquedas: list[str], ciudad: str, sector: str, max_puntos: int = 12, paso_km: float = 3.0, zoom: int = 14,
-                puntos: list[tuple[float, float]] | None = None) -> list[dict]:
+                puntos: list[tuple[float, float]] | None = None, avance: Path | None = None) -> list[dict]:
     """Google Maps con gosom/google-maps-scraper en modo rápido (el modo normal está roto desde el 01/10/2026, issue #338).
     Maps devuelve ~20 negocios por búsqueda y zona: se barre la ciudad por zonas y con varias formas de buscar el nicho.
     La búsqueda va SIN el nombre de la ciudad: con él, Google ignora la zona y devuelve el centro (o nada)."""
@@ -69,8 +69,20 @@ def google_maps(busquedas: list[str], ciudad: str, sector: str, max_puntos: int 
         _, _, caja = geocodifica(ciudad)
         puntos = rejilla(caja, paso_km, max_puntos)
     out: dict[str, dict] = {}
+    # Avance zona a zona (22/10): el hosting corta a veces el proceso; con esto, al volver a arrancar sigue donde iba
+    hechas = 0
+    if avance and avance.exists():
+        try:
+            guardado = json.loads(avance.read_text(encoding='utf-8'))
+            if guardado.get('puntos') == [list(p) for p in puntos]:
+                out, hechas = guardado['out'], int(guardado['hechas'])
+                print(f'  retomando: {hechas} de {len(puntos)} zonas ya hechas ({len(out)} negocios)')
+        except Exception:
+            pass
     with tempfile.TemporaryDirectory() as tmp:
         for i, (lat, lon) in enumerate(puntos, 1):
+            if i <= hechas:
+                continue
             q = Path(tmp) / 'q.txt'
             q.write_text('\n'.join(busquedas) + '\n', encoding='utf-8')
             res = Path(tmp) / f'r{i}.json'
@@ -108,6 +120,9 @@ def google_maps(busquedas: list[str], ciudad: str, sector: str, max_puntos: int 
                     'extra': {'maps': x.get('link') or '', 'estado_maps': x.get('status') or '', 'horario': x.get('open_hours') or {}},
                 }
             print(f'  Maps · zona {i}/{len(puntos)}: {len(filas)} resultados, {nuevos} nuevos (total {len(out)})')
+            if avance:
+                avance.parent.mkdir(parents=True, exist_ok=True)
+                avance.write_text(json.dumps({'puntos': [list(p) for p in puntos], 'hechas': i, 'out': out}, ensure_ascii=False), encoding='utf-8')
             time.sleep(3)
     return list(out.values())
 
