@@ -2,6 +2,11 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-22 (mediodía: estudios y casos)
+
+Sin novedades útiles en las últimas 48 h: las búsquedas de estudios de Ahrefs, Semrush y SE Ranking solo devuelven comparativas de herramientas y blogs de agencias sin fecha de octubre. Descartado por no ser fuente fiable ni reciente (p. ej. el test de agosto 2026 de Something Inc., 30 preguntas, solapamiento bajo entre motores: https://somethinginc.com/blog/ai-engine-citation-overlap-study/ [S]; coincide con la inestabilidad ya anotada y refuerza repetir cada pregunta varias veces).
+Comprobación técnica: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-22 (mañana: buscadores e IAs)
 
 1. **Google sube los enlaces dentro de AI Overviews y AI Mode** [V]. Anunciado el 15/10/2026 (AFP, 16/10): enlaces contextuales más frecuentes y más arriba, carrusel de enlaces ampliado a todo el mundo, enlaces finales de los resúmenes más visibles, y prioridad a las "fuentes preferidas" del usuario. Fuente: https://www.ewn.co.za/google-boosts-news-and-link-visibility-in-ai-mode/ (16/10/2026). Contexto: las etiquetas de fuente preferida en AI Mode llegaron en mayo 2026 (https://www.searchenginejournal.com/google-expands-preferred-sources-publisher-ai-partnerships/563062/).
