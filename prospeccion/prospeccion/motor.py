@@ -222,7 +222,7 @@ def enriquece(cands: list[dict], nicho: set[str]) -> list[dict]:
             'emails_extra': ' '.join(e for e in emails if e != email)[:200], 'email_personal': bool(email and es_email_personal(email)),
             'whatsapp_web': w.get('whatsapp', ''), 'redes': ' '.join(w.get('redes', {}).values())[:300],
             'senales': ' '.join(sorted(w.get('senales', []))), 'web_final': w.get('url_final') or c['web'],
-            'titulo_web': w.get('titulo', ''),
+            'titulo_web': w.get('titulo', ''), 'descripcion_web': w.get('descripcion', ''),
             # Se dedica de verdad (no lo nombra en un post): lo dice en su cabecera o lo repite por la web
             'se_dedica': bool(w.get('nicho_cabecera') or (w.get('n_solar', 0) + w.get('n_aerotermia', 0)) >= 4),
             'solar_principal': es_solar_principal(c['empresa'], dom, w),
@@ -322,6 +322,10 @@ def descarta(c: dict, vistos_tel: set, vistos_dom: set, excl: dict | None = None
         return 'empresa demasiado grande, cadena o tienda'
     if reglas.get('requiere_web') and not c['web_final']:
         return 'sin web propia'
+    if reglas.get('nom_no') and re.search(reglas['nom_no'], c['empresa'] + ' ' + c.get('titulo_web', ''), re.I):
+        return 'es otro tipo de negocio (por su nombre o su web)'
+    if reglas.get('requiere_palabra') and not re.search(reglas['requiere_palabra'], ' '.join([c['empresa'], c.get('titulo_web', ''), c.get('descripcion_web', '')]), re.I):
+        return 'ni su nombre ni su web hablan de lo que buscamos'
     if reglas.get('min_resenas') and int(c.get('resenas') or 0) < reglas['min_resenas']:
         return 'poca actividad en Google (pocas reseñas): empresa muy pequeña'
     if reglas.get('no_oposiciones_ni_idiomas') and re.search(r'oposici|idioma|ingl[eé]s|english', c['empresa'] + ' ' + c.get('titulo_web', ''), re.I):

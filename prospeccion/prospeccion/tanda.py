@@ -76,8 +76,11 @@ NICHOS_NUEVOS = {
     'climatizacion': {
         'sector': 'Empresas de climatización', 'lote': 'Climatización', 'nicho_panel': 'climatizacion', 'email_nicho': 'climatizacion', 'ia': False,
         'palabras': 'climatización aire acondicionado calefacción aerotermia bomba de calor frío conductos instalación mantenimiento',
-        'reglas': {'solo_activas': True, 'sin_autonomos': True, 'requiere_web': True, 'min_resenas': 15, 'grandes': _GRANDES_CLIMA},
+        'reglas': {'solo_activas': True, 'sin_autonomos': True, 'requiere_web': True, 'min_resenas': 15, 'grandes': _GRANDES_CLIMA,
+                   'nom_no': r'electricista|electricidad|el[eé]ctric|reformas|fontaner|electrodom|\bsat\b|reparaciones|multiservicio|tienda|\bgas\b|coche|autom[oó]vil|termos'},
         'cat_ok': r'climatiz|aire acondicionado|calefacci|aerotermia|bomba de calor|frigor|refrigeraci|hvac|ventilaci|calderas',
+        'cat_no': r'electricista|instalaciones el[eé]ctricas|reforma|fontaner|tienda|comercio|electrodom|ferreter|distribuidor|mayorista|'
+                  r'fabricante|instalador de gas|autom[oó]vil|coche|taller|multiservicio|reparaci[oó]n de electrodom|alquiler',
         'nombre_ok': r'climatiz|clima\b|aire acondicionado|calefacci|aerotermia|fr[ií]o|confort t[eé]rmico',
         'grupos': [['empresa de climatización', 'instalación de aire acondicionado', 'empresa de aire acondicionado'],
                    ['instaladores de climatización', 'aerotermia instalación empresa', 'calefacción y climatización'],
@@ -87,17 +90,23 @@ NICHOS_NUEVOS = {
     'oposiciones': {
         'sector': 'Academias de oposiciones', 'lote': 'Oposiciones', 'nicho_panel': 'oposiciones', 'email_nicho': 'oposiciones', 'ia': False,
         'palabras': 'oposiciones opositores academia preparación temario convocatoria plazas guardia civil policía docentes',
-        'reglas': {'solo_activas': True, 'requiere_web': True, 'permite_formacion': True, 'grandes': _GRANDES_FORMACION},
-        'cat_ok': r'oposici|academia|centro de formaci|centro de estudios|preparaci',
-        'nombre_ok': r'oposici|opositor|academia',
+        'reglas': {'solo_activas': True, 'requiere_web': True, 'permite_formacion': True, 'grandes': _GRANDES_FORMACION,
+                   'requiere_palabra': r'oposici|opositor',
+                   'nom_no': r'refuerzo|repaso|apoyo escolar|clases particulares|bachiller|academia universitaria|universitaria|selectividad|evau|ebau|idioma|ingl[eé]s|english|language|autoescuela|\bfp\b|formaci[oó]n profesional|sport|deporte|entrenamiento'},
+        'cat_ok': r'oposici',
+        'cat_no': r'autoescuela|refuerzo|clases particulares|idioma|ingl[eé]s|librer|editorial|sindicato|guarder|colegio|instituto p[uú]blico|m[uú]sica|baile|danza',
+        'nombre_ok': r'oposici|opositor',
         'grupos': [['academia de oposiciones', 'preparación de oposiciones', 'centro de oposiciones'],
                    ['academia oposiciones guardia civil policía', 'academia oposiciones docentes maestros', 'academia oposiciones administrativo']],
     },
     'formacion': {
         'sector': 'Centros privados de formación especializada', 'lote': 'Formación especializada', 'nicho_panel': 'formacion', 'email_nicho': 'formacion', 'ia': False,
         'palabras': 'formación cursos centro de formación especializada profesional certificado técnico escuela privada',
-        'reglas': {'solo_activas': True, 'requiere_web': True, 'permite_formacion': True, 'grandes': _GRANDES_FORMACION, 'no_oposiciones_ni_idiomas': True},
-        'cat_ok': r'formaci|academia|escuela|centro de estudios|instituto|educativ|capacitaci',
+        'reglas': {'solo_activas': True, 'requiere_web': True, 'permite_formacion': True, 'grandes': _GRANDES_FORMACION, 'no_oposiciones_ni_idiomas': True,
+                   'requiere_palabra': r'formaci|curso|certificad|especializ|m[aá]ster|capacitaci|escuela profesional',
+                   'nom_no': r'colegio|school\b|conservatori|n[aá]utic|\bcifp\b|\bies\b|\bcfp\b|municipal|p[uú]blic|psicolog|residencia|osteopat|fisioter|danza|dansa|ballet|teatro|m[uú]sica|gimn|universi|facultad|escola t[eè]cnica|escuela p[ií]a|sagrada|salesian|concertad|infantil|guarder|autoescuela|refuerzo|repaso|apoyo escolar|clases particulares|bachiller|academia universitaria|universitaria|selectividad|evau|ebau'},
+        'cat_ok': r'centro de formaci|formaci[oó]n profesional|academia|capacitaci|escuela de formaci|instituto de formaci|escuela de negocios|escuela t[eé]cnica',
+        'cat_no': r'oposici|idioma|ingl[eé]s|autoescuela|guarder|colegio|gimnasio|refuerzo|clases particulares|universidad|m[uú]sica|baile|danza|conducci[oó]n|instituto de educaci[oó]n secundaria',
         'nombre_ok': r'formaci|escuela|academia|instituto|training|campus',
         'grupos': [['centro de formación privado', 'centro de formación especializada', 'escuela de formación profesional privada'],
                    ['cursos de formación profesional', 'academia de formación técnica', 'cursos certificado de profesionalidad']],
@@ -105,8 +114,11 @@ NICHOS_NUEVOS = {
     'idiomas': {
         'sector': 'Escuelas de idiomas', 'lote': 'Idiomas', 'nicho_panel': 'idiomas', 'email_nicho': 'idiomas', 'ia': False,
         'palabras': 'idiomas inglés academia clases alemán francés cambridge escuela de idiomas',
-        'reglas': {'solo_activas': True, 'requiere_web': True, 'permite_formacion': True, 'grandes': _GRANDES_FORMACION},
-        'cat_ok': r'idioma|ingl[eé]s|language|lengua|escuela|academia',
+        'reglas': {'solo_activas': True, 'requiere_web': True, 'permite_formacion': True, 'grandes': _GRANDES_FORMACION + r'|steve ?& ?maggie|helen doron|kumon|smartick',
+                   'requiere_palabra': r'idioma|ingl[eé]s|english|language|franc[eé]s|alem[aá]n|italiano|chino|japon[eé]s|portugu[eé]s|lengua|cambridge|ielts|toefl',
+                   'nom_no': r'danza|dansa|ballet|teatro|m[uú]sica|extranjero|summer|campamento|traduc|intercambio|coach|profesora? particular|refuerzo|repaso|apoyo escolar|clases particulares|bachiller|academia universitaria|universitaria|selectividad|evau|ebau'},
+        'cat_ok': r'idioma|ingl[eé]s|language|lengua',
+        'cat_no': r'refuerzo|clases particulares|traduc|guarder|colegio|campamento|autoescuela|m[uú]sica|baile|danza',
         'nombre_ok': r'idioma|ingl[eé]s|english|language|lingu|academia',
         'grupos': [['academia de inglés', 'escuela de idiomas', 'academia de idiomas'],
                    ['clases de inglés', 'centro de idiomas', 'academia de inglés para adultos y niños']],
@@ -310,10 +322,24 @@ def prefiltra(cands: list, prov: str, nicho: str) -> list:
             ya += 1
             continue
         cats = ' '.join(c.get('categorias') or [])
+        nom_no = re.compile(reglas['nom_no'], re.I) if reglas.get('nom_no') else None
+        if nom_no and nom_no.search(c.get('empresa') or ''):
+            archivar.append(c)   # otro tipo de negocio por su nombre (refuerzo escolar, colegio, electricista...)
+            continue
         if grandes and grandes.search((c.get('empresa') or '') + ' ' + dom):
             ya += 1   # gigantes, cadenas y tiendas: no son clientes nuestros
             continue
-        del_nicho = not cats or cat_ok.search(cats) or nom_ok.search(c.get('empresa') or '')
+        principal = (c.get('categorias') or [''])[0]
+        if cfg.get('cat_no'):
+            # Nichos nuevos (22/10): se colaban electricistas, reformas y tiendas que marcan también «aire acondicionado».
+            # Vale si su categoría principal es del nicho, o si el nombre lo es y la principal no es de otro oficio.
+            cat_no = re.compile(cfg['cat_no'], re.I)
+            del_nicho = (not cats) or (bool(cat_ok.search(principal)) and not cat_no.search(principal)) \
+                or (bool(nom_ok.search(c.get('empresa') or '')) and not cat_no.search(principal))
+            if dom.endswith(('.pt', '.fr', '.it', '.de', '.uk')):
+                del_nicho = False   # webs de otros países
+        else:
+            del_nicho = not cats or cat_ok.search(cats) or nom_ok.search(c.get('empresa') or '')
         # Empresas serias (climatización y formación): con web propia y, si se pide, con actividad en Google (reseñas)
         floja = (reglas.get('requiere_web') and not c.get('web')) or (reglas.get('min_resenas') and int(c.get('resenas') or 0) < reglas['min_resenas'])
         if del_nicho and not floja:
@@ -451,6 +477,12 @@ def importar_panel(csv_whatsapp: Path, lote: str, cfg: dict) -> None:
         if solo_email.exists():
             r = subprocess.run(['/usr/bin/php', str(script), str(solo_email), lote + ' (email)', 'email', cfg['email_nicho']], capture_output=True, text=True, timeout=300)
             print('  sin móvil, a su lista de email:', (r.stdout or r.stderr).strip()[:200])
+        # Tercera capa (22/10): la IA revisa nombre y web de las que acaban de entrar y saca las que no son del nicho
+        aud = Path(__file__).resolve().parent.parent / 'auditar_lote.php'
+        if aud.exists():
+            r = subprocess.run(['/usr/bin/php', str(aud), cfg['nicho_panel'], lote], capture_output=True, text=True, timeout=900)
+            print('  revisión con IA:', (r.stdout or r.stderr).strip()[:200])
+            apunta(f'{lote}: revisión con IA', (r.stdout or r.stderr).strip()[:300], csv_whatsapp.stem + '_ia')
         return
     from .ia import filtra
     wa, n = filtra(csv_whatsapp, 'whatsapp')
