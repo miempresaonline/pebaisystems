@@ -9,7 +9,7 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 ## geo_contenido · Contenido
 - [x] 2026-10-21 · Publicar /agentes-ia/ con WhatsApp como bloque principal · (plan, pilares.md) · hecho 22/10
 - [ ] 2026-10-21 · Publicar /ia-para-empresas/ · (plan, pilares.md)
-- [ ] 2026-10-22 · Turno de las 15:00: dejar el borrador de /ia-para-empresas/ en `docs/geo/borradores/ia-para-empresas.md` (commit), no en scratch · (Jefe: scratch se pierde en la nube)
+- [x] 2026-10-22 · Turno de las 15:00: dejar el borrador de /ia-para-empresas/ en `docs/geo/borradores/ia-para-empresas.md` (commit), no en scratch · (Jefe: scratch se pierde en la nube) · hecho 22/10: texto completo, 7 fuentes verificadas (INE 1T 2026 publicado hoy, Reglamento 2026/1744, Red.es), listo para publicar el viernes
 - [x] 2026-10-22 · En /agentes-ia/, abrir con una respuesta directa de 40-60 palabras que se pueda citar tal cual: ChatGPT cita sobre todo webs de agencias con páginas propias · (Vigía 21/10) · hecho 22/10
 
 ## geo_refresco · Refresco
