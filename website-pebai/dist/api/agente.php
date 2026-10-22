@@ -131,6 +131,13 @@ switch ($in['accion'] ?? '') {
             out(['ok' => true, 'ignorado' => true]);
         }
         $texto = mb_substr(trim((string)($in['texto'] ?? '')), 0, 2000);
+        // Si había una respuesta de cortesía a su contestador esperando a salir y ahora escribe una persona, ya no se manda
+        // (22/10, Ecoquinto: contestó una persona a los 2 minutos y aun así salió «lo dejo por aquí para cuando estéis»)
+        if (!pebai_es_contestador($texto)) {
+            require_once __DIR__ . '/_conversaciones_lib.php';
+            pebai_conv_db()->prepare("UPDATE wa_salida SET estado = 'cancelado', error = 'Contestó una persona antes de enviarla' WHERE prospecto_id = ? AND plantilla = 'cortesia' AND estado = 'pendiente'")
+                ->execute([$p['id']]);
+        }
         $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto) VALUES (?, 'whatsapp', ?, ?, 'entra', ?)")
            ->execute([$now, $p['id'], $tel, $texto]);
         if (in_array($p['estado'], ['enviando', 'enviado'], true)) {

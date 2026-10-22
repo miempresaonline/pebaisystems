@@ -505,3 +505,12 @@ function pebai_agentes_vigilar(): void
             'Último latido: ' . pebai_fecha($a['latido_at']) . ".\nEl proceso del servidor puede haberse parado. Hay que volver a arrancarlo (python deploy/desplegar_agente_whatsapp.py).");
     }
 }
+
+/** ¿Es un mensaje de contestador automático (bienvenida, ausencia, fuera de horario)? Por sus frases típicas. */
+function pebai_es_contestador(string $t): bool
+{
+    return (bool)preg_match('/gracias por (comunicarte|contactar|escribir|tu mensaje|su mensaje|ponerte en contacto)|en este momento no (podemos|estamos)|'
+        . 'fuera del? horario|(te|le|os) (responderemos|contestaremos)|responderemos (lo antes|en breve|a la mayor)|lo antes posible|nuestro horario|'
+        . 'bienvenid[oa] a|en qu[eé] (podemos|te podemos|le podemos) ayudar|c[oó]mo (podemos|te podemos) ayudar|mensaje autom[aá]tico|'
+        . 'estamos (cerrados|ausentes|de vacaciones)|no estamos disponibles|hemos recibido tu mensaje/iu', $t);
+}

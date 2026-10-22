@@ -153,7 +153,10 @@ function pebai_conv_cortesia(string $canal, array $p, array $msgs): void
     $salen = array_values(array_filter($msgs, static fn($m) => $m['sentido'] === 'sale'));
     // El contestador suele saltar antes de que el agente apunte el envío: entonces aún no hay «sale» y vale la hora en que empezó a escribir
     $env = (string)(($p['enviado_at'] ?? '') ?: ($p['enviando_at'] ?? ''));
-    if ($canal !== 'whatsapp' || count($salen) > 1 || $env === '' || strtotime($env) < time() - 3 * 3600 || pebai_conv_es_baja($canal, $p)) {
+    // Todo lo que han escrito tiene que sonar a contestador (si ya ha escrito una persona, no se manda la cortesía)
+    $entran = array_filter($msgs, static fn($m) => $m['sentido'] === 'entra');
+    $soloContestador = $entran && !array_filter($entran, static fn($m) => !pebai_es_contestador((string)$m['texto']));
+    if ($canal !== 'whatsapp' || !$soloContestador || count($salen) > 1 || $env === '' || strtotime($env) < time() - 3 * 3600 || pebai_conv_es_baja($canal, $p)) {
         return;
     }
     $db = pebai_conv_db();
