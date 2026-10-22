@@ -182,6 +182,31 @@ switch ($in['accion'] ?? '') {
         file_put_contents($dir . '/' . $tel . '.jpg', $img);
         out(['ok' => true]);
 
+    case 'nota_voz':
+        // Nota de voz antigua recuperada del historial del móvil: se transcribe y sustituye al «[nota de voz]» que se guardó sin texto
+        $tel = pebai_phone_digits((string)($in['telefono'] ?? ''));
+        $q = $db->prepare("SELECT id FROM prospectos WHERE telefono = ? AND enviado_at <> ''");
+        $q->execute([$tel]);
+        $pid = (int)$q->fetchColumn();
+        $ts = (int)($in['ts'] ?? 0);
+        if (!$pid || $ts < 1700000000) {
+            out(['ok' => true, 'ignorado' => true]);
+        }
+        $q = $db->prepare("SELECT id, ts FROM agente_mensajes WHERE agente = 'whatsapp' AND prospecto_id = ? AND sentido = 'entra' AND texto LIKE '[nota de voz%' ORDER BY ABS(strftime('%s', ts) - ?) LIMIT 1");
+        $q->execute([$pid, $ts + (int)date('Z')]);   // ts guardado en hora de Madrid; strftime lo lee como UTC
+        $fila = $q->fetch();
+        if (!$fila || abs(strtotime($fila['ts']) - $ts) > 180) {
+            out(['ok' => true, 'ignorado' => true]);
+        }
+        require_once __DIR__ . '/_ia_lib.php';
+        $tr = pebai_ia_transcribir((string)base64_decode((string)($in['audio'] ?? ''), true), (string)($in['mime'] ?? 'audio/ogg'));
+        if ($tr === null) {
+            out(['ok' => true, 'actualizado' => false]);
+        }
+        $db->prepare('UPDATE agente_mensajes SET texto = ? WHERE id = ?')->execute(['🎤 ' . $tr, $fila['id']]);
+        pebai_actividad('whatsapp', 'respuesta', 'Nota de voz antigua transcrita', $tr, 'wa:' . $pid);
+        out(['ok' => true, 'actualizado' => true]);
+
     case 'manual':
         // Mensaje que Daniel escribe desde su móvil a una empresa contactada: solo se guarda para ver la conversación completa
         $tel = pebai_phone_digits((string)($in['telefono'] ?? ''));

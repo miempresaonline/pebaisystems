@@ -188,14 +188,31 @@ async function conectar() {
   sock.ev.on('messaging-history.set', async ({ messages = [], syncType }) => {
     let n = 0;
     log('Historial recibido del móvil:', messages.length, 'mensajes (tipo ' + syncType + ')');
+    let notas = 0;
     for (const m of messages) {
-      if (!m.message || !m.key?.fromMe || enviadosAgente.has(m.key.id)) continue;
+      if (!m.message) continue;
+      // Notas de voz que llegaron sin transcribir (22/10): se descargan del historial y el panel las transcribe en su sitio
+      const crudo = m.message.deviceSentMessage?.message || m.message.ephemeralMessage?.message || m.message;
+      if (!m.key?.fromMe && crudo.audioMessage) {
+        const tel = await telDelChat(m.key);
+        if (!tel || !contactados.has(tel)) continue;
+        try {
+          const buf = await downloadMediaMessage(m, 'buffer', {}, { logger, reuploadRequest: sock.updateMediaMessage });
+          if (buf && buf.length < 3e6) {
+            const r = await api('nota_voz', { telefono: tel, ts: Number(m.messageTimestamp) || 0, audio: buf.toString('base64'), mime: String(crudo.audioMessage.mimetype || 'audio/ogg').split(';')[0] });
+            if (r && r.actualizado) notas++;
+          }
+        } catch (e) { log('Historial: no se pudo descargar una nota de voz de', tel, e.message); }
+        continue;
+      }
+      if (!m.key?.fromMe || enviadosAgente.has(m.key.id)) continue;
       const tel = await telDelChat(m.key);
       if (!tel || !contactados.has(tel)) continue;
       const r = await api('manual', { telefono: tel, texto: textoDe(m.message), ts: Number(m.messageTimestamp) || 0 });
       if (r && !r.ignorado) n++;
     }
     if (n) log('Historial: recuperados', n, 'mensajes de Daniel');
+    if (notas) log('Historial: transcritas', notas, 'notas de voz antiguas');
   });
 }
 
