@@ -235,6 +235,9 @@ function pebai_conv_toca_contestador(string $clasificacion, array $msgs, string 
 }
 
 const PEBAI_CONV_ENLACE = '[ENLACE_RESERVA]';
+// Primer paso del embudo (orden de Daniel, 22/10): antes de la llamada, que nos conozcan con el vídeo de la consultoría
+const PEBAI_CONV_VIDEO = '[ENLACE_VIDEO]';
+const PEBAI_CONV_VIDEO_URL = 'https://pebaisystems.es/consultoria-gratuita/?origen=daniel';
 
 function pebai_conv_prospecto(string $canal, int $id): ?array
 {
@@ -302,6 +305,10 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
     $interes = $clasif === 'interesado';
     $auto = $clasif === 'auto';
     $enlaceDado = str_contains($hilo, '/reservar/?s=');
+    // ¿Ya le ofrecimos el vídeo o la web? (solo cuenta lo que escribimos nosotros)
+    $nuestros = implode("\n", array_map(static fn($m) => (string)$m['texto'], array_filter($msgs, static fn($m) => $m['sentido'] === 'sale')));
+    $videoOfrecido = (bool)preg_match('/v[ií]deo|nuestra web|nuestras redes/iu', $nuestros);
+    $videoDado = str_contains($nuestros, 'consultoria-gratuita');
     // Por pasos (orden de Daniel, 21/10): 1) ver si le interesa, sin llamada ni enlace; 2) si muestra interés, proponer la llamada
     // y preguntar si quiere el enlace; 3) el enlace solo cuando lo acepta o lo pide
     $etapa = $auto
@@ -318,9 +325,13 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
             ? 'Ha mostrado interés. Responde a lo que pregunta, cuéntale en una o dos frases cómo le ayudaría (dolor + beneficio) y proponle con suavidad una videollamada de 25 minutos '
               . 'con Adrián o Dani, en la que ve su caso y se lleva un mapa de lo que se puede automatizar y una estimación del ahorro. Pregúntale si le va bien que le pases un enlace para elegir hora. '
               . 'Pon el enlace (exactamente ' . PEBAI_CONV_ENLACE . ') SOLO si en la conversación ya ha aceptado la llamada o ha pedido el enlace, la cita o hablar.'
-            : 'Aún NO ha mostrado interés. Este mensaje solo busca que entienda qué hacemos y saber si le interesa: dale las gracias por contestar, explica en una frase sencilla cómo le ayudaríamos '
-              . '(que nadie que les escriba pidiendo presupuesto se quede sin respuesta, también fuera de horario) y termina con UNA pregunta abierta y fácil para ver si le interesa. '
-              . 'PROHIBIDO en este mensaje: proponer llamada o reunión, enlaces, plazas, «gratis» o cualquier oferta.'));
+            : ($videoOfrecido && !$videoDado
+                ? 'Ya le ofrecimos un vídeo o nuestra web para conocernos. Si en su último mensaje dice que sí o que vale, contesta muy breve y pásale el vídeo poniendo exactamente '
+                  . PEBAI_CONV_VIDEO . ' (se cambia solo por el enlace), con una frase de qué va a ver. Si pregunta otra cosa, contéstale y vuelve a ofrecerle el vídeo. Nada de llamada todavía.'
+                : 'Aún NO ha mostrado interés. Primer paso del embudo: que nos conozca. Preséntanos como una consultora que usa la inteligencia artificial para que los negocios ganen productividad; '
+                  . 'pon como ejemplo el asistente hecho a medida con toda la información de su empresa, que contesta como lo harían ellos y responde lo que ellos quieran, filtra curiosos y agenda visitas; '
+                  . 'di que la idea es ahorrarles trabajo y dinero, y termina ofreciendo UNA cosa para conocernos: «¿Te paso un vídeo cortito o nuestra web para que veas cómo lo hacemos?» (o algo así, con tus palabras). '
+                  . 'No pongas aún ningún enlace. PROHIBIDO en este mensaje: proponer llamada o reunión, plazas, «gratis».')));
     $prompt = "Eres Daniel, de PEBAI Systems, una consultora de procesos e Inteligencia Artificial. Escribimos en frío a {$p['empresa']}"
         . ($p['ciudad'] ? " ({$p['ciudad']})" : '') . ", una empresa instaladora de placas solares, y nos han contestado. Escribe la siguiente respuesta de Daniel por "
         . ($email ? 'email' : 'WhatsApp') . ".\n\n"
@@ -352,7 +363,8 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         $r = pebai_ia_json($prompt);
         $t = trim(str_replace("\r", '', (string)($r['respuesta'] ?? '')));
         $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
-        $prisa = ($auto && preg_match('/perdon|no me expliqu/iu', $t)) || !$interes && !$enlaceDado && preg_match('/' . preg_quote(PEBAI_CONV_ENLACE, '/') . '|videollamada|llamada|reuni[oó]n|25 minutos|gratis|gratuit|plazas/iu', $t);
+        $prisa = ($auto && preg_match('/perdon|no me expliqu/iu', $t)) || !$interes && !$enlaceDado && preg_match('/' . preg_quote(PEBAI_CONV_ENLACE, '/') . '|videollamada|llamada|reuni[oó]n|25 minutos|gratis|gratuit|plazas/iu', $t)
+            || (str_contains($t, PEBAI_CONV_VIDEO) && !$videoOfrecido) || preg_match('/factura de la luz/iu', $t);
         if ($t !== '' && !$prisa && $n <= ($auto ? ($email ? 60 : 40) : ($email ? 130 : 85)) && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t)) {
             // Segundo mensaje a quien aún no ha leído nada: vuelve a ofrecer no escribir más (regla legal)
             if ($auto && !preg_match('/no (os |te )?(escribo|vuelvo|molesto)|no os escribir|digáis|dímelo|me lo dices/iu', $t)) {
@@ -452,6 +464,7 @@ function pebai_conv_enviar(string $canal, int $id, string $texto): array
     $q->execute([$canal, $id]);
     $borrador = (string)$q->fetchColumn();
     $final = str_contains($texto, PEBAI_CONV_ENLACE) ? str_replace(PEBAI_CONV_ENLACE, pebai_booking_url(pebai_conv_lead_crear($canal, $p)), $texto) : $texto;
+    $final = str_replace(PEBAI_CONV_VIDEO, PEBAI_CONV_VIDEO_URL, $final);
     $now = date('Y-m-d H:i:s');
     $quien = $p['empresa'] ?: ('#' . $id);
     if ($canal === 'email') {

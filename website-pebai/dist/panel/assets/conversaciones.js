@@ -246,6 +246,9 @@ function drawChat() {
 
 /* ============ responder (la IA propone, Daniel aprueba) ============ */
 const ENLACE = '[ENLACE_RESERVA]';
+// Vídeo de la consultoría (primer paso del embudo): enlace fijo, se ve ya escrito en el borrador
+const VIDEO = '[ENLACE_VIDEO]', VIDEO_URL = 'https://pebaisystems.es/consultoria-gratuita/?origen=daniel';
+const conVideo = (t) => String(t || '').split(VIDEO).join(VIDEO_URL);
 async function enlace(f) {
   if (!f.reserva) { const r = await post('conv_reserva', { canal: f.canal, id: f.id }); f.reserva = r.url; f.lead_id = r.lead_id; }
   return f.reserva;
@@ -268,7 +271,7 @@ function responder(f) {
     if (f.contestado) return box;
   }
   box.append(el('small', null, f.contestador ? 'Solo contestó su contestador · un único mensaje corto, revísalo' : f.borrador ? 'Respuesta preparada por la IA · revísala y envíala' : 'Responder por ' + via));
-  const ta = el('textarea'); ta.value = (f.borrador || '').split(ENLACE).join(f.reserva || ENLACE); ta.rows = 5;
+  const ta = el('textarea'); ta.value = conVideo(f.borrador).split(ENLACE).join(f.reserva || ENLACE); ta.rows = 5;
   // Si la IA propone la llamada, el enlace real de la empresa va ya escrito en el mensaje
   if (ta.value.includes(ENLACE)) enlace(f).then((u) => { ta.value = ta.value.split(ENLACE).join(u); drawLinks(); }).catch(() => {});
   const drawLinks = () => { if (ui.abierta === f.k && !$('.pc-enlace', drawer)) { const a = el('a', 'pc-enlace', f.reserva.replace(/^https?:\/\//, '')); a.href = f.reserva; a.target = '_blank'; a.rel = 'noopener'; $('.pc-links', drawer)?.append(a); } };
@@ -293,7 +296,7 @@ function responder(f) {
     const antes = $('span', otra).textContent; ocupado(true, otra, 'Escribiendo…');
     try {
       const r = await post('conv_borrador', { canal: f.canal, id: f.id, instruccion: ins.value }); f.borrador = r.texto; ins.value = '';
-      ta.value = r.texto.includes(ENLACE) ? r.texto.split(ENLACE).join(await enlace(f)) : r.texto; drawLinks();
+      ta.value = conVideo(r.texto.includes(ENLACE) ? r.texto.split(ENLACE).join(await enlace(f)) : r.texto); drawLinks();
     }
     catch (e) { toast(e.message, true); }
     ocupado(false, otra, antes);
