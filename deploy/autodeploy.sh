@@ -18,6 +18,9 @@ ESPERA=120
 log() { echo "$(date '+%F %T') $*" >> "$LOG"; }
 
 cd "$REPO" || { log "No existe $REPO"; exit 1; }
+# Nunca dos a la vez (un reinicio de PM2 puede dejar el anterior vivo): espera a que el otro acabe
+exec 9>"$BASE/lock"
+flock 9
 git fetch -q origin main 2>>"$LOG"
 # Primera vez: se da por publicado lo que ya hay en main
 [ -s "$ESTADO" ] || git rev-parse origin/main > "$ESTADO"
@@ -49,7 +52,11 @@ while true; do
     nuevo=$(git rev-parse origin/main)
     viejo=$(cat "$ESTADO")
     if [ "$nuevo" != "$viejo" ]; then
-      mapfile -t cambios < <(git -c core.quotepath=off diff --name-only --diff-filter=AMR "$viejo" "$nuevo" -- "$PREFIJO")
+      # Sin "< <(...)": bajo PM2 no hay /dev/fd
+      lista=$(git -c core.quotepath=off diff --name-only --diff-filter=AMR "$viejo" "$nuevo" -- "$PREFIJO") \
+        || { log "ERROR en git diff ${viejo:0:7}..${nuevo:0:7}"; sleep "$ESPERA"; continue; }
+      cambios=()
+      [ -n "$lista" ] && mapfile -t cambios <<< "$lista"
       if git reset -q --hard "$nuevo" 2>>"$LOG"; then
         ok=1
         # Recursos primero, HTML al final (Cloudflare cachea los 404)
