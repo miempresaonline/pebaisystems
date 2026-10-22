@@ -218,6 +218,12 @@ function drawChat() {
   f.mensajes.forEach((m) => {
     const d = parse(m.ts); const dd = dia(d);
     if (dd !== ultimoDia) { chat.append(el('div', 'pc-day', dd)); ultimoDia = dd; }
+    // Respuestas aprobadas por WhatsApp: cada bloque salió como un mensaje aparte, así se ven también aquí
+    if (m.de === 'sale' && m.respuesta && f.canal === 'whatsapp') {
+      const trozos = String(m.texto).split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
+      trozos.slice(0, -1).forEach((t) => { const x = el('div', 'pc-b yo'); x.append(el('p', null, t)); chat.append(x); });
+      m = { ...m, texto: trozos[trozos.length - 1] || m.texto };
+    }
     const b = el('div', 'pc-b ' + (m.de === 'sale' ? 'yo' : 'ellos'));
     b.append(el('p', null, m.texto), el('time', null, hora(d) + (m.de === 'sale' ? (m.manual ? ' · enviado por ti' : m.respuesta ? ' · aprobada por ti' : ' · enviado por el agente') : '')));
     if (m.manual) {
@@ -276,7 +282,7 @@ function responder(f) {
   if (ta.value.includes(ENLACE)) enlace(f).then((u) => { ta.value = ta.value.split(ENLACE).join(u); drawLinks(); }).catch(() => {});
   const drawLinks = () => { if (ui.abierta === f.k && !$('.pc-enlace', drawer)) { const a = el('a', 'pc-enlace', f.reserva.replace(/^https?:\/\//, '')); a.href = f.reserva; a.target = '_blank'; a.rel = 'noopener'; $('.pc-links', drawer)?.append(a); } };
   ta.placeholder = f.te_toca ? 'La IA está preparando la respuesta (tarda unos minutos). También puedes pedirla ya con «Otra versión» o escribirla tú.' : 'Escribe aquí tu mensaje o pide uno a la IA con «Otra versión».';
-  const nota = el('p', 'pc-resp-nota', f.canal === 'email' ? 'La firma y la opción de no recibir más se añaden solas.' : '');
+  const nota = el('p', 'pc-resp-nota', f.canal === 'email' ? 'La firma y la opción de no recibir más se añaden solas.' : 'Cada bloque separado por una línea en blanco sale como un WhatsApp aparte.');
   const fila = el('div', 'pc-resp-fila');
   const ins = el('input'); ins.type = 'text'; ins.placeholder = 'Indicación para la IA (opcional): más corto, pregunta por su equipo…'; ins.maxLength = 300;
   const pon = el('button', 'pc-btn', null); pon.type = 'button'; pon.append(ICO.cal(), el('span', null, 'Poner enlace'));

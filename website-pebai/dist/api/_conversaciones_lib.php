@@ -328,10 +328,10 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
             : ($videoOfrecido && !$videoDado
                 ? 'Ya le ofrecimos un vídeo o nuestra web para conocernos. Si en su último mensaje dice que sí o que vale, contesta muy breve y pásale el vídeo poniendo exactamente '
                   . PEBAI_CONV_VIDEO . ' (se cambia solo por el enlace), con una frase de qué va a ver. Si pregunta otra cosa, contéstale y vuelve a ofrecerle el vídeo. Nada de llamada todavía.'
-                : 'Aún NO ha mostrado interés. Primer paso del embudo: que nos conozca. Preséntanos como una consultora que usa la inteligencia artificial para que los negocios ganen productividad; '
-                  . 'pon como ejemplo el asistente hecho a medida con toda la información de su empresa, que contesta como lo harían ellos y responde lo que ellos quieran, filtra curiosos y agenda visitas; '
-                  . 'di que la idea es ahorrarles trabajo y dinero, y termina ofreciendo UNA cosa para conocernos: «¿Te paso un vídeo cortito o nuestra web para que veas cómo lo hacemos?» (o algo así, con tus palabras). '
-                  . 'No pongas aún ningún enlace. PROHIBIDO en este mensaje: proponer llamada o reunión, plazas, «gratis».')));
+                : 'Aún NO ha mostrado interés. Preséntanos en una frase como una consultora de IA, con el ejemplo del asistente hecho a medida con toda la información de su empresa, '
+                  . 'que contesta como ellos, filtra curiosos y agenda visitas. Cierra ofreciendo la consultoría: este mes hacemos 5 consultorías sin coste (normalmente se cobran); '
+                  . 'pregúntale si le agendas una con uno de nuestros expertos para ver si de verdad les ahorraría tiempo y dinero. '
+                  . 'No pongas aún ningún enlace (va cuando diga que sí). Si duda o pide saber más antes, ofrécele un vídeo cortito o nuestra web.')));
     $prompt = "Eres Daniel, de PEBAI Systems, una consultora de procesos e Inteligencia Artificial. Escribimos en frío a {$p['empresa']}"
         . ($p['ciudad'] ? " ({$p['ciudad']})" : '') . ", una empresa instaladora de placas solares, y nos han contestado. Escribe la siguiente respuesta de Daniel por "
         . ($email ? 'email' : 'WhatsApp') . ".\n\n"
@@ -341,7 +341,8 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         . "a la competencia por tardar, y horas del equipo contestando lo mismo a mano.\n"
         . "CÓMO VAMOS (orden de Daniel, 21/10: con calma, sin prisa por vender): " . $etapa . "\n\n"
         . "REGLAS:\n- Tutea, tono cercano, amable y profesional, español de España. Breve: "
-        . ($email ? 'máximo 90 palabras, sin firma (se añade sola), sin asunto.' : 'máximo 55 palabras, como un WhatsApp de verdad, sin saludo largo ni firma.') . "\n"
+        . ($email ? 'máximo 90 palabras, sin firma (se añade sola), sin asunto.' : 'máximo 60 palabras en total, como un WhatsApp de verdad, sin saludo largo ni firma. '
+            . 'Escríbelo en 2 o 3 mensajes cortos separados por una línea en blanco (cada bloque sale como un WhatsApp aparte, como escribe todo el mundo).') . "\n"
         . "- Contesta primero a lo que han dicho o preguntado, con naturalidad.\n"
         . "- TRATO HUMANO (orden de Daniel, 22/10): que no parezca escrito por una IA. Como escribe una persona por WhatsApp: frases cortas, "
         . "dos o tres párrafos de una o dos líneas, como mucho un emoji, nada de listas ni de palabras de manual. "
@@ -363,7 +364,8 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         $r = pebai_ia_json($prompt);
         $t = trim(str_replace("\r", '', (string)($r['respuesta'] ?? '')));
         $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
-        $prisa = ($auto && preg_match('/perdon|no me expliqu/iu', $t)) || !$interes && !$enlaceDado && preg_match('/' . preg_quote(PEBAI_CONV_ENLACE, '/') . '|videollamada|llamada|reuni[oó]n|25 minutos|gratis|gratuit|plazas/iu', $t)
+        $prisa = ($auto && preg_match('/perdon|no me expliqu/iu', $t)) || (!$interes && !$enlaceDado && str_contains($t, PEBAI_CONV_ENLACE))
+            || (preg_match('/gratis|gratuit|sin coste|coste cero/iu', $t) && !preg_match('/\b5\b|cinco/iu', $t))
             || (str_contains($t, PEBAI_CONV_VIDEO) && !$videoOfrecido) || preg_match('/factura de la luz/iu', $t);
         if ($t !== '' && !$prisa && $n <= ($auto ? ($email ? 60 : 40) : ($email ? 130 : 85)) && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t)) {
             // Segundo mensaje a quien aún no ha leído nada: vuelve a ofrecer no escribir más (regla legal)

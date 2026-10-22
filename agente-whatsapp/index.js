@@ -241,11 +241,15 @@ function escribirComoPersona(jid, texto) {
   turno = t.catch(() => {});
   return t;
 }
-async function escribirAhora(jid, texto) {
-  await sock.sendPresenceUpdate('available');
-  await sleep(rand(4e3, 14e3));                      // abre WhatsApp y busca el chat
-  await sock.presenceSubscribe(jid).catch(() => {});
-  await sleep(rand(1e3, 3e3));
+async function escribirAhora(jid, texto, seguido = false, quedanMas = false) {
+  if (!seguido) {
+    await sock.sendPresenceUpdate('available');
+    await sleep(rand(4e3, 14e3));                    // abre WhatsApp y busca el chat
+    await sock.presenceSubscribe(jid).catch(() => {});
+    await sleep(rand(1e3, 3e3));
+  } else {
+    await sleep(rand(1.2e3, 3e3));                   // entre un mensaje y el siguiente, como cualquiera
+  }
   // Escribir: ~130-200 ms por carácter, con alguna pausa para "pensar". WhatsApp quita el "escribiendo…" a los ~10 s: se renueva.
   let falta = Math.min(95e3, texto.length * rand(130, 200));
   while (falta > 0) {
@@ -262,8 +266,24 @@ async function escribirAhora(jid, texto) {
   await sleep(rand(400, 1200));
   const enviado = await sock.sendMessage(jid, { text: texto });
   if (enviado?.key?.id) enviadosAgente.add(enviado.key.id);
+  if (quedanMas) return;                             // quedan más mensajes: no cierra la app
   await sleep(rand(5e3, 20e3));                      // se queda un momento y cierra la app
   await sock.sendPresenceUpdate('unavailable');
+}
+
+// Respuestas en varios mensajes (22/10): cada bloque separado por una línea en blanco sale como un WhatsApp aparte
+function enTrozos(texto) {
+  return String(texto).split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
+}
+function escribirEnVarios(jid, texto) {
+  const partes = enTrozos(texto);
+  const t = turno.then(async () => {
+    for (let i = 0; i < partes.length; i++) {
+      await escribirAhora(jid, partes[i], i > 0, i < partes.length - 1);
+    }
+  });
+  turno = t.catch(() => {});
+  return t;
 }
 
 async function enviar(p, texto) {
@@ -344,7 +364,7 @@ async function bucleRespuestas() {
       if (!res?.exists) throw new Error('El número no tiene WhatsApp');
       contactados.add(tel);
       guardaContactados();
-      await escribirComoPersona(res.jid, w.texto);
+      await escribirEnVarios(res.jid, w.texto);
       log('Respuesta aprobada enviada a', tel);
       await api('salida_resultado', { id: w.id, ok: true });
     } catch (e) {
