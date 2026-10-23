@@ -26,7 +26,7 @@
 | Headquarters location | `Spain` 🔵 (ciudad cuando el equipo la decida) | — |
 | Operating status | `Active` | — |
 | Company type | `For Profit` | — |
-| Founded date | `[PENDIENTE: dato del equipo]` | — |
+| Founded date | `2026` | — |
 | Number of employees | `1-10` | — |
 | Founders | `Daniel Peñuela Ruiz`, `Adrián Ballesteros Moscardó` | — |
 | Contact email | `equipo@pebaisystems.es` | — |

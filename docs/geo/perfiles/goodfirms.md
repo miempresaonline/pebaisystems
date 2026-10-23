@@ -22,7 +22,7 @@
 | Website | `https://pebaisystems.es` |
 | Tagline | `Process and AI consultancy for companies in Spain` |
 | Employees | `2-9` / `1-10` |
-| Founded | `[PENDIENTE: dato del equipo]` |
+| Founded | `2026` |
 | Min. project size | `$1,000+` (proyectos desde 1.500 €) |
 | Hourly rate | `[PENDIENTE: dato del equipo]` |
 | Location | `Spain` |

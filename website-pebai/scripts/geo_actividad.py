@@ -6,6 +6,8 @@ Uso:  python website-pebai/scripts/geo_actividad.py [--agente=geo_vigia] <tipo> 
       entrega = trabajo que Daniel ve en la pestaña «Su trabajo» de la oficina:
         geo_actividad.py --agente=geo_contenido entrega "<título>" "<qué es, 1-2 frases>" --clase=pagina --url=https://... [--img=https://...]
         clases: pagina, borrador, post, linkedin, informe, novedad, posiciones, encargo, mejora
+      aviso = email a Daniel (equipo@pebaisystems.es) por el correo de la web, para lo de «Para Daniel» (máx. 6/día):
+        geo_actividad.py --agente=geo_jefe aviso "<asunto>" "<texto>"
         Para archivos del repo usa https://github.com/miempresaonline/pebaisystems/blob/main/<ruta>
         y para imágenes https://raw.githubusercontent.com/miempresaonline/pebaisystems/main/<ruta>
 
@@ -21,6 +23,7 @@ import urllib.request
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir))
 CONFIG = os.path.join(ROOT, 'private', 'config.php')
 URL = 'https://pebaisystems.es/api/actividad.php'
+URL_AVISO = 'https://pebaisystems.es/api/aviso.php'
 TIPOS = ('hito', 'espera', 'error', 'cambio', 'entrega')
 CLASES = ('pagina', 'borrador', 'post', 'linkedin', 'informe', 'novedad', 'posiciones', 'encargo', 'mejora')
 
@@ -59,7 +62,16 @@ if __name__ == '__main__':
     if len(args) < 2:
         sys.exit(__doc__)
     texto = args[2] if len(args) > 2 else ''
-    if args[0] == 'entrega':
+    if args[0] == 'aviso':
+        if agente not in AGENTES:
+            sys.exit(f'Agente no válido: {agente}')
+        body = json.dumps({'agente': agente, 'asunto': args[1][:120], 'texto': texto[:6000]}).encode()
+        req = urllib.request.Request(URL_AVISO, data=body, method='POST',
+                                     headers={'Content-Type': 'application/json', 'X-Agent-Token': agent_token(),
+                                              'User-Agent': 'PEBAI-GEO/1.0'})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            print(json.loads(r.read().decode() or '{}'))
+    elif args[0] == 'entrega':
         clase = opts.get('clase', '')
         if clase not in CLASES:
             sys.exit(f'Clase no válida: {clase!r} (usa {", ".join(CLASES)})')

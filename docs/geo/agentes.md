@@ -108,7 +108,7 @@ Piensa como el responsable del GEO de PEBAI. Lee el último informe, `novedades.
 2. Lee "Para el Jefe" en `novedades.md` y las "Propuestas del Vigía": convierte lo útil en encargos en `docs/geo/tareas.md` (uno por línea, en la sección del agente que toque) y bórralo de "Para el Jefe". Lo que ningún agente puede hacer, a "Para Daniel".
 3. Apunta en el panel cada encargo en la ficha del agente que lo recibe: `geo_actividad.py --agente=<agente> cambio "Encargo del Jefe: <qué>"`. Así Daniel ve quién manda qué.
 4. Por la mañana: reescribe "Prioridades de la semana" en `docs/geo/plan.md` si ha cambiado algo (máximo 5 puntos, con agente responsable).
-5. Si hay algo nuevo en "Para Daniel", mándale un email a equipo@pebaisystems.es con el conector de Gmail (asunto "GEO · Necesito de ti", solo esa dirección, nunca a otras) y un aviso al móvil.
+5. Si hay algo nuevo en "Para Daniel", mándale un email con `python3 website-pebai/scripts/geo_actividad.py --agente=geo_jefe aviso "Necesito de ti" "<lista>"` (sale del correo de la web y solo puede ir a equipo@pebaisystems.es; no uses el conector de Gmail, falla desde la nube) y un aviso al móvil.
 6. Commit y push. Los lunes y jueves por la tarde, aviso al móvil con el resumen: cómo vamos (cifra clave), qué se ha hecho, qué viene.
 
 **Mejora continua:** revisar la calidad de lo publicado en la semana como lo haría un editor exigente (voz, palabras prohibidas, datos con fuente) y crear encargos de corrección; mantener `docs/geo/plan.md` al día; revisar que ningún agente se repite o pisa el trabajo de otro.

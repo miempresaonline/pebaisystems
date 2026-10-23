@@ -23,10 +23,10 @@
 | Website | `https://pebaisystems.es` |
 | Tagline | `Process and AI consultancy for companies in Spain` (49 caracteres; 🟡 no publican límite, mejor corto) |
 | Number of employees | `2 - 9` |
-| Year founded | `[PENDIENTE: dato del equipo]` |
+| Year founded | `2026` |
 | Minimum project size | `$1,000+` (los proyectos parten de 1.500 €; elegir el tramo que cubra esa cifra) |
 | Average hourly rate | `[PENDIENTE: dato del equipo]` (no inventar; si obliga, el equipo elige el tramo) |
-| Location | `Spain` · ciudad `[PENDIENTE: dato del equipo]` (sin calle) |
+| Location | `Spain` · ciudad `València` (sin calle) |
 | Phone | `+34 624 84 27 99` |
 | Email | `equipo@pebaisystems.es` |
 | Languages | `Spanish` (y `English` solo si el equipo atiende en inglés 🔵) |
@@ -68,7 +68,7 @@ How we work:
 
 We work with companies that have a team (from 3-5 employees): construction and renovation, installers, clinics, workshops, distribution, real estate and professional services, among others.
 
-Team: Daniel Peñuela Ruiz (process and systems engineering) and Adrián Ballesteros Moscardó (project management and consulting), co-founders.
+Team: Daniel Peñuela Ruiz, founder (process and systems engineering), and Adrián Ballesteros Moscardó, sales lead.
 
 We work in Spanish, remotely, across Spain.
 ```
@@ -89,5 +89,12 @@ Medium:
 ```
 PEBAI Systems is a process and Artificial Intelligence consultancy for companies of any sector in Spain. We implement systems that serve customers 24 hours a day (AI chatbots and voice agents on WhatsApp, phone and web), remove manual work such as job reports, orders, quotes and invoices, and connect to the software and CRM the company already uses, with no per-user licences. We also build custom operations software, work on AI search visibility (GEO) and train teams. We understand how the business runs first; then we build.
 ```
+
+
+## Portfolio (English directories)
+1. **Fran García Cars · Vehicle inspection app and WhatsApp AI assistant.** Car importer from Germany to Spain (about 60 cars a month). Inspections were done by hand and photos sent over WhatsApp. Custom app for files, photos, inspectors, technical approval, tenders and bids, plus an AI assistant on WhatsApp that answers, books appointments and hands over to a person. Results (22/10/2026): 659 registered users, 400 units approved (98 % approval rate), over 62,000 photos organised.
+2. **Construcciones Gargom · Custom construction project management software.** Replaces old software: budgets, progress certificates, costs, payments, staff, suppliers and profit per project in one place.
+3. **Suministros Industriales Santacruz · Order platform for 4 countries.** Replaces a 20-30-year-old, insecure application. New secure app in 4 languages (Spain, France, Netherlands, Belgium) with the old database migrated (343 orders in 2026).
+4. **Residencia El Amparo · New website and management portal.** Custom portal to publish grants and news and receive job applications and family visit requests in one place. Delivered in October 2026.
 
 Fuentes: [Clutch, cómo darse de alta](https://help.clutch.co/en/knowledge/get-listed-on-clutch) · [Clutch, funciones gratuitas](https://help.clutch.co/en/knowledge/free-features-clutch-offers) · [Clutch, verificación](https://help.clutch.co/knowledge/get-verified) · [Clutch+](https://clutch.co/clutch-plus) · [Clutch, líneas de servicio](https://help.clutch.co/knowledge/identify-optimize-service-lines).

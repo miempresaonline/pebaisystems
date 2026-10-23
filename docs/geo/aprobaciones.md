@@ -16,3 +16,8 @@ Lo que el Agente GEO puede hacer solo y lo que espera el visto bueno de Daniel. 
 - TikTok, Instagram, Facebook, YouTube: solo los Reels de Daniel y Adrián. **Ningún agente prepara publicaciones de imagen con texto para estas redes**, aunque estén conectadas en Metricool.
 - LinkedIn: publicaciones de los casos reales (captura difuminada + texto; es la excepción a «nada de imagen con texto» porque capta y lo citan las IAs). Los Reels de Daniel con su texto (calendario en Google Calendar, color azul turquesa) y, más adelante, un artículo al mes. Nada de Adrián de momento.
 - Google Business: un post con imagen `d-ias` por semana (aprobado).
+
+## Decisiones del 23/10/2026
+- Directorios: **sí** a Clutch, Sortlist, agentes.ai, mejores-agencias.com y los que hagan falta para el GEO. Daniel crea las cuentas; los textos están en `docs/geo/perfiles/`. Ningún agente se registra ni escribe a nadie.
+- Redirecciones: **sí** a pasar a 301 las landings retiradas que tengan su página nueva (pilares.md §5), al publicar cada destino.
+- Avisos a Daniel: por el correo de la web (`geo_actividad.py aviso`), no por Gmail.
