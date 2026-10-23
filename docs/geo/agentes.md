@@ -34,7 +34,8 @@ Relevos (hora de España): 8:00 Vigía · 8:30 Medición · 9:00 Jefe · 10:00 C
 ## Casos reales (todos, desde el 22/10/2026)
 Los casos de clientes son la prueba que más pesa para las IAs y para captar. Datos, permisos e imágenes difuminadas en `docs/geo/borradores/casos.md` (Fran García Cars, Construcciones Gargom, Suministros Santacruz, Residencia El Amparo). Nunca inventar cifras ni frases de clientes; nombres de personas de contacto solo con su permiso.
 - **Contenido:** no se hacen páginas `/casos/` (decisión de Daniel, 23/10). Los casos y testimonios van en la portada y en las páginas de servicio (los pone quien lleva la web, con `docs/geo/casos-y-testimonios-web.md`). En las páginas que escribas, menciona el caso que corresponda con sus datos reales.
-- **Redes:** un post de Google Business al mes puede ser un caso (captura difuminada + titular corto con la plantilla `d` o la captura). Las publicaciones de casos en LinkedIn ya están en el Google Calendar de Daniel (azul turquesa); no duplicarlas.
+- **Local:** un post de Google Business al mes puede ser un caso (captura difuminada + titular corto), y las capturas de los casos van como fotos de la ficha.
+- **Redes:** publicaciones de los casos en la página de LinkedIn, preparadas en Metricool y programadas solo con el OK de Daniel.
 - **Refresco:** cuando Daniel aporte cifras nuevas o una frase de un cliente, actualizar su página y la fecha.
 - **Jefe:** pedir a Daniel (en «Para Daniel») frases reales y permisos de cada cliente, y una reseña en Google de cada uno; cuando haya frase, avisar de que puede ponerla como «Testimonio personalizado» en la página de LinkedIn.
 - **Medición:** en el informe del lunes, ver si alguna IA ya menciona a los clientes o los casos de PEBAI.
