@@ -2,6 +2,11 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-23 (mañana: buscadores e IAs)
+
+Sin novedades útiles en las últimas 48 h: búsquedas sobre OpenAI, Google (AI Overviews/AI Mode), Perplexity, Bing/Copilot y Brave no devuelven anuncios fechados del 21-23/10/2026 (solo lo ya anotado del 15/10 y material de 2024-2025). Descartado.
+Comprobación técnica 07:00 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-22 (tarde: mercado español y competencia)
 
 1. **Javadex y Upliora ocupan las respuestas de "mejores consultoras de IA" con rankings propios** [V]. Upliora publica comparativas y rankings (21 comparativas, 290+ artículos, artículos del 19 al 22/10/2026) y Javadex (freelance) sale primero en casi todos; Upliora enlaza a Javadex y se dice independiente. Fuentes: https://www.upliora.es/blog/mejores-consultoras-ia-pymes-espana-2026-ranking-editorial y https://www.javadex.es/blog/mejores-consultoras-inteligencia-artificial-espana-2026-ranking-medianas-empresas (consultadas 22/10/2026). Encaja con Sourcelift (Marketing Directo, 15/10/2026): 4 de 5 menciones de la agencia más nombrada salieron de un ranking de otra agencia [S].
