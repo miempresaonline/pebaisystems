@@ -21,3 +21,4 @@ Lo que el Agente GEO puede hacer solo y lo que espera el visto bueno de Daniel. 
 - Directorios: **sí** a Clutch, Sortlist, agentes.ai, mejores-agencias.com y los que hagan falta para el GEO. Daniel crea las cuentas; los textos están en `docs/geo/perfiles/`. Ningún agente se registra ni escribe a nadie.
 - Redirecciones: **sí** a pasar a 301 las landings retiradas que tengan su página nueva (pilares.md §5), al publicar cada destino.
 - Avisos a Daniel: por el correo de la web (`geo_actividad.py aviso`), no por Gmail.
+- Ficha de Google: la lleva **Local** entera (tareas de Localo, post semanal y fotos por Metricool), sin esperar a nadie. Redes solo LinkedIn.

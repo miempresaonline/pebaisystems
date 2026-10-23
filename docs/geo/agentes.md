@@ -74,24 +74,25 @@ Mantiene vivas las páginas publicadas (las IAs citan contenido reciente).
 
 ## geo_local · Local (lunes a viernes, mañana y tarde)
 
-Hace TODAS las tareas de Localo de la ficha de PEBAI (`geo_datos.py localo`).
-- Tareas de comprobación: compruébalo de verdad (ficha pública en Google Maps, web) y ciérralas con `geo_datos.py localo-cerrar <id>`.
-- Palabras clave: si Localo propone palabras de gestoría o de otro negocio, no las añadas; si faltan palabras de PEBAI, añádelas con `localo-keywords` (máximo 3 por semana).
-- Publicar posts y fotos (ADD_POST, SCHEDULE_PHOTOS): solo si `aprobaciones.md` lo permite; si no, `espera` con "esperando el visto bueno de las imágenes".
-- Lo que no puedas hacer de ninguna forma (por ejemplo, algo que exige entrar en la cuenta de Google): `espera` con `NECESITA A DANIEL: …`.
-- Posiciones: anótalas, recordando que con `gridSize` 0 la medición es de un solo punto y poco fiable.
+Lleva **toda la ficha de Google Business** de PEBAI. Su trabajo es entrar en Localo (`geo_datos.py localo`) y **hacer las tareas que propone, todas, hasta dejarlas cerradas**. Nada de «esperando»: si Localo pide algo, se hace.
+- **Comprobaciones:** compruébalo de verdad (ficha pública en Google Maps, web) y ciérralas con `geo_datos.py localo-cerrar <id>`.
+- **Publicación de Google (ADD_POST / crea y programa una publicación):** la haces tú, por Metricool (marca 7537996, red `gmb`, tipo `publication`), aprobada en `aprobaciones.md`. Un post por semana (miércoles), 400-700 caracteres, voz de PEBAI, botón con `?cta=gbp_post`. Tema que no se haya publicado en 6 semanas; uno al mes puede ser un caso real (`docs/geo/borradores/casos.md`). Imagen con la plantilla `d` de `render_gbp.py` (logos de ChatGPT, Claude, Gemini y Perplexity): rota `layout` (orbita, pregunta, mosaico, foco), `theme` y `seed`; lee antes `docs/geo/borradores/gbp/usadas.md`, no repitas titular ni layout+tema de las 4 últimas y apunta la tuya. Para Metricool la imagen tiene que estar en una URL pública: súbela a `website-pebai/dist/gbp/<fecha>.png` (commit y push; se publica sola en ~2 min). Cuando esté programada, cierra la tarea en Localo.
+- **Fotos (SCHEDULE_PHOTOS / añade fotos a tu perfil):** súbelas tú por Metricool (red `gmb`, tipo `photo`): las capturas difuminadas de los casos (`https://pebaisystems.es/casos/img/*.jpg`), las imágenes de los posts y los banners de marca. Máximo 3 fotos por semana, nunca repetidas. Cierra la tarea en Localo.
+- **Palabras clave:** si Localo propone palabras de otro negocio, no las añadas; si faltan palabras de PEBAI, añádelas con `localo-keywords` (máximo 3 por semana).
+- **Posiciones:** anótalas, recordando que con `gridSize` 0 la medición es de un solo punto y poco fiable.
+- Solo si algo exige entrar en la cuenta de Google y no hay otra forma: `espera` con `NECESITA A DANIEL: …` y aviso por email (`geo_actividad.py aviso`).
+- Cada cosa hecha, como `entrega` (clase `post` o `posiciones`) para que Daniel la vea en «Su trabajo».
 
-**Mejora continua:** revisar las citas de PEBAI en directorios con `geo_datos.py localo` (fetchPlaceCitations cuando esté disponible) y la coherencia de nombre, web y teléfono en todos los perfiles; estudiar las fichas de Google de los competidores locales (categorías, servicios, reseñas, posts) y proponer mejoras para la nuestra; preparar los textos para pedir reseñas a los clientes reales (en `docs/geo/borradores/resenas/` (sin datos personales), sin enviar); vigilar las preguntas y reseñas nuevas de la ficha.
+**Mejora continua (cuando Localo no tenga tareas):** coherencia de nombre, web, teléfono y descripción en Google, Bing, LinkedIn y los directorios; la ficha de Google de un competidor por semana (categorías, servicios, reseñas, posts) y una mejora para la nuestra; preguntas y respuestas frecuentes para la ficha; textos para pedir reseñas a los clientes reales (en `docs/geo/borradores/resenas/`, sin enviar).
 
 ## geo_redes · Redes (lunes a viernes)
 
-Cada día prepara o mejora: el post de Google Business de la semana (se publica los miércoles), propuestas de imagen y borradores de publicaciones de LinkedIn para Daniel y Adrián (en `docs/geo/borradores/linkedin/`, sin publicar). 
+Lleva **LinkedIn**. La ficha de Google ya no es suya: la lleva Local.
+- Reels de Daniel: el calendario está en el Google Calendar de equipo@ (azul turquesa) y lo sube Daniel; no duplicarlo.
+- Publicaciones de casos reales en la página de LinkedIn: prepáralas en Metricool (red `linkedin`) con el texto y la captura difuminada (`https://pebaisystems.es/casos/img/*.jpg`). Programar solo con el OK de Daniel en el chat (`aprobaciones.md`).
+- Nada de imagen con texto en TikTok, Instagram, Facebook ni YouTube.
 
-Post semanal de Google Business (vía Metricool, marca 7537996). Solo si `aprobaciones.md` dice "aprobado" para posts; si no, prepara texto e imagen en `docs/geo/borradores/gbp/<fecha>/` y apunta `espera`.
-- Tema que no se haya publicado en 6 semanas (pregunta real de un dueño de empresa, un proceso automatizado, la consultoría de 25 min con 5 plazas al mes, una idea de la última página publicada). 400-700 caracteres, voz de PEBAI, botón a la página con `?cta=gbp_post`.
-- Imagen con la plantilla `d` de `render_gbp.py` (logos de ChatGPT, Claude, Gemini y Perplexity): rota `layout` (orbita, pregunta, mosaico, foco), `theme` (dark/light) y `seed` para que nunca se repita; titular de 3-6 palabras. Cada semana una imagen nueva creada por ti: antes de generarla lee `docs/geo/borradores/gbp/usadas.md` y no repitas titular ni la combinación layout+tema de las 4 últimas; después añade una línea (fecha · layout · tema · seed · titular). Si notas que ya no salen distintas (más de 12 posts con la plantilla), apúntalo en "Para Daniel" del tablón para pedir composiciones nuevas. Imagen única, nivel profesional. Revisa el PNG antes de publicar; si no queda impecable, no publiques.
-
-**Mejora continua:** banco de ideas de posts y de imágenes; borradores de LinkedIn para Daniel y Adrián (en `docs/geo/borradores/linkedin/`); revisar qué publicaciones de otras consultoras funcionan y por qué (sin copiar).
+**Mejora continua:** banco de ideas para LinkedIn (preguntas reales de dueños de empresa, casos, lo que aprendemos); borradores de artículos de LinkedIn (uno al mes, 800-1.200 palabras, pregunta y respuesta) en `docs/geo/borradores/linkedin/`; revisar qué publicaciones de otras consultoras funcionan y por qué (sin copiar).
 
 ## geo_medicion · Medición (lunes informe completo; martes a viernes, chequeo corto)
 
