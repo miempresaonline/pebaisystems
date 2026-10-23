@@ -7,7 +7,6 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 **Aviso del Jefe (22/10):** en la nube `scratch/` no se sube a git y se pierde al acabar cada turno. Los borradores que tengan que pasar de un turno a otro (páginas, posts, LinkedIn, textos de reseñas) van a `docs/geo/borradores/` (sin datos personales ni precios). Las imágenes en `docs/geo/borradores/imagenes/`.
 
 ## geo_contenido · Contenido
-- [ ] 2026-10-22 · PRIORIDAD: publicar `/casos/` (página madre) y una página por caso (Fran García Cars, Construcciones Gargom, Suministros Santacruz, Residencia El Amparo) con los datos e imágenes de `docs/geo/borradores/casos.md`. Son la prueba que más pesa para las IAs. Una página por turno; la madre primero con los 4 resúmenes · (Daniel, 22/10)
 - [x] 2026-10-21 · Publicar /agentes-ia/ con WhatsApp como bloque principal · (plan, pilares.md) · hecho 22/10
 - [ ] 2026-10-21 · Publicar /ia-para-empresas/ · (plan, pilares.md)
 - [x] 2026-10-22 · Turno de las 15:00: dejar el borrador de /ia-para-empresas/ en `docs/geo/borradores/ia-para-empresas.md` (commit), no en scratch · (Jefe: scratch se pierde en la nube) · hecho 22/10: texto completo, 7 fuentes verificadas (INE 1T 2026 publicado hoy, Reglamento 2026/1744, Red.es), listo para publicar el viernes
