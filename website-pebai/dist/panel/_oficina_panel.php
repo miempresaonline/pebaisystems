@@ -292,10 +292,10 @@ const OF_GEO_AGENTES = [  // horas de España (en verano, una hora más)
     ['geo_jefe', 'Jefe GEO', 'Reparte el trabajo, revisa la calidad y te avisa de lo que necesita de ti', 'L-V 9:00 y 16:00 (45 min)'],
     ['geo_vigia', 'Vigía', 'Trae novedades de GEO, IAs, redes y competencia y se las pasa al Jefe', 'Cada día 8:00, 13:00 y 18:00 (45 min)'],
     ['geo_contenido', 'Contenido', 'Escribe y publica páginas que las IAs puedan citar', 'L-V 10:00 y 15:00 (45 min)'],
-    ['geo_refresco', 'Refresco', 'Mejora y actualiza una página publicada cada día', 'L-V 14:00 (45 min)'],
-    ['geo_local', 'Local', 'Hace las tareas de Localo y cuida la ficha de Google', 'L-V 11:00 y 17:00 (45 min)'],
-    ['geo_redes', 'Redes', 'Prepara posts de Google Business y borradores de LinkedIn', 'L-V 12:00 (45 min)'],
-    ['geo_medicion', 'Medición', 'Mide la visibilidad en IA (informe completo los lunes)', 'L-V 8:30'],
+    ['geo_refresco', 'Refresco', 'Mejora y actualiza las páginas publicadas', 'L-V 9:30 y 14:30 (45 min)'],
+    ['geo_local', 'Local', 'Lleva la ficha de Google: tareas de Localo, posts y fotos', 'L-V 11:00 y 17:00 (45 min)'],
+    ['geo_redes', 'Redes', 'Prepara las publicaciones y artículos de LinkedIn', 'L-V 10:00 y 15:00 (45 min)'],
+    ['geo_medicion', 'Medición', 'Mide la visibilidad en IA (informe completo los lunes)', 'L-V 8:30 y 15:30 (45 min)'],
 ];
 
 /** Trabajo entregado por un agente GEO (pestaña «Su trabajo»): lo último primero; solo enlaces https. */
