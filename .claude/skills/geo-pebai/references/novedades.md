@@ -48,6 +48,6 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 ## Para el Jefe
 
-- **Contenido** (23/10, Vigía): tras los pilares, crear una página por ciudad para Valencia ("consultora de IA en Valencia") con `seo-clean-architecture`, caso real de Fran García Cars si encaja; hoy Upliora y Everywan ocupan esa respuesta.
+(Repartido por el Jefe el 23/10 tarde: página de Valencia a Contenido como borrador de /ia-para-empresas/valencia/ después de /automatizacion-de-procesos/, publicación con Daniel.)
 (Repartido por el Jefe el 23/10 mañana: bloque «cómo elegir consultora» a Contenido en /ia-para-empresas/; Clutch/Sortlist a «Para Daniel».)
 (Repartido por el Jefe el 22/10 mañana: Bing AI Performance, repetir preguntas y página /agentes-ia/ pasan al tablón. Versión en inglés: descartada por ahora, primero los pilares en español. Nota de prensa: se aparca hasta tener un dato propio o un caso real que contar.)
