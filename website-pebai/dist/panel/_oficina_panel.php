@@ -165,7 +165,9 @@ function of_email(): array
     $a['actividad'] = of_actividad('email');
     $a['errores'] = of_errores($a['actividad']);
     $cola = (int)$db->query("SELECT COUNT(*) FROM email_prospectos WHERE estado = 'pendiente'")->fetchColumn();
-    $inter = (int)$db->query("SELECT COUNT(*) FROM email_prospectos WHERE estado IN ('interesado','respondio')")->fetchColumn();
+    // Respuestas pendientes: lo mismo que «Te toca» en Conversaciones (un «respondio» puesto a mano, p. ej. info pedida por WhatsApp, no cuenta)
+    require_once dirname(__DIR__) . '/api/_conversaciones_lib.php';
+    $inter = count(array_filter(pebai_conv_datos(), static fn($f) => $f['canal'] === 'email' && $f['te_toca']));
     $v = pebai_email_ventana();
     $s7 = pebai_email_salud(7);
     if ((int)$e['pausado']) {
@@ -327,6 +329,15 @@ function of_geo_agente(string $id, string $nombre, string $rol, string $cuando):
             break;
         }
     }
+    // Si después del fallo terminó bien su turno, la mesa no sigue en rojo (el fallo se sigue viendo en «¿Ha fallado algo?»)
+    $fin = '';
+    foreach ($a['actividad'] as $e) {
+        if ($e['tipo'] === 'hito' && preg_match('/^Termina/u', $e['txt'])) {
+            $fin = $e['ts'];
+            break;
+        }
+    }
+    $vigentes = array_values(array_filter($a['errores'], static fn($ev) => $ev['ts'] > $fin));
     $hoy = date('Y-m-d');
     $a['hoy'] = count(array_filter($a['actividad'], static fn($e) => substr($e['ts'], 0, 10) === $hoy && $e['tipo'] === 'hito'));
     $ult = $a['actividad'][0] ?? null;
@@ -335,8 +346,8 @@ function of_geo_agente(string $id, string $nombre, string $rol, string $cuando):
     $hueco = str_starts_with($cuando, 'Cada día') ? 26 * 3600 : 74 * 3600;
     $callado = $ult && strtotime($ult['ts']) < time() - $hueco;
     // Entre turno y turno descansa: duerme en la oficina, igual que los de Captación fuera de horario
-    $a['st'] = $a['errores'] || $callado ? 'error' : ($reciente ? 'trabajando' : 'dormido');
-    $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
+    $a['st'] = $vigentes || $callado ? 'error' : ($reciente ? 'trabajando' : 'dormido');
+    $a['motivo'] = $vigentes ? $vigentes[0]['txt']
         : ($callado ? 'Se ha saltado su turno: no hace nada desde ' . of_hace($ult['ts']) . '. Su rutina en la nube puede haberse parado.'
         : ($reciente ? $ult['txt'] : ($ult ? 'Descansando hasta su turno (' . $cuando . '). Lo último: ' . $ult['txt'] : 'Empieza en su próximo turno: ' . $cuando . '.')));
     if ($callado) {
