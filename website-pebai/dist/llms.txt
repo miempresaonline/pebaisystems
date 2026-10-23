@@ -25,7 +25,6 @@ Versión ampliada: [llms-full.txt](https://pebaisystems.es/llms-full.txt)
 - [Construcciones Gargom: gestión de obras a medida](https://pebaisystems.es/#caso-construcciones-gargom): construcción (España). Sustituye un programa antiguo: presupuestos, certificaciones, gastos, pagos, personal, proveedores y rentabilidad por obra en un solo sitio.
 - [Suministros Industriales Santacruz: plataforma de pedidos](https://pebaisystems.es/#caso-suministros-santacruz): sedes en España, Francia, Países Bajos y Bélgica. App nueva y segura en 4 idiomas que sustituye otra de 20-30 años; base de datos migrada con 343 pedidos de 2026.
 - [Residencia El Amparo: web y portal de gestión](https://pebaisystems.es/#caso-residencia-el-amparo): residencia de mayores (España). Web nueva y portal para subvenciones, empleo y visitas; entregado en octubre de 2026, con 16 subvenciones publicadas.
-- En desarrollo: una app para un club de fútbol, un chatbot de WhatsApp y la gestión de un coworking.
 
 ## Cómo empezar
 
