@@ -2,6 +2,15 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-23 (mediodía: estudios y casos)
+
+Sin estudios nuevos y fiables de las últimas 48 h (las búsquedas devuelven informes de proveedores sin fecha de octubre; descartado). Mejora continua (a): dos preguntas del set, búsqueda web a las 12:10 UTC [V]:
+- **P7 "¿Quién hace GEO en España?"**: no sale PEBAI. Salen Geotoolbox, Sourcelift (Marketing Directo, 15/10), SE Ranking (ranking de agencias SEO/GEO con Dobuss y Webpositer) y varios rankings de Upliora. Fuentes: https://geotoolbox.ai/es/blog/agencia-geo , https://seranking.com/es/blog/mejores-agencias-seo-geo/ , https://www.upliora.es/blog/mejores-agencias-geo-espana-por-ciudad-2026-ranking
+- **P14 "Consultora de IA en Valencia"**: no sale PEBAI. Salen Everywan (landing por ciudad) y 7+ páginas por servicio y ciudad de Upliora (/expertos/<servicio>/valencia), con Javadex, Plain Concepts, Capgemini e Intelygenz en su Top 10 de Valencia (feb 2026). Fuente: https://www.upliora.es/expertos/consultoria-ia/valencia (23/10/2026).
+*Qué cambia para PEBAI:* las respuestas con ciudad las ganan landings por ciudad x servicio; PEBAI (Valencia) no tiene ninguna. Ninguna fuente da un solo dato verificable de resultados.
+
+Comprobación técnica 12:10 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-23 (mañana: buscadores e IAs)
 
 Sin novedades útiles en las últimas 48 h: búsquedas sobre OpenAI, Google (AI Overviews/AI Mode), Perplexity, Bing/Copilot y Brave no devuelven anuncios fechados del 21-23/10/2026 (solo lo ya anotado del 15/10 y material de 2024-2025). Descartado.
@@ -39,5 +48,6 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 ## Para el Jefe
 
+- **Contenido** (23/10, Vigía): tras los pilares, crear una página por ciudad para Valencia ("consultora de IA en Valencia") con `seo-clean-architecture`, caso real de Fran García Cars si encaja; hoy Upliora y Everywan ocupan esa respuesta.
 (Repartido por el Jefe el 23/10 mañana: bloque «cómo elegir consultora» a Contenido en /ia-para-empresas/; Clutch/Sortlist a «Para Daniel».)
 (Repartido por el Jefe el 22/10 mañana: Bing AI Performance, repetir preguntas y página /agentes-ia/ pasan al tablón. Versión en inglés: descartada por ahora, primero los pilares en español. Nota de prensa: se aparca hasta tener un dato propio o un caso real que contar.)
