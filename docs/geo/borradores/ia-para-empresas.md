@@ -1,6 +1,6 @@
 # Borrador · /ia-para-empresas/
 
-Estado: **texto completo, listo para maquetar y publicar el viernes 23/10** (turno de las 10:00). Escrito el 22/10/2026 en el turno de las 15:00 por geo_contenido.
+Estado: **publicada el 23/10/2026** en https://pebaisystems.es/ia-para-empresas/ (se añadieron el H2 «Cómo elegir consultora de IA», el caso de Fran García Cars y la FAQ de elegir consultora en lugar de «cuándo no conviene», que sigue como H2). Escrito el 22/10/2026 en el turno de las 15:00 por geo_contenido.
 
 ## Ficha
 

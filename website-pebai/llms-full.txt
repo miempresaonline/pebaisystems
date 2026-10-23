@@ -69,6 +69,14 @@ Los proyectos de implantación parten de 1.500 €.
 - No se admiten proyectos en fase de idea o sin facturación, ni reuniones delegadas en alguien sin poder de decisión.
 - La información compartida se usa solo para analizar los procesos de la empresa y no se cede a terceros.
 
+## Casos
+
+- [Fran García Cars: aplicación de gestión de revisiones](https://pebaisystems.es/#caso-fran-garcia-cars): importación y revisión de vehículos (España). App a medida con expedientes, fotos, revisores y licitaciones. A 22/10/2026: 659 usuarios, 400 unidades aprobadas y 98 % de tasa de aprobación.
+- [Fran García Cars: asistente de WhatsApp](https://pebaisystems.es/#caso-fran-garcia-cars-whatsapp): asistente de Inteligencia Artificial con la información de la empresa que responde dudas frecuentes, agenda citas y deriva a una persona, gestionado desde un panel.
+- [Construcciones Gargom: gestión de obras a medida](https://pebaisystems.es/#caso-construcciones-gargom): construcción (España). Sustituye un programa antiguo: presupuestos, certificaciones, gastos, pagos, personal, proveedores y rentabilidad por obra en un solo sitio.
+- [Suministros Industriales Santacruz: plataforma de pedidos](https://pebaisystems.es/#caso-suministros-santacruz): sedes en España, Francia, Países Bajos y Bélgica. App nueva y segura en 4 idiomas que sustituye otra de 20-30 años; base de datos migrada con 343 pedidos de 2026.
+- [Residencia El Amparo: web y portal de gestión](https://pebaisystems.es/#caso-residencia-el-amparo): residencia de mayores (España). Web nueva y portal para subvenciones, empleo y visitas; entregado en octubre de 2026, con 16 subvenciones publicadas.
+
 ## Equipo
 
 - **Daniel Peñuela Ruiz**: ingeniería de procesos y sistemas. Fundador.
@@ -84,6 +92,7 @@ PEBAI Systems trabaja con empresas con equipo de cualquier sector en España: co
 
 - [Cómo aparecer en ChatGPT y en las respuestas de IA de Google](https://pebaisystems.es/posicionamiento-en-ia/): guía para empresas sobre posicionamiento en Inteligencia Artificial (GEO), con lo que vimos en 63 respuestas de IA en España.
 - [Agentes de IA para empresas: cómo atender a tus clientes por WhatsApp, teléfono y web](https://pebaisystems.es/agentes-ia/): qué es un agente de Inteligencia Artificial y en qué se diferencia de un chatbot, qué exige y cobra Meta para usarlo en WhatsApp desde el 1/10/2026, agentes de voz, qué dice el Reglamento de IA y cuándo no conviene.
+- [Cómo implantar Inteligencia Artificial en tu empresa: por dónde empezar](https://pebaisystems.es/ia-para-empresas/): guía para empresas en España con los datos del INE del primer trimestre de 2026 (33,6 % de las empresas de 10 o más empleados usa IA), cinco pasos para empezar, qué exigen el Reglamento de IA y el RGPD, el estado del Kit Digital a 23/10/2026, qué mueve el precio, cuándo no conviene y seis criterios para elegir consultora.
 
 ## Contacto
 
