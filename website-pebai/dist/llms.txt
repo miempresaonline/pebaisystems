@@ -18,6 +18,15 @@ Versión ampliada: [llms-full.txt](https://pebaisystems.es/llms-full.txt)
 - [Cómo aparecer en ChatGPT y en las respuestas de IA de Google](https://pebaisystems.es/posicionamiento-en-ia/): guía para empresas sobre posicionamiento en Inteligencia Artificial (GEO), con lo que vimos en 63 respuestas de IA en España.
 - [Agentes de IA para empresas: cómo atender a tus clientes por WhatsApp, teléfono y web](https://pebaisystems.es/agentes-ia/): qué es un agente de Inteligencia Artificial y en qué se diferencia de un chatbot, qué exige y cobra Meta para usarlo en WhatsApp desde el 1/10/2026, agentes de voz, qué dice el Reglamento de IA y cuándo no conviene.
 
+## Casos
+
+- [Fran García Cars: aplicación de gestión de revisiones](https://pebaisystems.es/#caso-fran-garcia-cars): importación y revisión de vehículos (España). App a medida con expedientes, fotos, revisores y licitaciones. A 22/10/2026: 659 usuarios, 400 unidades aprobadas y 98 % de tasa de aprobación.
+- [Fran García Cars: asistente de WhatsApp](https://pebaisystems.es/#caso-fran-garcia-cars-whatsapp): asistente de Inteligencia Artificial con la información de la empresa que responde dudas frecuentes, agenda citas y deriva a una persona, gestionado desde un panel.
+- [Construcciones Gargom: gestión de obras a medida](https://pebaisystems.es/#caso-construcciones-gargom): construcción (España). Sustituye un programa antiguo: presupuestos, certificaciones, gastos, pagos, personal, proveedores y rentabilidad por obra en un solo sitio.
+- [Suministros Industriales Santacruz: plataforma de pedidos](https://pebaisystems.es/#caso-suministros-santacruz): sedes en España, Francia, Países Bajos y Bélgica. App nueva y segura en 4 idiomas que sustituye otra de 20-30 años; base de datos migrada con 343 pedidos de 2026.
+- [Residencia El Amparo: web y portal de gestión](https://pebaisystems.es/#caso-residencia-el-amparo): residencia de mayores (España). Web nueva y portal para subvenciones, empleo y visitas; entregado en octubre de 2026, con 16 subvenciones publicadas.
+- En desarrollo: una app para un club de fútbol, un chatbot de WhatsApp y la gestión de un coworking.
+
 ## Cómo empezar
 
 - [Consultoría gratuita](https://pebaisystems.es/consultoria-gratuita/): sesión técnica de 25 minutos por videollamada en pantalla compartida, sin compromiso. Plazas limitadas: solo es gratuita para cinco empresas seleccionadas al mes; cuando se completan, la consultoría es de pago.
