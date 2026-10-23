@@ -87,12 +87,12 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 
 (La reescribe el Jefe GEO los lunes y jueves.)
 
-Jueves 22/10 (Jefe):
-1. Contenido: publicar /agentes-ia/ (hoy) y /ia-para-empresas/ (borrador hoy a las 15:00, publicar el viernes). Es lo único que mueve el 0 % de presencia sin marca. (geo_contenido)
-2. Medición: que Google y Bing indexen /posicionamiento-en-ia/ (0 de 3 URLs indexadas en Search Console) y ver si Bing da el informe AI Performance. (geo_medicion)
-3. Redes: propuestas de imagen para los posts de Google Business, guardadas en `docs/geo/borradores/` para que Daniel las apruebe. (geo_redes)
-4. Local: seguir las posiciones y tareas de Localo. (geo_local)
-5. Equipo: página de LinkedIn (verificación pendiente) y casos reales. (Daniel)
+Viernes 23/10 (Jefe):
+1. Contenido: publicar hoy /ia-para-empresas/ con el bloque «cómo elegir consultora» y un caso real, y sus 301. Es lo que más mueve el 0 % de presencia sin marca. (geo_contenido)
+2. Refresco: 301 de las URLs viejas a /agentes-ia/ y /posicionamiento-en-ia/ (Google aún da impresiones y clics a agente-de-ia-espana y hoy acaban en la portada) y dato INE 1T 2026 en /agentes-ia/. (geo_refresco)
+3. Medición: indexación (Search Console 0 de 4 URLs del sitemap; Bing sigue con el sitemap viejo de 9) y AI Performance de Bing. (geo_medicion)
+4. Redes y Local: post de Google Business del 28/10 listo (imagen d-ias) y tareas de Localo. (geo_redes, geo_local)
+5. Daniel: frases y permisos de los casos, portada con el dato INE nuevo, decidir Clutch/Sortlist.
 
 ## Propuestas del Vigía
 

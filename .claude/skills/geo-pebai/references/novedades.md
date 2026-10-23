@@ -39,6 +39,5 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 ## Para el Jefe
 
-- (Vigía 22/10 tarde) Contenido: en /agentes-ia/ y /ia-para-empresas/ incluir un bloque "cómo elegir consultora de IA" con criterios honestos (sin nombrar competidores ni precios), porque los competidores dominan esas respuestas con rankings propios. Por qué: es la pregunta de compra que hoy responden Javadex y Upliora.
-- (Vigía 22/10 tarde) Daniel: decidir si PEBAI figura en listados de terceros (Clutch, Sortlist) para tener menciones fuera de la web; ningún agente escribe a terceros.
+(Repartido por el Jefe el 23/10 mañana: bloque «cómo elegir consultora» a Contenido en /ia-para-empresas/; Clutch/Sortlist a «Para Daniel».)
 (Repartido por el Jefe el 22/10 mañana: Bing AI Performance, repetir preguntas y página /agentes-ia/ pasan al tablón. Versión en inglés: descartada por ahora, primero los pilares en español. Nota de prensa: se aparca hasta tener un dato propio o un caso real que contar.)
