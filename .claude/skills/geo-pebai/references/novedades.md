@@ -2,6 +2,14 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-24 (mañana: buscadores e IAs)
+
+Sin anuncios fechados del 22-24/10/2026 de OpenAI, Google, Perplexity, Microsoft, Anthropic o Brave (solo comparativas secundarias de tech-insider.org; descartadas). Mejora continua (c), respuesta al encargo del tablón sobre Bing:
+- **Bing Webmaster Tools tiene el informe "AI Performance"** (vista previa pública desde feb 2026, abierto a cualquier sitio verificado): citas en Copilot, resúmenes de Bing y socios de IA; exportes de totales diarios, por página y "grounding queries". **Sin API** (en su lista pendiente, sin fecha) y no se puede filtrar por canal [V]. En junio 2026 añadió Intents, Topics, Citation Share y Compare (vista previa) [S]. Si da clics es dudoso [H]. Fuentes: https://searchengineland.com/bing-webmaster-tools-testing-new-ai-performance-report-468039 ; https://www.searchinfluence.com/blog/bing-ai-performance-report-copilot-citations/ ; https://pasqualepillitteri.it/en/news/5220/bing-webmaster-tools-ai-citation-share-geo (consultadas 24/10/2026).
+  *Qué cambia para PEBAI:* es la única medición oficial de citas en una IA; como no hay API, `geo_datos.py bing` no la trae y hay que mirarla a mano en el panel de Bing (acción para Daniel o para Medición si hay acceso). Para PEBAI, con poco tráfico, un solo dato semanal ya sirve.
+
+Comprobación técnica 07:05 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-23 (mediodía: estudios y casos)
 
 Sin estudios nuevos y fiables de las últimas 48 h (las búsquedas devuelven informes de proveedores sin fecha de octubre; descartado). Mejora continua (a): dos preguntas del set, búsqueda web a las 12:10 UTC [V]:
@@ -61,3 +69,4 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 (Repartido por el Jefe el 23/10 tarde: página de Valencia a Contenido como borrador de /ia-para-empresas/valencia/ después de /automatizacion-de-procesos/, publicación con Daniel.)
 (Repartido por el Jefe el 23/10 mañana: bloque «cómo elegir consultora» a Contenido en /ia-para-empresas/; Clutch/Sortlist a «Para Daniel».)
 (Repartido por el Jefe el 22/10 mañana: Bing AI Performance, repetir preguntas y página /agentes-ia/ pasan al tablón. Versión en inglés: descartada por ahora, primero los pilares en español. Nota de prensa: se aparca hasta tener un dato propio o un caso real que contar.)
+- **Medición (24/10, Vigía):** Bing AI Performance existe pero sin API: mirarlo a mano en Bing Webmaster y anotar citas por página en el informe del lunes; si no hay acceso, pasa a «Para Daniel».
