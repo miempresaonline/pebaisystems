@@ -2,6 +2,19 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-24 (mediodía: estudios y casos)
+
+1. **ChatGPT cita ya unas 39 fuentes por respuesta; Google AI Mode ha bajado a 5,5** [V, tracker de proveedor]. Cloro (1.941.005 respuestas, 1/05 a 23/10/2026, ~2.200 prompts comerciales en 38 países, una vez al día por motor): semana del 19/10, ChatGPT 39,0 fuentes por respuesta (14,2 en la semana del 4/05), AI Mode 5,5 (13,9 en mayo), Gemini 11,0, Perplexity 10,7 (semana del 28/09), AI Overview 7,1, Copilot 5,6. "Fuente" = entrada de la lista de fuentes del motor. Fuente: https://cloro.dev/research/ai-citation-tracker/ (23/10/2026). Reserva: es una herramienta comercial y la muestra no es de España.
+   *Qué cambia para PEBAI:* en ChatGPT hay mucho más sitio para ser una de las fuentes (más oportunidad para páginas citables y menciones en listados); en AI Mode y Copilot el hueco se estrecha, ahí pesa más estar en el top orgánico de Google/Bing. Refuerza medir por motor y no mezclar.
+2. Sin estudios independientes nuevos: los casos de GEO que salen (Gofish Digital, Single Grain) son autoinformados por agencias, sin metodología [S]; descartados.
+
+Mejora continua (a), búsqueda web a las 12:15 UTC [V]:
+- **P6 "Agencia para implantar un chatbot con IA en mi empresa"**: no sale PEBAI. Salen Hackceleration, Aunoa (WhatsApp, web e Instagram, "90 % de consultas repetitivas", cifra de proveedor), Asest/Bolmia, INESEM y la guía de agentes de Upliora (primer agente en 4-8 semanas, 5.000-15.000 €). Fuentes: https://hackceleration.com/es/agencia-de-ia/agentes-ia , https://aunoa.ai/automatizacion-procesos/ , https://www.upliora.es/blog/agentes-ia-para-empresas-espana-guia-2026
+- **P10 "Automatizar la atención por WhatsApp de una empresa de servicios con IA"**: no sale PEBAI. Salen Twilio, Leadsales, Aunoa, Burbuxa y Chattigo: blogs de software y proveedores latinoamericanos, ninguno con caso español de una pyme de servicios. Fuente: https://aunoa.ai/bots-en-whatsapp-transforma-tu-servicio-de-atencion-al-cliente-con-ia/
+*Qué cambia para PEBAI:* en WhatsApp para pymes de servicios las respuestas las ocupan guías genéricas de herramientas; /agentes-ia/ (WhatsApp como bloque principal) y un subpilar de WhatsApp con el caso real de Fran García Cars tienen hueco claro. Aunoa es el competidor directo a vigilar en agentes de WhatsApp.
+
+Comprobación técnica 12:05 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-24 (mañana: buscadores e IAs)
 
 Sin anuncios fechados del 22-24/10/2026 de OpenAI, Google, Perplexity, Microsoft, Anthropic o Brave (solo comparativas secundarias de tech-insider.org; descartadas). Mejora continua (c), respuesta al encargo del tablón sobre Bing:
@@ -70,3 +83,5 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 (Repartido por el Jefe el 23/10 mañana: bloque «cómo elegir consultora» a Contenido en /ia-para-empresas/; Clutch/Sortlist a «Para Daniel».)
 (Repartido por el Jefe el 22/10 mañana: Bing AI Performance, repetir preguntas y página /agentes-ia/ pasan al tablón. Versión en inglés: descartada por ahora, primero los pilares en español. Nota de prensa: se aparca hasta tener un dato propio o un caso real que contar.)
 - **Medición (24/10, Vigía):** Bing AI Performance existe pero sin API: mirarlo a mano en Bing Webmaster y anotar citas por página en el informe del lunes; si no hay acceso, pasa a «Para Daniel».
+- **Contenido (24/10, Vigía):** tras /automatizacion-de-procesos/, priorizar el subpilar de agentes de WhatsApp para pymes de servicios con el caso real de Fran García Cars: P6 y P10 las ocupan blogs de herramientas y Aunoa, sin caso español.
+- **Medición (24/10, Vigía):** en el informe del lunes separar los resultados por motor; el tracker de Cloro muestra que ChatGPT (39 fuentes) y AI Mode (5,5) se comportan de forma muy distinta.
