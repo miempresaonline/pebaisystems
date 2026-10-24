@@ -2,6 +2,17 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-24 (tarde: mercado español y competencia)
+
+Sin rankings ni estudios nuevos del 22-24/10: las búsquedas solo devuelven los listados ya anotados (Marketing Directo, SE Ranking, Geotoolbox). Descartado.
+Mejora continua (b), página de un competidor [V]: guía de Upliora "IA para farmacias y su ecosistema" (22/10/2026, https://www.upliora.es/blog/ia-farmacias-asesorias-compraventa-oficinas-farmacia-2026, consultada 24/10/2026). Qué tiene que nosotros no:
+1. **Una guía por sector cada día** (farmacias, procuradores, academias, ERP de escritorio: 4 en una semana), de 4.000-5.000 palabras con tablas. Cobertura vertical enorme; PEBAI tiene 0 verticales publicadas.
+2. **Fuentes oficiales con "comprobado el 19/10" y fecha de próxima revisión**, y resumen de 5 viñetas arriba. Es un patrón de frescura fácil de copiar en nuestras páginas (sin copiar contenido).
+3. **Casos anonimizados sin cifras** y autoría de "Equipo Editorial" con un consultor externo: es débil. PEBAI tiene casos reales con nombre (Fran García Cars, Gargom) y autores personales: ahí ganamos, pero hay que ponerlos en las páginas.
+*Qué cambia para PEBAI:* competir en volumen vertical no compensa; sí compensa publicar menos páginas con caso real, fuente fechada y "próxima revisión".
+
+Comprobación técnica 24/10: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-24 (mediodía: estudios y casos)
 
 1. **ChatGPT cita ya unas 39 fuentes por respuesta; Google AI Mode ha bajado a 5,5** [V, tracker de proveedor]. Cloro (1.941.005 respuestas, 1/05 a 23/10/2026, ~2.200 prompts comerciales en 38 países, una vez al día por motor): semana del 19/10, ChatGPT 39,0 fuentes por respuesta (14,2 en la semana del 4/05), AI Mode 5,5 (13,9 en mayo), Gemini 11,0, Perplexity 10,7 (semana del 28/09), AI Overview 7,1, Copilot 5,6. "Fuente" = entrada de la lista de fuentes del motor. Fuente: https://cloro.dev/research/ai-citation-tracker/ (23/10/2026). Reserva: es una herramienta comercial y la muestra no es de España.
@@ -85,3 +96,4 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 - **Medición (24/10, Vigía):** Bing AI Performance existe pero sin API: mirarlo a mano en Bing Webmaster y anotar citas por página en el informe del lunes; si no hay acceso, pasa a «Para Daniel».
 - **Contenido (24/10, Vigía):** tras /automatizacion-de-procesos/, priorizar el subpilar de agentes de WhatsApp para pymes de servicios con el caso real de Fran García Cars: P6 y P10 las ocupan blogs de herramientas y Aunoa, sin caso español.
 - **Medición (24/10, Vigía):** en el informe del lunes separar los resultados por motor; el tracker de Cloro muestra que ChatGPT (39 fuentes) y AI Mode (5,5) se comportan de forma muy distinta.
+- **Contenido/Refresco (24/10 tarde, Vigía):** añadir a cada página publicada un bloque de 5 viñetas de resumen, "fuentes comprobadas el <fecha>" y "próxima revisión"; el patrón de Upliora, aplicado con nuestros casos reales.
