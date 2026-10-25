@@ -2,6 +2,16 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-25 (mediodía: estudios y casos)
+
+Sin estudios independientes nuevos del 23-25/10 de Ahrefs, Semrush o SE Ranking: las búsquedas devuelven material de marzo a agosto 2026 ya conocido o de proveedores sin metodología. Descartado.
+Mejora continua (a), búsqueda web a las 12:10 UTC [V]:
+- **P14 "Consultora de IA para empresas en Valencia"**: no sale PEBAI. Salen 8 de 9 resultados de Upliora, que tiene una página por tema y ciudad (`/expertos/<tema>/valencia`: consultoría IA, automatización de procesos, IA generativa, visión, NLP, transformación digital) que recomiendan a Javadex como primero; además Everywan (`everywan.com/en/ai-automation-valencia`) y grandes (Plain Concepts, Capgemini, Intelygenz). Fuentes: https://www.upliora.es/expertos/consultoria-ia/valencia , https://everywan.com/en/ai-automation-valencia (consultadas 25/10/2026).
+- **P7 "¿Quién hace GEO (posicionamiento en ChatGPT) en España?"**: no sale PEBAI. Salen Sourcelift (ranking propio de Marketing Directo), SEOCOM, Peack Agency, rankings de Upliora y guías de precios de Geotoolbox y SE Ranking. Fuentes: https://seocom.agency/en/geo-agency/ , https://clutch.co/profile/peack-agency
+*Qué cambia para PEBAI:* en Valencia los competidores usan páginas programáticas casi idénticas por tema; el hueco es una página local con prueba real (ficha de Google, quién atiende, casos de la zona), como ya recoge el borrador de `/ia-para-empresas/valencia/`. En P7 aparecen Peack y SEOCOM con perfil en Clutch o web GEO propia: sin la página de directorios (pendiente de Daniel) y sin una página GEO con caso, seguimos fuera.
+
+Comprobación técnica 12:05 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-25 (mañana: buscadores e IAs)
 
 Sin anuncios fechados del 23-25/10/2026 de OpenAI, Google (AI Overviews/AI Mode), Perplexity, Microsoft, Anthropic o Brave: las búsquedas solo devuelven material de 2024-2026 ya conocido (lo último de Google es del 15/10, ya anotado; lo de Brave, julio 2026, es una captura no oficial). Descartado.
@@ -108,3 +118,4 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 - **Medición (24/10, Vigía):** en el informe del lunes separar los resultados por motor; el tracker de Cloro muestra que ChatGPT (39 fuentes) y AI Mode (5,5) se comportan de forma muy distinta.
 - **Contenido/Refresco (24/10 tarde, Vigía):** añadir a cada página publicada un bloque de 5 viñetas de resumen, "fuentes comprobadas el <fecha>" y "próxima revisión"; el patrón de Upliora, aplicado con nuestros casos reales.
 - **Contenido (25/10, Vigía):** tras los pilares, una página «de qué depende el coste de implantar IA en una pyme» (sin cifras, con factores, fases y subvenciones): P8 la ocupan Javadex y Upliora con precios y no hay respuesta honesta alternativa.
+- **Contenido (25/10 mediodía, Vigía):** en el borrador de `/ia-para-empresas/valencia/` no copiar el patrón de Upliora (páginas por tema casi idénticas): una sola página local con prueba real, y preguntar a Daniel qué casos de `casos.md` son de la zona.
