@@ -2,6 +2,16 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-25 (mañana: buscadores e IAs)
+
+Sin anuncios fechados del 23-25/10/2026 de OpenAI, Google (AI Overviews/AI Mode), Perplexity, Microsoft, Anthropic o Brave: las búsquedas solo devuelven material de 2024-2026 ya conocido (lo último de Google es del 15/10, ya anotado; lo de Brave, julio 2026, es una captura no oficial). Descartado.
+Mejora continua (a), búsqueda web a las 07:15 UTC [V]:
+- **P4 "¿Qué empresa me recomiendas para automatizar procesos con IA en España?"**: no sale PEBAI. Salen Creamos IA (Bilbao, llamadas), Aizora (Getafe, perfil de Clutch, fundada en 2026, datos autodeclarados) y noticias genéricas de adopción. Fuentes: https://emprendedores.es/noticias-de-empresa/nace-en-bilbao-una-agencia-de-ia-que-automatiza-llamadas-y-el-30-de-las-tareas-en-empresas-espanolas/ , https://clutch.co/profile/aizora
+- **P8 "Cuánto cuesta implantar IA en una pyme española"**: no sale PEBAI. Salen guías de precios de Javadex y Upliora (3 de los 4 primeros resultados, con rangos en euros: diagnóstico 900-1.500 €, implantación 2.500-8.000 € más cuota mensual); la respuesta de la IA advierte de que son blogs comerciales. Fuentes: https://www.javadex.es/blog/cuanto-cuesta-implementar-ia-pyme-espana-2026 , https://www.upliora.es/blog/cuanto-cuesta-implementar-ia-pyme-espana-por-tipo-proyecto-2026
+*Qué cambia para PEBAI:* en P8 mandan los competidores con cifras; nosotros no publicamos precios, así que el hueco es una página «de qué depende el coste» honesta (factores, fases, qué pedir en un presupuesto, subvenciones), sin cifras. En P4 el hueco lo ocupan agencias nuevas con perfil en Clutch: el perfil de Clutch de `docs/geo/perfiles/` (pendiente de Daniel) pesa.
+
+Comprobación técnica 07:05 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-24 (tarde: mercado español y competencia)
 
 Sin rankings ni estudios nuevos del 22-24/10: las búsquedas solo devuelven los listados ya anotados (Marketing Directo, SE Ranking, Geotoolbox). Descartado.
@@ -97,3 +107,4 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 - **Contenido (24/10, Vigía):** tras /automatizacion-de-procesos/, priorizar el subpilar de agentes de WhatsApp para pymes de servicios con el caso real de Fran García Cars: P6 y P10 las ocupan blogs de herramientas y Aunoa, sin caso español.
 - **Medición (24/10, Vigía):** en el informe del lunes separar los resultados por motor; el tracker de Cloro muestra que ChatGPT (39 fuentes) y AI Mode (5,5) se comportan de forma muy distinta.
 - **Contenido/Refresco (24/10 tarde, Vigía):** añadir a cada página publicada un bloque de 5 viñetas de resumen, "fuentes comprobadas el <fecha>" y "próxima revisión"; el patrón de Upliora, aplicado con nuestros casos reales.
+- **Contenido (25/10, Vigía):** tras los pilares, una página «de qué depende el coste de implantar IA en una pyme» (sin cifras, con factores, fases y subvenciones): P8 la ocupan Javadex y Upliora con precios y no hay respuesta honesta alternativa.
