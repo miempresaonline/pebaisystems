@@ -8,11 +8,13 @@ Lectura:
   ga4 [dias]            GA4: sesiones por canal ("PEBAI (IA primero)" y por defecto), fuente y eventos clave
   bing                  Bing Webmaster: sitemaps, rastreo, tráfico y consultas
   clarity [dias]        Clarity: tráfico por fuente (1-3 días; máx. 10 llamadas al día)
-  seranking             SE Ranking: posiciones del proyecto de PEBAI
+  seranking             SE Ranking: posiciones del proyecto de PEBAI (pos 0 = fuera del top 100; mide a diario)
+  gsc-inspeccion [url]  Search Console: si cada URL del sitemap (o la dada) está indexada en Google, y cuándo la rastreó
   localo                Localo: tareas propuestas y palabras clave de la ficha de PEBAI
 Cambios aprobados (docs/geo/aprobaciones.md):
   gsc-sitemap           reenvía https://pebaisystems.es/sitemap.xml a Search Console
   bing-url <url> ...    envía URLs de pebaisystems.es a Bing
+  bing-sitemap          reenvía https://pebaisystems.es/sitemap.xml a Bing Webmaster
   localo-cerrar <id>    marca como hecha una tarea de Localo de la ficha de PEBAI
   localo-keywords <kw>  añade palabras clave a la ficha de PEBAI en Localo (separadas por ;)
 """
@@ -168,6 +170,37 @@ def gsc_sitemap():
     return {'http': http(f'https://www.googleapis.com/webmasters/v3/sites/{s}/sitemaps/{sm}', 'PUT', h)[0]}
 
 
+def gsc_inspeccion(urls):
+    import re
+    if not urls:
+        req = urllib.request.Request(SITE + 'sitemap.xml', headers={'User-Agent': 'PEBAI-GEO/1.0 (+https://pebaisystems.es)'})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            urls = re.findall(r'<loc>([^<]+)</loc>', r.read().decode('utf-8'))
+    urls = [u for u in urls if u.startswith(SITE)]
+    h = google_token('https://www.googleapis.com/auth/webmasters')
+    out = []
+    for u in urls[:20]:
+        code, res = 0, {}
+        for _ in range(3):  # la API a veces corta la conexión: reintenta
+            try:
+                code, res = http('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect', 'POST', h,
+                                 {'inspectionUrl': u, 'siteUrl': SITE, 'languageCode': 'es'})
+                break
+            except OSError:
+                continue
+        ix = ((res or {}).get('inspectionResult') or {}).get('indexStatusResult') or {}
+        out.append({'url': u, 'http': code, 'veredicto': ix.get('verdict'), 'estado': ix.get('coverageState'),
+                    'ultimo_rastreo': ix.get('lastCrawlTime'), 'canonical_google': ix.get('googleCanonical')})
+    return out
+
+
+def bing_sitemap():
+    k = secreto('PEBAI_BING_API_KEY', 'bing_webmaster_api_key_pebai')
+    code, _ = http('https://ssl.bing.com/webmaster/api.svc/json/SubmitFeed?' + urllib.parse.urlencode({'apikey': k}), 'POST', None,
+                   {'siteUrl': SITE, 'feedUrl': SITE + 'sitemap.xml'})
+    return {'http': code}
+
+
 def bing_urls(urls):
     urls = [u for u in urls if u.startswith(SITE)]
     if not urls:
@@ -193,6 +226,8 @@ if __name__ == '__main__':
         'localo': localo_estado,
         'gsc-sitemap': gsc_sitemap,
         'bing-url': lambda: bing_urls(args),
+        'bing-sitemap': bing_sitemap,
+        'gsc-inspeccion': lambda: gsc_inspeccion(args),
         'localo-cerrar': lambda: localo_cerrar(args[0]),
         'localo-keywords': lambda: localo_keywords(' '.join(args)),
     }

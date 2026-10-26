@@ -99,7 +99,9 @@ Lleva **LinkedIn**. La ficha de Google ya no es suya: la lleva Local.
 
 ## geo_medicion · Medición (lunes informe completo; martes a viernes, chequeo corto)
 
-Martes a viernes: solo `geo_datos.py gsc 3`, `bing` y `localo`; apunta en el panel lo que haya cambiado (impresiones, indexación, posiciones) en 1-2 líneas. Los lunes:
+Indexación real: `geo_datos.py gsc-inspeccion` (página a página: indexada o no y último rastreo); el campo `indexed` de los sitemaps no sirve. SE Ranking mide a diario: en `seranking`, `pos: 0` es «fuera del top 100», no «sin medir». Si Bing sigue con un sitemap viejo: `geo_datos.py bing-sitemap`.
+
+Martes a viernes: solo `geo_datos.py gsc 3`, `gsc-inspeccion`, `bing` y `localo`; apunta en el panel lo que haya cambiado (impresiones, indexación, posiciones) en 1-2 líneas. Los lunes:
 
 Informe semanal en `docs/geo/mediciones/AAAA-MM-DD.md`: `geo_datos.py gsc 7`, `ga4 7`, `bing`, `clarity 3`, `seranking`, `localo`, Metricool (visitas por fuente y página) y las preguntas de `docs/geo/prompts.md` con tu búsqueda web (vista de Claude). KPIs: share of voice, % con cita a la web, visitas y leads desde IA, posiciones; comparación con la semana anterior; dominios más citados; siguiente paso. Commit y push. Envía un aviso al móvil (PushNotification) con 5 líneas.
 
