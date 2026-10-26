@@ -17,7 +17,7 @@ Para que el agente Local pueda cambiar solo categorías, servicios, descripción
 | Email de contacto | equipo@pebaisystems.es |
 | Nombre de la empresa | PEBAI Systems |
 | Web de la empresa | https://pebaisystems.es |
-| Número de proyecto de Google Cloud | (el del paso 1) |
+| Número de proyecto de Google Cloud | `111080111944` (pebai-geo) |
 | ¿Gestionas tu propio negocio o el de otros? | Mi propio negocio |
 | Número de fichas | 1 |
 | Uso de la API (en inglés) | `We manage our own Business Profile (PEBAI Systems, a process and AI consultancy in Spain). We will use the API to keep the profile accurate and up to date: categories, services, description, opening hours, posts and photos, and to read and reply to customer reviews. Changes are made by our own internal tool for our single verified location only.` |
