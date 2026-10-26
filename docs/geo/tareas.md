@@ -33,8 +33,8 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 ## geo_medicion · Medición
 - [ ] 2026-10-23 · Desde el lunes, vigilar en Search Console que las URLs viejas que pasan a 301 (agente-de-ia-espana, auditoria-adopcion-…) traspasan impresiones a /agentes-ia/ y /ia-para-empresas/ · (Jefe)
 - [ ] 2026-10-22 · Search Console: 3 URLs enviadas, 0 indexadas. Vigilar a diario la indexación de /posicionamiento-en-ia/ y enviarla a Bing con `geo_datos.py bing-url` (Bing aún lee el sitemap viejo de 9 URLs) · (Jefe, datos 22/10)
-- [ ] 2026-10-22 · Mirar si el informe "AI Performance" de Bing Webmaster está disponible para pebaisystems.es; si lo está, añadirlo al informe del lunes (citas en Copilot) · (Vigía 22/10)
-- [ ] 2026-10-26 · Informe del lunes: repetir 3 veces las 5 preguntas sin marca más importantes (4, 5, 6, 7, 14) en Perplexity y AI Mode y anotar cuánto varía la respuesta · (Vigía 21/10: respuestas inestables)
+- [x] 2026-10-26 · (hecho: existe pero sin API, solo panel de Bing; pendiente de una persona) Mirar si el informe "AI Performance" de Bing Webmaster está disponible para pebaisystems.es; si lo está, añadirlo al informe del lunes (citas en Copilot) · (Vigía 22/10)
+- [x] 2026-10-26 · (hecho en parte: solo WebSearch, sin Perplexity ni AI Mode desde la nube) Informe del lunes: repetir 3 veces las 5 preguntas sin marca más importantes (4, 5, 6, 7, 14) en Perplexity y AI Mode y anotar cuánto varía la respuesta · (Vigía 21/10: respuestas inestables)
 
 ## geo_vigia · Vigía
 
