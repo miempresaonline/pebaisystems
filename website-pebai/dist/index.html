@@ -969,6 +969,79 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
 @media (max-width:420px){
   .hdr-right .btn-lime{display:none}
 }
+/* capa neo-futurista: fondo aurora, cristal líquido en las tarjetas y relieve tipo arcilla en botones e iconos */
+@property --spin{syntax:'<angle>';initial-value:0deg;inherits:false}
+:root,[data-theme="dark"]{
+  --lg-fill:rgba(26,22,50,.46);--lg-fill-2:rgba(44,38,84,.52);--lg-sheen:rgba(255,255,255,.10);
+  --lg-hi:rgba(255,255,255,.20);--lg-rim:rgba(255,255,255,.08);--lg-shadow:0 24px 60px -12px rgba(3,2,12,.6);
+  --clay-top:rgba(255,255,255,.10);--clay-bot:rgba(255,255,255,.03);
+  --clay-sh:inset 0 1px 1px rgba(255,255,255,.16),inset 0 -4px 10px rgba(0,0,0,.32),0 10px 20px -10px rgba(0,0,0,.6);
+  --au-1:rgba(106,92,255,.50);--au-2:rgba(183,255,60,.20);--au-3:rgba(56,214,255,.26);--au-4:rgba(255,79,216,.22);--grid:rgba(239,237,231,.05);
+}
+[data-theme="light"]{
+  --lg-fill:rgba(255,255,255,.52);--lg-fill-2:rgba(255,255,255,.72);--lg-sheen:rgba(255,255,255,.8);
+  --lg-hi:rgba(255,255,255,.95);--lg-rim:rgba(255,255,255,.65);--lg-shadow:0 22px 50px -16px rgba(60,48,140,.22);
+  --clay-top:rgba(255,255,255,.95);--clay-bot:rgba(234,231,244,.85);
+  --clay-sh:inset 0 1px 1px #fff,inset 0 -4px 10px rgba(80,66,170,.10),0 10px 20px -10px rgba(60,48,140,.30);
+  --au-1:rgba(106,92,255,.26);--au-2:rgba(183,255,60,.30);--au-3:rgba(56,214,255,.20);--au-4:rgba(255,79,216,.14);--grid:rgba(18,18,26,.05);
+}
+.page{isolation:isolate}
+.aurora{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.aurora i{position:absolute;width:70vmax;height:70vmax;border-radius:50%;will-change:transform}
+.aurora i:nth-child(1){left:-18vmax;top:-22vmax;background:radial-gradient(circle,var(--au-1),transparent 62%);animation:au1 34s ease-in-out infinite alternate}
+.aurora i:nth-child(2){right:-24vmax;top:6vmax;background:radial-gradient(circle,var(--au-3),transparent 60%);animation:au2 40s ease-in-out infinite alternate}
+.aurora i:nth-child(3){left:18vmax;bottom:-34vmax;background:radial-gradient(circle,var(--au-4),transparent 60%);animation:au3 46s ease-in-out infinite alternate}
+.aurora i:nth-child(4){right:6vmax;bottom:-20vmax;width:46vmax;height:46vmax;background:radial-gradient(circle,var(--au-2),transparent 62%);animation:au1 52s ease-in-out infinite alternate-reverse}
+.aurora::after{content:"";position:absolute;inset:0;background:linear-gradient(var(--grid) 1px,transparent 1px) 0 0/72px 72px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/72px 72px;-webkit-mask:radial-gradient(120% 80% at 50% 0%,#000,transparent 75%);mask:radial-gradient(120% 80% at 50% 0%,#000,transparent 75%)}
+@keyframes au1{to{transform:translate3d(18vmax,14vmax,0) scale(1.15)}}
+@keyframes au2{to{transform:translate3d(-20vmax,22vmax,0) scale(.9)}}
+@keyframes au3{to{transform:translate3d(-14vmax,-18vmax,0) scale(1.2)}}
+
+/* cristal líquido */
+.card,.widget,.tl-card,.final-card,.social:not(.go),.menu-card,.menu-contact a,.trust,.cx-panel,.cx-tabs > .cx-tab,.cx-group,.step,.dock,.logo,.round,.person .meta{
+  background:radial-gradient(120% 90% at 0% 0%,var(--lg-sheen),transparent 46%),linear-gradient(160deg,rgba(255,255,255,.04),transparent 40%),var(--lg-fill);
+  -webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);
+  border:0;box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 0 0 1px var(--lg-rim),inset 0 -24px 48px -36px rgba(255,255,255,.14),var(--lg-shadow)}
+.logo,.round,.person .meta,.dock{box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 0 0 1px var(--lg-rim),0 12px 30px -10px rgba(3,2,12,.45)}
+.card.alt,.social:not(.go):hover,.menu-contact a:hover,.cx-tabs > .cx-tab:hover,.cx-tabs > .cx-tab[aria-selected="true"]{background:radial-gradient(120% 90% at 0% 0%,var(--lg-sheen),transparent 50%),var(--lg-fill-2)}
+.step.featured{background:radial-gradient(120% 70% at 50% 0%,var(--feat),transparent 60%),radial-gradient(120% 90% at 0% 0%,var(--lg-sheen),transparent 46%),var(--lg-fill);box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 0 0 1px var(--feat-line),var(--lg-shadow)}
+.marquee{background:var(--lg-fill);-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);border:0;box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 -1px 0 var(--lg-rim)}
+.big-stat{background:radial-gradient(120% 120% at 0% 0%,rgba(255,255,255,.14),transparent 50%),linear-gradient(100deg,rgba(106,92,255,.5),rgba(56,214,255,.14) 70%,rgba(255,79,216,.12));box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 0 0 1px var(--lg-rim),0 20px 50px -18px rgba(106,92,255,.6)}
+
+/* aro de luz que gira en las tarjetas clave */
+.widget{position:relative}
+.widget::after,.final-card::after,.cx-panel::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--spin),transparent 0 58%,rgba(183,255,60,.85) 70%,rgba(106,92,255,.95) 80%,rgba(56,214,255,.7) 88%,transparent 96%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;animation:rim 9s linear infinite}
+.cx-panel{position:relative}
+@keyframes rim{to{--spin:360deg}}
+
+/* arcilla: piezas interiores con relieve */
+.kpis div,.chips span,.cx-steps div,.cx-meta span,.cx-k-n,.cx-group .cx-tab:hover,.cx-group .cx-tab[aria-selected="true"],.arrow,.ico-tile.dim,.menu-social a,.cx-plus,.dock-x{background:linear-gradient(180deg,var(--clay-top),var(--clay-bot));box-shadow:var(--clay-sh);border:0}
+.ico-tile:not(.dim),.ico,.step .price{background:radial-gradient(circle at 30% 22%,rgba(255,255,255,.7),transparent 42%),linear-gradient(160deg,#D2FF78,#9BE81F);box-shadow:inset 0 2px 2px rgba(255,255,255,.6),inset 0 -5px 10px rgba(60,110,0,.4),0 12px 24px -8px rgba(183,255,60,.55)}
+.tl-node{background:radial-gradient(circle at 32% 25%,rgba(255,255,255,.3),transparent 50%),var(--bg);box-shadow:inset 0 -6px 12px rgba(0,0,0,.35),0 0 0 6px rgba(183,255,60,.08),0 0 30px rgba(183,255,60,.3)}
+.tl:last-child .tl-node{background:radial-gradient(circle at 32% 25%,rgba(255,255,255,.75),transparent 45%),linear-gradient(160deg,#D2FF78,#9BE81F);box-shadow:inset 0 -6px 12px rgba(60,110,0,.45),0 0 34px rgba(183,255,60,.5)}
+
+/* botones de arcilla */
+.btn-lime,.social.go{background:radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,.34),transparent 50%),linear-gradient(180deg,#8D82FF,#6A5CFF 55%,#5242E6);box-shadow:inset 0 2px 2px rgba(255,255,255,.45),inset 0 -6px 14px rgba(30,14,130,.5),0 16px 30px -10px rgba(106,92,255,.75),0 4px 10px rgba(0,0,0,.25)}
+.btn-lime:hover,.social.go:hover{background:radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,.42),transparent 50%),linear-gradient(180deg,#9A90FF,#7468FF 55%,#5A4BEE);transform:translateY(-2px)}
+.btn-lime:active{transform:translateY(1px);box-shadow:inset 0 2px 2px rgba(255,255,255,.35),inset 0 -3px 8px rgba(30,14,130,.5),0 6px 14px -6px rgba(106,92,255,.7)}
+.btn-light{background:linear-gradient(180deg,#FFFFFF,#D4D0E0);box-shadow:inset 0 2px 1px #fff,inset 0 -4px 10px rgba(60,48,140,.18),0 12px 24px -10px rgba(0,0,0,.55);transition:transform .2s ease,box-shadow .2s ease}
+.btn-light:hover{background:linear-gradient(180deg,#FFFFFF,#E4E0F0);transform:translateY(-2px)}
+[data-theme="light"] .btn-light{background:linear-gradient(180deg,#34315A,#12121A);box-shadow:inset 0 2px 1px rgba(255,255,255,.2),inset 0 -4px 10px rgba(0,0,0,.4),0 12px 24px -10px rgba(18,18,26,.5)}
+[data-theme="light"] .btn-light:hover{background:linear-gradient(180deg,#3E3A6A,#1C1B2A)}
+
+/* brillo neo-futurista */
+[data-theme="dark"] .h1 em,[data-theme="dark"] .h2 em{text-shadow:0 0 34px rgba(183,255,60,.35)}
+.step .num{background:linear-gradient(180deg,var(--fg-10),transparent 80%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.player{box-shadow:0 40px 90px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.1),0 0 80px -10px rgba(106,92,255,.55)}
+
+@media (max-width:820px){
+  .card,.widget,.tl-card,.final-card,.social:not(.go),.menu-card,.menu-contact a,.trust,.cx-panel,.cx-tabs > .cx-tab,.cx-group,.step,.dock,.marquee{-webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%)}
+  .aurora i{animation:none}
+  .aurora::after{background-size:48px 48px,48px 48px}
+}
+@media (prefers-reduced-motion:reduce){
+  .aurora i,.widget::after,.final-card::after,.cx-panel::after{animation:none}
+}
 </style>
 <!-- Metricool: medición de audiencia sin cookies (exenta de consentimiento, ver /politica-de-cookies/) -->
 <script>function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"1f93f597864f09fbd98fe7aaf3444936"})});</script>
@@ -1032,6 +1105,7 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
 </aside>
 
 <div class="page">
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <main id="contenido">
 
 <!-- HERO -->
