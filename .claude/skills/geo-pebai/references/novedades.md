@@ -2,6 +2,15 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-26 (tarde: mercado español y competencia)
+
+1. **Javadex presume de 28,5 % de cuota de voz en IAs y 2.200 citas en Copilot, con datos propios** [S]. Upliora (mismo fundador, lo declara) publica la guía "GEO para empresas" con Javadex como caso (0 % a 28,5 % en 12 meses, agosto 2026) y Javadex un caso práctico de 2.200+ citas en Copilot/Bing (dic 2025 a feb 2026) y 240+ posts GEO en cinco meses. Fuentes: https://www.upliora.es/blog/geo-empresas-aparecer-chatgpt-claude-perplexity-2026 y https://www.javadex.es/blog/caso-practico-geo-javadex-upliora-2200-citaciones-llm-estrategia-2026 (consultadas 26/10/2026). Cifras autoinformadas, sin metodología verificable.
+   *Qué cambia para PEBAI:* hoy el dato nuestro es 0 de 6; no se compite en volumen (240 posts). Sí se puede competir en transparencia: publicar cómo medimos (repetir cada pregunta, por motor) cuando haya una semana con PEBAI citada. No citar sus cifras en la web.
+2. **Upliora ya tiene comparativa de "agencias de agentes de IA y automatización"** con Javadex primero (desde 5.000 € + IVA, primer agente en 2-4 semanas, conecta WhatsApp Business, ERP y CRM) [S]. Fuente: https://www.upliora.es/blog/mejores-agencias-agentes-ia-automatizacion-espana (26/10/2026). *Para PEBAI:* confirma que P6/P10 (agentes de WhatsApp) se disputan con rankings propios; el subpilar de WhatsApp con caso real (Fran García Cars) y la sección de integración con CRM/agenda es el contrapeso. Sin precios en nuestras páginas.
+3. Rankings GEO por ciudad de Upliora (Valencia y otras) presentan a Javadex como número 1 nacional [S]. Refuerza dejar Valencia en espera de Daniel hasta tener casos locales reales.
+
+Comprobación técnica 17:00 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-26 (mediodía: estudios y casos)
 
 Sin estudios independientes nuevos de Ahrefs, Semrush o SE Ranking del 24-26/10: solo salen comparativas de herramientas de proveedores (marzo 2026 o sin fecha). Descartado.
