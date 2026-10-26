@@ -14,6 +14,8 @@ SERIES="solar climatizacion formacion"
 [ -n "$1" ] && [ "$1" != energia ] && SERIES="$1"
 mkdir -p "$HOME/scratch/prospeccion"
 for NICHO in $SERIES; do
+  # Una serie que dio una vuelta entera a España casi sin nada nuevo se para sola (la crea tanda.py); quitar el archivo para reanudar
+  [ -f "$HOME/prospeccion/PAUSA_$NICHO" ] && continue
   LOCK=/tmp/pebai-prospeccion.lock
   [ "$NICHO" != solar ] && LOCK=/tmp/pebai-prospeccion-$NICHO.lock
   # Se lanza aparte (setsid): el cron de hPanel corta sus tareas a los 30 min y una provincia grande tarda más.

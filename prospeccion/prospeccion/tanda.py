@@ -548,12 +548,27 @@ def cuenta_email(nicho: str) -> int:
     return int((r.stdout or '0').strip() or 0)
 
 
+MIN_NUEVAS_VUELTA = 5   # una vuelta entera con menos empresas nuevas que esto para la serie (ver main)
+
+
+def entregadas_vuelta(nicho: str) -> int:
+    """Empresas nuevas entregadas en toda la vuelta: filas de los CSV principales de cada provincia (las que ya estaban en el panel no llegan)."""
+    n = 0
+    for f in _carpeta(nicho).glob(f'{nicho}_*.csv'):
+        if f.stem.endswith(('_whatsapp', '_email', '_solo_email', '_llamadas')):
+            continue
+        with f.open(encoding='utf-8') as fh:
+            n += max(0, sum(1 for _ in fh) - 1)
+    return n
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('nicho', choices=[*NICHOS, *SERIES])
     ap.add_argument('--provincias', nargs='*')
     ap.add_argument('--unir', action='store_true')
     a = ap.parse_args()
+    serie = None
     if a.nicho in SERIES:
         serie = a.nicho
         a.nicho = pasada(serie)
@@ -598,6 +613,15 @@ def main():
                 carpeta.mkdir(parents=True, exist_ok=True)
                 (carpeta / 'fallos.json').write_text(json.dumps(fallos, ensure_ascii=False), encoding='utf-8')
         print(f'\n{hechas} de {len(lista)} provincias procesadas')
+        # Vuelta completa a España casi sin nada nuevo: esta serie se para sola (no gasta horas buscando lo que ya está)
+        if serie and not a.provincias and not pendientes_de(a.nicho, ORDEN):
+            n = entregadas_vuelta(a.nicho)
+            print(f'  vuelta {a.nicho} terminada: {n} empresas nuevas')
+            if n < MIN_NUEVAS_VUELTA:
+                (Path.home() / 'prospeccion' / f'PAUSA_{serie}').touch()
+                apunta(f'Parado solo: una vuelta entera por España ({a.nicho}) con solo {n} empresas nuevas',
+                       f'Por debajo de {MIN_NUEVAS_VUELTA} nuevas en toda la vuelta, seguir buscando no compensa. Para reanudar esta serie, '
+                       f'borrar ~/prospeccion/PAUSA_{serie} en el servidor (o pedirlo en el chat).', f'{serie}_agotado', tipo='espera')
     unir(a.nicho)
 
 

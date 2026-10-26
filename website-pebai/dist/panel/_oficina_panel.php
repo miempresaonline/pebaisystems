@@ -266,7 +266,7 @@ function of_scraper(): array
     $callado = !$reciente && !$parado && $ult && strtotime($ult['ts']) < time() - 12 * 3600;
     $a['st'] = $a['errores'] || $callado ? 'error' : ($reciente ? 'trabajando' : ($parado ? 'pausado' : 'dormido'));
     $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
-        : ($reciente ? ($buscando ? $ult['txt'] . '.' : 'Está buscando empresas ahora mismo.') : ($parado ? $ult['txt'] . ' (desde ' . of_hace($ult['ts']) . ').' : 'Corre en el servidor y recorre España sin parar buscando instaladoras de placas solares.'));
+        : ($reciente ? ($buscando ? $ult['txt'] . '.' : 'Está buscando empresas ahora mismo.') . ' Hoy lleva ' . $ent . ($ent === 1 ? ' empresa nueva' : ' empresas nuevas') . ($ent ? '.' : ': España está casi recorrida; si una vuelta entera no saca nada, se para solo.') : ($parado ? $ult['txt'] . ' (desde ' . of_hace($ult['ts']) . ').' : 'Corre en el servidor y recorre España sin parar buscando instaladoras de placas solares.'));
     if ($callado && !$a['errores']) {
         $a['motivo'] = 'No da señales desde ' . of_hace($ult['ts']) . ' y no está en pausa. El proceso del servidor puede haberse parado.';
         $a['necesita'][] = 'Revisar el scraper en el servidor: no da señales';
