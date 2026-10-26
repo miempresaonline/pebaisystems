@@ -39,6 +39,8 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 - [x] 2026-10-22 · Guardar las propuestas de imagen y los borradores de LinkedIn en `docs/geo/borradores/` (commit) para que Daniel las vea; scratch/ se pierde en la nube · (Jefe) · hecho 22/10: imágenes en borradores/imagenes, LinkedIn en borradores/linkedin, post GBP 28/10 en borradores/gbp/2026-10-28
 - [x] 2026-10-21 · Preparar propuestas de imagen con logos de las IAs (ChatGPT, Claude, Gemini, Perplexity), poco texto y composición variada, para que Daniel las apruebe · (Daniel) · hecho 22/10: plantilla `d-ias` (layouts orbita, pregunta, mosaico, foco), muestras en `docs/geo/borradores/imagenes/d-*.png`; aprobadas por Daniel el 22/10
 
+- [ ] 2026-10-26 · Jueves 5/11: programar el caso El Amparo (borrador en `docs/geo/borradores/linkedin/2026-10-26-caso-el-amparo.md`) en cuanto exista su imagen difuminada JPG en `casos/img/`; si no existe el 4/11, publicar en su lugar una pregunta real de un dueño con su respuesta · (Redes 26/10)
+
 ## geo_medicion · Medición
 - [ ] 2026-10-26 · Reenviar a Bing el sitemap vivo (Bing sigue con el de 9 URLs, 21/10) y `geo_datos.py bing-url` de /agentes-ia/, /ia-para-empresas/, /posicionamiento-en-ia/ y, cuando se publique hoy, /automatizacion-de-procesos/. Apuntar el resultado · (informe 26/10)
 - [ ] 2026-10-26 · En los chequeos de la tarde, separar por motor lo que se pueda medir desde la nube y decirlo en el informe («solo WebSearch»); lo de Perplexity y AI Mode queda para una medición manual de Daniel una vez al mes · (Vigía 24/10)
