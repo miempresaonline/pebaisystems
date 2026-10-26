@@ -87,12 +87,12 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 
 (La reescribe el Jefe GEO los lunes y jueves.)
 
-Viernes 23/10 (Jefe):
-1. Contenido: publicar hoy /ia-para-empresas/ con el bloque «cómo elegir consultora» y un caso real, y sus 301. Es lo que más mueve el 0 % de presencia sin marca. (geo_contenido)
-2. Refresco: 301 de las URLs viejas a /agentes-ia/ y /posicionamiento-en-ia/ (Google aún da impresiones y clics a agente-de-ia-espana y hoy acaban en la portada) y dato INE 1T 2026 en /agentes-ia/. (geo_refresco)
-3. Medición: indexación (Search Console 0 de 4 URLs del sitemap; Bing sigue con el sitemap viejo de 9) y AI Performance de Bing. (geo_medicion)
-4. Redes y Local: post de Google Business del 28/10 listo (imagen d-ias) y tareas de Localo. (geo_redes, geo_local)
-5. Daniel: frases y permisos de los casos, portada con el dato INE nuevo, decidir Clutch/Sortlist.
+Lunes 26/10 (Jefe). Cifra clave: 0 de 6 preguntas con PEBAI, 0 visitas desde IA, y Google aún sin confirmar la indexación de los pilares. Esta semana toca existir: más páginas útiles, indexadas y con caso real.
+1. Contenido: publicar hoy /automatizacion-de-procesos/ con sus 301; después, borrador del subpilar de agentes de WhatsApp con el caso Fran García Cars (P6, P10). (geo_contenido)
+2. Refresco: pulir los 3 pilares publicados (resumen de 5 viñetas, fuentes con fecha, bloque «cómo elegir quién implanta tu agente de WhatsApp», la falta de voz de /ia-para-empresas/). (geo_refresco)
+3. Medición: indexación en Google y Bing (sitemap vivo a Bing, bing-url de los pilares) y ver si los 301 traspasan impresiones. (geo_medicion)
+4. Redes y Local: LinkedIn de casos corregidos y en Metricool como borrador (atrasado desde el viernes); post de Google del 28/10 y 3 fotos de casos ya programados, seguir con Localo. (geo_redes, geo_local)
+5. Daniel: crear Clutch, Sortlist, agentes.ai y mejores-agencias.com (lo que más puede mover P4, P5 y P14), «Inspección de URL» en Search Console, frases y permisos de los casos, y qué casos son de Valencia.
 
 ## Propuestas del Vigía
 

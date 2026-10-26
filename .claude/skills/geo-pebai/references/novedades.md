@@ -130,16 +130,5 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 ## Para el Jefe
 
-- **Contenido/Medición:** crear `/glosario-ia/` (o glosario GEO y agentes de IA, 15-20 términos con definición de 40 palabras) y publicar la medición semanal con método y fecha como dato propio citable; es lo que diferencia a Elevam (23/10, Vigía).
-- **Contenido:** añadir a `pilares.md` un satélite «cómo elegir consultora de IA» ya está en /ia-para-empresas/; falta una comparativa honesta GEO propia frente a rankings de agencias (sin nombres ni precios).
-(Repartido por el Jefe el 23/10 tarde: página de Valencia a Contenido como borrador de /ia-para-empresas/valencia/ después de /automatizacion-de-procesos/, publicación con Daniel.)
-(Repartido por el Jefe el 23/10 mañana: bloque «cómo elegir consultora» a Contenido en /ia-para-empresas/; Clutch/Sortlist a «Para Daniel».)
-(Repartido por el Jefe el 22/10 mañana: Bing AI Performance, repetir preguntas y página /agentes-ia/ pasan al tablón. Versión en inglés: descartada por ahora, primero los pilares en español. Nota de prensa: se aparca hasta tener un dato propio o un caso real que contar.)
-- **Medición (24/10, Vigía):** Bing AI Performance existe pero sin API: mirarlo a mano en Bing Webmaster y anotar citas por página en el informe del lunes; si no hay acceso, pasa a «Para Daniel».
-- **Contenido (24/10, Vigía):** tras /automatizacion-de-procesos/, priorizar el subpilar de agentes de WhatsApp para pymes de servicios con el caso real de Fran García Cars: P6 y P10 las ocupan blogs de herramientas y Aunoa, sin caso español.
-- **Medición (24/10, Vigía):** en el informe del lunes separar los resultados por motor; el tracker de Cloro muestra que ChatGPT (39 fuentes) y AI Mode (5,5) se comportan de forma muy distinta.
-- **Contenido/Refresco (24/10 tarde, Vigía):** añadir a cada página publicada un bloque de 5 viñetas de resumen, "fuentes comprobadas el <fecha>" y "próxima revisión"; el patrón de Upliora, aplicado con nuestros casos reales.
-- **Contenido (25/10, Vigía):** tras los pilares, una página «de qué depende el coste de implantar IA en una pyme» (sin cifras, con factores, fases y subvenciones): P8 la ocupan Javadex y Upliora con precios y no hay respuesta honesta alternativa.
-- **Contenido (25/10 mediodía, Vigía):** en el borrador de `/ia-para-empresas/valencia/` no copiar el patrón de Upliora (páginas por tema casi idénticas): una sola página local con prueba real, y preguntar a Daniel qué casos de `casos.md` son de la zona.
-- **Contenido (25/10 tarde, Vigía):** en /agentes-ia/ añadir un bloque «cómo elegir quién implanta tu agente de WhatsApp» (casos verificables, mantenimiento, medición, sin precios por horas ni ranking propio), con el caso real de Fran García Cars; el patrón de criterios de Upliora, hecho honesto.
-- **Contenido (26/10, Vigía):** P13 (presupuestos con IA) solo la ocupan proveedores de software: preparar un satélite «cómo responder presupuestos más rápido con IA en una pyme de servicios» con un caso real de `casos.md` (Gargom o Santacruz, sin inventar cifras).
+(Repartido por el Jefe el 26/10 mañana: subpilar de WhatsApp, página de coste (P8) y satélite de presupuestos (P13) a Contenido, en ese orden; resumen de 5 viñetas y «fuentes comprobadas / próxima revisión», y bloque «cómo elegir quién implanta tu agente de WhatsApp» a Refresco; separar por motor a Medición (solo lo medible desde la nube); Valencia, en espera de Daniel. Aparcados: glosario y publicar la medición como dato propio (se retoman cuando haya una semana con PEBAI citada; hoy el dato es 0 de 6), y comparativa GEO frente a rankings (tras los pilares).)
+(Repartido antes: ver `git log` de este archivo.)
