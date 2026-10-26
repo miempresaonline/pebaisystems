@@ -94,6 +94,8 @@ Lunes 26/10 (Jefe). Cifra clave: 0 de 6 preguntas con PEBAI, 0 visitas desde IA,
 4. Redes y Local: LinkedIn de casos corregidos y en Metricool como borrador (atrasado desde el viernes); post de Google del 28/10 y 3 fotos de casos ya programados, seguir con Localo. (geo_redes, geo_local)
 5. Daniel: crear Clutch, Sortlist, agentes.ai y mejores-agencias.com (lo que más puede mover P4, P5 y P14), «Inspección de URL» en Search Console, frases y permisos de los casos, y qué casos son de Valencia.
 
+Lunes 26/10 tarde (Jefe): hecho lo de 1, 2 (falta el resumen de /ia-para-empresas/), 3 (sitemap vivo en Bing) y 4. Google ya indexa 5 de 6 URLs, incluida /automatizacion-de-procesos/ el mismo día; solo falta /posicionamiento-en-ia/. Martes: publicar /agentes-ia/whatsapp/ con su 301 y empujar la indexación de /posicionamiento-en-ia/. A Daniel solo le queda «Solicitar indexación» de esa página.
+
 ## Propuestas del Vigía
 
 (El Vigía añade aquí lo que cambie el plan; el Jefe las resuelve.)
