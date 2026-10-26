@@ -1,7 +1,7 @@
-# Borrador LinkedIn · Caso Fran García Cars (sin programar)
+# LinkedIn · Caso Fran García Cars (programado)
 
 Página de LinkedIn de PEBAI. Imagen: https://pebaisystems.es/casos/img/fran-garcia-app.jpg (captura difuminada del panel de la app)
-Datos: `docs/geo/borradores/casos.md` §1 (panel de la app, año 2026, captura del 22/10/2026). Programar solo con el OK de Daniel.
+Datos: `docs/geo/borradores/casos.md` §1 (panel de la app, año 2026, captura del 22/10/2026). Programado en Metricool el 26/10 (martes 27/10, 17:00), sin esperar OK por la decisión de Daniel del 26/10.
 
 ---
 
@@ -20,4 +20,4 @@ Hoy es una de sus herramientas principales de trabajo y la usan a diario. Seguim
 
 Si en tu negocio todavía se trabaja con mensajes y hojas sueltas, cuéntanos cómo lo hacéis y vemos si tiene arreglo.
 
-Más casos: https://pebaisystems.es/agentes-ia/
+Caso con las cifras completas: https://pebaisystems.es/ia-para-empresas/?utm_source=linkedin&utm_medium=empresa

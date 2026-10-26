@@ -1,7 +1,7 @@
-# Borrador LinkedIn · Caso Construcciones Gargom (sin programar)
+# LinkedIn · Caso Construcciones Gargom (programado)
 
 Página de LinkedIn de PEBAI. Imagen: https://pebaisystems.es/casos/img/gargom-app.jpg (captura difuminada)
-Datos: `docs/geo/borradores/casos.md` §2. Sin cifras (las del panel son confidenciales). Programar solo con el OK de Daniel.
+Datos: `docs/geo/borradores/casos.md` §2. Sin cifras (las del panel son confidenciales). Programado en Metricool el 26/10 (jueves 29/10, 17:00), sin esperar OK por la decisión de Daniel del 26/10.
 
 ---
 
@@ -9,8 +9,8 @@ Construcciones Gargom llevaba sus obras con un programa antiguo que les limitaba
 
 Les hicimos una aplicación a su manera para gestionar las obras: presupuestos, certificaciones, gastos por tipo, pagos, personal y proveedores. Y, lo que más pesa en una constructora, la rentabilidad de cada obra.
 
-Ahora toda la información de la empresa está en un solo sitio y cada pantalla responde a cómo trabajan ellos, no al revés.
+Ahora toda la información de la empresa está en un solo sitio y cada pantalla responde a cómo trabajan ellos.
 
 Si tu empresa se adapta a un programa en lugar de que el programa se adapte a ti, escríbenos y lo miramos.
 
-https://pebaisystems.es/consultoria-gratuita/
+https://pebaisystems.es/li/empresa
