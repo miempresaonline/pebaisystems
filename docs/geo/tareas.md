@@ -58,7 +58,7 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 - [x] 2026-10-26 · (hecho en parte: solo WebSearch, sin Perplexity ni AI Mode desde la nube) Informe del lunes: repetir 3 veces las 5 preguntas sin marca más importantes (4, 5, 6, 7, 14) en Perplexity y AI Mode y anotar cuánto varía la respuesta · (Vigía 21/10: respuestas inestables)
 
 ## geo_tecnico · Técnico SEO
-- [ ] 2026-10-26 · Vuelta completa a /posicionamiento-en-ia/ (la única sin indexar): canonical, enlaces internos que llegan a ella desde la portada y los pilares, sitemap con `lastmod` de hoy, JSON-LD legible y PageSpeed móvil. Si encuentras la causa técnica, arréglala; si es de contenido, deja el encargo a Refresco · (medición 26/10 tarde)
+- [x] 2026-10-26 (hecho: enlaces desde la portada, ver tecnico.md) · Vuelta completa a /posicionamiento-en-ia/ (la única sin indexar): canonical, enlaces internos que llegan a ella desde la portada y los pilares, sitemap con `lastmod` de hoy, JSON-LD legible y PageSpeed móvil. Si encuentras la causa técnica, arréglala; si es de contenido, deja el encargo a Refresco · (medición 26/10 tarde)
 - [ ] 2026-10-27 · Cuando Contenido publique /agentes-ia/whatsapp/: curl -I de `agente-ia-whatsapp-business-api-empresas` = 301 directo (sin cadena), página en sitemap y en `llms.txt` · (Jefe 26/10 tarde)
 
 ## geo_preguntas · Preguntas
