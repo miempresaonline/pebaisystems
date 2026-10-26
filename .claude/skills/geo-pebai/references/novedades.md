@@ -2,6 +2,18 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-26 (20:00: mercado español, mejora continua b)
+
+Sin novedades fechadas de las últimas 48 h en buscadores ni IAs (la búsqueda solo devuelve material de 2025 o sin fecha). Descartado.
+**Análisis de una página que citan las IAs: Upliora, «Mejores agencias GEO por ciudad» (30/08/2026)** [V]. Fuente: https://www.upliora.es/blog/mejores-agencias-geo-espana-por-ciudad-2026-ranking (consultada 26/10/2026). Qué tiene que nosotros no, en 3 puntos:
+1. **Cifra con método a la vista**: «28,5 % de cuota de voz, posición media de cita 1,4, panel de 110 prompts, Q2 2026», repetida en el TL;DR, en el cuerpo y en el pie de gráfico. Es autoinformada (el ranking lo publica Upliora, que comparte fundador con Javadex), pero un modelo la extrae sin esfuerzo porque está en una frase corta con número, panel y fecha.
+2. **Una página por cada consulta de ciudad** («generative engine optimization Tenerife», Huesca, Murcia…) con tabla de 3 filas (especialista, base, enfoque, tarifa) y un argumento fijo: «los LLM no saben dónde trabaja el consultor, no hay ventaja de proximidad». Cubre cola larga que nosotros no tocamos.
+3. **Posicionamiento «diagnóstico honesto»**: «si tu categoría no genera consulta, te lo dice y no te vende proyecto». Es la misma promesa que nuestra consultoría de 25 min, pero ellos la dicen en el titular de cada ciudad.
+*Qué cambia para PEBAI:* no copiar (rankings propios y precios están descartados por regla). Sí: (a) cuando haya una semana con PEBAI citada, publicar nuestro número con la misma estructura corta (n.º de preguntas, motores, fechas, cuántas veces salimos), y mientras sea 0, decir con transparencia cómo se mide; (b) la frase «las IAs no distinguen dónde estás, leen tus señales» es citable y encaja en /posicionamiento-en-ia/ con fuente propia, sin su ranking.
+Intento de leer el ranking de Marketing Directo con «baselines en 4llms» (https://www.marketingdirecto.com/imprescindibles/imprescindibles-digital/las-10-mejores-agencias-geo-de-espana-en-2026-primer-ranking-con-baselines-en-4llms): la lectura automática devolvió vacío; pendiente de abrir otro turno [H, sin verificar].
+
+Comprobación técnica 19:05 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-26 (tarde: mercado español y competencia)
 
 1. **Javadex presume de 28,5 % de cuota de voz en IAs y 2.200 citas en Copilot, con datos propios** [S]. Upliora (mismo fundador, lo declara) publica la guía "GEO para empresas" con Javadex como caso (0 % a 28,5 % en 12 meses, agosto 2026) y Javadex un caso práctico de 2.200+ citas en Copilot/Bing (dic 2025 a feb 2026) y 240+ posts GEO en cinco meses. Fuentes: https://www.upliora.es/blog/geo-empresas-aparecer-chatgpt-claude-perplexity-2026 y https://www.javadex.es/blog/caso-practico-geo-javadex-upliora-2200-citaciones-llm-estrategia-2026 (consultadas 26/10/2026). Cifras autoinformadas, sin metodología verificable.
@@ -147,6 +159,8 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 3. **Competencia: javadex.es** [V]. Su web vende un sistema de IA desde 5.000 € (4-8 semanas) con GEO como un servicio más entre seis; sin páginas GEO propias visibles. Fuente: https://javadex.es (consultada 21/10/2026). *Para PEBAI:* hueco para páginas GEO dedicadas y citables.
 
 ## Para el Jefe
+
+- (Vigía 26/10 20:00) **Refresco/Contenido:** en /posicionamiento-en-ia/ añadir una frase corta y citable (con fuente propia, sin citar a Upliora) del tipo «las IAs no distinguen dónde está tu consultora, leen las señales que construye tu web»; y preparar, para cuando haya medición con PEBAI citada, una sección «cómo medimos» con panel, motores y fechas. **Medición:** ese formato de cifra (n.º de preguntas, motores, fechas, veces citados) es el que hay que usar en el informe del lunes. Análisis en la entrada de arriba del 26/10 20:00.
 
 (Repartido por el Jefe el 26/10 mañana: subpilar de WhatsApp, página de coste (P8) y satélite de presupuestos (P13) a Contenido, en ese orden; resumen de 5 viñetas y «fuentes comprobadas / próxima revisión», y bloque «cómo elegir quién implanta tu agente de WhatsApp» a Refresco; separar por motor a Medición (solo lo medible desde la nube); Valencia, en espera de Daniel. Aparcados: glosario y publicar la medición como dato propio (se retoman cuando haya una semana con PEBAI citada; hoy el dato es 0 de 6), y comparativa GEO frente a rankings (tras los pilares).)
 (Repartido antes: ver `git log` de este archivo.)
