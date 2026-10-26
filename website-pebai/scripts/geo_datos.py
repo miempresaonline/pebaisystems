@@ -22,6 +22,7 @@ Cambios aprobados (docs/geo/aprobaciones.md):
   localo-proteccion     activa la protección de la ficha (aviso de cambios en Google) [ENABLE_PROTECTION]
   localo-lander <sub>   crea la web de Localo de la ficha con ese subdominio [ADD_LANDER_SITE]
   localo-refrescar      vuelve a medir las posiciones de las palabras clave en Google Maps
+  localo-cita <dominio> <url>  marca en Localo una cita que ya existe (p. ej. facebook.com y la URL de la página de PEBAI) [ADD_CITATION]
 """
 import base64
 import datetime as dt
@@ -201,6 +202,13 @@ def localo_refrescar():
     return out
 
 
+def localo_cita(dominio, url):
+    if not url.startswith('https://'):
+        sys.exit(json.dumps({'ok': False, 'error': 'la URL tiene que empezar por https://'}))
+    q = 'mutation($p: GUID!, $d: String!, $u: [String!]){ createNewPlaceCitation(placeId:$p, rootDomain:$d, status: ACTIVE, canBeLinked: true, linksToTarget:$u){ __typename } }'
+    return localo(q, {'p': LOCALO_PLACE, 'd': dominio, 'u': [url]}, mutation=True)
+
+
 def gsc_sitemap():
     h = google_token('https://www.googleapis.com/auth/webmasters')
     s = urllib.parse.quote(SITE, safe='')
@@ -273,6 +281,7 @@ if __name__ == '__main__':
         'localo-proteccion': localo_proteccion,
         'localo-lander': lambda: localo_lander(args[0] if args else ''),
         'localo-refrescar': localo_refrescar,
+        'localo-cita': lambda: localo_cita(args[0], args[1]),
     }
     if cmd not in acciones:
         sys.exit(__doc__)
