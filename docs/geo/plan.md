@@ -40,7 +40,7 @@ Estado: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · 🔑 necesita al equ
 
 - [ ] 🔑 Sesión de pilares con `seo-pillar-discovery` → `docs/geo/pilares.md`.
 - [ ] Páginas por sector como verticales de los pilares (construcción y reformas, clínicas, instalaciones —incluidas placas solares—, talleres, inmobiliarias…), empezando por las que traigan más demanda según Search Console y SE Ranking.
-- [~] Una página por servicio (GEO, chatbots/agentes de WhatsApp, automatización, apps) y que los "Saber más" lleven a ellas. Publicadas: `/posicionamiento-en-ia/` (21/10), `/agentes-ia/` (22/10, con WhatsApp como bloque principal), `/ia-para-empresas/` (23/10, con «cómo elegir consultora», el caso de Fran García Cars y 301 de 5 landings viejas). Falta `/automatizacion-de-procesos/`.
+- [~] Una página por servicio (GEO, chatbots/agentes de WhatsApp, automatización, apps) y que los "Saber más" lleven a ellas. Publicadas: `/posicionamiento-en-ia/` (21/10), `/agentes-ia/` (22/10, con WhatsApp como bloque principal), `/ia-para-empresas/` (23/10, con «cómo elegir consultora», el caso de Fran García Cars y 301 de 5 landings viejas), `/automatizacion-de-procesos/` (26/10, con los casos Gargom, Santacruz y Fran García Cars, factura electrónica y VeriFactu, y 301 de 17 landings viejas). Pilares hechos; siguen subpilares y verticales.
 - [ ] 2 comparativas honestas con tabla y veredicto (p. ej. "chatbot vs. agente de WhatsApp para instaladoras"; "cómo elegir consultora de IA en España").
 - [ ] 🔑 Casos reales con cifras (solo con permiso del cliente) y un dato propio publicable (mini-estudio propio (p. ej. tiempo de respuesta a leads en pymes)).
 - [ ] Refresco mensual de pilares (dato nuevo + fecha).
