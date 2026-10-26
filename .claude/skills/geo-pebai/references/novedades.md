@@ -2,6 +2,16 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-26 (mañana: buscadores e IAs)
+
+Sin anuncios útiles en las últimas 48 h de OpenAI, Google, Perplexity, Microsoft, Brave ni Anthropic (la búsqueda solo devuelve material de enero a agosto 2026 o comparativas sin fecha). Descartado.
+
+**Mejora continua (a): P5 y P13 hoy** [V]
+- **P5 «Mejores consultoras de IA para pymes en España»:** salen Javadex (2 rankings propios, primero en ambos), Upliora (comparativa y rankings freelance, con Javadex #1) y fichas de Upliora por ciudad (Madrid, Barcelona, Zaragoza); también PwC, Minsait, IBM, Telefónica Tech y Capgemini como grandes. PEBAI no sale. Fuentes: https://www.javadex.es/blog/mejores-consultoras-inteligencia-artificial-espana-2026-ranking-medianas-empresas , https://www.upliora.es/comparativas/mejores-consultores-ia-espana-2026 (26/10/2026). El buscador ya advierte que son rankings no independientes.
+- **P13 «Responder más rápido a presupuestos con IA»:** solo salen proveedores de software (Gelato, Beam.ai, Salesforce, eplaneai) con cifras propias sin verificar; ninguna consultora española ni caso de pyme de servicios. Fuente: https://www.gelato.com/es/connect/article/software-presupuestos-impresion-ia-2026 (26/10/2026). *Qué cambia para PEBAI:* hueco real en presupuestos con IA para pymes de servicios (reformas, instalaciones); un caso con Gargom o Santacruz de `casos.md`, con datos reales, sería la única respuesta en español con prueba.
+
+Comprobación técnica 07:15 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-25 (tarde: mercado español y competencia)
 
 Sin anuncios nuevos en las últimas 48 h en el mercado español: las búsquedas de rankings y agentes de WhatsApp para pymes solo devuelven lo ya anotado (Marketing Directo, Javadex, Upliora, Geotoolbox). Descartado.
@@ -132,3 +142,4 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 - **Contenido (25/10, Vigía):** tras los pilares, una página «de qué depende el coste de implantar IA en una pyme» (sin cifras, con factores, fases y subvenciones): P8 la ocupan Javadex y Upliora con precios y no hay respuesta honesta alternativa.
 - **Contenido (25/10 mediodía, Vigía):** en el borrador de `/ia-para-empresas/valencia/` no copiar el patrón de Upliora (páginas por tema casi idénticas): una sola página local con prueba real, y preguntar a Daniel qué casos de `casos.md` son de la zona.
 - **Contenido (25/10 tarde, Vigía):** en /agentes-ia/ añadir un bloque «cómo elegir quién implanta tu agente de WhatsApp» (casos verificables, mantenimiento, medición, sin precios por horas ni ranking propio), con el caso real de Fran García Cars; el patrón de criterios de Upliora, hecho honesto.
+- **Contenido (26/10, Vigía):** P13 (presupuestos con IA) solo la ocupan proveedores de software: preparar un satélite «cómo responder presupuestos más rápido con IA en una pyme de servicios» con un caso real de `casos.md` (Gargom o Santacruz, sin inventar cifras).
