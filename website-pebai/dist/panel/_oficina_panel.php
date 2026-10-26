@@ -262,11 +262,17 @@ function of_scraper(): array
         $buscando = true;
         $ult = ['txt' => 'Buscando instaladoras de placas solares' . ($prov[1] ? ' en ' . end($prov[1]) : ''), 'ts' => date('Y-m-d H:i:s'), 'tipo' => 'espera'];
     }
-    $parado = !$vivo && $ult && $ult['tipo'] === 'espera';
+    // Revisión tranquila de la cola (cuando ya no hay nada nuevo que buscar): cada 30 min repasa unas pocas
+    $revisando = !$reciente && $ult && preg_match('/^Revisión:/u', $ult['txt']) && strtotime($ult['ts']) > time() - 2700;
+    if ($revisando) {
+        $reciente = true;
+    }
+    $parado = !$vivo && $ult && $ult['tipo'] === 'espera' && !preg_match('/^Revisión:/u', $ult['txt']);
     $callado = !$reciente && !$parado && $ult && strtotime($ult['ts']) < time() - 12 * 3600;
     $a['st'] = $a['errores'] || $callado ? 'error' : ($reciente ? 'trabajando' : ($parado ? 'pausado' : 'dormido'));
     $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
-        : ($reciente ? ($buscando ? $ult['txt'] . '.' : 'Está buscando empresas ahora mismo.') . ' Hoy lleva ' . $ent . ($ent === 1 ? ' empresa nueva' : ' empresas nuevas') . ($ent ? '.' : ': España está casi recorrida; si una vuelta entera no saca nada, se para solo.') : ($parado ? $ult['txt'] . ' (desde ' . of_hace($ult['ts']) . ').' : 'Corre en el servidor y recorre España sin parar buscando instaladoras de placas solares.'));
+        : ($revisando ? 'Ya no busca (España recorrida): repasa la cola poco a poco para que todo esté bien. ' . $ult['txt'] . '.'
+        : ($reciente ? ($buscando ? $ult['txt'] . '.' : 'Está buscando empresas ahora mismo.') . ' Hoy lleva ' . $ent . ($ent === 1 ? ' empresa nueva' : ' empresas nuevas') . ($ent ? '.' : ': España está casi recorrida; si una vuelta entera no saca nada, se para solo.') : ($parado ? $ult['txt'] . ' (desde ' . of_hace($ult['ts']) . ').' : 'Corre en el servidor y recorre España sin parar buscando instaladoras de placas solares.')));
     if ($callado && !$a['errores']) {
         $a['motivo'] = 'No da señales desde ' . of_hace($ult['ts']) . ' y no está en pausa. El proceso del servidor puede haberse parado.';
         $a['necesita'][] = 'Revisar el scraper en el servidor: no da señales';

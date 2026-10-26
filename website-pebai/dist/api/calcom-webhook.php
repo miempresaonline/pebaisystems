@@ -76,6 +76,18 @@ try {
             if ($match !== '' && $cita) {
                 pebai_evento((int)$cita['lead_id'], 'unida', 'Reserva unida automáticamente por ' . $match);
             }
+            if ($cita && (int)$cita['lead_id'] > 0) {
+                // Solo si en el formulario aceptó la publicidad. Mismo eventID que el píxel en /confirmacion-de-llamada/?uid=
+                $q = pebai_db()->prepare('SELECT telefono, nombre, dispositivo, meta_ok, meta_fbp, meta_fbc FROM leads WHERE id = ?');
+                $q->execute([(int)$cita['lead_id']]);
+                $l = $q->fetch();
+                if ($l && $l['meta_ok'] === '1') {
+                    pebai_meta_event('Schedule', 'cita-' . $uid, 'https://pebaisystems.es/confirmacion-de-llamada/', [
+                        'telefono' => $l['telefono'] ?: $datos['telefono'], 'email' => $datos['email'], 'nombre' => $datos['nombre'] ?: $l['nombre'],
+                        'lead_id' => (int)$cita['lead_id'], 'ua' => $l['dispositivo'], 'fbp' => $l['meta_fbp'], 'fbc' => $l['meta_fbc'],
+                    ]);
+                }
+            }
             break;
         case 'BOOKING_RESCHEDULED':
             if ($anterior !== '' && $anterior !== $uid) {

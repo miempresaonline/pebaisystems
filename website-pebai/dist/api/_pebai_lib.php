@@ -77,7 +77,8 @@ function pebai_db(): PDO
         // Columnas de la cita (Cal.com), añadidas sin perder datos existentes
         $cols = array_column($pdo->query('PRAGMA table_info(leads)')->fetchAll(), 'name');
         foreach (['cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at', 'equipo',
-                  'conocio', 'canal_dueno', 'canal_auto', 'canal_motivo', 'canal_revisar', 'canal_manual', 'tipo'] as $col) {
+                  'conocio', 'canal_dueno', 'canal_auto', 'canal_motivo', 'canal_revisar', 'canal_manual', 'tipo',
+                  'meta_ok', 'meta_fbp', 'meta_fbc'] as $col) {
             if (!in_array($col, $cols, true)) {
                 $pdo->exec("ALTER TABLE leads ADD COLUMN $col TEXT NOT NULL DEFAULT ''");
             }
@@ -272,6 +273,99 @@ function pebai_ip_hash(): string
 {
     $cfg = pebai_config();
     return hash('sha256', ($cfg['salt'] ?? 'pebai') . '|' . ($_SERVER['REMOTE_ADDR'] ?? ''));
+}
+
+/* ------------------------------------------- Meta: API de Conversiones --- */
+
+// Mismo píxel que dist/consent.js. El token va en private/config.php ('meta' => ['capi_token' => …]).
+const PEBAI_META_PIXEL_ID = '1097490073163217';
+
+// IP real del visitante (Hostinger va detrás de Cloudflare). Solo se manda a Meta, no se guarda.
+function pebai_client_ip(): string
+{
+    $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? ($_SERVER['REMOTE_ADDR'] ?? '');
+    return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '';
+}
+
+// Teléfono en formato internacional sin '+', como pide Meta (9 cifras españolas → 34…).
+function pebai_meta_phone(string $tel): string
+{
+    $d = preg_replace('/\D+/', '', $tel);
+    if (strpos($d, '00') === 0) {
+        $d = substr($d, 2);
+    }
+    if (strlen($d) === 9 && strpos('6789', $d[0]) !== false) {
+        $d = '34' . $d;
+    }
+    return $d;
+}
+
+/*
+ * Envía un evento a Meta desde el servidor. Solo para personas que aceptaron la publicidad
+ * en el aviso de cookies (meta_ok). $user: telefono, email, nombre, lead_id, ip, ua, fbp, fbc.
+ * El eventId es el mismo que manda el píxel desde el navegador, así Meta no lo cuenta dos veces.
+ * Sin token configurado no hace nada. Devuelve true si Meta lo aceptó.
+ */
+function pebai_meta_event(string $event, string $eventId, string $url, array $user): bool
+{
+    $meta = pebai_config()['meta'] ?? [];
+    $token = (string)($meta['capi_token'] ?? '');
+    if ($token === '') {
+        return false;
+    }
+    $sha = fn(string $v): string => hash('sha256', $v);
+    $ud = ['country' => [$sha('es')]];
+    $ph = pebai_meta_phone((string)($user['telefono'] ?? ''));
+    if (strlen($ph) >= 9) {
+        $ud['ph'] = [$sha($ph)];
+    }
+    $em = mb_strtolower(trim((string)($user['email'] ?? '')));
+    if ($em !== '' && strpos($em, '@') !== false) {
+        $ud['em'] = [$sha($em)];
+    }
+    $fn = mb_strtolower(explode(' ', trim((string)($user['nombre'] ?? '')))[0]);
+    if ($fn !== '') {
+        $ud['fn'] = [$sha($fn)];
+    }
+    if (!empty($user['lead_id'])) {
+        $ud['external_id'] = [$sha('pebai-lead-' . (int)$user['lead_id'])];
+    }
+    foreach (['ip' => 'client_ip_address', 'ua' => 'client_user_agent', 'fbp' => 'fbp', 'fbc' => 'fbc'] as $k => $field) {
+        if (!empty($user[$k])) {
+            $ud[$field] = mb_substr((string)$user[$k], 0, 400);
+        }
+    }
+    $body = [
+        'data' => [[
+            'event_name' => $event,
+            'event_time' => time(),
+            'event_id' => $eventId,
+            'action_source' => 'website',
+            'event_source_url' => $url,
+            'user_data' => $ud,
+        ]],
+    ];
+    if (!empty($meta['test_event_code'])) {
+        $body['test_event_code'] = (string)$meta['test_event_code'];
+    }
+    $endpoint = 'https://graph.facebook.com/' . ($meta['api_version'] ?? 'v24.0') . '/' . ($meta['pixel_id'] ?? PEBAI_META_PIXEL_ID)
+        . '/events?access_token=' . rawurlencode($token);
+    $ch = curl_init($endpoint);
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 8,
+    ]);
+    $res = curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($code !== 200) {
+        pebai_log('META ' . $event . ' ' . $eventId . ': HTTP ' . $code . ' ' . mb_substr((string)$res, 0, 300));
+        return false;
+    }
+    return true;
 }
 
 // Firma corta del enlace de reserva (/reservar/?s=ID&t=FIRMA) para que nadie pueda

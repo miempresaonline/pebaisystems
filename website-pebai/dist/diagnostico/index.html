@@ -2482,7 +2482,7 @@
           <p><strong>Responsable:</strong> Daniel Peñuela Ruiz (PEBAI Systems). Contacto: <code>equipo@pebaisystems.es</code>.</p>
           <p><strong>Finalidad:</strong> valorar tu solicitud, contactarte por WhatsApp y, si encaja, agendar y realizar la sesión técnica. Guardamos también el origen de tu visita para saber por qué canal nos conoces.</p>
           <p><strong>Legitimación:</strong> tu consentimiento, que das al marcar la casilla, y la aplicación de medidas precontractuales a tu petición.</p>
-          <p><strong>Destinatarios:</strong> no cedemos tus datos a terceros. Los tratan por cuenta nuestra nuestro proveedor de alojamiento (Hostinger, UE) y, si reservas la sesión, Cal.com y Google (EE. UU., con garantías adecuadas).</p>
+          <p><strong>Destinatarios:</strong> no cedemos tus datos a terceros. Los tratan por cuenta nuestra nuestro proveedor de alojamiento (Hostinger, UE) y, si reservas la sesión, Cal.com y Google (EE. UU., con garantías adecuadas). Solo si aceptaste las cookies de publicidad, comunicamos a Meta (Facebook e Instagram) que has enviado la solicitud, con tu teléfono y nombre cifrados, para medir nuestros anuncios.</p>
           <p><strong>Conservación:</strong> mientras gestionamos tu solicitud y hasta 12 meses después si no hay relación comercial.</p>
           <p><strong>Derechos:</strong> acceso, rectificación, supresión, oposición, limitación, portabilidad y retirada del consentimiento escribiendo a <code>equipo@pebaisystems.es</code>. También puedes reclamar ante la AEPD (www.aepd.es).</p>
           <p>Más información en la <a href="/privacidad/" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">política de privacidad</a>.</p>
@@ -2881,6 +2881,7 @@
         ultimo_toque: attr.last || null,
         url_params: urlAttribution(),
         pagina: window.location.href,
+        meta: (window.PEBAI_CONSENT && window.PEBAI_CONSENT.metaIds) ? window.PEBAI_CONSENT.metaIds() : null,
         website: honeypot ? honeypot.value : ''
       };
 
@@ -3072,7 +3073,7 @@
 
   </script>
   <script src="/funnel.js" data-step="1" defer></script>
-  <script src="/consent.js?v=4" defer></script>
+  <script src="/consent.js?v=5" defer></script>
 <nav class="pebai-legal" aria-label="Información legal" style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;padding:14px 16px;font-size:12px;line-height:1.5;opacity:.7"><a href="/privacidad/" style="color:inherit;text-decoration:none">Privacidad</a><a href="/aviso-legal/" style="color:inherit;text-decoration:none">Aviso legal</a><a href="/politica-de-cookies/" style="color:inherit;text-decoration:none">Cookies</a><a href="/politica-de-cookies/" onclick="if(window.PEBAI_CONSENT){event.preventDefault();PEBAI_CONSENT.open()}" style="color:inherit;text-decoration:none">Configurar cookies</a></nav>
 </body>
 </html>

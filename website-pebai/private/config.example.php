@@ -31,5 +31,13 @@ return [
         'enviados' => 'INBOX.Sent',     // carpeta de enviados (para ver el hilo completo en el buzón); '' = no guardar copia
         'avisar_a' => '',               // dónde avisar al momento de cada respuesta (p. ej. el email de Daniel)
     ],
+    // Meta: API de Conversiones (eventos Lead y Schedule desde el servidor). Sin capi_token no se envía nada.
+    // test_event_code: solo para probar en el Administrador de eventos › Probar eventos; vacío en producción.
+    'meta' => [
+        'pixel_id' => '1097490073163217',
+        'capi_token' => '',
+        'test_event_code' => '',
+        'api_version' => 'v24.0',
+    ],
     'salt' => '',
 ];

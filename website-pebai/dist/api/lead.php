@@ -77,6 +77,13 @@ if (!$first && $last) {
     $first = $last;
 }
 
+// Píxel de Meta: solo si la persona aceptó la publicidad en el aviso de cookies
+$metaIn = is_array($data['meta'] ?? null) ? $data['meta'] : null;
+$metaId = function ($v): string {
+    $v = is_scalar($v) ? trim((string)$v) : '';
+    return preg_match('/^fb\.\d\.\d+\.[\w.-]+$/', $v) ? mb_substr($v, 0, 300) : '';
+};
+
 $opcion = strtoupper($str($data['opcion'] ?? '', 1));
 $lead = [
     'created_at' => date('Y-m-d H:i:s'),
@@ -100,6 +107,9 @@ $lead = [
     'pagina' => $str($data['pagina'] ?? '', 300),
     'dispositivo' => $str($_SERVER['HTTP_USER_AGENT'] ?? '', 250),
     'ip_hash' => '',
+    'meta_ok' => $metaIn ? '1' : '',
+    'meta_fbp' => $metaIn ? $metaId($metaIn['fbp'] ?? '') : '',
+    'meta_fbc' => $metaIn ? $metaId($metaIn['fbc'] ?? '') : '',
     'conocio' => array_key_exists($str($data['conocio'] ?? '', 20), PEBAI_CONOCIO) ? $str($data['conocio'] ?? '', 20) : '',
 ];
 // Canal y dueño (acuerdo de colaboración): utm + respuesta de "¿Cómo nos conociste?"
@@ -165,6 +175,13 @@ $sendEmail = function () use ($lead, $id): bool {
 
 if ($saved) {
     respond_and_continue(['status' => 'ok', 'id' => $id]);
+    if ($lead['meta_ok'] === '1') {
+        // Mismo eventID que el píxel en /formulario-completado/?solicitud=ID
+        pebai_meta_event('Lead', 'lead-' . $id, 'https://pebaisystems.es/formulario-completado/', [
+            'telefono' => $lead['telefono'], 'nombre' => $lead['nombre'], 'lead_id' => $id,
+            'ip' => pebai_client_ip(), 'ua' => $lead['dispositivo'], 'fbp' => $lead['meta_fbp'], 'fbc' => $lead['meta_fbc'],
+        ]);
+    }
     if ($sendEmail()) {
         try {
             pebai_db()->prepare('UPDATE leads SET email_enviado = 1 WHERE id = ?')->execute([$id]);
