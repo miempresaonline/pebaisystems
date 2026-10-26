@@ -21,4 +21,8 @@ for NICHO in $SERIES; do
   # Se lanza aparte (setsid): el cron de hPanel corta sus tareas a los 30 min y una provincia grande tarda más.
   setsid nohup flock -n "$LOCK" .venv/bin/python -u -m prospeccion.tanda "$NICHO" >> "$HOME/scratch/prospeccion/tanda_$NICHO.log" 2>&1 < /dev/null &
 done
+# Con todas las series paradas (España recorrida), no se queda quieto: repasa la cola poco a poco (26/10, ver revisar_cola.php)
+if [ -f "$HOME/prospeccion/PAUSA_solar" ] && [ -f "$HOME/prospeccion/PAUSA_climatizacion" ] && [ -f "$HOME/prospeccion/PAUSA_formacion" ]; then
+  flock -n /tmp/pebai-revision.lock php "$HOME/prospeccion/revisar_cola.php" 40 >> "$HOME/scratch/prospeccion/revision.log" 2>&1
+fi
 exit 0
