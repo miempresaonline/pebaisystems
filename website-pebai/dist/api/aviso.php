@@ -14,7 +14,7 @@ header('Cache-Control: no-store');
 
 const AVISO_DESTINO = 'equipo@pebaisystems.es';
 const AVISO_MAX_DIA = 6;
-const AVISO_AGENTES = ['geo_jefe', 'geo_vigia', 'geo_contenido', 'geo_refresco', 'geo_local', 'geo_redes', 'geo_medicion'];
+const AVISO_AGENTES = ['geo_jefe', 'geo_vigia', 'geo_contenido', 'geo_refresco', 'geo_local', 'geo_redes', 'geo_medicion', 'geo_tecnico', 'geo_preguntas'];
 
 $expected = (string)(pebai_config()['agent_token'] ?? '');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || $expected === '' || !hash_equals($expected, (string)($_SERVER['HTTP_X_AGENT_TOKEN'] ?? ''))) {

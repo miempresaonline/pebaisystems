@@ -1,7 +1,7 @@
 """Apunta una acción del Agente GEO en el panel (Automático › Agentes › Visibilidad en IA).
 
 Uso:  python website-pebai/scripts/geo_actividad.py [--agente=geo_vigia] <tipo> "<resumen>" ["<detalle>"]
-      agentes: geo_jefe, geo_vigia, geo_contenido, geo_refresco, geo_local, geo_redes, geo_medicion (por defecto geo_jefe)
+      agentes: geo_jefe, geo_vigia, geo_contenido, geo_refresco, geo_local, geo_redes, geo_medicion, geo_tecnico, geo_preguntas (por defecto geo_jefe)
       tipo: hito (tarea hecha) · espera · error · cambio · entrega
       entrega = trabajo que Daniel ve en la pestaña «Su trabajo» de la oficina:
         geo_actividad.py --agente=geo_contenido entrega "<título>" "<qué es, 1-2 frases>" --clase=pagina --url=https://... [--img=https://...]
@@ -39,7 +39,7 @@ def agent_token():
     return m.group(1)
 
 
-AGENTES = ('geo_jefe', 'geo_vigia', 'geo_contenido', 'geo_refresco', 'geo_local', 'geo_redes', 'geo_medicion')
+AGENTES = ('geo_jefe', 'geo_vigia', 'geo_contenido', 'geo_refresco', 'geo_local', 'geo_redes', 'geo_medicion', 'geo_tecnico', 'geo_preguntas')
 
 
 def apuntar(tipo, resumen, detalle='', agente='geo_jefe', ref=''):

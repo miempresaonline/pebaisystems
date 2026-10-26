@@ -10,6 +10,7 @@ Lectura:
   clarity [dias]        Clarity: tráfico por fuente (1-3 días; máx. 10 llamadas al día)
   seranking             SE Ranking: posiciones del proyecto de PEBAI (pos 0 = fuera del top 100; mide a diario)
   gsc-inspeccion [url]  Search Console: si cada URL del sitemap (o la dada) está indexada en Google, y cuándo la rastreó
+  pagespeed <url> [mobile|desktop]  PageSpeed Insights: rendimiento, accesibilidad, SEO, buenas prácticas y Core Web Vitals
   localo                Localo: tareas propuestas y palabras clave de la ficha de PEBAI
 Cambios aprobados (docs/geo/aprobaciones.md):
   gsc-sitemap           reenvía https://pebaisystems.es/sitemap.xml a Search Console
@@ -240,6 +241,24 @@ def gsc_inspeccion(urls):
     return out
 
 
+def pagespeed(url, estrategia='mobile'):
+    if not url.startswith(SITE):
+        sys.exit(json.dumps({'ok': False, 'error': 'solo URLs de pebaisystems.es'}))
+    q = urllib.parse.urlencode([('url', url), ('strategy', estrategia), ('locale', 'es')] +
+                               [('category', c) for c in ('performance', 'accessibility', 'best-practices', 'seo')])
+    k = os.environ.get('PEBAI_PAGESPEED_KEY', '')  # opcional: sin clave se usa el cupo compartido de Google, que a veces se agota
+    code, r = http('https://www.googleapis.com/pagespeedonline/v5/runPagespeed?' + q + (('&key=' + k) if k else ''), timeout=120)
+    if code != 200 or not isinstance(r, dict):
+        return {'http': code, 'error': 'PageSpeed no ha respondido (cupo agotado o sin clave). Prueba más tarde o usa PEBAI_PAGESPEED_KEY.'}
+    lh = r.get('lighthouseResult') or {}
+    cats = {k: round((v.get('score') or 0) * 100) for k, v in (lh.get('categories') or {}).items()}
+    au = lh.get('audits') or {}
+    cwv = {k: (au.get(k) or {}).get('displayValue') for k in ('largest-contentful-paint', 'cumulative-layout-shift', 'total-blocking-time', 'first-contentful-paint', 'speed-index')}
+    fallos = [{'id': k, 'titulo': v.get('title'), 'valor': v.get('displayValue')} for k, v in au.items()
+              if v.get('score') is not None and v.get('score') < 0.9 and v.get('scoreDisplayMode') in ('binary', 'numeric', 'metricSavings')][:25]
+    return {'http': code, 'url': url, 'estrategia': estrategia, 'puntuaciones': cats, 'core_web_vitals': cwv, 'a_mejorar': fallos}
+
+
 def bing_sitemap():
     k = secreto('PEBAI_BING_API_KEY', 'bing_webmaster_api_key_pebai')
     code, _ = http('https://ssl.bing.com/webmaster/api.svc/json/SubmitFeed?' + urllib.parse.urlencode({'apikey': k}), 'POST', None,
@@ -274,6 +293,7 @@ if __name__ == '__main__':
         'bing-url': lambda: bing_urls(args),
         'bing-sitemap': bing_sitemap,
         'gsc-inspeccion': lambda: gsc_inspeccion(args),
+        'pagespeed': lambda: pagespeed(args[0], args[1] if len(args) > 1 else 'mobile'),
         'localo-cerrar': lambda: localo_cerrar(args[0]),
         'localo-keywords': lambda: localo_keywords(' '.join(args)),
         'localo-tareas': localo_tareas,

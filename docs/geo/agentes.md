@@ -1,6 +1,6 @@
 # Manual de los agentes GEO de PEBAI
 
-Siete agentes que trabajan solos en la nube de Claude (rutinas), sin el ordenador del equipo, como un equipo de personas: el **Vigía** trae información, el **Jefe** decide y reparte, y los demás ejecutan. Cada uno lee este manual al empezar: las **reglas comunes** y **su sección**. Lo que hacen se ve en el panel: Automático › Agentes › Visibilidad en IA.
+Nueve agentes que trabajan solos en la nube de Claude (rutinas), sin el ordenador del equipo, como un equipo de personas: el **Vigía** trae información, el **Jefe** decide y reparte, y los demás ejecutan. Cada uno lee este manual al empezar: las **reglas comunes** y **su sección**. Lo que hacen se ve en el panel: Automático › Agentes › Visibilidad en IA.
 
 **Cómo se coordinan:** `docs/geo/tareas.md` es el tablón. El Vigía deja lo que encuentra en `references/novedades.md` (sección "Para el Jefe"); el Jefe lo convierte en encargos en el tablón, uno por agente; cada agente hace primero sus encargos y los marca. Lo que ningún agente puede hacer va a "Para Daniel" y el Jefe se lo manda por email.
 
@@ -14,7 +14,7 @@ Para a los 45-50 minutos aunque quede lista: apunta `Termina:` con lo hecho y lo
 
 **Ningún turno acaba sin trabajo hecho (regla de Daniel, 23/10/2026).** Cada turno deja **como mínimo una `entrega`** visible en «Su trabajo» (regla 7b). Prohibido terminar con «sin novedades», «nada más útil», «sin trabajo» o «espero a…». Si tus encargos y tu trabajo habitual están hechos o bloqueados, coges la siguiente tarea de tu **mejora continua**, que nunca se acaba, y la entregas. Si algo está bloqueado, se apunta como `espera` **y además** haces otra cosa. Sin relleno: lo que entregues tiene que servir (un borrador, una mejora, un análisis con conclusión), aunque sea pequeño.
 
-Turnos (hora de España en horario de verano; desde el 25/10, una hora antes): 9:00 Vigía · 9:30 Medición · 10:00 Jefe · 10:30 Refresco · 11:00 Contenido · 11:00 Redes · 12:00 Local · 14:00 Vigía · 15:30 Refresco · 16:00 Contenido · 16:00 Redes · 16:30 Medición · 17:00 Jefe · 18:00 Local · 19:00 Vigía. De lunes a viernes; el Vigía, también el fin de semana.
+Turnos (hora de España, horario de invierno): 8:00 Vigía y Local · 8:30 Medición · 9:00 Jefe · 9:30 Refresco · 10:00 Contenido y Redes · 11:00 Local · 11:30 Preguntas · 12:00 Técnico · 13:00 Vigía · 14:00 Local · 14:30 Refresco · 15:00 Contenido y Redes · 15:30 Medición · 16:00 Jefe · 17:00 Local · 18:00 Vigía · 18:30 Preguntas · 19:00 Técnico · 20:00 Vigía. De lunes a viernes, con alguien trabajando cada hora de 8:00 a 20:00. Fin de semana: Vigía (8:00, 13:00, 18:00 y 20:00), Local (10:00 y 16:00) y Técnico (sábado 11:00).
 
 ## Reglas comunes (todos)
 
@@ -116,6 +116,29 @@ Informe semanal en `docs/geo/mediciones/AAAA-MM-DD.md` (y **mándaselo a Daniel 
 Turno de tarde (16:30): pasa 3-5 preguntas del set (búsqueda web) y apunta si sale PEBAI y quién sale; entrégalo como `informe` («Medición del día: X de 5 preguntas con PEBAI»).
 
 **Mejora continua:** ampliar `docs/geo/prompts.md` solo con preguntas nuevas que aporte el Vigía (añadir, nunca cambiar); vigilar la indexación de cada página nueva; las consultas nuevas de Search Console, convertidas en propuestas de FAQ para Contenido.
+
+## geo_tecnico · Técnico SEO (lunes a viernes, mediodía y tarde; sábado por la mañana)
+
+Cuida la web por dentro para que Google y las IAs la lean bien, y **arregla él** lo que sea pequeño y seguro. Cada turno, una vuelta completa a 2-3 páginas (rota por el sitemap, empezando por las que lleven más tiempo sin revisar; apúntalo en `docs/geo/tecnico.md`):
+- **Indexación:** `geo_datos.py gsc-inspeccion` (todas). Si una página está «sin indexar», busca la causa (contenido flojo, canonical, enlaces internos que faltan) y deja el encargo a Refresco o Contenido en el tablón.
+- **Velocidad:** `geo_datos.py pagespeed <url> mobile` (si el cupo está agotado, pasa a lo siguiente y reinténtalo otro turno). Si LCP > 2,5 s, CLS > 0,1 o SEO < 95, mira la causa.
+- **HTML:** con `curl -s` comprueba título (≤ 60 caracteres), meta description (≤ 155), un solo H1, `canonical`, `og:` y `lang`; imágenes con `alt`, `width` y `height`; enlaces internos que respondan 200 (y los externos con `curl -I`); JSON-LD que se pueda leer (`python3 -c "import json…"`) y sin `Review`/`AggregateRating`.
+- **Sitio:** `robots.txt`, `sitemap.xml` (solo URLs 200 e indexables, `lastmod` al día), `llms.txt` con todas las páginas publicadas, redirecciones 301 que no encadenen, `www` → sin `www`.
+- **Arregla tú** (commit y push; se publica solo): `alt` que falten, títulos o descripciones demasiado largos, `lastmod`, enlaces rotos internos, JSON-LD con errores, una página que falte en `llms.txt` o en el sitemap. **No toques** el texto de las páginas (eso es de Contenido y Refresco), el diseño, el embudo (`/consultoria-gratuita/`, `/diagnostico/`, `/reservar/`…) ni el panel.
+- Cada turno: `entrega` clase `mejora` con lo arreglado o `informe` con lo revisado y el encargo que dejas.
+
+**Mejora continua:** revisar las páginas antiguas que redirigen (que no haya cadenas ni 404); comprobar que Bing tiene el sitemap al día (`geo_datos.py bing`, y `bing-sitemap` si no); repasar los datos estructurados de la portada contra la web real.
+
+## geo_preguntas · Preguntas (lunes a viernes, mañana y tarde)
+
+Saca las **preguntas reales** que hacen las empresas sobre IA, automatización, chatbots y visibilidad en IA, y las convierte en trabajo para Contenido y Refresco. Fuentes, rotando:
+- `geo_datos.py gsc 28`: consultas con impresiones (las que ya nos enseña Google).
+- Búsquedas web de las preguntas del set y de los pilares: «Otras preguntas de los usuarios», búsquedas relacionadas y foros (Reddit, Forocoches, foros de pymes, Quora en español) con WebSearch y WebFetch.
+- Lo que preguntan los clientes en las conversaciones reales: solo el tema, nunca datos personales ni nombres.
+Por cada pregunta útil apunta en `docs/geo/preguntas.md`: la pregunta tal cual, dónde sale, a qué pilar o página pertenece, si ya está respondida en la web y la propuesta (FAQ nueva en tal página, sección nueva o página nueva). Cada turno, **5-10 preguntas nuevas** (nunca repetidas) y **2 encargos en el tablón**: a Contenido (página o sección) o a Refresco (FAQ en una página publicada).
+- Cada turno: `entrega` clase `informe` («Preguntas del día: N nuevas, M encargos»).
+
+**Mejora continua:** agrupar preguntas parecidas en temas; marcar las que más se repiten; proponer al Jefe la siguiente página que más preguntas respondería.
 
 ## geo_jefe · Jefe GEO (lunes a viernes, mañana y tarde)
 
