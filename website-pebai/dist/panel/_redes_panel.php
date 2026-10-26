@@ -1,109 +1,270 @@
 <?php
 /*
- * PEBAI · Panel — Contenido › Redes: análisis de los reels por tanda (TikTok, Instagram, YouTube Shorts y Facebook).
+ * PEBAI · Panel — Contenido › Redes: análisis de los reels por mes (TikTok, Instagram, YouTube Shorts y Facebook).
  * Lo incluye panel/index.php después de comprobar la sesión: usa $auth y json_out() de allí.
- *   GET ?redes=1 → las tandas con sus vídeos y métricas (foto sacada de Metricool) + las solicitudes que han llegado desde redes (en vivo).
- * Las métricas de cada vídeo se copian a mano desde Metricool al cerrar la tanda (marca PEBAI Systems): no hay llamadas a su API desde aquí.
- * LinkedIn no entra en este análisis (se publica con otro criterio, ver docs/geo/aprobaciones.md).
+ *   GET ?redes=1          → los periodos con sus vídeos y métricas + las solicitudes que han llegado desde redes.
+ *   GET ?redes=1&fresh=1  → igual, pero pidiendo antes los datos nuevos a Metricool (botón «Actualizar»).
+ * Se actualiza solo: lee la API de Metricool (marca PEBAI Systems) y guarda una copia en private/redes_cache.json
+ * que se renueva cada REDES_TTL segundos. Un vídeo nuevo aparece en cuanto Metricool lo tiene.
+ * El mismo vídeo publicado en las cuatro redes se agrupa en una fila por fecha, duración y texto.
+ * Credenciales: private/metricool.json ({"token","user_id","blog_id"}) o 'metricool' en private/config.php.
+ * LinkedIn no entra en este análisis.
  */
 if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
     http_response_code(404);
     exit;
 }
 
-/*
- * Un vídeo por fila. Estilo: 'gancho' (título en mayúsculas tipo «Deja de…») o 'sobrio' (frase de marca + «Comenta PALABRA»).
- *   tt: v vistas, l me gusta, c comentarios, s compartidos
- *   ig: v vistas, r alcance, l, c, g guardados, s, t segundos vistos de media, vr % que pasa de 3 s
- *   yt: v vistas, t segundos vistos de media, l, c          fb: v vistas, l, t segundos vistos de media
- * null = ese vídeo no se subió a esa red.
- */
-function redes_tandas(): array
+const REDES_TTL = 1200;
+// Cada periodo agrupa los vídeos publicados entre esas fechas (ambas incluidas). 'hasta' => null: hasta hoy.
+const REDES_PERIODOS = [
+    ['id' => '2026-10', 'nombre' => 'Octubre', 'desde' => '2026-10-13', 'hasta' => '2026-11-05'],
+    ['id' => '2026-11', 'nombre' => 'Noviembre', 'desde' => '2026-11-06', 'hasta' => null],
+];
+const REDES_PALABRAS = ['CONSULTORÍA', 'CONSULTORIA', 'RESPUESTA', 'GEO', 'FORMACIÓN', 'FORMACION'];
+
+function redes_cred(): array
 {
-    return [[
-        'id' => '2026-10',
-        'nombre' => 'Tanda 1 · octubre',
-        'desde' => '2026-10-13',
-        'hasta' => '2026-10-25',
-        'corte' => '2026-10-26',
-        'seguidores' => ['ig' => [9, 15], 'tt' => [34, 39]],
-        'videos' => [
-            ['f' => '2026-10-13 18:00', 'titulo' => 'Automatizar tu negocio ya no es opcional', 'estilo' => 'sobrio', 'palabra' => 'CONSULTORÍA', 'dur' => 32,
-             'tt' => ['v' => 1564, 'l' => 54, 'c' => 5, 's' => 17], 'ig' => ['v' => 66, 'r' => 28, 'l' => 9, 'c' => 0, 'g' => 0, 's' => 0, 't' => 11.2, 'vr' => 48.7],
-             'yt' => ['v' => 48, 't' => 4, 'l' => 3, 'c' => 0], 'fb' => ['v' => 22, 'l' => 0, 't' => 1]],
-            ['f' => '2026-10-14 12:00', 'titulo' => '¿Tu empresa existe para la IA? Haz esta prueba', 'estilo' => 'sobrio', 'palabra' => 'GEO', 'dur' => 39,
-             'tt' => ['v' => 606, 'l' => 25, 'c' => 1, 's' => 0], 'ig' => ['v' => 186, 'r' => 116, 'l' => 10, 'c' => 2, 'g' => 1, 's' => 2, 't' => 11.0, 'vr' => 40.4],
-             'yt' => ['v' => 29, 't' => 4, 'l' => 0, 'c' => 1], 'fb' => ['v' => 116, 'l' => 0, 't' => 3]],
-            ['f' => '2026-10-14 18:00', 'titulo' => 'Deja de ser esclavo de tu propio negocio', 'estilo' => 'gancho', 'palabra' => 'CONSULTORÍA', 'dur' => 27,
-             'tt' => ['v' => 645, 'l' => 17, 'c' => 0, 's' => 7], 'ig' => ['v' => 73, 'r' => 39, 'l' => 10, 'c' => 0, 'g' => 0, 's' => 0, 't' => 7.1, 'vr' => 37.0],
-             'yt' => ['v' => 318, 't' => 4, 'l' => 2, 'c' => 0], 'fb' => ['v' => 25, 'l' => 0, 't' => 4]],
-            ['f' => '2026-10-15 06:05', 'titulo' => 'Si tardas en responder por WhatsApp, pierdes al cliente', 'estilo' => 'sobrio', 'palabra' => 'RESPUESTA', 'dur' => 33,
-             'tt' => ['v' => 479, 'l' => 16, 'c' => 1, 's' => 1], 'ig' => ['v' => 98, 'r' => 59, 'l' => 9, 'c' => 0, 'g' => 0, 's' => 1, 't' => 7.7, 'vr' => 29.2],
-             'yt' => ['v' => 77, 't' => 7, 'l' => 2, 'c' => 0], 'fb' => ['v' => 47, 'l' => 0, 't' => 2]],
-            ['f' => '2026-10-15 18:00', 'titulo' => 'Deja de perder llamadas de tus clientes', 'estilo' => 'gancho', 'palabra' => 'CONSULTORÍA', 'dur' => 37,
-             'tt' => ['v' => 390, 'l' => 15, 'c' => 0, 's' => 2], 'ig' => ['v' => 42, 'r' => 25, 'l' => 5, 'c' => 0, 'g' => 0, 's' => 0, 't' => 6.9, 'vr' => 26.7],
-             'yt' => ['v' => 48, 't' => 13, 'l' => 0, 'c' => 0], 'fb' => ['v' => 19, 'l' => 0, 't' => 1]],
-            ['f' => '2026-10-16 18:00', 'titulo' => 'Deja de automatizar todo sin ver este vídeo antes', 'estilo' => 'gancho', 'palabra' => '', 'dur' => 26,
-             'tt' => ['v' => 615, 'l' => 15, 'c' => 1, 's' => 15], 'ig' => ['v' => 114, 'r' => 60, 'l' => 8, 'c' => 0, 'g' => 1, 's' => 0, 't' => 8.4, 'vr' => 31.9],
-             'yt' => ['v' => 191, 't' => 4, 'l' => 1, 'c' => 0], 'fb' => ['v' => 32, 'l' => 0, 't' => 5]],
-            ['f' => '2026-10-18 19:05', 'titulo' => 'Deja de perder clientes con este método', 'estilo' => 'gancho', 'palabra' => '', 'dur' => 22,
-             'tt' => ['v' => 989, 'l' => 16, 'c' => 2, 's' => 0], 'ig' => ['v' => 51, 'r' => 29, 'l' => 3, 'c' => 0, 'g' => 1, 's' => 0, 't' => 4.7, 'vr' => 30.3],
-             'yt' => ['v' => 38, 't' => 2, 'l' => 0, 'c' => 0], 'fb' => ['v' => 17, 'l' => 0, 't' => 2]],
-            ['f' => '2026-10-19 12:00', 'titulo' => 'Haz que tus clientes te encuentren fácil', 'estilo' => 'gancho', 'palabra' => '', 'dur' => 22,
-             'tt' => ['v' => 725, 'l' => 8, 'c' => 0, 's' => 0], 'ig' => ['v' => 84, 'r' => 58, 'l' => 8, 'c' => 1, 'g' => 1, 's' => 0, 't' => 6.8, 'vr' => 27.4],
-             'yt' => ['v' => 103, 't' => 2, 'l' => 1, 'c' => 0], 'fb' => ['v' => 129, 'l' => 0, 't' => 4]],
-            ['f' => '2026-10-19 18:05', 'titulo' => 'Tu equipo no necesita trabajar más horas', 'estilo' => 'sobrio', 'palabra' => 'CONSULTORÍA', 'dur' => 32,
-             'tt' => ['v' => 454, 'l' => 17, 'c' => 0, 's' => 4], 'ig' => ['v' => 201, 'r' => 161, 'l' => 7, 'c' => 0, 'g' => 0, 's' => 1, 't' => 4.4, 'vr' => 29.2],
-             'yt' => ['v' => 608, 't' => 3, 'l' => 2, 'c' => 0], 'fb' => ['v' => 48, 'l' => 0, 't' => 3]],
-            ['f' => '2026-10-20 17:30', 'titulo' => 'Cinco consultorías gratuitas este mes', 'estilo' => 'sobrio', 'palabra' => 'CONSULTORÍA', 'dur' => 37,
-             'tt' => ['v' => 679, 'l' => 15, 'c' => 0, 's' => 3], 'ig' => ['v' => 175, 'r' => 121, 'l' => 6, 'c' => 0, 'g' => 0, 's' => 3, 't' => 6.9, 'vr' => 27.7],
-             'yt' => ['v' => 60, 't' => 7, 'l' => 1, 'c' => 0], 'fb' => ['v' => 3, 'l' => 0, 't' => 2]],
-            ['f' => '2026-10-21 12:00', 'titulo' => 'Sé el número 1 en tu competencia', 'estilo' => 'gancho', 'palabra' => '', 'dur' => 24,
-             'tt' => ['v' => 807, 'l' => 12, 'c' => 0, 's' => 0], 'ig' => ['v' => 89, 'r' => 66, 'l' => 9, 'c' => 1, 'g' => 0, 's' => 0, 't' => 4.1, 'vr' => 20.0],
-             'yt' => ['v' => 623, 't' => 3, 'l' => 1, 'c' => 0], 'fb' => ['v' => 155, 'l' => 0, 't' => 2]],
-            ['f' => '2026-10-22 06:00', 'titulo' => 'Deja de malgastar dinero en nóminas innecesarias', 'estilo' => 'gancho', 'palabra' => '', 'dur' => 26,
-             'tt' => ['v' => 478, 'l' => 11, 'c' => 0, 's' => 1], 'ig' => ['v' => 65, 'r' => 51, 'l' => 4, 'c' => 0, 'g' => 0, 's' => 0, 't' => 4.4, 'vr' => 26.5],
-             'yt' => ['v' => 25, 't' => 7, 'l' => 1, 'c' => 0], 'fb' => ['v' => 5, 'l' => 0, 't' => 1]],
-            ['f' => '2026-10-22 18:30', 'titulo' => 'Tu cliente no compara quién lo hace mejor', 'estilo' => 'sobrio', 'palabra' => 'RESPUESTA', 'dur' => 45,
-             'tt' => ['v' => 364, 'l' => 14, 'c' => 0, 's' => 2], 'ig' => ['v' => 65, 'r' => 53, 'l' => 2, 'c' => 0, 'g' => 0, 's' => 1, 't' => 8.0, 'vr' => 27.3],
-             'yt' => ['v' => 23, 't' => 2, 'l' => 0, 'c' => 0], 'fb' => null],
-            ['f' => '2026-10-23 17:11', 'titulo' => 'Antes de invertir en IA, mira dónde la necesitas', 'estilo' => 'sobrio', 'palabra' => 'CONSULTORÍA', 'dur' => 38,
-             'tt' => ['v' => 261, 'l' => 8, 'c' => 0, 's' => 1], 'ig' => ['v' => 84, 'r' => 56, 'l' => 6, 'c' => 0, 'g' => 0, 's' => 0, 't' => 5.1, 'vr' => 24.6],
-             'yt' => ['v' => 74, 't' => 3, 'l' => 2, 'c' => 0], 'fb' => ['v' => 20, 'l' => 0, 't' => 2]],
-            ['f' => '2026-10-25 19:00', 'titulo' => 'Déjanos ahorrarte dinero con una llamada', 'estilo' => 'gancho', 'palabra' => '', 'dur' => 37,
-             'tt' => ['v' => 121, 'l' => 5, 'c' => 0, 's' => 0], 'ig' => ['v' => 50, 'r' => 37, 'l' => 4, 'c' => 0, 'g' => 0, 's' => 0, 't' => 6.3, 'vr' => 18.9],
-             'yt' => null, 'fb' => ['v' => 7, 'l' => 0, 't' => 1]],
-        ],
-        'conclusiones' => [
-            ['t' => 'Se van en el segundo dos', 'd' => 'En YouTube se ven 2 a 7 segundos y en Facebook 1 a 5. El mismo plano sentado en la mesa hace que el algoritmo lo dé por visto.'],
-            ['t' => 'Casi todos piden algo', 'd' => 'Siete de quince vídeos ofrecen la consultoría. A una cuenta nueva nadie le comenta una palabra clave: 15 comentarios en cuatro redes.'],
-            ['t' => 'El mismo tema en bucle', 'd' => 'Unos seis vídeos repiten «pierdes clientes por no contestar». La curva baja cada día.'],
-            ['t' => 'Público demasiado estrecho', 'd' => 'Hablar solo a empresas deja al algoritmo sin a quién enseñarlo. 11 seguidores nuevos en dos semanas.'],
-            ['t' => 'Lo que sí tira', 'd' => 'Títulos con tensión en TikTok y YouTube («Sé el número 1», «Esclavo de tu negocio») y probar algo de verdad (GEO) en Instagram y Facebook.'],
-        ],
-    ]];
+    $f = pebai_private_dir() . '/metricool.json';
+    $c = is_file($f) ? (json_decode((string)file_get_contents($f), true) ?: []) : [];
+    if (empty($c['token'])) {
+        $c = pebai_config()['metricool'] ?? [];
+    }
+    if (empty($c['token']) || empty($c['user_id']) || empty($c['blog_id'])) {
+        throw new RuntimeException('Faltan las credenciales de Metricool en el servidor');
+    }
+    return $c;
 }
 
-/** Ideas de la tanda siguiente (se enseñan bajo el análisis). */
-function redes_ideas(): array
+function redes_api(array $cred, string $ruta, array $q): array
 {
-    return [
-        ['n' => 1, 't' => 'La misma tarea a seis IAs, de peor a mejor', 'h' => 'Le pedí lo mismo a 6 IAs. La número 1 me dejó loco', 'c' => 'Voz en off contando del 6 al 1, grabación de pantalla y calle', 'red' => 'Reel'],
-        ['n' => 2, 't' => '¿ChatGPT recomienda el negocio de la calle?', 'h' => '¿ChatGPT recomienda tu bar? Vamos a comprobarlo', 'c' => 'En la calle, móvil en mano y reacción del dueño', 'red' => 'Reel'],
-        ['n' => 3, 't' => 'Persona contra Inteligencia Artificial', 'h' => 'Adrián contra un bot. Cronómetro en mano', 'c' => 'Pantalla partida, dos sitios y cronómetro grande', 'red' => 'Reel'],
-        ['n' => 4, 't' => 'Tier list de trabajos que ya hace la IA', 'h' => '¿Tu trabajo está en la S o en la D?', 'c' => 'De pie frente a pizarra o tablet, cortes rápidos', 'red' => 'Reel'],
-        ['n' => 5, 't' => 'Top 5 trucos gratis de IA que nadie usa', 'h' => 'El número 3 te ahorra una hora al día', 'c' => 'Punto de vista móvil en mano: casa, coche, café', 'red' => 'Reel'],
-        ['n' => 6, 't' => '24 horas dejando que la IA decida por mí', 'h' => 'Hoy la IA decide todo lo que hago', 'c' => 'Vlog de un día entero, muchos sitios', 'red' => 'YouTube largo', 'fav' => true],
-        ['n' => 7, 't' => '¿Lo hizo una persona o una IA?', 'h' => 'Tienes 3 segundos: ¿persona o IA?', 'c' => 'Preguntando en la calle; al final, nuestro agente de voz', 'red' => 'Reel'],
-    ];
+    $q += ['userId' => $cred['user_id'], 'blogId' => $cred['blog_id'], 'timezone' => 'Europe/Madrid'];
+    $ch = curl_init('https://app.metricool.com/api' . $ruta . '?' . http_build_query($q));
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 25, CURLOPT_HTTPHEADER => ['X-Mc-Auth: ' . $cred['token'], 'Accept: application/json']]);
+    $body = curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($body === false || $code !== 200) {
+        throw new RuntimeException("Metricool $ruta respondió $code");
+    }
+    return json_decode((string)$body, true)['data'] ?? [];
 }
 
-/** Solicitudes del formulario que llegaron desde redes en las fechas de la tanda (solo recuentos, nada personal). */
-function redes_solicitudes(string $desde): array
+/* ---------- normalizar cada red a: red, ts (Y-m-d H:i), dur, texto, url y métricas ---------- */
+function redes_ts(string $s): string
 {
-    $db = pebai_db();
-    $q = $db->prepare("SELECT fuente, palabra, conocio, canal_dueno FROM leads WHERE tipo <> 'cliente' AND created_at >= ?");
-    $q->execute([$desde . ' 00:00:00']);
+    return date('Y-m-d H:i', strtotime($s));
+}
+
+function redes_publicaciones(array $cred, string $desde, string $hasta): array
+{
+    $q = ['from' => $desde . 'T00:00:00', 'to' => $hasta . 'T23:59:59'];
+    $out = [];
+    foreach (redes_api($cred, '/v2/analytics/posts/tiktok', $q) as $p) {
+        $out[] = ['red' => 'tt', 'ts' => redes_ts($p['createTime']), 'dur' => (float)($p['duration'] ?? 0), 'texto' => (string)($p['videoDescription'] ?? $p['title'] ?? ''), 'url' => $p['shareUrl'] ?? '',
+                  'm' => ['v' => (int)$p['viewCount'], 'l' => (int)$p['likeCount'], 'c' => (int)$p['commentCount'], 's' => (int)$p['shareCount']]];
+    }
+    foreach (redes_api($cred, '/v2/analytics/reels/instagram', $q) as $p) {
+        $out[] = ['red' => 'ig', 'ts' => redes_ts($p['publishedAt']['dateTime']), 'dur' => (float)($p['durationSeconds'] ?? 0), 'texto' => (string)($p['content'] ?? ''), 'url' => $p['url'] ?? '',
+                  'm' => ['v' => (int)$p['views'], 'r' => (int)$p['reach'], 'l' => (int)$p['likes'], 'c' => (int)$p['comments'], 'g' => (int)$p['saved'], 's' => (int)$p['shares'],
+                          't' => round((float)$p['averageWatchTime'], 1), 'vr' => isset($p['reelsSkipRate']) ? round(100 - (float)$p['reelsSkipRate'], 1) : null]];
+    }
+    foreach (redes_api($cred, '/v2/analytics/posts/youtube', $q) as $p) {
+        $tipo = (string)($p['videoType'] ?? '');
+        if (($tipo !== '' && $tipo !== 'SHORT') || (float)($p['durationSeconds'] ?? 0) > 180) {
+            continue; // los vídeos largos de YouTube no son reels
+        }
+        $out[] = ['red' => 'yt', 'short' => $tipo === 'SHORT', 'ts' => redes_ts($p['publishedAt']['dateTime']), 'dur' => (float)($p['durationSeconds'] ?? 0), 'texto' => (string)($p['title'] ?? ''), 'url' => $p['watchUrl'] ?? '',
+                  'm' => ['v' => (int)$p['views'], 't' => round((float)$p['averageViewDuration'], 1), 'l' => (int)$p['likes'], 'c' => (int)$p['comments'], 's' => (int)$p['shares']]];
+    }
+    foreach (redes_api($cred, '/v2/analytics/reels/facebook', $q) as $p) {
+        $out[] = ['red' => 'fb', 'ts' => redes_ts($p['created']['dateTime']), 'dur' => (float)($p['length'] ?? 0), 'texto' => (string)($p['description'] ?? ''), 'url' => $p['reelUrl'] ?? '',
+                  'm' => ['v' => (int)$p['blueReelsPlayCount'], 'l' => (int)$p['postVideoReactions'], 't' => round((float)$p['postVideoAvgTimeWatchedSeconds'], 1)]];
+    }
+    return $out;
+}
+
+function redes_palabras_txt(string $t): array
+{
+    // Raíz de 4 letras de cada palabra larga: «responder» y «respuesta», «cliente» y «clientes» cuentan igual
+    $t = mb_strtolower(preg_replace('/#\S+|https?:\/\/\S+|\bcomenta\b.*$/isu', ' ', $t));
+    preg_match_all('/[\p{L}\p{N}]{4,}/u', $t, $m);
+    return array_values(array_unique(array_map(static fn($w) => mb_substr($w, 0, 4), $m[0])));
+}
+
+/* Coste de meter una publicación en un grupo (menos = más parecido); null si no puede ser el mismo vídeo. */
+function redes_coste(array $p, array $g): ?float
+{
+    if (isset($g['redes'][$p['red']])) {
+        return null;
+    }
+    $dh = abs(strtotime($p['ts']) - strtotime($g['ts'])) / 3600;
+    // Instagram y YouTube no siempre dan la duración (0): entonces deciden la hora y el texto
+    $dd = ($p['dur'] && $g['dur']) ? abs($p['dur'] - $g['dur']) : 1.5;
+    if ($dh > 36 || $dd > 4) {
+        return null;
+    }
+    $wp = $p['palabras'];
+    $wg = $g['palabras'];
+    $sim = ($wp && $wg) ? count(array_intersect($wp, $wg)) / max(1, min(count($wp), count($wg))) : 0;
+    return $dd * 1.5 + min($dh, 24) * .4 + (1 - $sim) * 4;
+}
+
+/* Agrupa en una fila el mismo vídeo subido a varias redes. Red a red (TikTok primero), cada publicación va al grupo
+   más parecido; se reparte de la pareja más clara a la más dudosa para que una publicación no le quite el sitio a otra. */
+function redes_agrupar(array $pubs): array
+{
+    $grupos = [];
+    foreach (['tt', 'ig', 'fb', 'yt'] as $red) {
+        $estas = array_values(array_filter($pubs, static fn($p) => $p['red'] === $red));
+        foreach ($estas as &$p) {
+            $p['palabras'] = redes_palabras_txt($p['texto']);
+        }
+        unset($p);
+        $pares = [];
+        foreach ($estas as $i => $p) {
+            foreach ($grupos as $j => $g) {
+                $c = redes_coste($p, $g);
+                if ($c !== null && $c < 12) {
+                    $pares[] = [$c, $i, $j];
+                }
+            }
+        }
+        usort($pares, static fn($a, $b) => $a[0] <=> $b[0]);
+        $puesta = [];
+        $lleno = [];
+        foreach ($pares as [$c, $i, $j]) {
+            if (isset($puesta[$i]) || isset($lleno[$j])) {
+                continue;
+            }
+            $puesta[$i] = $lleno[$j] = true;
+            $p = $estas[$i];
+            $grupos[$j]['redes'][$red] = $p;
+            $grupos[$j]['palabras'] = array_values(array_unique(array_merge($grupos[$j]['palabras'], $p['palabras'])));
+            $grupos[$j]['dur'] = $grupos[$j]['dur'] ?: $p['dur'];
+            $grupos[$j]['ts'] = min($grupos[$j]['ts'], $p['ts']);
+        }
+        foreach ($estas as $i => $p) {
+            if (!isset($puesta[$i])) {
+                $grupos[] = ['ts' => $p['ts'], 'dur' => $p['dur'], 'palabras' => $p['palabras'], 'redes' => [$red => $p]];
+            }
+        }
+    }
+    // Solo en YouTube y sin marca de Short: es un vídeo largo antiguo (Metricool no daba el tipo), no un reel
+    $grupos = array_filter($grupos, static fn($g) => count($g['redes']) > 1 || empty($g['redes']['yt']) || !empty($g['redes']['yt']['short']));
+    usort($grupos, static fn($a, $b) => strcmp($a['ts'], $b['ts']));
+    return array_map('redes_video', $grupos);
+}
+
+/* Título legible: el de YouTube si lo hay (es un título de verdad), si no la primera frase del texto, sin hashtags y en minúsculas normales. */
+const REDES_NOMBRES = ['IA', 'GEO', 'CRM', 'ERP', 'WhatsApp', 'ChatGPT', 'Google', 'Gemini', 'Perplexity', 'Claude', 'PEBAI', 'Excel'];
+
+function redes_titulo(array $redes): string
+{
+    foreach (['yt', 'ig', 'tt', 'fb'] as $k) {
+        if (empty($redes[$k]['texto'])) {
+            continue;
+        }
+        $t = preg_replace('/#\S+|https?:\/\/\S+/u', '', $redes[$k]['texto']);
+        $t = trim(preg_split('/\s*(\||\n|Comenta\b|(?<=[.!?])\s)/u', $t)[0] ?? '');
+        $t = trim(preg_replace('/\s+/u', ' ', $t), ' .');
+        if (mb_strlen($t) < 8) {
+            continue;
+        }
+        // «Deja de MALGASTAR dinero en Nominas» → «Deja de malgastar dinero en nominas» (respeta IA, WhatsApp…)
+        $t = preg_replace_callback('/\p{L}+/u', static function ($m) {
+            foreach (REDES_NOMBRES as $n) {
+                if (mb_strtolower($m[0]) === mb_strtolower($n)) {
+                    return $n;
+                }
+            }
+            return mb_strtolower($m[0]);
+        }, $t);
+        $t = preg_replace_callback('/\p{L}/u', static fn($m) => mb_strtoupper($m[0]), $t, 1);
+        return mb_strlen($t) > 70 ? rtrim(mb_substr($t, 0, 68)) . '…' : $t;
+    }
+    return 'Vídeo';
+}
+
+function redes_video(array $g): array
+{
+    $r = $g['redes'];
+    $todo = implode(' ', array_map(static fn($p) => $p['texto'], $r));
+    $palabra = '';
+    if (preg_match('/Comenta\s+(?:la\s+palabra\s+)?["“”\'\']*\s*(' . implode('|', REDES_PALABRAS) . ')/iu', $todo, $m) || preg_match('/palabra=(consultoria|respuesta|geo|formacion)/i', $todo, $m)) {
+        $palabra = strtr(mb_strtoupper($m[1]), ['CONSULTORIA' => 'CONSULTORÍA', 'FORMACION' => 'FORMACIÓN']);
+    }
+    // Estilo «gancho»: alguna palabra entera en mayúsculas en el texto del reel (sin contar la palabra clave).
+    // YouTube no cuenta: allí los títulos se escriben aparte.
+    $reel = implode(' ', array_map(static fn($p) => $p['texto'], array_diff_key($r, ['yt' => 1])));
+    $sinClave = preg_replace('/\b(' . implode('|', REDES_PALABRAS) . '|GEO|IA)\b/u', '', $reel ?: $todo);
+    $gancho = (bool)preg_match('/\b\p{Lu}{4,}\b/u', $sinClave);
+    $v = ['f' => $g['ts'], 'titulo' => redes_titulo($r), 'estilo' => $gancho ? 'gancho' : 'sobrio', 'palabra' => $palabra,
+          'dur' => (int)round($r['tt']['dur'] ?? $r['ig']['dur'] ?? $r['fb']['dur'] ?? $r['yt']['dur'] ?? 0)];
+    foreach (['tt', 'ig', 'yt', 'fb'] as $k) {
+        $v[$k] = isset($r[$k]) ? $r[$k]['m'] + ['url' => $r[$k]['url']] : null;
+    }
+    return $v;
+}
+
+/* Seguidores al empezar y al acabar cada periodo */
+function redes_seguidores(array $cred, string $desde, string $hasta): array
+{
+    $out = [];
+    foreach (['ig' => ['instagram', 'followers'], 'tt' => ['tiktok', 'followers_count'], 'yt' => ['youtube', 'totalSubscribers'], 'fb' => ['facebook', 'pageFollows']] as $k => [$net, $met]) {
+        try {
+            $d = redes_api($cred, '/v2/analytics/timelines', ['from' => $desde . 'T00:00:00', 'to' => $hasta . 'T23:59:59', 'metric' => $met, 'network' => $net, 'subject' => 'account']);
+            $vals = [];
+            foreach ($d[0]['values'] ?? [] as $x) {
+                if ($x['value'] !== null) {
+                    $vals[substr($x['dateTime'], 0, 10)] = (int)$x['value'];
+                }
+            }
+            ksort($vals);
+            if ($vals) {
+                $out[$k] = $vals;
+            }
+        } catch (Throwable $e) {
+            pebai_log('REDES seguidores ' . $net . ': ' . $e->getMessage());
+        }
+    }
+    return $out;
+}
+
+function redes_sync(): array
+{
+    $cred = redes_cred();
+    $desde = REDES_PERIODOS[0]['desde'];
+    $hoy = date('Y-m-d');
+    $videos = redes_agrupar(redes_publicaciones($cred, $desde, $hoy));
+    $seg = redes_seguidores($cred, date('Y-m-d', strtotime($desde . ' -1 day')), $hoy);
+    $periodos = [];
+    foreach (REDES_PERIODOS as $p) {
+        $hasta = $p['hasta'] ?? $hoy;
+        if ($p['desde'] > $hoy) {
+            $periodos[] = $p + ['videos' => [], 'seguidores' => [], 'futuro' => true];
+            continue;
+        }
+        $vs = array_values(array_filter($videos, static fn($v) => substr($v['f'], 0, 10) >= $p['desde'] && substr($v['f'], 0, 10) <= $hasta));
+        $sp = [];
+        foreach ($seg as $k => $vals) {
+            $antes = array_filter($vals, static fn($d) => $d <= $p['desde'], ARRAY_FILTER_USE_KEY);
+            $dentro = array_filter($vals, static fn($d) => $d >= $p['desde'] && $d <= $hasta, ARRAY_FILTER_USE_KEY);
+            if (!$dentro) {
+                continue;
+            }
+            $sp[$k] = [$antes ? end($antes) : reset($dentro), end($dentro)];
+        }
+        $periodos[] = $p + ['hasta_real' => min($hasta, $hoy), 'videos' => $vs, 'seguidores' => $sp];
+    }
+    return ['actualizado' => date('Y-m-d H:i:s'), 'periodos' => $periodos];
+}
+
+/** Solicitudes del formulario que llegaron desde redes en las fechas del periodo (solo recuentos, nada personal). */
+function redes_solicitudes(string $desde, string $hasta): array
+{
+    $q = pebai_db()->prepare("SELECT fuente, palabra, conocio, canal_dueno FROM leads WHERE tipo <> 'cliente' AND created_at >= ? AND created_at <= ?");
+    $q->execute([$desde . ' 00:00:00', $hasta . ' 23:59:59']);
     $total = 0;
     $redes = 0;
     $por = ['instagram' => 0, 'tiktok' => 0, 'youtube' => 0, 'facebook' => 0, 'otra' => 0];
@@ -111,14 +272,14 @@ function redes_solicitudes(string $desde): array
     foreach ($q->fetchAll(PDO::FETCH_ASSOC) as $l) {
         $total++;
         $f = strtolower((string)$l['fuente']);
-        $esRed = ($l['canal_dueno'] ?? '') === 'redes' || preg_match('/instagram|tiktok|youtube|facebook/', $f) || ($l['conocio'] ?? '') === 'redes';
+        $esRed = ($l['canal_dueno'] ?? '') === 'redes' || preg_match('/instagram|tiktok|youtube|facebook|^(ig|tt|yt|fb)$/', $f) || ($l['conocio'] ?? '') === 'redes';
         if (!$esRed || strpos($f, 'linkedin') !== false) {
             continue;
         }
         $redes++;
         $red = 'otra';
-        foreach (['instagram', 'tiktok', 'youtube', 'facebook'] as $k) {
-            if (strpos($f, $k) !== false || ($k === 'instagram' && $f === 'ig') || ($k === 'tiktok' && $f === 'tt') || ($k === 'youtube' && $f === 'yt') || ($k === 'facebook' && $f === 'fb')) {
+        foreach (['instagram' => 'ig', 'tiktok' => 'tt', 'youtube' => 'yt', 'facebook' => 'fb'] as $k => $corto) {
+            if (strpos($f, $k) !== false || $f === $corto) {
                 $red = $k;
                 break;
             }
@@ -133,15 +294,30 @@ function redes_solicitudes(string $desde): array
 }
 
 if ($auth && isset($_GET['redes'])) {
-    $tandas = redes_tandas();
-    foreach ($tandas as &$t) {
+    $cache = pebai_private_dir() . '/redes_cache.json';
+    $datos = is_file($cache) ? json_decode((string)file_get_contents($cache), true) : null;
+    $edad = $datos ? time() - strtotime($datos['actualizado']) : PHP_INT_MAX;
+    $aviso = '';
+    // Renueva si la copia es vieja; con «Actualizar», si tiene más de un minuto (para no machacar la API)
+    if ($edad > REDES_TTL || (isset($_GET['fresh']) && $edad > 60)) {
         try {
-            $t['solicitudes'] = redes_solicitudes($t['desde']);
+            $datos = redes_sync();
+            @file_put_contents($cache, json_encode($datos, JSON_UNESCAPED_UNICODE), LOCK_EX);
         } catch (Throwable $e) {
-            pebai_log('REDES solicitudes: ' . $e->getMessage());
-            $t['solicitudes'] = null;
+            pebai_log('REDES Metricool: ' . $e->getMessage());
+            $aviso = 'No se ha podido leer Metricool ahora mismo' . ($datos ? '; enseño la última copia.' : '.');
         }
     }
-    unset($t);
-    json_out(['ok' => true, 'tandas' => $tandas, 'ideas' => redes_ideas()]);
+    if (!$datos) {
+        json_out(['ok' => false, 'error' => $aviso ?: 'Sin datos de redes'], 502);
+    }
+    foreach ($datos['periodos'] as &$p) {
+        try {
+            $p['solicitudes'] = redes_solicitudes($p['desde'], $p['hasta_real'] ?? $p['desde']);
+        } catch (Throwable $e) {
+            $p['solicitudes'] = null;
+        }
+    }
+    unset($p);
+    json_out(['ok' => true, 'aviso' => $aviso] + $datos);
 }

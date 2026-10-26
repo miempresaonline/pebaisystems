@@ -24,21 +24,32 @@ const REDES = [
 ];
 const RN = Object.fromEntries(REDES.map((r) => [r.k, r]));
 const ico = (path, cls) => `<svg class="pb-i ${cls || ''}" viewBox="0 0 24 24">${path}</svg>`;
-const S = { cargado: false, cargando: false, data: null, t: 0, orden: 'total', abierto: -1, ocultas: new Set() };
+const S = { cargado: false, cargando: false, data: null, t: -1, orden: 'total', abierto: -1, ocultas: new Set() };
+const hace = (ts) => {
+  const m = Math.round((Date.now() - new Date(String(ts).replace(' ', 'T'))) / 60000);
+  return m < 1 ? 'ahora mismo' : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${Math.round(m / 60)} h` : `hace ${Math.round(m / 1440)} días`;
+};
 
-async function cargar() {
+/* Los datos vienen de Metricool a través del servidor (copia de 20 min). fresh: pedir los últimos ya (botón Actualizar).
+   silencioso: recarga de fondo; solo repinta si hay datos nuevos. */
+async function cargar(fresh, silencioso) {
   if (S.cargando) return;
   S.cargando = true;
-  raiz.innerHTML = '<div class="rd-load"><span></span><span></span><span></span></div>';
+  if (!silencioso && !S.data) raiz.innerHTML = '<div class="rd-load"><span></span><span></span><span></span></div>';
+  const btn = raiz.querySelector('.rd-act'); if (btn) btn.classList.add('girando');
   try {
-    const r = await fetch(BASE + '?redes=1', { credentials: 'same-origin', cache: 'no-store' });
+    const r = await fetch(BASE + '?redes=1' + (fresh ? '&fresh=1' : ''), { credentials: 'same-origin', cache: 'no-store' });
     const j = await r.json();
     if (!j.ok) throw new Error(j.error || 'Sin datos');
-    S.data = j; S.cargado = true; pintar();
+    const nuevo = !S.data || j.actualizado !== S.data.actualizado;
+    S.data = j; S.cargado = true;
+    if (S.t < 0) { const hoy = new Date().toISOString().slice(0, 10); S.t = Math.max(0, j.periodos.findIndex((p) => p.desde <= hoy && (!p.hasta || hoy <= p.hasta) && p.videos.length)); }
+    if (nuevo || !silencioso) pintar(); else sello();
   } catch (e) {
-    raiz.innerHTML = `<div class="pb-err">No se ha podido cargar el análisis de redes: ${esc(e.message)}</div>`;
-  } finally { S.cargando = false; }
+    if (!S.data) raiz.innerHTML = `<div class="pb-err">No se ha podido cargar el análisis de redes: ${esc(e.message)}</div>`;
+  } finally { S.cargando = false; const b = raiz.querySelector('.rd-act'); if (b) b.classList.remove('girando'); }
 }
+const sello = () => { const s = raiz.querySelector('.rd-sello'); if (s && S.data) s.textContent = 'Actualizado ' + hace(S.data.actualizado); };
 
 /* ============ cálculos de la tanda ============ */
 function calcula(T) {
@@ -64,13 +75,27 @@ function calcula(T) {
 
 /* ============ piezas ============ */
 function cabecera(T) {
-  const tabs = S.data.tandas.map((t, i) => `<button type="button" data-tanda="${i}" class="${i === S.t ? 'on' : ''}">${esc(t.nombre)}</button>`).join('');
+  const tabs = S.data.periodos.map((t, i) => {
+    const vacio = !t.videos.length;
+    return `<button type="button" data-tanda="${i}" class="${i === S.t ? 'on' : ''}" ${t.futuro ? `disabled title="Empieza el ${fecha(t.desde)}"` : ''}>${esc(t.nombre)}${vacio ? '' : `<em>${t.videos.length}</em>`}</button>`;
+  }).join('');
+  const hasta = T.hasta_real || T.hasta || T.desde;
   return `<div class="pb-pagehead rd-head">
     <div><div class="pb-eyebrow">Contenido · Redes</div>
       <h1 class="pb-h1">Los reels, <i>con lupa</i></h1>
-      <p class="pb-lead">Cada vídeo en TikTok, Instagram, YouTube Shorts y Facebook: qué vio la gente, cuánto aguantó y qué trajo. Del <b>${fecha(T.desde)}</b> al <b>${fecha(T.hasta)}</b>, datos de Metricool a ${fecha(T.corte)}.</p></div>
-    <div class="pb-seg rd-tandas">${tabs}<button type="button" disabled title="Se abre cuando se publique la tanda de noviembre">Tanda 2 · noviembre</button></div>
+      <p class="pb-lead">Cada vídeo en TikTok, Instagram, YouTube Shorts y Facebook: qué vio la gente, cuánto aguantó y qué trajo. Vídeos del <b>${fecha(T.desde)}</b> al <b>${fecha(hasta)}</b>${T.hasta ? '' : ' (sigue abierto)'}.</p></div>
+    <div class="rd-head-r">
+      <div class="pb-seg rd-tandas">${tabs}</div>
+      <div class="rd-vivo"><i></i><span class="rd-sello">Actualizado ${hace(S.data.actualizado)}</span><button type="button" class="pb-btn icon rd-act" title="Pedir ya los datos nuevos a Metricool">${ico('<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>')}</button></div>
+      ${S.data.aviso ? `<small class="rd-aviso">${esc(S.data.aviso)}</small>` : ''}
+    </div>
   </div>`;
+}
+
+function vacio(T) {
+  return `<section class="pb-card rd-card rd-rev rd-vacio"><span class="rd-logo rd-c-tt">${ico(REDES[0].ico)}</span>
+    <h2>Todavía no hay vídeos de ${esc(T.nombre.toLowerCase())}</h2>
+    <p>En cuanto se publique el primero desde el ${fecha(T.desde)}, aparece aquí solo con sus cifras de las cuatro redes.</p></section>`;
 }
 
 function hero(T, C) {
@@ -111,7 +136,9 @@ function tarjetasRed(C) {
     fb: (x) => [`${N(Math.round(x.seg * 10) / 10)} s`, 'vistos de media'],
   };
   return `<section class="rd-redes">${REDES.map((r, i) => {
-    const x = C.red[r.k], [ev, el] = extra[r.k](x);
+    const x = C.red[r.k];
+    if (!x.n) return `<article class="rd-red rd-rev rd-b-${r.k} rd-red-vacia" style="--d:${i * 70}ms"><header><span class="rd-logo rd-c-${r.k}">${ico(r.ico)}</span><b>${r.n}</b><small>sin vídeos</small></header><p>Aún no se ha subido ningún reel aquí en este periodo.</p></article>`;
+    const [ev, el] = extra[r.k](x);
     return `<article class="rd-red rd-rev rd-b-${r.k}" style="--d:${i * 70}ms">
       <header><span class="rd-logo rd-c-${r.k}">${ico(r.ico)}</span><b>${r.n}</b><small>${x.n} vídeos</small></header>
       <div class="rd-red-n"><b data-cuenta="${x.vistas}">0</b><span>vistas</span></div>
@@ -131,7 +158,8 @@ function curva(C) {
   const x = (i) => pl + (W - pl - pr) * (i / (n - 1)), y = (v) => pt + (H - pt - pb) * (1 - v / top);
   let g = '';
   for (let k = 0; k <= 4; k++) { const v = top * k / 4; g += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" class="rd-grid"/><text x="${pl - 8}" y="${y(v) + 4}" class="rd-ax" text-anchor="end">${K(v)}</text>`; }
-  C.V.forEach((v, i) => { g += `<text x="${x(i)}" y="${H - pb + 18}" class="rd-ax" text-anchor="middle">${dia(v.f)}</text>`; });
+  const cada = Math.ceil(n / 16);
+  C.V.forEach((v, i) => { if (i % cada) return; g += `<text x="${x(i)}" y="${H - pb + 18}" class="rd-ax" text-anchor="middle">${dia(v.f)}</text>`; });
   const lineas = vis.map((r) => {
     const pts = C.red[r.k].serie.map((v, i) => v == null ? null : [x(i), y(v)]);
     let d = '', area = '';
@@ -171,13 +199,13 @@ const tablaCard = (C) => `<section class="pb-card rd-card rd-rev">
     ${tabla(C)}</section>`;
 
 function detalle(v) {
-  const bloque = (r, filas) => v[r.k] ? `<div class="rd-dbox rd-b-${r.k}"><header><span class="rd-logo sm rd-c-${r.k}">${ico(r.ico)}</span>${r.n}</header>${filas.map(([l, x]) => `<div><span>${l}</span><b>${x}</b></div>`).join('')}</div>` : '';
+  const bloque = (r, filas) => v[r.k] ? `<div class="rd-dbox rd-b-${r.k}"><header><span class="rd-logo sm rd-c-${r.k}">${ico(r.ico)}</span>${r.n}${/^https:\/\//.test(v[r.k].url || '') ? `<a href="${esc(v[r.k].url)}" target="_blank" rel="noopener" class="rd-ver">Ver ${ico('<path d="M7 17 17 7M8 7h9v9"/>')}</a>` : ''}</header>${filas.map(([l, x]) => `<div><span>${l}</span><b>${x}</b></div>`).join('')}</div>` : '';
   const t = v.tt, i = v.ig, y = v.yt, f = v.fb;
   return `<div class="rd-dgrid">
     ${bloque(RN.tt, t ? [['Vistas', N(t.v)], ['Me gusta', N(t.l)], ['Comentarios', N(t.c)], ['Compartidos', N(t.s)], ['Me gusta cada 100 vistas', N(Math.round(t.l / Math.max(1, t.v) * 1000) / 10)]] : [])}
-    ${bloque(RN.ig, i ? [['Vistas', N(i.v)], ['Alcance', N(i.r)], ['Pasa de 3 s', N(i.vr) + '%'], ['Segundos de media', N(i.t)], ['Me gusta · coment. · guard. · compart.', `${i.l} · ${i.c} · ${i.g} · ${i.s}`]] : [])}
-    ${bloque(RN.yt, y ? [['Vistas', N(y.v)], ['Segundos de media', N(y.t)], ['Se ve del vídeo', Math.round(y.t / v.dur * 100) + '%'], ['Me gusta', N(y.l)], ['Comentarios', N(y.c)]] : [])}
-    ${bloque(RN.fb, f ? [['Vistas', N(f.v)], ['Segundos de media', N(f.t)], ['Se ve del vídeo', Math.round(f.t / v.dur * 100) + '%']] : [])}
+    ${bloque(RN.ig, i ? [['Vistas', N(i.v)], ['Alcance', N(i.r)], ['Pasa de 3 s', i.vr != null ? N(i.vr) + '%' : '—'], ['Segundos de media', N(i.t)], ['Me gusta · coment. · guard. · compart.', `${i.l} · ${i.c} · ${i.g} · ${i.s}`]] : [])}
+    ${bloque(RN.yt, y ? [['Vistas', N(y.v)], ['Segundos de media', N(y.t)], ['Se ve del vídeo', v.dur ? Math.round(y.t / v.dur * 100) + '%' : '—'], ['Me gusta', N(y.l)], ['Comentarios', N(y.c)]] : [])}
+    ${bloque(RN.fb, f ? [['Vistas', N(f.v)], ['Segundos de media', N(f.t)], ['Se ve del vídeo', v.dur ? Math.round(f.t / v.dur * 100) + '%' : '—']] : [])}
   </div>`;
 }
 
@@ -194,95 +222,97 @@ function estilos(C) {
 }
 
 function retencion(C) {
-  const d = C.durMedia;
-  const filas = [['ig', avg(C.V.filter((v) => v.ig).map((v) => v.ig.t))], ['yt', C.red.yt.seg], ['fb', C.red.fb.seg]].map(([k, s]) =>
-    `<div class="rd-ret"><span><i class="rd-dot rd-c-${k}"></i>${RN[k].n.replace(' Shorts', '')}</span><div class="rd-ret-t"><i class="rd-c-${k}" style="--w:${(s / d * 100).toFixed(1)}%"></i><em style="left:${(s / d * 100).toFixed(1)}%">${N(Math.round(s * 10) / 10)} s</em></div></div>`).join('');
-  const marcas = [0, 5, 10, 15, 20, 25, 30].filter((s) => s <= d - 4).map((s) => `<span style="left:${s / d * 100}%">${s}s</span>`).join('');
+  const d = C.durMedia || 30;
+  const datos = [['ig', avg(C.V.filter((v) => v.ig && v.ig.t != null).map((v) => v.ig.t))], ['yt', C.red.yt.seg], ['fb', C.red.fb.seg]].filter(([, s]) => s > 0);
+  const filas = datos.map(([k, s]) =>
+    `<div class="rd-ret"><span><i class="rd-dot rd-c-${k}"></i>${RN[k].n.replace(' Shorts', '')}</span><div class="rd-ret-t"><i class="rd-c-${k}" style="--w:${Math.min(100, s / d * 100).toFixed(1)}%"></i><em style="left:${Math.min(100, s / d * 100).toFixed(1)}%">${N(Math.round(s * 10) / 10)} s</em></div></div>`).join('');
+  const marcas = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50].filter((s) => s <= d - 4).map((s) => `<span style="left:${s / d * 100}%">${s}s</span>`).join('');
+  const parte = datos.length ? avg(datos.map(([, s]) => s)) / d : 0;
+  const frase = parte < .2 ? 'menos de una quinta parte' : parte < .34 ? 'menos de un tercio' : parte < .5 ? 'menos de la mitad' : 'más de la mitad';
   return `<article class="pb-card rd-card rd-rev"><div class="rd-card-h"><div><h2>¿Hasta qué segundo aguantan?</h2><p>Tiempo medio que se queda la gente frente a lo que duran los vídeos (${Math.round(d)} s de media). TikTok no da este dato por la API.</p></div></div>
     ${filas}<div class="rd-ret-ax">${marcas}<span style="left:100%">${Math.round(d)}s</span></div>
-    <p class="rd-nota">La gente ve <b>menos de una quinta parte</b> de cada vídeo. Los dos primeros segundos son el vídeo.</p></article>`;
+    <p class="rd-nota">De media, la gente ve <b>${frase}</b> de cada vídeo (${Math.round(parte * 100)}%).${parte < .34 ? ' Los dos primeros segundos son el vídeo.' : ''}</p></article>`;
 }
 
 function viewRate(C) {
-  const ig = C.V.filter((v) => v.ig);
+  const ig = C.V.filter((v) => v.ig && v.ig.vr != null);
+  if (ig.length < 2) return '';
   const W = 420, H = 170, pl = 30, pr = 10, pt = 14, pb = 26, n = ig.length;
-  const x = (i) => pl + (W - pl - pr) * i / (n - 1), y = (v) => pt + (H - pt - pb) * (1 - v / 60);
+  const x = (i) => pl + (W - pl - pr) * i / (n - 1), y = (v) => pt + (H - pt - pb) * (1 - Math.min(v, 60) / 60);
   const pts = ig.map((v, i) => [x(i), y(v.ig.vr)]);
   const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('');
   // recta de tendencia (mínimos cuadrados)
   const xs = ig.map((_, i) => i), ys = ig.map((v) => v.ig.vr), mx = avg(xs), my = avg(ys);
   const b = sum(xs.map((xi, i) => (xi - mx) * (ys[i] - my))) / sum(xs.map((xi) => (xi - mx) ** 2)), a = my - b * mx;
+  const baja = b < -0.3, sube = b > 0.3;
   let g = '';
   [0, 20, 40, 60].forEach((v) => { g += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" class="rd-grid"/><text x="${pl - 6}" y="${y(v) + 4}" class="rd-ax" text-anchor="end">${v}%</text>`; });
-  return `<article class="pb-card rd-card rd-rev"><div class="rd-card-h"><div><h2>Cada vez enganchan menos</h2><p>Instagram: porcentaje de gente que pasa de los 3 primeros segundos, vídeo a vídeo.</p></div><div class="rd-pill rojo">${N(Math.round(ys[0]))}% → ${N(Math.round(ys[n - 1]))}%</div></div>
+  return `<article class="pb-card rd-card rd-rev"><div class="rd-card-h"><div><h2>${baja ? 'Cada vez enganchan menos' : sube ? 'Cada vez enganchan más' : '¿Enganchan los primeros segundos?'}</h2><p>Instagram: porcentaje de gente que pasa de los 3 primeros segundos, vídeo a vídeo.</p></div><div class="rd-pill ${baja ? 'rojo' : 'lima'}">${N(Math.round(ys[0]))}% → ${N(Math.round(ys[n - 1]))}%</div></div>
     <svg viewBox="0 0 ${W} ${H}" class="rd-svg" role="img" aria-label="Porcentaje que pasa de 3 segundos en Instagram">${g}
-      <line x1="${x(0)}" y1="${y(a)}" x2="${x(n - 1)}" y2="${y(a + b * (n - 1))}" class="rd-trend"/>
+      <line x1="${x(0)}" y1="${y(a)}" x2="${x(n - 1)}" y2="${y(a + b * (n - 1))}" class="rd-trend ${baja ? '' : 'bien'}"/>
       <path d="${d}" class="rd-line rd-s-ig" pathLength="1"/>${pts.map((p, i) => `<circle cx="${p[0]}" cy="${p[1]}" r="3.5" class="rd-pt rd-f-ig"><title>${esc(ig[i].titulo)}: ${ig[i].ig.vr}%</title></circle>`).join('')}
       <text x="${x(0)}" y="${H - 6}" class="rd-ax">${dia(ig[0].f)}</text><text x="${x(n - 1)}" y="${H - 6}" class="rd-ax" text-anchor="end">${dia(ig[n - 1].f)}</text></svg>
-    <p class="rd-nota">Baja unos <b>${N(Math.abs(Math.round(b * 10) / 10))} puntos por vídeo</b>: el plano y el tema se repiten y el público ya lo ha visto.</p></article>`;
+    <p class="rd-nota">${baja ? `Baja unos <b>${N(Math.abs(Math.round(b * 10) / 10))} puntos por vídeo</b>: el público ya ha visto ese plano y ese tema.`
+      : sube ? `Sube unos <b>${N(Math.round(b * 10) / 10)} puntos por vídeo</b>: los primeros segundos funcionan mejor.` : 'Se mantiene estable de un vídeo a otro.'} La media es <b>${N(Math.round(my))}%</b>.</p></article>`;
 }
 
 function duracion(C) {
+  const V = C.V.filter((v) => v.tt && v.dur);
+  if (V.length < 2) return '';
   const W = 420, H = 190, pl = 40, pr = 12, pt = 12, pb = 30;
-  const xs = C.V.map((v) => v.dur), ys = C.V.map((v) => v.tt.v);
-  const x0 = 20, x1 = 46, yM = Math.ceil(Math.max(...ys) / 500) * 500;
+  const ys = V.map((v) => v.tt.v), ds = V.map((v) => v.dur);
+  const x0 = Math.floor((Math.min(...ds) - 2) / 5) * 5, x1 = Math.ceil((Math.max(...ds) + 2) / 5) * 5;
+  const paso = Math.max(...ys) > 1000 ? 500 : 100, yM = Math.max(paso, Math.ceil(Math.max(...ys) / paso) * paso);
   const x = (d) => pl + (W - pl - pr) * (d - x0) / (x1 - x0), y = (v) => pt + (H - pt - pb) * (1 - v / yM);
+  // corte entre cortos y largos: la mediana de duración
+  const med = ds.slice().sort((a, b) => a - b)[Math.floor(ds.length / 2)];
   let g = '';
   [0, yM / 2, yM].forEach((v) => { g += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" class="rd-grid"/><text x="${pl - 6}" y="${y(v) + 4}" class="rd-ax" text-anchor="end">${K(v)}</text>`; });
-  [20, 25, 30, 35, 40, 45].forEach((d) => { g += `<text x="${x(d)}" y="${H - 8}" class="rd-ax" text-anchor="middle">${d}s</text>`; });
-  const cortos = C.V.filter((v) => v.dur <= 27), largos = C.V.filter((v) => v.dur > 27);
+  for (let d = x0; d <= x1; d += 5) g += `<text x="${x(d)}" y="${H - 8}" class="rd-ax" text-anchor="middle">${d}s</text>`;
+  const cortos = V.filter((v) => v.dur < med), largos = V.filter((v) => v.dur >= med);
   const mc = avg(cortos.map((v) => v.tt.v)), ml = avg(largos.map((v) => v.tt.v));
+  const top = V.slice().sort((a, b) => b.tt.v - a.tt.v)[0];
+  const gana = cortos.length && mc > ml;
   return `<article class="pb-card rd-card rd-rev"><div class="rd-card-h"><div><h2>Duración contra vistas</h2><p>TikTok. Cada punto es un vídeo; a la derecha, los más largos.</p></div></div>
     <svg viewBox="0 0 ${W} ${H}" class="rd-svg" role="img" aria-label="Duración y vistas en TikTok">${g}
-      <rect x="${x(20)}" y="${pt}" width="${x(27.5) - x(20)}" height="${H - pt - pb}" class="rd-zona"/>
-      ${C.V.map((v) => `<circle cx="${x(v.dur)}" cy="${y(v.tt.v)}" r="6" class="rd-pt2 ${v.estilo}"><title>${esc(v.titulo)} · ${v.dur} s · ${N(v.tt.v)} vistas</title></circle>`).join('')}</svg>
-    <p class="rd-nota">Hasta 27 s: <b>${N(Math.round(mc))}</b> vistas de media. Más largos: <b>${N(Math.round(ml))}</b>. El más visto (1.564) es la excepción: fue el primero de la cuenta.</p></article>`;
+      <rect x="${x(x0)}" y="${pt}" width="${Math.max(0, x(med - .5) - x(x0))}" height="${H - pt - pb}" class="rd-zona"/>
+      ${V.map((v) => `<circle cx="${x(v.dur)}" cy="${y(v.tt.v)}" r="6" class="rd-pt2 ${v.estilo}"><title>${esc(v.titulo)} · ${v.dur} s · ${N(v.tt.v)} vistas</title></circle>`).join('')}</svg>
+    <p class="rd-nota">${cortos.length ? `Menos de ${med} s: <b>${N(Math.round(mc))}</b> vistas de media. ${med} s o más: <b>${N(Math.round(ml))}</b>. ${gana ? 'Los cortos tiran más.' : 'La duración no marca la diferencia.'}` : ''} El más visto dura ${top.dur} s (${N(top.tt.v)} vistas).</p></article>`;
 }
 
 function horas(C) {
-  const fr = [['Madrugada', (h) => h < 9], ['Mediodía', (h) => h >= 11 && h < 14], ['Tarde', (h) => h >= 17]];
+  const fr = [['Mañana', (h) => h < 11], ['Mediodía', (h) => h >= 11 && h < 16], ['Tarde', (h) => h >= 16 && h < 20], ['Noche', (h) => h >= 20]];
   const filas = fr.map(([n, ok]) => {
     const vs = C.V.filter((v) => ok(+v.f.slice(11, 13)));
     return { n, k: vs.length, m: avg(vs.map((v) => v.tot)), h: [...new Set(vs.map((v) => v.f.slice(11, 16)))].slice(0, 3).join(', ') };
   }).filter((f) => f.k);
-  const m = Math.max(...filas.map((f) => f.m));
+  if (!filas.length) return '';
+  const m = Math.max(...filas.map((f) => f.m)), win = filas.find((f) => f.m === m);
   return `<article class="pb-card rd-card rd-rev"><div class="rd-card-h"><div><h2>A qué hora se publicó</h2><p>Media de vistas por vídeo sumando las cuatro redes.</p></div></div>
-    ${filas.map((f) => `<div class="rd-hora"><div><b>${f.n}</b><span>${f.k} vídeos · ${esc(f.h)}</span></div><div class="rd-hora-b"><i class="${f.m === m ? 'win' : ''}" style="--w:${f.m / m * 100}%"></i></div><em>${N(Math.round(f.m))}</em></div>`).join('')}
-    <p class="rd-nota">El mediodía (12:00) gana con menos vídeos. Con tan pocos datos es una pista, no una regla.</p></article>`;
+    ${filas.map((f) => `<div class="rd-hora"><div><b>${f.n}</b><span>${f.k} ${f.k === 1 ? 'vídeo' : 'vídeos'} · ${esc(f.h)}</span></div><div class="rd-hora-b"><i class="${f.m === m ? 'win' : ''}" style="--w:${f.m / m * 100}%"></i></div><em>${N(Math.round(f.m))}</em></div>`).join('')}
+    <p class="rd-nota">Gana <b>${win.n.toLowerCase()}</b> (${win.k} ${win.k === 1 ? 'vídeo' : 'vídeos'}).${C.V.length < 25 ? ' Con pocos vídeos es una pista, no una regla.' : ''}</p></article>`;
 }
 
 function embudo(T, C) {
   const sol = T.solicitudes;
   const pasos = [['Vistas', C.total], ['Interacciones', C.inter], ['Comentarios', C.com], ['Solicitudes', sol ? sol.redes : 0]];
-  const m = pasos[0][1];
-  return `<article class="pb-card rd-card rd-rev rd-emb"><div class="rd-card-h"><div><h2>De la vista a la solicitud</h2><p>Lo que dejó la tanda en cada escalón. Las solicitudes se cuentan en vivo desde la base del formulario.</p></div></div>
+  const m = Math.max(1, pasos[0][1]);
+  return `<article class="pb-card rd-card rd-rev rd-emb"><div class="rd-card-h"><div><h2>De la vista a la solicitud</h2><p>Lo que dejaron los vídeos en cada escalón. Las solicitudes se cuentan en vivo desde la base del formulario (las que llegan desde redes en estas fechas).</p></div></div>
     ${pasos.map(([n, v], i) => { const w = Math.max(3, Math.sqrt(v / m) * 100); const pct = i ? (pasos[i - 1][1] ? (v / pasos[i - 1][1] * 100) : 0) : 100;
       return `<div class="rd-emb-f" style="--d:${i * 90}ms"><span>${n}</span><div><i style="--w:${w}%"></i></div><b>${N(v)}</b><em>${i ? N(Math.round(pct * 10) / 10) + '%' : ''}</em></div>`; }).join('')}
-    <p class="rd-nota">De cada <b>${N(Math.round(C.total / Math.max(1, C.com)))}</b> vistas sale un comentario. Pedir una palabra clave a quien no te conoce no funciona todavía.</p></article>`;
-}
-
-function conclusiones(T) {
-  return `<section class="rd-conc rd-rev"><div class="rd-sec-h"><span class="pb-eyebrow">Diagnóstico</span><h2 class="pb-h1">Por qué <i>no ha funcionado</i></h2></div>
-    <div class="rd-conc-g">${T.conclusiones.map((c, i) => `<article class="rd-c ${i === T.conclusiones.length - 1 ? 'bien' : ''}" style="--d:${i * 70}ms"><em>${String(i + 1).padStart(2, '0')}</em><b>${esc(c.t)}</b><p>${esc(c.d)}</p></article>`).join('')}</div></section>`;
-}
-
-function ideas() {
-  const I = S.data.ideas || [];
-  return `<section class="rd-ideas rd-rev"><div class="rd-sec-h"><span class="pb-eyebrow">Tanda 2 · noviembre</span><h2 class="pb-h1">Vídeos para <i>todo el mundo</i></h2>
-    <p class="pb-lead">Más dinámicos, cámara en movimiento y un sitio distinto en cada vídeo. Que guste a cualquiera y que el final hable de empresas.</p></div>
-    <div class="rd-ideas-g">${I.map((x, i) => `<article class="rd-idea ${x.fav ? 'fav' : ''}" style="--d:${i * 60}ms">
-      <header><em>${String(x.n).padStart(2, '0')}</em><span class="rd-red-tag">${esc(x.red)}</span>${x.fav ? '<span class="rd-fav">Favorita</span>' : ''}</header>
-      <b>${esc(x.t)}</b><q>${esc(x.h)}</q><p>${ico('<path d="M3 7h3l2-3h8l2 3h3v13H3z"/><circle cx="12" cy="13" r="4"/>')}${esc(x.c)}</p></article>`).join('')}</div></section>`;
+    <p class="rd-nota">${C.com ? `De cada <b>${N(Math.round(C.total / C.com))}</b> vistas sale un comentario.` : 'Todavía no hay comentarios.'}${sol && sol.redes ? ` Y de cada <b>${N(Math.round(C.total / sol.redes))}</b> vistas, una solicitud.` : ''}</p></article>`;
 }
 
 /* ============ pintar y animar ============ */
 function pintar() {
-  const T = S.data.tandas[S.t], C = calcula(T);
+  const T = S.data.periodos[S.t];
+  if (!T.videos.length) { raiz.innerHTML = cabecera(T) + vacio(T); animar(raiz); return; }
+  const C = calcula(T);
   S.C = C;
-  raiz.innerHTML = cabecera(T) + hero(T, C) + tarjetasRed(C) + curva(C) + tablaCard(C) +
+  raiz.innerHTML = cabecera(T) + hero(T, C) + tarjetasRed(C) + (C.V.length > 1 ? curva(C) : '') + tablaCard(C) +
     `<section class="rd-g2">${estilos(C)}${retencion(C)}</section>` +
     `<section class="rd-g3">${viewRate(C)}${duracion(C)}${horas(C)}</section>` +
-    embudo(T, C) + conclusiones(T) + ideas();
+    embudo(T, C);
   animar(raiz);
 }
 
@@ -311,6 +341,8 @@ function cambia(sel, html) {
 }
 
 raiz.addEventListener('click', (e) => {
+  if (e.target.closest('a')) return;
+  if (e.target.closest('.rd-act')) { cargar(true); return; }
   const tb = e.target.closest('[data-tanda]');
   if (tb && !tb.disabled) { S.t = +tb.dataset.tanda; S.abierto = -1; pintar(); return; }
   const ch = e.target.closest('[data-red]');
@@ -337,7 +369,10 @@ raiz.addEventListener('mousemove', (e) => {
 });
 raiz.addEventListener('mouseleave', () => { const t = raiz.querySelector('.rd-tip'); if (t) t.hidden = true; }, true);
 
-const abre = (p) => { if (p === 'redes' && !S.cargado) cargar(); };
+const abre = (p) => { if (p === 'redes') { if (!S.cargado) cargar(); else cargar(false, true); } };
+// Mientras la sección está abierta: el sello «Actualizado hace…» cada minuto y datos nuevos cada 5 minutos (el servidor renueva con Metricool cada 20)
+setInterval(() => { if (document.body.dataset.page !== 'redes' || document.hidden) return; sello(); }, 60000);
+setInterval(() => { if (document.body.dataset.page === 'redes' && !document.hidden && S.cargado) cargar(false, true); }, 300000);
 document.addEventListener('pb:page', (e) => abre(e.detail));
 if (document.body.dataset.page === 'redes' || window.PB_TAB === 'redes') abre('redes');
 })();

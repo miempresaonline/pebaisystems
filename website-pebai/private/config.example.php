@@ -39,5 +39,7 @@ return [
         'test_event_code' => '',
         'api_version' => 'v24.0',
     ],
+    // Panel › Contenido › Redes: API de Metricool (o private/metricool.json con las mismas claves)
+    'metricool' => ['token' => '', 'user_id' => '', 'blog_id' => ''],
     'salt' => '',
 ];
