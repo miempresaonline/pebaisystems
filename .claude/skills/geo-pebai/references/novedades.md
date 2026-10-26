@@ -2,6 +2,15 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-26 (mediodía: estudios y casos)
+
+Sin estudios independientes nuevos de Ahrefs, Semrush o SE Ranking del 24-26/10: solo salen comparativas de herramientas de proveedores (marzo 2026 o sin fecha). Descartado.
+Mejora continua (a), búsqueda web a las 12:10 UTC [V]:
+- **P8 «Cuánto cuesta implantar IA en una pyme española»**: no sale PEBAI. Siguen Javadex y Upliora con rangos propios (diagnóstico 900-1.500 €; micro-pyme 2.500-5.000 € más cuota; pyme 4.000-8.000 €). La IA advierte de que son consultoras comerciales y que no hay fuente independiente que valide los precios. Dato nuevo [S]: según el Banco de España (citado por Ecosistema Startup, https://ecosistemastartup.com/?p=108334), la falta de personal cualificado frena la adopción en el 45,8 % de los casos y el coste en el 40,8 %. Fuentes: https://www.upliora.es/blog/cuanto-cuesta-implementar-ia-pyme-espana-por-tipo-proyecto-2026 , https://www.javadex.es/blog/cuanto-cuesta-implementar-ia-pyme-espana-2026 (26/10/2026).
+*Qué cambia para PEBAI:* confirma el encargo de la página «de qué depende el coste» sin cifras: el hueco es ser la fuente neutral que explica factores y qué pedir en un presupuesto. Antes de citar el 45,8 % hay que verificarlo en el Banco de España (solo secundario hoy).
+
+Comprobación técnica 12:10 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-26 (mañana: buscadores e IAs)
 
 Sin anuncios útiles en las últimas 48 h de OpenAI, Google, Perplexity, Microsoft, Brave ni Anthropic (la búsqueda solo devuelve material de enero a agosto 2026 o comparativas sin fecha). Descartado.
