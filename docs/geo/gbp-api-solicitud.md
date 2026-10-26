@@ -4,6 +4,8 @@ Para que el agente Local pueda cambiar solo categorías, servicios, descripción
 
 **Requisito que frena:** Google exige que la ficha esté verificada y activa **desde hace más de 60 días**. La de PEBAI se verificó hacia el 20/10/2026, así que se puede pedir **a partir del 19/12/2026**. Si se pide antes, la rechazan.
 
+**26/10/2026:** pedida desde equipo@ y rechazada al momento por no cumplir los criterios (la ficha o la cuenta equipo@, añadida ese mismo día como propietaria, no tenían 60 días). **Volver a pedirla el 28/12/2026** (recordatorio en el calendario).
+
 ## Pasos (los hace Daniel con equipo@pebaisystems.es, dueño de la ficha)
 1. Google Cloud Console → proyecto **pebai-geo** → panel del proyecto → tarjeta «Información del proyecto» → copiar el **Número de proyecto**.
 2. Abrir el formulario: https://support.google.com/business/contact/api_default

@@ -51,7 +51,7 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 
 ## Para Daniel (lo que ningún agente puede hacer)
 El Jefe lo apunta aquí y se lo manda por email a equipo@pebaisystems.es. Daniel lo borra cuando esté hecho.
-- [ ] 19/12/2026 (no antes: Google exige 60 días de ficha activa): pedir la API de Google Business Profile con `docs/geo/gbp-api-solicitud.md`. Hasta entonces, las categorías las cambia Daniel a mano (Localo propone «Empresa de software» como principal).
+- [ ] 28/12/2026: volver a pedir la API de Google Business Profile (rechazada el 26/10 por los 60 días) con `docs/geo/gbp-api-solicitud.md`. Antes, el 3/11, pasar la propiedad principal de la ficha a equipo@. Hasta entonces, las categorías las cambia Daniel a mano.
 - [ ] Search Console › «Inspección de URL» de /, /agentes-ia/, /ia-para-empresas/ y /posicionamiento-en-ia/: la API dice 0 indexadas y no podemos comprobarlo desde la nube. Si alguna sale «no indexada», pulsa «Solicitar indexación» (2 min). (26/10)
 - [ ] ¿Qué clientes de los casos (Fran García Cars, Gargom, Santacruz, El Amparo) son de Valencia o su zona? Sin eso no hacemos la página local de Valencia (la pregunta la ocupan Upliora y Everywan). (26/10)
 - [ ] Una vez al mes, Bing Webmaster › AI Performance: exportar el CSV de citas en Copilot y dejarlo en `privado/` o decírnoslo; no tiene API. (26/10)
