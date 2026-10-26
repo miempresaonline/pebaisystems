@@ -22,3 +22,6 @@ Lo que el Agente GEO puede hacer solo y lo que espera el visto bueno de Daniel. 
 - Redirecciones: **sí** a pasar a 301 las landings retiradas que tengan su página nueva (pilares.md §5), al publicar cada destino.
 - Avisos a Daniel: por el correo de la web (`geo_actividad.py aviso`), no por Gmail.
 - Ficha de Google: la lleva **Local** entera (tareas de Localo, post semanal y fotos por Metricool), sin esperar a nadie. Redes solo LinkedIn.
+
+## Decisiones del 26/10/2026
+- Daniel no quiere encargarse de publicar nada: **Redes publica solo** en la página de LinkedIn (2 por semana, reglas en su sección); **Contenido publica sola** las páginas de la web; **Local** la ficha de Google. Nada se queda en borrador esperando a Daniel, salvo lo que exija entrar en una cuenta (categorías de Google, alta en directorios).

@@ -17,6 +17,11 @@ Cambios aprobados (docs/geo/aprobaciones.md):
   bing-sitemap          reenvía https://pebaisystems.es/sitemap.xml a Bing Webmaster
   localo-cerrar <id>    marca como hecha una tarea de Localo de la ficha de PEBAI
   localo-keywords <kw>  añade palabras clave a la ficha de PEBAI en Localo (separadas por ;)
+  localo-tareas         tareas propuestas con su detalle (p. ej. qué categoría sugiere)
+  localo-mas-tareas     pide a Localo una tarea nueva de optimización (cuando no quede ninguna)
+  localo-proteccion     activa la protección de la ficha (aviso de cambios en Google) [ENABLE_PROTECTION]
+  localo-lander <sub>   crea la web de Localo de la ficha con ese subdominio [ADD_LANDER_SITE]
+  localo-refrescar      vuelve a medir las posiciones de las palabras clave en Google Maps
 """
 import base64
 import datetime as dt
@@ -163,6 +168,39 @@ def localo_keywords(texto):
     return localo(q, {'input': {'placeId': LOCALO_PLACE, 'keywords': kws}}, mutation=True)
 
 
+def localo_tareas():
+    q = """query($p: GUID!){ t: listPlaceTasks(placeId:$p, status: PROPOSED){ id type insertedAt metadata { __typename
+      ... on UpdateMainCategoryMetadata { currentMainCategoryDisplayValue mainCategoryToAddDisplayValue }
+      ... on AddAdditionalCategoryMetadata { additionalCategoryToAddDisplayValue }
+      ... on RemoveAdditionalCategoryMetadata { additionalCategoryToRemoveDisplayValue } } } }"""
+    return localo(q, {'p': LOCALO_PLACE})
+
+
+def localo_mas_tareas():
+    return localo('mutation($p: GUID!){ getOneMoreTask(placeId:$p){ id type status } }', {'p': LOCALO_PLACE}, mutation=True)
+
+
+def localo_proteccion():
+    return localo('mutation($p: GUID!){ enablePlaceProtection(placeId:$p){ __typename } }', {'p': LOCALO_PLACE}, mutation=True)
+
+
+def localo_lander(sub):
+    sub = ''.join(c for c in sub.lower() if c.isalnum() or c == '-')[:40]
+    if not sub:
+        sys.exit(json.dumps({'ok': False, 'error': 'falta el subdominio'}))
+    return localo('mutation($p: GUID!, $i: SetLanderSiteInput!){ setLanderSite(placeId:$p, input:$i){ subdomain displaySubdomain empty } }',
+                  {'p': LOCALO_PLACE, 'i': {'subdomain': sub}}, mutation=True)
+
+
+def localo_refrescar():
+    ids = localo('query($p: GUID!){ k: listPlaceActiveKeywords(placeId:$p){ id keyword } }', {'p': LOCALO_PLACE})
+    out = []
+    for k in ((ids.get('data') or {}).get('k') or []):
+        r = localo('mutation($k: GUID!){ refreshPlaceKeyword(placeKeywordId:$k){ __typename } }', {'k': k['id']}, mutation=True)
+        out.append({'keyword': k['keyword'], 'resultado': r.get('errors', [{}])[0].get('message') if r.get('errors') else 'ok'})
+    return out
+
+
 def gsc_sitemap():
     h = google_token('https://www.googleapis.com/auth/webmasters')
     s = urllib.parse.quote(SITE, safe='')
@@ -230,6 +268,11 @@ if __name__ == '__main__':
         'gsc-inspeccion': lambda: gsc_inspeccion(args),
         'localo-cerrar': lambda: localo_cerrar(args[0]),
         'localo-keywords': lambda: localo_keywords(' '.join(args)),
+        'localo-tareas': localo_tareas,
+        'localo-mas-tareas': localo_mas_tareas,
+        'localo-proteccion': localo_proteccion,
+        'localo-lander': lambda: localo_lander(args[0] if args else ''),
+        'localo-refrescar': localo_refrescar,
     }
     if cmd not in acciones:
         sys.exit(__doc__)

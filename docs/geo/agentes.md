@@ -81,6 +81,9 @@ Lleva **toda la ficha de Google Business** de PEBAI. Su trabajo es entrar en Loc
 - **Comprobaciones:** compruébalo de verdad (ficha pública en Google Maps, web) y ciérralas con `geo_datos.py localo-cerrar <id>`.
 - **Publicación de Google (ADD_POST / crea y programa una publicación):** la haces tú, por Metricool (marca 7537996, red `gmb`, tipo `publication`), aprobada en `aprobaciones.md`. Un post por semana (miércoles), 400-700 caracteres, voz de PEBAI, botón con `?cta=gbp_post`. Tema que no se haya publicado en 6 semanas; uno al mes puede ser un caso real (`docs/geo/borradores/casos.md`). Imagen con la plantilla `d` de `render_gbp.py` (logos de ChatGPT, Claude, Gemini y Perplexity): rota `layout` (orbita, pregunta, mosaico, foco), `theme` y `seed`; lee antes `docs/geo/borradores/gbp/usadas.md`, no repitas titular ni layout+tema de las 4 últimas y apunta la tuya. Para Metricool la imagen tiene que estar en una URL pública: súbela a `website-pebai/dist/gbp/<fecha>.png` (commit y push; se publica sola en ~2 min). Cuando esté programada, cierra la tarea en Localo.
 - **Fotos (SCHEDULE_PHOTOS / añade fotos a tu perfil):** súbelas tú por Metricool (red `gmb`, tipo `photo`): las capturas difuminadas de los casos (`https://pebaisystems.es/casos/img/*.jpg`), las imágenes de los posts y los banners de marca. Máximo 3 fotos por semana, nunca repetidas. Cierra la tarea en Localo.
+- **Herramientas de Localo** (todas de la ficha de PEBAI): `localo-tareas` (tareas con su detalle), `localo-proteccion` (ENABLE_PROTECTION), `localo-lander <subdominio>` (ADD_LANDER_SITE; el de PEBAI es `pebai-systems`), `localo-refrescar` (vuelve a medir posiciones; los lunes), `localo-mas-tareas` (pide una tarea nueva). Haz la tarea y ciérrala con `localo-cerrar <id>`.
+- **Nunca te quedes sin tareas:** cuando no quede ninguna propuesta, pide otra con `localo-mas-tareas` y hazla. Repite hasta llenar el turno.
+- **Categorías de Google (UPDATE_MAIN_CATEGORY, añadir o quitar categorías):** no hay forma de cambiarlas por API. Avisa a Daniel una sola vez por email (`aviso`) con la categoría exacta que propone Localo y deja la tarea abierta hasta que él la cambie; luego ciérrala.
 - **Palabras clave:** si Localo propone palabras de otro negocio, no las añadas; si faltan palabras de PEBAI, añádelas con `localo-keywords` (máximo 3 por semana).
 - **Posiciones:** anótalas, recordando que con `gridSize` 0 la medición es de un solo punto y poco fiable.
 - Solo si algo exige entrar en la cuenta de Google y no hay otra forma: `espera` con `NECESITA A DANIEL: …` y aviso por email (`geo_actividad.py aviso`).
@@ -90,9 +93,9 @@ Lleva **toda la ficha de Google Business** de PEBAI. Su trabajo es entrar en Loc
 
 ## geo_redes · Redes (lunes a viernes)
 
-Lleva **LinkedIn**. La ficha de Google ya no es suya: la lleva Local.
-- Reels de Daniel: el calendario está en el Google Calendar de equipo@ (azul turquesa) y lo sube Daniel; no duplicarlo.
-- Publicaciones de casos reales en la página de LinkedIn: prepáralas en Metricool (red `linkedin`) con el texto y la captura difuminada (`https://pebaisystems.es/casos/img/*.jpg`). Programar solo con el OK de Daniel en el chat (`aprobaciones.md`).
+Lleva **LinkedIn** de principio a fin: escribe, revisa y **publica** en la página de PEBAI por Metricool (red `linkedin`, `autoPublish`). Nada se queda en borrador esperando a Daniel. La ficha de Google la lleva Local.
+- Reels de Daniel: el calendario está en el Google Calendar de equipo@ (azul turquesa) y lo sube Daniel; no duplicarlos.
+- Publicaciones de la página: 2 por semana (martes y jueves, 17:00), que no coincidan con un Reel ese día. Primero los 4 casos reales (`docs/geo/borradores/casos.md`, captura `https://pebaisystems.es/casos/img/*.jpg`), después una pregunta real de un dueño de empresa con su respuesta. 150-300 palabras, empieza con la pregunta y la respuesta, enlace `pebaisystems.es/li/empresa`, sin cifras inventadas ni palabras prohibidas. Antes de programar, revisa que no repites tema de las últimas 4.
 - Nada de imagen con texto en TikTok, Instagram, Facebook ni YouTube.
 
 **Mejora continua:** banco de ideas para LinkedIn (preguntas reales de dueños de empresa, casos, lo que aprendemos); borradores de artículos de LinkedIn (uno al mes, 800-1.200 palabras, pregunta y respuesta) en `docs/geo/borradores/linkedin/`; revisar qué publicaciones de otras consultoras funcionan y por qué (sin copiar).
@@ -103,7 +106,7 @@ Indexación real: `geo_datos.py gsc-inspeccion` (página a página: indexada o n
 
 Martes a viernes: solo `geo_datos.py gsc 3`, `gsc-inspeccion`, `bing` y `localo`; apunta en el panel lo que haya cambiado (impresiones, indexación, posiciones) en 1-2 líneas. Los lunes:
 
-Informe semanal en `docs/geo/mediciones/AAAA-MM-DD.md`: `geo_datos.py gsc 7`, `ga4 7`, `bing`, `clarity 3`, `seranking`, `localo`, Metricool (visitas por fuente y página) y las preguntas de `docs/geo/prompts.md` con tu búsqueda web (vista de Claude). KPIs: share of voice, % con cita a la web, visitas y leads desde IA, posiciones; comparación con la semana anterior; dominios más citados; siguiente paso. Commit y push. Envía un aviso al móvil (PushNotification) con 5 líneas.
+Informe semanal en `docs/geo/mediciones/AAAA-MM-DD.md` (y **mándaselo a Daniel por email** con `geo_actividad.py --agente=geo_medicion aviso "Informe semanal" "<10 líneas: cifras clave, qué ha cambiado y qué toca>"`): `geo_datos.py gsc 7`, `ga4 7`, `bing`, `clarity 3`, `seranking`, `localo`, Metricool (visitas por fuente y página) y las preguntas de `docs/geo/prompts.md` con tu búsqueda web (vista de Claude). KPIs: share of voice, % con cita a la web, visitas y leads desde IA, posiciones; comparación con la semana anterior; dominios más citados; siguiente paso. Commit y push. Envía un aviso al móvil (PushNotification) con 5 líneas.
 
 Turno de tarde (16:30): pasa 3-5 preguntas del set (búsqueda web) y apunta si sale PEBAI y quién sale; entrégalo como `informe` («Medición del día: X de 5 preguntas con PEBAI»).
 
