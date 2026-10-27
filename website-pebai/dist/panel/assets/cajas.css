@@ -56,3 +56,16 @@
 .pb-ciuchips button.on{border-color:var(--fg);color:var(--fg-strong)}
 @media (max-width:760px){.pb-cajas{grid-template-columns:1fr}.pb-cprovs{grid-template-columns:repeat(2,minmax(0,1fr))}.pb-filters{flex-wrap:wrap}}
 @media (prefers-reduced-motion:reduce){.pb-caja,.pb-cprov{animation:none}}
+/* Prospectos: pestañas Empresas · Conversaciones · Mapa */
+.pb-subnav{display:inline-flex;gap:4px;padding:4px;margin:0 0 18px;border-radius:14px;background:var(--panel,rgba(14,18,34,.82));border:1px solid var(--line,rgba(255,255,255,.08))}
+.pb-subnav button{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:0;border-radius:10px;background:transparent;color:var(--muted,#9A9CB0);font:700 13px var(--sans);cursor:pointer;transition:background .2s,color .2s}
+.pb-subnav button:hover{color:var(--fg-strong,#fff)}
+.pb-subnav button.on{background:rgba(255,255,255,.08);color:var(--fg-strong,#fff)}
+.pb-subnav .pb-i{width:16px;height:16px}
+.pb-subnav-n{font-style:normal;min-width:20px;padding:1px 6px;border-radius:999px;background:var(--amber,#FFB547);color:#14110a;font-size:11px;font-weight:800;text-align:center}
+.pb-subnav-n:empty{display:none}
+#page-mapa{position:relative}
+#page-mapa>.pb-subnav{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:6;margin:0;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+/* carpetas solo con su nombre */
+.pb-caja{min-height:0}
+.pb-cprov .hd{margin:0}

@@ -151,7 +151,7 @@ function cajaCard(titulo, lista, extra, onOpen, todas) {
   const h = el('h3', null, titulo); const n = el('div', 'n'); n.append(el('b', null, N(lista.length)), el('span', null, lista.length === 1 ? 'empresa' : 'empresas'));
   const pie = el('div', 'pie'); pie.append(el('span', null, N(provs.size) + (provs.size === 1 ? ' provincia' : ' provincias')), el('span', null, N(cola) + ' por escribir'), el('span', resp ? 'ok' : null, N(resp) + (resp === 1 ? ' respondió' : ' respondieron')), el('span', null, N(fijos) + ' con fijo'));
   const chips = el('div', 'provs'); [...provs.entries()].sort((a, b) => b[1] - a[1]).slice(0, extra || 4).forEach(([pv, k]) => chips.append(el('span', null, pv + ' · ' + N(k))));
-  c.append(top, h, n, barraEstados(lista), chips, pie); c.onclick = onOpen;
+  c.append(top, h); c.onclick = onOpen;   // solo la carpeta: lo de dentro se ve al abrirla
   return c;
 }
 function provCard(nombre, lista, onOpen) {
@@ -159,7 +159,7 @@ function provCard(nombre, lista, onOpen) {
   const ciu = new Set(lista.map((p) => p.ciudad)); const resp = lista.filter((p) => p.estado === 'respondio').length;
   const hd = el('div', 'hd'); hd.append(el('b', null, nombre), el('span', 'num', N(lista.length)));
   const sub = el('div', 'sub', N(ciu.size) + (ciu.size === 1 ? ' ciudad' : ' ciudades') + (resp ? ' · ' + N(resp) + ' respondieron' : ''));
-  c.append(hd, barraEstados(lista), sub); c.onclick = onOpen; return c;
+  hd.querySelector('.num').remove(); c.append(hd); c.onclick = onOpen; return c;
 }
 const irA = (cambios) => { Object.assign(ui, cambios, { limit: 150 }); drawProspectos(); const l = $('#pb-pros-list'); if (l && l.getBoundingClientRect().top < 0) l.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 function drawProspectos() {
@@ -171,8 +171,8 @@ function drawProspectos() {
   const resp = cuenta('respondio') + P.filter((p) => p.estado === 'baja' && p.respondido_at).length;
   const pend = cuenta('pendiente');
   const nCarpetas = new Set(ENC.map((p) => nichoDe(p))).size;
-  const kp = $('#pb-pros-kpis'); kp.textContent = '';
-  [[true, 'Empresas', P.length, 'en ' + N(nCarpetas) + ' carpetas'],
+  const kp = $('#pb-pros-kpis'); kp.textContent = ''; kp.hidden = true;
+  if (false) [[true, 'Empresas', P.length, 'en ' + N(nCarpetas) + ' carpetas'],
     [false, 'Por escribir', pend, 'aún no les ha escrito nadie'], [false, 'Escritas', enviados, 'primer mensaje enviado'],
     [false, 'Respondieron', resp, pct(resp, enviados) + ' de las escritas'], [false, 'Bajas', cuenta('baja'), 'no se les vuelve a escribir']]
     .forEach(([hero, l, v, d], i) => {
@@ -180,8 +180,8 @@ function drawProspectos() {
       c.append(el('div', 'l', l), el('div', 'v', N(v)), el('div', 'd', d)); kp.append(c);
     });
 
-  const ch = $('#pb-pros-chips'); ch.textContent = '';
-  CHIPS.forEach(([k, l, c]) => {
+  const ch = $('#pb-pros-chips'); ch.textContent = ''; ch.hidden = true; ui.estado = '';
+  if (false) CHIPS.forEach(([k, l, c]) => {
     const n = k ? (k === 'enviado' ? cuenta('enviado') + cuenta('enviando') : cuenta(k)) : P.length;
     if (k && !n && !['pendiente', 'enviado', 'respondio'].includes(k)) return;
     const b = el('button', 'pb-chip' + (ui.estado === k ? ' on' : '')); b.type = 'button';
@@ -220,7 +220,7 @@ function drawProspectos() {
       const g = el('div', 'pb-cajas');
       [...grupos.entries()].sort((a, b) => b[1].length - a[1].length).forEach(([k, l], i) => { const c = cajaCard(k, l, 4, () => irA({ caja: k, prov: '', ciudad: '' })); c.style.setProperty('--i', i); g.append(c); });
       if (grupos.size > 1) { const c = cajaCard('Todas', rows, 5, () => irA({ caja: '*', prov: '', ciudad: '' }), true); c.style.setProperty('--i', grupos.size); g.append(c); }
-      if (!rows.length) g.append(el('div', 'pb-card pb-empty', P.length ? 'Nada con estos filtros.' : 'Aún no hay prospectos. Pulsa «Añadir prospectos» y sube la primera lista.'));
+      if (!rows.length) g.append(el('div', 'pb-card pb-empty', P.length ? 'Nada con estos filtros.' : 'Aún no hay prospectos: el Scraper los irá metiendo en su carpeta.'));
       list.append(g); return;
     }
     if (ui.caja && !ui.prov && !q) {
@@ -721,6 +721,38 @@ window.PB_FICHA = Object.assign(window.PB_FICHA || {}, {
   whatsapp: { ajustes: (re) => S.loaded ? controlCard(S.whatsapp || {}, re) : null, rendimiento: (re) => S.loaded ? rendimientoCard(re) : null },
   scraper: { rendimiento: () => S.loaded && S.scraper ? scraperCard(S.scraper) : null },
 });
+/* Prospectos reúne tres vistas: Empresas (cajas), Conversaciones y Mapa. Conversaciones y Mapa salen del menú lateral
+   y se abren desde estas pestañas; en el menú queda marcado «Prospectos» en las tres. */
+const SUBS = [['prospectos', 'Empresas', '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'],
+  ['conversaciones', 'Conversaciones', '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>'],
+  ['mapa', 'Mapa', '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>']];
+function montaSubnav() {
+  SUBS.forEach(([pg]) => {
+    const navB = document.querySelector(`#pb-tabs button[data-page="${pg}"]`);
+    if (pg !== 'prospectos' && navB) navB.hidden = true;
+    const sec = $('#page-' + pg); if (!sec || $('.pb-subnav', sec)) return;
+    const bar = el('nav', 'pb-subnav'); bar.setAttribute('aria-label', 'Prospectos');
+    SUBS.forEach(([k, t, ic]) => {
+      const b = el('button', k === pg ? 'on' : ''); b.type = 'button'; b.dataset.sub = k;
+      b.innerHTML = `<svg class="pb-i" viewBox="0 0 24 24">${ic}</svg><span>${t}</span>`;
+      if (k === 'conversaciones') b.append(el('em', 'pb-subnav-n'));
+      b.onclick = () => { if (k === pagina()) return; const nb = document.querySelector(`#pb-tabs button[data-page="${k}"]`); if (nb) nb.click(); };
+      bar.append(b);
+    });
+    sec.prepend(bar);
+  });
+  // el aviso de «te toca» de Conversaciones pasa a su pestaña
+  const n = document.getElementById('pb-conv-n');
+  const pinta = () => $$('.pb-subnav-n').forEach((e) => { const t = (n && n.textContent || '').trim(); e.textContent = /^\d+$/.test(t) && t !== '0' ? t : ''; });
+  if (n) new MutationObserver(pinta).observe(n, { childList: true, characterData: true, subtree: true });
+  pinta();
+  const imp = $('#pb-imp-abrir'); if (imp) imp.remove();   // «Añadir prospectos» no se usa
+}
+document.addEventListener('pb:page', (e) => setTimeout(() => {
+  const nav = document.querySelector('#pb-tabs button[data-page="prospectos"]');
+  if (nav && ['conversaciones', 'mapa'].includes(e.detail)) { nav.classList.add('on'); nav.setAttribute('aria-current', 'page'); }
+}, 0));
+montaSubnav();
 function pagina() { return document.body.dataset.page || 'resumen'; }
 function crumb(p) { const [a, b] = PAGINAS[p] || PAGINAS.resumen; const c = $('#pb-crumb'); c.textContent = ''; c.append(el('span', null, a), el('b', null, b)); }
 function draw() {
