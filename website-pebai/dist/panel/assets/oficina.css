@@ -395,3 +395,27 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-hoyd span{margin-left:auto;color:#8C8FA3;text-align:right}
 .pb-of-hoyd em{font-style:normal;font-weight:800;color:#EFEDE7}
 .pb-of-hoyd s{text-decoration:none;margin:0 5px;opacity:.5}
+/* Claude en la oficina: explicación de cada agente y parte del día del núcleo */
+.pb-of-claude{position:relative;margin:2px 0 14px;padding:13px 14px;border-radius:14px;border:1px solid rgba(217,119,87,.28);background:linear-gradient(135deg,rgba(217,119,87,.10),rgba(126,115,255,.06));overflow:hidden}
+.pb-of-claude::before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.06) 50%,transparent 70%) 0 0/250% 100%;animation:pb-of-brillo 1.8s linear infinite;pointer-events:none}
+.pb-of-claude.listo::before{display:none}
+.pb-of-claude .h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pb-of-claude .h b{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#F4A582}
+.pb-of-claude .cl{width:16px;height:16px;flex:none}
+.pb-of-claude p{margin:4px 0 0;font-size:13px;line-height:1.5;color:#E4E2DC}
+.pb-of-claude p.sub{color:#9A9CB0;font-size:12px}
+.pb-of-claude p.ojo{margin-top:8px;padding:8px 10px;border-radius:10px;background:rgba(255,181,71,.1);color:#FFCF85;font-size:12.5px}
+.pb-of-claude p.tit{font:400 18px var(--serif);color:#fff;line-height:1.3;margin:2px 0 6px}
+.pb-of-claude ol{margin:10px 0 2px;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.pb-of-claude li{font-size:12.5px;line-height:1.45;color:#E4E2DC}
+.pb-of-claude li::marker{color:#F4A582;font-weight:800}
+.pb-of-claude .otra{margin-left:auto;border:1px solid rgba(255,255,255,.12);background:transparent;color:#C9CBDA;border-radius:999px;padding:3px 10px;font:700 11px var(--sans);cursor:pointer}
+.pb-of-claude .otra:hover{border-color:#F4A582;color:#fff}
+.pb-of-nota{display:inline-flex;align-items:baseline;gap:1px;margin-left:auto;font-weight:800;font-size:14px;color:var(--c)}
+.pb-of-claude .nota .pb-of-nota{margin-left:6px}
+.pb-of-claude .nota{margin-left:auto}
+.pb-of-claude .h .otra{margin-left:8px}
+.pb-of-nota small{font-size:10px;opacity:.7}
+.pb-of-shim{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.pb-of-shim i{display:block;height:9px;border-radius:5px;background:rgba(255,255,255,.08)}
+.pb-of-shim i:nth-child(2){width:86%}.pb-of-shim i:nth-child(3){width:64%}.pb-of-shim i:nth-child(4){width:72%}

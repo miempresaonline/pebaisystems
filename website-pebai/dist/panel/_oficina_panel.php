@@ -693,7 +693,44 @@ function of_estado(PDO $db): array
         }
     }
     unset($a);
+    // IA de cada agente este mes (ia_gasto). Conversaciones prepara las respuestas de WhatsApp: cuenta en su mesa.
+    try {
+        require_once dirname(__DIR__) . '/api/_claude_lib.php';
+        $q = pebai_ia_gasto_db()->prepare("SELECT agente, SUM(usd) usd, SUM(ok=1) n, MAX(ts) ult FROM ia_gasto WHERE ts >= ? GROUP BY agente");
+        $q->execute([date('Y-m-01 00:00:00')]);
+        $mapa = ['cerebro' => 'cerebro', 'conversaciones' => 'whatsapp', 'redactor' => 'redactor'];
+        $uso = [];
+        foreach ($q->fetchAll(PDO::FETCH_ASSOC) as $r) {
+            $id = $mapa[$r['agente']] ?? null;
+            if ($id) {
+                $u = $uso[$id] ?? ['usd' => 0.0, 'n' => 0, 'ultima' => ''];
+                $uso[$id] = ['usd' => $u['usd'] + (float)$r['usd'], 'n' => $u['n'] + (int)$r['n'], 'ultima' => max($u['ultima'], (string)$r['ult'])];
+            }
+        }
+        foreach ($ags as &$a) {
+            if (isset($uso[$a['id']])) {
+                $a['ia'] = $uso[$a['id']];
+            }
+        }
+        unset($a);
+    } catch (Throwable $e) {
+        pebai_log('OFICINA IA uso: ' . $e->getMessage());
+    }
     return $ags;
+}
+
+/** Caché pequeña en private/ para lo que escribe Claude en la oficina (explicaciones, parte del día): no se paga dos veces lo mismo. */
+function of_cache(string $clave, ?array $valor = null): ?array
+{
+    $f = pebai_private_dir() . '/oficina_ia_cache.json';
+    $c = is_file($f) ? (json_decode((string)file_get_contents($f), true) ?: []) : [];
+    if ($valor === null) {
+        return $c[$clave] ?? null;
+    }
+    $c[$clave] = $valor + ['ts' => time()];
+    $c = array_filter($c, static fn($v) => ($v['ts'] ?? 0) > time() - 86400);   // solo lo del último día
+    file_put_contents($f, json_encode($c, JSON_UNESCAPED_UNICODE), LOCK_EX);
+    return $valor;
 }
 
 /* --------------------------------------------- servidor de cada sala --- */
@@ -853,8 +890,81 @@ if ($auth && ($_POST['action'] ?? '') === 'agentes_parar') {
 }
 
 if ($auth && isset($_GET['oficina'])) {
-    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'agentes' => of_estado(pebai_db()),
-              'ia' => is_file(pebai_private_dir() . '/ia.php'), 'parada' => of_parada()]);
+    $agentes = of_estado(pebai_db());
+    $iaNucleo = '';
+    try {
+        $iaNucleo = (string)pebai_ia_gasto_db()->query("SELECT MAX(ts) FROM ia_gasto WHERE agente IN ('pebai','servidor','oficina')")->fetchColumn();
+    } catch (Throwable $e) {
+        // sin registro de IA todavía
+    }
+    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'agentes' => $agentes,
+              'ia' => is_file(pebai_private_dir() . '/ia.php'), 'parada' => of_parada(), 'ia_nucleo' => $iaNucleo]);
+}
+
+// «Explícamelo»: Claude Haiku cuenta en palabras normales qué ha hecho hoy un agente y, si algo va mal, por qué y qué hacer.
+// Se guarda hasta que el agente apunta algo nuevo.
+if ($auth && isset($_GET['oficina_explica'])) {
+    $id = preg_replace('/[^a-z_]/', '', (string)$_GET['oficina_explica']);
+    $a = null;
+    foreach (of_estado(pebai_db()) as $x) {
+        if ($x['id'] === $id) {
+            $a = $x;
+        }
+    }
+    if (!$a) {
+        json_out(['ok' => false, 'error' => 'No existe ese agente.'], 404);
+    }
+    $clave = 'explica_' . $id . '_' . md5($a['st'] . '|' . ($a['actividad'][0]['ts'] ?? '') . '|' . implode(',', $a['necesita']));
+    if (($c = of_cache($clave)) !== null) {
+        json_out(['ok' => true] + $c);
+    }
+    require_once dirname(__DIR__) . '/api/_claude_lib.php';
+    $ctx = json_encode(['agente' => $a['nombre'], 'que_hace' => $a['rol'] ?? '', 'estado' => $a['st'], 'por_que' => $a['motivo'], 'hoy' => $a['hoy'] . ' ' . $a['unidad'],
+        'horario' => $a['proxima'], 'necesita_de_daniel' => $a['necesita'], 'errores_24h' => array_map(static fn($e) => $e['ts'] . ' ' . $e['txt'], $a['errores']),
+        'datos' => $a['datos'], 'actividad' => array_map(static fn($e) => substr($e['ts'], 5, 11) . ' ' . $e['tipo'] . ': ' . $e['txt'], array_slice($a['actividad'], 0, 25))], JSON_UNESCAPED_UNICODE);
+    $j = pebai_claude_json('oficina', 'claude-haiku-5-5',
+        'Eres el jefe de la oficina de agentes automáticos de PEBAI Systems y explicas a Daniel, el dueño, cómo va UN agente. Español de España, tuteo, palabras normales, sin tecnicismos ni inglés. '
+        . 'Usa SOLO los datos que te dan; no inventes. Responde SOLO JSON: {"hoy": "qué ha hecho hoy en 1-2 frases con cifras", "ahora": "qué está haciendo o por qué está parado, 1 frase", '
+        . '"ojo": "si hay un error o algo que Daniel deba hacer: qué pasa y qué hacer, en 1-2 frases; vacío si todo va bien", "nota": "un número del 1 al 10 de lo bien que va hoy"}',
+        "DATOS DEL AGENTE:
+" . $ctx, ['effort' => 'low', 'max_tokens' => 1500]);
+    if (!is_array($j) || trim((string)($j['hoy'] ?? '')) === '') {
+        json_out(['ok' => false, 'error' => 'Claude no ha podido explicarlo ahora.'], 502);
+    }
+    $r = ['hoy' => mb_substr((string)$j['hoy'], 0, 400), 'ahora' => mb_substr((string)($j['ahora'] ?? ''), 0, 300), 'ojo' => mb_substr((string)($j['ojo'] ?? ''), 0, 400),
+          'nota' => max(1, min(10, (int)($j['nota'] ?? 0)))];
+    json_out(['ok' => true] + of_cache($clave, $r));
+}
+
+// Parte del día del núcleo: Claude Sonnet lee toda la oficina y escribe cómo va el día y las 3 prioridades. Se renueva cada 2 horas (o al pedirlo).
+if ($auth && isset($_GET['oficina_parte'])) {
+    $clave = 'parte_' . date('Y-m-d');
+    $c = of_cache($clave);
+    if ($c !== null && empty($_GET['fresh']) && ($c['ts'] ?? 0) > time() - 7200) {
+        json_out(['ok' => true] + $c);
+    }
+    require_once dirname(__DIR__) . '/api/_claude_lib.php';
+    $ctx = [];
+    foreach (of_estado(pebai_db()) as $a) {
+        $ctx[] = ['agente' => $a['nombre'], 'dpto' => $a['dept'], 'estado' => $a['st'], 'por_que' => mb_substr($a['motivo'], 0, 200), 'hoy' => $a['hoy'] . ' ' . $a['unidad'],
+                  'necesita' => $a['necesita'], 'errores' => array_map(static fn($e) => $e['txt'], $a['errores']),
+                  'hecho_hoy' => array_values(array_map(static fn($e) => substr($e['ts'], 11, 5) . ' ' . $e['txt'], array_filter(array_slice($a['actividad'], 0, 15), static fn($e) => substr($e['ts'], 0, 10) === date('Y-m-d') && $e['tipo'] !== 'espera')))];
+    }
+    $j = pebai_claude_json('oficina', 'claude-sonnet-5-5',
+        'Eres PEBAI, el núcleo que coordina la oficina de agentes automáticos de PEBAI Systems (consultora española de procesos e IA). Escribes el parte del día para Daniel, el dueño. '
+        . 'Español de España, tuteo, claro y directo, sin emojis ni exclamaciones. Usa SOLO los datos; no inventes cifras. Responde SOLO JSON: '
+        . '{"titular": "el día en una frase", "parte": "3-4 frases: qué ha ido bien, qué está parado y por qué, con nombres de agentes y cifras", '
+        . '"prioridades": ["las 3 cosas más importantes para Daniel ahora, de más a menos urgente, una frase cada una con el verbo delante"], "nota": "del 1 al 10, cómo va el día"}',
+        'Hoy es ' . date('d/m/Y') . ', son las ' . date('H:i') . ".
+OFICINA:
+" . json_encode($ctx, JSON_UNESCAPED_UNICODE), ['effort' => 'medium', 'max_tokens' => 4000]);
+    if (!is_array($j) || trim((string)($j['parte'] ?? '')) === '') {
+        json_out(['ok' => false, 'error' => 'Claude no ha podido escribir el parte ahora.'], 502);
+    }
+    $r = ['titular' => mb_substr((string)($j['titular'] ?? ''), 0, 200), 'parte' => mb_substr((string)$j['parte'], 0, 1200),
+          'prioridades' => array_slice(array_map(static fn($p) => mb_substr((string)$p, 0, 240), (array)($j['prioridades'] ?? [])), 0, 3),
+          'nota' => max(1, min(10, (int)($j['nota'] ?? 0))), 'hora' => date('H:i')];
+    json_out(['ok' => true] + of_cache($clave, $r));
 }
 
 if ($auth && ($_POST['action'] ?? '') === 'oficina_preguntar') {

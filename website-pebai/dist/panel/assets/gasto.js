@@ -20,6 +20,7 @@ const AG = {
   pebai: ['Pregunta a PEBAI', '#B7FF3C', 'Responde lo que le preguntas sobre la oficina'],
   servidor: ['Resúmenes de sala', '#FFB547', 'Resume el día de cada departamento'],
   redactor: ['Redactor', '#D97757', 'Escribe primeros mensajes (de reserva)'],
+  oficina: ['Oficina', '#F4A582', 'Explica cada agente y escribe el parte del día'],
   general: ['Otros', '#8C8FA3', 'Otras llamadas'],
 };
 const ag = (k) => AG[k] || [k, '#8C8FA3', ''];

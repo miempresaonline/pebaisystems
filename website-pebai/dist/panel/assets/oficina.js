@@ -61,7 +61,7 @@ async function cargar() {
   if (!j.ok) throw new Error(j.error || 'No se ha podido cargar la oficina.');
   /* en la oficina solo salen los bots de verdad (los de los departamentos con agentes) */
   j.agentes.forEach((a) => { if (!a.icono && PROPIOS[a.id]) { a.icono = a.id; FONDO[a.id] = FONDO[a.id] || FONDO.geo; } });
-  S.agentes = j.agentes.filter((a) => DEPTS.some((d) => d.activo && d.id === a.dept)); S.autos = j.agentes.filter((a) => a.dept === 'embudo'); S.csrf = j.csrf; S.parada = j.parada || null; S.cargado = Date.now(); return true;
+  S.agentes = j.agentes.filter((a) => DEPTS.some((d) => d.activo && d.id === a.dept)); S.autos = j.agentes.filter((a) => a.dept === 'embudo'); S.csrf = j.csrf; S.parada = j.parada || null; S.iaNucleo = j.ia_nucleo || ''; S.cargado = Date.now(); return true;
 }
 async function accion(action, fields, ok, btn) {
   if (btn) btn.disabled = true;
@@ -342,6 +342,35 @@ function pintaQRs() {
   if (window.QRCode) return dibuja();
   const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'; sc.onload = dibuja; document.head.append(sc);
 }
+/* ---------- Claude en la oficina ---------- */
+const CLAUDE_SVG = '<svg viewBox="0 0 24 24" class="cl" aria-hidden="true"><path fill="#D97757" d="' + PROPIOS.redactor + '"/></svg>';
+const notaHtml = (n) => `<span class="pb-of-nota" style="--c:${n >= 8 ? '#3DDC84' : n >= 5 ? '#FFB547' : '#FF5E6C'}" title="Cómo va hoy, del 1 al 10">${n}<small>/10</small></span>`;
+// Claude Haiku explica en palabras normales qué ha hecho el agente y, si algo va mal, qué hacer (el servidor lo guarda hasta que haya novedades)
+async function explica(a) {
+  const box = $('#pb-of-expl'); if (!box) return;
+  try {
+    const r = await fetch(BASE + '?oficina_explica=' + encodeURIComponent(a.id), { credentials: 'same-origin' });
+    const j = await r.json(); if (!j.ok) throw new Error(j.error);
+    if (!document.body.contains(box)) return;
+    box.innerHTML = `<div class="h">${CLAUDE_SVG}<b>Explicado por Claude</b>${j.nota ? notaHtml(j.nota) : ''}</div>
+      <p>${esc(j.hoy)}</p>${j.ahora ? `<p class="sub">${esc(j.ahora)}</p>` : ''}${j.ojo ? `<p class="ojo">${esc(j.ojo)}</p>` : ''}`;
+    box.classList.add('listo');
+  } catch (e) { if (document.body.contains(box)) box.remove(); }
+}
+// Parte del día en el núcleo (Claude Sonnet), se renueva cada 2 horas o al pulsar «Otra vez»
+async function parteDia(fresh) {
+  const box = $('#pb-of-parte'); if (!box) return;
+  box.classList.remove('listo'); box.querySelector('.cuerpo').innerHTML = '<div class="pb-of-shim"><i></i><i></i><i></i><i></i></div>';
+  try {
+    const r = await fetch(BASE + '?oficina_parte=1' + (fresh ? '&fresh=1' : ''), { credentials: 'same-origin' });
+    const j = await r.json(); if (!j.ok) throw new Error(j.error);
+    if (!document.body.contains(box)) return;
+    box.querySelector('.nota').innerHTML = j.nota ? notaHtml(j.nota) : '';
+    box.querySelector('.cuerpo').innerHTML = `${j.titular ? `<p class="tit">${esc(j.titular)}</p>` : ''}<p>${esc(j.parte)}</p>
+      ${(j.prioridades || []).length ? `<ol>${j.prioridades.map((p) => `<li>${esc(p)}</li>`).join('')}</ol>` : ''}<p class="sub">Escrito a las ${esc(j.hora || '')}</p>`;
+    box.classList.add('listo');
+  } catch (e) { if (document.body.contains(box)) box.querySelector('.cuerpo').innerHTML = '<p class="sub">Claude no ha podido escribir el parte ahora.</p>'; }
+}
 function abrirAgente(id) {
   const a = ag(id); if (!a) return;
   const d = DEPTS.find((x) => x.id === a.dept); enfocarAgente(a.id);
@@ -358,6 +387,8 @@ function abrirAgente(id) {
     ${a.codigo && !String(a.codigo).startsWith('QR:') ? `<div class="pb-of-code"><small>Código para vincular WhatsApp</small><b>${esc(String(a.codigo).replace(/[^A-Z0-9]/gi, '').toUpperCase().replace(/(.{4})(?=.)/g, '$1-'))}</b><span>En el móvil: WhatsApp › Dispositivos vinculados › Vincular con el número de teléfono.</span></div>` : ''}
     <div class="pb-of-tabs" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" data-t="${k}" aria-selected="${k === S.tab}">${t}</button>`).join('')}</div>
     <div class="pb-of-tab" id="pb-of-tab">${S.tab !== 'estado' ? '' : `<div class="pb-of-qa">
+    <div class="pb-of-claude" id="pb-of-expl"><div class="h">${CLAUDE_SVG}<b>Explicado por Claude</b></div><div class="pb-of-shim"><i></i><i></i><i></i></div></div>
+    ${a.ia ? q('IA este mes', `<p><b class="big">${String((+a.ia.usd || 0).toFixed((+a.ia.usd || 0) < 1 ? 3 : 2)).replace('.', ',')} $</b> en ${N(a.ia.n)} llamadas a Claude</p><p class="sub">Última: ${esc(String(a.ia.ultima).slice(11, 16))} · detalle en Automático › Gasto IA</p>`) : ''}
     ${q('Hoy', `<p><b class="big">${N(a.hoy)}</b> ${esc(a.unidad)}${a.cupo ? ` de ${a.cupo} posibles` : ''}</p>${a.cupo ? `<div class="bar" style="--c:${d.color}"><i data-w="${pct}%"></i></div>` : ''}${franjaDia(a)}`)}
     ${q('Lo último que hizo', a.ultima ? `<p>${esc(a.ultima.txt)}</p><p class="sub">${esc(a.ultima.hace)}</p>` : '<p>Todavía no ha hecho nada.</p>')}
     ${(a.necesita || []).length ? q('Necesita de vosotros', a.necesita.map((n) => `<p class="warn">${esc(n)}</p>`).join('')) : ''}
@@ -368,6 +399,7 @@ function abrirAgente(id) {
   side.classList.toggle('ancho', ['ajustes', 'rendimiento'].includes(S.tab));
   sideIn.querySelectorAll('.pb-of-tabs button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); S.tab = b.dataset.t; abrirAgente(a.id); }; });
   const caja = $('#pb-of-tab');
+  if (S.tab === 'estado') explica(a);
   if (S.tab === 'actividad') caja.append(lineaTiempo(a));
   else if (S.tab === 'trabajo') caja.append(suTrabajo(a));
   else if (S.tab !== 'estado') {
@@ -495,6 +527,7 @@ function abrirNucleo() {
   sideIn.innerHTML = `<div class="k">El núcleo</div><h2>PEBAI</h2><div class="rol">La IA que conecta todos los departamentos: recibe lo que hace cada bot y le devuelve el trabajo.</div>
     <div class="pb-of-state" style="--c:${c}"><i></i><div><b>${ne ? (ne === 1 ? '1 agente con error' : ne + ' agentes con error') : pend.length ? 'Funciona, pero os necesita' : 'Todo en orden'}</b><span>${trab} de ${S.agentes.length} bots trabajando ahora</span></div></div>
     <div class="pb-of-qa">
+    <div class="pb-of-claude grande" id="pb-of-parte"><div class="h">${CLAUDE_SVG}<b>Parte del día</b><span class="nota"></span><button type="button" class="otra" title="Escribirlo otra vez con lo último">Otra vez</button></div><div class="cuerpo"></div></div>
     ${q('Departamentos', DEPTS.map((d) => { const l = agsDe(d.id); return `<div class="pb-of-row" data-sala="${esc(d.id)}"><i style="background:${d.color}"></i><b>${esc(d.nombre)}</b><span>${d.activo ? (() => { const tr = l.filter((a) => a.st === 'trabajando').length; return (tr ? tr + ' trabajando · ' : '') + (l.length === 1 ? '1 bot' : l.length + ' bots'); })() : '' + (d.id === 'embudo' && S.autos.length ? S.autos.length + ' automáticos' : 'Sin agentes aún') + ''}</span></div>`; }).join(''))}
     ${hechoHoy || pasesHoy ? q('Hoy en la oficina', hechoHoy + (pasesHoy ? `<div class="pb-of-hoyd"><i style="background:#9C93FF"></i><b>Traspasos</b><span><em>${pasesHoy}</em> entre agentes</span></div>` : '')) : ''}
     ${pend.length ? q('Necesita de vosotros', pend.map((p) => `<p class="${p.err ? 'bad' : 'warn'}"><b>${esc(p.a.nombre)}</b>: ${esc(p.txt)}</p>`).join('')) : ''}
@@ -502,6 +535,8 @@ function abrirNucleo() {
     </div>`;
   sideIn.querySelectorAll('.pb-of-row').forEach((r) => r.addEventListener('click', () => abrirSala(DEPTS.find((d) => d.id === r.dataset.sala))));
   $('#pb-of-preg').onclick = (e) => { e.stopPropagation(); qIn.focus(); };
+  sideIn.querySelector('#pb-of-parte .otra').onclick = (e) => { e.stopPropagation(); parteDia(true); };
+  parteDia(false);
   mostrar();
 }
 /* servidor de una sala: resumen con IA de lo que han hecho hoy sus agentes (index.php?oficina_resumen=<sala>) */
@@ -793,7 +828,7 @@ async function montar() {
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: brillo, color: c, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
     sp.scale.setScalar(.55); scene.add(sp); return { sp, fase: i / 6 * Math.PI * 2, incl: (i % 3 - 1) * .7, r: 1.75 + (i % 2) * .35 };
   });
-  let pz = 0, chispazo = 0, pensabaAntes = false;
+  let pz = 0, chispazo = 0, pensabaAntes = false, iaVisto = '';
   /* el logo, al frente y bien visible: una lente oscura detrás y un brillo suave */
   const lente = new THREE.Mesh(new THREE.CircleGeometry(.8, 64), new THREE.MeshBasicMaterial({ color: 0x07081a, transparent: true, opacity: .78, depthWrite: false })); lente.renderOrder = 4; scene.add(lente);
   const aro = new THREE.Mesh(new THREE.RingGeometry(.8, .835, 64), new THREE.MeshBasicMaterial({ color: 0x9C93FF, transparent: true, opacity: .8, depthWrite: false, toneMapped: false })); aro.renderOrder = 4; scene.add(aro);
@@ -1265,6 +1300,18 @@ async function montar() {
     lamparas.forEach((l) => { l.pant.emissiveIntensity = .12 + .55 * noche; l.charco.opacity = .18 + .3 * noche; });
   }
   const flotantes = [];
+  const chispaTex = canvasTex(128, 128, (c) => {
+    const r = c.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, 'rgba(217,119,87,.55)'); r.addColorStop(1, 'rgba(217,119,87,0)');
+    c.fillStyle = r; c.fillRect(0, 0, 128, 128);
+    c.save(); c.translate(26, 26); c.scale(3.2, 3.2); c.fillStyle = '#F4A582'; c.fill(new Path2D(PROPIOS.redactor)); c.restore();
+  });
+  function marcaClaude(o, on) {
+    if (on && !o.chispa) {
+      o.chispa = new THREE.Sprite(new THREE.SpriteMaterial({ map: chispaTex, transparent: true, depthWrite: false, toneMapped: false }));
+      o.chispa.scale.setScalar(.5); o.chispa.position.set(-.62, 3.15, -.28); o.p.add(o.chispa);
+    }
+    if (o.chispa) o.chispa.visible = !!on;
+  }
   const avisoTex = canvasTex(128, 128, (c) => {
     c.fillStyle = '#FFB547'; c.beginPath(); c.arc(64, 64, 50, 0, Math.PI * 2); c.fill();
     c.fillStyle = '#1b1204'; c.font = '900 76px Manrope, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('!', 64, 70);
@@ -1591,6 +1638,7 @@ async function montar() {
     puestos.forEach((o) => {
       const a = ag(o.a.id); if (!a) return; o.a = a;
       marcaAviso(o, pendientes().some((x) => x.a.id === a.id && !x.err));
+      marcaClaude(o, a.ia && a.ia.ultima && Date.now() - tsMs(a.ia.ultima) < 10 * 6e4);
       if (o.prevSt === 'trabajando' && a.st !== 'trabajando' && a.st !== 'error') listo(o);   // acaba de terminar su tarea
       if (o.prevSt && o.prevSt !== 'trabajando' && a.st === 'trabajando') { o.halo.material.opacity = .75; o.pad.material.opacity = 1; }   // se despierta
       o.prevSt = a.st;
@@ -1743,7 +1791,8 @@ async function montar() {
     /* núcleo */
     // pz: 0 en reposo, 1 pensando (con transición suave); al llegar la respuesta, un chispazo
     pz += ((pensando ? 1 : 0) - pz) * Math.min(1, dtReal * 3);
-    if (pensabaAntes && !pensando) chispazo = 1; pensabaAntes = pensando; chispazo = Math.max(0, chispazo - dtReal * 1.6);
+    if (pensabaAntes && !pensando) chispazo = 1; pensabaAntes = pensando;
+    if (S.iaNucleo && S.iaNucleo !== iaVisto) { if (iaVisto && Date.now() - tsMs(S.iaNucleo) < 3 * 6e4) chispazo = Math.max(chispazo, .8); iaVisto = S.iaNucleo; }   // ha pensado con Claude hace nada chispazo = Math.max(0, chispazo - dtReal * 1.6);
     const k = 1 + pz * 2.5, flota = Math.sin(t * 1.1) * .07 + pz * (.45 + Math.sin(t * 2.6) * .12), y = NUC.y + flota;
     orbeMat.uniforms.uT.value = t; orbeMat.uniforms.uK.value += (k - orbeMat.uniforms.uK.value) * .04;
     orbe.position.y = y; orbe.rotation.y += dt * .25 * k; orbe.rotation.x = Math.sin(t * 1.7) * .35 * pz; orbe.rotation.z = Math.cos(t * 1.3) * .25 * pz;
@@ -1859,6 +1908,7 @@ async function montar() {
         o.baliza.visible = Math.sin(t * 8) > -.1;
       }
       if (o.paseo) andar(o, dtReal * velAnim(), tt);
+      if (o.chispa && o.chispa.visible) { o.chispa.position.y = 3.15 + Math.sin(tt * 1.8 + 1) * .08; o.chispa.material.rotation = Math.sin(tt * 1.2) * .25; o.chispa.material.opacity = .7 + Math.sin(tt * 3) * .3; }
       if (o.aviso && o.aviso.visible) { o.aviso.position.y = 3.25 + Math.sin(tt * 2.4) * .06; o.aviso.material.opacity = .75 + Math.sin(tt * 4) * .25; }
     });
     if (intro) { intro.k = Math.min(1, intro.k + dtReal / 3.2); const e = intro.k < .5 ? 4 * intro.k ** 3 : 1 - Math.pow(-2 * intro.k + 2, 3) / 2; enIntro(e); if (intro.k >= 1) { intro = null; deriva = 0; } }
