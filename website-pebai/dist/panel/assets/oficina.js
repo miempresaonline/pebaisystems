@@ -29,7 +29,20 @@ const GLIFOS = {
   caja: 'M21 8 12 3 3 8v8l9 5 9-5zM3 8l9 5 9-5M12 13v8', lupa: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
   flow: 'M3 3h7v7H3zM14 14h7v7h-7zM10 6.5h3.5a3 3 0 0 1 3 3V14', bell: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0', cal: 'M3 5h18v16H3zM16 3v4M8 3v4M3 10h18' };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const brand = (k) => (window.PB_ICONS && window.PB_ICONS.brands && window.PB_ICONS.brands[k]) ? window.PB_ICONS.brands[k].d : null;
+/* Iconos rellenos (24×24) para los agentes que no son una marca: se ven en su ficha y como logo 3D encima de su mesa */
+const PROPIOS = {
+  geo_jefe: 'M3 18h18v2H3zM3 7l4.5 4L12 4l4.5 7L21 7v9H3z',                                                  // corona: reparte y revisa
+  geo_vigia: 'M12 5C6.5 5 2.7 8.6 1 12c1.7 3.4 5.5 7 11 7s9.3-3.6 11-7c-1.7-3.4-5.5-7-11-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z',   // ojo: vigila novedades
+  geo_contenido: 'M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25zM20.7 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z',   // lápiz: escribe páginas
+  geo_refresco: 'M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z',   // flechas: actualiza
+  geo_local: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z',   // chincheta: ficha de Google
+  geo_redes: 'M4 9c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h1v4h2v-4h1l5 3V6L8 9zm14 2v2h4v-2zm-2 6.61 3.2 2.39 1.2-1.6-3.2-2.4zM20.4 5.6 19.2 4 16 6.4l1.2 1.6z',   // megáfono: publica
+  geo_medicion: 'M4 10h3.4v10H4zm6.3-6h3.4v16h-3.4zm6.3 9H20v7h-3.4z',                                          // barras: mide
+  geo_tecnico: 'M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1 0-1.4z',   // llave: técnico
+  geo_preguntas: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 17h-2v-2h2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26A1.99 1.99 0 0 0 12 7a2 2 0 0 0-2 2H8a4 4 0 1 1 8 0c0 .88-.36 1.68-.93 2.25z',   // interrogación: preguntas
+  pinterest: 'M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026z',
+};
+const brand = (k) => (window.PB_ICONS && window.PB_ICONS.brands && window.PB_ICONS.brands[k]) ? window.PB_ICONS.brands[k].d : (PROPIOS[k] || null);
 const N = (n) => new Intl.NumberFormat('es-ES').format(n || 0);
 const hora = (ts) => String(ts || '').slice(11, 16);
 const toast = (m, err) => { const t = $('#pb-toast'); if (!t) return; $('span', t).textContent = m; t.classList.toggle('err', !!err); t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 3200); };
@@ -45,6 +58,7 @@ async function cargar() {
   let j; try { j = await r.json(); } catch (e) { throw new Error('La oficina no ha respondido bien.'); }
   if (!j.ok) throw new Error(j.error || 'No se ha podido cargar la oficina.');
   /* en la oficina solo salen los bots de verdad (los de los departamentos con agentes) */
+  j.agentes.forEach((a) => { if (!a.icono && PROPIOS[a.id]) { a.icono = a.id; FONDO[a.id] = FONDO[a.id] || FONDO.geo; } });
   S.agentes = j.agentes.filter((a) => DEPTS.some((d) => d.activo && d.id === a.dept)); S.autos = j.agentes.filter((a) => a.dept === 'embudo'); S.csrf = j.csrf; S.parada = j.parada || null; S.cargado = Date.now(); return true;
 }
 async function accion(action, fields, ok, btn) {
@@ -750,6 +764,11 @@ async function montar() {
     g.save(); g.translate(76, 80); g.scale(4, 4); g.strokeStyle = on ? d.color : '#5c5f73'; g.lineWidth = 1.7; g.lineCap = 'round'; g.lineJoin = 'round'; g.stroke(new Path2D(GLIFOS[d.glifo] || GLIFOS.flow)); g.restore();
     g.fillStyle = on ? '#FFFFFF' : '#8a8da2'; g.font = '400 104px "Instrument Serif", Georgia, serif'; g.fillText(d.nombre, 240, 128);
     let x = 244; g.font = '700 36px Manrope, sans-serif';
+    if (d.id === 'redes') {   // las redes que usamos, cada una con su logo y su color
+      const RR = [['instagram', '#E1306C'], ['tiktok', '#25F4EE'], ['youtube', '#FF0000'], ['facebook', '#1877F2'], ['pinterest', '#E60023'], ['x', '#FFFFFF'], ['linkedin', '#0A66C2']];
+      RR.forEach(([k, c], i) => { const dd = brand(k); if (!dd) return; g.save(); g.translate(246 + i * 80, 150); g.scale(2.6, 2.6); g.fillStyle = c; g.globalAlpha = .9; g.fill(new Path2D(dd)); g.restore(); });
+      return;
+    }
     partes.forEach(([txt, c], i) => {
       if (i) { g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(x, 168, 2, 36); x += 24; }
       g.fillStyle = c; g.beginPath(); g.arc(x + 9, 186, 9, 0, Math.PI * 2); g.fill(); x += 28;
@@ -863,7 +882,7 @@ async function montar() {
   }
   const puestos = new Map(), salas = new Map(), clicables = [orbe, pedestal], autosPared = [];
   /* el logo de cada herramienta, en 3D y con su color: se reconoce la mesa sin leer nada */
-  const colorDe = (a) => (a.icono && window.PB_ICONS && window.PB_ICONS.brands && window.PB_ICONS.brands[a.icono] && window.PB_ICONS.brands[a.icono].bg) || '#9C93FF';
+  const colorDe = (a) => (a.icono && window.PB_ICONS && window.PB_ICONS.brands && window.PB_ICONS.brands[a.icono] && window.PB_ICONS.brands[a.icono].bg) || (PROPIOS[a.icono] && (DEPTS.find((d) => d.id === a.dept) || {}).color) || '#9C93FF';
   const geoLogos = new Map();
   function geoLogo(k) {
     if (geoLogos.has(k)) return geoLogos.get(k);
@@ -1027,16 +1046,6 @@ async function montar() {
     /* lo que identifica a las salas sin bots, en un panel detrás de la columna */
     const atras = -RD - .2;
     const panelPie = (px, ancho) => { en(g, new THREE.Mesh(new THREE.BoxGeometry(.06, 1.05, .06), M.marco), px - ancho * .35, .52, atras - .03); en(g, new THREE.Mesh(new THREE.BoxGeometry(.06, 1.05, .06), M.marco), px + ancho * .35, .52, atras - .03); };
-    if (d.id === 'redes') {
-      const yt = brand('youtube');
-      cuadroPared(g, 2.4, 1.35, 0, 1.6, atras, (c) => {
-        c.fillStyle = '#0d0f1c'; c.fillRect(0, 0, 480, 270);
-        c.save(); c.translate(240 - 88, 135 - 88); c.scale(7.3, 7.3);
-        if (yt) { c.fillStyle = '#FF0000'; c.fill(new Path2D(yt)); } else { c.fillStyle = '#FF0000'; c.beginPath(); c.roundRect(0, 4, 24, 16, 5); c.fill(); }
-        c.restore();
-      });
-      panelPie(0, 2.4);
-    }
     const s = { d, g, sign, esc, W, tronco, ledsSala, reloj: null, bus: null, banda, bandaBase, destello, tiraRack, recMat, flash: 0, cristal, auraCol };
     tronco.sala = s;
     salas.set(d.id, s);
