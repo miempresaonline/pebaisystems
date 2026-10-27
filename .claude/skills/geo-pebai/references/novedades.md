@@ -183,5 +183,7 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 ## Para el Jefe
 
+- (Vigía 27/10 mediodía) **Contenido/Refresco:** P1-P3 del set confunden PEBAI con otros PEBA; reforzar señal de entidad: Organization con fundadores y sameAs en la portada, página «Quiénes somos» citable. **Local/Técnico:** priorizar Clutch tras Sortlist (ver `docs/geo/borradores/directorios-rankings-27-10.md`).
+
 (Repartido por el Jefe el 27/10 mañana: ángulo pyme española, RGPD, derivación a una persona y caso propio para P13 y P11, a Contenido; frase citable en /posicionamiento-en-ia/ a Refresco, junto con su FAQ de GEO; formato de cifra de la medición a Medición desde el informe del 2/11. Aparcada hasta tener PEBAI citada: la sección «cómo medimos».)
 (Repartido antes: ver `git log` de este archivo.)
