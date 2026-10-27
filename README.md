@@ -34,12 +34,6 @@ python website-pebai/scripts/deploy_changed.py <commit>
 python website-pebai/scripts/deploy.py
 ```
 
-## GitHub Actions
-
-`.github/workflows/` contiene el radar diario y la generación de carruseles aprobados (solo ejecución manual).
-Necesitan los Secrets del repo `GEMINI_API_KEY` y `GSHEET_WEBHOOK_URL`.
-La generación hace commit de `carousel-engine/output/RAD-*` (único output que se versiona).
-
 ## Seguridad
 
 - **Nunca** escribir claves, contraseñas o tokens en el código: usar `.env` (raíz o del proyecto) o `C:/programacion/APIs/`.
