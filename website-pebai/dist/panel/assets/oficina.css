@@ -315,3 +315,11 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-reloj button{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:transparent;color:#8C8FA3;font-size:16px;cursor:pointer}
 .pb-of-reloj button:hover{color:#fff}
 .pb-of-wrap.repe .pb-of-ask{opacity:0;pointer-events:none}
+/* línea del tiempo de «Repetir el día»: marcas de traspasos, bola que se arrastra y velocidad */
+.pb-of-reloj .ln{position:relative;width:min(360px,46vw);height:22px;display:flex;align-items:center;cursor:pointer;background:none;overflow:visible;touch-action:none}
+.pb-of-reloj .ln .pista{position:relative;display:block;width:100%;height:4px;border-radius:4px;background:rgba(255,255,255,.1)}
+.pb-of-reloj .ln .pista i{display:block;height:100%;width:0;border-radius:4px;background:linear-gradient(90deg,#7E73FF,#3FD5FF)}
+.pb-of-reloj .ln em{position:absolute;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--c);box-shadow:0 0 6px var(--c)}
+.pb-of-reloj .ln .bola{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(126,115,255,.35)}
+.pb-of-reloj .ln:focus-visible{outline:2px solid #7E73FF;outline-offset:4px;border-radius:6px}
+.pb-of-reloj .vel{width:auto!important;padding:0 10px;border-radius:999px!important;font:800 12px var(--sans)!important;color:#C9CBDA!important}

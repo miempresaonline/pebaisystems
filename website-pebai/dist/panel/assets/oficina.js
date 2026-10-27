@@ -159,18 +159,39 @@ function empiezaRepe() {
   const primero = Math.min(...[...turnos.values()].flat().map((x) => x[0]), Date.now() - 36e5);
   const t0 = Math.max(hoy.getTime() + 7 * 36e5, primero - 15 * 6e4), t1 = Date.now();
   const tras = G.traspasos().filter((x) => tsMs(x.ts) >= t0).sort((x, y) => tsMs(x.ts) - tsMs(y.ts));
+  // Línea del tiempo: una marca por cada traspaso (del color de la sala de quien entrega); se puede pinchar o arrastrar para saltar
   const reloj = document.createElement('div'); reloj.className = 'pb-of-reloj';
-  reloj.innerHTML = '<b>--:--</b><span class="ln"><i></i></span><button type="button" aria-label="Parar">×</button>';
-  reloj.querySelector('button').onclick = (e) => { e.stopPropagation(); paraRepe(); };
+  const marcas = tras.map((x) => { const a = ag(x.de), c = (DEPTS.find((d) => a && d.id === a.dept) || {}).color || '#8E84FF';
+    return `<em style="left:${((tsMs(x.ts) - t0) / Math.max(1, t1 - t0) * 100).toFixed(2)}%;--c:${c}"></em>`; }).join('');
+  reloj.innerHTML = `<b>--:--</b><span class="ln" role="slider" aria-label="Hora del día" tabindex="0"><span class="pista"><i></i>${marcas}</span><span class="bola"></span></span>`
+    + '<button type="button" class="vel" title="Velocidad">×1</button><button type="button" class="x" aria-label="Parar">×</button>';
+  reloj.querySelector('.x').onclick = (e) => { e.stopPropagation(); paraRepe(); };
+  reloj.querySelector('.vel').onclick = (e) => { e.stopPropagation(); repe.vel = repe.vel === 1 ? 2 : repe.vel === 2 ? 4 : 1; e.currentTarget.textContent = '×' + repe.vel; };
+  const ln = reloj.querySelector('.ln');
+  const salta = (ev) => { const r = ln.getBoundingClientRect(); repeIr(Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width))); };
+  ln.addEventListener('pointerdown', (ev) => { ev.stopPropagation(); ln.setPointerCapture(ev.pointerId); repe.arrastra = true; salta(ev); });
+  ln.addEventListener('pointermove', (ev) => { if (repe && repe.arrastra) salta(ev); });
+  ln.addEventListener('pointerup', () => { if (repe) repe.arrastra = false; });
+  ln.addEventListener('keydown', (ev) => { if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') { ev.preventDefault(); ev.stopPropagation(); repeIr(Math.max(0, Math.min(1, repe.f + (ev.key === 'ArrowRight' ? .05 : -.05)))); } });
+  reloj.addEventListener('click', (e) => e.stopPropagation());
   wrap.append(reloj); wrap.classList.add('repe');
-  repe = { reales, turnos, t0, t1, tras, k: 0, reloj, ini: performance.now(), clave: '' };
+  repe = { reales, turnos, t0, t1, tras, k: 0, reloj, f: 0, vel: 1, prev: performance.now(), clave: '' };
   pintaHud(); requestAnimationFrame(pasoRepe);
+}
+// Saltar a otro momento: los traspasos de antes de esa hora ya no se lanzan; los de después, sí
+function repeIr(f) {
+  if (!repe) return;
+  repe.f = f; const t = repe.t0 + (repe.t1 - repe.t0) * f;
+  repe.k = repe.tras.findIndex((x) => tsMs(x.ts) > t); if (repe.k < 0) repe.k = repe.tras.length;
+  repe.fin = false;
 }
 function pasoRepe(now) {
   if (!repe) return;
-  const f = Math.min(1, (now - repe.ini) / (REPE_SEG * 1000)), t = repe.t0 + (repe.t1 - repe.t0) * f;
+  const dtR = Math.min(.1, (now - repe.prev) / 1000); repe.prev = now;
+  if (!repe.arrastra) repe.f = Math.min(1, repe.f + dtR * repe.vel / REPE_SEG);
+  const f = repe.f, t = repe.t0 + (repe.t1 - repe.t0) * f;
   const d = new Date(t); repe.reloj.querySelector('b').textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-  repe.reloj.querySelector('.ln i').style.width = (f * 100) + '%';
+  repe.reloj.querySelector('.ln .pista i').style.width = (f * 100) + '%'; repe.reloj.querySelector('.ln .bola').style.left = (f * 100) + '%';
   // estado de cada agente a esa hora (pausados, apagados o con error se quedan como están)
   let clave = '';
   S.agentes.forEach((a) => {
@@ -184,7 +205,8 @@ function pasoRepe(now) {
     const x = repe.tras[repe.k++]; const a = ag(x.de);
     if (a && a.st === 'trabajando') G.lanzaEnvio(x);
   }
-  if (f >= 1) { setTimeout(paraRepe, 1200); return; }
+  // al llegar a ahora se queda quieta un momento y termina (si no la han movido hacia atrás mientras tanto)
+  if (f >= 1 && !repe.fin) { repe.fin = true; setTimeout(() => { if (repe && repe.fin && repe.f >= 1) paraRepe(); }, 1800); }
   requestAnimationFrame(pasoRepe);
 }
 function paraRepe() {
