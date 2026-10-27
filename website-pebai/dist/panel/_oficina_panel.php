@@ -936,7 +936,7 @@ if ($auth && isset($_GET['oficina_explica'])) {
     json_out(['ok' => true] + of_cache($clave, $r));
 }
 
-// Parte del día del núcleo: Claude Sonnet lee toda la oficina y escribe cómo va el día y las 3 prioridades. Se renueva cada 2 horas (o al pedirlo).
+// Parte del día del núcleo: Claude Haiku lee toda la oficina y escribe cómo va el día y las 3 prioridades. Se renueva cada 2 horas (o al pedirlo).
 if ($auth && isset($_GET['oficina_parte'])) {
     $clave = 'parte_' . date('Y-m-d');
     $c = of_cache($clave);
@@ -950,7 +950,8 @@ if ($auth && isset($_GET['oficina_parte'])) {
                   'necesita' => $a['necesita'], 'errores' => array_map(static fn($e) => $e['txt'], $a['errores']),
                   'hecho_hoy' => array_values(array_map(static fn($e) => substr($e['ts'], 11, 5) . ' ' . $e['txt'], array_filter(array_slice($a['actividad'], 0, 15), static fn($e) => substr($e['ts'], 0, 10) === date('Y-m-d') && $e['tipo'] !== 'espera')))];
     }
-    $j = pebai_claude_json('oficina', 'claude-sonnet-5-5',
+    // Haiku: con los datos ya resumidos lo escribe igual de bien que Sonnet y cuesta unas 25 veces menos (~0,001 $ por parte)
+    $j = pebai_claude_json('oficina', 'claude-haiku-5-5',
         'Eres PEBAI, el núcleo que coordina la oficina de agentes automáticos de PEBAI Systems (consultora española de procesos e IA). Escribes el parte del día para Daniel, el dueño. '
         . 'Español de España, tuteo, claro y directo, sin emojis ni exclamaciones. Usa SOLO los datos; no inventes cifras. Responde SOLO JSON: '
         . '{"titular": "el día en una frase", "parte": "3-4 frases: qué ha ido bien, qué está parado y por qué, con nombres de agentes y cifras", '
