@@ -1064,8 +1064,6 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
   .cx-more-h{display:none}
   .cx-more-t{flex:1}
   .cx-k-more{flex-basis:100%;margin:2px 0 0}
-  .cx-group .cx-tab{flex-basis:236px}
-  .cx-group .cx-name b{white-space:nowrap}
   .cx-steps{grid-template-columns:minmax(0,1fr)}
 }
 
@@ -1181,17 +1179,61 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
   .vcard-play,.vcard-play:hover{transition:none;transform:none}
 }
 
+/* casos en el móvil */
+@media (max-width:820px){
+  .cx-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;overflow:visible;padding:0}
+  .cx-group{display:contents}
+  .cx-group-h{display:none}
+  .cx-tabs .cx-tab,.cx-group .cx-tab{flex:none;display:flex;align-items:center;gap:0;min-height:58px;padding:10px 12px 10px 14px;border-radius:16px}
+  .cx-tab .cx-n,.cx-tab .cx-kpi{display:none}
+  .cx-name{min-width:0}
+  .cx-name b,.cx-group .cx-name b{font-size:13px;line-height:1.2;white-space:normal}
+  .cx-name small{font-size:11px;margin-top:2px}
+  .cx-group .cx-name small{font-size:0}
+  .cx-group .cx-name small::after{content:"Fran García Cars";font-size:11px}
+  .cx-group .cx-tab{background:var(--lg-fill);box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 0 0 1px var(--lg-rim)}
+  .cx-tab::before{top:12px;bottom:12px}
+  .cx-panel{padding:10px 10px 2px;gap:14px;border-radius:24px}
+  .cx-frame{border-radius:12px}
+  .cx-bar{height:24px;padding:0 10px}
+  .cx-bar i{width:7px;height:7px}
+  .cx-bar span{font-size:10px}
+  .cx-figs{display:flex;gap:6px;margin-top:6px}
+  .cx-figs li{flex:1;flex-direction:row;align-items:baseline;gap:6px;padding:8px 12px;border-radius:12px}
+  .cx-figs b{font-size:22px}
+  .cx-figs span{font-size:11px;white-space:nowrap}
+  .cx-figs .cx-fig-word b{font-size:16px}
+  .cx-row{gap:12px;padding:0 4px}
+  .cx-copy{gap:8px}
+  .cx-kicker{gap:5px 6px}
+  .cx-k-svc,.cx-k-n{font-size:10px;padding:5px 8px}
+  .cx-k-more{font-size:11.5px}
+  .cx-h{font-size:21px;line-height:1.08}
+  .cx-sum{font-size:13.5px;line-height:1.45}
+  .cx-act{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .cx-act .btn-light{flex:1;height:44px}
+  .cx-act .cx-web{order:0;font-size:12px;max-width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cx-more summary{padding:12px 2px}
+  .cx-plus{width:32px;height:32px}
+  .cx-steps div{padding:16px}
+  .cx-steps div::before{font-size:28px}
+  .cx-swipe{display:flex;justify-content:center;gap:6px;margin-top:12px}
+  .cx-swipe i{width:6px;height:6px;border-radius:999px;background:var(--fg-10);transition:width .3s var(--ease),background .3s ease}
+  .cx-swipe i.on{width:22px;background:var(--accent)}
+}
+@media (min-width:821px){.cx-swipe{display:none}}
+
 /* capa neo-futurista: fondo aurora, cristal líquido en las tarjetas y relieve tipo arcilla en botones e iconos */
 @property --spin{syntax:'<angle>';initial-value:0deg;inherits:false}
 :root,[data-theme="dark"]{
-  --lg-fill:rgba(26,22,50,.46);--lg-fill-2:rgba(44,38,84,.52);--lg-sheen:rgba(255,255,255,.10);
+  --lg-fill:rgba(26,22,50,.58);--lg-fill-2:rgba(44,38,84,.64);--lg-sheen:rgba(255,255,255,.10);
   --lg-hi:rgba(255,255,255,.20);--lg-rim:rgba(255,255,255,.08);--lg-shadow:0 24px 60px -12px rgba(3,2,12,.6);
   --clay-top:rgba(255,255,255,.10);--clay-bot:rgba(255,255,255,.03);
   --clay-sh:inset 0 1px 1px rgba(255,255,255,.16),inset 0 -4px 10px rgba(0,0,0,.32),0 10px 20px -10px rgba(0,0,0,.6);
   --au-1:rgba(106,92,255,.50);--au-2:rgba(183,255,60,.20);--au-3:rgba(56,214,255,.26);--au-4:rgba(255,79,216,.22);--grid:rgba(239,237,231,.05);
 }
 [data-theme="light"]{
-  --lg-fill:rgba(255,255,255,.52);--lg-fill-2:rgba(255,255,255,.72);--lg-sheen:rgba(255,255,255,.8);
+  --lg-fill:rgba(255,255,255,.62);--lg-fill-2:rgba(255,255,255,.8);--lg-sheen:rgba(255,255,255,.8);
   --lg-hi:rgba(255,255,255,.95);--lg-rim:rgba(255,255,255,.65);--lg-shadow:0 22px 50px -16px rgba(60,48,140,.22);
   --clay-top:rgba(255,255,255,.95);--clay-bot:rgba(234,231,244,.85);
   --clay-sh:inset 0 1px 1px #fff,inset 0 -4px 10px rgba(80,66,170,.10),0 10px 20px -10px rgba(60,48,140,.30);
@@ -1212,17 +1254,18 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
 /* cristal líquido */
 .card,.widget,.tl-card,.final-card,.social:not(.go),.menu-card,.menu-contact a,.trust,.cx-panel,.cx-tabs > .cx-tab,.cx-group,.step,.dock,.logo,.round,.person .meta{
   background:radial-gradient(120% 90% at 0% 0%,var(--lg-sheen),transparent 46%),linear-gradient(160deg,rgba(255,255,255,.04),transparent 40%),var(--lg-fill);
-  -webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);
   border:0;box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 0 0 1px var(--lg-rim),inset 0 -24px 48px -36px rgba(255,255,255,.14),var(--lg-shadow)}
-.logo,.round,.person .meta,.dock{box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 0 0 1px var(--lg-rim),0 12px 30px -10px rgba(3,2,12,.45)}
+.logo,.round,.person .meta,.dock{-webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%);box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 0 0 1px var(--lg-rim),0 12px 30px -10px rgba(3,2,12,.45)}
 .card.alt,.social:not(.go):hover,.menu-contact a:hover,.cx-tabs > .cx-tab:hover,.cx-tabs > .cx-tab[aria-selected="true"]{background:radial-gradient(120% 90% at 0% 0%,var(--lg-sheen),transparent 50%),var(--lg-fill-2)}
 .step.featured{background:radial-gradient(120% 70% at 50% 0%,var(--feat),transparent 60%),radial-gradient(120% 90% at 0% 0%,var(--lg-sheen),transparent 46%),var(--lg-fill);box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 0 0 1px var(--feat-line),var(--lg-shadow)}
-.marquee{background:var(--lg-fill);-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);border:0;box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 -1px 0 var(--lg-rim)}
+.marquee{background:var(--lg-fill);border:0;box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 -1px 0 var(--lg-rim)}
 .big-stat{background:radial-gradient(120% 120% at 0% 0%,rgba(255,255,255,.14),transparent 50%),linear-gradient(100deg,rgba(106,92,255,.5),rgba(56,214,255,.14) 70%,rgba(255,79,216,.12));box-shadow:inset 0 1px 0 var(--lg-hi),inset 0 0 0 1px var(--lg-rim),0 20px 50px -18px rgba(106,92,255,.6)}
 
 /* aro de luz que gira en las tarjetas clave */
 .widget{position:relative}
-.widget::after,.final-card::after,.cx-panel::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--spin),transparent 0 58%,rgba(183,255,60,.85) 70%,rgba(106,92,255,.95) 80%,rgba(56,214,255,.7) 88%,transparent 96%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;animation:rim 9s linear infinite}
+.widget::after,.final-card::after,.cx-panel::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--spin),transparent 0 58%,rgba(183,255,60,.85) 70%,rgba(106,92,255,.95) 80%,rgba(56,214,255,.7) 88%,transparent 96%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.widget::after{animation:rim 9s linear infinite}
+.final-card::after,.cx-panel::after{--spin:200deg}
 .cx-panel{position:relative}
 @keyframes rim{to{--spin:360deg}}
 
@@ -1247,12 +1290,11 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
 .player{box-shadow:0 40px 90px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.1),0 0 80px -10px rgba(106,92,255,.55)}
 
 @media (max-width:820px){
-  .card,.widget,.tl-card,.final-card,.social:not(.go),.menu-card,.menu-contact a,.trust,.cx-panel,.cx-tabs > .cx-tab,.cx-group,.step,.dock,.marquee{-webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%)}
   .aurora i{animation:none}
   .aurora::after{background-size:48px 48px,48px 48px}
 }
 @media (prefers-reduced-motion:reduce){
-  .aurora i,.widget::after,.final-card::after,.cx-panel::after{animation:none}
+  .aurora i,.widget::after{animation:none}
 }
 </style>
 <!-- Metricool: medición de audiencia sin cookies (exenta de consentimiento, ver /politica-de-cookies/) -->
@@ -1333,6 +1375,7 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
         </div>
         <div class="player" id="player">
           <video id="hero-video" autoplay muted loop playsinline preload="auto" poster="/video/presentacion_bucle_poster.jpg?v=20261014d" src="/video/presentacion_bucle.mp4?v=20261014d" data-full="/video/presentacion.mp4?v=20261014"></video>
+          <script>(function(){var v=document.getElementById('hero-video');if(window.matchMedia('(max-width:820px)').matches){v.src='/video/presentacion_bucle_m.mp4?v=20261027';}})();</script>
           <button class="sound" id="sound-btn" type="button" aria-label="Ver el vídeo con sonido desde el principio"><span class="pill"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg>Ver con sonido</span></button>
         </div>
       </div>
@@ -1427,6 +1470,7 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
       </div>
 
       <div class="cx-panels">
+        <div class="cx-swipe" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
         <!-- 1. Fran García Cars · app -->
         <article class="cx-panel active" id="caso-fran-garcia-cars" role="tabpanel" aria-labelledby="tab-fran-app" data-case="fran-app">
           <div class="cx-stage">
@@ -1849,7 +1893,15 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
 
   /* vídeo */
   var v=document.getElementById('hero-video'),s=document.getElementById('sound-btn'),p=document.getElementById('player');
-  var loopSrc=v.getAttribute('src');
+  var loopSrc=v.currentSrc||v.getAttribute('src');
+  /* si el navegador no arranca solo el vídeo (ahorro de batería, pestaña en segundo plano), se arranca en cuanto se pueda */
+  var heroVis=true;
+  function heroPlay(){if(v.loop&&v.paused&&heroVis){var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});}}
+  heroPlay();v.addEventListener('canplay',heroPlay);
+  ['touchstart','pointerdown','scroll','keydown'].forEach(function(ev){window.addEventListener(ev,function once(){heroPlay();window.removeEventListener(ev,once);},{passive:true});});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)heroPlay();});
+  /* fuera de pantalla el bucle se pausa para no gastar */
+  if('IntersectionObserver' in window)new IntersectionObserver(function(en){if(!v.loop)return;heroVis=en[0].isIntersecting;if(heroVis)heroPlay();else v.pause();}).observe(v);
   s.addEventListener('click',function(){v.src=v.dataset.full;v.muted=false;v.loop=false;v.controls=true;s.classList.add('hidden');p.classList.add('live');v.play();});
   v.addEventListener('ended',function(){if(v.loop)return;v.controls=false;v.muted=true;v.loop=true;v.src=loopSrc;s.classList.remove('hidden');p.classList.remove('live');v.play();});
 
@@ -1908,6 +1960,7 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
   function cxSelect(key,focus){
     cxTabs.forEach(function(t){var on=t.dataset.case===key;t.setAttribute('aria-selected',on?'true':'false');t.tabIndex=on?0:-1;if(on&&focus)t.focus();if(on&&t.scrollIntoView&&t.parentNode.scrollWidth>t.parentNode.clientWidth){t.parentNode.scrollTo({left:t.offsetLeft-t.parentNode.offsetLeft-8,behavior:'smooth'});}});
     cxPanels.forEach(function(p){p.classList.toggle('active',p.dataset.case===key);});
+    var dots=document.querySelectorAll('.cx-swipe i');cxTabs.forEach(function(t,i){if(dots[i])dots[i].classList.toggle('on',t.dataset.case===key);});
   }
   cxTabs.forEach(function(t,i){
     t.tabIndex=t.getAttribute('aria-selected')==='true'?0:-1;
@@ -1915,6 +1968,11 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
     t.addEventListener('keydown',function(e){var k=e.key,n=null;if(k==='ArrowDown'||k==='ArrowRight')n=cxTabs[(i+1)%cxTabs.length];else if(k==='ArrowUp'||k==='ArrowLeft')n=cxTabs[(i-1+cxTabs.length)%cxTabs.length];else if(k==='Home')n=cxTabs[0];else if(k==='End')n=cxTabs[cxTabs.length-1];if(n){e.preventDefault();cxSelect(n.dataset.case,true);}});
   });
   [].slice.call(document.querySelectorAll('#casos a[data-case]')).forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();cxSelect(a.dataset.case);var c=document.querySelector('.cx');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});});});
+  var cxBox=document.querySelector('.cx-panels'),tx=0,ty=0;
+  if(cxBox){
+    cxBox.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+    cxBox.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5)return;var k=cxTabs.findIndex(function(t){return t.getAttribute('aria-selected')==='true';});var n=cxTabs[(k+(dx<0?1:-1)+cxTabs.length)%cxTabs.length];cxSelect(n.dataset.case);track('caso_ver',{caso:n.dataset.case,via:'deslizar'});},{passive:true});
+  }
   var cxCalm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   [].slice.call(document.querySelectorAll('.cx-more')).forEach(function(d){
     var sum=d.querySelector('summary'),box=d.querySelector('.cx-more-in'),anim=null;
