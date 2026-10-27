@@ -5,3 +5,5 @@ Una línea por post: `fecha · layout · tema · seed · titular`. El agente de 
 2026-10-28 · pregunta · light · 7 · ¿Te recomienda la IA?
 2026-11-04 · mosaico · dark · 3 · IA que trabaja contigo
 2026-11-11 · orbita · light · 5 · De WhatsApp a una app
+2026-11-18 · foco · dark · 2 · Del programa antiguo a tu medida
+2026-11-25 · pregunta · dark · 9 · ¿Quién contesta a tus clientes?
