@@ -281,7 +281,7 @@ function of_scraper(): array
     // Cada serie parada por agotada deja ~/prospeccion/PAUSA_<serie>: se ve siempre, no solo justo al pararse
     $agotadas = array_map(static fn($f) => substr(basename($f), 6), glob(dirname(pebai_private_dir(), 3) . '/prospeccion/PAUSA_*') ?: []);
     if ($agotadas) {
-        $nombres = ['solar' => 'placas solares', 'climatizacion' => 'climatización', 'formacion' => 'formación (oposiciones, academias, idiomas)'];
+        $nombres = ['solar' => 'placas solares', 'climatizacion' => 'climatización', 'formacion' => 'formación (oposiciones, academias, idiomas)', 'dental' => 'clínicas dentales', 'inmobiliaria' => 'inmobiliarias'];
         $lista = implode(', ', array_map(static fn($s) => $nombres[$s] ?? $s, $agotadas));
         $a['necesita'][] = 'Nicho terminado (' . $lista . '): España revisada entera. Dame otro nicho en el chat';
         if (!$reciente) {
