@@ -24,7 +24,7 @@ const I = {
 };
 // Las ramas del esquema. Una página nueva que no encaje en ninguna cae en «Servicios y contenido».
 const EMBUDO = ['/consultoria-gratuita/', '/diagnostico/', '/formulario-completado/', '/reservar/', '/confirmacion-de-llamada/'];
-const PASOS = ['Vídeo de la consultoría', 'Formulario', 'Gracias + WhatsApp en 24 h', 'Elegir día (Cal.com)', 'Llamada confirmada'];
+const PASOS = ['Vídeo', 'Formulario', 'Gracias', 'Elegir día', 'Llamada confirmada'];
 const LEGAL = ['/aviso-legal/', '/privacidad/', '/politica-de-cookies/', '/baja/'];
 const RAMAS = [
   { id: 'embudo', n: 'Embudo', d: 'De la consultoría gratuita a la llamada', c: '#B7FF3C' },
@@ -38,23 +38,28 @@ const S = { cargado: false, datos: null, filtro: '' };
 const url = (r) => (r.startsWith('http') ? r : S.datos.dominio + r);
 const corta = (u) => { const [p, q] = String(u).split('?'); const src = q && new URLSearchParams(q).get('utm_source'); return { p, src }; };
 const estado = (p) => p.oculta ? ['gris', 'Oculta a Google'] : p.sitemap ? ['verde', 'En Google'] : ['ambar', 'Fuera del sitemap'];
+// Nombre corto: el título hasta los dos puntos o la barra, sin «PEBAI Systems»
+const corto = (t) => String(t || '').split(/\s[|·]\s|:\s/u)[0].replace(/PEBAI Systems/u, '').trim();
+const OJO = '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>';
 
 function acciones(r) {
   return `<span class="wb-acc"><a href="${esc(url(r))}" target="_blank" rel="noopener" title="Abrir en otra pestaña">${ico(I.abrir)}</a><button type="button" data-copiar="${esc(url(r))}" title="Copiar el enlace">${ico(I.copiar)}</button></span>`;
 }
 function tarjetaPagina(p, extra) {
   const [cls, txt] = estado(p);
-  return `<div class="wb-pag${extra && extra.hija ? ' hija' : ''}" data-q="${esc((p.ruta + ' ' + p.titulo).toLowerCase())}">
+  const pista = `${txt} · subida el ${p.modificado.slice(8, 10)}/${p.modificado.slice(5, 7)}${p.titulo ? ' · ' + p.titulo : ''}`;
+  return `<div class="wb-pag${extra && extra.hija ? ' hija' : ''}" data-q="${esc((p.ruta + ' ' + p.titulo).toLowerCase())}" title="${esc(pista)}">
     ${extra && extra.paso ? `<span class="wb-paso">${extra.paso}</span>` : ''}
-    <div class="wb-pag-t"><b>${esc(extra && extra.nombre || p.titulo.replace(/\s*[|·]\s*PEBAI Systems\s*$/u, '') || p.ruta)}</b>${acciones(p.ruta)}</div>
+    <div class="wb-pag-t"><i class="wb-dot ${cls}"></i><b>${esc(extra && extra.nombre || corto(p.titulo) || p.ruta)}</b>
+      <span class="wb-vis" title="Visitas en 30 días">${ico(OJO)}${N(p.visitas)}</span>${acciones(p.ruta)}</div>
     <code>${esc(p.ruta)}</code>
-    <div class="wb-pag-m"><span class="wb-est ${cls}" title="${esc(p.oculta ? 'Tiene noindex: Google no la muestra (a propósito)' : p.sitemap ? 'Está en el sitemap y Google puede mostrarla' : 'Google puede mostrarla, pero no está en sitemap.xml')}"><i></i>${txt}</span>
-      <span title="Visitas en los últimos 30 días">${N(p.visitas)} visitas</span><span title="Última vez que se subió">${esc(p.modificado.slice(8, 10) + '/' + p.modificado.slice(5, 7))}</span></div>
   </div>`;
 }
 function tarjetaCorto(c) {
   const { p, src } = corta(c.a);
-  const destino = c.a.startsWith('https://wa.me') ? 'WhatsApp' : p;
+  // adónde lleva, en una palabra (la dirección completa sale al pasar el ratón)
+  const DESTINOS = { '/consultoria-gratuita/': 'Consultoría', '/resena/': 'Reseñas', '/posicionamiento-en-ia/': 'GEO', '/agentes-ia/': 'Agentes IA', '/ia-para-empresas/': 'IA empresas', '/': 'Portada' };
+  const destino = c.a.startsWith('https://wa.me') ? 'WhatsApp' : DESTINOS[p] || p;
   return `<div class="wb-corto" data-q="${esc((c.de + ' ' + c.a).toLowerCase())}">
     <code>${esc(c.de)}</code><span class="wb-a" title="${esc(c.a)}">→ ${esc(destino)}</span>${src ? `<em>${esc(src)}</em>` : ''}${acciones(c.de)}
   </div>`;
@@ -76,8 +81,7 @@ function pintar() {
   D.paginas.filter((p) => p.ruta.startsWith('/t/') || p.ruta === '/resena/').forEach((p) => { usadas.add(p.ruta); enRama.qr.push(tarjetaPagina(p)); });
   // servicios: cada página con sus hijas debajo (/agentes-ia/ → /agentes-ia/whatsapp/)
   // Páginas que Google puede ver pero que no están en el sitemap: suelen ser versiones viejas que siguen subidas
-  const sueltas = D.paginas.filter((p) => !usadas.has(p.ruta) && !p.oculta && !p.sitemap && !D.paginas.some((o) => o !== p && o.ruta !== '/' && o.sitemap && p.ruta.startsWith(o.ruta)));
-  const resto = D.paginas.filter((p) => !usadas.has(p.ruta) && !sueltas.includes(p));
+  const resto = D.paginas.filter((p) => !usadas.has(p.ruta));
   resto.filter((p) => !resto.some((o) => o !== p && p.ruta.startsWith(o.ruta))).forEach((p) => {
     enRama.servicios.push(tarjetaPagina(p));
     resto.filter((h) => h !== p && h.ruta.startsWith(p.ruta)).forEach((h) => enRama.servicios.push(tarjetaPagina(h, { hija: true })));
@@ -92,9 +96,7 @@ function pintar() {
 
   raiz.innerHTML = `
     <div class="wb-cab">
-      <div class="wb-cifras">
-        <span><b>${total.paginas}</b> páginas</span><span><b>${total.cortos}</b> enlaces cortos</span><span><b>${nAnt}</b> URLs antiguas</span>
-      </div>
+      <div class="wb-ley"><span><i class="wb-dot verde"></i>En Google</span><span><i class="wb-dot gris"></i>Oculta a Google</span></div>
       <label class="wb-busca">${ico('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>')}<input type="search" placeholder="Buscar una URL o una página" value="${esc(S.filtro)}"></label>
     </div>
     <div class="wb-arbol">
@@ -102,22 +104,19 @@ function pintar() {
       <div class="wb-raiz">
         ${home ? `<div class="wb-home" data-q="${esc(('/ ' + home.titulo).toLowerCase())}">
           <span class="wb-home-i">${ico(I.web)}</span>
-          <div><small>Web principal</small><b>pebaisystems.es</b><span>${esc(home.titulo)}</span>
-          <div class="wb-pag-m"><span class="wb-est ${estado(home)[0]}"><i></i>${estado(home)[1]}</span><span>${N(home.visitas)} visitas en 30 días</span></div></div>
+          <div><small>Web principal</small><b>pebaisystems.es</b>
+          <div class="wb-pag-m"><span class="wb-est ${estado(home)[0]}"><i></i>${estado(home)[1]}</span><span class="wb-vis">${ico(OJO)}${N(home.visitas)}</span></div></div>
           ${acciones('/')}
         </div>` : ''}
       </div>
       <div class="wb-ramas">
         ${RAMAS.map((r) => `<section class="wb-rama${r.id === 'embudo' ? ' flujo' : ''}" style="--c:${r.c}" data-rama="${r.id}">
-          <header><span class="wb-rama-i">${ico(I[r.id])}</span><div><b>${r.n}</b><small>${r.d}</small></div><em>${enRama[r.id].length}</em></header>
+          <header><span class="wb-rama-i">${ico(I[r.id])}</span><b>${r.n}</b><em>${enRama[r.id].length}</em></header>
           <div class="wb-hojas">${enRama[r.id].join('') || '<p class="wb-vacio">Nada todavía</p>'}</div>
         </section>`).join('')}
       </div>
     </div>
-    ${sueltas.length ? `<details class="wb-antiguas wb-sueltas" open><summary>${ico('<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>')}<b>Páginas sueltas en el servidor</b><span>${sueltas.length} páginas que siguen subidas y Google puede ver, pero no están en el sitemap ni enlazadas: revisar si se borran o se redirigen</span></summary>
-      <div class="wb-ant-g wb-suel">${sueltas.map((p) => tarjetaPagina(p)).join('')}</div>
-    </details>` : ''}
-    ${antiguas.length ? `<details class="wb-antiguas"><summary>${ico(I.antiguas)}<b>URLs antiguas redirigidas</b><span>${nAnt} direcciones viejas que llevan a la página buena (para no perder visitas de Google)</span></summary>
+    ${antiguas.length ? `<details class="wb-antiguas"><summary>${ico(I.antiguas)}<b>URLs antiguas</b><em class="wb-n">${nAnt}</em><span>llevan a la página buena</span></summary>
       <div class="wb-ant-g">${antiguas.map((c) => `<div><p>→ <code>${esc(c.a)}</code> <em>${c.antiguas.length}</em></p><ul>${c.antiguas.map((a) => `<li data-q="${esc(a)}"><code>${esc(a)}</code></li>`).join('')}</ul></div>`).join('')}</div>
     </details>` : ''}`;
   raiz.querySelector('.wb-busca input').addEventListener('input', (e) => { S.filtro = e.target.value; filtrar(); });
