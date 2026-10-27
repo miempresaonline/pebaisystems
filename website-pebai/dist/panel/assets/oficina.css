@@ -341,3 +341,16 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-lista .dia .b u{position:absolute;top:-1px;bottom:-1px;width:2px;margin-left:-1px;background:#fff;opacity:.8}
 .pb-of-lista .dia .h{display:flex;justify-content:space-between;gap:6px;margin-top:3px;font-size:10.5px;color:#6E7186}
 .pb-of-hov em{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* próximo turno en la píldora de arriba */
+.pb-of-todo .prox{color:#C9CBDA;font-weight:700;white-space:nowrap}
+.pb-of-todo .prox em{font-style:normal;color:#8C8FA3;font-weight:600;margin-left:3px}
+@media (max-width:760px){.pb-of-todo .prox,.pb-of-todo .prox+.sep{display:none}}
+/* franja de hoy en la ficha lateral (pestaña Estado) */
+.pb-of-side .dia{margin-top:10px}
+.pb-of-side .dia .b{position:relative;height:8px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden}
+.pb-of-side .dia .b i{position:absolute;top:0;bottom:0;border-radius:3px;background:#3DDC84}
+.pb-of-side .dia .b u{position:absolute;top:-2px;bottom:-2px;width:2px;margin-left:-1px;background:#fff;opacity:.85}
+.pb-of-side .dia .h{display:flex;justify-content:space-between;gap:6px;margin-top:4px;font-size:11px;color:#8C8FA3}
+.pb-of-reloj .ln em{cursor:help}
+.pb-of-todo .h,.pb-of-todo .h>span{white-space:nowrap}
+.pb-of-todo{max-width:min(560px,calc(100vw - 420px))}

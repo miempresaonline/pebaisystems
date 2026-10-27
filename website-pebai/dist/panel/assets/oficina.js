@@ -93,13 +93,32 @@ function tileHtml(a, cls) {
   return `<span class="${cls || 'ico'}" style="background:${FONDO[a.id] || '#3a3d52'}">` + (d ? `<svg viewBox="0 0 24 24"><path fill="#fff" d="${d}"/></svg>`
     : `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${GLIFOS[a.glifo] || GLIFOS.flow}"/></svg>`) + '</span>';
 }
+/* Próximo turno: de los horarios de cada agente («L-V 9:30 y 14:30», «Cada día 8:00…»), el primero que empieza */
+function proximoTurno() {
+  const ahora = new Date(), dia = ahora.getDay(), finde = dia === 0 || dia === 6;
+  let mejor = null;
+  S.agentes.forEach((a) => {
+    if (a.st === 'trabajando' || !a.proxima) return;
+    const txt = String(a.proxima);
+    // fin de semana: solo los de «Cada día» o los que dicen sábado/domingo
+    if (finde && /L-V/.test(txt) && !/S-D|s[áa]bado|domingo/i.test(txt)) return;
+    // «cada 2 h de 8:00 a 20:00» → 8:00, 10:00, … 20:00
+    const cada = /cada (\d+) ?h de (\d{1,2}):(\d{2}) a (\d{1,2}):(\d{2})/.exec(txt), horas = [];
+    if (cada) for (let h = +cada[2]; h <= +cada[4]; h += +cada[1]) horas.push(h + ':' + cada[3]);
+    (cada ? horas : (txt.match(/\b(\d{1,2}):(\d{2})\b/g) || [])).forEach((hm) => {
+      const [h, m] = hm.split(':').map(Number); const t = new Date(ahora); t.setHours(h, m, 0, 0);
+      if (t > ahora && (!mejor || t < mejor.t)) mejor = { t, a };
+    });
+  });
+  return mejor;
+}
 function pintaHud() {
   const pend = pendientes(), err = pend.filter((p) => p.err).length;
   const abierto = !!hud.querySelector('.pb-of-todo.abierto');
   hud.replaceChildren();
   const c = document.createElement('div'); c.className = 'pb-of-todo' + (pend.length ? '' : ' ok') + (abierto && pend.length ? ' abierto' : '');
   const col = err ? '#FF5E6C' : pend.length ? '#FFB547' : '#3DDC84';
-  c.innerHTML = `<button type="button" class="h"><i class="vivo"></i><span class="dir">En directo</span><span class="sep"></span><span class="est" style="--c:${col}"><i></i>${pend.length ? (pend.length === 1 ? '1 aviso' : pend.length + ' avisos') : 'Todo en orden'}</span>${pend.length ? '<svg class="pl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>' : ''}</button><div class="lista"></div>`;
+  c.innerHTML = `<button type="button" class="h"><i class="vivo"></i><span class="dir">En directo</span><span class="sep"></span><span class="est" style="--c:${col}"><i></i>${pend.length ? (pend.length === 1 ? '1 aviso' : pend.length + ' avisos') : 'Todo en orden'}</span>${(() => { const p = proximoTurno(); if (!p) return ''; const min = Math.max(1, Math.round((p.t - new Date()) / 6e4)); return `<span class="sep"></span><span class="prox" title="Próximo turno de trabajo">${esc(p.a.nombre)} · ${String(p.t.getHours()).padStart(2, '0')}:${String(p.t.getMinutes()).padStart(2, '0')} <em>${min < 60 ? 'en ' + min + ' min' : 'en ' + Math.round(min / 60) + ' h'}</em></span>`; })()}${pend.length ? '<svg class="pl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>' : ''}</button><div class="lista"></div>`;
   const lst = c.querySelector('.lista');
   if (pend.length) c.querySelector('.h').onclick = (ev) => { ev.stopPropagation(); c.classList.toggle('abierto'); };
   pend.slice(0, 5).forEach(({ a, txt, err: e }) => {
@@ -124,6 +143,7 @@ const listaBox = document.createElement('div'); listaBox.className = 'pb-of-list
    Turnos sacados del historial real de cada agente (Empieza…Termina; si no, un rato alrededor de cada cosa que hizo)
    y los traspasos en su hora. Al acabar (o con ×) todo vuelve al estado de ahora. */
 const REPE_SEG = 40;
+const velAnim = () => (repe ? (repe.pausa ? 0 : repe.vel) : 1);   // ritmo de las animaciones: el de la repetición
 let repe = null;
 const tsMs = (t) => new Date(String(t).replace(' ', 'T')).getTime();
 function turnosDeHoy(a) {
@@ -169,7 +189,8 @@ function empiezaRepe() {
   // Línea del tiempo: una marca por cada traspaso (del color de la sala de quien entrega); se puede pinchar o arrastrar para saltar
   const reloj = document.createElement('div'); reloj.className = 'pb-of-reloj';
   const marcas = tras.map((x) => { const a = ag(x.de), c = (DEPTS.find((d) => a && d.id === a.dept) || {}).color || '#8E84FF';
-    return `<em style="left:${((tsMs(x.ts) - t0) / Math.max(1, t1 - t0) * 100).toFixed(2)}%;--c:${c}"></em>`; }).join('');
+    const b = ag(x.a), h = String(x.ts).slice(11, 16);
+    return `<em style="left:${((tsMs(x.ts) - t0) / Math.max(1, t1 - t0) * 100).toFixed(2)}%;--c:${c}" title="${esc(h + ' · ' + (a ? a.nombre : '') + ' → ' + (b ? b.nombre : '') + ': ' + x.txt)}"></em>`; }).join('');
   reloj.innerHTML = `<b>--:--</b><span class="ln" role="slider" aria-label="Hora del día" tabindex="0"><span class="pista"><i></i>${marcas}</span><span class="bola"></span></span>`
     + '<button type="button" class="pp" aria-label="Pausa" title="Pausa (espacio)"><svg viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg></button>'
     + '<button type="button" class="vel" title="Velocidad">×1</button><button type="button" class="sig on" title="La cámara va a la sala donde pasa algo">Seguir</button><button type="button" class="x" aria-label="Parar">×</button>';
@@ -205,13 +226,14 @@ function sigueSala(id) {
 // Saltar a otro momento: los traspasos de antes de esa hora ya no se lanzan; los de después, sí
 function repeIr(f) {
   if (!repe) return;
+  if (G && Math.abs(f - repe.f) > .01) G.limpiaAnim();   // al saltar, nada a medio camino
   repe.f = f; const t = repe.t0 + (repe.t1 - repe.t0) * f;
   repe.k = repe.tras.findIndex((x) => tsMs(x.ts) > t); if (repe.k < 0) repe.k = repe.tras.length;
   repe.fin = false;
 }
 function pasoRepe(now) {
   if (!repe) return;
-  const dtR = Math.min(.1, (now - repe.prev) / 1000); repe.prev = now;
+  const dtR = Math.min(.25, (now - repe.prev) / 1000); repe.prev = now;
   if (!repe.arrastra && !repe.pausa) repe.f = Math.min(1, repe.f + dtR * repe.vel / REPE_SEG);
   const f = repe.f, t = repe.t0 + (repe.t1 - repe.t0) * f;
   const d = new Date(t); repe.reloj.querySelector('b').textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -237,6 +259,9 @@ function paraRepe() {
   if (!repe) return;
   S.agentes.forEach((a) => { if (repe.reales.has(a.id)) a.st = repe.reales.get(a.id); });
   const seguia = foco && foco.sigue;
+  if (G) G.limpiaAnim();
+  // resumen del día al terminar sola (no al pararla a mano)
+  if (repe.f >= 1 && repe.tras.length) toast(`Hoy: ${repe.tras.length} ${repe.tras.length === 1 ? 'traspaso' : 'traspasos'} entre agentes`);
   repe.reloj.remove(); wrap.classList.remove('repe'); repe = null;
   if (seguia) cerrar();
   if (G) G.refrescarEscena(true); pintaHud();
@@ -253,8 +278,9 @@ function ponVista(on) {
   if (!on && !G) montar().catch((e) => toast(e.message || 'No se ha podido cargar la oficina.', true));
 }
 function pintaLista() {
+  const ORDEN_ST = { trabajando: 0, error: 1, espera: 2, pausado: 3, dormido: 4, apagado: 5 };
   const filas = DEPTS.map((d) => {
-    const ags = agsDe(d.id);
+    const ags = agsDe(d.id).slice().sort((x, y) => (ORDEN_ST[x.st] ?? 9) - (ORDEN_ST[y.st] ?? 9));
     if (!d.activo || !ags.length) return '';
     const tr = ags.filter((a) => a.st === 'trabajando').length;
     return `<section><header><i style="background:${d.color}"></i><b>${esc(d.nombre)}</b><span>${tr} de ${ags.length} trabajando</span></header>`
@@ -330,7 +356,7 @@ function abrirAgente(id) {
     ${a.codigo && !String(a.codigo).startsWith('QR:') ? `<div class="pb-of-code"><small>Código para vincular WhatsApp</small><b>${esc(String(a.codigo).replace(/[^A-Z0-9]/gi, '').toUpperCase().replace(/(.{4})(?=.)/g, '$1-'))}</b><span>En el móvil: WhatsApp › Dispositivos vinculados › Vincular con el número de teléfono.</span></div>` : ''}
     <div class="pb-of-tabs" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" data-t="${k}" aria-selected="${k === S.tab}">${t}</button>`).join('')}</div>
     <div class="pb-of-tab" id="pb-of-tab">${S.tab !== 'estado' ? '' : `<div class="pb-of-qa">
-    ${q('Hoy', `<p><b class="big">${N(a.hoy)}</b> ${esc(a.unidad)}${a.cupo ? ` de ${a.cupo} posibles` : ''}</p>${a.cupo ? `<div class="bar" style="--c:${d.color}"><i data-w="${pct}%"></i></div>` : ''}`)}
+    ${q('Hoy', `<p><b class="big">${N(a.hoy)}</b> ${esc(a.unidad)}${a.cupo ? ` de ${a.cupo} posibles` : ''}</p>${a.cupo ? `<div class="bar" style="--c:${d.color}"><i data-w="${pct}%"></i></div>` : ''}${franjaDia(a)}`)}
     ${q('Lo último que hizo', a.ultima ? `<p>${esc(a.ultima.txt)}</p><p class="sub">${esc(a.ultima.hace)}</p>` : '<p>Todavía no ha hecho nada.</p>')}
     ${(a.necesita || []).length ? q('Necesita de vosotros', a.necesita.map((n) => `<p class="warn">${esc(n)}</p>`).join('')) : ''}
     ${q('¿Ha fallado algo?', (a.errores || []).length ? a.errores.map((e) => `<p class="bad"><b>${esc(hora(e.ts))}</b> · ${esc(e.txt)}</p>`).join('') : '<p class="ok">No, nada en las últimas 24 horas.</p>')}
@@ -437,7 +463,7 @@ function abrirNucleo() {
   sideIn.innerHTML = `<div class="k">El núcleo</div><h2>PEBAI</h2><div class="rol">La IA que conecta todos los departamentos: recibe lo que hace cada bot y le devuelve el trabajo.</div>
     <div class="pb-of-state" style="--c:${c}"><i></i><div><b>${ne ? (ne === 1 ? '1 agente con error' : ne + ' agentes con error') : pend.length ? 'Funciona, pero os necesita' : 'Todo en orden'}</b><span>${trab} de ${S.agentes.length} bots trabajando ahora</span></div></div>
     <div class="pb-of-qa">
-    ${q('Departamentos', DEPTS.map((d) => { const l = agsDe(d.id); return `<div class="pb-of-row" data-sala="${esc(d.id)}"><i style="background:${d.color}"></i><b>${esc(d.nombre)}</b><span>${d.activo ? (l.length === 1 ? '1 bot' : l.length + ' bots') : 'Sin agentes aún'}</span></div>`; }).join(''))}
+    ${q('Departamentos', DEPTS.map((d) => { const l = agsDe(d.id); return `<div class="pb-of-row" data-sala="${esc(d.id)}"><i style="background:${d.color}"></i><b>${esc(d.nombre)}</b><span>${d.activo ? (() => { const tr = l.filter((a) => a.st === 'trabajando').length; return (tr ? tr + ' trabajando · ' : '') + (l.length === 1 ? '1 bot' : l.length + ' bots'); })() : 'Sin agentes aún'}</span></div>`; }).join(''))}
     ${pend.length ? q('Necesita de vosotros', pend.map((p) => `<p class="${p.err ? 'bad' : 'warn'}"><b>${esc(p.a.nombre)}</b>: ${esc(p.txt)}</p>`).join('')) : ''}
     ${q('Pregúntale', '<p>Escribe abajo cualquier duda sobre los agentes y PEBAI te responde con los datos de ahora mismo.</p><div class="pb-of-acts"><button type="button" class="pb-of-btn primary" id="pb-of-preg">Preguntar a PEBAI</button></div>')}
     </div>`;
@@ -1345,6 +1371,16 @@ async function montar() {
     if (P.dado) { bi.rotation.x = bd.rotation.x = .3; }
     o.zs.forEach((z) => { z.z.material.opacity = 0; });
   }
+  // Deja la oficina como estaba: robots sentados, documentos fuera, sin entregas pendientes (al parar o saltar en la repetición)
+  function limpiaAnim() {
+    puestos.forEach((o) => {
+      if (!o.paseo) return;
+      o.rb.r.remove(o.paseo.doc); o.paseo.doc.material.map.dispose(); o.paseo.doc.material.dispose();
+      o.rb.r.position.set(0, -.08, .74); o.rb.r.rotation.set(0, 0, 0); o.paseo = null;
+    });
+    envios.splice(0).forEach((e) => { scene.remove(e.sp); e.sp.material.map.dispose(); e.sp.material.dispose(); });
+    colaTr.length = 0;
+  }
   const chispas = [];
   function tickEnvios(dtR) {
     // De lejos, fichas y paquetes más grandes para que se lean; de cerca, a su tamaño
@@ -1380,10 +1416,10 @@ async function montar() {
       if (ch.k >= 1) { scene.remove(ch.c); ch.c.material.dispose(); chispas.splice(i, 1); }
     }
     puestos.forEach((o) => {
-      const on = pintaAnillo(o), an = o.anillo;
-      an.op += ((on ? 1 : 0) - an.op) * Math.min(1, dtR * 4);
-      an.pista.material.opacity = an.op * .1; an.arco.material.opacity = an.op * (.8 + Math.sin(performance.now() / 420) * .15);
-      an.arco.visible = an.pista.visible = an.op > .02;
+      const on = pintaAnillo(o), an = o.anillo, sel = foco && foco.agente === o.a.id;
+      an.op += ((on || sel ? 1 : 0) - an.op) * Math.min(1, dtR * 4 || .1);
+      an.pista.material.opacity = sel ? .35 + Math.sin(performance.now() / 380) * .15 : an.op * .1; an.arco.material.opacity = an.op * (.8 + Math.sin(performance.now() / 420) * .15);
+      an.arco.visible = on && an.op > .02; an.pista.visible = an.op > .02;
       const n = an.arco.geometry.userData.n, tramo = (x) => Math.floor(x * n / 6) * 6;
       if (an.indet) { an.gira = (an.gira + dtR * .35) % 1; const ini = tramo(an.gira * .78); an.arco.geometry.setDrawRange(ini, tramo(.22)); }
       else an.arco.geometry.setDrawRange(0, Math.max(6, tramo(an.val)));
@@ -1412,6 +1448,7 @@ async function montar() {
     puestos.forEach((o) => {
       const a = ag(o.a.id); if (!a) return; o.a = a;
       if (o.prevSt === 'trabajando' && a.st !== 'trabajando' && a.st !== 'error') listo(o);   // acaba de terminar su tarea
+      if (o.prevSt && o.prevSt !== 'trabajando' && a.st === 'trabajando') { o.halo.material.opacity = .75; o.pad.material.opacity = 1; }   // se despierta
       o.prevSt = a.st;
       if (o.prevHoy !== undefined && a.hoy > o.prevHoy) flotar(o, a.hoy - o.prevHoy);
       o.prevHoy = a.hoy;
@@ -1506,7 +1543,7 @@ async function montar() {
     colocar();
     if (performance.now() - ultimoMov < 50) return; ultimoMov = performance.now();
     const h = tocar(e); const o = h && h.object.userData.puesto ? h.object.userData.puesto : null;
-    const f = foco ? null : fichaDe(h);
+    const f = foco && !foco.sigue ? null : fichaDe(h);
     renderer.domElement.style.cursor = h && (o || h.object.userData.sala || h.object.userData.nucleo) ? 'pointer' : 'default';
     if (f) { ficha.innerHTML = `<small>${esc(f.k)}</small><b>${esc(f.b)}</b>` + (f.r ? `<p class="rol">${esc(f.r)}</p>` : '') + `<span><i style="background:${f.c}"></i>${esc(f.txt)}</span>` + (f.m ? `<em>${esc(f.m)}</em>` : '') + (f.dia || ''); ficha.classList.add('on'); colocar(); } else ficha.classList.remove('on');
     hover = o; salaHover = o ? o.d.id : h && h.object.userData.sala ? h.object.userData.sala.id : null;
@@ -1573,10 +1610,14 @@ async function montar() {
       p.c.curva.getPointAt(p.dir > 0 ? p.k : 1 - p.k, p.sp.position);
       p.sp.material.opacity = Math.sin(p.k * Math.PI) * (p.c.on > .5 ? 1 : .5);
     });
-    tickEnvios(dtReal);
+    tickEnvios(dtReal * velAnim());
     { const kc = THREE.MathUtils.clamp(camera.position.distanceTo(target) / ((HOME.dist || 40) * .45), 1, 2.2);
-      salas.forEach((sa) => { const k = kc / sa.esc * (sa.d.activo ? 1 : .8); sa.sign.scale.set(4.4 * k, 1.1 * k, 1); }); }
-    for (let i = flotantes.length - 1; i >= 0; i--) { const f = flotantes[i]; f.k += dtReal / 2.8; f.sp.position.y += dtReal * .5; f.sp.material.opacity = f.k < .15 ? f.k / .15 : 1 - Math.pow((f.k - .15) / .85, 2); if (f.k >= 1) { scene.remove(f.sp); if (!f.propio) f.sp.material.map.dispose(); f.sp.material.dispose(); flotantes.splice(i, 1); } }
+      const dentro = foco && (foco.sala || foco.servidor || foco.sigue || (foco.agente && (ag(foco.agente) || {}).dept));
+      salas.forEach((sa) => {
+        const k = kc / sa.esc * (sa.d.activo ? 1 : .8); sa.sign.scale.set(4.4 * k, 1.1 * k, 1);
+        const op = dentro === sa.d.id ? 0 : 1; sa.sign.material.opacity += (op - sa.sign.material.opacity) * Math.min(1, dtReal * 6); sa.sign.visible = sa.sign.material.opacity > .03;
+      }); }
+    for (let i = flotantes.length - 1; i >= 0; i--) { const f = flotantes[i]; f.k += dtReal * velAnim() / 2.8; f.sp.position.y += dtReal * .5; f.sp.material.opacity = f.k < .15 ? f.k / .15 : 1 - Math.pow((f.k - .15) / .85, 2); if (f.k >= 1) { scene.remove(f.sp); if (!f.propio) f.sp.material.map.dispose(); f.sp.material.dispose(); flotantes.splice(i, 1); } }
     salas.forEach((sa) => {
       sa.flash = Math.max(0, sa.flash - dt * 2.2);
       sa.destello.material.opacity = sa.flash * .9; sa.destello.scale.setScalar(.6 + sa.flash * .7);
@@ -1644,7 +1685,7 @@ async function montar() {
         rb.cuello.rotation.y = Math.sin(tt * 3) * .5; bi.rotation.z = .6; bd.rotation.z = -.6; bi.rotation.x = .4; bd.rotation.x = .4;
         o.baliza.visible = Math.sin(t * 8) > -.1;
       }
-      if (o.paseo) andar(o, dtReal, tt);
+      if (o.paseo) andar(o, dtReal * velAnim(), tt);
     });
     if (intro) { intro.k = Math.min(1, intro.k + dtReal / 3.2); const e = intro.k < .5 ? 4 * intro.k ** 3 : 1 - Math.pow(-2 * intro.k + 2, 3) / 2; enIntro(e); if (intro.k >= 1) { intro = null; deriva = 0; } }
     if (fly) { fly.k = Math.min(1, fly.k + dtReal / 1.1); const e = 1 - Math.pow(1 - fly.k, 3); camera.position.lerpVectors(fly.p0, fly.p1, e); target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) { fly = null; deriva = 0; } }
@@ -1655,7 +1696,7 @@ async function montar() {
     camera.lookAt(target);
     if (!lista) composer.render();
   }
-  G = { THREE, volar, HOME, refrescarEscena, puestos, salas, NUC, lanzaEnvio, traspasos: () => recientesTr, esLibre: () => libre };
+  G = { THREE, volar, HOME, refrescarEscena, puestos, salas, NUC, lanzaEnvio, traspasos: () => recientesTr, esLibre: () => libre, limpiaAnim };
   refrescarEscena(); requestAnimationFrame(tick);
 }
 
