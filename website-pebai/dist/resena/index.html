@@ -146,8 +146,9 @@
   /* Servicio: la reseña empieza por algo concreto (lo que más ayuda a otros y a Google) */
   var SERV = {
     app: ['App a medida', ['Nos hicieron una aplicación a medida', 'Nos desarrollaron una app pensada para cómo trabajamos', 'Tenemos una aplicación hecha a nuestra medida']],
-    chatbot: ['Chatbot de WhatsApp', ['Nos montaron un asistente de WhatsApp', 'Pusieron un chatbot en nuestro WhatsApp', 'Nos implantaron un asistente con inteligencia artificial para atender a los clientes']],
-    automatizacion: ['Automatización', ['Nos automatizaron varias tareas', 'Automatizaron procesos que hacíamos a mano', 'Nos ayudaron a automatizar parte del trabajo diario']],
+    chatbot: ['Chatbot de WhatsApp', ['Nos montaron un asistente de inteligencia artificial en WhatsApp', 'Pusieron un chatbot en nuestro WhatsApp', 'Nos implantaron un asistente con inteligencia artificial para atender a los clientes']],
+    voz: ['Agente de voz', ['Nos implantaron un agente de voz que atiende las llamadas', 'Pusieron un agente de voz con inteligencia artificial en nuestro teléfono', 'Ahora un agente de voz coge las llamadas que antes perdíamos']],
+    automatizacion: ['Automatización', ['Nos automatizaron varias tareas', 'Automatizaron procesos que hacíamos a mano', 'Son expertos en automatización de procesos', 'Nos hicieron soluciones a medida para automatizar el trabajo diario']],
     web: ['Web y panel', ['Nos hicieron una web nueva y un panel de gestión', 'Renovaron nuestra web y nos dieron un panel fácil de usar', 'Nos montaron un panel para gestionarlo todo']],
     consultoria: ['Consultoría', ['Nos hicieron una consultoría de procesos', 'Analizaron cómo trabajamos', 'Revisaron nuestros procesos con calma']]
   };
@@ -155,15 +156,18 @@
   var DEST = [
     ['Trato cercano', ['El trato ha sido cercano en todo momento.', 'Siempre han estado disponibles y se nota que se implican.', 'Muy fácil trabajar con ellos, cercanos y atentos.']],
     ['Rapidez', ['Fueron rápidos y cumplieron los plazos.', 'Lo tuvimos funcionando antes de lo que esperábamos.', 'Respondían rápido a cualquier duda.']],
-    ['Entienden el negocio', ['Antes de proponer nada se tomaron el tiempo de entender cómo trabajamos.', 'Entendieron nuestro negocio desde el principio.', 'Escuchan primero y luego proponen, y eso se agradece.']],
-    ['Ahorro de tiempo', ['Ahora dedicamos mucho menos tiempo a tareas repetitivas.', 'Nos ahorra horas cada semana.', 'Hemos ganado tiempo para lo que de verdad importa.']],
+    ['Entienden el negocio', ['Antes de proponer nada se tomaron el tiempo de entender cómo trabajamos.', 'Analizaron cada proceso antes de proponer nada.', 'Escuchan primero y luego proponen, y eso se agradece.']],
+    ['Enfoque práctico', ['Tienen un enfoque muy práctico.', 'Nada de teoría: fueron directos a lo que nos servía.', 'Mejoraron procesos concretos, sin complicarnos.']],
+    ['Sin cambiar nada', ['Se adaptó a cómo ya trabajábamos, sin cambiar nada de lo que funcionaba.', 'No tuvimos que cambiar nuestra forma de trabajar.', 'Se conectó a lo que ya usábamos.']],
+    ['Equipo autónomo', ['Ahora el equipo es más autónomo.', 'Nos enseñaron a usarlo y el equipo ya se maneja solo.', 'Lo dejaron todo documentado y explicado.']],
+    ['Ahorro de tiempo', ['Ahora dedicamos mucho menos tiempo a tareas repetitivas.', 'Nos ahorra horas cada semana.', 'Desde el principio nos dieron un ahorro estimado claro, y se ha cumplido.']],
     ['Fácil de usar', ['Es muy fácil de usar, hasta para quien no es de tecnología.', 'El equipo lo usa sin complicaciones.', 'Todo es sencillo e intuitivo.']],
     ['Más orden', ['Ahora tenemos todo ordenado y en un solo sitio.', 'Se acabaron los líos: todo está organizado.', 'Tenemos la información mucho más clara.']],
     ['Atención al cliente', ['Nuestros clientes reciben respuesta al momento.', 'Ya no se nos queda ningún mensaje sin contestar.', 'Atendemos mejor a los clientes, también fuera de horario.']],
-    ['Honestos', ['Nos dijeron con claridad qué tenía sentido y qué no.', 'Son honestos y no venden humo.', 'Transparentes en todo el proceso.']],
+    ['Honestos', ['Honestidad total sobre la IA: nos dijeron dónde no hacía falta.', 'Son muy transparentes y no venden humo.', 'Claridad total en todo el proceso.']],
     ['Soporte', ['Después de la entrega siguen ahí para lo que haga falta.', 'El acompañamiento después ha sido muy bueno.', 'Cualquier cambio lo resuelven enseguida.']]
   ];
-  var CIERRE = ['Muy recomendables.', 'Los recomiendo sin duda.', 'Repetiríamos.', 'Totalmente recomendables para cualquier empresa.', ''];
+  var CIERRE = ['Altamente recomendables.', 'Volvería a confiar en ellos.', 'Los recomiendo sin duda.', 'Si buscas una consultoría de IA en Valencia, muy recomendables.', 'Repetiríamos.', ''];
 
   var q = new URLSearchParams(location.search);
   var limpia = function (v, n) { return (v || '').replace(/[^a-z0-9_-]/gi, '').slice(0, n).toLowerCase(); };
