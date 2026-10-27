@@ -97,3 +97,6 @@
 .wb-corto:hover .wb-acc{opacity:1}
 .wb.filtrando .wb-corto:not(.wb-ok){opacity:.22}
 .wb.filtrando .wb-corto.wb-ok{background:color-mix(in srgb,var(--lime) 12%,transparent)}
+.wb-sueltas{border-color:color-mix(in srgb,var(--amber) 35%,var(--line));--c:var(--amber)}
+.wb-sueltas summary .pb-i{color:var(--amber)}
+.wb-suel{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}

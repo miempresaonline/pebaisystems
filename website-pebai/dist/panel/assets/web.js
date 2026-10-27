@@ -76,7 +76,9 @@ function pintar() {
   D.paginas.filter((p) => p.ruta.startsWith('/t/') || p.ruta === '/resena/').forEach((p) => { usadas.add(p.ruta); enRama.qr.push(tarjetaPagina(p)); });
   D.qrs.forEach((q) => enRama.qr.push(tarjetaQr(q)));
   // servicios: cada página con sus hijas debajo (/agentes-ia/ → /agentes-ia/whatsapp/)
-  const resto = D.paginas.filter((p) => !usadas.has(p.ruta));
+  // Páginas que Google puede ver pero que no están en el sitemap: suelen ser versiones viejas que siguen subidas
+  const sueltas = D.paginas.filter((p) => !usadas.has(p.ruta) && !p.oculta && !p.sitemap && !D.paginas.some((o) => o !== p && o.ruta !== '/' && o.sitemap && p.ruta.startsWith(o.ruta)));
+  const resto = D.paginas.filter((p) => !usadas.has(p.ruta) && !sueltas.includes(p));
   resto.filter((p) => !resto.some((o) => o !== p && p.ruta.startsWith(o.ruta))).forEach((p) => {
     enRama.servicios.push(tarjetaPagina(p));
     resto.filter((h) => h !== p && h.ruta.startsWith(p.ruta)).forEach((h) => enRama.servicios.push(tarjetaPagina(h, { hija: true })));
@@ -113,6 +115,9 @@ function pintar() {
         </section>`).join('')}
       </div>
     </div>
+    ${sueltas.length ? `<details class="wb-antiguas wb-sueltas" open><summary>${ico('<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>')}<b>Páginas sueltas en el servidor</b><span>${sueltas.length} páginas que siguen subidas y Google puede ver, pero no están en el sitemap ni enlazadas: revisar si se borran o se redirigen</span></summary>
+      <div class="wb-ant-g wb-suel">${sueltas.map((p) => tarjetaPagina(p)).join('')}</div>
+    </details>` : ''}
     ${antiguas.length ? `<details class="wb-antiguas"><summary>${ico(I.antiguas)}<b>URLs antiguas redirigidas</b><span>${nAnt} direcciones viejas que llevan a la página buena (para no perder visitas de Google)</span></summary>
       <div class="wb-ant-g">${antiguas.map((c) => `<div><p>→ <code>${esc(c.a)}</code> <em>${c.antiguas.length}</em></p><ul>${c.antiguas.map((a) => `<li data-q="${esc(a)}"><code>${esc(a)}</code></li>`).join('')}</ul></div>`).join('')}</div>
     </details>` : ''}`;
