@@ -278,8 +278,15 @@ function of_scraper(): array
         $a['necesita'][] = 'Revisar el scraper en el servidor: no da señales';
     }
     // Nicho terminado (idea de Daniel, 27/10): España revisada entera; espera a que Daniel le dé otro nicho
-    if ($parado && preg_match('/^Nicho terminado/u', $ult['txt'])) {
-        $a['necesita'][] = 'Darle un nicho nuevo: ' . $ult['txt'];
+    // Cada serie parada por agotada deja ~/prospeccion/PAUSA_<serie>: se ve siempre, no solo justo al pararse
+    $agotadas = array_map(static fn($f) => substr(basename($f), 6), glob(dirname(pebai_private_dir(), 3) . '/prospeccion/PAUSA_*') ?: []);
+    if ($agotadas) {
+        $nombres = ['solar' => 'placas solares', 'climatizacion' => 'climatización', 'formacion' => 'formación (oposiciones, academias, idiomas)'];
+        $lista = implode(', ', array_map(static fn($s) => $nombres[$s] ?? $s, $agotadas));
+        $a['necesita'][] = 'Nicho terminado (' . $lista . '): España revisada entera. Dame otro nicho en el chat';
+        if (!$reciente) {
+            $a['motivo'] = 'Nicho terminado: ' . $lista . '. Ha revisado toda España y ya no salen empresas nuevas. Dame otro nicho y sigue buscando. ' . $a['motivo'];
+        }
     }
     $a['proxima'] = $parado ? 'Cuando se quite la pausa' : 'Sigue con la siguiente provincia';
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
