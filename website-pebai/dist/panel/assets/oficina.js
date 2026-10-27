@@ -171,8 +171,11 @@ function empiezaRepe() {
   const marcas = tras.map((x) => { const a = ag(x.de), c = (DEPTS.find((d) => a && d.id === a.dept) || {}).color || '#8E84FF';
     return `<em style="left:${((tsMs(x.ts) - t0) / Math.max(1, t1 - t0) * 100).toFixed(2)}%;--c:${c}"></em>`; }).join('');
   reloj.innerHTML = `<b>--:--</b><span class="ln" role="slider" aria-label="Hora del día" tabindex="0"><span class="pista"><i></i>${marcas}</span><span class="bola"></span></span>`
-    + '<button type="button" class="vel" title="Velocidad">×1</button><button type="button" class="x" aria-label="Parar">×</button>';
+    + '<button type="button" class="pp" aria-label="Pausa" title="Pausa (espacio)"><svg viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg></button>'
+    + '<button type="button" class="vel" title="Velocidad">×1</button><button type="button" class="sig on" title="La cámara va a la sala donde pasa algo">Seguir</button><button type="button" class="x" aria-label="Parar">×</button>';
   reloj.querySelector('.x').onclick = (e) => { e.stopPropagation(); paraRepe(); };
+  reloj.querySelector('.pp').onclick = (e) => { e.stopPropagation(); pausaRepe(); };
+  reloj.querySelector('.sig').onclick = (e) => { e.stopPropagation(); repe.sigue = !repe.sigue; e.currentTarget.classList.toggle('on', repe.sigue); if (!repe.sigue && G) cerrar(); };
   reloj.querySelector('.vel').onclick = (e) => { e.stopPropagation(); repe.vel = repe.vel === 1 ? 2 : repe.vel === 2 ? 4 : 1; e.currentTarget.textContent = '×' + repe.vel; };
   const ln = reloj.querySelector('.ln');
   const salta = (ev) => { const r = ln.getBoundingClientRect(); repeIr(Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width))); };
@@ -182,8 +185,22 @@ function empiezaRepe() {
   ln.addEventListener('keydown', (ev) => { if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') { ev.preventDefault(); ev.stopPropagation(); repeIr(Math.max(0, Math.min(1, repe.f + (ev.key === 'ArrowRight' ? .05 : -.05)))); } });
   reloj.addEventListener('click', (e) => e.stopPropagation());
   wrap.append(reloj); wrap.classList.add('repe');
-  repe = { reales, turnos, t0, t1, tras, k: 0, reloj, f: 0, vel: 1, prev: performance.now(), clave: '' };
+  repe = { reales, turnos, t0, t1, tras, k: 0, reloj, f: 0, vel: 1, prev: performance.now(), clave: '', pausa: false, sigue: true, salaVista: '', cuando: 0 };
   pintaHud(); requestAnimationFrame(pasoRepe);
+}
+function pausaRepe() {
+  if (!repe) return; repe.pausa = !repe.pausa;
+  const b = repe.reloj.querySelector('.pp');
+  b.innerHTML = repe.pausa ? '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>';
+  b.setAttribute('aria-label', repe.pausa ? 'Seguir' : 'Pausa');
+}
+// La cámara se acerca a la sala donde ocurre algo (sin abrir el panel lateral); si la mueves tú, deja de seguir
+function sigueSala(id) {
+  if (!repe || !repe.sigue || !G || G.esLibre() || id === repe.salaVista || performance.now() - repe.cuando < 3500) return;
+  const s = G.salas.get(id); if (!s) return;
+  repe.salaVista = id; repe.cuando = performance.now(); foco = { sigue: id };
+  const f = Math.max(1, s.W / 8.6), c = s.g.position.clone();
+  G.volar(c.clone().add(new G.THREE.Vector3(0, 9.5 * f, 12 * f)), c.clone().add(new G.THREE.Vector3(0, .9, -.6)));
 }
 // Saltar a otro momento: los traspasos de antes de esa hora ya no se lanzan; los de después, sí
 function repeIr(f) {
@@ -195,7 +212,7 @@ function repeIr(f) {
 function pasoRepe(now) {
   if (!repe) return;
   const dtR = Math.min(.1, (now - repe.prev) / 1000); repe.prev = now;
-  if (!repe.arrastra) repe.f = Math.min(1, repe.f + dtR * repe.vel / REPE_SEG);
+  if (!repe.arrastra && !repe.pausa) repe.f = Math.min(1, repe.f + dtR * repe.vel / REPE_SEG);
   const f = repe.f, t = repe.t0 + (repe.t1 - repe.t0) * f;
   const d = new Date(t); repe.reloj.querySelector('b').textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   repe.reloj.querySelector('.ln .pista i').style.width = (f * 100) + '%'; repe.reloj.querySelector('.ln .bola').style.left = (f * 100) + '%';
@@ -210,7 +227,7 @@ function pasoRepe(now) {
   if (clave !== repe.clave) { repe.clave = clave; G.refrescarEscena(true); }
   while (repe.k < repe.tras.length && tsMs(repe.tras[repe.k].ts) <= t) {
     const x = repe.tras[repe.k++]; const a = ag(x.de);
-    if (a && a.st === 'trabajando') G.lanzaEnvio(x);
+    if (a && a.st === 'trabajando') { sigueSala(a.dept); G.lanzaEnvio(x); }
   }
   // al llegar a ahora se queda quieta un momento y termina (si no la han movido hacia atrás mientras tanto)
   if (f >= 1 && !repe.fin) { repe.fin = true; setTimeout(() => { if (repe && repe.fin && repe.f >= 1) paraRepe(); }, 1800); }
@@ -219,7 +236,9 @@ function pasoRepe(now) {
 function paraRepe() {
   if (!repe) return;
   S.agentes.forEach((a) => { if (repe.reales.has(a.id)) a.st = repe.reales.get(a.id); });
+  const seguia = foco && foco.sigue;
   repe.reloj.remove(); wrap.classList.remove('repe'); repe = null;
+  if (seguia) cerrar();
   if (G) G.refrescarEscena(true); pintaHud();
 }
 function botonVista() {
@@ -243,7 +262,7 @@ function pintaLista() {
         const [c, t] = ST[a.st] || ST.espera;
         const pc = a.st === 'trabajando' && a.cupo ? Math.min(100, Math.round(a.hoy / a.cupo * 100)) : null;
         const nec = (a.necesita || [])[0];
-        return `<button type="button" class="fila" data-id="${esc(a.id)}">${tileHtml(a, 't')}<span class="nm"><b>${esc(a.nombre)}</b><small>${esc(nec || a.motivo || a.rol || '')}</small></span>`
+        return `<button type="button" class="fila" data-id="${esc(a.id)}">${tileHtml(a, 't')}<span class="nm"><b>${esc(a.nombre)}</b><small>${esc(nec || a.motivo || a.rol || '')}</small>${franjaDia(a)}</span>`
           + `<span class="st" style="--c:${c}"><i></i>${esc(t)}${pc != null ? ` · ${pc}%` : ''}</span></button>`;
       }).join('') + '</section>';
   }).join('');
@@ -489,6 +508,7 @@ document.addEventListener('keydown', (e) => {
   else if (k === 'h') { const l = wrap.classList.toggle('limpio'); if (l) toast('Interfaz oculta: pulsa H para verla'); }
   else if (k === 'c') alternarCine();
   else if (k === 'l') ponVista(!lista);
+  else if (k === ' ' && repe) { e.preventDefault(); pausaRepe(); }
   else if (k === '?') ayuda.classList.toggle('on');
   else return;
   e.stopImmediatePropagation();
@@ -1478,12 +1498,17 @@ async function montar() {
   }, { passive: false });
   renderer.domElement.addEventListener('pointermove', (e) => {
     const r = renderer.domElement.getBoundingClientRect();
-    ficha.style.transform = `translate(${Math.min(e.clientX - r.left + 16, r.width - 260)}px, ${e.clientY - r.top + 18}px)`;
+    const colocar = () => {   // donde quepa: encima del ratón si no cabe debajo, a la izquierda si no cabe a la derecha
+      const fw = ficha.offsetWidth || 250, fh = ficha.offsetHeight || 140, mx = e.clientX - r.left, my = e.clientY - r.top;
+      const fx = mx + 16 + fw > r.width - 8 ? mx - fw - 16 : mx + 16, fy = my + 18 + fh > r.height - 90 ? my - fh - 14 : my + 18;
+      ficha.style.transform = `translate(${Math.max(8, fx)}px, ${Math.max(8, fy)}px)`;
+    };
+    colocar();
     if (performance.now() - ultimoMov < 50) return; ultimoMov = performance.now();
     const h = tocar(e); const o = h && h.object.userData.puesto ? h.object.userData.puesto : null;
     const f = foco ? null : fichaDe(h);
     renderer.domElement.style.cursor = h && (o || h.object.userData.sala || h.object.userData.nucleo) ? 'pointer' : 'default';
-    if (f) { ficha.innerHTML = `<small>${esc(f.k)}</small><b>${esc(f.b)}</b>` + (f.r ? `<p class="rol">${esc(f.r)}</p>` : '') + `<span><i style="background:${f.c}"></i>${esc(f.txt)}</span>` + (f.m ? `<em>${esc(f.m)}</em>` : '') + (f.dia || ''); ficha.classList.add('on'); } else ficha.classList.remove('on');
+    if (f) { ficha.innerHTML = `<small>${esc(f.k)}</small><b>${esc(f.b)}</b>` + (f.r ? `<p class="rol">${esc(f.r)}</p>` : '') + `<span><i style="background:${f.c}"></i>${esc(f.txt)}</span>` + (f.m ? `<em>${esc(f.m)}</em>` : '') + (f.dia || ''); ficha.classList.add('on'); colocar(); } else ficha.classList.remove('on');
     hover = o; salaHover = o ? o.d.id : h && h.object.userData.sala ? h.object.userData.sala.id : null;
   });
   renderer.domElement.addEventListener('pointerleave', () => { ficha.classList.remove('on'); hover = null; salaHover = null; });
@@ -1630,7 +1655,7 @@ async function montar() {
     camera.lookAt(target);
     if (!lista) composer.render();
   }
-  G = { THREE, volar, HOME, refrescarEscena, puestos, salas, NUC, lanzaEnvio, traspasos: () => recientesTr };
+  G = { THREE, volar, HOME, refrescarEscena, puestos, salas, NUC, lanzaEnvio, traspasos: () => recientesTr, esLibre: () => libre };
   refrescarEscena(); requestAnimationFrame(tick);
 }
 

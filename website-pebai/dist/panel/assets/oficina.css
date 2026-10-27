@@ -330,3 +330,14 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-hov .dia .b u{position:absolute;top:-2px;bottom:-2px;width:2px;margin-left:-1px;background:#fff;opacity:.85}
 .pb-of-hov .dia .h{display:flex;justify-content:space-between;gap:6px;margin-top:4px;font-size:10.5px;color:#8C8FA3}
 .pb-of-hov .dia .h span{display:inline;font-size:10.5px;font-weight:600;color:#8C8FA3}
+.pb-of-reloj .pp{display:grid;place-items:center}
+.pb-of-reloj .pp svg{width:13px;height:13px}
+.pb-of-reloj .sig{width:auto!important;padding:0 11px;border-radius:999px!important;font:700 12px var(--sans)!important;color:#8C8FA3!important}
+.pb-of-reloj .sig.on{color:#3FD5FF!important;border-color:rgba(63,213,255,.45)!important}
+/* franja de hoy también en la vista Lista */
+.pb-of-lista .dia{margin-top:6px;max-width:320px}
+.pb-of-lista .dia .b{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.pb-of-lista .dia .b i{position:absolute;top:0;bottom:0;border-radius:3px;background:#3DDC84}
+.pb-of-lista .dia .b u{position:absolute;top:-1px;bottom:-1px;width:2px;margin-left:-1px;background:#fff;opacity:.8}
+.pb-of-lista .dia .h{display:flex;justify-content:space-between;gap:6px;margin-top:3px;font-size:10.5px;color:#6E7186}
+.pb-of-hov em{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
