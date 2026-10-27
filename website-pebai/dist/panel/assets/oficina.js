@@ -1346,6 +1346,8 @@ async function montar() {
     const A = puestos.get(tr.de), B = puestos.get(tr.a); if (!A || !B) return;
     if (A.d.id === B.d.id && A !== B && !A.paseo && A.phi != null && B.phi != null) { empiezaPaseo(A, B, tr); return; }
     const pa = new THREE.Vector3(), pb = new THREE.Vector3(); A.logo.getWorldPosition(pa); B.logo.getWorldPosition(pb);
+    const SA = salas.get(A.d.id), SB = salas.get(B.d.id);
+    if (A.d.id !== B.d.id && SA && SB) { lanzaRuta(tr, A, B, SA, SB, pa, pb); return; }
     const arriba = new THREE.Vector3(0, 1.6, 0);
     const curva = A.d.id === B.d.id
       ? new THREE.QuadraticBezierCurve3(pa, pa.clone().lerp(pb, .5).add(new THREE.Vector3(0, 2.4, 0)), pb)
@@ -1355,6 +1357,61 @@ async function montar() {
     scene.add(sp);
     const largo = curva.getLength();
     envios.push({ tr, curva, sp, A, B, col, k: 0, v: 1 / Math.max(2.2, Math.min(4.5, largo / 6)), rastro: 0 });
+  }
+  /* ---------- de un departamento a otro: por la red de PEBAI ----------
+     El documento sube a la columna de su sala, que se carga de luz; baja por el cable como una cápsula hasta el núcleo,
+     que la hace girar a su alrededor y la tiñe del color de la otra sala (PEBAI decide adónde va); sube por el cable de la
+     sala de destino, sale por su columna y cae en la mesa del compañero. */
+  const capsulaTex = canvasTex(64, 64, (c) => { const r = c.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(.35, 'rgba(255,255,255,.85)'); r.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = r; c.fillRect(0, 0, 64, 64); });
+  function lanzaRuta(tr, A, B, SA, SB, pa, pb) {
+    const cA = SA.tronco.curva, cB = SB.tronco.curva;   // cada cable va del núcleo (0) a la columna (1)
+    const topA = cA.getPointAt(1), topB = cB.getPointAt(1);
+    const arco = (p, q, h) => new THREE.QuadraticBezierCurve3(p, p.clone().lerp(q, .5).add(new THREE.Vector3(0, h, 0)), q);
+    const invierte = (c) => ({ getPointAt: (k, v) => c.getPointAt(1 - k, v), getLength: () => c.getLength() });
+    const giro = { getPointAt: (k, v) => { const a0 = Math.atan2(topA.z - NUC.z, topA.x - NUC.x), a1 = Math.atan2(topB.z - NUC.z, topB.x - NUC.x); let da = a1 - a0; while (da < .6) da += Math.PI * 2; const a = a0 + da * k, r = 1.75; return (v || new THREE.Vector3()).set(NUC.x + Math.cos(a) * r, NUC.y + .25 + Math.sin(k * Math.PI) * .5, NUC.z + Math.sin(a) * r); } };
+    const tramos = [
+      { curva: arco(pa, topA, 1.6), dur: 1, doc: true, col: A.d.color },
+      { pausa: SA, dur: .55, doc: true, col: A.d.color, en: topA },
+      { curva: invierte(cA), dur: 1.1, col: A.d.color },
+      { curva: giro, dur: 1.2, col: A.d.color, col2: B.d.color, nucleo: true },
+      { curva: cB, dur: 1.1, col: B.d.color },
+      { pausa: SB, dur: .45, doc: true, col: B.d.color, en: topB },
+      { curva: arco(topB, pb, 1.6), dur: 1, doc: true, col: B.d.color },
+    ];
+    const doc = new THREE.Sprite(new THREE.SpriteMaterial({ map: docTex(A.d.color), transparent: true, depthWrite: false, depthTest: false, toneMapped: false })); doc.scale.set(.42, .52, 1); doc.renderOrder = 22;
+    const cap = new THREE.Sprite(new THREE.SpriteMaterial({ map: capsulaTex, color: A.d.color, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending, toneMapped: false })); cap.renderOrder = 23;
+    scene.add(doc, cap);
+    envios.push({ tr, A, B, sp: doc, cap, tramos, i: 0, kt: 0, col: A.d.color, k: 0, rastro: 0, docB: false });
+  }
+  // un paso de la ruta entre salas; devuelve true al terminar
+  function pasoRuta(e, dtR, kz) {
+    const T = e.tramos[e.i]; e.kt += dtR / T.dur;
+    const k = Math.min(1, e.kt), q = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    const pos = new THREE.Vector3();
+    if (T.pausa) { pos.copy(T.en); T.pausa.flash = Math.max(T.pausa.flash, 1 - k * .3); }
+    else T.curva.getPointAt(T.doc ? q : k, pos);
+    const col = T.col2 ? new THREE.Color(T.col).lerp(new THREE.Color(T.col2), k) : new THREE.Color(T.col);
+    // el documento va por fuera; dentro de los cables viaja como cápsula de luz
+    const enCable = !T.doc;
+    if (e.i >= 5 && !e.docB) { e.docB = true; e.sp.material.map.dispose(); e.sp.material.map = docTex(e.B.d.color); e.sp.material.needsUpdate = true; }
+    e.sp.position.copy(pos); e.cap.position.copy(pos);
+    const entra = T.pausa ? (e.i === 1 ? 1 - k : k) : 1;   // en la columna, el documento se hace pequeño (entra) o grande (sale)
+    e.sp.material.opacity = enCable ? 0 : Math.min(1, (e.i === 0 ? k * 8 : 1), (e.i === 6 ? (1 - k) * 8 : 1)) * (T.pausa ? Math.max(.15, entra) : 1);
+    e.sp.scale.set(.42 * kz * (T.pausa ? .4 + .6 * entra : 1), .52 * kz * (T.pausa ? .4 + .6 * entra : 1), 1);
+    e.cap.material.color.copy(col);
+    e.cap.material.opacity = enCable ? 1 : T.pausa ? (1 - entra) * .9 : 0;
+    e.cap.scale.setScalar((T.nucleo ? .75 + Math.sin(k * Math.PI) * .35 : .6) * kz);
+    if (enCable || T.pausa) {
+      e.rastro += dtR;
+      if (e.rastro > .03) {
+        e.rastro = 0;
+        const c = new THREE.Sprite(new THREE.SpriteMaterial({ map: brillo, color: col, transparent: true, opacity: .8, depthWrite: false, blending: THREE.AdditiveBlending }));
+        c.position.copy(pos); c.scale.setScalar(.38 * kz); scene.add(c); chispas.push({ c, k: 0 });
+      }
+    }
+    if (T.nucleo && k > .02 && !e.ruteo) { e.ruteo = true; chispazo = Math.max(chispazo, .7); }
+    if (e.kt >= 1) { e.i++; e.kt = 0; if (e.i >= e.tramos.length) return true; }
+    return false;
   }
   /* ---------- andar a la mesa del compañero ----------
      Se levanta, rodea la sala por fuera de las mesas (nunca atraviesa la columna), le da el documento, vuelve y se sienta. */
@@ -1411,7 +1468,7 @@ async function montar() {
       o.rb.r.remove(o.paseo.doc); o.paseo.doc.material.map.dispose(); o.paseo.doc.material.dispose();
       o.rb.r.position.set(0, -.08, .74); o.rb.r.rotation.set(0, 0, 0); o.paseo = null;
     });
-    envios.splice(0).forEach((e) => { scene.remove(e.sp); e.sp.material.map.dispose(); e.sp.material.dispose(); });
+    envios.splice(0).forEach((e) => { scene.remove(e.sp); e.sp.material.map.dispose(); e.sp.material.dispose(); if (e.cap) { scene.remove(e.cap); e.cap.material.dispose(); } });
     colaTr.length = 0;
   }
   const chispas = [];
@@ -1427,7 +1484,16 @@ async function montar() {
       ultimoTr = 0;
     }
     for (let i = envios.length - 1; i >= 0; i--) {
-      const e = envios[i]; e.k = Math.min(1, e.k + dtR * e.v);
+      const e = envios[i];
+      if (e.tramos) {
+        if (pasoRuta(e, dtR, kz)) {
+          e.B.halo.material.opacity = .6;
+          [e.sp, e.cap].forEach((x) => { scene.remove(x); if (x === e.sp) x.material.map.dispose(); x.material.dispose(); });
+          envios.splice(i, 1);
+        }
+        continue;
+      }
+      e.k = Math.min(1, e.k + dtR * e.v);
       const q = e.k < .5 ? 2 * e.k * e.k : 1 - Math.pow(-2 * e.k + 2, 2) / 2;
       e.curva.getPointAt(q, e.sp.position);
       e.sp.scale.set(.42 * kz, .52 * kz, 1);
