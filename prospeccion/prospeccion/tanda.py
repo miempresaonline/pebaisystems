@@ -156,12 +156,28 @@ NICHOS_NUEVOS = {
         'grupos': [['agencia inmobiliaria', 'inmobiliaria', 'inmobiliaria venta y alquiler de pisos'],
                    ['agencia inmobiliaria local', 'inmobiliaria compraventa viviendas', 'gestión de alquileres inmobiliaria']],
     },
+    # 27/10 (Daniel): reformas integrales, cocinas y baños. Mucho presupuesto por WhatsApp y gana quien contesta antes.
+    'reformas': {
+        'sector': 'Reformas integrales, cocinas y baños', 'lote': 'Reformas', 'nicho_panel': 'reformas', 'email_nicho': 'reformas', 'ia': False, 'auditoria': False,
+        'palabras': 'reformas integrales reforma de cocinas reforma de baños presupuesto sin compromiso obra pisos viviendas locales interiorismo',
+        'reglas': {'solo_activas': True, 'sin_autonomos': True, 'requiere_web': True, 'min_resenas': 15,
+                   'grandes': r'leroy\s*merlin|bricomart|bauhaus|ikea|brico\s*dep[oó]t|habitissimo|cronoshare|obramat|porcelanosa|'
+                              r'saloni|roca\b|the\s*home\s*depot|cocinas\s*santos|dica\b|aki\b|bricor|el corte ingl|carrefour|homeserve|reparalia',
+                   'requiere_palabra': r'reform|cocina|ba[ñn]o|obra|interiorismo|rehabilita',
+                   'nom_no': r'tienda|almac[eé]n|distribu|materiales|azulejos?\s*y|saneamientos|fontaner[ií]a\s*urgente|cerrajer|limpieza|'
+                             r'pintor\b|mudanza|inmobiliari|arquitectos?\b|seguros?|alquiler de maquinaria'},
+        'cat_ok': r'reform|contratista|empresa de construcci[oó]n|cocina|ba[ñn]o|interiorista|rehabilita',
+        'cat_no': r'tienda|almac[eé]n|proveedor|distribuidor|ferreter|inmobiliari|arquitect|limpieza|mudanza|cerrajer|seguro',
+        'nombre_ok': r'reform|cocina|ba[ñn]o|obra|interior|rehabilita|construc|hogar|home',
+        'grupos': [['empresa de reformas integrales', 'reformas integrales', 'reforma de cocinas'],
+                   ['reforma de baños', 'reformas de pisos', 'empresa de reformas cocinas y baños']],
+    },
 }
 NICHOS.update(NICHOS_NUEVOS)
 # Cada scraper recorre una serie: solar (placas), climatización, formación (alterna oposiciones → formación → idiomas),
 # y desde el 27/10 clínicas dentales e inmobiliarias
 SERIES = {'solar': ['solar'], 'climatizacion': ['climatizacion'], 'formacion': ['oposiciones', 'formacion', 'idiomas'],
-          'dental': ['dentales'], 'inmobiliaria': ['inmobiliarias']}
+          'dental': ['dentales'], 'inmobiliaria': ['inmobiliarias'], 'reforma': ['reformas']}
 FALLOS_MAX = 3   # una provincia que falla 3 veces en una vuelta se salta para no atascar el barrido
 
 

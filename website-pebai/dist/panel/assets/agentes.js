@@ -24,7 +24,7 @@ const CANALES = [['', 'Todos los canales'], ['wa', 'WhatsApp'], ['email', 'Email
 // Carpetas por nicho (21/10): placas solares es el activo; el resto se llena solo con los scrapers nuevos y aún no se les escribe
 const CARPETAS = [['solar', 'Placas solares', '#B7FF3C'], ['climatizacion', 'Climatización', '#3FD5FF'], ['oposiciones', 'Oposiciones', '#FFB547'],
   ['formacion', 'Formación especializada', '#7E73FF'], ['idiomas', 'Idiomas', '#FF8AD8'],
-  ['dentales', 'Clínicas dentales', '#5CE1E6'], ['inmobiliarias', 'Inmobiliarias', '#FFD166']];
+  ['dentales', 'Clínicas dentales', '#5CE1E6'], ['inmobiliarias', 'Inmobiliarias', '#FFD166'], ['reformas', 'Reformas', '#FF8A5C']];
 const carpetaDe = (p) => (p.canal === 'email' ? ((p.nicho || 'energia') === 'energia' ? 'solar' : p.nicho) : (p.nicho || 'solar'));
 // Un solo nombre por nicho, venga de la lista de WhatsApp o de la de email
 const NICHO_NOMBRE = (k) => /solar|placa|fotovolt|instaladores energ|^energia$/i.test(k) ? 'Placas solares' : k === 'luz' ? 'Comercializadoras de luz' : k === 'luz_coop' ? 'Cooperativas eléctricas' : k;
