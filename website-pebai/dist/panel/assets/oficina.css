@@ -354,3 +354,15 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-reloj .ln em{cursor:help}
 .pb-of-todo .h,.pb-of-todo .h>span{white-space:nowrap}
 .pb-of-todo{max-width:min(560px,calc(100vw - 420px))}
+/* móvil: la píldora de estado ocupa su fila y se lee; los botones debajo; la barra de la repetición cabe */
+@media (max-width:760px){
+  .pb-of-hud{left:10px;right:10px;top:10px;max-width:none;display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px}
+  .pb-of-todo{flex:1 1 100%;max-width:none}
+  .pb-of-todo .h{width:100%}
+  .pb-of-repe span{display:none}
+  .pb-of-repe{padding:9px 12px}
+  .pb-of-reloj{left:10px;right:10px;transform:none;bottom:86px;gap:8px;padding:8px 10px 8px 14px}
+  .pb-of-reloj b{font-size:17px}
+  .pb-of-reloj .ln{flex:1;width:auto}
+  .pb-of-reloj .sig{display:none}
+}

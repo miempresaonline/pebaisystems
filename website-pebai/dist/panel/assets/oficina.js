@@ -172,7 +172,7 @@ function franjaDia(a) {
 }
 function botonRepe() {
   const b = document.createElement('button'); b.type = 'button'; b.className = 'pb-of-repe' + (repe ? ' on' : '');
-  b.innerHTML = repe ? '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>Parar' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>Repetir el día';
+  b.innerHTML = repe ? '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg><span>Parar</span>' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Repetir el día</span>';
   b.title = 'Ver en 40 segundos todo lo que ha pasado hoy en la oficina';
   b.onclick = (e) => { e.stopPropagation(); if (repe) paraRepe(); else empiezaRepe(); };
   return b;
@@ -199,7 +199,7 @@ function empiezaRepe() {
   reloj.querySelector('.sig').onclick = (e) => { e.stopPropagation(); repe.sigue = !repe.sigue; e.currentTarget.classList.toggle('on', repe.sigue); if (!repe.sigue && G) cerrar(); };
   reloj.querySelector('.vel').onclick = (e) => { e.stopPropagation(); repe.vel = repe.vel === 1 ? 2 : repe.vel === 2 ? 4 : 1; e.currentTarget.textContent = '×' + repe.vel; };
   const ln = reloj.querySelector('.ln');
-  const salta = (ev) => { const r = ln.getBoundingClientRect(); repeIr(Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width))); };
+  const salta = (ev) => { const r = ln.getBoundingClientRect(); const m = ev.target.closest && ev.target.closest('em'); repeIr(Math.max(0, Math.min(1, m ? parseFloat(m.style.left) / 100 - .002 : (ev.clientX - r.left) / r.width))); };
   ln.addEventListener('pointerdown', (ev) => { ev.stopPropagation(); ln.setPointerCapture(ev.pointerId); repe.arrastra = true; salta(ev); });
   ln.addEventListener('pointermove', (ev) => { if (repe && repe.arrastra) salta(ev); });
   ln.addEventListener('pointerup', () => { if (repe) repe.arrastra = false; });
@@ -251,6 +251,7 @@ function pasoRepe(now) {
     const x = repe.tras[repe.k++]; const a = ag(x.de);
     if (a && a.st === 'trabajando') { sigueSala(a.dept); G.lanzaEnvio(x); }
   }
+  if (repe.sigue && foco && foco.sigue && performance.now() - repe.cuando > 7000) { repe.salaVista = ''; cerrar(); }
   // al llegar a ahora se queda quieta un momento y termina (si no la han movido hacia atrás mientras tanto)
   if (f >= 1 && !repe.fin) { repe.fin = true; setTimeout(() => { if (repe && repe.fin && repe.f >= 1) paraRepe(); }, 1800); }
   requestAnimationFrame(pasoRepe);
@@ -510,7 +511,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && enPagina
 const ayuda = document.createElement('div'); ayuda.className = 'pb-of-ayuda';
 ayuda.innerHTML = '<button type="button" class="b" aria-label="Atajos y leyenda" title="Atajos y leyenda (?)">?</button><div class="c">'
   + '<h5>Colores</h5>' + ['trabajando', 'espera', 'dormido', 'error', 'apagado'].map((k) => `<div class="l"><i style="background:${ST[k][0]}"></i>${ST[k][1]}</div>`).join('')
-  + '<h5>Atajos</h5>' + [['Arrastrar', 'Moverse por la oficina'], ['Rueda', 'Acercar o alejar'], ['1 – ' + DEPTS.length, 'Ir a cada sala'], ['P', 'El núcleo'], ['S', 'Servidor de la sala enfocada'], ['← →', 'Agente anterior / siguiente'], ['/', 'Preguntar a PEBAI'], ['Esc', 'Volver a la vista general'], ['L', 'Vista Lista / 3D'], ['H', 'Ocultar la interfaz'], ['C', 'Modo cine (para grabar)']].map(([k, t]) => `<div class="k"><kbd>${k}</kbd><span>${t}</span></div>`).join('')
+  + '<h5>Atajos</h5>' + [['Arrastrar', 'Moverse por la oficina'], ['Rueda', 'Acercar o alejar'], ['1 – ' + DEPTS.length, 'Ir a cada sala'], ['P', 'El núcleo'], ['S', 'Servidor de la sala enfocada'], ['← →', 'Agente anterior / siguiente'], ['/', 'Preguntar a PEBAI'], ['Esc', 'Volver a la vista general'], ['L', 'Vista Lista / 3D'], ['R', 'Repetir el día / parar'], ['Espacio', 'Pausa en la repetición'], ['H', 'Ocultar la interfaz'], ['C', 'Modo cine (para grabar)']].map(([k, t]) => `<div class="k"><kbd>${k}</kbd><span>${t}</span></div>`).join('')
   + '</div>';
 wrap.append(ayuda);
 ayuda.addEventListener('click', (e) => e.stopPropagation());
@@ -535,6 +536,7 @@ document.addEventListener('keydown', (e) => {
   else if (k === 'c') alternarCine();
   else if (k === 'l') ponVista(!lista);
   else if (k === ' ' && repe) { e.preventDefault(); pausaRepe(); }
+  else if (k === 'r') { if (repe) paraRepe(); else empiezaRepe(); }
   else if (k === '?') ayuda.classList.toggle('on');
   else return;
   e.stopImmediatePropagation();
@@ -805,7 +807,16 @@ async function montar() {
       g.fillText(r, 34, 36);
     }
     const x0 = 214;
-    if (st === 'trabajando') {
+    const tarea = (() => { const e = (a.actividad || []).find((x) => x.tipo !== 'espera'); return String((e && !/^Termina/.test(e.txt) && e.txt) || a.motivo || '').replace(/^(Empieza|Encargo del Jefe):\s*/u, ''); })();
+    if (st === 'trabajando' && tarea) {
+      // «Ahora», y la tarea escribiéndose; debajo, dos barras de progreso que se mueven
+      g.fillStyle = col; g.font = '800 22px Manrope, sans-serif'; g.fillText('AHORA', x0, 70);
+      const n = Math.floor((t * 22) % (tarea.length + 36)), vis = tarea.slice(0, n);
+      g.fillStyle = '#EFEDE7'; g.font = '600 25px Manrope, sans-serif';
+      const pal = vis.split(' '), lin = ['']; pal.forEach((w) => { const prueba = (lin[lin.length - 1] + ' ' + w).trim(); if (g.measureText(prueba).width > 264 && lin[lin.length - 1]) lin.push(w); else lin[lin.length - 1] = prueba; });
+      lin.slice(0, 4).forEach((l, i) => g.fillText(l + (i === Math.min(3, lin.length - 1) && Math.sin(t * 9) > 0 ? '▍' : ''), x0, 108 + i * 34));
+      [0, 1].forEach((i) => { const k = (t * .7 + i * .45) % 1; g.fillStyle = 'rgba(255,255,255,.07)'; g.beginPath(); g.roundRect(x0, 252 + i * 22, 264, 9, 5); g.fill(); g.fillStyle = col; g.beginPath(); g.roundRect(x0, 252 + i * 22, 264 * k, 9, 5); g.fill(); });
+    } else if (st === 'trabajando') {
       for (let i = 0; i < 5; i++) {
         const k = (t * 1.6 + i * .37) % 1, y = 48 + i * 46, w = 80 + ((i * 67 + Math.floor(t * 1.6 + i * .37) * 31) % 170);
         g.fillStyle = 'rgba(255,255,255,.07)'; g.beginPath(); g.roundRect(x0, y, 264, 30, 9); g.fill();
@@ -1197,9 +1208,21 @@ async function montar() {
     const ah = new Date(), h = ah.getHours() + ah.getMinutes() / 60;
     const noche = h < 7 || h >= 21 ? 1 : h < 8.5 ? (8.5 - h) / 1.5 : h > 19.5 ? (h - 19.5) / 1.5 : 0;
     hemi.intensity = 1.3 - .45 * noche; sun.intensity = 1.35 - .75 * noche; renderer.toneMappingExposure = 1.2 - .1 * noche;
+    const fondo = new THREE.Color(0x0c1230).lerp(new THREE.Color(0x05060c), noche); scene.background.copy(fondo); scene.fog.color.copy(fondo);
     lamparas.forEach((l) => { l.pant.emissiveIntensity = .12 + .55 * noche; l.charco.opacity = .18 + .3 * noche; });
   }
   const flotantes = [];
+  const avisoTex = canvasTex(128, 128, (c) => {
+    c.fillStyle = '#FFB547'; c.beginPath(); c.arc(64, 64, 50, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#1b1204'; c.font = '900 76px Manrope, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('!', 64, 70);
+  });
+  function marcaAviso(o, on) {
+    if (on && !o.aviso) {
+      o.aviso = new THREE.Sprite(new THREE.SpriteMaterial({ map: avisoTex, transparent: true, depthWrite: false, toneMapped: false }));
+      o.aviso.scale.setScalar(.42); o.aviso.position.set(.62, 3.25, -.28); o.aviso.userData.puesto = o; o.p.add(o.aviso); clicables.push(o.aviso);
+    }
+    if (o.aviso) o.aviso.visible = !!on;
+  }
   const listoTex = canvasTex(128, 128, (c) => {
     c.fillStyle = '#3DDC84'; c.beginPath(); c.arc(64, 60, 46, 0, Math.PI * 2); c.fill();
     c.beginPath(); c.moveTo(50, 100); c.lineTo(64, 122); c.lineTo(78, 100); c.fill();
@@ -1447,6 +1470,7 @@ async function montar() {
   function refrescarEscena(soloEstados) {
     puestos.forEach((o) => {
       const a = ag(o.a.id); if (!a) return; o.a = a;
+      marcaAviso(o, pendientes().some((x) => x.a.id === a.id && !x.err));
       if (o.prevSt === 'trabajando' && a.st !== 'trabajando' && a.st !== 'error') listo(o);   // acaba de terminar su tarea
       if (o.prevSt && o.prevSt !== 'trabajando' && a.st === 'trabajando') { o.halo.material.opacity = .75; o.pad.material.opacity = 1; }   // se despierta
       o.prevSt = a.st;
@@ -1506,7 +1530,22 @@ async function montar() {
   };
   const cv3 = renderer.domElement;
   cv3.style.touchAction = 'none';
-  cv3.addEventListener('pointerdown', (e) => { if (e.button !== 0) return; arrastre = { x: e.clientX, y: e.clientY, mov: false }; arrastrado = false; inercia.set(0, 0, 0); });
+  const dedos = new Map(); let pinza = 0;
+  cv3.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'touch') { dedos.set(e.pointerId, [e.clientX, e.clientY]); if (dedos.size === 2) { arrastre = null; const [a1, a2] = [...dedos.values()]; pinza = Math.hypot(a1[0] - a2[0], a1[1] - a2[1]); return; } }
+    if (e.button !== 0) return; arrastre = { x: e.clientX, y: e.clientY, mov: false }; arrastrado = false; inercia.set(0, 0, 0);
+  });
+  // dos dedos: se separan → acercar; se juntan → alejar
+  cv3.addEventListener('pointermove', (e) => {
+    if (!dedos.has(e.pointerId)) return; dedos.set(e.pointerId, [e.clientX, e.clientY]);
+    if (dedos.size !== 2 || !pinza) return;
+    const [a1, a2] = [...dedos.values()], d = Math.hypot(a1[0] - a2[0], a1[1] - a2[1]);
+    fly = null; intro = null; libre = true;
+    const actual = camera.position.distanceTo(target);
+    zoomObj = THREE.MathUtils.clamp((zoomObj || actual) * pinza / Math.max(20, d), 6, (HOME.dist || 60) * 1.3); pinza = d;
+  });
+  const sueltaDedo = (e) => { dedos.delete(e.pointerId); if (dedos.size < 2) pinza = 0; };
+  cv3.addEventListener('pointerup', sueltaDedo); cv3.addEventListener('pointercancel', sueltaDedo);
   window.addEventListener('pointerup', () => { if (arrastre && arrastre.mov) { arrastrado = true; setTimeout(() => { arrastrado = false; }, 60); } arrastre = null; cv3.style.cursor = ''; });
   window.addEventListener('pointermove', (e) => {
     if (!arrastre || cine) return;
@@ -1593,7 +1632,11 @@ async function montar() {
     orbitas.forEach((o, i) => { o.position.y = y; o.rotation.z += dt * (.45 + i * .2) * k * (i % 2 ? -1 : 1); });
     corona.rotation.y -= dt * .15 * k;
     /* con una sala o un bot abierto, los carteles de las demás salas se apagan para no tapar */
-    salas.forEach((sa) => { const obj = Math.min(1, sa.bandaBase + (salaHover === sa.d.id ? .45 : 0)); sa.banda.material.opacity += (obj - sa.banda.material.opacity) * .15; });
+    salas.forEach((sa) => {
+      const enError = sa.d.activo && agsDe(sa.d.id).some((a) => a.st === 'error');
+      sa.banda.material.color.set(enError ? '#FF5E6C' : sa.d.color);
+      const obj = enError ? .55 + Math.sin(t * 5) * .4 : Math.min(1, sa.bandaBase + (salaHover === sa.d.id ? .45 : 0)); sa.banda.material.opacity += (obj - sa.banda.material.opacity) * .15;
+    });
     const salaFoco = foco ? (foco.sala || (foco.agente && puestos.get(foco.agente) && puestos.get(foco.agente).d.id) || null) : null;
     salas.forEach((sa) => { const obj = !salaFoco || salaFoco === sa.d.id ? 1 : .08; sa.sign.material.opacity += (obj - sa.sign.material.opacity) * .12; });
     columna.material.uniforms.uT.value = t; polvo.rotation.y = t * .01; polvo.position.y = Math.sin(t * .2) * .3;
@@ -1686,6 +1729,7 @@ async function montar() {
         o.baliza.visible = Math.sin(t * 8) > -.1;
       }
       if (o.paseo) andar(o, dtReal * velAnim(), tt);
+      if (o.aviso && o.aviso.visible) { o.aviso.position.y = 3.25 + Math.sin(tt * 2.4) * .06; o.aviso.material.opacity = .75 + Math.sin(tt * 4) * .25; }
     });
     if (intro) { intro.k = Math.min(1, intro.k + dtReal / 3.2); const e = intro.k < .5 ? 4 * intro.k ** 3 : 1 - Math.pow(-2 * intro.k + 2, 3) / 2; enIntro(e); if (intro.k >= 1) { intro = null; deriva = 0; } }
     if (fly) { fly.k = Math.min(1, fly.k + dtReal / 1.1); const e = 1 - Math.pow(1 - fly.k, 3); camera.position.lerpVectors(fly.p0, fly.p1, e); target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) { fly = null; deriva = 0; } }
