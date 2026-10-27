@@ -80,3 +80,17 @@ Fuentes: Search Console 28 días (el 27/10: 14 consultas, 19 impresiones nuevas 
 2026-10-27 · ¿Seguirá siendo mío el código y la documentación si cambio de proveedor? · búsqueda web (las guías aconsejan cláusula de traspaso y entrega del repositorio) · /sobre-pebai/ y P8 · no · FAQ: qué se entrega al terminar (documentación, accesos, cuentas a nombre de la empresa); solo afirmar lo que PEBAI hace de verdad: confirmar con Daniel antes de publicar
 2026-10-27 · ¿Dónde están, cómo contacto y cuáles son sus datos fiscales? · búsqueda web (señales de confianza) · /sobre-pebai/ · parcial (aviso legal) · bloque de contacto y datos de la empresa coherente con Google, LinkedIn y Bing (nombre, web, teléfono) para que las IAs no confundan a PEBAI con otros «PEBA»
 2026-10-27 · ¿Hay reseñas verificables de la empresa? · búsqueda web · /sobre-pebai/ · no · enlazar la ficha de Google solo cuando haya reseñas reales (Local las pide con `pebaisystems.es/r/w`); sin marcado Review/AggregateRating
+
+## Temas y huecos (agrupación, 27/10 tarde, 52 preguntas)
+Estado: **R** respondida en una página publicada · **P** parcial · **H** hueco (ninguna página la responde hoy; entre paréntesis, quién lo tiene en el tablón).
+- **Coste y presupuesto** (11): 0 R, 2 P, 9 H. Hueco mayor. Página `/ia-para-empresas/cuanto-cuesta/` (Contenido, publica el jue 29/10).
+- **Reglamento de IA, formación y aviso de que habla una IA** (10): 1 R (aviso del art. 50 en /agentes-ia/), 0 P, 9 H. `/ia-para-empresas/formacion/` (Contenido, mié 28/10) y revisión de la fecha del art. 50 (Refresco).
+- **Agentes de voz** (11 con las de Search Console): 0 R, 2 P, 9 H. `/agentes-ia/voz/` (borrador en cola de Contenido). Demanda real: la URL antigua de «agente de voz frente a call center» tuvo 10 impresiones en posición 8.
+- **WhatsApp** (6): 5 R (API frente a app, CRM, plantillas, coste de Meta), 1 P (la IA incluida en la app de Meta: FAQ por añadir, verificar en Meta). Cubierto por `/agentes-ia/whatsapp/`.
+- **Automatización de procesos** (5): 3 R (qué automatizar primero, qué no, documentar), 2 P. Cubierto por `/automatizacion-de-procesos/`.
+- **Confianza al elegir consultora** (6): 0 R, 3 P, 3 H. `/sobre-pebai/` (Contenido). Dos requieren dato de Daniel: qué se entrega al terminar (código y accesos) y reseñas.
+- **GEO y visibilidad en IA** (5): 3 R, 2 P. Refresco ya tiene los encargos (auditoría de visibilidad fiable, Reddit y YouTube, plazos).
+- **Ayudas y retorno** (3): 1 R (Kit Digital y Red.es), 2 P (retorno y plazos, dentro de P8).
+- **Local** (2): demanda en Córdoba y Murcia; sin página por decisión.
+- **Más repetidas:** coste (en 3 fuentes), aviso de IA (WhatsApp, voz y chatbot) y salida a una persona (WhatsApp, voz, automatización). Esa salida a una persona es el mejor hilo común: merece una sección fija con el mismo título en las tres guías.
+- **Propuesta al Jefe, orden por preguntas respondidas:** 1) cuanto-cuesta (9 huecos), 2) formación (9), 3) voz (9), 4) /sobre-pebai/ (3 y señal de entidad). No hay hueco que justifique página nueva fuera de estas cuatro.
