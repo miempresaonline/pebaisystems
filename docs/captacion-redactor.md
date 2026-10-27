@@ -54,6 +54,15 @@ Sigue las mismas reglas de antes. El servidor revisa cada texto con el mismo con
 - Imprimir el token.
 - Escribir datos de empresas en el repositorio, que es público. Este turno no hace commits.
 
+## Nichos que solo se revisan (clínicas dentales e inmobiliarias, desde el 27/10)
+
+Daniel quiere «únicamente las que encajen con nosotros». En el lote llegan con canal `revision_wa` o `revision_em` y sus REGLAS `revision_<nicho>`. Con ellas:
+
+1. Lee su portada y decide si encaja.
+2. Entrega solo `{"canal", "id", "encaja", "motivo"}`, sin mensaje.
+
+Las que no encajan salen de la cola. Las que encajan quedan marcadas `[revisado]` en su carpeta de Prospectos. **Aún no se les escribe:** eso lo activa Daniel.
+
 ## Nicho terminado
 
 Cuando el Scraper revisa toda España y la última vuelta trae menos de 5 empresas nuevas, la serie se para sola (`prospeccion/prospeccion/tanda.py`). Entonces:

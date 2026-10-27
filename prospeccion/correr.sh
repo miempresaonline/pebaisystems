@@ -10,7 +10,8 @@ export AGENT_TOKEN=$(grep '^AGENT_TOKEN=' "$HOME/agente-whatsapp/.env" | cut -d=
 export PYTHONIOENCODING=utf-8
 # Scrapers a la vez (21/10): placas solares, climatización y formación (oposiciones, formación especializada e idiomas).
 # Cada uno con su candado: si ya está en marcha, no se duplica. Sin argumento (o con «energia», lo que pasa el cron) arranca los tres.
-SERIES="solar climatizacion formacion"
+# 27/10: más clínicas dentales e inmobiliarias (orden de Daniel)
+SERIES="solar climatizacion formacion dental inmobiliaria"
 [ -n "$1" ] && [ "$1" != energia ] && SERIES="$1"
 mkdir -p "$HOME/scratch/prospeccion"
 for NICHO in $SERIES; do
@@ -22,7 +23,7 @@ for NICHO in $SERIES; do
   setsid nohup flock -n "$LOCK" .venv/bin/python -u -m prospeccion.tanda "$NICHO" >> "$HOME/scratch/prospeccion/tanda_$NICHO.log" 2>&1 < /dev/null &
 done
 # Con todas las series paradas (España recorrida), no se queda quieto: repasa la cola poco a poco (26/10, ver revisar_cola.php)
-if [ -f "$HOME/prospeccion/PAUSA_solar" ] && [ -f "$HOME/prospeccion/PAUSA_climatizacion" ] && [ -f "$HOME/prospeccion/PAUSA_formacion" ]; then
+if [ -f "$HOME/prospeccion/PAUSA_solar" ] && [ -f "$HOME/prospeccion/PAUSA_climatizacion" ] && [ -f "$HOME/prospeccion/PAUSA_formacion" ] \n   && [ -f "$HOME/prospeccion/PAUSA_dental" ] && [ -f "$HOME/prospeccion/PAUSA_inmobiliaria" ]; then
   flock -n /tmp/pebai-revision.lock php "$HOME/prospeccion/revisar_cola.php" 40 >> "$HOME/scratch/prospeccion/revision.log" 2>&1
 fi
 exit 0

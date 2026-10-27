@@ -123,10 +123,45 @@ NICHOS_NUEVOS = {
         'grupos': [['academia de inglés', 'escuela de idiomas', 'academia de idiomas'],
                    ['clases de inglés', 'centro de idiomas', 'academia de inglés para adultos y niños']],
     },
+    # Nichos del 27/10 (Daniel): «únicamente las que encajen con nosotros». Independientes con equipo, web propia y mucho
+    # contacto de clientes por teléfono, WhatsApp o portales; fuera cadenas, franquicias y aseguradoras. Sin Gemini: después de
+    # estos filtros, el Redactor (Claude) lee la web de cada una y saca las que no encajan (api/redactor.php, 'revision').
+    'dentales': {
+        'sector': 'Clínicas dentales', 'lote': 'Clínicas dentales', 'nicho_panel': 'dentales', 'email_nicho': 'dentales', 'ia': False, 'auditoria': False,
+        'palabras': 'clínica dental dentista odontología implantes ortodoncia invisalign estética dental higiene primera visita cita',
+        'reglas': {'solo_activas': True, 'sin_autonomos': True, 'requiere_web': True, 'min_resenas': 20,
+                   'grandes': r'vitaldent|dentix|sanitas|adeslas|\bdkv\b|caser|asisa|quir[oó]n|vivanta|unidental|dental\s*company|donte|'
+                              r'clinica\s*baviera|idental|\bmapfre\b|mutua|clinicas?\s*w\b|odontologia\s*integral\s*sl\b|el corte ingl|carrefour',
+                   'requiere_palabra': r'dental|dentista|odontolog|ortodoncia|implant',
+                   'nom_no': r'laboratorio|prot[eé]sico|dep[oó]sito dental|suministros|hospital|universi|facultad|veterinari|mascota|seguros?'},
+        'cat_ok': r'dentista|dental|odont[oó]log|ortodonc|cirujano maxilofacial|periodonc|endodonc|implant',
+        'cat_no': r'laboratorio|prot[eé]sico|suministr|tienda|hospital|universidad|veterinari|farmacia|seguro',
+        'nombre_ok': r'dental|dentist|odont|ortodonc|sonrisa|smile|implant|boca',
+        'grupos': [['clínica dental', 'dentista', 'clínica de odontología'],
+                   ['clínica de implantes dentales', 'ortodoncia invisalign clínica', 'estética dental clínica']],
+    },
+    'inmobiliarias': {
+        'sector': 'Agencias inmobiliarias', 'lote': 'Inmobiliarias', 'nicho_panel': 'inmobiliarias', 'email_nicho': 'inmobiliarias', 'ia': False, 'auditoria': False,
+        'palabras': 'inmobiliaria pisos casas venta alquiler viviendas agencia inmobiliaria tasación captación propietarios',
+        'reglas': {'solo_activas': True, 'sin_autonomos': True, 'requiere_web': True, 'min_resenas': 20,
+                   'grandes': r'tecnocasa|century\s*21|re/?max|engel\s*&?\s*v[oö]lkers|redpiso|donpiso|look\s*&?\s*find|solvia|haya\s*real|'
+                              r'servihabitat|altamira|aliseda|housfy|housell|comprarcasa|gilmar|lucas\s*fox|keller\s*williams|exp\s*realty|'
+                              r'coldwell|sotheby|idealista|fotocasa|habitaclia|pisos\.com|unicaja|bbva|santander|caixa|sareb|anticipa|uvi\b',
+                   'requiere_palabra': r'inmobiliari|pisos|viviendas|venta|alquiler|propiedad',
+                   'nom_no': r'promotora|promociones|constructora|administraci[oó]n de fincas|administrador de fincas|tasaci[oó]n|tasadora|'
+                             r'vacacional|apartamentos tur|hotel|hostal|obra nueva|seguros|abogad|gestor[ií]a|banco'},
+        'cat_ok': r'inmobiliari|agencia de bienes ra[ií]ces|agente inmobiliario|real estate',
+        'cat_no': r'promotor|constructor|administrador de fincas|tasador|alquiler vacacional|apartamento tur|hotel|gestor|abogad|banco|seguro|reforma',
+        'nombre_ok': r'inmobiliari|inmo\b|fincas|pisos|casas|hogar|home|propiedad|real estate|house',
+        'grupos': [['agencia inmobiliaria', 'inmobiliaria', 'inmobiliaria venta y alquiler de pisos'],
+                   ['agencia inmobiliaria local', 'inmobiliaria compraventa viviendas', 'gestión de alquileres inmobiliaria']],
+    },
 }
 NICHOS.update(NICHOS_NUEVOS)
-# Cada scraper recorre una serie: solar (placas), climatización y formación (alterna oposiciones → formación → idiomas)
-SERIES = {'solar': ['solar'], 'climatizacion': ['climatizacion'], 'formacion': ['oposiciones', 'formacion', 'idiomas']}
+# Cada scraper recorre una serie: solar (placas), climatización, formación (alterna oposiciones → formación → idiomas),
+# y desde el 27/10 clínicas dentales e inmobiliarias
+SERIES = {'solar': ['solar'], 'climatizacion': ['climatizacion'], 'formacion': ['oposiciones', 'formacion', 'idiomas'],
+          'dental': ['dentales'], 'inmobiliaria': ['inmobiliarias']}
 FALLOS_MAX = 3   # una provincia que falla 3 veces en una vuelta se salta para no atascar el barrido
 
 
@@ -479,7 +514,7 @@ def importar_panel(csv_whatsapp: Path, lote: str, cfg: dict) -> None:
             print('  sin móvil, a su lista de email:', (r.stdout or r.stderr).strip()[:200])
         # Tercera capa (22/10): la IA revisa nombre y web de las que acaban de entrar y saca las que no son del nicho
         aud = Path(__file__).resolve().parent.parent / 'auditar_lote.php'
-        if aud.exists():
+        if aud.exists() and cfg.get('auditoria', True):   # dentales e inmobiliarias: las revisa el Redactor (Claude)
             r = subprocess.run(['/usr/bin/php', str(aud), cfg['nicho_panel'], lote], capture_output=True, text=True, timeout=900)
             print('  revisión con IA:', (r.stdout or r.stderr).strip()[:200])
             apunta(f'{lote}: revisión con IA', (r.stdout or r.stderr).strip()[:300], csv_whatsapp.stem + '_ia')
