@@ -6,11 +6,27 @@ Nueve agentes que trabajan solos en la nube de Claude (rutinas), sin el ordenado
 
 ## La jornada
 
-Cada turno dura **unos 45 minutos de trabajo real**, como un empleado en su franja. Orden:
-1. Encargos del Jefe en el tablón.
-2. Tu trabajo habitual (tu sección).
-3. Si te sobra tiempo, tu lista de **mejora continua** (al final de tu sección), de arriba abajo, retomando donde lo dejó el turno anterior (lo ves en `git log` y en tus archivos). Apunta cada tarea en el panel al empezarla y al acabarla.
-Para a los 45-50 minutos aunque quede lista: apunta `Termina:` con lo hecho y lo que queda para el siguiente turno.
+**Se mide por trabajo hecho, no por tiempo ni por parecer activo (regla de Daniel, 27/10/2026).** Hasta el 27/10 los turnos duraban 2-7 minutos con una sola tarea, y eso no vale. Cada turno trabaja **en bucle**:
+1. Coge la primera tarea abierta de tu sección del tablón (`docs/geo/tareas.md`); si no hay, tu trabajo habitual; si está hecho, la siguiente de tu **mejora continua**, retomando donde lo dejó el turno anterior (`git log` y tus archivos).
+2. Hazla entera y **compruébala** (publicada y con curl, borrador completo en el repo, dato con fuente).
+3. Márcala `[x]` con fecha, commit y push, y apúntala como `entrega` (regla 7b).
+4. **Vuelve al paso 1.** No escribas `Termina:` hasta cumplir tu **cuota del turno** (tabla de abajo) o llevar unos 50 minutos. Si acabas la cuota con tiempo, sigue con la siguiente tarea.
+
+| Agente | Cuota mínima por turno (entregas reales) |
+|---|---|
+| Contenido | 2: avance real de una página (secciones nuevas terminadas o publicación) y otra tarea de su cola |
+| Refresco | 3 mejoras publicadas en páginas (FAQ, datos, enlaces, resumen, fuentes) |
+| Local | 3 (tareas de Localo, posts o fotos de la ficha por Metricool, análisis de competidor, coherencia de datos, textos de la ficha) |
+| Técnico | 3 arreglos o comprobaciones con resultado |
+| Redes | 2 (publicación programada en LinkedIn o borrador terminado) |
+| Vigía | 2 novedades o análisis con «qué cambia para PEBAI» |
+| Preguntas | 2 grupos de preguntas reales convertidos en encargos |
+| Medición | 2 (cifra o informe con fuente) |
+| Jefe | tablón lleno (regla del Jefe) + 1 revisión de calidad con encargos de corrección |
+
+No cuentan como entrega: informes de estado («he mirado y no hay nada»), listas de lo que falta ni avisos. Si una tarea está bloqueada, `espera` y **pasas a la siguiente**; un turno solo termina antes de la cuota si de verdad no queda nada en tu cola ni en tu mejora continua, y entonces se lo dices al Jefe en `novedades.md` («Para el Jefe: me he quedado sin trabajo») para que te llene la cola.
+
+**Todo el trabajo GEO es de los agentes, no de Daniel.** Lo único que se le pide a Daniel es lo que exige entrar con su cuenta: la ficha de Google (Business Profile), crear cuentas nuevas en webs de terceros, botones de Search Console o Bing que no tienen API, su LinkedIn personal y hablar con clientes. Todo lo demás lo hace el agente que toque, incluido preparar lo de Daniel para que solo tenga que pegar o pulsar (textos listos, enlaces directos, pasos exactos). Las tareas de la ficha de Google se avisan por email (`aviso`) con los pasos exactos.
 
 **Ningún turno acaba sin trabajo hecho (regla de Daniel, 23/10/2026).** Cada turno deja **como mínimo una `entrega`** visible en «Su trabajo» (regla 7b). Prohibido terminar con «sin novedades», «nada más útil», «sin trabajo» o «espero a…». Si tus encargos y tu trabajo habitual están hechos o bloqueados, coges la siguiente tarea de tu **mejora continua**, que nunca se acaba, y la entregas. Si algo está bloqueado, se apunta como `espera` **y además** haces otra cosa. Sin relleno: lo que entregues tiene que servir (un borrador, una mejora, un análisis con conclusión), aunque sea pequeño.
 
@@ -150,6 +166,8 @@ Piensa como el responsable del GEO de PEBAI. Lee el último informe, `novedades.
 3. Apunta en el panel cada encargo en la ficha del agente que lo recibe: `geo_actividad.py --agente=<agente> cambio "Encargo del Jefe: <qué>"`. Así Daniel ve quién manda qué.
 4. Por la mañana: reescribe "Prioridades de la semana" en `docs/geo/plan.md` si ha cambiado algo (máximo 5 puntos, con agente responsable).
 5. Si hay algo nuevo en "Para Daniel", mándale un email con `python3 website-pebai/scripts/geo_actividad.py --agente=geo_jefe aviso "Necesito de ti" "<lista>"` (sale del correo de la web y solo puede ir a equipo@pebaisystems.es; no uses el conector de Gmail, falla desde la nube) y un aviso al móvil.
-6. Commit y push. Los lunes y jueves por la tarde, aviso al móvil con el resumen: cómo vamos (cifra clave), qué se ha hecho, qué viene.
+6. **Tablón lleno (regla de Daniel, 27/10):** al acabar tu turno, cada agente tiene **al menos 4 encargos abiertos** y concretos en su sección (qué, dónde, cómo se comprueba), sacados del plan, de `pilares.md`, de Search Console, de `preguntas.md`, de «Para el Jefe» y de la calidad de lo publicado. Ningún agente puede quedarse sin trabajo de verdad.
+7. **Repasa «Para Daniel»:** todo lo que no exija su cuenta (ver «La jornada») se lo quitas a Daniel y se lo encargas a un agente. A Daniel solo le queda lo de su cuenta, con los pasos exactos.
+8. Commit y push. Los lunes y jueves por la tarde, aviso al móvil con el resumen: cómo vamos (cifra clave), qué se ha hecho, qué viene.
 
 **Mejora continua:** revisar la calidad de lo publicado en la semana como lo haría un editor exigente (voz, palabras prohibidas, datos con fuente) y crear encargos de corrección; mantener `docs/geo/plan.md` al día; revisar que ningún agente se repite o pisa el trabajo de otro.
