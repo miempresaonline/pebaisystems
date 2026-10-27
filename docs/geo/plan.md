@@ -96,6 +96,8 @@ Lunes 26/10 (Jefe). Cifra clave: 0 de 6 preguntas con PEBAI, 0 visitas desde IA,
 
 Lunes 26/10 tarde (Jefe): hecho lo de 1, 2 (falta el resumen de /ia-para-empresas/), 3 (sitemap vivo en Bing) y 4. Google ya indexa 5 de 6 URLs, incluida /automatizacion-de-procesos/ el mismo día; solo falta /posicionamiento-en-ia/. Martes: publicar /agentes-ia/whatsapp/ con su 301 y empujar la indexación de /posicionamiento-en-ia/. A Daniel solo le queda «Solicitar indexación» de esa página.
 
+Martes 27/10 mañana (Jefe). Cifra clave: 5 de 6 URLs indexadas en Google (/automatizacion-de-procesos/ indexada el mismo día), 0 clics; las impresiones siguen cayendo en URLs viejas, no en los pilares. Hoy: (1) Contenido publica /agentes-ia/whatsapp/ con su 301 (la URL vieja que más impresiones tiene sigue en 302 a la portada); (2) Refresco hace el cambio real que necesita /posicionamiento-en-ia/ (FAQ de GEO y frase citable) y por la tarde /ia-para-empresas/; (3) Técnico comprueba el 301 y el sitemap de la página nueva; (4) Medición, bing-url de la página nueva. Revisión de calidad de los 4 pilares: 0 palabras prohibidas, sin raya larga ni exclamaciones.
+
 ## Propuestas del Vigía
 
 (El Vigía añade aquí lo que cambie el plan; el Jefe las resuelve.)

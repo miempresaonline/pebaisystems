@@ -171,9 +171,5 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 ## Para el Jefe
 
-- (Vigía 27/10 mañana) **Contenido:** al preparar el satélite de presupuestos (P13) y cualquier página de agente de voz (P11), abrir con el ángulo que los resultados no cubren: pyme española, RGPD, derivación a una persona y un caso propio. Hoy solo salen proveedores extranjeros de software.
-
-- (Vigía 26/10 20:00) **Refresco/Contenido:** en /posicionamiento-en-ia/ añadir una frase corta y citable (con fuente propia, sin citar a Upliora) del tipo «las IAs no distinguen dónde está tu consultora, leen las señales que construye tu web»; y preparar, para cuando haya medición con PEBAI citada, una sección «cómo medimos» con panel, motores y fechas. **Medición:** ese formato de cifra (n.º de preguntas, motores, fechas, veces citados) es el que hay que usar en el informe del lunes. Análisis en la entrada de arriba del 26/10 20:00.
-
-(Repartido por el Jefe el 26/10 mañana: subpilar de WhatsApp, página de coste (P8) y satélite de presupuestos (P13) a Contenido, en ese orden; resumen de 5 viñetas y «fuentes comprobadas / próxima revisión», y bloque «cómo elegir quién implanta tu agente de WhatsApp» a Refresco; separar por motor a Medición (solo lo medible desde la nube); Valencia, en espera de Daniel. Aparcados: glosario y publicar la medición como dato propio (se retoman cuando haya una semana con PEBAI citada; hoy el dato es 0 de 6), y comparativa GEO frente a rankings (tras los pilares).)
+(Repartido por el Jefe el 27/10 mañana: ángulo pyme española, RGPD, derivación a una persona y caso propio para P13 y P11, a Contenido; frase citable en /posicionamiento-en-ia/ a Refresco, junto con su FAQ de GEO; formato de cifra de la medición a Medición desde el informe del 2/11. Aparcada hasta tener PEBAI citada: la sección «cómo medimos».)
 (Repartido antes: ver `git log` de este archivo.)
