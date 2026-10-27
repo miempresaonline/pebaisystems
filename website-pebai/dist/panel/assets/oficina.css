@@ -259,3 +259,26 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-wi b{display:block;font-size:13.5px;line-height:1.35;color:#EFEDE7}
 .pb-of-wi p{margin:4px 0 0;font-size:12.5px;line-height:1.45;color:#A9ABBD}
 .pb-of-wi small{display:block;margin-top:6px;font:600 11px var(--sans);color:#B7FF3C}
+/* 3D / Lista */
+.pb-of-vista{display:inline-flex;padding:3px;border-radius:16px;background:rgba(11,13,24,.92);border:1px solid rgba(255,255,255,.09);box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.pb-of-vista button{padding:6px 12px;border:0;border-radius:12px;background:transparent;color:#8C8FA3;font:700 12px var(--sans);cursor:pointer}
+.pb-of-vista button.on{background:rgba(255,255,255,.1);color:#fff}
+.pb-of-lista{display:none;position:absolute;inset:0;z-index:2;overflow:auto;padding:76px 24px 96px;background:#080914}
+.pb-of-wrap.lista .pb-of-lista{display:block}
+.pb-of-wrap.lista canvas,.pb-of-wrap.lista .pb-of-hov{visibility:hidden}
+.pb-of-lista section{max-width:760px;margin:0 auto 18px}
+.pb-of-lista header{display:flex;align-items:center;gap:9px;margin:0 4px 8px;font-size:13px;color:#8C8FA3}
+.pb-of-lista header i{width:9px;height:9px;border-radius:50%}
+.pb-of-lista header b{color:#EFEDE7;font-size:15px}
+.pb-of-lista header span{margin-left:auto}
+.pb-of-lista .fila{display:flex;align-items:center;gap:12px;width:100%;padding:11px 14px;margin-bottom:6px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);color:inherit;font:inherit;text-align:left;cursor:pointer;transition:background .2s,border-color .2s}
+.pb-of-lista .fila:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
+.pb-of-lista .fila .t{flex:0 0 32px;width:32px;height:32px;border-radius:9px;display:grid;place-items:center}
+.pb-of-lista .fila .t svg{width:17px;height:17px}
+.pb-of-lista .nm{flex:1;min-width:0;display:flex;flex-direction:column}
+.pb-of-lista .nm b{color:#fff;font-size:14px}
+.pb-of-lista .nm small{color:#8C8FA3;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pb-of-lista .st{display:inline-flex;align-items:center;gap:6px;font:700 12px var(--sans);color:var(--c);white-space:nowrap}
+.pb-of-lista .st i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.pb-of-lista .vacias{max-width:760px;margin:4px auto;color:#5C5F73;font-size:12.5px}
+@media (max-width:760px){.pb-of-lista{padding:70px 12px 90px}}

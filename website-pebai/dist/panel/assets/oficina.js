@@ -89,8 +89,42 @@ function pintaHud() {
     b.innerHTML = tileHtml(a, 't') + `<span class="x"><b>${esc(a.nombre)}</b><span>${esc(txt)}</span></span><svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>`;
     b.onclick = (ev) => { ev.stopPropagation(); c.classList.remove('abierto'); abrirAgente(a.id); }; lista.append(b);
   });
-  hud.append(c, botonParar()); horaHud();
+  hud.append(c, botonParar(), botonVista()); horaHud();
+  if (lista) pintaLista();
 }
+/* Vista Lista: lo mismo que la oficina, en filas (rápida de revisar; en el móvil es la de entrada y no se carga el 3D) */
+let lista = (() => { try { const v = localStorage.getItem('pb-of-vista'); if (v) return v === 'lista'; } catch (e) { /* sin almacenamiento */ } return matchMedia('(max-width: 760px)').matches; })();
+const listaBox = document.createElement('div'); listaBox.className = 'pb-of-lista'; wrap.append(listaBox);
+function botonVista() {
+  const b = document.createElement('div'); b.className = 'pb-of-vista';
+  b.innerHTML = `<button type="button" data-v="3d" class="${lista ? '' : 'on'}">3D</button><button type="button" data-v="lista" class="${lista ? 'on' : ''}">Lista</button>`;
+  b.querySelectorAll('button').forEach((x) => { x.onclick = (e) => { e.stopPropagation(); ponVista(x.dataset.v === 'lista'); }; });
+  return b;
+}
+function ponVista(on) {
+  lista = on; try { localStorage.setItem('pb-of-vista', on ? 'lista' : '3d'); } catch (e) { /* nada */ }
+  wrap.classList.toggle('lista', on); pintaHud();
+  if (!on && !G) montar().catch((e) => toast(e.message || 'No se ha podido cargar la oficina.', true));
+}
+function pintaLista() {
+  const filas = DEPTS.map((d) => {
+    const ags = agsDe(d.id);
+    if (!d.activo || !ags.length) return '';
+    const tr = ags.filter((a) => a.st === 'trabajando').length;
+    return `<section><header><i style="background:${d.color}"></i><b>${esc(d.nombre)}</b><span>${tr} de ${ags.length} trabajando</span></header>`
+      + ags.map((a) => {
+        const [c, t] = ST[a.st] || ST.espera;
+        const pc = a.st === 'trabajando' && a.cupo ? Math.min(100, Math.round(a.hoy / a.cupo * 100)) : null;
+        const nec = (a.necesita || [])[0];
+        return `<button type="button" class="fila" data-id="${esc(a.id)}">${tileHtml(a, 't')}<span class="nm"><b>${esc(a.nombre)}</b><small>${esc(nec || a.motivo || a.rol || '')}</small></span>`
+          + `<span class="st" style="--c:${c}"><i></i>${esc(t)}${pc != null ? ` · ${pc}%` : ''}</span></button>`;
+      }).join('') + '</section>';
+  }).join('');
+  const vacias = DEPTS.filter((d) => !d.activo || !agsDe(d.id).length).map((d) => esc(d.nombre));
+  listaBox.innerHTML = filas + (vacias.length ? `<p class="vacias">Sin agentes aún: ${vacias.join(' · ')}</p>` : '');
+  listaBox.querySelectorAll('.fila').forEach((f) => { f.onclick = (e) => { e.stopPropagation(); abrirAgente(f.dataset.id); }; });
+}
+wrap.classList.toggle('lista', lista);
 /* Interruptor general: pausa a la vez a los agentes que escriben a otras empresas (WhatsApp y email).
    «Reanudar todo» solo vuelve a poner en marcha los que estaban funcionando al pararlo. */
 function botonParar() {
@@ -289,7 +323,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && enPagina
 const ayuda = document.createElement('div'); ayuda.className = 'pb-of-ayuda';
 ayuda.innerHTML = '<button type="button" class="b" aria-label="Atajos y leyenda" title="Atajos y leyenda (?)">?</button><div class="c">'
   + '<h5>Colores</h5>' + ['trabajando', 'espera', 'dormido', 'error', 'apagado'].map((k) => `<div class="l"><i style="background:${ST[k][0]}"></i>${ST[k][1]}</div>`).join('')
-  + '<h5>Atajos</h5>' + [['Arrastrar', 'Moverse por la oficina'], ['Rueda', 'Acercar o alejar'], ['1 – ' + DEPTS.length, 'Ir a cada sala'], ['P', 'El núcleo'], ['S', 'Servidor de la sala enfocada'], ['← →', 'Agente anterior / siguiente'], ['/', 'Preguntar a PEBAI'], ['Esc', 'Volver a la vista general'], ['H', 'Ocultar la interfaz'], ['C', 'Modo cine (para grabar)']].map(([k, t]) => `<div class="k"><kbd>${k}</kbd><span>${t}</span></div>`).join('')
+  + '<h5>Atajos</h5>' + [['Arrastrar', 'Moverse por la oficina'], ['Rueda', 'Acercar o alejar'], ['1 – ' + DEPTS.length, 'Ir a cada sala'], ['P', 'El núcleo'], ['S', 'Servidor de la sala enfocada'], ['← →', 'Agente anterior / siguiente'], ['/', 'Preguntar a PEBAI'], ['Esc', 'Volver a la vista general'], ['L', 'Vista Lista / 3D'], ['H', 'Ocultar la interfaz'], ['C', 'Modo cine (para grabar)']].map(([k, t]) => `<div class="k"><kbd>${k}</kbd><span>${t}</span></div>`).join('')
   + '</div>';
 wrap.append(ayuda);
 ayuda.addEventListener('click', (e) => e.stopPropagation());
@@ -312,6 +346,7 @@ document.addEventListener('keydown', (e) => {
   else if (k === 'ArrowLeft') vecino(-1);
   else if (k === 'h') { const l = wrap.classList.toggle('limpio'); if (l) toast('Interfaz oculta: pulsa H para verla'); }
   else if (k === 'c') alternarCine();
+  else if (k === 'l') ponVista(!lista);
   else if (k === '?') ayuda.classList.toggle('on');
   else return;
   e.stopImmediatePropagation();
@@ -809,6 +844,7 @@ async function montar() {
   const RD = Math.max(2.5, 1.6 + maxAg * .35);       // radio del círculo de mesas
   const RSALA = RD + 1.8;                              // radio de la plataforma
   const RANILLO = PLAZA + RSALA + 2.4;                 // distancia del núcleo al centro de cada sala
+  const ESC_VACIA = .55, RVACIA = RSALA * ESC_VACIA;   // las salas sin agentes, en pequeño
   const ALTA = 3.1;                                    // altura de la columna de energía
   const nS = DEPTS.length, paso = Math.PI * 2 / nS;
   const nAct = DEPTS.filter((d) => d.activo).length;
@@ -817,7 +853,7 @@ async function montar() {
   const ordenSalas = [...DEPTS].sort((a, b) => (b.activo ? 1 : 0) - (a.activo ? 1 : 0));
   /* reparto de los dos más cercanos al frente: izquierda y derecha en el orden de la lista */
   const sitio = new Map();
-  ordenSalas.forEach((d, i) => { const a = huecos[i]; sitio.set(d.id, { x: Math.sin(a) * RANILLO, z: Math.cos(a) * RANILLO }); });
+  ordenSalas.forEach((d, i) => { const a = huecos[i], r = d.activo ? RANILLO : PLAZA + RVACIA + 2.2; sitio.set(d.id, { x: Math.sin(a) * r, z: Math.cos(a) * r }); });
   const sueloSala = canvasTex(512, 512, (c) => {
     c.fillStyle = '#141731'; c.fillRect(0, 0, 512, 512);
     c.strokeStyle = 'rgba(255,255,255,.06)'; c.lineWidth = 2;
@@ -826,15 +862,16 @@ async function montar() {
   const metalCol = new THREE.MeshStandardMaterial({ color: 0x0d1020, roughness: .3, metalness: .75 });
   ordenSalas.forEach((d) => {
     const lista = d.activo ? agsDe(d.id) : [];
-    const W = RSALA * 2;
+    const esc = d.activo ? 1 : ESC_VACIA, RS = RSALA * esc;
+    const W = RS * 2;
     const { x, z } = sitio.get(d.id);
     const col = new THREE.Color(d.color), on = d.activo;
     /* plataforma redonda con su filo de luz */
-    const plat = new THREE.Mesh(new THREE.CylinderGeometry(RSALA, RSALA + .1, ALTO, 72), [new THREE.MeshStandardMaterial({ color: on ? 0x171b36 : 0x141730, roughness: .5, metalness: .35 }), new THREE.MeshStandardMaterial({ map: sueloSala, roughness: .55, metalness: .3 }), new THREE.MeshStandardMaterial({ color: 0x101225 })]);
+    const plat = new THREE.Mesh(new THREE.CylinderGeometry(RS, RS + .1, ALTO, 72), [new THREE.MeshStandardMaterial({ color: on ? 0x171b36 : 0x141730, roughness: .5, metalness: .35 }), new THREE.MeshStandardMaterial({ map: sueloSala, roughness: .55, metalness: .3 }), new THREE.MeshStandardMaterial({ color: 0x101225 })]);
     plat.position.set(x, ALTO / 2, z); scene.add(plat);
-    const banda = new THREE.Mesh(new THREE.TorusGeometry(RSALA + .02, .03, 8, 120), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: on ? .85 : .25, toneMapped: false }));
+    const banda = new THREE.Mesh(new THREE.TorusGeometry(RS + .02, .03, 8, 120), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: on ? .85 : .25, toneMapped: false }));
     banda.rotation.x = Math.PI / 2; banda.position.set(x, ALTO - .02, z); scene.add(banda); const bandaBase = on ? .85 : .25;
-    const g = new THREE.Group(); g.position.set(x, ALTO, z); scene.add(g);
+    const g = new THREE.Group(); g.position.set(x, ALTO, z); g.scale.setScalar(esc); scene.add(g);
     /* la columna de energía: base, cuerpo con luces de servidor, aros del color de la sala y el cristal que recibe el cable */
     sombra(g, 0, 0, 2.2, 2.2, .006);
     const baseCol = en(g, new THREE.Mesh(new THREE.CylinderGeometry(.85, .95, .16, 48), metalCol), 0, .08, 0);
@@ -857,7 +894,7 @@ async function montar() {
     const sign = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, toneMapped: false, depthWrite: false })); sign.scale.set(4.4, 1.1, 1); sign.position.set(0, 1.1, -RSALA - .15); sign.center.set(.5, 0); g.add(sign);
     sign.userData.sala = d; plat.userData.sala = d; clicables.push(sign, plat);
     /* cable del núcleo al cristal de la columna */
-    const fin = new THREE.Vector3(x, ALTO + ALTA + .18, z);
+    const fin = new THREE.Vector3(x, ALTO + (ALTA + .18) * esc, z);
     const dir = fin.clone().sub(NUC).setY(0).normalize();
     const ini = NUC.clone().add(dir.clone().multiplyScalar(1.3)).add(new THREE.Vector3(0, .15, 0));
     const tronco = cable(new THREE.CubicBezierCurve3(ini, ini.clone().add(dir.clone().multiplyScalar(2.6)).add(new THREE.Vector3(0, 1.4, 0)), fin.clone().add(new THREE.Vector3(0, 1.8, 0)).sub(dir.clone().multiplyScalar(1.4)), fin), on ? d.color : '#3a3d52', on ? .046 : .02, on ? 5 : 0);
@@ -877,7 +914,7 @@ async function montar() {
       });
       panelPie(0, 2.4);
     }
-    const s = { d, g, sign, W, tronco, ledsSala, reloj: null, bus: null, banda, bandaBase, destello, tiraRack, recMat, flash: 0, cristal, auraCol };
+    const s = { d, g, sign, esc, W, tronco, ledsSala, reloj: null, bus: null, banda, bandaBase, destello, tiraRack, recMat, flash: 0, cristal, auraCol };
     tronco.sala = s;
     salas.set(d.id, s);
     /* los agentes en círculo alrededor de la columna, mirando hacia ella; el primero, de cara a la cámara */
@@ -1290,6 +1327,8 @@ async function montar() {
       p.sp.material.opacity = Math.sin(p.k * Math.PI) * (p.c.on > .5 ? 1 : .5);
     });
     tickEnvios(dtReal);
+    { const kc = THREE.MathUtils.clamp(camera.position.distanceTo(target) / ((HOME.dist || 40) * .45), 1, 2.2);
+      salas.forEach((sa) => { const k = kc / sa.esc * (sa.d.activo ? 1 : .8); sa.sign.scale.set(4.4 * k, 1.1 * k, 1); }); }
     for (let i = flotantes.length - 1; i >= 0; i--) { const f = flotantes[i]; f.k += dtReal / 2.8; f.sp.position.y += dtReal * .5; f.sp.material.opacity = f.k < .15 ? f.k / .15 : 1 - Math.pow((f.k - .15) / .85, 2); if (f.k >= 1) { scene.remove(f.sp); f.sp.material.map.dispose(); f.sp.material.dispose(); flotantes.splice(i, 1); } }
     salas.forEach((sa) => {
       sa.flash = Math.max(0, sa.flash - dt * 2.2);
@@ -1366,7 +1405,7 @@ async function montar() {
     if (!arrastre && inercia.lengthSq() > 1e-7) { moverVista(inercia); inercia.multiplyScalar(Math.pow(.9, dtReal * 60)); }
     if (zoomObj) { const off = new THREE.Vector3().subVectors(camera.position, target), d = off.length(); const nd = d + (zoomObj - d) * Math.min(1, dtReal * 9); camera.position.copy(target).add(off.setLength(nd)); if (Math.abs(zoomObj - nd) < .02) zoomObj = 0; }
     camera.lookAt(target);
-    composer.render();
+    if (!lista) composer.render();
   }
   G = { THREE, volar, HOME, refrescarEscena, puestos, salas, NUC };
   refrescarEscena(); requestAnimationFrame(tick);
@@ -1377,7 +1416,8 @@ async function refrescar() {
   try {
     if (!(await cargar())) return;
     pintaHud();
-    if (!G) await montar(); else G.refrescarEscena();
+    if (!G && !lista) await montar(); else if (G) G.refrescarEscena();
+    if (lista) { const l = $('#pb-of-load'); if (l) l.remove(); }
     if (side.classList.contains('on') && foco && foco.agente) abrirAgente(foco.agente);
   } catch (e) { toast(e.message || 'No se ha podido cargar la oficina.', true); }
 }
