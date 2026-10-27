@@ -969,25 +969,45 @@ async function montar() {
     return null;
   }
   const corta = (t, n) => { t = String(t || '').replace(/^(Empieza|Termina|Encargo del Jefe):\s*/u, '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t; };
-  // Anillo en el suelo: la vuelta entera es el 100 %. Solo mientras trabaja; si no se sabe el %, un arco que gira.
+  // Borde de progreso sobre el rectángulo del suelo de cada mesa: se va encendiendo en tiempo real; lo apagado es lo que le queda.
+  // Una cinta plana que recorre el contorno redondeado; drawRange enseña solo el tramo hecho.
+  function cintaBorde(w, h, r, ancho) {
+    const pts = [], seg = 220, per = 2 * (w + h - 4 * r) + 2 * Math.PI * r;
+    const punto = (d) => {   // empieza en el centro del lado de delante y va en sentido horario visto desde arriba
+      const tramos = [[w / 2 - r, 'l', [0, h / 2], [-1, 0]], [Math.PI * r / 2, 'a', [-w / 2 + r, h / 2 - r], Math.PI / 2], [h - 2 * r, 'l', [-w / 2, h / 2 - r], [0, -1]],
+        [Math.PI * r / 2, 'a', [-w / 2 + r, -h / 2 + r], Math.PI], [w - 2 * r, 'l', [-w / 2 + r, -h / 2], [1, 0]], [Math.PI * r / 2, 'a', [w / 2 - r, -h / 2 + r], -Math.PI / 2],
+        [h - 2 * r, 'l', [w / 2, -h / 2 + r], [0, 1]], [Math.PI * r / 2, 'a', [w / 2 - r, h / 2 - r], 0], [w / 2 - r, 'l', [w / 2 - r, h / 2], [-1, 0]]];
+      for (const [L, t, o, x] of tramos) {
+        if (d <= L + 1e-9) {
+          if (t === 'l') return [o[0] + x[0] * d, o[1] + x[1] * d];
+          const a = x + d / r; return [o[0] + Math.cos(a) * r, o[1] + Math.sin(a) * r];
+        }
+        d -= L;
+      }
+      return [0, h / 2];   // la vuelta completa acaba donde empezó
+    };
+    for (let k = 0; k <= seg; k++) pts.push(punto(per * k / seg));
+    const pos = [], idx = [];
+    pts.forEach(([x, z], k) => {
+      const [x2, z2] = pts[Math.min(seg, k + 1)], [x0, z0] = pts[Math.max(0, k - 1)];
+      let nx = -(z2 - z0), nz = x2 - x0; const l = Math.hypot(nx, nz) || 1; nx /= l; nz /= l;
+      pos.push(x + nx * ancho / 2, 0, z + nz * ancho / 2, x - nx * ancho / 2, 0, z - nz * ancho / 2);
+      if (k < seg) idx.push(2 * k, 2 * k + 1, 2 * k + 2, 2 * k + 1, 2 * k + 3, 2 * k + 2);
+    });
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx);
+    g.userData.n = seg * 6; return g;
+  }
   function pintaAnillo(o) {
-    const pc = progreso(o.a), trab = o.a.st === 'trabajando';
-    const clave = trab ? String(pc) : '';
     if (!o.anillo) {
-      const pista = new THREE.Mesh(new THREE.RingGeometry(1.38, 1.44, 64), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
-      pista.rotation.x = -Math.PI / 2; pista.position.y = .045; o.p.add(pista);
-      const arco = new THREE.Mesh(new THREE.RingGeometry(1.36, 1.48, 64, 1, 0, .01), new THREE.MeshBasicMaterial({ color: 0xFFB547, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
-      arco.rotation.x = -Math.PI / 2; arco.position.y = .05; o.p.add(arco);
-      o.anillo = { pista, arco, op: 0, clave: null, gira: false };
+      const geo = cintaBorde(2.46, 2.66, .34, .1);
+      const mat = (c, op) => new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: op, depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
+      const pista = new THREE.Mesh(geo, mat(0xffffff, 0)), arco = new THREE.Mesh(geo.clone(), mat(0xFFB547, 0));
+      [pista, arco].forEach((m, k) => { m.position.set(0, .012 + k * .002, .35); o.p.add(m); });
+      o.anillo = { pista, arco, op: 0, val: 0, gira: 0 };
     }
-    const an = o.anillo;
-    if (clave !== an.clave) {
-      an.clave = clave;
-      an.gira = trab && pc == null;
-      const frac = an.gira ? .22 : Math.max(.02, (pc || 0) / 100);
-      an.arco.geometry.dispose();
-      an.arco.geometry = new THREE.RingGeometry(1.36, 1.48, 64, 1, Math.PI / 2, -Math.PI * 2 * frac);
-    }
+    const trab = o.a.st === 'trabajando', pc = trab ? progreso(o.a) : null, an = o.anillo;
+    an.indet = trab && pc == null;
+    if (pc != null) an.val += (pc / 100 - an.val) * .08;   // se mueve suave hacia el valor de ahora
     return trab;
   }
 
@@ -995,6 +1015,11 @@ async function montar() {
   // De quién a quién y con qué etiqueta. Cada regla mira la actividad de un agente y dice si es una entrega.
   const REGLAS = [
     (a, e) => a.dept === 'geo' && a.id !== 'geo_jefe' && /^Encargo del Jefe:\s*/u.test(e.txt) ? ['geo_jefe', a.id, corta(e.txt, 30)] : null,
+    (a, e) => {
+      const m = a.dept === 'geo' && /^Encargo a ([\p{L} ]+?):/u.exec(e.txt);
+      const b = m && S.agentes.find((x) => x.dept === 'geo' && x.nombre.toLowerCase().replace(/ geo$/, '') === m[1].trim().toLowerCase().replace(/^(el|la) /, ''));
+      return b && b.id !== a.id ? [a.id, b.id, corta(e.txt.replace(/^Encargo a [^:]+:\s*/u, ''), 30)] : null;
+    },
     (a, e) => a.id === 'geo_vigia' && /^Termina/u.test(e.txt) ? ['geo_vigia', 'geo_jefe', 'Novedades del día'] : null,
     (a, e) => a.id === 'geo_medicion' && /^Termina/u.test(e.txt) ? ['geo_medicion', 'geo_jefe', 'Informe de medición'] : null,
     (a, e) => {
@@ -1080,9 +1105,11 @@ async function montar() {
     puestos.forEach((o) => {
       const on = pintaAnillo(o), an = o.anillo;
       an.op += ((on ? 1 : 0) - an.op) * Math.min(1, dtR * 4);
-      an.pista.material.opacity = an.op * .07; an.arco.material.opacity = an.op * (.75 + Math.sin(performance.now() / 420) * .15);
+      an.pista.material.opacity = an.op * .1; an.arco.material.opacity = an.op * (.8 + Math.sin(performance.now() / 420) * .15);
       an.arco.visible = an.pista.visible = an.op > .02;
-      if (an.gira) an.arco.rotation.z += dtR * 1.6; else an.arco.rotation.z = 0;
+      const n = an.arco.geometry.userData.n, tramo = (x) => Math.floor(x * n / 6) * 6;
+      if (an.indet) { an.gira = (an.gira + dtR * .35) % 1; const ini = tramo(an.gira * .78); an.arco.geometry.setDrawRange(ini, tramo(.22)); }
+      else an.arco.geometry.setDrawRange(0, Math.max(6, tramo(an.val)));
     });
   }
   function flotar(o, n) {
