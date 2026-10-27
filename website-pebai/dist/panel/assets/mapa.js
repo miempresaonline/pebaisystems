@@ -59,7 +59,7 @@ raiz.innerHTML = `
   </aside>
   <div class="pb-mapa-ficha" id="pb-mapa-ficha" aria-live="polite"></div>
   <div class="pb-mapa-vista">
-    <div class="seg" id="pb-mapa-modo"><button data-m="puntos" class="on">Puntos</button><button data-m="densidad">Densidad</button></div>
+    <div class="seg" id="pb-mapa-modo"><button data-m="puntos" class="on" title="Cada empresa en su sitio">Puntos</button><button data-m="densidad" title="Dónde hay más empresas">Densidad</button><button data-m="trabajo" title="Cuántas quedan sin escribir en cada provincia">Por trabajar</button><button data-m="responden" title="Dónde contestan más">Responden</button></div>
     <div class="seg"><button data-z="es">Península</button><button data-z="ca">Canarias</button></div>
   </div>`;
 const mapEl = $('#pb-mapa-map'), ficha = $('#pb-mapa-ficha');
@@ -104,6 +104,8 @@ function actualizar() {
   if (!map || !map.getSource('pros')) return;
   const l = filtrados(); S.vis = l;
   map.getSource('pros').setData(geo(l)); map.getSource('dens').setData(geo(l));
+  if (map.getSource('resp')) map.getSource('resp').setData(geo(l.filter((p) => p.e === 'respondio')));
+  zonas();
   if (S.sel && !l.includes(S.sel)) cerrarFicha();
 }
 
@@ -121,18 +123,20 @@ function abrirFicha(p) {
     <dl>${p.h ? `<dt>Nicho</dt><dd>${esc(p.h)}</dd>` : ''}${TIPO[p.t] ? `<dt>Qué hace</dt><dd>${TIPO[p.t]}</dd>` : ''}
       ${movil ? `<dt>Móvil</dt><dd>${esc(tel(movil))}</dd>` : ''}${p.f ? `<dt>Fijo</dt><dd><a href="tel:+34${esc(p.f)}">${esc(tel(p.f))}</a></dd>` : ''}
       ${p.em ? `<dt>Email</dt><dd>${esc(p.em)}</dd>` : ''}${p.d ? `<dt>${p.e === 'respondio' ? 'Respondió' : p.e === 'enviado' ? 'Escrita' : 'Añadida'}</dt><dd>${esc(p.d.slice(8, 10) + '/' + p.d.slice(5, 7) + '/' + p.d.slice(0, 4))}</dd>` : ''}</dl>
-    <div class="acts">${web ? `<a class="pb-btn ghost" href="${esc(p.w)}" target="_blank" rel="noopener">Ver web</a>` : ''}<button class="pb-btn primary" type="button" data-a="ver">Ver en ${p.l === 'w' ? 'Prospectos' : 'Email'}</button></div>
+    <div class="acts">${web ? `<a class="pb-btn ghost" href="${esc(p.w)}" target="_blank" rel="noopener">Ver web</a>` : ''}${['enviado', 'respondio', 'no'].includes(p.e) ? '<button class="pb-btn" type="button" data-a="conv">Ver conversación</button>' : ''}<button class="pb-btn primary" type="button" data-a="ver">Ver en Prospectos</button></div>
     <p class="aprox">${aprox}</p>`;
   ficha.classList.add('on');
   ficha.querySelector('.x').onclick = cerrarFicha;
   ficha.querySelector('[data-a=ver]').onclick = () => irALista(p);
+  const cv = ficha.querySelector('[data-a=conv]');
+  if (cv) cv.onclick = () => { const b = $('#pb-tabs button[data-page="conversaciones"]'); if (b) b.click(); setTimeout(() => document.dispatchEvent(new CustomEvent('pb:abrir-conv', { detail: (p.l === 'w' ? 'whatsapp:' : 'email:') + p.i })), 150); };
   if (map) map.setFilter('sel', ['==', ['get', 'k'], p.l + p.i]);
 }
 function cerrarFicha() { S.sel = null; ficha.classList.remove('on'); if (map && map.getLayer('sel')) map.setFilter('sel', ['==', ['get', 'k'], '']); }
 function irALista(p) {
-  const b = $(`#pb-tabs button[data-page="${p.l === 'w' ? 'prospectos' : 'email'}"]`); if (!b) return;
+  const b = $('#page-mapa .pb-subnav button[data-sub="prospectos"]') || $('#pb-tabs button[data-page="prospectos"]'); if (!b) return;
   b.click();
-  setTimeout(() => { const i = p.l === 'w' ? $('#pb-pros-q') : $('#page-email input[type=search]'); if (i) { i.value = p.n; i.dispatchEvent(new Event('input', { bubbles: true })); } }, 120);
+  setTimeout(() => { const i = $('#pb-pros-q'); if (i) { i.value = p.n; i.dispatchEvent(new Event('input', { bubbles: true })); } }, 150);
 }
 
 /* ============ mapa ============ */
@@ -177,6 +181,10 @@ async function montarMapa() {
       clusterProperties: Object.fromEntries(EST.map(([k]) => [k, ['+', ['case', ['==', ['get', 'e'], k], 1, 0]]])),
     });
     map.addSource('dens', { type: 'geojson', data: geo(S.vis) });
+    map.addSource('resp', { type: 'geojson', data: geo(S.vis.filter((p) => p.e === 'respondio')) });
+    map.addLayer({ id: 'responden', type: 'heatmap', source: 'resp', layout: { visibility: 'none' }, paint: {
+      'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 4, 22, 9, 40, 13, 56], 'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 4, 1.2, 12, 2.2], 'heatmap-opacity': .9,
+      'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(0,0,0,0)', .15, 'rgba(37,211,102,.3)', .45, 'rgba(61,220,132,.7)', .75, '#B7FF3C', 1, '#F4FFD6'] } });
     map.addLayer({ id: 'densidad', type: 'heatmap', source: 'dens', layout: { visibility: 'none' }, paint: {
       'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 4, 14, 9, 30, 13, 46], 'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 4, .6, 12, 1.6], 'heatmap-opacity': .85,
       'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(0,0,0,0)', .15, 'rgba(106,92,255,.35)', .4, 'rgba(142,132,255,.7)', .7, '#B7FF3C', 1, '#F4FFD6'] } });
@@ -196,6 +204,7 @@ async function montarMapa() {
     map.on('click', 'puntos', (e) => { const p = puntoDe(e.features[0]); if (p) { abrirFicha(p); pop.remove(); } });
     map.on('click', (e) => { if (!map.queryRenderedFeatures(e.point, { layers: ['puntos'] }).length && !e.originalEvent.target.closest('.pb-mapa-cl')) cerrarFicha(); });
     map.on('render', () => { if (map.isSourceLoaded('pros')) donuts(); });
+    ponModo();
   });
 }
 function puntoDe(f) { const k = f.properties.k; return (S.vis || []).find((p) => p.l + p.i === k); }
@@ -212,6 +221,22 @@ function donutSvg(props) {
   });
   const t = total >= 1000 ? (total / 1000).toFixed(1).replace('.', ',') + ' mil' : N(total);
   return { r, html: `<svg width="${r * 2}" height="${r * 2}" viewBox="0 0 ${r * 2} ${r * 2}"><circle r="${r - g}" cx="${r}" cy="${r}" class="f"/>${arcos}<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-size="${r > 26 ? 13 : 11.5}">${t}</text></svg>` };
+}
+const zonasM = new Map();
+function zonas() {
+  zonasM.forEach((m) => m.remove()); zonasM.clear();
+  if (!map || S.modo !== 'trabajo') return;
+  const g = new Map();
+  (S.vis || []).forEach((p) => { const k = p.v || p.c; if (!k) return; const o = g.get(k) || { n: 0, t: 0, y: 0, x: 0 }; o.t++; o.y += p.y; o.x += p.x; if (p.e === 'cola' || p.e === 'revision') o.n++; g.set(k, o); });
+  const max = Math.max(1, ...[...g.values()].map((o) => o.n));
+  g.forEach((o, k) => {
+    if (!o.n) return;
+    const d = document.createElement('button'); d.type = 'button'; d.className = 'pb-mapa-zona';
+    const tam = Math.round(30 + 54 * Math.sqrt(o.n / max)); d.style.setProperty('--t', tam + 'px');
+    d.innerHTML = `<b>${N(o.n)}</b>`; d.title = `${k}: ${N(o.n)} sin escribir de ${N(o.t)}`;
+    d.onclick = (e) => { e.stopPropagation(); map.flyTo({ center: [o.x / o.t, o.y / o.t], zoom: 8.4, speed: 1.4 }); };
+    zonasM.set(k, new window.maplibregl.Marker({ element: d }).setLngLat([o.x / o.t, o.y / o.t]).addTo(map));
+  });
 }
 function donuts() {
   if (S.modo !== 'puntos') { marcas.forEach((m) => m.remove()); marcas.clear(); return; }
@@ -242,11 +267,16 @@ $('#pb-mapa-nicho').addEventListener('change', (e) => { S.filtros.nicho = e.targ
 $('#pb-mapa-modo').addEventListener('click', (e) => {
   const b = e.target.closest('button'); if (!b || !map) return; S.modo = b.dataset.m;
   e.currentTarget.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
-  const d = S.modo === 'densidad';
-  map.setLayoutProperty('densidad', 'visibility', d ? 'visible' : 'none');
-  ['puntos', 'halo', 'sel'].forEach((l) => map.setLayoutProperty(l, 'visibility', d ? 'none' : 'visible'));
-  donuts();
+  ponModo();
 });
+function ponModo() {
+  if (!map || !map.getLayer('puntos')) return;   // aún cargando: se aplica al terminar (ver 'load')
+  const m = S.modo;
+  map.setLayoutProperty('densidad', 'visibility', m === 'densidad' ? 'visible' : 'none');
+  map.setLayoutProperty('responden', 'visibility', m === 'responden' ? 'visible' : 'none');
+  ['puntos', 'halo', 'sel'].forEach((l) => map.setLayoutProperty(l, 'visibility', m === 'puntos' ? 'visible' : 'none'));
+  donuts(); zonas();
+}
 raiz.querySelector('.pb-mapa-vista').addEventListener('click', (e) => { const b = e.target.closest('[data-z]'); if (!b || !map) return; map.fitBounds(b.dataset.z === 'ca' ? CANARIAS : ESPANA, { padding: { top: 40, bottom: 40, left: innerWidth > 900 ? 360 : 20, right: 40 }, duration: 900 }); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.body.dataset.page === 'mapa' && ficha.classList.contains('on')) cerrarFicha(); });
 

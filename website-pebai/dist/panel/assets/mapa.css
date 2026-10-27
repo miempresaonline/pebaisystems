@@ -90,3 +90,6 @@ body[data-page=mapa] .pb-main>.pb-top{display:none}
   .pb-mapa-vista{top:12px;bottom:auto;left:12px;right:auto}
   .pb-mapa-vista .seg:last-child{display:none}
 }
+.pb-mapa-zona{display:grid;place-items:center;width:var(--t);height:var(--t);border-radius:50%;border:2px solid rgba(255,181,71,.85);background:rgba(255,181,71,.18);box-shadow:0 0 0 6px rgba(255,181,71,.08),0 10px 30px rgba(0,0,0,.35);color:#fff;font:800 13px var(--sans);cursor:pointer;backdrop-filter:blur(2px);transition:transform .2s}
+.pb-mapa-zona:hover{transform:scale(1.08)}
+.pb-mapa-zona b{text-shadow:0 1px 4px rgba(0,0,0,.6)}
