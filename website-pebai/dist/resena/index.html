@@ -60,7 +60,7 @@
     .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
     .draft{margin-top:14px;padding:14px;border-radius:16px;background:rgba(10,9,18,.55);border:1px solid var(--fg-10)}
     .draft[hidden]{display:none}
-    .draft .t{font-size:15px;line-height:1.5;color:var(--fg);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+    .draft .t{font-size:15px;line-height:1.5;color:var(--fg)}
     .draft textarea{display:none;width:100%;min-height:120px;border:0;background:transparent;color:var(--fg);font:500 16px/1.5 var(--sans);resize:vertical;outline:none}
     .draft.edit .t{display:none}.draft.edit textarea{display:block}
     .draft .row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px}
@@ -82,6 +82,13 @@
     .svc button.on i{background:var(--accent);border-color:var(--accent)}
     .svc button.on i::after{content:"";width:8px;height:5px;border:2px solid #0B0F14;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
     .solo{display:block;margin:12px auto 0}
+    .serv button{padding:10px 11px;gap:10px}
+    .serv button .ico{flex:none;width:32px;height:32px;border-radius:10px;border:1px solid var(--fg-10);background:rgba(10,9,18,.45);display:grid;place-items:center;transition:background .15s,border-color .15s}
+    .serv button .ico svg{width:18px;height:18px;fill:none;stroke:var(--fg-65);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:stroke .15s}
+    .serv button.on .ico{background:var(--accent);border-color:var(--accent)}
+    .serv button.on .ico svg{stroke:#0B0F14}
+    .ideas[hidden]{display:none}
+    .ideas{animation:in .3s ease both}
     .ide button{font-size:13px;font-weight:600;padding:9px 10px;gap:8px;border-radius:12px;line-height:1.25}
     .ide button i{width:16px;height:16px;border-radius:5px}
     .ide button[hidden]{display:none}
@@ -132,17 +139,19 @@
     <h2>Gracias. ¿Lo cuentas en Google?</h2>
     <p class="s">Es lo que más ayuda a que otras empresas nos encuentren.</p>
     <span class="k">¿Qué te hicimos? <i>(marca todo lo que aplique)</i></span>
-    <div class="svc" id="servicios"></div>
+    <div class="svc serv" id="servicios"></div>
     <span class="k">Tu reseña, ya escrita</span>
     <div class="draft" id="draft">
       <p class="t" id="draft-t"></p>
       <textarea id="txt" aria-label="Tu reseña"></textarea>
       <div class="row"><span class="tip">Es solo una ayuda: cámbiala a tu manera.</span><button type="button" class="lnk" id="editar">Editar</button></div>
     </div>
-    <span class="k">Añade una idea <i>(opcional)</i></span>
-    <div class="svc ide" id="chips"></div>
-    <p class="aviso" id="aviso" role="status" hidden>Máximo 4 ideas. Quita una para elegir otra.</p>
-    <button type="button" class="lnk mas" id="mas">Ver más ideas</button>
+    <div class="ideas" id="ideas" hidden>
+      <span class="k">Añade una idea <i>(opcional, según lo que te hicimos)</i></span>
+      <div class="svc ide" id="chips"></div>
+      <p class="aviso" id="aviso" role="status" hidden>Máximo 4 ideas. Quita una para elegir otra.</p>
+      <button type="button" class="lnk mas" id="mas" hidden>Ver más ideas</button>
+    </div>
     <button type="button" class="lnk solo" id="escribir">Prefiero escribirla yo</button>
     <a class="btn g" id="btn-google" href="#" rel="noopener">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.6-.2-2.3H12v4.3h6c-.3 1.4-1.1 2.6-2.2 3.4v2.8h3.6c2-1.9 3.2-4.7 3.2-8.2z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.4-2.7l-3.6-2.8c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.7H2v2.9C3.8 20.5 7.6 23 12 23z"/><path fill="#FBBC05" d="M5.7 13.9c-.2-.7-.4-1.4-.4-2.1s.1-1.4.4-2.1V6.8H2C1.2 8.3.8 10 .8 11.8s.4 3.5 1.2 5l3.7-2.9z"/><path fill="#EA4335" d="M12 5c1.6 0 3.1.6 4.3 1.7l3.2-3.2C17.5 1.6 15 .6 12 .6 7.6.6 3.8 3.1 2 6.8l3.7 2.9C6.6 7 9.1 5 12 5z"/></svg>
@@ -205,30 +214,47 @@
     5: ['Muy buena experiencia con PEBAI Systems, totalmente recomendables.', 'Trabajar con PEBAI Systems ha sido un acierto. Muy recomendables.', 'Encantados con PEBAI Systems: profesionales, cercanos y muy resolutivos.', 'Un equipo serio y muy resolutivo. Recomiendo PEBAI Systems sin dudarlo.'],
     4: ['Buena experiencia con PEBAI Systems, los recomiendo.', 'Muy contentos con el trabajo de PEBAI Systems.', 'PEBAI Systems nos ha ayudado mucho. Recomendables.']
   };
-  var INICIO = ['Con PEBAI hemos hecho %s.', 'Nos ayudaron con %s.', 'Trabajamos con ellos en %s.', 'Nos hicieron %s.'];
+  var ICO = {
+    medida: '<rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M7.5 13.5h4M7.5 16.5h7"/>',
+    chatbot: '<path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1-4.4A8.5 8.5 0 1 1 20.5 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/>',
+    automatizacion: '<path d="M20 11a8 8 0 0 0-14.2-4.6L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.2 4.6L20 16"/><path d="M20 20v-4h-4"/>',
+    voz: '<path d="M12 4v16M8 8v8M16 8v8M4 11v2M20 11v2"/>',
+    consultoria: '<circle cx="11" cy="11" r="6.5"/><path d="M20.5 20.5l-4.8-4.8M8.5 11.5l1.8 1.8 3.5-3.6"/>',
+    formacion: '<path d="M22 9.5L12 5 2 9.5l10 4.5 10-4.5z"/><path d="M6 11.8v4.7c3.3 2.3 8.7 2.3 12 0v-4.7"/>'
+  };
+  var INICIO = ['Nos hicieron %s.', 'Nos ayudaron con %s.', 'Trabajamos con ellos en %s.', 'Nos hicieron %s y estamos muy contentos.'];
   /* Ideas para la reseña: las frases que recomienda Localo (ayudan a salir en Google Maps) y dos más personales.
      Cada una con dos formas de decirla, para que no salgan dos reseñas iguales. */
   var IDEAS = [
-    ['altamente recomendables', ['Altamente recomendables.', 'Son altamente recomendables para cualquier empresa.']],
-    ['volvería a confiar', ['Volvería a confiar en ellos sin dudarlo.', 'Sin duda volvería a confiar en PEBAI.']],
-    ['consultoría IA Valencia', ['Si buscas una consultoría de IA en Valencia, son una gran opción.', 'Una consultoría de IA en Valencia muy recomendable.']],
-    ['automatización de procesos', ['Saben mucho de automatización de procesos.', 'La automatización de procesos nos ha cambiado el día a día.']],
-    ['agentes de voz', ['Sus agentes de voz funcionan muy bien.', 'Nos sorprendió lo bien que funcionan los agentes de voz.']],
-    ['asistentes de inteligencia artificial', ['Sus asistentes de inteligencia artificial atienden a los clientes al momento.', 'Los asistentes de inteligencia artificial nos quitan mucho trabajo.']],
-    ['soluciones a medida', ['Hacen soluciones a medida, nada de plantillas.', 'Todo son soluciones a medida de cómo trabajamos.']],
-    ['enfoque muy práctico', ['Tienen un enfoque muy práctico.', 'Me gustó su enfoque muy práctico, sin teoría.']],
-    ['muy transparentes', ['Son muy transparentes en todo el proceso.', 'Muy transparentes con los plazos y los costes.']],
-    ['claridad total', ['Claridad total desde el primer día.', 'Lo explican todo con claridad total.']],
-    ['analizaron cada proceso', ['Analizaron cada proceso antes de proponer nada.', 'Antes de empezar analizaron cada proceso con calma.']],
-    ['equipo más autónomo', ['Ahora tenemos un equipo más autónomo.', 'El equipo es más autónomo gracias a cómo nos lo explicaron.']],
-    ['sin cambiar nada', ['Se adaptaron a lo que ya usábamos, sin cambiar nada de lo que funcionaba.', 'Lo integraron todo sin cambiar nada de nuestra forma de trabajar.']],
-    ['ahorro de tiempo', ['Se nota mucho el ahorro de tiempo.', 'El ahorro de tiempo ha sido muy grande.']],
-    ['mejoraron procesos', ['Mejoraron procesos que llevábamos años haciendo igual.', 'Nos mejoraron procesos clave de la empresa.']],
-    ['ahorro estimado claro', ['Desde el principio nos dieron un ahorro estimado claro.', 'Antes de empezar nos dieron un ahorro estimado claro.']],
-    ['honestidad sobre IA', ['Destaco su honestidad sobre IA: nos dijeron dónde no hacía falta.', 'Honestidad sobre IA, sin vender humo.']],
-    ['expertos en automatización', ['Son expertos en automatización.', 'Se nota que son expertos en automatización.']],
-    ['trato cercano', ['El trato ha sido cercano en todo momento.', 'Muy fácil trabajar con ellos, cercanos y atentos.']],
-    ['rapidez', ['Fueron rápidos y cumplieron los plazos.', 'Respondían rápido a cualquier duda.']]
+    ['soluciones a medida', ['medida'], ['Hacen soluciones a medida, nada de plantillas.', 'Todo son soluciones a medida de cómo trabajamos.']],
+    ['todo en un solo sitio', ['medida'], ['Ahora tenemos pedidos, presupuestos y partes en un solo sitio.', 'Por fin tenemos toda la información del día a día en un solo sitio.']],
+    ['sin licencias por usuario', ['medida'], ['Sin licencias por usuario ni cuotas raras.', 'Una herramienta nuestra, sin pagar licencias por usuario.']],
+    ['sin cambiar nada', ['medida', 'automatizacion', 'chatbot'], ['Se adaptaron a lo que ya usábamos, sin cambiar nada de lo que funcionaba.', 'Lo integraron todo sin cambiar nada de nuestra forma de trabajar.']],
+    ['asistentes de inteligencia artificial', ['chatbot'], ['Sus asistentes de inteligencia artificial atienden a los clientes al momento.', 'Los asistentes de inteligencia artificial nos quitan mucho trabajo.']],
+    ['respuestas al momento', ['chatbot'], ['Nuestros clientes reciben respuesta al momento, a cualquier hora.', 'Ahora respondemos al momento, también fuera de horario.']],
+    ['conectado a nuestros documentos', ['chatbot'], ['El chatbot responde con nuestras tarifas y documentos, sin inventarse nada.', 'Lo conectaron a nuestros documentos y responde con nuestra información.']],
+    ['automatización de procesos', ['automatizacion'], ['Saben mucho de automatización de procesos.', 'La automatización de procesos nos ha cambiado el día a día.']],
+    ['expertos en automatización', ['automatizacion'], ['Son expertos en automatización.', 'Se nota que son expertos en automatización.']],
+    ['adiós a copiar datos', ['automatizacion', 'medida'], ['Se acabó copiar los mismos datos en varios sitios.', 'Ya no perdemos horas pasando datos a mano.']],
+    ['agentes de voz', ['voz'], ['Sus agentes de voz funcionan muy bien.', 'Nos sorprendió lo bien que funcionan los agentes de voz.']],
+    ['ninguna llamada perdida', ['voz'], ['Ya no perdemos ninguna llamada, ni a la hora de comer.', 'Ahora se atienden todas las llamadas, también fuera de horario.']],
+    ['citas que se agendan solas', ['voz', 'chatbot'], ['Las citas se agendan solas en el calendario.', 'Nos ahorra mucho tiempo que las citas se agenden solas.']],
+    ['voz muy natural', ['voz'], ['La voz es tan natural que los clientes ni lo notan.', 'Suena muy natural, nuestros clientes están encantados.']],
+    ['consultoría IA Valencia', ['consultoria'], ['Si buscas una consultoría de IA en Valencia, son una gran opción.', 'Una consultoría de IA en Valencia muy recomendable.']],
+    ['analizaron cada proceso', ['consultoria', 'medida', 'automatizacion'], ['Analizaron cada proceso antes de proponer nada.', 'Antes de empezar analizaron cada proceso con calma.']],
+    ['ahorro estimado claro', ['consultoria'], ['Desde el principio nos dieron un ahorro estimado claro.', 'Antes de empezar nos dieron un ahorro estimado claro.']],
+    ['honestidad sobre IA', ['consultoria', 'formacion'], ['Destaco su honestidad sobre IA: nos dijeron dónde no hacía falta.', 'Honestidad sobre IA, sin vender humo.']],
+    ['mejoraron procesos', ['consultoria', 'automatizacion', 'medida'], ['Mejoraron procesos que llevábamos años haciendo igual.', 'Nos mejoraron procesos clave de la empresa.']],
+    ['equipo más autónomo', ['formacion'], ['Ahora tenemos un equipo más autónomo.', 'El equipo es más autónomo gracias a cómo nos lo explicaron.']],
+    ['formación práctica', ['formacion'], ['Una formación práctica, con nuestros casos reales.', 'Nada de teoría: aprendimos con nuestro propio trabajo.']],
+    ['claridad total', ['formacion', 'consultoria'], ['Claridad total desde el primer día.', 'Lo explican todo con claridad total.']],
+    ['enfoque muy práctico', ['formacion', 'consultoria', 'chatbot'], ['Tienen un enfoque muy práctico.', 'Me gustó su enfoque muy práctico, sin teoría.']],
+    ['ahorro de tiempo', ['medida', 'automatizacion', 'chatbot', 'voz'], ['Se nota mucho el ahorro de tiempo.', 'El ahorro de tiempo ha sido muy grande.']],
+    ['altamente recomendables', [], ['Altamente recomendables.', 'Son altamente recomendables para cualquier empresa.']],
+    ['volvería a confiar', [], ['Volvería a confiar en ellos sin dudarlo.', 'Sin duda volvería a confiar en PEBAI.']],
+    ['trato cercano', [], ['El trato ha sido cercano en todo momento.', 'Muy fácil trabajar con ellos, cercanos y atentos.']],
+    ['muy transparentes', [], ['Son muy transparentes en todo el proceso.', 'Muy transparentes con los plazos y los costes.']],
+    ['rapidez', [], ['Fueron rápidos y cumplieron los plazos.', 'Respondían rápido a cualquier duda.']]
   ];
 
   var q = new URLSearchParams(location.search);
@@ -280,18 +306,20 @@
   Object.keys(SERV).forEach(function (k) {
     var b = document.createElement('button'); b.type = 'button'; b.className = servicios.indexOf(k) >= 0 ? 'on' : '';
     b.setAttribute('aria-pressed', b.className ? 'true' : 'false');
-    b.innerHTML = '<i aria-hidden="true"></i>'; b.appendChild(document.createTextNode(SERV[k][0]));
+    b.innerHTML = '<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24">' + ICO[k] + '</svg></span>'; b.appendChild(document.createTextNode(SERV[k][0]));
     b.addEventListener('click', function () {
       var p = servicios.indexOf(k);
       if (p >= 0) servicios.splice(p, 1); else servicios.push(k);
       b.classList.toggle('on', p < 0); b.setAttribute('aria-pressed', p < 0 ? 'true' : 'false');
+      pintarIdeas();
       componer();
     });
     $('servicios').appendChild(b);
   });
-  var inicio = r(INICIO), avisoT;
-  mezcla(IDEAS).forEach(function (d, idx) {
-    var frase = r(d[1]);
+  var inicio = r(INICIO), avisoT, abierto = false;
+  /* Cada idea con su frase fija para esta visita y su botón (orden aleatorio en cada visita) */
+  var ideas = mezcla(IDEAS).map(function (d) {
+    var frase = r(d[2]);
     var b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
     b.innerHTML = '<i aria-hidden="true"></i>'; b.appendChild(document.createTextNode(d[0]));
     b.addEventListener('click', function () {
@@ -307,14 +335,33 @@
       $('chips').classList.toggle('lleno', elegidos.length >= MAX);
       componer();
     });
-    if (idx >= 8) b.hidden = true;
-    $('chips').appendChild(b);
+    return { serv: d[1], frase: frase, btn: b };
   });
-  $('mas').addEventListener('click', function () {
-    var abrir = this.textContent === 'Ver más ideas';
-    [].forEach.call($('chips').children, function (c, i) { if (i >= 8) c.hidden = !abrir && !c.classList.contains('on'); });
-    this.textContent = abrir ? 'Ver menos' : 'Ver más ideas';
-  });
+  /* Primero las ideas de los servicios marcados, luego las generales; las ya elegidas no desaparecen */
+  function pintarIdeas() {
+    $('ideas').hidden = !servicios.length && !elegidos.length;
+    /* Alternando servicios: con dos o más marcados, todos tienen sus ideas a la vista */
+    var colas = servicios.map(function (k) { return ideas.filter(function (it) { return it.serv.indexOf(k) >= 0; }); });
+    var propias = [], generales = [], hay = true;
+    for (var i = 0; hay; i++) {
+      hay = false;
+      colas.forEach(function (c) { if (c[i]) { hay = true; if (propias.indexOf(c[i]) < 0) propias.push(c[i]); } });
+    }
+    ideas.forEach(function (it) {
+      if (propias.indexOf(it) >= 0) return;
+      if (!it.serv.length || elegidos.indexOf(it.frase) >= 0) generales.push(it);
+    });
+    var lista = propias.concat(generales), chips = $('chips');
+    chips.textContent = '';
+    lista.forEach(function (it, i) {
+      it.btn.hidden = i >= 8 && !abierto && elegidos.indexOf(it.frase) < 0;
+      chips.appendChild(it.btn);
+    });
+    $('mas').hidden = lista.length <= 8;
+    $('mas').textContent = abierto ? 'Ver menos' : 'Ver más ideas';
+  }
+  $('mas').addEventListener('click', function () { abierto = !abierto; pintarIdeas(); });
+  pintarIdeas();
 
   function componer() {
     if (editado) return;
