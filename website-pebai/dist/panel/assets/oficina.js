@@ -583,11 +583,13 @@ async function preguntar(t) {
   const img = document.createElement('img'); img.src = BASE + 'assets/pebai-mark.png'; img.alt = '';
   const qd = document.createElement('span'); qd.textContent = t;
   const x = document.createElement('button'); x.type = 'button'; x.className = 'cerrar'; x.setAttribute('aria-label', 'Cerrar respuesta'); x.textContent = '×';
-  x.onclick = (e) => { e.stopPropagation(); ans.classList.remove('on'); };
+  x.onclick = (e) => { e.stopPropagation(); ans.classList.remove('on'); if (foco && foco.piensa) cerrar(); };
   head.append(img, qd, x);
   const body = document.createElement('div'); body.className = 'bd'; body.innerHTML = '<div class="pens"><span>PEBAI está mirando los departamentos</span><i></i><i></i><i></i></div>';
   ans.append(head, body);
   qBtn.disabled = true; qIn.value = ''; pensando = true; ans.classList.add('pensando');
+  // la cámara se acerca a la bola para ver cómo piensa (queda arriba, por encima de la respuesta)
+  if (G && !lista && (!foco || foco.nucleo || foco.sigue || foco.piensa)) { if (!foco || foco.sigue) foco = { piensa: true }; const N = G.NUC; G.volar(new G.THREE.Vector3(N.x, N.y + 9, N.z + 17), new G.THREE.Vector3(N.x, N.y - 1.6, N.z)); }
   const pasos = ['PEBAI está mirando los departamentos', 'Leyendo lo que han hecho los agentes', 'Preparando la respuesta'];
   let pi = 0; const rota = setInterval(() => { const sp = $('.pens span', body); if (sp) sp.textContent = pasos[++pi % pasos.length]; }, 1400);
   const minimo = new Promise((r) => setTimeout(r, 900));
@@ -747,6 +749,12 @@ async function montar() {
   });
   const orbe = new THREE.Mesh(new THREE.SphereGeometry(1.25, 72, 54), orbeMat); orbe.position.copy(NUC); orbe.userData.nucleo = true; scene.add(orbe);
   const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: brillo, color: 0x7E73FF, transparent: true, opacity: .32, depthWrite: false, blending: THREE.AdditiveBlending })); halo.scale.setScalar(5.6); halo.position.copy(NUC); scene.add(halo);
+  /* ideas: chispas que giran alrededor de la bola mientras PEBAI piensa una respuesta */
+  const ideas = [0x3FD5FF, 0xB7FF3C, 0x9C93FF, 0xFFFFFF, 0x3FD5FF, 0xB7FF3C].map((c, i) => {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: brillo, color: c, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
+    sp.scale.setScalar(.55); scene.add(sp); return { sp, fase: i / 6 * Math.PI * 2, incl: (i % 3 - 1) * .7, r: 1.75 + (i % 2) * .35 };
+  });
+  let pz = 0, chispazo = 0, pensabaAntes = false;
   /* el logo, al frente y bien visible: una lente oscura detrás y un brillo suave */
   const lente = new THREE.Mesh(new THREE.CircleGeometry(.8, 64), new THREE.MeshBasicMaterial({ color: 0x07081a, transparent: true, opacity: .78, depthWrite: false })); lente.renderOrder = 4; scene.add(lente);
   const aro = new THREE.Mesh(new THREE.RingGeometry(.8, .835, 64), new THREE.MeshBasicMaterial({ color: 0x9C93FF, transparent: true, opacity: .8, depthWrite: false, toneMapped: false })); aro.renderOrder = 4; scene.add(aro);
@@ -1621,13 +1629,23 @@ async function montar() {
     }
     const t = clock.getElapsedTime(), dtReal = Math.min(.5, t - tPrev), dt = Math.min(.05, dtReal); tPrev = t;
     /* núcleo */
-    const k = pensando ? 3 : 1, flota = Math.sin(t * 1.1) * .07 + (pensando ? Math.sin(t * 7) * .03 : 0), y = NUC.y + flota;
+    // pz: 0 en reposo, 1 pensando (con transición suave); al llegar la respuesta, un chispazo
+    pz += ((pensando ? 1 : 0) - pz) * Math.min(1, dtReal * 3);
+    if (pensabaAntes && !pensando) chispazo = 1; pensabaAntes = pensando; chispazo = Math.max(0, chispazo - dtReal * 1.6);
+    const k = 1 + pz * 2.5, flota = Math.sin(t * 1.1) * .07 + pz * (.45 + Math.sin(t * 2.6) * .12), y = NUC.y + flota;
     orbeMat.uniforms.uT.value = t; orbeMat.uniforms.uK.value += (k - orbeMat.uniforms.uK.value) * .04;
-    orbe.position.y = y; orbe.rotation.y += dt * .25 * k; halo.position.y = y;
-    halo.material.opacity = (pensando ? .5 : .32) + Math.sin(t * (pensando ? 8 : 1.6)) * .06;
+    orbe.position.y = y; orbe.rotation.y += dt * .25 * k; orbe.rotation.x = Math.sin(t * 1.7) * .35 * pz; orbe.rotation.z = Math.cos(t * 1.3) * .25 * pz;
+    orbe.position.x = NUC.x + Math.sin(t * 3.1) * .08 * pz; orbe.position.z = NUC.z + Math.cos(t * 2.3) * .08 * pz;
+    orbe.scale.setScalar(1 + pz * (.06 + Math.sin(t * 4.2) * .05) + chispazo * .18); halo.position.y = y;
+    halo.material.opacity = .32 + pz * .25 + chispazo * .5 + Math.sin(t * (1.6 + pz * 6.4)) * .06; halo.scale.setScalar(5.6 * (1 + pz * .25 + chispazo * .6));
+    ideas.forEach((d, i) => {
+      const a = t * (1.9 + i * .23) + d.fase, r = d.r + Math.sin(t * 2 + i) * .15;
+      d.sp.position.set(NUC.x + Math.cos(a) * r, y + Math.sin(a) * r * d.incl + Math.sin(t * 3 + i) * .1, NUC.z + Math.sin(a) * r);
+      d.sp.material.opacity = pz * (.65 + Math.sin(t * 7 + i * 2) * .35); d.sp.visible = pz > .02;
+    });
     const haciaCam = camera.position.clone().sub(NUC).normalize();
     fachada.forEach((m) => { m.position.set(NUC.x, y, NUC.z).add(haciaCam.clone().multiplyScalar(1.29)); m.lookAt(camera.position); });
-    const lat = 1 + Math.sin(t * (pensando ? 6 : 1.8)) * (pensando ? .05 : .025); mark.scale.setScalar(lat);
+    const lat = 1 + Math.sin(t * (1.8 + pz * 4.2)) * (.025 + pz * .025) + chispazo * .12; mark.scale.setScalar(lat);
     nubes[0].rotation.y += dt * .22 * k; nubes[1].rotation.y -= dt * .3 * k; nubes.forEach((n) => { n.position.y = y; n.scale.setScalar(pensando ? .9 + Math.sin(t * 5) * .04 : 1); });
     orbitas.forEach((o, i) => { o.position.y = y; o.rotation.z += dt * (.45 + i * .2) * k * (i % 2 ? -1 : 1); });
     corona.rotation.y -= dt * .15 * k;
@@ -1640,7 +1658,7 @@ async function montar() {
     const salaFoco = foco ? (foco.sala || (foco.agente && puestos.get(foco.agente) && puestos.get(foco.agente).d.id) || null) : null;
     salas.forEach((sa) => { const obj = !salaFoco || salaFoco === sa.d.id ? 1 : .08; sa.sign.material.opacity += (obj - sa.sign.material.opacity) * .12; });
     columna.material.uniforms.uT.value = t; polvo.rotation.y = t * .01; polvo.position.y = Math.sin(t * .2) * .3;
-    coreLight.intensity = pensando ? 10 + Math.sin(t * 9) * 3 : 7 + Math.sin(t * 1.4) * 1.2;
+    coreLight.intensity = 7 + pz * 4 + chispazo * 10 + Math.sin(t * (1.4 + pz * 7.6)) * (1.2 + pz * 1.8);
     const ritmo = pensando ? 1.2 : .45;
     ondas.forEach((o) => { o.k = (o.k + dt * ritmo / 1.5) % 1; o.m.scale.setScalar(2.4 + o.k * (PLAZA - 2.5)); o.m.material.opacity = (1 - o.k) * (1 - o.k) * .26; });
     /* cables y paquetes de datos */
