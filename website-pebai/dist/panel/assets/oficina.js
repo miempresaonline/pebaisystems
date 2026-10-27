@@ -955,6 +955,150 @@ async function montar() {
     lamparas.forEach((l) => { l.pant.emissiveIntensity = .12 + .55 * noche; l.charco.opacity = .18 + .3 * noche; });
   }
   const flotantes = [];
+
+  /* ---------- fichas encima de cada agente: qué hace, cuánto lleva y cuándo entrega o recibe ---------- */
+  // Progreso real: cupo del día, provincia «19 de 52» o tiempo de su turno de 45 min. null si no se puede saber.
+  function progreso(a) {
+    if (a.st !== 'trabajando') return null;
+    if (a.cupo) return Math.min(100, Math.round(a.hoy / a.cupo * 100));
+    const ult = (a.actividad || [])[0];
+    const m = ult && /\((\d+) de (\d+)\)/.exec(ult.txt);
+    if (m) return Math.round(+m[1] / +m[2] * 100);
+    const ini = (a.actividad || []).find((e) => /^Empieza/.test(e.txt));
+    if (ini) return Math.max(3, Math.min(97, Math.round((Date.now() - new Date(String(ini.ts).replace(' ', 'T'))) / 27e3)));
+    return null;
+  }
+  const corta = (t, n) => { t = String(t || '').replace(/^(Empieza|Termina|Encargo del Jefe):\s*/u, '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t; };
+  function fichaDe2(o) {
+    const a = o.a, now = performance.now();
+    const marca = o.marca && o.marca.hasta > now ? o.marca : null;
+    if (!marca && a.st !== 'trabajando' && hover !== o) return null;
+    const pc = progreso(a);
+    const ult = (a.actividad || [])[0];
+    const tarea = marca ? marca.txt : a.st === 'trabajando' ? corta(ult && ult.tipo !== 'espera' ? ult.txt : a.motivo, 46) : corta(a.motivo, 46);
+    const pill = marca ? marca.tipo : pc != null ? pc + '%' : (ST[a.st] || ST.espera)[1].toUpperCase();
+    const col = marca ? (marca.tipo === 'ENTREGÓ' ? '#3DDC84' : '#3FD5FF') : a.st === 'trabajando' ? '#FFB547' : (ST[a.st] || ST.espera)[0];
+    return { nombre: a.nombre, tarea, pill, col, pc: marca ? 100 : pc };
+  }
+  function pintaFicha(o) {
+    const f = fichaDe2(o);
+    const clave = f ? [f.nombre, f.tarea, f.pill, f.col, f.pc].join('|') : '';
+    if (clave === o.fichaClave) return;
+    o.fichaClave = clave;
+    if (!o.ficha) {
+      const cv = document.createElement('canvas'); cv.width = 560; cv.height = 168;
+      const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 4;
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, transparent: true, depthWrite: false, depthTest: false, toneMapped: false }));
+      sp.center.set(.5, 0); sp.scale.set(2.5, .75, 1); sp.position.set(0, 3.45, 0); sp.renderOrder = 20; sp.userData.puesto = o; o.p.add(sp);
+      o.ficha = { cv, tx, sp, op: 0 };
+    }
+    o.ficha.visible = !!f;
+    if (!f) return;
+    const g = o.ficha.cv.getContext('2d'); g.clearRect(0, 0, 560, 168);
+    g.fillStyle = 'rgba(10,12,22,.93)'; g.strokeStyle = hexA(f.col, .55); g.lineWidth = 3;
+    g.beginPath(); g.roundRect(4, 4, 552, 160, 26); g.fill(); g.stroke();
+    g.fillStyle = f.col; g.beginPath(); g.arc(36, 46, 9, 0, 7); g.fill();
+    g.fillStyle = '#FFFFFF'; g.font = '800 34px Manrope, sans-serif'; g.textBaseline = 'middle'; g.fillText(f.nombre, 56, 47);
+    // pastilla de estado a la derecha: «37%», «ENTREGÓ», «RECIBIDO»
+    g.font = '800 22px Manrope, sans-serif'; const pw = g.measureText(f.pill).width + 28;
+    g.fillStyle = hexA(f.col, .18); g.beginPath(); g.roundRect(530 - pw, 28, pw, 38, 19); g.fill();
+    g.fillStyle = f.col; g.textAlign = 'center'; g.fillText(f.pill, 530 - pw / 2, 48); g.textAlign = 'left';
+    g.fillStyle = '#C9CBDA'; g.font = '600 25px Manrope, sans-serif'; g.fillText(f.tarea, 28, 98);
+    g.fillStyle = 'rgba(255,255,255,.08)'; g.beginPath(); g.roundRect(28, 130, 504, 10, 5); g.fill();
+    if (f.pc != null) { g.fillStyle = f.col; g.beginPath(); g.roundRect(28, 130, Math.max(10, 504 * f.pc / 100), 10, 5); g.fill(); }
+    o.ficha.tx.needsUpdate = true;
+  }
+
+  /* ---------- traspasos: lo que un agente le pasa a otro, sacado de su historial real ---------- */
+  // De quién a quién y con qué etiqueta. Cada regla mira la actividad de un agente y dice si es una entrega.
+  const REGLAS = [
+    (a, e) => a.dept === 'geo' && a.id !== 'geo_jefe' && /^Encargo del Jefe:\s*/u.test(e.txt) ? ['geo_jefe', a.id, corta(e.txt, 30)] : null,
+    (a, e) => a.id === 'geo_vigia' && /^Termina/u.test(e.txt) ? ['geo_vigia', 'geo_jefe', 'Novedades del día'] : null,
+    (a, e) => a.id === 'geo_medicion' && /^Termina/u.test(e.txt) ? ['geo_medicion', 'geo_jefe', 'Informe de medición'] : null,
+    (a, e) => {
+      if (a.id !== 'scraper') return null;
+      const m = /(\d+) útiles \((\d+) con móvil, (\d+) con email/u.exec(e.txt);
+      if (!m || !+m[1]) return null;
+      return +m[2] ? ['scraper', 'whatsapp', m[2] + (+m[2] === 1 ? ' empresa nueva' : ' empresas nuevas')] : +m[3] ? ['scraper', 'email', m[3] + ' empresas para email'] : null;
+    },
+  ];
+  const vistosTr = new Set(); let colaTr = [], ultimoTr = 0, recientesTr = [];
+  function buscaTraspasos() {
+    const lista = [];
+    S.agentes.forEach((a) => (a.actividad || []).forEach((e) => {
+      for (const r of REGLAS) {
+        const x = r(a, e);
+        if (x && puestos.get(x[0]) && puestos.get(x[1])) { lista.push({ de: x[0], a: x[1], txt: x[2], ts: e.ts, k: x.join('|') + e.ts }); break; }
+      }
+    }));
+    lista.sort((x, y) => String(x.ts).localeCompare(String(y.ts)));
+    const primera = !vistosTr.size;
+    const nuevos = lista.filter((x) => !vistosTr.has(x.k));
+    nuevos.forEach((x) => vistosTr.add(x.k));
+    recientesTr = lista.filter((x) => Date.now() - new Date(String(x.ts).replace(' ', 'T')) < 864e5);
+    // Al abrir la oficina se ven los tres últimos; después, cada entrega nueva en cuanto llega
+    colaTr.push(...(primera ? nuevos.slice(-3) : nuevos));
+  }
+  const envios = [];
+  const docTex = (col) => canvasTex(96, 120, (c) => {
+    c.fillStyle = '#F4F2EC'; c.beginPath(); c.roundRect(8, 6, 80, 108, 10); c.fill();
+    c.fillStyle = col; c.beginPath(); c.roundRect(8, 6, 80, 22, [10, 10, 0, 0]); c.fill();
+    c.fillStyle = '#B9BCCB'; [44, 60, 76, 92].forEach((y, i) => c.fillRect(20, y, i === 3 ? 34 : 56, 6));
+  });
+  function lanzaEnvio(tr) {
+    const A = puestos.get(tr.de), B = puestos.get(tr.a); if (!A || !B) return;
+    const pa = new THREE.Vector3(), pb = new THREE.Vector3(); A.logo.getWorldPosition(pa); B.logo.getWorldPosition(pb);
+    const arriba = new THREE.Vector3(0, 1.6, 0);
+    const curva = A.d.id === B.d.id
+      ? new THREE.QuadraticBezierCurve3(pa, pa.clone().lerp(pb, .5).add(new THREE.Vector3(0, 2.4, 0)), pb)
+      : new THREE.CatmullRomCurve3([pa, pa.clone().add(arriba), NUC.clone().add(new THREE.Vector3(0, 1.3, 0)), pb.clone().add(arriba), pb]);
+    const col = A.d.color;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: docTex(col), transparent: true, depthWrite: false, depthTest: false, toneMapped: false })); sp.scale.set(.42, .52, 1); sp.renderOrder = 22;
+    const et = new THREE.Sprite(new THREE.SpriteMaterial({ map: canvasTex(520, 76, (c) => { c.font = '700 30px Manrope, sans-serif'; const w = Math.min(500, c.measureText(tr.txt).width + 36); c.fillStyle = 'rgba(10,12,22,.9)'; c.beginPath(); c.roundRect(260 - w / 2, 8, w, 60, 30); c.fill(); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(tr.txt, 260, 39); }), transparent: true, depthWrite: false, depthTest: false, toneMapped: false }));
+    et.scale.set(2.6, .38, 1); et.renderOrder = 23;
+    scene.add(sp, et);
+    const largo = curva.getLength();
+    envios.push({ tr, curva, sp, et, A, B, col, k: 0, v: 1 / Math.max(2.2, Math.min(4.5, largo / 6)), rastro: 0 });
+    A.marca = { tipo: 'ENTREGÓ', txt: tr.txt, hasta: performance.now() + 7000 };
+  }
+  const chispas = [];
+  function tickEnvios(dtR) {
+    // De lejos, fichas y paquetes más grandes para que se lean; de cerca, a su tamaño
+    const kz = THREE.MathUtils.clamp(camera.position.distanceTo(target) / ((HOME.dist || 40) * .42), 1, 2.4);
+    // uno cada poco: si no hay nada nuevo, se repite de vez en cuando una entrega de las últimas 24 h para ver el trabajo
+    ultimoTr += dtR;
+    if (!envios.length && colaTr.length && ultimoTr > 1.2) { lanzaEnvio(colaTr.shift()); ultimoTr = 0; }
+    else if (!envios.length && !colaTr.length && recientesTr.length && ultimoTr > 22 && !document.hidden) { colaTr.push(recientesTr[Math.floor(Math.random() * recientesTr.length)]); }
+    for (let i = envios.length - 1; i >= 0; i--) {
+      const e = envios[i]; e.k = Math.min(1, e.k + dtR * e.v);
+      const q = e.k < .5 ? 2 * e.k * e.k : 1 - Math.pow(-2 * e.k + 2, 2) / 2;
+      e.curva.getPointAt(q, e.sp.position); e.et.position.copy(e.sp.position).add(new THREE.Vector3(0, .5 * kz, 0));
+      e.sp.scale.set(.42 * kz, .52 * kz, 1); e.et.scale.set(2.6 * kz, .38 * kz, 1);
+      const op = Math.min(1, e.k * 8, (1 - e.k) * 8); e.sp.material.opacity = op; e.et.material.opacity = op;
+      e.rastro += dtR;
+      if (e.rastro > .045) {
+        e.rastro = 0;
+        const c = new THREE.Sprite(new THREE.SpriteMaterial({ map: brillo, color: e.col, transparent: true, opacity: .8, depthWrite: false, blending: THREE.AdditiveBlending }));
+        c.position.copy(e.sp.position); c.scale.setScalar(.32); scene.add(c); chispas.push({ c, k: 0 });
+      }
+      if (e.k >= 1) {
+        e.B.marca = { tipo: 'RECIBIDO', txt: e.tr.txt, hasta: performance.now() + 7000 };
+        e.B.halo.material.opacity = .6;
+        [e.sp, e.et].forEach((x) => { scene.remove(x); x.material.map.dispose(); x.material.dispose(); });
+        envios.splice(i, 1);
+      }
+    }
+    for (let i = chispas.length - 1; i >= 0; i--) {
+      const ch = chispas[i]; ch.k += dtR * 1.8; ch.c.material.opacity = .8 * (1 - ch.k); ch.c.scale.setScalar(.32 * (1 - ch.k * .6));
+      if (ch.k >= 1) { scene.remove(ch.c); ch.c.material.dispose(); chispas.splice(i, 1); }
+    }
+    puestos.forEach((o) => {
+      pintaFicha(o);
+      if (!o.ficha) return;
+      o.ficha.op += ((o.ficha.visible ? 1 : 0) - o.ficha.op) * Math.min(1, dtR * 6);
+      o.ficha.sp.material.opacity = o.ficha.op; o.ficha.sp.visible = o.ficha.op > .02; o.ficha.sp.scale.set(2.5 * kz, .75 * kz, 1);
+    });
+  }
   function flotar(o, n) {
     const uni = String(o.a.unidad || '').split(' ')[0] || 'más';
     const txt = '+' + N(n) + ' ' + (n === 1 ? uni.replace(/es$/, '').replace(/s$/, '') : uni);
@@ -1007,6 +1151,7 @@ async function montar() {
       if (s.sign.material.map) s.sign.material.map.dispose(); s.sign.material.map = cartel(d, partes); s.sign.material.needsUpdate = true;
     });
     orbeMat.uniforms.uErr.value = pendientes().some((p) => p.err) ? .55 : 0;
+    buscaTraspasos();
     pintaReloj(); luzDelDia(); autosPared.forEach(dibujaAuto);
   }
 
@@ -1131,6 +1276,7 @@ async function montar() {
       p.c.curva.getPointAt(p.dir > 0 ? p.k : 1 - p.k, p.sp.position);
       p.sp.material.opacity = Math.sin(p.k * Math.PI) * (p.c.on > .5 ? 1 : .5);
     });
+    tickEnvios(dtReal);
     for (let i = flotantes.length - 1; i >= 0; i--) { const f = flotantes[i]; f.k += dtReal / 2.8; f.sp.position.y += dtReal * .5; f.sp.material.opacity = f.k < .15 ? f.k / .15 : 1 - Math.pow((f.k - .15) / .85, 2); if (f.k >= 1) { scene.remove(f.sp); f.sp.material.map.dispose(); f.sp.material.dispose(); flotantes.splice(i, 1); } }
     salas.forEach((sa) => {
       sa.flash = Math.max(0, sa.flash - dt * 2.2);
