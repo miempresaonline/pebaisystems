@@ -2,6 +2,18 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-27 (17:10 UTC: mercado español, preguntas 6-10 del set)
+
+**Preguntas 6-10 hoy (solo WebSearch, vista de Claude, 27/10/2026) [V]:**
+- P6 «Agencia para implantar un chatbot con IA en mi empresa»: salen Upliora (guía de agentes y comparativa por ciudad, cita Valenzana, Tu Agencia IA y AI Hispania), Javadex (agentes IA, casos y precios), Chatbot Chocolate (Madrid/Bogotá) y un TFG de la Universidad de Alcalá. PEBAI no sale. La respuesta avisa de que casi todo es de proveedores.
+- P7 «¿Quién hace GEO en España?»: SE Ranking (https://seranking.com/es/blog/mejores-agencias-seo-geo/, con Dobuss), Marketing Directo (artículo de Sourcelift), SEOCOM, Agencia GEO (Sevilla), Upliora (rankings por ciudad) y Ainora. PEBAI no sale. La IA dice que no hay ranking neutral y recomienda comprobar si el proveedor aparece citado.
+- P8 «Cuánto cuesta implantar IA en una pyme»: dominan Upliora y Javadex con rangos de precio (diagnóstico 900-1.500 €, agente de atención 5.000-12.000 €), más el dato del Banco de España (45,8 % personal cualificado, 40,8 % costes) vía Ecosistema Startup. La IA avisa de que son cifras de proveedores y que comparten ecosistema. PEBAI no sale.
+- P9 «IA en reformas o construcción»: Upliora (https://www.upliora.es/blog/ia-para-constructoras-reformas-pymes-espana-2026: partes de obra, presupuestos, 12-18 h/semana perdidas, sin estudio independiente), Habitissimo y Brickanta. PEBAI no sale, aunque tenemos caso propio (Gargom).
+- P10 «Automatizar WhatsApp en empresa de servicios»: Twilio, Leadsales, Wati, Burbuxa; todo proveedor de software, casi nada de España. PEBAI no sale.
+*Qué cambia para PEBAI:* (1) en P8 y P6 las IAs citan precios de Upliora/Javadex y a la vez dicen que no son neutrales: nuestra página de coste (jueves) gana si explica qué pedir en un presupuesto sin cifras y enlaza el dato verificado del Banco de España. (2) P9 es la oportunidad más clara: solo hay una guía de proveedor y ningún caso real; un caso de Gargom bien contado puede ser la fuente citable. (3) P10: ningún resultado trata WhatsApp con RGPD y derivación a una persona desde España; el agente de WhatsApp ya publicado encaja y conviene enlazarlo desde el caso de reformas.
+
+**Comprobación técnica 17:10 UTC: robots.txt da 200 a los cuatro bots, pero la portada responde 429 (Cloudflare) con el User-Agent ClaudeBot** (reproducido 5 veces y con el UA completo «compatible; ClaudeBot/1.0»); con GPTBot, OAI-SearchBot, PerplexityBot, Claude-User y sin UA da 200. Las 12:30 UTC daba 200. Puede ser limitación de la IP de la nube, pero hay que descartar que Cloudflare esté limitando al rastreador de Anthropic: Técnico debe revisar reglas de WAF y rate limiting para ClaudeBot.
+
 ## 2026-10-27 (17:00 UTC: encargos urgentes del Jefe, marco legal y ficha de Google)
 
 **1. Reglamento (UE) 2026/1744 (Ómnibus digital de IA) [V en despachos, S en texto oficial].** Es de 8/07/2026, se publicó en el DOUE el 24/07/2026 y entró en vigor el 27/07/2026. Fuentes: https://www.cuatrecasas.com/es/spain/propiedad-intelectual/art/se-publica-reglamento-omnibus-digital-ia y https://www.garrigues.com/es_ES/garrigues-digital/publicado-reglamento-omnibus-digital-ia-redefine-plazos-simplifica-requisitos (consultadas 27/10/2026). EUR-Lex (CELEX 32026R1744) no se lee desde la nube: el texto literal sigue sin verificar [H].
