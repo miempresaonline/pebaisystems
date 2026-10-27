@@ -92,6 +92,11 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
 
+    # Vídeos: 30 días (el de la portada lleva ?v= y cambia de URL al renovarse)
+    <FilesMatch "\.(mp4|webm)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+
     # Cabeceras de Seguridad y Privacidad
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "SAMEORIGIN"
