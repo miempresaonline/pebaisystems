@@ -47,3 +47,27 @@ Medio editorial y consultora de IA; sale mucho en las respuestas de las IAs por 
 
 ### Siguiente competidor
 Dobuss o Lienzzo: mirar si tienen ficha enlazada y qué servicios nombran. Ficha de Maps: pedir a Daniel una captura manual si quiere el dato de reseñas.
+
+## 27/10/2026 (tarde) · Lienzzo (lienzzo.com)
+La única de las tres con dirección en Valencia ciudad, así que es la que de verdad compite en el mapa local. Datos de su web pública; la ficha de Maps no es verificable desde la nube.
+
+| Dato | Lo que consta |
+|---|---|
+| Zona | Valencia (Pl. de l'Ajuntament, 46002), teléfono y email publicados |
+| Servicios que nombra | Agente WhatsApp IA, chatbot empresarial, asistente telefónico IA, asistente interno, análisis de datos, automatización, CRM/ERP, facturación, software a medida, apps, web y tienda online |
+| Reseñas | Dice 5/5 con 169 reseñas en Google (cifra de su web, sin enlace a la ficha; no verificable) |
+| Casos | 25 en portfolio, descritos por ellos, sin testimonios literales |
+| Primer paso | «Diagnóstico IA» de pago (se descuenta si contratan); no ofrece llamada gratuita |
+| Blog | Sí (IA aplicada, RAG, automatización), sin fechas visibles |
+
+### 3 cosas aplicables a la ficha de PEBAI
+1. **Reseñas: es la diferencia que más pesa en el mapa.** 169 frente a las nuestras. Mover `pebaisystems.es/r/w` con los clientes reales (los 4 casos) y poner el enlace en cada entrega; sin pedir reseñas a quien no sea cliente.
+2. **Nombrar los servicios con las palabras de búsqueda:** «agente de WhatsApp con IA», «chatbot para empresas», «asistente telefónico con IA». Ya están en `servicios.md`; comprobar que la ficha usa exactamente esos nombres.
+3. **Diferenciar el primer paso.** Ellos cobran el diagnóstico; PEBAI ofrece 25 minutos gratuitos para cinco empresas al mes. Decirlo en la descripción y en cada post (ya está en los posts).
+
+### Dónde PEBAI ya gana
+- Primer paso gratuito frente a diagnóstico de pago.
+- Casos con datos concretos (obras, pedidos, expedientes) en lugar de logos de marcas.
+
+### Mejora concreta para nuestra ficha
+Conseguir las primeras reseñas reales de los 4 clientes de `casos.md`: pedir a Daniel que mande `pebaisystems.es/r/w` a cada uno (texto en `docs/geo/borradores/resenas/` si existe). Es lo único en lo que Lienzzo nos saca ventaja clara.
