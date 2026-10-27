@@ -143,6 +143,13 @@ function turnosDeHoy(a) {
   ord.forEach((r) => { const u = junta[junta.length - 1]; if (u && r[0] - u[1] < 24e5) u[1] = Math.max(u[1], r[1]); else junta.push(r); });
   return junta;
 }
+/* Franja de hoy para la ficha flotante: de 7:00 a 21:00, en verde los ratos que trabajó y una raya en la hora de ahora */
+function franjaDia(a) {
+  const d0 = new Date(); d0.setHours(7, 0, 0, 0); const ini = d0.getTime(), fin = ini + 14 * 36e5, pos = (t) => Math.max(0, Math.min(100, (t - ini) / (fin - ini) * 100));
+  const tr = turnosDeHoy(a).filter(([x, y]) => y > ini && x < fin);
+  const segs = tr.map(([x, y]) => `<i style="left:${pos(x).toFixed(1)}%;width:${Math.max(1.2, pos(y) - pos(x)).toFixed(1)}%"></i>`).join('');
+  return `<div class="dia"><div class="b">${segs}<u style="left:${pos(Date.now()).toFixed(1)}%"></u></div><div class="h"><span>7:00</span><span>${tr.length ? tr.length + (tr.length === 1 ? ' rato trabajando hoy' : ' ratos trabajando hoy') : 'Hoy aún no ha trabajado'}</span><span>21:00</span></div></div>`;
+}
 function botonRepe() {
   const b = document.createElement('button'); b.type = 'button'; b.className = 'pb-of-repe' + (repe ? ' on' : '');
   b.innerHTML = repe ? '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>Parar' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>Repetir el día';
@@ -1434,7 +1441,7 @@ async function montar() {
   const fichaDe = (h) => {
     if (!h) return null;
     const u = h.object.userData;
-    if (u.puesto) { const a = u.puesto.a, [c, txt] = ST[a.st] || ST.espera; return { k: u.puesto.d.nombre, b: a.nombre, r: a.rol, c, txt: txt + (a.cupo ? ` · ${N(a.hoy)} de ${a.cupo} hoy` : a.hoy ? ` · ${N(a.hoy)} hoy` : ''), m: a.motivo }; }
+    if (u.puesto) { const a = u.puesto.a, [c, txt] = ST[a.st] || ST.espera; return { k: u.puesto.d.nombre, b: a.nombre, r: a.rol, c, txt: txt + (a.cupo ? ` · ${N(a.hoy)} de ${a.cupo} hoy` : a.hoy ? ` · ${N(a.hoy)} hoy` : ''), m: a.motivo, dia: franjaDia(a) }; }
     if (u.servidor) { const d = u.sala; return { k: 'Servidor · ' + d.nombre, b: 'Lo que han hecho hoy', c: d.activo ? d.color : '#5C5F73', txt: d.activo ? 'Resumen escrito por la IA' : 'Sin agentes aún', m: 'Pincha para leer el resumen del día' }; }
     if (u.sala) { const d = u.sala, l = agsDe(d.id), tr = l.filter((a) => a.st === 'trabajando').length; return { k: 'Departamento', b: d.nombre, c: d.activo ? (tr ? '#3DDC84' : '#8E91A8') : '#5C5F73', txt: d.activo ? `${tr} de ${l.length} trabajando` : 'Sin agentes aún', m: d.objetivo }; }
     if (u.nucleo) { const pe = pendientes(); return { k: 'El núcleo', b: 'PEBAI', c: pe.some((p) => p.err) ? '#FF5E6C' : pe.length ? '#FFB547' : '#3DDC84', txt: pe.length ? (pe.length === 1 ? '1 aviso' : pe.length + ' avisos') : 'Todo en orden', m: 'Pincha para ver el resumen de la oficina' }; }
@@ -1476,7 +1483,7 @@ async function montar() {
     const h = tocar(e); const o = h && h.object.userData.puesto ? h.object.userData.puesto : null;
     const f = foco ? null : fichaDe(h);
     renderer.domElement.style.cursor = h && (o || h.object.userData.sala || h.object.userData.nucleo) ? 'pointer' : 'default';
-    if (f) { ficha.innerHTML = `<small>${esc(f.k)}</small><b>${esc(f.b)}</b>` + (f.r ? `<p class="rol">${esc(f.r)}</p>` : '') + `<span><i style="background:${f.c}"></i>${esc(f.txt)}</span>` + (f.m ? `<em>${esc(f.m)}</em>` : ''); ficha.classList.add('on'); } else ficha.classList.remove('on');
+    if (f) { ficha.innerHTML = `<small>${esc(f.k)}</small><b>${esc(f.b)}</b>` + (f.r ? `<p class="rol">${esc(f.r)}</p>` : '') + `<span><i style="background:${f.c}"></i>${esc(f.txt)}</span>` + (f.m ? `<em>${esc(f.m)}</em>` : '') + (f.dia || ''); ficha.classList.add('on'); } else ficha.classList.remove('on');
     hover = o; salaHover = o ? o.d.id : h && h.object.userData.sala ? h.object.userData.sala.id : null;
   });
   renderer.domElement.addEventListener('pointerleave', () => { ficha.classList.remove('on'); hover = null; salaHover = null; });
