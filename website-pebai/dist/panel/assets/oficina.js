@@ -969,44 +969,26 @@ async function montar() {
     return null;
   }
   const corta = (t, n) => { t = String(t || '').replace(/^(Empieza|Termina|Encargo del Jefe):\s*/u, '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t; };
-  function fichaDe2(o) {
-    const a = o.a, now = performance.now();
-    const marca = o.marca && o.marca.hasta > now ? o.marca : null;
-    if (!marca && a.st !== 'trabajando' && hover !== o) return null;
-    const pc = progreso(a);
-    const ult = (a.actividad || [])[0];
-    const tarea = marca ? marca.txt : a.st === 'trabajando' ? corta(ult && ult.tipo !== 'espera' ? ult.txt : a.motivo, 46) : corta(a.motivo, 46);
-    const pill = marca ? marca.tipo : pc != null ? pc + '%' : (ST[a.st] || ST.espera)[1].toUpperCase();
-    const col = marca ? (marca.tipo === 'ENTREGÓ' ? '#3DDC84' : '#3FD5FF') : a.st === 'trabajando' ? '#FFB547' : (ST[a.st] || ST.espera)[0];
-    return { nombre: a.nombre, tarea, pill, col, pc: marca ? 100 : pc };
-  }
-  function pintaFicha(o) {
-    const f = fichaDe2(o);
-    const clave = f ? [f.nombre, f.tarea, f.pill, f.col, f.pc].join('|') : '';
-    if (clave === o.fichaClave) return;
-    o.fichaClave = clave;
-    if (!o.ficha) {
-      const cv = document.createElement('canvas'); cv.width = 560; cv.height = 168;
-      const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 4;
-      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, transparent: true, depthWrite: false, depthTest: false, toneMapped: false }));
-      sp.center.set(.5, 0); sp.scale.set(2.5, .75, 1); sp.position.set(0, 3.45, 0); sp.renderOrder = 20; sp.userData.puesto = o; o.p.add(sp);
-      o.ficha = { cv, tx, sp, op: 0 };
+  // Anillo en el suelo: la vuelta entera es el 100 %. Solo mientras trabaja; si no se sabe el %, un arco que gira.
+  function pintaAnillo(o) {
+    const pc = progreso(o.a), trab = o.a.st === 'trabajando';
+    const clave = trab ? String(pc) : '';
+    if (!o.anillo) {
+      const pista = new THREE.Mesh(new THREE.RingGeometry(1.38, 1.44, 64), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+      pista.rotation.x = -Math.PI / 2; pista.position.y = .045; o.p.add(pista);
+      const arco = new THREE.Mesh(new THREE.RingGeometry(1.36, 1.48, 64, 1, 0, .01), new THREE.MeshBasicMaterial({ color: 0xFFB547, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+      arco.rotation.x = -Math.PI / 2; arco.position.y = .05; o.p.add(arco);
+      o.anillo = { pista, arco, op: 0, clave: null, gira: false };
     }
-    o.ficha.visible = !!f;
-    if (!f) return;
-    const g = o.ficha.cv.getContext('2d'); g.clearRect(0, 0, 560, 168);
-    g.fillStyle = 'rgba(10,12,22,.93)'; g.strokeStyle = hexA(f.col, .55); g.lineWidth = 3;
-    g.beginPath(); g.roundRect(4, 4, 552, 160, 26); g.fill(); g.stroke();
-    g.fillStyle = f.col; g.beginPath(); g.arc(36, 46, 9, 0, 7); g.fill();
-    g.fillStyle = '#FFFFFF'; g.font = '800 34px Manrope, sans-serif'; g.textBaseline = 'middle'; g.fillText(f.nombre, 56, 47);
-    // pastilla de estado a la derecha: «37%», «ENTREGÓ», «RECIBIDO»
-    g.font = '800 22px Manrope, sans-serif'; const pw = g.measureText(f.pill).width + 28;
-    g.fillStyle = hexA(f.col, .18); g.beginPath(); g.roundRect(530 - pw, 28, pw, 38, 19); g.fill();
-    g.fillStyle = f.col; g.textAlign = 'center'; g.fillText(f.pill, 530 - pw / 2, 48); g.textAlign = 'left';
-    g.fillStyle = '#C9CBDA'; g.font = '600 25px Manrope, sans-serif'; g.fillText(f.tarea, 28, 98);
-    g.fillStyle = 'rgba(255,255,255,.08)'; g.beginPath(); g.roundRect(28, 130, 504, 10, 5); g.fill();
-    if (f.pc != null) { g.fillStyle = f.col; g.beginPath(); g.roundRect(28, 130, Math.max(10, 504 * f.pc / 100), 10, 5); g.fill(); }
-    o.ficha.tx.needsUpdate = true;
+    const an = o.anillo;
+    if (clave !== an.clave) {
+      an.clave = clave;
+      an.gira = trab && pc == null;
+      const frac = an.gira ? .22 : Math.max(.02, (pc || 0) / 100);
+      an.arco.geometry.dispose();
+      an.arco.geometry = new THREE.RingGeometry(1.36, 1.48, 64, 1, Math.PI / 2, -Math.PI * 2 * frac);
+    }
+    return trab;
   }
 
   /* ---------- traspasos: lo que un agente le pasa a otro, sacado de su historial real ---------- */
@@ -1028,7 +1010,7 @@ async function montar() {
     S.agentes.forEach((a) => (a.actividad || []).forEach((e) => {
       for (const r of REGLAS) {
         const x = r(a, e);
-        if (x && puestos.get(x[0]) && puestos.get(x[1])) { lista.push({ de: x[0], a: x[1], txt: x[2], ts: e.ts, k: x.join('|') + e.ts }); break; }
+        if (x && puestos.get(x[0]) && puestos.get(x[1])) { lista.push({ de: x[0], a: x[1], txt: x[2], ts: e.ts, hace: e.hace || '', k: x.join('|') + e.ts }); break; }
       }
     }));
     lista.sort((x, y) => String(x.ts).localeCompare(String(y.ts)));
@@ -1037,7 +1019,9 @@ async function montar() {
     nuevos.forEach((x) => vistosTr.add(x.k));
     recientesTr = lista.filter((x) => Date.now() - new Date(String(x.ts).replace(' ', 'T')) < 864e5);
     // Al abrir la oficina se ven los tres últimos; después, cada entrega nueva en cuanto llega
-    colaTr.push(...(primera ? nuevos.slice(-3) : nuevos));
+    // Al abrir: las últimas entregas, solo si quien entrega está despierto. Después, cada entrega nueva en cuanto llega.
+    const despierto = (x) => { const a = ag(x.de); return a && ['trabajando', 'espera'].includes(a.st); };
+    colaTr.push(...(primera ? nuevos.filter(despierto).slice(-3).map((x) => Object.assign({ repe: true }, x)) : nuevos));
   }
   const envios = [];
   const docTex = (col) => canvasTex(96, 120, (c) => {
@@ -1054,12 +1038,20 @@ async function montar() {
       : new THREE.CatmullRomCurve3([pa, pa.clone().add(arriba), NUC.clone().add(new THREE.Vector3(0, 1.3, 0)), pb.clone().add(arriba), pb]);
     const col = A.d.color;
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: docTex(col), transparent: true, depthWrite: false, depthTest: false, toneMapped: false })); sp.scale.set(.42, .52, 1); sp.renderOrder = 22;
-    const et = new THREE.Sprite(new THREE.SpriteMaterial({ map: canvasTex(520, 76, (c) => { c.font = '700 30px Manrope, sans-serif'; const w = Math.min(500, c.measureText(tr.txt).width + 36); c.fillStyle = 'rgba(10,12,22,.9)'; c.beginPath(); c.roundRect(260 - w / 2, 8, w, 60, 30); c.fill(); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(tr.txt, 260, 39); }), transparent: true, depthWrite: false, depthTest: false, toneMapped: false }));
-    et.scale.set(2.6, .38, 1); et.renderOrder = 23;
-    scene.add(sp, et);
+    scene.add(sp);
+    anotaTraspaso(tr);
     const largo = curva.getLength();
-    envios.push({ tr, curva, sp, et, A, B, col, k: 0, v: 1 / Math.max(2.2, Math.min(4.5, largo / 6)), rastro: 0 });
-    A.marca = { tipo: 'ENTREGÓ', txt: tr.txt, hasta: performance.now() + 7000 };
+    envios.push({ tr, curva, sp, A, B, col, k: 0, v: 1 / Math.max(2.2, Math.min(4.5, largo / 6)), rastro: 0 });
+  }
+  const registro = document.createElement('div'); registro.className = 'pb-of-reg'; registro.setAttribute('aria-live', 'polite'); wrap.append(registro);
+  function anotaTraspaso(tr) {
+    const A = ag(tr.de), B = ag(tr.a); if (!A || !B) return;
+    const f = document.createElement('div'); f.className = 'it';
+    const cuando = tr.repe ? tr.hace : 'ahora';
+    f.innerHTML = `<i style="--c:${(DEPTS.find((d) => d.id === A.dept) || {}).color || '#8E84FF'}"></i><b>${esc(A.nombre)}</b><span class="fl">→</span><b>${esc(B.nombre)}</b><span class="tx">${esc(tr.txt)}</span><time>${esc(cuando)}</time>`;
+    registro.prepend(f);
+    while (registro.childElementCount > 3) registro.lastElementChild.remove();
+    requestAnimationFrame(() => f.classList.add('on'));
   }
   const chispas = [];
   function tickEnvios(dtR) {
@@ -1068,13 +1060,17 @@ async function montar() {
     // uno cada poco: si no hay nada nuevo, se repite de vez en cuando una entrega de las últimas 24 h para ver el trabajo
     ultimoTr += dtR;
     if (!envios.length && colaTr.length && ultimoTr > 1.2) { lanzaEnvio(colaTr.shift()); ultimoTr = 0; }
-    else if (!envios.length && !colaTr.length && recientesTr.length && ultimoTr > 22 && !document.hidden) { colaTr.push(recientesTr[Math.floor(Math.random() * recientesTr.length)]); }
+    else if (!envios.length && !colaTr.length && ultimoTr > 22 && !document.hidden) {
+      const despiertos = recientesTr.filter((x) => { const a = ag(x.de); return a && ['trabajando', 'espera'].includes(a.st); });
+      if (despiertos.length) colaTr.push(Object.assign({ repe: true }, despiertos[Math.floor(Math.random() * despiertos.length)]));
+      ultimoTr = 0;
+    }
     for (let i = envios.length - 1; i >= 0; i--) {
       const e = envios[i]; e.k = Math.min(1, e.k + dtR * e.v);
       const q = e.k < .5 ? 2 * e.k * e.k : 1 - Math.pow(-2 * e.k + 2, 2) / 2;
-      e.curva.getPointAt(q, e.sp.position); e.et.position.copy(e.sp.position).add(new THREE.Vector3(0, .5 * kz, 0));
-      e.sp.scale.set(.42 * kz, .52 * kz, 1); e.et.scale.set(2.6 * kz, .38 * kz, 1);
-      const op = Math.min(1, e.k * 8, (1 - e.k) * 8); e.sp.material.opacity = op; e.et.material.opacity = op;
+      e.curva.getPointAt(q, e.sp.position);
+      e.sp.scale.set(.42 * kz, .52 * kz, 1);
+      e.sp.material.opacity = Math.min(1, e.k * 8, (1 - e.k) * 8);
       e.rastro += dtR;
       if (e.rastro > .045) {
         e.rastro = 0;
@@ -1082,9 +1078,8 @@ async function montar() {
         c.position.copy(e.sp.position); c.scale.setScalar(.32); scene.add(c); chispas.push({ c, k: 0 });
       }
       if (e.k >= 1) {
-        e.B.marca = { tipo: 'RECIBIDO', txt: e.tr.txt, hasta: performance.now() + 7000 };
-        e.B.halo.material.opacity = .6;
-        [e.sp, e.et].forEach((x) => { scene.remove(x); x.material.map.dispose(); x.material.dispose(); });
+        e.B.halo.material.opacity = .6;   // destello al llegar a su mesa
+        scene.remove(e.sp); e.sp.material.map.dispose(); e.sp.material.dispose();
         envios.splice(i, 1);
       }
     }
@@ -1093,10 +1088,11 @@ async function montar() {
       if (ch.k >= 1) { scene.remove(ch.c); ch.c.material.dispose(); chispas.splice(i, 1); }
     }
     puestos.forEach((o) => {
-      pintaFicha(o);
-      if (!o.ficha) return;
-      o.ficha.op += ((o.ficha.visible ? 1 : 0) - o.ficha.op) * Math.min(1, dtR * 6);
-      o.ficha.sp.material.opacity = o.ficha.op; o.ficha.sp.visible = o.ficha.op > .02; o.ficha.sp.scale.set(2.5 * kz, .75 * kz, 1);
+      const on = pintaAnillo(o), an = o.anillo;
+      an.op += ((on ? 1 : 0) - an.op) * Math.min(1, dtR * 4);
+      an.pista.material.opacity = an.op * .07; an.arco.material.opacity = an.op * (.75 + Math.sin(performance.now() / 420) * .15);
+      an.arco.visible = an.pista.visible = an.op > .02;
+      if (an.gira) an.arco.rotation.z += dtR * 1.6; else an.arco.rotation.z = 0;
     });
   }
   function flotar(o, n) {
