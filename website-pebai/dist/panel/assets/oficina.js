@@ -419,6 +419,9 @@ function suTrabajo(a) {
         c.classList.add('con-foto');
         const f = document.createElement('span'); f.className = 'pb-of-wf'; f.title = 'Ver la foto en grande';
         const im = document.createElement('img'); im.src = foto; im.alt = ''; im.loading = 'lazy'; im.onerror = () => f.remove();
+        // mShots tarda unos segundos en hacer la foto la primera vez y entretanto da una imagen de espera (400×300): se vuelve a pedir
+        let intentos = 0;
+        im.onload = () => { if (foto.includes('mshots') && im.naturalWidth !== 640 && intentos < 5) { intentos++; setTimeout(() => { im.src = foto + '&r=' + intentos; }, 4000); } };
         f.append(im); f.onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); verFoto(foto, e.titulo); };
         c.append(f);
       }
