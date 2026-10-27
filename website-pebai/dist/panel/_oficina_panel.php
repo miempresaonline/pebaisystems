@@ -277,6 +277,10 @@ function of_scraper(): array
         $a['motivo'] = 'No da señales desde ' . of_hace($ult['ts']) . ' y no está en pausa. El proceso del servidor puede haberse parado.';
         $a['necesita'][] = 'Revisar el scraper en el servidor: no da señales';
     }
+    // Nicho terminado (idea de Daniel, 27/10): España revisada entera; espera a que Daniel le dé otro nicho
+    if ($parado && preg_match('/^Nicho terminado/u', $ult['txt'])) {
+        $a['necesita'][] = 'Darle un nicho nuevo: ' . $ult['txt'];
+    }
     $a['proxima'] = $parado ? 'Cuando se quite la pausa' : 'Sigue con la siguiente provincia';
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
     $cola = (int)pebai_db()->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND nicho = 'solar'")->fetchColumn();
@@ -289,6 +293,40 @@ function of_scraper(): array
     if ($a['ultima']) {
         $a['ultima']['txt'] = of_lote_bonito($a['ultima']['txt']);
     }
+    return $a;
+}
+
+/** Redactor: rutina de Claude en la nube que lee la web de cada empresa y escribe su primer WhatsApp o email (api/redactor.php). */
+function of_redactor(): array
+{
+    $a = of_agente(['id' => 'redactor', 'dept' => 'captacion', 'nombre' => 'Redactor', 'glifo' => 'flow', 'rol' => 'Lee la web de cada empresa, saca las que no encajan y escribe su primer mensaje', 'unidad' => 'mensajes escritos']);
+    $a['actividad'] = of_actividad('redactor', 30);
+    $a['errores'] = of_errores($a['actividad']);
+    $hoy = date('Y-m-d');
+    $escritos = $fuera = 0;
+    foreach ($a['actividad'] as $e) {
+        if (substr($e['ts'], 0, 10) === $hoy) {
+            $escritos += (int)preg_match('/^(WhatsApp|Email) escrito/u', $e['txt']);
+            $fuera += (int)preg_match('/^Fuera /u', $e['txt']);
+        }
+    }
+    $a['hoy'] = $escritos;
+    $wa = (int)pebai_agentes_db()->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND nicho = 'solar' AND mensaje = ''")->fetchColumn();
+    $em = (int)pebai_db()->query("SELECT COUNT(*) FROM email_prospectos WHERE estado = 'pendiente' AND nicho = 'energia' AND cuerpo_personal = ''")->fetchColumn();
+    $ult = $a['actividad'][0] ?? null;
+    $reciente = $ult && strtotime($ult['ts']) > time() - 1200 && !preg_match('/^Termina/u', $ult['txt']);
+    $callado = $ult && strtotime($ult['ts']) < time() - 74 * 3600;
+    $a['st'] = $a['errores'] || $callado ? 'error' : ($reciente ? 'trabajando' : 'dormido');
+    $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
+        : ($callado ? 'No hace su turno desde ' . of_hace($ult['ts']) . '. Su rutina en la nube puede haberse parado.'
+        : ($reciente ? $ult['txt'] : 'Descansando hasta su turno (L-V cada 2 h de 8:00 a 20:00). Quedan ' . $wa . ' empresas sin WhatsApp y ' . $em . ' sin email.'));
+    if ($callado) {
+        $a['necesita'][] = 'Revisar su rutina en Claude (nube): no ha hecho su turno';
+    }
+    $a['proxima'] = 'L-V cada 2 h de 8:00 a 20:00';
+    $a['ultima'] = of_ultima($a['actividad'], ['hito']);
+    $a['datos'] = [['Sin WhatsApp escrito', (string)$wa], ['Sin email escrito', (string)$em], ['Escritos hoy', (string)$escritos], ['Fuera hoy', (string)$fuera]];
+    $a['acciones'] = ['ir' => 'prospectos'];
     return $a;
 }
 
@@ -507,7 +545,7 @@ function of_ultima(array $act, array $tipos): ?array
 function of_estado(PDO $db): array
 {
     $ags = [];
-    foreach (['of_scraper', 'of_whatsapp', 'of_email'] as $fn) {
+    foreach (['of_scraper', 'of_redactor', 'of_whatsapp', 'of_email'] as $fn) {
         try {
             $ags[] = $fn();
         } catch (Throwable $e) {
@@ -547,7 +585,7 @@ function of_resumen_agentes(string $dept): array
     if ($dept === 'geo') {
         return array_column(OF_GEO_AGENTES, 1, 0) + ['geo' => 'Jefe GEO'];  // 'geo': el primer agente GEO
     }
-    return $dept === 'captacion' ? ['prospeccion' => 'Scraper', 'whatsapp' => 'WhatsApp', 'email' => 'Email'] : [];
+    return $dept === 'captacion' ? ['prospeccion' => 'Scraper', 'redactor' => 'Redactor', 'whatsapp' => 'WhatsApp', 'email' => 'Email'] : [];
 }
 
 /** Quita teléfonos y emails antes de mandar nada a la IA (datos mínimos). */

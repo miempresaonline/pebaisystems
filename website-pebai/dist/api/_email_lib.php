@@ -610,7 +610,8 @@ function pebai_email_siguiente(array $cfg): ?array
     $listos = array_keys(array_filter($cfg['nichos'], static fn($f) => !empty($f['video']) || trim((string)($f['sin_video'] ?? '')) !== ''));
     $in = $listos ? implode(',', array_fill(0, count($listos), '?')) : "''";
     $hoyMes = (int)date('n');
-    $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 AND (cuerpo_personal <> '' OR nicho IN ($in))
+    // Placas solares (energia) solo con su texto: desde el 27/10 entran sin revisar y el Redactor decide si encajan
+    $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 AND (cuerpo_personal <> '' OR (nicho IN ($in) AND nicho <> 'energia'))
                        AND (no_antes = '' OR no_antes <= ?) ORDER BY (cuerpo_personal <> '') DESC, prioridad DESC, id LIMIT 200");
     $q->execute(array_merge($listos, [date('Y-m-d H:i:s')]));
     foreach ($q->fetchAll() as $p) {

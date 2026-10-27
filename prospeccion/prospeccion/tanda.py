@@ -468,8 +468,6 @@ def importar_panel(csv_whatsapp: Path, lote: str, cfg: dict) -> None:
     script = Path(__file__).resolve().parent.parent / 'importar_panel.php'
     if not (Path.home() / 'domains' / 'pebaisystems.es').exists() or not script.exists():
         return
-    # Solo llega al panel lo válido: además de los filtros, la IA lee la web de cada una y solo entran las que encajan
-    # (orden del CEO, 20/10). Las que no, al log local; las que dan error, se reintentan en la siguiente tirada.
     if cfg.get('ia') is False:
         # Nichos nuevos: entran en su carpeta sin mensaje (los agentes no les escriben hasta que Daniel los active)
         r = subprocess.run(['/usr/bin/php', str(script), str(csv_whatsapp), lote, 'pendiente', cfg['nicho_panel']], capture_output=True, text=True, timeout=300)
@@ -486,20 +484,19 @@ def importar_panel(csv_whatsapp: Path, lote: str, cfg: dict) -> None:
             print('  revisión con IA:', (r.stdout or r.stderr).strip()[:200])
             apunta(f'{lote}: revisión con IA', (r.stdout or r.stderr).strip()[:300], csv_whatsapp.stem + '_ia')
         return
-    from .ia import filtra
-    wa, n = filtra(csv_whatsapp, 'whatsapp')
-    r = subprocess.run(['/usr/bin/php', str(script), str(wa), lote], capture_output=True, text=True, timeout=300)
+    # Desde el 27/10 la IA no va aquí: entran sin texto y el Redactor (Claude, api/redactor.php) lee su web, decide si encaja
+    # y escribe. Sin texto no sale nada: el agente de WhatsApp exige mensaje y el de Email exige cuerpo en placas solares.
+    r = subprocess.run(['/usr/bin/php', str(script), str(csv_whatsapp), lote], capture_output=True, text=True, timeout=300)
     print('  importadas en el panel:', (r.stdout or r.stderr).strip()[:200])
-    apunta(f'{lote}: importadas en el panel', f'La IA leyó su web: {n["encajan"]} encajan, {n["no_encajan"]} no, {n["error"]} para reintentar. '
-           'Las que encajan entran en la cola del agente de WhatsApp con su mensaje. ' + (r.stdout or r.stderr).strip()[:400], csv_whatsapp.stem)
+    apunta(f'{lote}: importadas en el panel', 'Entran sin mensaje: el Redactor lee la web de cada una, saca las que no encajan '
+           'y escribe el WhatsApp de las demás. ' + (r.stdout or r.stderr).strip()[:400], csv_whatsapp.stem)
     solo_email = csv_whatsapp.with_name(csv_whatsapp.name.replace('_whatsapp.csv', '_solo_email.csv'))
     if cfg.get('email_nicho') and solo_email.exists():
-        em, n = filtra(solo_email, 'email')
-        r = subprocess.run(['/usr/bin/php', str(script), str(em), lote + ' (email)', 'email', cfg['email_nicho']],
+        r = subprocess.run(['/usr/bin/php', str(script), str(solo_email), lote + ' (email)', 'email', cfg['email_nicho']],
                            capture_output=True, text=True, timeout=300)
         print('  sin móvil, a la lista de email:', (r.stdout or r.stderr).strip()[:200])
-        apunta(f'{lote}: sin móvil, a la lista de email', f'La IA leyó su web: {n["encajan"]} encajan, {n["no_encajan"]} no, {n["error"]} para reintentar. '
-               'Las que encajan entran con su asunto y cuerpo. ' + (r.stdout or r.stderr).strip()[:400], solo_email.stem)
+        apunta(f'{lote}: sin móvil, a la lista de email', 'Entran sin texto: el Redactor lee su web y escribe el email de las que encajan. '
+               + (r.stdout or r.stderr).strip()[:400], solo_email.stem)
 
 
 def unir(nicho: str) -> None:
@@ -619,9 +616,15 @@ def main():
             print(f'  vuelta {a.nicho} terminada: {n} empresas nuevas')
             if n < MIN_NUEVAS_VUELTA:
                 (Path.home() / 'prospeccion' / f'PAUSA_{serie}').touch()
-                apunta(f'Parado solo: una vuelta entera por España ({a.nicho}) con solo {n} empresas nuevas',
-                       f'Por debajo de {MIN_NUEVAS_VUELTA} nuevas en toda la vuelta, seguir buscando no compensa. Para reanudar esta serie, '
-                       f'borrar ~/prospeccion/PAUSA_{serie} en el servidor (o pedirlo en el chat).', f'{serie}_agotado', tipo='espera')
+                # Nicho terminado (idea de Daniel, 27/10): se ve en su mesa de la oficina y le llega por email para que dé otro nicho
+                sector = NICHOS[a.nicho]['sector'].lower()
+                apunta(f'Nicho terminado: {sector}. España revisada entera ({len(ORDEN)} provincias), solo {n} empresas nuevas en la última vuelta. Dame otro nicho',
+                       f'Por debajo de {MIN_NUEVAS_VUELTA} nuevas en toda la vuelta, seguir buscando no compensa. Para seguir: dale a Claude un nicho nuevo '
+                       f'(sector y palabras) en el chat. Para reanudar este, borrar ~/prospeccion/PAUSA_{serie} en el servidor.', f'{serie}_agotado', tipo='espera')
+                from .motor import avisa
+                avisa(f'Nicho terminado: {sector}',
+                      f'El Scraper ha revisado toda España ({len(ORDEN)} provincias) buscando {sector} y en la última vuelta solo ha encontrado {n} empresas nuevas, '
+                      f'así que se ha parado solo.\n\nPara que siga trabajando, dile a Claude en el chat un nicho nuevo (sector y a quién buscar).')
     unir(a.nicho)
 
 

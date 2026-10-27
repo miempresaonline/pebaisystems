@@ -22,7 +22,7 @@ const DEPTS = [
   { id: 'redes', nombre: 'Redes', color: '#E25CFF', glifo: 'red', activo: false, objetivo: 'Publicar contenido que traiga solicitudes' },
   { id: 'operaciones', nombre: 'Operaciones', color: '#3FD5FF', glifo: 'caja', activo: false, objetivo: 'Proyectos y entregas a clientes' },
 ];
-const FONDO = { geo: '#a8641a', scraper: '#1a7f45', whatsapp: '#1fae58', email: '#c5372b', fases: '#4b40c9', recordatorios: '#4b40c9', calcom: '#4b40c9' };
+const FONDO = { geo: '#a8641a', scraper: '#1a7f45', redactor: '#D97757', whatsapp: '#1fae58', email: '#c5372b', fases: '#4b40c9', recordatorios: '#4b40c9', calcom: '#4b40c9' };
 const GLIFOS = {
   iman: 'M6 3v8a6 6 0 0 0 12 0V3M6 7.5h4M14 7.5h4', embudo: 'M3 4h18l-7 8.5V19l-4 2v-8.5z',
   red: 'M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM8.6 13.5l6.8 4M15.4 6.5l-6.8 4',

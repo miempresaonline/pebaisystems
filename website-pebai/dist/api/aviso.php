@@ -14,7 +14,8 @@ header('Cache-Control: no-store');
 
 const AVISO_DESTINO = 'equipo@pebaisystems.es';
 const AVISO_MAX_DIA = 6;
-const AVISO_AGENTES = ['geo_jefe', 'geo_vigia', 'geo_contenido', 'geo_refresco', 'geo_local', 'geo_redes', 'geo_medicion', 'geo_tecnico', 'geo_preguntas'];
+const AVISO_AGENTES = ['geo_jefe', 'geo_vigia', 'geo_contenido', 'geo_refresco', 'geo_local', 'geo_redes', 'geo_medicion', 'geo_tecnico', 'geo_preguntas',
+                       'prospeccion', 'redactor'];   // Scraper (nicho terminado) y Redactor
 
 $expected = (string)(pebai_config()['agent_token'] ?? '');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || $expected === '' || !hash_equals($expected, (string)($_SERVER['HTTP_X_AGENT_TOKEN'] ?? ''))) {
@@ -33,7 +34,7 @@ if (!in_array($agente, AVISO_AGENTES, true) || $asunto === '' || $texto === '') 
     exit;
 }
 
-$q = pebai_actividad_db()->prepare("SELECT COUNT(*) FROM agente_actividad WHERE agente LIKE 'geo%' AND resumen LIKE 'Aviso enviado a Daniel:%' AND ts >= ?");
+$q = pebai_actividad_db()->prepare("SELECT COUNT(*) FROM agente_actividad WHERE resumen LIKE 'Aviso enviado a Daniel:%' AND ts >= ?");
 $q->execute([date('Y-m-d 00:00:00')]);
 if ((int)$q->fetchColumn() >= AVISO_MAX_DIA) {
     http_response_code(429);
@@ -41,18 +42,20 @@ if ((int)$q->fetchColumn() >= AVISO_MAX_DIA) {
     exit;
 }
 
-$asunto = 'GEO · ' . mb_substr($asunto, 0, 120);
+$area = str_starts_with($agente, 'geo') ? 'GEO' : 'Captación';
+$titulo = mb_substr($asunto, 0, 120);
+$asunto = $area . ' · ' . $titulo;
 $texto = mb_substr($texto, 0, 6000);
 $html = '<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.5;color:#111">'
     . nl2br(htmlspecialchars($texto, ENT_QUOTES, 'UTF-8'))
-    . '<p style="color:#888;font-size:12px;margin-top:24px">Aviso automático del equipo GEO (' . htmlspecialchars($agente, ENT_QUOTES, 'UTF-8') . '). Panel: https://panel.pebaisystems.es</p></div>';
+    . '<p style="color:#888;font-size:12px;margin-top:24px">Aviso automático del equipo ' . $area . ' (' . htmlspecialchars($agente, ENT_QUOTES, 'UTF-8') . '). Panel: https://panel.pebaisystems.es</p></div>';
 try {
-    pebai_smtp_send(AVISO_DESTINO, $asunto, $html, $texto, 'Equipo GEO · PEBAI');
+    pebai_smtp_send(AVISO_DESTINO, $asunto, $html, $texto, 'Equipo ' . $area . ' · PEBAI');
 } catch (Throwable $e) {
     pebai_actividad($agente, 'error', 'No se pudo enviar el aviso a Daniel por email', $e->getMessage());
     http_response_code(502);
     echo json_encode(['ok' => false, 'error' => 'no se pudo enviar']);
     exit;
 }
-pebai_actividad($agente, 'hito', 'Aviso enviado a Daniel: ' . mb_substr($asunto, 6, 200), $texto);
+pebai_actividad($agente, 'hito', 'Aviso enviado a Daniel: ' . $titulo, $texto);
 echo json_encode(['ok' => true]);

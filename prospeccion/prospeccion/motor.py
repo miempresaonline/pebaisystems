@@ -272,6 +272,21 @@ def apunta(resumen: str, detalle: str, ref: str, tipo: str = 'hito') -> None:
     print('   apunte de actividad: ' + ('en el panel' if ok else 'solo local (el panel no lo ha recibido)'))
 
 
+def avisa(asunto: str, texto: str) -> None:
+    """Email a Daniel (solo a equipo@, lo manda api/aviso.php) para lo que necesita de él, p. ej. un nicho terminado."""
+    import os
+    import httpx
+    token = _token()
+    if not token:
+        return
+    try:
+        httpx.post(os.environ.get('AVISO_URL', 'https://pebaisystems.es/api/aviso.php'), timeout=30,
+                   headers={'X-Agent-Token': token, 'User-Agent': 'pebai-prospeccion'},
+                   json={'agente': 'prospeccion', 'asunto': asunto, 'texto': texto})
+    except Exception:
+        pass
+
+
 def exclusiones() -> dict[str, set]:
     """Quién no debe volver a recibir nada: ya está en el panel (cualquier canal) o pidió la baja.
     Lo da el panel (api/exclusiones.php, solo identificadores, con el token de los agentes). Sin él, se avisa y se sigue."""

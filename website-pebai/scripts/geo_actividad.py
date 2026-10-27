@@ -39,7 +39,7 @@ def agent_token():
     return m.group(1)
 
 
-AGENTES = ('geo_jefe', 'geo_vigia', 'geo_contenido', 'geo_refresco', 'geo_local', 'geo_redes', 'geo_medicion', 'geo_tecnico', 'geo_preguntas')
+AGENTES = ('geo_jefe', 'geo_vigia', 'geo_contenido', 'geo_refresco', 'geo_local', 'geo_redes', 'geo_medicion', 'geo_tecnico', 'geo_preguntas', 'redactor')
 
 
 def apuntar(tipo, resumen, detalle='', agente='geo_jefe', ref=''):

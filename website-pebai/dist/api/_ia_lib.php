@@ -1,6 +1,10 @@
 <?php
 /*
- * PEBAI · IA que lee la web de cada empresa (Gemini gratis) para la captación.
+ * PEBAI · IA que lee la web de cada empresa para la captación.
+ *
+ * Desde el 27/10/2026 lo hace el agente Redactor (Claude, rutina en la nube con el plan de Daniel, sin API de pago):
+ * recoge empresas con api/redactor.php, escribe y entrega; el servidor le aplica el mismo control de calidad de abajo.
+ * Gemini queda para lo que tiene que ir al momento (notas de voz, conversaciones, «Pregunta a PEBAI»).
  *
  * Hace dos cosas, igual que haría un comercial antes de escribir:
  *   1) Decide si la empresa ENCAJA: su negocio principal es instalar placas solares para clientes.
@@ -19,6 +23,7 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
 }
 require_once __DIR__ . '/_pebai_lib.php';
 
+const PEBAI_IA_REDACTOR = true;   // true: los primeros mensajes los escribe el Redactor (Claude); el cron ya no usa Gemini para esto
 const PEBAI_IA_MODELOS = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];
 const PEBAI_IA_PRESENTA = 'Hola, soy Daniel, de PEBAI Systems.';
 const PEBAI_IA_BAJA_WA = 'Si no te interesa, dímelo y no te escribo más.';
@@ -139,8 +144,14 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
     if (!$w) {
         return ['error' => 'La web no responde o está vacía'];
     }
+    $r = pebai_ia_json(pebai_ia_reglas($canal, pebai_ia_solo_catalan($w['texto'])) . "\n\nEMPRESA: {$empresa} ({$ciudad})\nWEB:\n" . $w['texto']);
+    return pebai_ia_control($r, $w['texto'], $canal);
+}
+
+/** Instrucciones para estudiar una empresa y escribirle (las mismas para Gemini y para el Redactor). */
+function pebai_ia_reglas(string $canal, bool $ca): string
+{
     $email = $canal === 'email';
-    $ca = pebai_ia_solo_catalan($w['texto']);
     $presenta = $ca ? PEBAI_IA_CA['presenta'] : PEBAI_IA_PRESENTA;
     $bajaWa = $ca ? PEBAI_IA_CA['baja_wa'] : PEBAI_IA_BAJA_WA;
     $bajaEmail = $ca ? PEBAI_IA_CA['baja_email'] : PEBAI_IA_BAJA_EMAIL;
@@ -152,7 +163,7 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
           . '(p. ej. "Ayudamos a instaladoras solares a contestar al momento a quien pide presupuesto, también fuera de horario."), para que quede claro que no somos un cliente pidiendo presupuesto; '
           . 'luego mencione el detalle real de su web y por qué importa en una frase, y haga UNA sola pregunta corta, concreta y fácil de contestar sobre cómo atienden hoy a quien les escribe pidiendo presupuesto '
           . '(quién contesta o cuánto tardan; nada de plazos de reuniones ni procesos internos), y termine exactamente con "' . $bajaWa . '".';
-    $prompt = "Eres Daniel, comercial de PEBAI Systems. PEBAI monta asistentes que contestan al momento por WhatsApp y web, hacen las preguntas clave y agendan la visita, "
+    return "Eres Daniel, comercial de PEBAI Systems. PEBAI monta asistentes que contestan al momento por WhatsApp y web, hacen las preguntas clave y agendan la visita, "
         . "para que las instaladoras de placas solares no pierdan peticiones de presupuesto.\n"
         . "Te paso el texto de la portada de la web de una empresa. Responde SOLO con JSON.\n"
         . "1) \"encaja\": true solo si su negocio PRINCIPAL es INSTALAR placas solares fotovoltaicas a clientes (casas, comunidades, empresas, campo). "
@@ -168,9 +179,20 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
         . "Ejemplos de buen WhatsApp:\n- \"Hola, soy Daniel, de PEBAI Systems. He visto que la web de EcoNítida está en español, inglés y alemán. En la costa de Granada os escribirán muchos extranjeros. "
         . "Cuando alguien os escribe en inglés o alemán, ¿quién le contesta y cuánto tarda? Si no te interesa, dímelo y no te escribo más.\"\n"
         . "- \"Hola, soy Daniel, de PEBAI Systems. Montamos asistentes que contestan al momento a quien os pide presupuesto. Me gustó una frase de vuestra web: «No buscamos hacer muchas instalaciones. Buscamos hacerlas bien». Para eso hay que dedicar el tiempo a quien va en serio. "
-        . "¿Cómo filtráis hoy las peticiones de la calculadora? Si no te interesa, dímelo y no te escribo más.\"\n\n"
-        . "EMPRESA: {$empresa} ({$ciudad})\nWEB:\n" . $w['texto'];
-    $r = pebai_ia_json($prompt);
+        . "¿Cómo filtráis hoy las peticiones de la calculadora? Si no te interesa, dímelo y no te escribo más.\"";
+}
+
+/**
+ * Control de calidad de lo escrito (por Gemini o por el Redactor) contra el texto real de su web:
+ * nada inventado, se presenta, ofrece la baja, sin temas prohibidos y con la longitud correcta.
+ */
+function pebai_ia_control(?array $r, string $texto, string $canal): array
+{
+    $email = $canal === 'email';
+    $ca = pebai_ia_solo_catalan($texto);
+    $presenta = $ca ? PEBAI_IA_CA['presenta'] : PEBAI_IA_PRESENTA;
+    $bajaWa = $ca ? PEBAI_IA_CA['baja_wa'] : PEBAI_IA_BAJA_WA;
+    $bajaEmail = $ca ? PEBAI_IA_CA['baja_email'] : PEBAI_IA_BAJA_EMAIL;
     if (!$r || !array_key_exists('encaja', $r)) {
         return ['error' => 'La IA no ha respondido'];
     }
@@ -179,7 +201,7 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
     }
     // Control de calidad: nada inventado, se presenta, ofrece la baja, sin temas prohibidos, longitud correcta
     $dato = trim((string)($r['dato'] ?? ''));
-    if ($dato === '' || !str_contains(pebai_ia_norm($w['texto']), trim(pebai_ia_norm($dato)))) {
+    if ($dato === '' || !str_contains(pebai_ia_norm($texto), trim(pebai_ia_norm($dato)))) {
         return ['error' => 'El dato del mensaje no aparece en su web'];
     }
     if ($email) {
@@ -208,6 +230,9 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
  */
 function pebai_preparar_whatsapp(int $max = 3, int $colchon = 30): array
 {
+    if (PEBAI_IA_REDACTOR) {
+        return ['redactor' => true];   // ahora los escribe el Redactor (api/redactor.php)
+    }
     require_once __DIR__ . '/_agentes_lib.php';
     $db = pebai_agentes_db();
     $listos = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND mensaje <> '' AND nicho = 'solar'")->fetchColumn();
@@ -242,6 +267,9 @@ function pebai_preparar_whatsapp(int $max = 3, int $colchon = 30): array
 /** Igual que pebai_preparar_whatsapp, para la lista de email de placas solares (asunto_personal y cuerpo_personal). */
 function pebai_preparar_email(int $max = 3, int $colchon = 20): array
 {
+    if (PEBAI_IA_REDACTOR) {
+        return ['redactor' => true];
+    }
     require_once __DIR__ . '/_agentes_lib.php';
     $db = pebai_db();
     $listos = (int)$db->query("SELECT COUNT(*) FROM email_prospectos WHERE estado = 'pendiente' AND nicho = 'energia' AND cuerpo_personal <> ''")->fetchColumn();
