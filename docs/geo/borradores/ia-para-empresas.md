@@ -8,7 +8,7 @@ Estado: **publicada el 23/10/2026** en https://pebaisystems.es/ia-para-empresas/
 - **Title (≤ 60):** `IA para empresas: cómo implantarla y por dónde empezar | PEBAI Systems`
 - **Meta description (≤ 155):** `Cómo implantar Inteligencia Artificial en tu empresa: por dónde empezar, qué procesos dan resultado antes, qué exige la ley, qué ayudas hay y cuánto cuesta.`
 - **H1:** `Cómo implantar Inteligencia Artificial en tu empresa: por dónde empezar`
-- **Autor:** Adrián Ballesteros Moscardó, dirección de proyectos y consultoría (`https://pebaisystems.es/#adrian`). Alterna con /agentes-ia/ (Daniel).
+- **Autor:** Daniel Peñuela Ruiz (`https://pebaisystems.es/#daniel`). Todo lo de IA lo firma Daniel (27/10/2026).
 - **Fecha visible y dateModified:** el día que se publique.
 - **CTA:** `/consultoria-gratuita/?cta=pilar_ia-para-empresas`
 - **Palabras:** "ia para empresas" (320), "empresas de ia" / "empresa de ia" (390), "ia para pymes" (90). Conversacionales: prompts 4, 5 y 8 del set.
@@ -211,7 +211,7 @@ Nos vemos en la sesión.
 
 ## JSON-LD (para el turno de publicación)
 
-`@graph` con: WebPage (`/ia-para-empresas/#webpage`, isPartOf `/#website`, about `/#organization`, inLanguage es-ES, dateModified), BreadcrumbList (Inicio › IA para empresas), Article (headline = H1, author `/#adrian`, publisher `/#organization`, datePublished = dateModified = día de publicación, citation con las URLs de fuentes) y FAQPage con las 6 preguntas de arriba **copiadas literalmente**. Copiar la estructura de `dist/agentes-ia/index.html`.
+`@graph` con: WebPage (`/ia-para-empresas/#webpage`, isPartOf `/#website`, about `/#organization`, inLanguage es-ES, dateModified), BreadcrumbList (Inicio › IA para empresas), Article (headline = H1, author `/#daniel`, publisher `/#organization`, datePublished = dateModified = día de publicación, citation con las URLs de fuentes) y FAQPage con las 6 preguntas de arriba **copiadas literalmente**. Copiar la estructura de `dist/agentes-ia/index.html`.
 
 ## Checklist del turno de publicación
 

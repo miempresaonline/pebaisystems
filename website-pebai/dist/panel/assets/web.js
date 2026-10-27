@@ -29,7 +29,7 @@ const LEGAL = ['/aviso-legal/', '/privacidad/', '/politica-de-cookies/', '/baja/
 const RAMAS = [
   { id: 'embudo', n: 'Embudo', d: 'De la consultoría gratuita a la llamada', c: '#B7FF3C' },
   { id: 'servicios', n: 'Servicios y contenido', d: 'Lo que leen Google y las IAs', c: '#3FD5FF' },
-  { id: 'qr', n: 'QR, tarjetas y reseñas', d: 'Para la calle y los clientes', c: '#FFB547' },
+  { id: 'qr', n: 'Tarjetas y reseñas', d: 'Para la calle y los clientes', c: '#FFB547' },
   { id: 'cortos', n: 'Enlaces cortos', d: 'Bio de redes y mensajes', c: '#9C93FF' },
   { id: 'legal', n: 'Legal y bajas', d: 'Obligatorias, ocultas a Google', c: '#8C8FA3' },
 ];
@@ -74,7 +74,6 @@ function pintar() {
   const enRama = { embudo: [], servicios: [], qr: [], cortos: [], legal: [] };
   EMBUDO.forEach((r, i) => { if (por[r]) enRama.embudo.push(tarjetaPagina(por[r], { paso: i + 1, nombre: PASOS[i] })); });
   D.paginas.filter((p) => p.ruta.startsWith('/t/') || p.ruta === '/resena/').forEach((p) => { usadas.add(p.ruta); enRama.qr.push(tarjetaPagina(p)); });
-  D.qrs.forEach((q) => enRama.qr.push(tarjetaQr(q)));
   // servicios: cada página con sus hijas debajo (/agentes-ia/ → /agentes-ia/whatsapp/)
   // Páginas que Google puede ver pero que no están en el sitemap: suelen ser versiones viejas que siguen subidas
   const sueltas = D.paginas.filter((p) => !usadas.has(p.ruta) && !p.oculta && !p.sitemap && !D.paginas.some((o) => o !== p && o.ruta !== '/' && o.sitemap && p.ruta.startsWith(o.ruta)));
@@ -94,7 +93,7 @@ function pintar() {
   raiz.innerHTML = `
     <div class="wb-cab">
       <div class="wb-cifras">
-        <span><b>${total.paginas}</b> páginas</span><span><b>${total.cortos}</b> enlaces cortos</span><span><b>${total.qrs}</b> QR</span><span><b>${nAnt}</b> URLs antiguas</span>
+        <span><b>${total.paginas}</b> páginas</span><span><b>${total.cortos}</b> enlaces cortos</span><span><b>${nAnt}</b> URLs antiguas</span>
       </div>
       <label class="wb-busca">${ico('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>')}<input type="search" placeholder="Buscar una URL o una página" value="${esc(S.filtro)}"></label>
     </div>

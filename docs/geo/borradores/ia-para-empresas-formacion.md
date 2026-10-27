@@ -8,7 +8,7 @@ Estado: **texto completo el 27/10/2026 (turno de las 15:00 de Contenido), listo 
 - **Title (≤ 60):** `¿Es obligatorio formar a tu equipo en IA? | PEBAI` (49)
 - **Meta description (≤ 155):** `Qué exige el artículo 4 del Reglamento europeo de IA tras la reforma de 2026, qué cuenta como formación, qué documentar y cómo formar a un equipo de pyme.` (152)
 - **H1:** `¿Es obligatorio formar a tus empleados en Inteligencia Artificial?`
-- **Autor:** Adrián Ballesteros Moscardó (`https://pebaisystems.es/#adrian`).
+- **Autor:** Daniel Peñuela Ruiz (`https://pebaisystems.es/#daniel`). Todo lo de IA lo firma Daniel (27/10/2026).
 - **Fecha visible y dateModified:** el día que se publique.
 - **CTA:** `/consultoria-gratuita/?cta=pilar_ia-para-empresas-formacion`
 - **Palabras:** «curso ia para empresas» (90, kd 52), «curso agentes ia» (140), «formación inteligencia artificial empresas», «alfabetización ia obligatoria», «artículo 4 reglamento ia». Conversacionales: «¿es obligatorio formar a mis empleados en IA?», «¿hay multa si no formo a mi equipo?».
@@ -180,7 +180,7 @@ Depende de cuántas herramientas uséis y de para qué. Para un equipo que usa u
 Fuentes comprobadas el 27/10/2026. Próxima revisión: 27/01/2027 (o antes si la Comisión publica los ejemplos prácticos del art. 4 o se aprueba la ley española).
 
 ## JSON-LD al maquetar
-WebPage + BreadcrumbList (Inicio › IA para empresas › Formación) + Article (author `#adrian`, publisher `#organization`, `citation` con las fuentes de arriba) + FAQPage con las 6 preguntas **idénticas** a las visibles.
+WebPage + BreadcrumbList (Inicio › IA para empresas › Formación) + Article (author `#daniel`, publisher `#organization`, `citation` con las fuentes de arriba) + FAQPage con las 6 preguntas **idénticas** a las visibles.
 
 ## Checklist antes de publicar
 - [ ] Frase del art. 4 en EUR-Lex desde navegador (si no, parafrasear como está).

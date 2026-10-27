@@ -71,6 +71,10 @@ RewriteRule ^(agencia-geo-generative-engine-optimization-espana|como-posicionar-
 RewriteRule ^(empresa-de-inteligencia-artificial-espana|empresas-de-inteligencia-artificial-espana|consultoria-procesos-inteligencia-artificial|auditoria-adopcion-inteligencia-artificial-negocio|auditoria-procesos-empresariales)(/.*)?$ ia-para-empresas/ [R=301,L]
 RewriteRule ^(empresas-automatizacion-procesos-espana|empresas-de-automatizacion-de-procesos-espana|optimizacion-procesos-empresariales|optimizacion-procesos-industriales|automatizacion-facturas-pedidos-ia|automatizacion-factusol-pedidos-ia|integracion-ia-erp-crm-pymes|integracion-ia-holded-erp-espana|integracion-ia-sage-50-200-espana|software-a-medida-para-empresas|programas-gestion-empresa-a-medida|desarrollo-software-ia-a-medida-espana|migracion-procesos-antiguos-a-sistemas-ia|reducir-costes-operativos-automatizacion-ia|agente-ia-sap-business-one-espana|automatizacion-procesos-n8n-empresas|zapier-vs-n8n-empresas-espana)(/.*)?$ automatizacion-de-procesos/ [R=301,L]
 
+# Páginas viejas que seguían subidas fuera del sitemap (27/10/2026, sección Web del panel): borradas y 301 a su página buena
+RewriteRule ^(agentes-ia-vs-software-tradicional-saas)(/.*)?$ agentes-ia/ [R=301,L]
+RewriteRule ^(integracion-ia-a3erp-asesorias-espana)(/.*)?$ automatizacion-de-procesos/ [R=301,L]
+RewriteRule ^(consultoria-inteligencia-artificial-empresas|consultoria-inteligencia-artificial-madrid|curso-de-inteligencia-artificial-para-empresas-espana|cursos-de-inteligencia-artificial-para-empresas-espana|cursos-inteligencia-artificial-para-empresas-espana|ia-para-empresas-espana|soluciones-de-inteligencia-artificial-para-empresas-espana)(/.*)?$ ia-para-empresas/ [R=301,L]
 # Landings SEO retiradas el 15/10/2026 mientras se rehacen: 302 a la portada.
 # Se desactiva sola en cuanto vuelve a existir la carpeta de cada una (RewriteCond !-d).
 RewriteCond %{REQUEST_FILENAME} !-d
