@@ -23,6 +23,20 @@ const REDES = [
   { k: 'fb', n: 'Facebook', ico: '<path d="M15 3h-2a4 4 0 0 0-4 4v3H7v4h2v7h4v-7h3l1-4h-4V7a1 1 0 0 1 1-1h2z"/>' },
 ];
 const RN = Object.fromEntries(REDES.map((r) => [r.k, r]));
+// Logos de cada red: los de icons.js (Simple Icons, CC0) y Pinterest y Threads aquí
+const EXTRA = {
+  pinterest: { bg: '#E60023', d: 'M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z' },
+  threads: { bg: '#000000', trazo: '<path d="M16.5 11.2c-.3-2.6-2-4-4.6-4-2.8 0-4.6 2-4.6 4.8s1.8 4.8 4.6 4.8c2.4 0 3.9-1.3 3.9-3.2 0-1.8-1.4-2.8-3.4-2.8-1.6 0-2.7.8-2.7 2 0 1.1.9 1.8 2.1 1.8 2.6 0 3.4-2.3 3.4-5.4"/><path d="M20 12c0 5-3.2 8-8 8s-8-3-8-8 3.2-8 8-8c3.6 0 6.3 1.7 7.4 4.7"/>' },
+};
+const BG = { instagram: 'linear-gradient(45deg,#F58529,#DD2A7B 45%,#8134AF 75%,#515BD4)', tiktok: '#000000', youtube: '#FF0000', facebook: '#1877F2', linkedin: '#0A66C2', x: '#000000', google: '#FFFFFF' };
+function marca(k, tam) {
+  const b = (window.PB_ICONS && window.PB_ICONS.brands && window.PB_ICONS.brands[k]) || EXTRA[k];
+  if (!b) return `<span class="rd-marca ${tam || ''}">${ico('<circle cx="12" cy="12" r="8"/>')}</span>`;
+  const fondo = (EXTRA[k] && EXTRA[k].bg) || BG[k] || b.bg || '#3a3d52';
+  const dib = b.trazo ? `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round">${b.trazo}</svg>`
+    : `<svg viewBox="0 0 24 24"><path fill="${k === 'google' ? '#4285F4' : '#fff'}" d="${b.d}"/></svg>`;
+  return `<span class="rd-marca ${tam || ''}" style="background:${fondo}">${dib}</span>`;
+}
 const ico = (path, cls) => `<svg class="pb-i ${cls || ''}" viewBox="0 0 24 24">${path}</svg>`;
 const S = { cargado: false, cargando: false, data: null, t: -1, orden: 'total', abierto: -1, ocultas: new Set() };
 const hace = (ts) => {
@@ -85,8 +99,10 @@ function cabecera(T) {
       <h1 class="pb-h1">Los reels, <i>con lupa</i></h1>
       <p class="pb-lead">Cada vídeo en TikTok, Instagram, YouTube Shorts y Facebook: qué vio la gente, cuánto aguantó y qué trajo. Vídeos del <b>${fecha(T.desde)}</b> al <b>${fecha(hasta)}</b>${T.hasta ? '' : ' (sigue abierto)'}.</p></div>
     <div class="rd-head-r">
-      <div class="pb-seg rd-tandas">${tabs}</div>
-      <button type="button" class="pb-btn ghost rd-acc-b" title="Cómo entrar en cada red, con usuario y contraseña">${ico('<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M17 6l3 3M14.5 8.5l2.5 2.5"/>')}<span>Accesos</span></button>
+      <div class="rd-head-f">
+        <div class="pb-seg rd-tandas">${tabs}</div>
+        <button type="button" class="rd-acc-b" title="Cómo entrar en cada red, con usuario y contraseña"><span class="rd-acc-mini">${['instagram', 'tiktok', 'youtube'].map((k) => marca(k, 'xs')).join('')}</span><b>Accesos</b></button>
+      </div>
       <div class="rd-vivo"><i></i><span class="rd-sello">Actualizado ${hace(S.data.actualizado)}</span><button type="button" class="pb-btn icon rd-act" title="Pedir ya los datos nuevos a Metricool">${ico('<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>')}</button></div>
       <small class="rd-fuente" title="Metricool no actualiza TikTok, Instagram y Facebook al momento: el dato de los últimos días puede subir todavía. YouTube se lee directamente del canal.">YouTube al momento · TikTok, Instagram y Facebook vía Metricool (hasta 24-48 h de retraso)</small>
       ${S.data.aviso ? `<small class="rd-aviso">${esc(S.data.aviso)}</small>` : ''}
@@ -365,11 +381,21 @@ async function accesos() {
     j = await r.json();
   } catch (e) { j = { ok: false }; }
   const ov = document.createElement('div'); ov.className = 'rd-acc';
-  const filas = (j.redes || []).map((x, i) => `<div class="rd-acc-r"><div class="rd-acc-h"><b>${esc(x.red)}</b><span>${esc(x.como)}</span></div>`
+  const TEL = '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18h2"/>', USU = '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>';
+  const chip = (x) => {
+    const g = x.google === true ? `<span class="rd-via si">${marca('google', 'xs')}<i>✓</i>Con Google</span>`
+      : x.google === false ? `<span class="rd-via no">${marca('google', 'xs')}<i>✕</i>${x.metodo === 'telefono' ? 'Nunca con Google' : 'Sin Google'}</span>` : '';
+    const m = x.metodo === 'instagram' ? `<span class="rd-via ig">${marca('instagram', 'xs')}Con la cuenta de Instagram</span>`
+      : x.metodo === 'telefono' ? `<span class="rd-via">${ico(TEL)}Con el teléfono</span>`
+      : x.metodo === 'usuario' ? `<span class="rd-via">${ico(USU)}Usuario y contraseña</span>`
+      : x.metodo === 'personal' ? `<span class="rd-via">${ico(USU)}Solo Daniel</span>` : '';
+    return m + g;
+  };
+  const filas = (j.redes || []).map((x, i) => `<div class="rd-acc-r">${marca(x.icono)}<div class="rd-acc-cu"><div class="rd-acc-h"><b>${esc(x.red)}</b></div><div class="rd-acc-vias">${chip(x)}</div>`
     + (x.aviso ? `<p class="rd-acc-av">${esc(x.aviso)}</p>` : '')
     + (x.usuario ? `<div class="rd-acc-c"><small>Usuario</small><code>${esc(x.usuario)}</code><button type="button" data-copia="u${i}">Copiar</button></div>` : '')
     + (x.clave ? `<div class="rd-acc-c"><small>Contraseña</small><code data-clave="${i}">••••••••••</code><button type="button" data-ver="${i}">Mostrar</button><button type="button" data-copia="c${i}">Copiar</button></div>` : '')
-    + (x.nota ? `<p class="rd-acc-n">${esc(x.nota)}</p>` : '') + '</div>').join('');
+    + (x.nota ? `<p class="rd-acc-n">${esc(x.nota)}</p>` : '') + '</div></div>').join('');
   ov.innerHTML = `<div class="rd-acc-in" role="dialog" aria-modal="true" aria-labelledby="rd-acc-t"><header><h2 id="rd-acc-t">Accesos a las redes</h2><button type="button" class="rd-acc-x" aria-label="Cerrar">×</button></header>`
     + (j.ok && filas ? filas : '<p class="rd-acc-n">Todavía no hay accesos guardados en el servidor.</p>')
     + '<p class="rd-acc-pie">Solo se ven con la sesión del panel iniciada. Nunca se guardan en el código.</p></div>';
