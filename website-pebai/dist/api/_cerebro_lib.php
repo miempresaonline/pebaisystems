@@ -35,6 +35,14 @@ function pebai_cerebro_db(): PDO
         clase TEXT NOT NULL DEFAULT "",
         actualizado TEXT NOT NULL
     )');
+    // Lo que Cerebro sabe de cada chat (27/10, con Claude): de qué va, si te toca contestar y un borrador con tu estilo
+    $cols = array_column($db->query('PRAGMA table_info(contactos)')->fetchAll(), 'name');
+    foreach (['resumen' => 'TEXT NOT NULL DEFAULT ""', 'interes' => 'INTEGER NOT NULL DEFAULT 0', 'te_toca' => 'INTEGER NOT NULL DEFAULT 0',
+              'borrador' => 'TEXT NOT NULL DEFAULT ""', 'pendiente' => 'INTEGER NOT NULL DEFAULT 0', 'analizado' => 'TEXT NOT NULL DEFAULT ""'] as $c => $def) {
+        if (!in_array($c, $cols, true)) {
+            $db->exec("ALTER TABLE contactos ADD COLUMN $c $def");
+        }
+    }
     return $db;
 }
 
@@ -79,6 +87,11 @@ function pebai_cerebro_guardar(array $lote, bool $vivo): array
     $db->commit();
 
     if ($vivo) {
+        // Chats con algo nuevo (de la otra persona o tuyo, que puede cerrar el tema): Cerebro los vuelve a mirar
+        $pend = $db->prepare('INSERT INTO contactos (tel, actualizado, pendiente) VALUES (?, ?, 1) ON CONFLICT(tel) DO UPDATE SET pendiente = 1, actualizado = excluded.actualizado');
+        foreach (array_unique(array_column(array_filter($nuevos, static fn($n) => !$n['agente']), 'tel')) as $t) {
+            $pend->execute([$t, $now]);
+        }
         // Avisos a la oficina: solo de prospectos (lo personal no sale de Cerebro). Uno por chat y lote.
         $vistos = [];
         foreach ($nuevos as $n) {
@@ -126,4 +139,71 @@ function pebai_cerebro_cifras(): array
     $r = $db->query('SELECT COUNT(*) n, COUNT(DISTINCT tel) chats, MIN(ts) desde, SUM(de_mi) mios FROM mensajes')->fetch();
     $hoy = (int)$db->query('SELECT COUNT(*) FROM mensajes WHERE ts >= ' . strtotime('today'))->fetchColumn();
     return ['mensajes' => (int)$r['n'], 'chats' => (int)$r['chats'], 'desde' => (int)$r['desde'], 'mios' => (int)$r['mios'], 'hoy' => $hoy];
+}
+
+/* ------------------------------------------------------------------ Claude --- */
+/** Cómo escribe Daniel: sus últimos mensajes escritos a mano en chats de trabajo (o en cualquiera, al principio). */
+function pebai_cerebro_estilo(int $n = 25): string
+{
+    $q = pebai_cerebro_db()->query("SELECT m.texto FROM mensajes m LEFT JOIN contactos c ON c.tel = m.tel
+        WHERE m.de_mi = 1 AND m.agente = 0 AND length(m.texto) BETWEEN 8 AND 600 AND m.texto NOT LIKE '[%' AND COALESCE(c.clase, '') <> 'personal'
+        ORDER BY m.ts DESC LIMIT " . $n);
+    return implode("\n---\n", array_map(static fn($t) => trim((string)$t), $q->fetchAll(PDO::FETCH_COLUMN)));
+}
+
+/**
+ * Mira los chats con mensajes nuevos (como mucho $max): Claude Haiku los clasifica (personal, cliente, negocio, prospecto…),
+ * resume de qué va y dice si te toca contestar; si es de trabajo y te toca, Claude Sonnet escribe un borrador con tu estilo.
+ * Nunca envía nada. Los prospectos los lleva Conversaciones (allí ya se preparan sus respuestas).
+ */
+function pebai_cerebro_procesar(int $max = 4): int
+{
+    require_once __DIR__ . '/_claude_lib.php';
+    $db = pebai_cerebro_db();
+    $chats = $db->query('SELECT tel, nombre FROM contactos WHERE pendiente = 1 ORDER BY actualizado DESC LIMIT ' . $max)->fetchAll();
+    $hechos = 0;
+    foreach ($chats as $c) {
+        $db->prepare('UPDATE contactos SET pendiente = 0 WHERE tel = ?')->execute([$c['tel']]);
+        $msgs = array_reverse($db->query('SELECT de_mi, agente, texto, ts FROM mensajes WHERE tel = ' . $db->quote($c['tel']) . ' ORDER BY ts DESC LIMIT 16')->fetchAll());
+        if (!$msgs) {
+            continue;
+        }
+        $empresa = pebai_cerebro_prospecto($c['tel']);
+        $hilo = implode("\n", array_map(static fn($m) => date('d/m H:i', (int)$m['ts']) . ' ' . ($m['de_mi'] ? ($m['agente'] ? 'DANIEL (bot)' : 'DANIEL') : 'CONTACTO') . ': ' . mb_substr((string)$m['texto'], 0, 700), $msgs));
+        $nombre = $empresa ?? ((string)$c['nombre'] ?: 'sin nombre');
+        $j = pebai_claude_json('cerebro', 'claude-haiku-5-5',
+            'Eres Cerebro, el agente que lee los chats de WhatsApp de Daniel, cofundador de PEBAI Systems (consultora española de procesos e Inteligencia Artificial para empresas: asistentes de IA, automatizaciones, visibilidad en ChatGPT y Google). '
+            . "Clasificas cada chat para que Daniel no se pierda nada. Responde SOLO JSON con estas claves:\n"
+            . 'clase: "personal" (familia, amigos, temas privados), "cliente" (ya trabaja con PEBAI), "negocio" (posible cliente, socio, proveedor o algo de trabajo), "prospecto" (empresa a la que escribimos en frío), "spam" u "otro";' . "\n"
+            . "interes: true si el contacto muestra interés en contratar o saber más;\n"
+            . "te_toca: true si el último mensaje es del CONTACTO y espera respuesta de Daniel;\n"
+            . 'resumen: una frase de qué va el chat y en qué punto está (si es personal, solo "Chat personal", sin detalles).',
+            "Contacto: {$nombre}" . ($empresa ? ' (prospecto contactado en frío)' : '') . "\nCHAT (lo último abajo):\n{$hilo}",
+            ['effort' => 'low', 'max_tokens' => 1200]);
+        if (!is_array($j)) {
+            continue;
+        }
+        $clase = in_array($j['clase'] ?? '', ['personal', 'cliente', 'negocio', 'prospecto', 'spam', 'otro'], true) ? $j['clase'] : 'otro';
+        if ($empresa) {
+            $clase = 'prospecto';
+        }
+        $tetoca = !empty($j['te_toca']) && !end($msgs)['de_mi'];
+        $borrador = '';
+        if ($tetoca && in_array($clase, ['cliente', 'negocio'], true)) {
+            $borrador = (string)(pebai_claude('cerebro', 'claude-sonnet-5-5',
+                'Escribes como Daniel, cofundador de PEBAI Systems, la respuesta de WhatsApp que él mandaría ahora. Español de España, tuteo, cercano y profesional, breve como un WhatsApp de verdad (2-3 frases). '
+                . 'Imita su forma de escribir (saludos, largo, emojis, cómo cierra) con los ejemplos. No inventes precios, plazos, datos ni compromisos: si hace falta un dato que no está en el chat, pregúntalo o di que lo miras. '
+                . "Devuelve SOLO el texto del mensaje.\n\nASÍ ESCRIBE DANIEL:\n" . pebai_cerebro_estilo(),
+                [['role' => 'user', 'content' => "Chat con {$nombre} (lo último abajo):\n{$hilo}\n\nEscribe la respuesta de Daniel."]],
+                ['effort' => 'medium', 'max_tokens' => 2000, 'cache' => true]) ?? '');
+        }
+        $db->prepare('UPDATE contactos SET clase = ?, resumen = ?, interes = ?, te_toca = ?, borrador = ?, analizado = ? WHERE tel = ?')
+           ->execute([$clase, mb_substr((string)($j['resumen'] ?? ''), 0, 400), !empty($j['interes']) ? 1 : 0, $tetoca ? 1 : 0, mb_substr($borrador, 0, 1500), date('Y-m-d H:i:s'), $c['tel']]);
+        if ($clase !== 'personal' && $clase !== 'spam') {
+            pebai_actividad('cerebro', 'hito', ($borrador !== '' ? 'Borrador listo para ' : ($tetoca ? 'Te toca contestar a ' : 'Leído: ')) . $nombre
+                . ' (' . $clase . (!empty($j['interes']) ? ', interesado' : '') . ')', (string)($j['resumen'] ?? ''));
+        }
+        $hechos++;
+    }
+    return $hechos;
 }

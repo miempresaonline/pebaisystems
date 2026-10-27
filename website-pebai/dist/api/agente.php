@@ -34,7 +34,19 @@ switch ($in['accion'] ?? '') {
     case 'cerebro':
         // Cerebro: todos los mensajes de todos los chats (en directo o del historial), para avisar y aprender. Nunca envía.
         require_once __DIR__ . '/_cerebro_lib.php';
-        out(['ok' => true] + pebai_cerebro_guardar(array_slice((array)($in['mensajes'] ?? []), 0, 500), !empty($in['vivo'])));
+        $r = pebai_cerebro_guardar(array_slice((array)($in['mensajes'] ?? []), 0, 500), !empty($in['vivo']));
+        if (empty($in['vivo']) || !(function_exists('fastcgi_finish_request') || function_exists('litespeed_finish_request'))) {
+            out(['ok' => true] + $r);
+        }
+        // En directo: responde ya al bot y, después, Claude mira los chats nuevos (sin hacerle esperar)
+        echo json_encode(['ok' => true] + $r);
+        function_exists('fastcgi_finish_request') ? fastcgi_finish_request() : litespeed_finish_request();
+        try {
+            pebai_cerebro_procesar(4);
+        } catch (Throwable $e) {
+            pebai_log('CEREBRO: ' . $e->getMessage());
+        }
+        exit;
 
     case 'cerebro_contactos':
         require_once __DIR__ . '/_cerebro_lib.php';
@@ -60,6 +72,13 @@ switch ($in['accion'] ?? '') {
         // Números a los que ya se ha escrito: el bot solo reporta respuestas de estos (nunca chats personales).
         $tels = $db->query("SELECT telefono FROM prospectos WHERE estado IN ('enviando','enviado','respondio') AND enviado_at >= '" . date('Y-m-d', strtotime('-90 days')) . "'")
                    ->fetchAll(PDO::FETCH_COLUMN);
+        // Cerebro repasa en cada latido los chats que se le hayan quedado por mirar
+        try {
+            require_once __DIR__ . '/_cerebro_lib.php';
+            pebai_cerebro_procesar(3);
+        } catch (Throwable $e) {
+            pebai_log('CEREBRO: ' . $e->getMessage());
+        }
         out(['ok' => true, 'pausado' => (int)$antes['pausado'], 'contactados' => $tels]);
 
     case 'siguiente':

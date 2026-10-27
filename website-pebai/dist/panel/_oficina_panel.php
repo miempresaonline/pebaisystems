@@ -344,6 +344,21 @@ function of_cerebro(): array
         ['Escritos por ti', number_format($c['mios'], 0, ',', '.')],
         ['Desde', $c['desde'] ? date('d/m/Y', $c['desde']) : '—'],
     ];
+    // Lo que ha sacado con Claude: chats por tipo, y en «Su trabajo» los borradores y a quién te toca contestar (nunca lo personal)
+    $db = pebai_cerebro_db();
+    $clases = $db->query("SELECT clase, COUNT(*) FROM contactos WHERE clase <> '' GROUP BY clase")->fetchAll(PDO::FETCH_KEY_PAIR);
+    if ($clases) {
+        $nom = ['cliente' => 'clientes', 'negocio' => 'de trabajo', 'prospecto' => 'prospectos', 'personal' => 'personales', 'spam' => 'spam', 'otro' => 'otros'];
+        $a['datos'][] = ['Chats entendidos', implode(' · ', array_map(static fn($k) => $clases[$k] . ' ' . ($nom[$k] ?? $k), array_keys($clases)))];
+    }
+    $a['entregas'] = [];
+    foreach ($db->query("SELECT tel, nombre, clase, resumen, borrador, te_toca, interes, analizado FROM contactos
+                         WHERE clase IN ('cliente','negocio','prospecto','otro') AND (borrador <> '' OR te_toca = 1 OR interes = 1) ORDER BY analizado DESC LIMIT 30") as $r) {
+        $quien = pebai_cerebro_prospecto($r['tel']) ?? ((string)$r['nombre'] ?: '+' . $r['tel']);
+        $a['entregas'][] = ['ts' => $r['analizado'], 'clase' => $r['borrador'] !== '' ? 'propuesta' : ($r['te_toca'] ? 'tetoca' : 'interes'),
+                            'titulo' => $quien . ' · ' . $r['clase'], 'texto' => $r['borrador'] !== '' ? $r['borrador'] : $r['resumen'],
+                            'url' => 'https://wa.me/' . $r['tel'], 'img' => '', 'foto' => '', 'burbuja' => $r['borrador'] !== ''];
+    }
     return $a;
 }
 
@@ -737,7 +752,7 @@ function of_resumen(string $dept, bool $fresco): array
         return $c['r'] + ['cache' => true];
     }
     $r = null;
-    if ($ents && function_exists('pebai_ia_json')) {
+    if ($ents && function_exists('pebai_ia_json_agente')) {
         $lineas = implode("\n", array_map(static fn($e) => substr($e['ts'], 11, 5) . ' · ' . $ags[$e['agente']] . ' · ' . $e['tipo'] . ' · ' . $e['txt'], array_reverse(array_slice($ents, 0, 150))));
         $prompt = "Eres el servidor de la sala «{$nombre}» en la oficina de agentes automáticos de PEBAI Systems. Escribes para Daniel, uno de los dueños, "
             . "un resumen de lo que han hecho HOY (desde las 00:00, hora de España; ahora son las " . date('H:i') . ") los agentes de esta sala.\n"
@@ -751,7 +766,7 @@ function of_resumen(string $dept, bool $fresco): array
             . "Si hay pocos apuntes, dilo con honestidad. Español de España, tuteo, tono sobrio y claro. Sin emojis, sin exclamaciones, sin raya larga. "
             . "No uses palabras como potenciar, impulsar, sinergia ni revolucionar.\n\n"
             . "APUNTES DE HOY (" . count($ents) . ($ents && count($ents) > 150 ? ', se muestran los 150 últimos' : '') . "):\n" . $lineas;
-        $j = pebai_ia_json($prompt);
+        $j = pebai_ia_json_agente('servidor', 'claude-haiku-5-5', $prompt);
         if (is_array($j) && trim((string)($j['resumen'] ?? '')) !== '') {
             $limpia = static fn($s, $n) => mb_substr(trim(str_replace([' — ', '—', '¡', '!'], [', ', ', ', '', '.'], (string)$s)), 0, $n);
             $lista = static fn($v, $n) => array_values(array_filter(array_map(static fn($s) => $limpia(is_scalar($s) ? $s : '', 300), array_slice(is_array($v) ? $v : [], 0, $n)), 'strlen'));
@@ -850,7 +865,8 @@ if ($auth && ($_POST['action'] ?? '') === 'oficina_preguntar') {
     }
     $ia = is_file(pebai_private_dir() . '/ia.php') ? (require pebai_private_dir() . '/ia.php') : [];
     $key = (string)($ia['gemini_api_key'] ?? '');
-    if ($key === '') {
+    require_once dirname(__DIR__) . '/api/_claude_lib.php';
+    if ($key === '' && pebai_claude_cfg()['key'] === '') {
         json_out(['ok' => false, 'error' => 'Falta configurar la IA en el servidor.'], 503);
     }
     // Límite sencillo: 30 preguntas por hora y sesión
@@ -890,6 +906,12 @@ if ($auth && ($_POST['action'] ?? '') === 'oficina_preguntar') {
         $contents[] = ['role' => 'model', 'parts' => [['text' => mb_substr((string)$t['a'], 0, 1500)]]];
     }
     $contents[] = ['role' => 'user', 'parts' => [['text' => $pregunta]]];
+    // Claude (Sonnet) primero: razona mejor sobre toda la oficina. Si no responde, Gemini, como antes.
+    $hilo = array_map(static fn($c) => ['role' => $c['role'] === 'model' ? 'assistant' : 'user', 'content' => $c['parts'][0]['text']], $contents);
+    $resp = pebai_claude('pebai', 'claude-sonnet-5-5', $sys, $hilo, ['effort' => 'medium', 'max_tokens' => 3000]);
+    if ($resp !== null) {
+        json_out(['ok' => true, 'respuesta' => $resp, 'modelo' => 'claude']);
+    }
     $body = json_encode([
         'systemInstruction' => ['parts' => [['text' => $sys]]],
         'contents' => $contents,
@@ -911,6 +933,7 @@ if ($auth && ($_POST['action'] ?? '') === 'oficina_preguntar') {
             $txt .= (string)($p['text'] ?? '');
         }
         if ($code === 200 && trim($txt) !== '') {
+            pebai_ia_apunta('pebai', 'gemini', $modelo);
             break;
         }
         $txt = '';

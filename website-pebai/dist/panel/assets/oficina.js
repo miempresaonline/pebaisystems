@@ -391,7 +391,7 @@ const TIPO = { entrega: ['#B7FF3C', 'Entregado'], hito: ['#3DDC84', 'Hecho'], en
    Sale de los apuntes tipo 'entrega' (geo_actividad.py entrega …); sin IA, tal cual lo apuntó. */
 const CLASES = [['pagina', 'Páginas publicadas'], ['post', 'Posts de Google'], ['borrador', 'Borradores'], ['linkedin', 'Borradores de LinkedIn'],
   ['informe', 'Informes y cifras'], ['posiciones', 'Posiciones en Google Maps'], ['novedad', 'Novedades encontradas'], ['encargo', 'Encargos repartidos'], ['mejora', 'Mejoras hechas'],
-  ['lote', 'Lotes entregados a Prospectos'], ['escrito', 'Mensajes escritos'], ['encaja', 'Revisadas: encajan'], ['fuera', 'Fuera: no encajan'], ['enviado', 'Mensajes enviados']];
+  ['propuesta', 'Borradores para ti (Cerebro)'], ['tetoca', 'Te toca contestar'], ['interes', 'Interesados'], ['lote', 'Lotes entregados a Prospectos'], ['escrito', 'Mensajes escritos'], ['encaja', 'Revisadas: encajan'], ['fuera', 'Fuera: no encajan'], ['enviado', 'Mensajes enviados']];
 // Foto en grande: la captura real de la página (la misma de mShots, a más resolución)
 function verFoto(src, titulo) {
   const v = document.createElement('div'); v.className = 'pb-of-foto';

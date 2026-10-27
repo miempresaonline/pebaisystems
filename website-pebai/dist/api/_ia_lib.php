@@ -49,8 +49,19 @@ function pebai_ia_clave(): string
     return (string)($ia['gemini_api_key'] ?? getenv('GEMINI_API_KEY') ?: '');
 }
 
+/**
+ * JSON de la IA para un agente: Claude primero (Haiku para leer y clasificar, Sonnet para escribir) y, si no hay respuesta
+ * (sin clave, crédito del mes agotado o fallo), Gemini, para que nunca se pierda nada. Cada llamada queda en Gasto IA.
+ */
+function pebai_ia_json_agente(string $agente, string $modelo, string $prompt): ?array
+{
+    require_once __DIR__ . '/_claude_lib.php';
+    $j = pebai_claude_json($agente, $modelo, '', $prompt, ['effort' => $modelo === 'claude-haiku-5-5' ? 'low' : 'medium', 'max_tokens' => 4000]);
+    return $j ?? pebai_ia_json($prompt, $agente);
+}
+
 /** Llama a Gemini y devuelve el JSON de la respuesta (o null). Prueba el siguiente modelo si uno está saturado. */
-function pebai_ia_json(string $prompt): ?array
+function pebai_ia_json(string $prompt, string $agente = 'general'): ?array
 {
     $key = pebai_ia_clave();
     if ($key === '') {
@@ -71,6 +82,9 @@ function pebai_ia_json(string $prompt): ?array
         }
         $j = json_decode(trim(preg_replace('/^```(?:json)?|```$/m', '', $txt)), true);
         if ($code === 200 && is_array($j)) {
+            if (function_exists('pebai_ia_apunta')) {
+                pebai_ia_apunta($agente, 'gemini', $modelo);   // gratis, pero cuenta en Gasto IA como llamada de reserva
+            }
             return $j;
         }
     }
@@ -144,7 +158,7 @@ function pebai_ia_prospecto(string $empresa, string $ciudad, string $web, string
     if (!$w) {
         return ['error' => 'La web no responde o está vacía'];
     }
-    $r = pebai_ia_json(pebai_ia_reglas($canal, pebai_ia_solo_catalan($w['texto'])) . "\n\nEMPRESA: {$empresa} ({$ciudad})\nWEB:\n" . $w['texto']);
+    $r = pebai_ia_json_agente('redactor', 'claude-sonnet-5-5', pebai_ia_reglas($canal, pebai_ia_solo_catalan($w['texto'])) . "\n\nEMPRESA: {$empresa} ({$ciudad})\nWEB:\n" . $w['texto']);
     return pebai_ia_control($r, $w['texto'], $canal);
 }
 

@@ -88,7 +88,7 @@ function pebai_conv_clasificar_una(string $empresa, array $msgs): ?array
     foreach ($msgs as $m) {
         $hilo .= ($m['sentido'] === 'sale' ? 'NOSOTROS (PEBAI): ' : 'EMPRESA: ') . mb_substr(trim((string)$m['texto']), 0, 1200) . "\n---\n";
     }
-    $r = pebai_ia_json("Eres el asistente comercial de PEBAI Systems (consultora de procesos e Inteligencia Artificial). Escribimos en frío a la empresa {$empresa} y esta es la conversación.\n"
+    $r = pebai_ia_json_agente('conversaciones', 'claude-haiku-5-5', "Eres el asistente comercial de PEBAI Systems (consultora de procesos e Inteligencia Artificial). Escribimos en frío a la empresa {$empresa} y esta es la conversación.\n"
         . "Clasifica lo que ha contestado la EMPRESA. Responde SOLO JSON {\"estado\": …, \"resumen\": …}.\n"
         . "estado: \"auto\" si todo lo que contesta es un mensaje automático de WhatsApp Business o de correo: bienvenida, ausencia, fuera de horario, «Gracias por comunicarte con X. ¿Cómo podemos ayudarte?», «Gracias por contactar», menús de opciones. Si no hay ninguna frase escrita por una persona que reaccione a nuestro mensaje, es \"auto\". Si hay un contestador y DESPUÉS una persona escribe, manda lo que dice la persona (nunca \"auto\"); "
         . "\"interesado\" si muestra interés, pide información, precio, llamada o pregunta qué ofrecemos, o si acepta lo último que le propusimos (la consultoría, el vídeo, la llamada: «vale», «sí», «ok», «adelante», «cuando quieras»); "
@@ -460,7 +460,7 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         . ($ej !== '' && !$auto ? "\nASÍ ESCRIBE DANIEL (imita su estilo y sus correcciones):\n{$ej}" : '')
         . "\nCONVERSACIÓN HASTA AHORA:\n{$hilo}\nResponde SOLO JSON {\"respuesta\": \"texto del mensaje\"}.";
     for ($i = 0; $i < 3; $i++) {
-        $r = pebai_ia_json($prompt);
+        $r = pebai_ia_json_agente('conversaciones', 'claude-sonnet-5-5', $prompt);
         $t = trim(str_replace("\r", '', (string)($r['respuesta'] ?? '')));
         $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
         $prisa = ($auto && preg_match('/perdon|no me expliqu/iu', $t)) || (str_contains($t, PEBAI_CONV_ENLACE) && !$formHecho) || (!$interes && !$enlaceDado && str_contains($t, PEBAI_CONV_ENLACE))
