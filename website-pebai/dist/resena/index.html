@@ -58,8 +58,6 @@
     .panel p.s{margin-top:6px;color:var(--fg-65);font-size:14px;line-height:1.45}
     .k{display:block;margin-top:16px;font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-40)}
     .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
-    .chip{appearance:none;border:1px solid var(--fg-10);background:var(--glass-2);color:var(--fg);font:700 13.5px var(--sans);padding:9px 12px;border-radius:999px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
-    .chip.on{background:var(--accent);border-color:var(--accent);color:#0B0F14}
     .draft{margin-top:14px;padding:14px;border-radius:16px;background:rgba(10,9,18,.55);border:1px solid var(--fg-10)}
     .draft[hidden]{display:none}
     .draft .t{font-size:15px;line-height:1.5;color:var(--fg);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
@@ -84,9 +82,13 @@
     .svc button.on i{background:var(--accent);border-color:var(--accent)}
     .svc button.on i::after{content:"";width:8px;height:5px;border:2px solid #0B0F14;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
     .solo{display:block;margin:12px auto 0}
-    .mas{display:block;margin:8px 0 0}
-    .mas[hidden]{display:none}
-    .chip.on::before{content:"\2713  "}
+    .ide button{font-size:13px;font-weight:600;padding:9px 10px;gap:8px;border-radius:12px;line-height:1.25}
+    .ide button i{width:16px;height:16px;border-radius:5px}
+    .ide button[hidden]{display:none}
+    .ide.lleno button:not(.on){opacity:.45}
+    .cnt{float:right;font-weight:800;letter-spacing:0;color:var(--accent)}
+    .aviso{margin-top:8px;font-size:13px;font-weight:700;color:#FFB547;text-align:center}
+    .mas{display:block;margin:10px auto 0}
     @media (min-width:760px){
       body{padding-top:40px}
       main{max-width:540px}
@@ -95,7 +97,7 @@
       .star svg{width:54px;height:54px}
       .panel{padding:26px 28px}
       .svc{grid-template-columns:repeat(3,minmax(0,1fr))}
-      .chip:hover,.svc button:hover{border-color:rgba(239,237,231,.28)}
+      .svc button:hover{border-color:rgba(239,237,231,.28)}
       .btn.g:hover{box-shadow:0 16px 40px -10px rgba(183,255,60,.6)}
     }
     footer{margin-top:auto;padding-top:26px;text-align:center;color:var(--fg-40);font-size:12px}
@@ -122,8 +124,9 @@
     <p class="s">Es lo que más ayuda a que otras empresas nos encuentren.</p>
     <span class="k">¿Qué te hicimos? <i>(marca todo lo que aplique)</i></span>
     <div class="svc" id="servicios"></div>
-    <span class="k">Ideas para tu reseña <i>(toca las que encajen)</i></span>
-    <div class="chips" id="chips"></div>
+    <span class="k">Ideas para tu reseña <i>(elige hasta 4)</i><b class="cnt" id="cnt">0/4</b></span>
+    <div class="svc ide" id="chips"></div>
+    <p class="aviso" id="aviso" role="status" hidden>Máximo 4 ideas. Quita una para elegir otra.</p>
     <button type="button" class="lnk mas" id="mas">Ver más ideas</button>
     <div class="draft" id="draft" hidden>
       <p class="t" id="draft-t"></p>
@@ -247,10 +250,6 @@
   }
 
   /* Lo que les hicimos (varios) e ideas para la reseña (hasta 4; orden distinto en cada visita: 8 a la vista y el resto en «Ver más») */
-  function chip(txt, on, fn) {
-    var b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (on ? ' on' : ''); b.textContent = txt;
-    b.addEventListener('click', function () { fn(b); }); return b;
-  }
   Object.keys(SERV).forEach(function (k) {
     var b = document.createElement('button'); b.type = 'button'; b.className = servicios.indexOf(k) >= 0 ? 'on' : '';
     b.setAttribute('aria-pressed', b.className ? 'true' : 'false');
@@ -263,20 +262,32 @@
     });
     $('servicios').appendChild(b);
   });
+  var inicio = r(INICIO), avisoT;
   mezcla(IDEAS).forEach(function (d, idx) {
-    var b = chip(d[0], false, function (b) {
-      var p = elegidos.indexOf(d);
-      if (p >= 0) { elegidos.splice(p, 1); b.classList.remove('on'); }
-      else if (elegidos.length < MAX) { elegidos.push(d); b.classList.add('on'); }
-      b.setAttribute('aria-pressed', b.classList.contains('on') ? 'true' : 'false');
+    var frase = r(d[1]);
+    var b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = '<i aria-hidden="true"></i>'; b.appendChild(document.createTextNode(d[0]));
+    b.addEventListener('click', function () {
+      var p = elegidos.indexOf(frase);
+      if (p < 0 && elegidos.length >= MAX) {
+        $('aviso').hidden = false; clearTimeout(avisoT);
+        avisoT = setTimeout(function () { $('aviso').hidden = true; }, 3500);
+        return;
+      }
+      if (p >= 0) elegidos.splice(p, 1); else elegidos.push(frase);
+      b.classList.toggle('on', p < 0); b.setAttribute('aria-pressed', p < 0 ? 'true' : 'false');
+      $('aviso').hidden = true;
+      $('cnt').textContent = elegidos.length + '/' + MAX;
+      $('chips').classList.toggle('lleno', elegidos.length >= MAX);
       componer();
     });
-    b.setAttribute('aria-pressed', 'false');
     if (idx >= 8) b.hidden = true;
     $('chips').appendChild(b);
   });
   $('mas').addEventListener('click', function () {
-    [].forEach.call($('chips').children, function (c) { c.hidden = false; }); this.hidden = true;
+    var abrir = this.textContent === 'Ver más ideas';
+    [].forEach.call($('chips').children, function (c, i) { if (i >= 8) c.hidden = !abrir && !c.classList.contains('on'); });
+    this.textContent = abrir ? 'Ver menos' : 'Ver más ideas';
   });
 
   function componer() {
@@ -285,9 +296,9 @@
     if (servicios.length) {
       var l = servicios.map(function (k) { return SERV[k][1]; });
       var lista = l.length > 1 ? l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1] : l[0];
-      partes.push(r(INICIO).replace('%s', lista));
+      partes.push(inicio.replace('%s', lista));
     }
-    elegidos.forEach(function (d) { partes.push(r(d[1])); });
+    partes = partes.concat(elegidos);
     if (!partes.length) { $('draft').hidden = true; return; }
     var t = (abre + partes.join(' ')).trim();
     $('draft-t').textContent = t; $('txt').value = t; $('draft').hidden = false;
