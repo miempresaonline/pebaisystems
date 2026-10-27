@@ -179,6 +179,26 @@ function mapa_estado_email(array $p): string
     return $e === 'revision' ? 'revision' : 'cola';
 }
 
+/** Provincia de una ciudad por su nombre (GeoNames). '' si no está en la lista. */
+function mapa_provincia_de(string $ciudad): string
+{
+    static $idx = null;
+    if ($idx === null) {
+        $idx = [];
+        $d = json_decode((string)@file_get_contents(dirname(__DIR__) . '/api/municipios_es.json'), true) ?: [];
+        foreach (($d['provincias'] ?? []) as $prov => $lista) {
+            foreach ($lista as [$nombre]) {
+                foreach (array_map('trim', explode('/', $nombre)) as $alias) {
+                    $idx[mapa_norm($alias)] ??= $prov;
+                }
+                $idx[mapa_norm($nombre)] ??= $prov;
+            }
+            $idx[mapa_norm($prov)] ??= $prov;
+        }
+    }
+    return $idx[mapa_norm($ciudad)] ?? '';
+}
+
 function mapa_datos(): array
 {
     $db = mapa_geo_db(pebai_db());
@@ -232,6 +252,7 @@ function mapa_datos(): array
             continue;
         }
         [$la, $lo] = mapa_reparto($la, $lo, 500000 + (int)$p['id'], $prec);
+        $prov = $prov ?: mapa_provincia_de((string)$p['ciudad']);
         $puntos[] = ['i' => (int)$p['id'], 'l' => 'e', 'y' => $la, 'x' => $lo, 'p' => $prec, 'e' => mapa_estado_email($p), 'n' => (string)$p['empresa'],
                      'c' => (string)$p['ciudad'], 'v' => $prov, 'h' => $nicho((string)($p['lote'] ?? ''), (string)($p['nicho'] ?: $p['sector'])), 'w' => (string)$p['web'], 't' => '',
                      'm' => '', 'f' => '', 'em' => (string)$p['email'], 'd' => substr((string)($p['respondido_at'] ?: $p['enviado1_at'] ?: $p['created_at']), 0, 16)];
@@ -242,7 +263,14 @@ function mapa_datos(): array
 
 if ($auth && isset($_GET['mapa'])) {
     try {
-        json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s')] + mapa_datos());
+        // Copia de 10 minutos: el cálculo de miles de puntos tarda varios segundos
+        $cache = pebai_private_dir() . '/mapa_cache.json';
+        $c = is_file($cache) && filemtime($cache) > time() - 600 && !isset($_GET['fresh']) ? json_decode((string)file_get_contents($cache), true) : null;
+        if (!is_array($c)) {
+            $c = ['ahora' => date('Y-m-d H:i:s')] + mapa_datos();
+            @file_put_contents($cache, json_encode($c, JSON_UNESCAPED_UNICODE), LOCK_EX);
+        }
+        json_out(['ok' => true] + $c);
     } catch (Throwable $e) {
         error_log('mapa panel: ' . $e->getMessage());
         json_out(['ok' => false, 'error' => 'No se ha podido cargar el mapa.'], 500);

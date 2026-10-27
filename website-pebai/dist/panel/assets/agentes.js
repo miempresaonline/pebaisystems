@@ -8,7 +8,7 @@ const BASE = app.dataset.base;
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const S = { loaded: false, csrf: app.dataset.csrf };
-const ui = { estado: '', q: '', lote: '', limit: 150, act: '', vista: 'cajas', caja: '', prov: '', ciudad: '', fijo: false, canal: '' };
+const ui = { estado: '', q: '', lote: '', limit: 150, act: '', vista: 'cajas', caja: '', prov: '', ciudad: '', fijo: false, canal: '', hub: true };
 try { if (localStorage.getItem('pebai-pros-vista') === 'lista') ui.vista = 'lista'; } catch (e) { /* sin almacenamiento */ }
 
 /* ============ dominio ============ */
@@ -79,7 +79,7 @@ async function load() {
   const wa = (j.prospectos || []).filter((p) => p.estado !== 'descartado').map((p) => ({ ...p, canal: 'wa' }));
   const em = (j.email_prospectos || []).map((p) => ({ ...p, canal: 'email', estado: estadoEmail(p), enviado_at: p.enviado1_at, sector: p.nicho || p.sector }));
   S.empresas = wa.concat(em);
-  S.descartadas = (j.prospectos || []).length - wa.length;
+  S.descartadas = j.descartadas != null ? j.descartadas : (j.prospectos || []).length - wa.length;
   S.porProspecto = new Map();
   (j.mensajes || []).forEach((m) => { if (!S.porProspecto.has(m.prospecto_id)) S.porProspecto.set(m.prospecto_id, []); S.porProspecto.get(m.prospecto_id).push(m); });
 }
@@ -151,7 +151,8 @@ function cajaCard(titulo, lista, extra, onOpen, todas) {
   const h = el('h3', null, titulo); const n = el('div', 'n'); n.append(el('b', null, N(lista.length)), el('span', null, lista.length === 1 ? 'empresa' : 'empresas'));
   const pie = el('div', 'pie'); pie.append(el('span', null, N(provs.size) + (provs.size === 1 ? ' provincia' : ' provincias')), el('span', null, N(cola) + ' por escribir'), el('span', resp ? 'ok' : null, N(resp) + (resp === 1 ? ' respondió' : ' respondieron')), el('span', null, N(fijos) + ' con fijo'));
   const chips = el('div', 'provs'); [...provs.entries()].sort((a, b) => b[1] - a[1]).slice(0, extra || 4).forEach(([pv, k]) => chips.append(el('span', null, pv + ' · ' + N(k))));
-  c.append(top, h); c.onclick = onOpen;   // solo la carpeta: lo de dentro se ve al abrirla
+  const cuenta = el('div', 'n'); cuenta.append(el('b', null, N(lista.length)), el('span', null, lista.length === 1 ? 'empresa' : 'empresas'));
+  c.append(top, h, cuenta); c.onclick = onOpen;   // la carpeta con su número; el resto se ve al abrirla
   return c;
 }
 function provCard(nombre, lista, onOpen) {
@@ -159,9 +160,28 @@ function provCard(nombre, lista, onOpen) {
   const ciu = new Set(lista.map((p) => p.ciudad)); const resp = lista.filter((p) => p.estado === 'respondio').length;
   const hd = el('div', 'hd'); hd.append(el('b', null, nombre), el('span', 'num', N(lista.length)));
   const sub = el('div', 'sub', N(ciu.size) + (ciu.size === 1 ? ' ciudad' : ' ciudades') + (resp ? ' · ' + N(resp) + ' respondieron' : ''));
-  hd.querySelector('.num').remove(); c.append(hd); c.onclick = onOpen; return c;
+  c.append(hd); c.onclick = onOpen; return c;
 }
 const irA = (cambios) => { Object.assign(ui, cambios, { limit: 150 }); drawProspectos(); const l = $('#pb-pros-list'); if (l && l.getBoundingClientRect().top < 0) l.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+function drawHub(P) {
+  const sec = $('#page-prospectos');
+  let hub = $('#pb-pros-hub');
+  if (!hub) { hub = el('div', 'pb-hub'); hub.id = 'pb-pros-hub'; $('.pb-pagehead', sec).after(hub); }
+  const nCarp = new Set(P.map((p) => nichoDe(p))).size, nProv = new Set(P.map((p) => provDe(p)).filter((x) => x && x !== 'Sin provincia')).size;
+  const toca = ((document.getElementById('pb-conv-n') || {}).textContent || '').trim();
+  const tarjetas = [
+    ['prospectos', 'Empresas', N(P.length), 'empresas en ' + N(nCarp) + (nCarp === 1 ? ' carpeta' : ' carpetas'), SUBS[0][2], 'Abre las carpetas por nicho y provincia'],
+    ['conversaciones', 'Conversaciones', /^\d+$/.test(toca) ? toca : '—', /^\d+$/.test(toca) && toca !== '0' ? 'te toca responder' : 'todo contestado', SUBS[1][2], 'Lo que han contestado por WhatsApp y email'],
+    ['mapa', 'Mapa', N(nProv), nProv === 1 ? 'provincia con empresas' : 'provincias con empresas', SUBS[2][2], 'Dónde están las empresas, en España'],
+  ];
+  hub.innerHTML = '';
+  tarjetas.forEach(([k, t, n, d, ic, sub], i) => {
+    const b = el('button', 'pb-hub-c ' + k); b.type = 'button'; b.style.setProperty('--i', i);
+    b.innerHTML = `<span class="ic"><svg class="pb-i" viewBox="0 0 24 24">${ic}</svg></span><span class="t">${t}</span><b>${n}</b><small>${d}</small><span class="sub">${sub}</span><span class="ir">Entrar →</span>`;
+    b.onclick = () => { if (k === 'prospectos') { ui.hub = false; drawProspectos(); window.scrollTo({ top: 0, behavior: 'smooth' }); } else { const nb = document.querySelector(`#pb-tabs button[data-page="${k}"]`); if (nb) nb.click(); } };
+    hub.append(b);
+  });
+}
 function drawProspectos() {
   const TODAS = S.empresas || [];
   const ENC = TODAS;
@@ -171,6 +191,10 @@ function drawProspectos() {
   const resp = cuenta('respondio') + P.filter((p) => p.estado === 'baja' && p.respondido_at).length;
   const pend = cuenta('pendiente');
   const nCarpetas = new Set(ENC.map((p) => nichoDe(p))).size;
+  // Entrada de Prospectos: tres puertas (Empresas, Conversaciones, Mapa); el resto se oculta hasta elegir
+  const secP = $('#page-prospectos');
+  secP.classList.toggle('pb-en-hub', !!ui.hub);
+  if (ui.hub) { drawHub(P); return; }
   const kp = $('#pb-pros-kpis'); kp.textContent = ''; kp.hidden = true;
   if (false) [[true, 'Empresas', P.length, 'en ' + N(nCarpetas) + ' carpetas'],
     [false, 'Por escribir', pend, 'aún no les ha escrito nadie'], [false, 'Escritas', enviados, 'primer mensaje enviado'],
@@ -180,7 +204,7 @@ function drawProspectos() {
       c.append(el('div', 'l', l), el('div', 'v', N(v)), el('div', 'd', d)); kp.append(c);
     });
 
-  const ch = $('#pb-pros-chips'); ch.textContent = ''; ch.hidden = true; ui.estado = '';
+  const ch = $('#pb-pros-chips'); ch.textContent = ''; ch.hidden = true;
   if (false) CHIPS.forEach(([k, l, c]) => {
     const n = k ? (k === 'enviado' ? cuenta('enviado') + cuenta('enviando') : cuenta(k)) : P.length;
     if (k && !n && !['pendiente', 'enviado', 'respondio'].includes(k)) return;
@@ -190,15 +214,18 @@ function drawProspectos() {
     ch.append(b);
   });
 
-  if (!$('#pb-pros-vista')) {
+  if (!$('#pb-pros-canal')) {
     const v = el('div', 'pb-seg'); v.id = 'pb-pros-vista'; v.setAttribute('role', 'radiogroup'); v.setAttribute('aria-label', 'Vista');
     [['cajas', 'Cajas'], ['lista', 'Lista']].forEach(([k, l]) => { const b = el('button', null, l); b.type = 'button'; b.dataset.v = k; b.onclick = () => { ui.vista = k; try { localStorage.setItem('pebai-pros-vista', k); } catch (e) { /* nada */ } drawProspectos(); }; v.append(b); });
     const fj = el('button', 'pb-chipfijo'); fj.type = 'button'; fj.id = 'pb-pros-fijo'; fj.textContent = 'Con fijo'; fj.title = 'Solo las que tienen también teléfono fijo (para llamar)'; fj.onclick = () => { ui.fijo = !ui.fijo; ui.limit = 150; drawProspectos(); };
-    $('.pb-filters', $('#page-prospectos')).append(fj, v);
+    const mk = (id, ops, val, set) => { const s2 = el('select'); s2.id = id; ops.forEach(([k, t]) => s2.add(new Option(t, k))); s2.value = val; s2.onchange = () => { set(s2.value); ui.limit = 150; drawProspectos(); }; return s2; };
+    const fc = mk('pb-pros-canal', [['', 'Todos los canales'], ['wa', 'WhatsApp'], ['email', 'Email']], ui.canal, (x) => { ui.canal = x; });
+    const fe = mk('pb-pros-est', [['', 'Todos los estados'], ['pendiente', 'Por escribir'], ['revision', 'Por revisar'], ['enviado', 'Escritas'], ['respondio', 'Respondieron'], ['baja', 'Bajas'], ['sin_whatsapp', 'Sin WhatsApp']], ui.estado, (x) => { ui.estado = x; });
+    $('.pb-filters', $('#page-prospectos')).append(fc, fe, fj);
     const pie = el('p', 'note pb-pros-pie'); pie.id = 'pb-pros-pie'; $('#page-prospectos').append(pie);
   }
   $('#pb-pros-pie').textContent = S.descartadas ? N(S.descartadas) + ' empresas encontradas por el Scraper no eran del nicho y se descartaron: no cuentan ni salen aquí.' : '';
-  $$('#pb-pros-vista button').forEach((b) => b.classList.toggle('on', b.dataset.v === ui.vista));
+  ui.vista = 'cajas';
   $('#pb-pros-fijo').classList.toggle('on', ui.fijo);
   $('#pb-pros-lote').hidden = ui.vista === 'cajas';
   const sel = $('#pb-pros-lote'); const lotes = [...new Set(P.map((p) => p.lote).filter(Boolean))];
@@ -206,7 +233,7 @@ function drawProspectos() {
 
   const q = ui.q.toLowerCase();
   const cajas = ui.vista === 'cajas';
-  const base = P.filter((p) => (!ui.estado || p.estado === ui.estado || (ui.estado === 'enviado' && p.estado === 'enviando'))
+  const base = P.filter((p) => (!ui.canal || p.canal === ui.canal) && (!ui.estado || p.estado === ui.estado || (ui.estado === 'enviado' && p.estado === 'enviando'))
     && (cajas || !ui.lote || p.lote === ui.lote) && (!ui.fijo || fijoDe(p)));
   let rows = base.filter((p) => !q || [p.empresa, p.nombre, p.telefono, p.email, p.sector, p.ciudad, p.notas].join(' ').toLowerCase().includes(q));
   const list = $('#pb-pros-list'); list.textContent = '';
@@ -273,7 +300,7 @@ function drawProspectos() {
     e.textContent = P.length ? 'Nada con estos filtros.' : 'Aún no hay empresas en este canal.';
     list.append(e); return;
   }
-  rows.slice(0, ui.limit).forEach((p) => list.append(filaProspecto(p)));
+  rows.slice(0, ui.limit).forEach((p, i) => { const f = filaProspecto(p); f.classList.add('pb-entra'); f.style.setProperty('--i', Math.min(i, 24)); list.append(f); });
   if (rows.length > ui.limit) {
     const m = el('div', 'pb-more'); m.append(btn('ghost', null, 'Ver ' + N(Math.min(150, rows.length - ui.limit)) + ' más de ' + N(rows.length - ui.limit), () => { ui.limit += 150; drawProspectos(); })); list.append(m);
   }
@@ -732,11 +759,14 @@ function montaSubnav() {
     if (pg !== 'prospectos' && navB) navB.hidden = true;
     const sec = $('#page-' + pg); if (!sec || $('.pb-subnav', sec)) return;
     const bar = el('nav', 'pb-subnav'); bar.setAttribute('aria-label', 'Prospectos');
+    const casa = el('button', 'casa'); casa.type = 'button'; casa.innerHTML = '<svg class="pb-i" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg><span>Prospectos</span>';
+    casa.onclick = () => { ui.hub = true; if (pagina() === 'prospectos') drawProspectos(); else { const nb = document.querySelector('#pb-tabs button[data-page="prospectos"]'); if (nb) nb.click(); } };
+    bar.append(casa);
     SUBS.forEach(([k, t, ic]) => {
       const b = el('button', k === pg ? 'on' : ''); b.type = 'button'; b.dataset.sub = k;
       b.innerHTML = `<svg class="pb-i" viewBox="0 0 24 24">${ic}</svg><span>${t}</span>`;
       if (k === 'conversaciones') b.append(el('em', 'pb-subnav-n'));
-      b.onclick = () => { if (k === pagina()) return; const nb = document.querySelector(`#pb-tabs button[data-page="${k}"]`); if (nb) nb.click(); };
+      b.onclick = () => { if (k === 'prospectos') ui.hub = false; if (k === pagina()) { drawProspectos(); return; } const nb = document.querySelector(`#pb-tabs button[data-page="${k}"]`); if (nb) nb.click(); };
       bar.append(b);
     });
     sec.prepend(bar);
@@ -747,6 +777,9 @@ function montaSubnav() {
   if (n) new MutationObserver(pinta).observe(n, { childList: true, characterData: true, subtree: true });
   pinta();
   const imp = $('#pb-imp-abrir'); if (imp) imp.remove();   // «Añadir prospectos» no se usa
+  // Pulsar «Prospectos» en el menú (con el ratón) lleva siempre a la entrada
+  const navP = document.querySelector('#pb-tabs button[data-page="prospectos"]');
+  if (navP) navP.addEventListener('click', (e) => { if (e.isTrusted) { ui.hub = true; ui.caja = ''; ui.prov = ''; ui.ciudad = ''; } }, true);
 }
 document.addEventListener('pb:page', (e) => setTimeout(() => {
   const nav = document.querySelector('#pb-tabs button[data-page="prospectos"]');

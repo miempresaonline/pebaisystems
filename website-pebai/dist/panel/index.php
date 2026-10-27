@@ -523,8 +523,9 @@ if ($auth && isset($_GET['agentes'])) {
         json_out(['ok' => false, 'error' => $dbError], 500);
     }
     $adb = pebai_agentes_db();
-    $pros = $adb->query('SELECT id, created_at, updated_at, empresa, nombre, telefono, sector, ciudad, web, origen_dato, lote, notas, estado, enviado_at, respondido_at, error, plantilla, mensaje, nicho
-                         FROM prospectos ORDER BY id DESC LIMIT 5000')->fetchAll();
+    $pros = $adb->query("SELECT id, created_at, updated_at, empresa, nombre, telefono, sector, ciudad, web, origen_dato, lote, notas, estado, enviado_at, respondido_at, error, plantilla, mensaje, nicho
+                         FROM prospectos WHERE estado <> 'descartado' ORDER BY id DESC")->fetchAll();
+    $descartadas = (int)$adb->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'descartado'")->fetchColumn();
     foreach ($pros as &$p) {
         $p['id'] = (int)$p['id'];
     }
@@ -548,7 +549,7 @@ if ($auth && isset($_GET['agentes'])) {
     // Las de email se ven en la misma lista de Prospectos (canal «email»): sin descartadas
     try {
         $emailPros = $adb->query("SELECT id, created_at, empresa, nombre, email, telefono, sector, nicho, ciudad, web, lote, estado, enviado1_at, respondido_at, error
-                                  FROM email_prospectos WHERE estado <> 'descartado' ORDER BY id DESC LIMIT 5000")->fetchAll();
+                                  FROM email_prospectos WHERE estado <> 'descartado' ORDER BY id DESC")->fetchAll();
     } catch (Throwable $e) {
         $emailPros = [];
     }
@@ -595,7 +596,7 @@ if ($auth && isset($_GET['agentes'])) {
     } catch (Throwable $e) {
         pebai_log('SEGUIMIENTO SCRAPER: ' . $e->getMessage());
     }
-    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'graficas' => $graf, 'scraper' => $scraper, 'prospectos' => $pros, 'email_prospectos' => $emailPros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
+    json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'graficas' => $graf, 'scraper' => $scraper, 'prospectos' => $pros, 'descartadas' => $descartadas ?? 0, 'email_prospectos' => $emailPros, 'mensajes' => $msgs, 'por_dia' => $q->fetchAll(),
               'bajas' => (int)$adb->query('SELECT COUNT(*) FROM bajas')->fetchColumn(),
               'nichos' => $nichosOut, 'stats' => pebai_wa_stats(), 'actividad' => pebai_actividad_ultimas('whatsapp', 150),
               'whatsapp' => ['estado' => $wa['estado'], 'latido_at' => $wa['latido_at'], 'detalle' => $wa['detalle'], 'codigo' => $wa['codigo'], 'pausado' => (int)$wa['pausado'],
@@ -604,7 +605,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '91';
+$v = '92';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">

@@ -55,7 +55,7 @@ raiz.innerHTML = `
     <div class="seg" id="pb-mapa-lista" role="radiogroup" aria-label="Lista"><button data-l="" class="on">Todas</button><button data-l="w">WhatsApp</button><button data-l="e">Email</button></div>
     <select id="pb-mapa-nicho" aria-label="Nicho"><option value="">Todos los nichos</option></select>
     <div class="est" id="pb-mapa-est"></div>
-    <div class="ciu"><div class="t">Ciudades con más empresas</div><div id="pb-mapa-ciu"></div></div>
+    <div class="ciu"><div class="t">Provincias con más empresas</div><div id="pb-mapa-ciu"></div></div>
   </aside>
   <div class="pb-mapa-ficha" id="pb-mapa-ficha" aria-live="polite"></div>
   <div class="pb-mapa-vista">
@@ -88,12 +88,13 @@ function pintarPanel() {
     b.ondblclick = () => { EST.forEach((e) => S.filtros.estados.add(e[0])); actualizar(); };
     est.append(b);
   });
-  const cnt = new Map(); vis.forEach((p) => { const key = p.c + '|' + p.v; const o = cnt.get(key) || { c: p.c, v: p.v, n: 0, y: 0, x: 0, r: 0 }; o.n++; o.y += p.y; o.x += p.x; if (p.e === 'respondio') o.r++; cnt.set(key, o); });
+  // por provincia (la ciudad sola se quedaba corta: Madrid sin Alcobendas, Getafe…)
+  const cnt = new Map(); vis.forEach((p) => { const key = p.v || p.c; const o = cnt.get(key) || { c: p.v || p.c, v: '', n: 0, y: 0, x: 0, r: 0 }; o.n++; o.y += p.y; o.x += p.x; if (p.e === 'respondio') o.r++; cnt.set(key, o); });
   const ciu = $('#pb-mapa-ciu'); ciu.replaceChildren();
   [...cnt.values()].sort((a, b) => b.n - a.n).slice(0, 7).forEach((o) => {
     const b = document.createElement('button'); b.type = 'button';
     b.innerHTML = `<span>${esc(o.c)}<small>${esc(o.v)}</small></span><b>${N(o.n)}</b>`;
-    b.onclick = () => map && map.flyTo({ center: [o.x / o.n, o.y / o.n], zoom: 11.2, speed: 1.4 });
+    b.onclick = () => map && map.flyTo({ center: [o.x / o.n, o.y / o.n], zoom: 8.6, speed: 1.4 });
     ciu.append(b);
   });
   if (!cnt.size) ciu.innerHTML = '<p class="vacio">Nada con estos filtros.</p>';
