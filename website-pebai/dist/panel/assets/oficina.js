@@ -1054,7 +1054,7 @@ async function montar() {
     lista.forEach((a, i) => {
       const phi = lista.length === 1 ? 0 : (i - (lista.length - 1) / 2) * (Math.PI * 2 / lista.length) * (lista.length === 2 ? .5 : 1);
       const o = puesto(g, d, a, 0); puestos.set(a.id, o);
-      o.p.position.set(Math.sin(phi) * RD, 0, Math.cos(phi) * RD); o.p.rotation.y = phi;
+      o.p.position.set(Math.sin(phi) * RD, 0, Math.cos(phi) * RD); o.p.rotation.y = phi; o.phi = phi; o.RD = RD;
       /* rayo de energía de la columna a la mesa, por el suelo: se enciende cuando ese agente trabaja */
       const r0 = .98, r1 = RD - .55;
       o.linea = cable(new THREE.LineCurve3(new THREE.Vector3(x + Math.sin(phi) * r0, Y, z + Math.cos(phi) * r0), new THREE.Vector3(x + Math.sin(phi) * r1, Y, z + Math.cos(phi) * r1)), COL_EST.trabajando, .022, 0);
@@ -1226,6 +1226,7 @@ async function montar() {
   });
   function lanzaEnvio(tr) {
     const A = puestos.get(tr.de), B = puestos.get(tr.a); if (!A || !B) return;
+    if (A.d.id === B.d.id && A !== B && !A.paseo && A.phi != null && B.phi != null) { empiezaPaseo(A, B, tr); return; }
     const pa = new THREE.Vector3(), pb = new THREE.Vector3(); A.logo.getWorldPosition(pa); B.logo.getWorldPosition(pb);
     const arriba = new THREE.Vector3(0, 1.6, 0);
     const curva = A.d.id === B.d.id
@@ -1236,6 +1237,54 @@ async function montar() {
     scene.add(sp);
     const largo = curva.getLength();
     envios.push({ tr, curva, sp, A, B, col, k: 0, v: 1 / Math.max(2.2, Math.min(4.5, largo / 6)), rastro: 0 });
+  }
+  /* ---------- andar a la mesa del compañero ----------
+     Se levanta, rodea la sala por fuera de las mesas (nunca atraviesa la columna), le da el documento, vuelve y se sienta. */
+  const V3 = () => new THREE.Vector3();
+  function empiezaPaseo(A, B, tr) {
+    const doc = new THREE.Sprite(new THREE.SpriteMaterial({ map: docTex(A.d.color), transparent: true, depthWrite: false, toneMapped: false }));
+    doc.scale.set(.3, .37, 1); doc.position.set(0, 1.95, 0); A.rb.r.add(doc);
+    let dphi = B.phi - A.phi; while (dphi > Math.PI) dphi -= Math.PI * 2; while (dphi < -Math.PI) dphi += Math.PI * 2;
+    const rAnda = A.RD + 1.35, largo = Math.abs(dphi) * rAnda;
+    A.paseo = { B, tr, doc, dphi, rAnda, t: 0, fases: [.55, Math.max(1.2, largo / 1.5), .9, Math.max(1.2, largo / 1.5), .55], ini: A.phi };
+    A.marcaEntrega = performance.now();
+  }
+  // posición (en el sistema de la sala) del robot de A a lo largo del paseo
+  function puntoPaseo(A, f, k) {
+    const P = A.paseo, salida = A.RD + .74;
+    const enAro = (phi, r) => new THREE.Vector3(Math.sin(phi) * r, 0, Math.cos(phi) * r);
+    const ease = (x) => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+    if (f === 0) return [enAro(P.ini, salida + (P.rAnda - salida) * ease(k)), enAro(P.ini, 99)];
+    if (f === 1) { const ph = P.ini + P.dphi * ease(k); return [enAro(ph, P.rAnda), enAro(ph + Math.sign(P.dphi) * .2, P.rAnda)]; }
+    if (f === 2) { const ph = P.ini + P.dphi; return [enAro(ph, P.rAnda - .12 * Math.sin(k * Math.PI)), enAro(ph, 0)]; }
+    if (f === 3) { const ph = P.ini + P.dphi * (1 - ease(k)); return [enAro(ph, P.rAnda), enAro(ph - Math.sign(P.dphi) * .2, P.rAnda)]; }
+    return [enAro(P.ini, P.rAnda - (P.rAnda - salida) * ease(k)), enAro(P.ini, 0)];
+  }
+  function andar(o, dtR, tt) {
+    const P = o.paseo; P.t += dtR;
+    let f = 0, acc = 0; while (f < P.fases.length && P.t > acc + P.fases[f]) { acc += P.fases[f]; f++; }
+    if (f >= P.fases.length) {   // de vuelta en su silla
+      o.rb.r.remove(P.doc); P.doc.material.map.dispose(); P.doc.material.dispose();
+      o.rb.r.position.set(0, -.08, .74); o.rb.r.rotation.set(0, 0, 0); o.paseo = null; return;
+    }
+    const k = (P.t - acc) / P.fases[f];
+    if (f === 2 && !P.dado && k > .45) {   // el documento pasa a la mesa del compañero
+      P.dado = true; o.rb.r.remove(P.doc); P.doc.material.map.dispose(); P.doc.material.dispose();
+      P.doc = new THREE.Sprite(new THREE.SpriteMaterial({ map: docTex(o.d.color), transparent: true, opacity: 0, depthWrite: false })); o.rb.r.add(P.doc);
+      P.B.halo.material.opacity = .65; P.B.marcaRecibe = performance.now();
+    }
+    const [pos, mira] = puntoPaseo(o, f, k);
+    const g = o.p.parent, w = g.localToWorld(pos.clone()), wm = g.localToWorld(mira.clone());
+    const loc = o.p.worldToLocal(w), locM = o.p.worldToLocal(wm);
+    const sube = f === 0 ? k : f === 4 ? 1 - k : 1;   // de sentado a flotar
+    o.rb.r.position.set(loc.x, -.08 + .12 * sube + (f === 1 || f === 3 ? Math.abs(Math.sin(tt * 9)) * .045 : 0), loc.z);
+    const dx = locM.x - loc.x, dz = locM.z - loc.z;
+    if (Math.hypot(dx, dz) > 1e-3) o.rb.r.rotation.y = Math.atan2(-dx, -dz);
+    o.rb.r.rotation.x = f === 1 || f === 3 ? -.12 : 0;
+    const [bi, bd] = o.rb.brazos;   // brazos: arriba sujetando el documento; al darlo, hacia delante
+    bi.rotation.set(f === 2 ? 1.4 : 2.6, 0, .15); bd.rotation.set(f === 2 ? 1.4 : 2.6, 0, -.15);
+    if (P.dado) { bi.rotation.x = bd.rotation.x = .3; }
+    o.zs.forEach((z) => { z.z.material.opacity = 0; });
   }
   const chispas = [];
   function tickEnvios(dtR) {
@@ -1529,6 +1578,7 @@ async function montar() {
         rb.cuello.rotation.y = Math.sin(tt * 3) * .5; bi.rotation.z = .6; bd.rotation.z = -.6; bi.rotation.x = .4; bd.rotation.x = .4;
         o.baliza.visible = Math.sin(t * 8) > -.1;
       }
+      if (o.paseo) andar(o, dtReal, tt);
     });
     if (intro) { intro.k = Math.min(1, intro.k + dtReal / 3.2); const e = intro.k < .5 ? 4 * intro.k ** 3 : 1 - Math.pow(-2 * intro.k + 2, 3) / 2; enIntro(e); if (intro.k >= 1) { intro = null; deriva = 0; } }
     if (fly) { fly.k = Math.min(1, fly.k + dtReal / 1.1); const e = 1 - Math.pow(1 - fly.k, 3); camera.position.lerpVectors(fly.p0, fly.p1, e); target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) { fly = null; deriva = 0; } }

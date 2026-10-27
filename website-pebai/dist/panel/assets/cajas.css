@@ -108,3 +108,7 @@
 .pb-entra{animation:pb-entra .45s var(--ease) both;animation-delay:calc(var(--i) * 28ms)}
 @keyframes pb-entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.pb-hub-c,.pb-entra{animation:none}}
+/* «Todas»: la misma carpeta que las demás, con un toque violeta para distinguirla (antes, transparente y discontinua, se veía negra) */
+.pb-caja.todas{background:linear-gradient(180deg,color-mix(in srgb,var(--violet) 14%,var(--panel-2)),var(--panel));border-style:solid;border-color:color-mix(in srgb,var(--violet-2) 35%,var(--line))}
+.pb-caja.todas::before{border-style:solid;border-color:color-mix(in srgb,var(--violet-2) 35%,var(--line));background:color-mix(in srgb,var(--violet) 14%,var(--panel-2))}
+.pb-caja.todas .ic{background:color-mix(in srgb,var(--violet) 22%,transparent);color:var(--violet-2)}
