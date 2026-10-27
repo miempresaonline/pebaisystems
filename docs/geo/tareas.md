@@ -48,7 +48,7 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 - [x] 2026-10-22 · Guardar las propuestas de imagen y los borradores de LinkedIn en `docs/geo/borradores/` (commit) para que Daniel las vea; scratch/ se pierde en la nube · (Jefe) · hecho 22/10: imágenes en borradores/imagenes, LinkedIn en borradores/linkedin, post GBP 28/10 en borradores/gbp/2026-10-28
 - [x] 2026-10-21 · Preparar propuestas de imagen con logos de las IAs (ChatGPT, Claude, Gemini, Perplexity), poco texto y composición variada, para que Daniel las apruebe · (Daniel) · hecho 22/10: plantilla `d-ias` (layouts orbita, pregunta, mosaico, foco), muestras en `docs/geo/borradores/imagenes/d-*.png`; aprobadas por Daniel el 22/10
 
-- [ ] 2026-10-26 · Jueves 5/11: programar el caso El Amparo (borrador en `docs/geo/borradores/linkedin/2026-10-26-caso-el-amparo.md`) en cuanto exista su imagen difuminada JPG en `casos/img/`; si no existe el 4/11, publicar en su lugar una pregunta real de un dueño con su respuesta · (Redes 26/10)
+- [x] 2026-10-26 · (hecho 27/10: programado jue 5/11 17:00 en Metricool con la imagen difuminada ya alojada allí) Jueves 5/11: programar el caso El Amparo (borrador en `docs/geo/borradores/linkedin/2026-10-26-caso-el-amparo.md`) en cuanto exista su imagen difuminada JPG en `casos/img/`; si no existe el 4/11, publicar en su lugar una pregunta real de un dueño con su respuesta · (Redes 26/10)
 
 ## geo_medicion · Medición
 - [ ] 2026-10-26 · Seguir cada día con `gsc-inspeccion` el estado de /posicionamiento-en-ia/ y de /agentes-ia/whatsapp/ en cuanto se publique; apuntar en el panel el día que pasen a «indexada» · (Jefe 26/10 tarde)
