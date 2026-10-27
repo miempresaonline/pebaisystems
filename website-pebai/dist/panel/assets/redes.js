@@ -86,6 +86,7 @@ function cabecera(T) {
       <p class="pb-lead">Cada vídeo en TikTok, Instagram, YouTube Shorts y Facebook: qué vio la gente, cuánto aguantó y qué trajo. Vídeos del <b>${fecha(T.desde)}</b> al <b>${fecha(hasta)}</b>${T.hasta ? '' : ' (sigue abierto)'}.</p></div>
     <div class="rd-head-r">
       <div class="pb-seg rd-tandas">${tabs}</div>
+      <button type="button" class="pb-btn ghost rd-acc-b" title="Cómo entrar en cada red, con usuario y contraseña">${ico('<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M17 6l3 3M14.5 8.5l2.5 2.5"/>')}<span>Accesos</span></button>
       <div class="rd-vivo"><i></i><span class="rd-sello">Actualizado ${hace(S.data.actualizado)}</span><button type="button" class="pb-btn icon rd-act" title="Pedir ya los datos nuevos a Metricool">${ico('<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>')}</button></div>
       <small class="rd-fuente" title="Metricool no actualiza TikTok, Instagram y Facebook al momento: el dato de los últimos días puede subir todavía. YouTube se lee directamente del canal.">YouTube al momento · TikTok, Instagram y Facebook vía Metricool (hasta 24-48 h de retraso)</small>
       ${S.data.aviso ? `<small class="rd-aviso">${esc(S.data.aviso)}</small>` : ''}
@@ -344,6 +345,7 @@ function cambia(sel, html) {
 raiz.addEventListener('click', (e) => {
   if (e.target.closest('a')) return;
   if (e.target.closest('.rd-act')) { cargar(true); return; }
+  if (e.target.closest('.rd-acc-b')) { accesos(); return; }
   const tb = e.target.closest('[data-tanda]');
   if (tb && !tb.disabled) { S.t = +tb.dataset.tanda; S.abierto = -1; pintar(); return; }
   const ch = e.target.closest('[data-red]');
@@ -353,6 +355,39 @@ raiz.addEventListener('click', (e) => {
   const fila = e.target.closest('.rd-row');
   if (fila) { const i = +fila.dataset.v; S.abierto = S.abierto === i ? -1 : i; cambia('.rd-tabla-w', tabla(S.C)); }
 });
+
+/* Accesos a cada red: se piden al abrir (no se guardan en la página) y la contraseña va oculta hasta pulsar «Mostrar» */
+async function accesos() {
+  let j;
+  try {
+    const r = await fetch(BASE + '?redes_accesos=1', { credentials: 'same-origin', cache: 'no-store' });
+    if (r.status === 401) { location.reload(); return; }
+    j = await r.json();
+  } catch (e) { j = { ok: false }; }
+  const ov = document.createElement('div'); ov.className = 'rd-acc';
+  const filas = (j.redes || []).map((x, i) => `<div class="rd-acc-r"><div class="rd-acc-h"><b>${esc(x.red)}</b><span>${esc(x.como)}</span></div>`
+    + (x.aviso ? `<p class="rd-acc-av">${esc(x.aviso)}</p>` : '')
+    + (x.usuario ? `<div class="rd-acc-c"><small>Usuario</small><code>${esc(x.usuario)}</code><button type="button" data-copia="u${i}">Copiar</button></div>` : '')
+    + (x.clave ? `<div class="rd-acc-c"><small>Contraseña</small><code data-clave="${i}">••••••••••</code><button type="button" data-ver="${i}">Mostrar</button><button type="button" data-copia="c${i}">Copiar</button></div>` : '')
+    + (x.nota ? `<p class="rd-acc-n">${esc(x.nota)}</p>` : '') + '</div>').join('');
+  ov.innerHTML = `<div class="rd-acc-in" role="dialog" aria-modal="true" aria-labelledby="rd-acc-t"><header><h2 id="rd-acc-t">Accesos a las redes</h2><button type="button" class="rd-acc-x" aria-label="Cerrar">×</button></header>`
+    + (j.ok && filas ? filas : '<p class="rd-acc-n">Todavía no hay accesos guardados en el servidor.</p>')
+    + '<p class="rd-acc-pie">Solo se ven con la sesión del panel iniciada. Nunca se guardan en el código.</p></div>';
+  const cierra = () => { ov.remove(); document.removeEventListener('keydown', tecla); };
+  const tecla = (e) => { if (e.key === 'Escape') cierra(); };
+  document.addEventListener('keydown', tecla);
+  ov.addEventListener('click', (e) => {
+    if (e.target === ov || e.target.closest('.rd-acc-x')) { cierra(); return; }
+    const v = e.target.closest('[data-ver]');
+    if (v) { const c = ov.querySelector(`[data-clave="${v.dataset.ver}"]`), ver = v.textContent === 'Mostrar'; c.textContent = ver ? j.redes[+v.dataset.ver].clave : '••••••••••'; v.textContent = ver ? 'Ocultar' : 'Mostrar'; return; }
+    const cp = e.target.closest('[data-copia]');
+    if (cp) {
+      const k = cp.dataset.copia, x = j.redes[+k.slice(1)], t = k[0] === 'u' ? x.usuario : x.clave;
+      navigator.clipboard.writeText(t).then(() => { cp.textContent = 'Copiado'; setTimeout(() => { cp.textContent = 'Copiar'; }, 1500); }).catch(() => {});
+    }
+  });
+  document.body.append(ov); ov.querySelector('.rd-acc-x').focus();
+}
 
 /* Tooltip de la curva */
 raiz.addEventListener('mousemove', (e) => {

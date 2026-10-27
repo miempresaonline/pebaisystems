@@ -4,6 +4,8 @@
  * Lo incluye panel/index.php después de comprobar la sesión: usa $auth y json_out() de allí.
  *   GET ?redes=1          → los periodos con sus vídeos y métricas + las solicitudes que han llegado desde redes.
  *   GET ?redes=1&fresh=1  → igual, pero pidiendo antes los datos nuevos a Metricool (botón «Actualizar»).
+ *   GET ?redes_accesos=1  → cómo se entra en cada red, con usuario y contraseña. Solo con sesión; los datos viven en
+ *                           private/redes_accesos.json en el servidor (nunca en el repositorio, que es público).
  * Se actualiza solo: lee la API de Metricool (marca PEBAI Systems) y guarda una copia en private/redes_cache.json
  * que se renueva cada REDES_TTL segundos. Un vídeo nuevo aparece en cuanto Metricool lo tiene.
  * El mismo vídeo publicado en las cuatro redes se agrupa en una fila por fecha, duración y texto.
@@ -342,6 +344,13 @@ function redes_solicitudes(string $desde, string $hasta): array
         }
     }
     return ['total' => $total, 'redes' => $redes, 'por_red' => $por, 'palabras' => $palabras];
+}
+
+if ($auth && isset($_GET['redes_accesos'])) {
+    header('Cache-Control: no-store, private');
+    $f = pebai_private_dir() . '/redes_accesos.json';
+    $acc = is_file($f) ? json_decode((string)file_get_contents($f), true) : null;
+    json_out(['ok' => true, 'redes' => is_array($acc['redes'] ?? null) ? $acc['redes'] : []]);
 }
 
 if ($auth && isset($_GET['redes'])) {
