@@ -84,13 +84,9 @@
     .svc button.on i{background:var(--accent);border-color:var(--accent)}
     .svc button.on i::after{content:"";width:8px;height:5px;border:2px solid #0B0F14;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
     .solo{display:block;margin:12px auto 0}
-    .ideas{margin-top:12px;padding:10px 14px;border-radius:14px;border:1px dashed var(--fg-10)}
-    .ideas summary{cursor:pointer;color:var(--fg-65);font-size:13px;font-weight:700;list-style:none;text-align:center}
-    .ideas summary::-webkit-details-marker{display:none}
-    .ideas summary::after{content:" +";color:var(--accent)}
-    .ideas[open] summary::after{content:" \2212"}
-    .ideas .chip{font-size:12.5px;padding:7px 10px;font-weight:600}
-    .ideas .tip{margin-top:8px;text-align:center}
+    .mas{display:block;margin:8px 0 0}
+    .mas[hidden]{display:none}
+    .chip.on::before{content:"\2713  "}
     @media (min-width:760px){
       body{padding-top:40px}
       main{max-width:540px}
@@ -126,15 +122,15 @@
     <p class="s">Es lo que más ayuda a que otras empresas nos encuentren.</p>
     <span class="k">¿Qué te hicimos? <i>(marca todo lo que aplique)</i></span>
     <div class="svc" id="servicios"></div>
-    <span class="k">¿Qué destacarías? <i>(hasta 3)</i></span>
+    <span class="k">Ideas para tu reseña <i>(toca las que encajen)</i></span>
     <div class="chips" id="chips"></div>
+    <button type="button" class="lnk mas" id="mas">Ver más ideas</button>
     <div class="draft" id="draft" hidden>
       <p class="t" id="draft-t"></p>
       <textarea id="txt" aria-label="Tu reseña"></textarea>
       <div class="row"><span class="tip">Es solo una ayuda: cámbiala a tu manera.</span><button type="button" class="lnk" id="editar">Editar</button></div>
     </div>
     <button type="button" class="lnk solo" id="escribir">Prefiero escribirla yo</button>
-    <details class="ideas"><summary>Ideas de palabras para tu reseña</summary><div class="chips" id="ideas"></div><p class="tip">Toca una para añadirla a tu texto.</p></details>
     <a class="btn g" id="btn-google" href="#" rel="noopener">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.6-.2-2.3H12v4.3h6c-.3 1.4-1.1 2.6-2.2 3.4v2.8h3.6c2-1.9 3.2-4.7 3.2-8.2z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.4-2.7l-3.6-2.8c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.7H2v2.9C3.8 20.5 7.6 23 12 23z"/><path fill="#FBBC05" d="M5.7 13.9c-.2-.7-.4-1.4-.4-2.1s.1-1.4.4-2.1V6.8H2C1.2 8.3.8 10 .8 11.8s.4 3.5 1.2 5l3.7-2.9z"/><path fill="#EA4335" d="M12 5c1.6 0 3.1.6 4.3 1.7l3.2-3.2C17.5 1.6 15 .6 12 .6 7.6.6 3.8 3.1 2 6.8l3.7 2.9C6.6 7 9.1 5 12 5z"/></svg>
       Publicar en Google
@@ -181,30 +177,36 @@
     formacion: ['Formación', 'formación en inteligencia artificial para el equipo']
   };
   var INICIO = ['Con PEBAI hemos hecho %s.', 'Nos ayudaron con %s.', 'Trabajamos con ellos en %s.', 'Nos hicieron %s.'];
-  /* Frases que recomienda Localo para las reseñas (palabras que ayudan a salir en Google Maps) */
-  var IDEAS = ['altamente recomendables', 'volvería a confiar', 'consultoría IA Valencia', 'automatización de procesos', 'agentes de voz', 'asistentes de inteligencia artificial', 'soluciones a medida', 'enfoque muy práctico', 'muy transparentes', 'claridad total', 'analizaron cada proceso', 'equipo más autónomo', 'sin cambiar nada', 'ahorro de tiempo', 'mejoraron procesos', 'ahorro estimado claro', 'honestidad sobre IA', 'expertos en automatización'];
-  /* Lo que destacan: varias formas de decir cada cosa, para que no salgan dos reseñas iguales */
-  var DEST = [
-    ['Trato cercano', ['El trato ha sido cercano en todo momento.', 'Siempre han estado disponibles y se nota que se implican.', 'Muy fácil trabajar con ellos, cercanos y atentos.']],
-    ['Rapidez', ['Fueron rápidos y cumplieron los plazos.', 'Lo tuvimos funcionando antes de lo que esperábamos.', 'Respondían rápido a cualquier duda.']],
-    ['Entienden el negocio', ['Antes de proponer nada se tomaron el tiempo de entender cómo trabajamos.', 'Analizaron cada proceso antes de proponer nada.', 'Escuchan primero y luego proponen, y eso se agradece.']],
-    ['Enfoque práctico', ['Tienen un enfoque muy práctico.', 'Nada de teoría: fueron directos a lo que nos servía.', 'Mejoraron procesos concretos, sin complicarnos.']],
-    ['Sin cambiar nada', ['Se adaptó a cómo ya trabajábamos, sin cambiar nada de lo que funcionaba.', 'No tuvimos que cambiar nuestra forma de trabajar.', 'Se conectó a lo que ya usábamos.']],
-    ['Equipo autónomo', ['Ahora el equipo es más autónomo.', 'Nos enseñaron a usarlo y el equipo ya se maneja solo.', 'Lo dejaron todo documentado y explicado.']],
-    ['Ahorro de tiempo', ['Ahora dedicamos mucho menos tiempo a tareas repetitivas.', 'Nos ahorra horas cada semana.', 'Desde el principio nos dieron un ahorro estimado claro, y se ha cumplido.']],
-    ['Fácil de usar', ['Es muy fácil de usar, hasta para quien no es de tecnología.', 'El equipo lo usa sin complicaciones.', 'Todo es sencillo e intuitivo.']],
-    ['Más orden', ['Ahora tenemos todo ordenado y en un solo sitio.', 'Se acabaron los líos: todo está organizado.', 'Tenemos la información mucho más clara.']],
-    ['Atención al cliente', ['Nuestros clientes reciben respuesta al momento.', 'Ya no se nos queda ningún mensaje sin contestar.', 'Atendemos mejor a los clientes, también fuera de horario.']],
-    ['Honestos', ['Honestidad total sobre la IA: nos dijeron dónde no hacía falta.', 'Son muy transparentes y no venden humo.', 'Claridad total en todo el proceso.']],
-    ['Soporte', ['Después de la entrega siguen ahí para lo que haga falta.', 'El acompañamiento después ha sido muy bueno.', 'Cualquier cambio lo resuelven enseguida.']]
+  /* Ideas para la reseña: las frases que recomienda Localo (ayudan a salir en Google Maps) y dos más personales.
+     Cada una con dos formas de decirla, para que no salgan dos reseñas iguales. */
+  var IDEAS = [
+    ['altamente recomendables', ['Altamente recomendables.', 'Son altamente recomendables para cualquier empresa.']],
+    ['volvería a confiar', ['Volvería a confiar en ellos sin dudarlo.', 'Sin duda volvería a confiar en PEBAI.']],
+    ['consultoría IA Valencia', ['Si buscas una consultoría de IA en Valencia, son una gran opción.', 'Una consultoría de IA en Valencia muy recomendable.']],
+    ['automatización de procesos', ['Saben mucho de automatización de procesos.', 'La automatización de procesos nos ha cambiado el día a día.']],
+    ['agentes de voz', ['Sus agentes de voz funcionan muy bien.', 'Nos sorprendió lo bien que funcionan los agentes de voz.']],
+    ['asistentes de inteligencia artificial', ['Sus asistentes de inteligencia artificial atienden a los clientes al momento.', 'Los asistentes de inteligencia artificial nos quitan mucho trabajo.']],
+    ['soluciones a medida', ['Hacen soluciones a medida, nada de plantillas.', 'Todo son soluciones a medida de cómo trabajamos.']],
+    ['enfoque muy práctico', ['Tienen un enfoque muy práctico.', 'Me gustó su enfoque muy práctico, sin teoría.']],
+    ['muy transparentes', ['Son muy transparentes en todo el proceso.', 'Muy transparentes con los plazos y los costes.']],
+    ['claridad total', ['Claridad total desde el primer día.', 'Lo explican todo con claridad total.']],
+    ['analizaron cada proceso', ['Analizaron cada proceso antes de proponer nada.', 'Antes de empezar analizaron cada proceso con calma.']],
+    ['equipo más autónomo', ['Ahora tenemos un equipo más autónomo.', 'El equipo es más autónomo gracias a cómo nos lo explicaron.']],
+    ['sin cambiar nada', ['Se adaptaron a lo que ya usábamos, sin cambiar nada de lo que funcionaba.', 'Lo integraron todo sin cambiar nada de nuestra forma de trabajar.']],
+    ['ahorro de tiempo', ['Se nota mucho el ahorro de tiempo.', 'El ahorro de tiempo ha sido muy grande.']],
+    ['mejoraron procesos', ['Mejoraron procesos que llevábamos años haciendo igual.', 'Nos mejoraron procesos clave de la empresa.']],
+    ['ahorro estimado claro', ['Desde el principio nos dieron un ahorro estimado claro.', 'Antes de empezar nos dieron un ahorro estimado claro.']],
+    ['honestidad sobre IA', ['Destaco su honestidad sobre IA: nos dijeron dónde no hacía falta.', 'Honestidad sobre IA, sin vender humo.']],
+    ['expertos en automatización', ['Son expertos en automatización.', 'Se nota que son expertos en automatización.']],
+    ['trato cercano', ['El trato ha sido cercano en todo momento.', 'Muy fácil trabajar con ellos, cercanos y atentos.']],
+    ['rapidez', ['Fueron rápidos y cumplieron los plazos.', 'Respondían rápido a cualquier duda.']]
   ];
-  var CIERRE = ['Altamente recomendables.', 'Volvería a confiar en ellos.', 'Los recomiendo sin duda.', 'Si buscas una consultoría de IA en Valencia, muy recomendables.', 'Repetiríamos.', ''];
 
   var q = new URLSearchParams(location.search);
   var limpia = function (v, n) { return (v || '').replace(/[^a-z0-9_-]/gi, '').slice(0, n).toLowerCase(); };
   var origen = limpia(q.get('o') || q.get('utm_source') || 'directo', 30);
   var servicios = (q.get('s') || '').split(',').map(function (v) { return limpia(v, 20); }).filter(function (v) { return SERV[v]; });
-  var nota = 0, elegidos = [], editado = false, abre = r(['', 'Muy contentos con PEBAI. ', 'Experiencia muy buena con PEBAI Systems. ', '']);
+  var nota = 0, elegidos = [], editado = false, abre = r(['', 'Muy contentos con PEBAI. ', 'Experiencia muy buena con PEBAI Systems. ', '']), MAX = 4;
 
   function contar(evento) {  /* contador propio y agregado: sin cookies ni datos personales */
     try { if (navigator.sendBeacon) navigator.sendBeacon('/api/visita.php', new URLSearchParams({ p: '/resena/', s: origen, m: 'resena', c: evento })); } catch (e) {}
@@ -244,7 +246,7 @@
     ver(n >= 4 ? 'p-alta' : 'p-baja');
   }
 
-  /* Chips de lo que les hicimos (varios) y de lo que destacan (hasta 3; selección y orden distintos en cada visita) */
+  /* Lo que les hicimos (varios) e ideas para la reseña (hasta 4; orden distinto en cada visita: 8 a la vista y el resto en «Ver más») */
   function chip(txt, on, fn) {
     var b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (on ? ' on' : ''); b.textContent = txt;
     b.addEventListener('click', function () { fn(b); }); return b;
@@ -261,13 +263,20 @@
     });
     $('servicios').appendChild(b);
   });
-  mezcla(DEST).slice(0, 6).forEach(function (d) {
-    $('chips').appendChild(chip(d[0], false, function (b) {
+  mezcla(IDEAS).forEach(function (d, idx) {
+    var b = chip(d[0], false, function (b) {
       var p = elegidos.indexOf(d);
       if (p >= 0) { elegidos.splice(p, 1); b.classList.remove('on'); }
-      else if (elegidos.length < 3) { elegidos.push(d); b.classList.add('on'); }
+      else if (elegidos.length < MAX) { elegidos.push(d); b.classList.add('on'); }
+      b.setAttribute('aria-pressed', b.classList.contains('on') ? 'true' : 'false');
       componer();
-    }));
+    });
+    b.setAttribute('aria-pressed', 'false');
+    if (idx >= 8) b.hidden = true;
+    $('chips').appendChild(b);
+  });
+  $('mas').addEventListener('click', function () {
+    [].forEach.call($('chips').children, function (c) { c.hidden = false; }); this.hidden = true;
   });
 
   function componer() {
@@ -280,7 +289,7 @@
     }
     elegidos.forEach(function (d) { partes.push(r(d[1])); });
     if (!partes.length) { $('draft').hidden = true; return; }
-    var t = (abre + partes.join(' ') + ' ' + r(CIERRE)).trim();
+    var t = (abre + partes.join(' ')).trim();
     $('draft-t').textContent = t; $('txt').value = t; $('draft').hidden = false;
   }
   function editar(vacio) {
@@ -290,14 +299,6 @@
   }
   $('editar').addEventListener('click', function () { editar(false); });
   $('escribir').addEventListener('click', function () { editar(true); contar('escribe_solo'); });
-  mezcla(IDEAS).slice(0, 8).forEach(function (w) {
-    $('ideas').appendChild(chip(w, false, function (b) {
-      if (!$('draft').classList.contains('edit')) editar(false);
-      var t = $('txt').value.trim();
-      $('txt').value = (t ? t + (/[.,;:]$/.test(t) ? ' ' : ', ') : '') + w;
-      b.classList.add('on'); b.disabled = true;
-    }));
-  });
   $('txt').addEventListener('input', function () { editado = true; });
 
   $('btn-google').addEventListener('click', function (e) {
