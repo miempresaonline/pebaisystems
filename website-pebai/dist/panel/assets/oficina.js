@@ -59,11 +59,14 @@ async function accion(action, fields, ok, btn) {
 }
 const ag = (id) => S.agentes.find((a) => a.id === id);
 const agsDe = (id) => S.agentes.filter((a) => a.dept === id);
+// Avisos quitados a mano en este navegador: «agente|texto». Si el texto cambia, vuelve a salir.
+let ocultos = new Set(); try { ocultos = new Set(JSON.parse(localStorage.getItem('pb-of-ocultos') || '[]')); } catch (e) { /* sin almacenamiento */ }
+const claveAviso = (a, txt) => a.id + '|' + txt;
 const pendientes = () => {
   const out = [];
   S.agentes.filter((a) => a.st === 'error').forEach((a) => out.push({ a, txt: a.motivo, err: true }));
   S.agentes.forEach((a) => (a.necesita || []).forEach((n) => out.push({ a, txt: n, err: false })));
-  return out;
+  return out.filter((x) => !ocultos.has(claveAviso(x.a, x.txt)));
 };
 const estadoDept = (id) => { const a = agsDe(id); return a.some((x) => x.st === 'error') ? 'error' : a.some((x) => (x.necesita || []).length) ? 'aviso' : 'ok'; };
 
@@ -82,12 +85,19 @@ function pintaHud() {
   const c = document.createElement('div'); c.className = 'pb-of-todo' + (pend.length ? '' : ' ok') + (abierto && pend.length ? ' abierto' : '');
   const col = err ? '#FF5E6C' : pend.length ? '#FFB547' : '#3DDC84';
   c.innerHTML = `<button type="button" class="h"><i class="vivo"></i><span class="dir">En directo</span><span class="sep"></span><span class="est" style="--c:${col}"><i></i>${pend.length ? (pend.length === 1 ? '1 aviso' : pend.length + ' avisos') : 'Todo en orden'}</span>${pend.length ? '<svg class="pl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>' : ''}</button><div class="lista"></div>`;
-  const lista = c.querySelector('.lista');
+  const lst = c.querySelector('.lista');
   if (pend.length) c.querySelector('.h').onclick = (ev) => { ev.stopPropagation(); c.classList.toggle('abierto'); };
   pend.slice(0, 5).forEach(({ a, txt, err: e }) => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'it' + (e ? ' err' : '');
     b.innerHTML = tileHtml(a, 't') + `<span class="x"><b>${esc(a.nombre)}</b><span>${esc(txt)}</span></span><svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>`;
-    b.onclick = (ev) => { ev.stopPropagation(); c.classList.remove('abierto'); abrirAgente(a.id); }; lista.append(b);
+    b.onclick = (ev) => { ev.stopPropagation(); c.classList.remove('abierto'); abrirAgente(a.id); };
+    const q = document.createElement('span'); q.className = 'quita'; q.title = 'Quitar este aviso (vuelve si cambia)'; q.setAttribute('role', 'button'); q.textContent = '×';
+    q.onclick = (ev) => {
+      ev.stopPropagation(); ocultos.add(claveAviso(a, txt));
+      try { localStorage.setItem('pb-of-ocultos', JSON.stringify([...ocultos].slice(-200))); } catch (e2) { /* nada */ }
+      pintaHud(); if (G) G.refrescarEscena(); const h = hud.querySelector('.pb-of-todo'); if (h && pendientes().length) h.classList.add('abierto');
+    };
+    b.append(q); lst.append(b);
   });
   hud.append(c, botonParar(), botonVista()); horaHud();
   if (lista) pintaLista();
@@ -128,19 +138,34 @@ wrap.classList.toggle('lista', lista);
 /* Interruptor general: pausa a la vez a los agentes que escriben a otras empresas (WhatsApp y email).
    «Reanudar todo» solo vuelve a poner en marcha los que estaban funcionando al pararlo. */
 function botonParar() {
-  const b = document.createElement('button'); b.type = 'button';
   const p = S.parada;
-  b.className = 'pb-of-stop' + (p ? ' on' : '');
-  b.innerHTML = p ? `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Reanudar todo</span><small>parado desde ${esc(String(p.ts || '').slice(11, 16))}</small>`
-    : '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg><span>Parar todo</span>';
-  b.title = p ? 'Vuelve a poner en marcha los agentes que estaban funcionando' : 'Pausa ahora WhatsApp y email: no escriben a nadie hasta que lo reanudéis';
-  b.onclick = (ev) => {
-    ev.stopPropagation();
-    if (!p && !confirm('¿Parar todos los agentes que escriben a empresas (WhatsApp y email)?\n\nNo enviarán nada hasta que pulséis «Reanudar todo».')) return;
-    accion('agentes_parar', { modo: p ? 'reanudar' : 'parar' }, p ? 'Agentes reanudados.' : 'Todo parado: ningún agente escribe a nadie.', b);
-  };
-  return b;
+  if (p) {   // parado: «Reanudar todo» queda a la vista, que es un estado importante
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'pb-of-stop on';
+    b.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Reanudar todo</span><small>parado desde ${esc(String(p.ts || '').slice(11, 16))}</small>`;
+    b.title = 'Vuelve a poner en marcha los agentes que estaban funcionando';
+    b.onclick = (ev) => { ev.stopPropagation(); accion('agentes_parar', { modo: 'reanudar' }, 'Agentes reanudados.', b); };
+    return b;
+  }
+  // en marcha: el interruptor va dentro del menú «⋯», para no pulsarlo sin querer
+  const m = document.createElement('div'); m.className = 'pb-of-mas';
+  m.innerHTML = '<button type="button" class="b" aria-label="Más opciones" title="Más opciones">⋯</button><div class="menu"><button type="button" class="stop"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>Parar todos los agentes…</button></div>';
+  m.querySelector('.b').onclick = (ev) => { ev.stopPropagation(); m.classList.toggle('on'); };
+  m.querySelector('.stop').onclick = (ev) => { ev.stopPropagation(); m.classList.remove('on'); confirmaParar(); };
+  return m;
 }
+function confirmaParar() {
+  const ov = document.createElement('div'); ov.className = 'pb-of-modal';
+  ov.innerHTML = '<div class="c" role="dialog" aria-modal="true" aria-labelledby="pb-of-mt"><h3 id="pb-of-mt">¿Seguro que quieres parar todo?</h3>'
+    + '<p>WhatsApp y email dejan de escribir a empresas ahora mismo. No envían nada hasta que pulses «Reanudar todo».</p>'
+    + '<div class="bt"><button type="button" class="no">Cancelar</button><button type="button" class="si">Sí, parar todo</button></div></div>';
+  const fuera = () => ov.remove();
+  ov.onclick = (e) => { e.stopPropagation(); if (e.target === ov) fuera(); };
+  ov.querySelector('.no').onclick = fuera;
+  ov.querySelector('.si').onclick = (e) => { fuera(); accion('agentes_parar', { modo: 'parar' }, 'Todo parado: ningún agente escribe a nadie.', e.currentTarget); };
+  ov.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); fuera(); } });
+  wrap.append(ov); ov.querySelector('.no').focus();
+}
+document.addEventListener('click', () => { const m = hud.querySelector('.pb-of-mas.on'); if (m) m.classList.remove('on'); });
 /* "Actualizado hace…" al pasar el ratón por la píldora */
 function horaHud() { const sg = Math.round((Date.now() - (S.cargado || Date.now())) / 1000); hud.title = 'Datos de ahora mismo · actualizado ' + (sg < 10 ? 'hace un momento' : sg < 60 ? `hace ${sg} s` : `hace ${Math.round(sg / 60)} min`); }
 setInterval(horaHud, 10000);
@@ -663,7 +688,9 @@ async function montar() {
   const M = {
     cuerpo: new THREE.MeshStandardMaterial({ color: 0xc4c8d6, roughness: .38, metalness: .25 }),
     oscuro: new THREE.MeshStandardMaterial({ color: 0x1a1d30, roughness: .4, metalness: .45 }),
-    mesa: new THREE.MeshStandardMaterial({ color: 0x2b2f50, roughness: .4, metalness: .35 }),
+    mesa: new THREE.MeshStandardMaterial({ color: 0xA9743F, roughness: .55, metalness: .05 }),   // tablero de madera
+    cristal: new THREE.MeshStandardMaterial({ color: 0xCFE3FF, roughness: .08, metalness: .1, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide }),
+    canto: new THREE.MeshStandardMaterial({ color: 0xC48A52, roughness: .5, metalness: .05 }),
     marco: new THREE.MeshStandardMaterial({ color: 0x0a0b14, roughness: .35, metalness: .4 }),
     madera: new THREE.MeshStandardMaterial({ color: 0x5a4636, roughness: .7, metalness: .05 }),
     tela: new THREE.MeshStandardMaterial({ color: 0x2c3054, roughness: .9 }),
@@ -792,6 +819,11 @@ async function montar() {
     const halo = new THREE.Mesh(new THREE.PlaneGeometry(1.8, .9), new THREE.MeshBasicMaterial({ color: new THREE.Color(COL_EST.trabajando), transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
     halo.rotation.x = -Math.PI / 2; halo.position.set(0, .785, .02); p.add(halo);
     const ch = silla(); ch.position.set(0, 0, .85); p.add(ch);
+    /* cubículo: mampara baja de cristal detrás del monitor y a los lados, con canto de madera arriba */
+    [[0, -.62, 2.05, 0], [-1.02, -.12, 1.0, Math.PI / 2], [1.02, -.12, 1.0, Math.PI / 2]].forEach(([mx, mz, ancho, rot]) => {
+      const vid = new THREE.Mesh(new THREE.PlaneGeometry(ancho, .62), M.cristal); vid.position.set(mx, 1.06, mz); vid.rotation.y = rot; p.add(vid);
+      const cant = new THREE.Mesh(new THREE.BoxGeometry(ancho, .035, .045), M.canto); cant.position.set(mx, 1.385, mz); cant.rotation.y = rot; p.add(cant);
+    });
     sombra(p, 0, .15, 2.4, 2.1);
     const tiraMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(COL_EST.dormido), toneMapped: false });
     en(p, new THREE.Mesh(new THREE.BoxGeometry(1.86, .025, .025), tiraMat), 0, .705, .48);
@@ -854,6 +886,17 @@ async function montar() {
   /* reparto de los dos más cercanos al frente: izquierda y derecha en el orden de la lista */
   const sitio = new Map();
   ordenSalas.forEach((d, i) => { const a = huecos[i], r = d.activo ? RANILLO : PLAZA + RVACIA + 2.2; sitio.set(d.id, { x: Math.sin(a) * r, z: Math.cos(a) * r }); });
+  // Parqué de madera cálida para las salas con agentes (como las oficinas del vídeo)
+  const parquet = canvasTex(512, 512, (c) => {
+    const tonos = ['#6E4A2E', '#7A5233', '#684528', '#80573A', '#734D30'];
+    for (let fila = 0; fila < 16; fila++) {
+      let x = -((fila * 37) % 96);
+      while (x < 512) { const w = 70 + ((x * 7 + fila * 13) % 60); c.fillStyle = tonos[(fila + Math.floor(x / 50)) % tonos.length]; c.fillRect(x, fila * 32, w - 2, 30); x += w; }
+    }
+    c.fillStyle = 'rgba(0,0,0,.18)'; for (let fila = 0; fila <= 16; fila++) c.fillRect(0, fila * 32 - 1, 512, 2);
+    const v = c.createRadialGradient(256, 256, 60, 256, 256, 256); v.addColorStop(0, 'rgba(255,214,160,.10)'); v.addColorStop(1, 'rgba(0,0,0,.35)'); c.fillStyle = v; c.fillRect(0, 0, 512, 512);
+  });
+  parquet.wrapS = parquet.wrapT = THREE.RepeatWrapping; parquet.repeat.set(1.6, 1.6);
   const sueloSala = canvasTex(512, 512, (c) => {
     c.fillStyle = '#141731'; c.fillRect(0, 0, 512, 512);
     c.strokeStyle = 'rgba(255,255,255,.06)'; c.lineWidth = 2;
@@ -867,7 +910,7 @@ async function montar() {
     const { x, z } = sitio.get(d.id);
     const col = new THREE.Color(d.color), on = d.activo;
     /* plataforma redonda con su filo de luz */
-    const plat = new THREE.Mesh(new THREE.CylinderGeometry(RS, RS + .1, ALTO, 72), [new THREE.MeshStandardMaterial({ color: on ? 0x171b36 : 0x141730, roughness: .5, metalness: .35 }), new THREE.MeshStandardMaterial({ map: sueloSala, roughness: .55, metalness: .3 }), new THREE.MeshStandardMaterial({ color: 0x101225 })]);
+    const plat = new THREE.Mesh(new THREE.CylinderGeometry(RS, RS + .1, ALTO, 72), [new THREE.MeshStandardMaterial({ color: on ? 0x171b36 : 0x141730, roughness: .5, metalness: .35 }), new THREE.MeshStandardMaterial({ map: on ? parquet : sueloSala, roughness: on ? .7 : .55, metalness: on ? .05 : .3 }), new THREE.MeshStandardMaterial({ color: 0x101225 })]);
     plat.position.set(x, ALTO / 2, z); scene.add(plat);
     const banda = new THREE.Mesh(new THREE.TorusGeometry(RS + .02, .03, 8, 120), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: on ? .85 : .25, toneMapped: false }));
     banda.rotation.x = Math.PI / 2; banda.position.set(x, ALTO - .02, z); scene.add(banda); const bandaBase = on ? .85 : .25;

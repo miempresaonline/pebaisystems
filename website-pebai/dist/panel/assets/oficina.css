@@ -282,3 +282,24 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-lista .st i{width:8px;height:8px;border-radius:50%;background:var(--c)}
 .pb-of-lista .vacias{max-width:760px;margin:4px auto;color:#5C5F73;font-size:12.5px}
 @media (max-width:760px){.pb-of-lista{padding:70px 12px 90px}}
+.pb-of-todo .it{position:relative}
+.pb-of-todo .it .quita{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;margin-left:4px;border-radius:50%;color:#6E7186;font:700 15px var(--sans);line-height:1;opacity:0;transition:opacity .2s,background .2s,color .2s}
+.pb-of-todo .it:hover .quita,.pb-of-todo .it .quita:focus{opacity:1}
+.pb-of-todo .it .quita:hover{background:rgba(255,255,255,.1);color:#fff}
+@media (hover:none){.pb-of-todo .it .quita{opacity:1}}
+.pb-of-mas{position:relative}
+.pb-of-mas .b{width:38px;height:38px;border-radius:14px;border:1px solid rgba(255,255,255,.09);background:rgba(11,13,24,.92);color:#8C8FA3;font:800 16px var(--sans);cursor:pointer;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.pb-of-mas .b:hover,.pb-of-mas.on .b{color:#fff;border-color:rgba(255,255,255,.22)}
+.pb-of-mas .menu{display:none;position:absolute;top:44px;left:0;min-width:230px;padding:6px;border-radius:14px;background:rgba(11,13,24,.98);border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.pb-of-mas.on .menu{display:block;animation:pb-of-up .2s var(--ease)}
+.pb-of-mas .menu button{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border:0;border-radius:10px;background:transparent;color:#FF8C96;font:700 12.5px var(--sans);cursor:pointer;text-align:left}
+.pb-of-mas .menu button:hover{background:rgba(255,94,108,.12)}
+.pb-of-mas .menu svg{width:12px;height:12px}
+.pb-of-modal{position:absolute;inset:0;z-index:30;display:grid;place-items:center;background:rgba(4,5,10,.6);backdrop-filter:blur(3px);animation:pb-of-up .2s var(--ease)}
+.pb-of-modal .c{width:min(380px,calc(100% - 32px));padding:22px;border-radius:20px;background:#0E1120;border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.pb-of-modal h3{margin:0 0 8px;font:800 17px var(--sans);color:#fff}
+.pb-of-modal p{margin:0 0 18px;font-size:13.5px;line-height:1.5;color:#A9ABBE}
+.pb-of-modal .bt{display:flex;justify-content:flex-end;gap:8px}
+.pb-of-modal .bt button{padding:9px 15px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#EFEDE7;font:700 13px var(--sans);cursor:pointer}
+.pb-of-modal .bt .si{background:#FF5E6C;border-color:#FF5E6C;color:#fff}
+.pb-of-modal .bt .si:hover{background:#ff7480}
