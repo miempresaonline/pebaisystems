@@ -372,7 +372,8 @@ raiz.addEventListener('click', (e) => {
   if (fila) { const i = +fila.dataset.v; S.abierto = S.abierto === i ? -1 : i; cambia('.rd-tabla-w', tabla(S.C)); }
 });
 
-/* Accesos a cada red: se piden al abrir (no se guardan en la página) y la contraseña va oculta hasta pulsar «Mostrar» */
+/* Accesos a las redes, en esquema: cada cuenta «madre» (Instagram, Google, TikTok) con su usuario y contraseña,
+   y colgando de ella las redes en las que se entra con esa cuenta. Se piden al abrir y la contraseña va oculta. */
 async function accesos() {
   let j;
   try {
@@ -380,24 +381,35 @@ async function accesos() {
     if (r.status === 401) { location.reload(); return; }
     j = await r.json();
   } catch (e) { j = { ok: false }; }
-  const ov = document.createElement('div'); ov.className = 'rd-acc';
-  const TEL = '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18h2"/>', USU = '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>';
-  const chip = (x) => {
-    const g = x.google === true ? `<span class="rd-via si">${marca('google', 'xs')}<i>✓</i>Con Google</span>`
-      : x.google === false ? `<span class="rd-via no">${marca('google', 'xs')}<i>✕</i>${x.metodo === 'telefono' ? 'Nunca con Google' : 'Sin Google'}</span>` : '';
-    const m = x.metodo === 'instagram' ? `<span class="rd-via ig">${marca('instagram', 'xs')}Con la cuenta de Instagram</span>`
-      : x.metodo === 'telefono' ? `<span class="rd-via">${ico(TEL)}Con el teléfono</span>`
-      : x.metodo === 'usuario' ? `<span class="rd-via">${ico(USU)}Usuario y contraseña</span>`
-      : x.metodo === 'personal' ? `<span class="rd-via">${ico(USU)}Solo Daniel</span>` : '';
-    return m + g;
+  const R = j.redes || [];
+  const por = (n) => R.find((x) => x.red.toLowerCase() === n);
+  const ig = por('instagram'), tt = por('tiktok');
+  const conIg = R.filter((x) => x.metodo === 'instagram');
+  const conG = R.filter((x) => x.google === true);
+  const g0 = conG.find((x) => x.usuario) || {};
+  const otras = R.filter((x) => x !== ig && x !== tt && !conIg.includes(x) && !conG.includes(x));
+  const claves = [];
+  const dato = (etq, v, oculto) => {
+    if (!v) return '';
+    const k = claves.push(v) - 1;
+    return `<div class="rd-acc-c"><small>${etq}</small><code ${oculto ? `data-clave="${k}"` : ''}>${oculto ? '••••••••••' : esc(v)}</code>`
+      + (oculto ? `<button type="button" data-ver="${k}" title="Mostrar">Ver</button>` : '') + `<button type="button" data-copia="${k}" title="Copiar">Copiar</button></div>`;
   };
-  const filas = (j.redes || []).map((x, i) => `<div class="rd-acc-r">${marca(x.icono)}<div class="rd-acc-cu"><div class="rd-acc-h"><b>${esc(x.red)}</b></div><div class="rd-acc-vias">${chip(x)}</div>`
-    + (x.aviso ? `<p class="rd-acc-av">${esc(x.aviso)}</p>` : '')
-    + (x.usuario ? `<div class="rd-acc-c"><small>Usuario</small><code>${esc(x.usuario)}</code><button type="button" data-copia="u${i}">Copiar</button></div>` : '')
-    + (x.clave ? `<div class="rd-acc-c"><small>Contraseña</small><code data-clave="${i}">••••••••••</code><button type="button" data-ver="${i}">Mostrar</button><button type="button" data-copia="c${i}">Copiar</button></div>` : '')
-    + (x.nota ? `<p class="rd-acc-n">${esc(x.nota)}</p>` : '') + '</div></div>').join('');
-  ov.innerHTML = `<div class="rd-acc-in" role="dialog" aria-modal="true" aria-labelledby="rd-acc-t"><header><h2 id="rd-acc-t">Accesos a las redes</h2><button type="button" class="rd-acc-x" aria-label="Cerrar">×</button></header>`
-    + (j.ok && filas ? filas : '<p class="rd-acc-n">Todavía no hay accesos guardados en el servidor.</p>')
+  const via = (si, txt) => `<span class="rd-via ${si ? 'si' : 'no'}">${marca('google', 'xs')}<i>${si ? '✓' : '✕'}</i>${txt}</span>`;
+  const hijos = (lista) => lista.length ? `<div class="rd-acc-arbol"><small>Con esta cuenta entras en</small><div>${lista.map((x) => `<span class="rd-acc-hijo">${marca(x.icono, 'sm')}<b>${esc(x.red)}</b></span>`).join('')}</div></div>` : '';
+  const tarjeta = (logo, titulo, cuerpo) => `<section class="rd-acc-t"><header>${marca(logo)}<b>${titulo}</b></header>${cuerpo}</section>`;
+  const html = [
+    ig && tarjeta('instagram', 'Cuenta de Instagram', via(false, 'No con Google') + dato('Usuario', ig.usuario) + dato('Contraseña', ig.clave, true) + hijos(conIg)),
+    g0.usuario && tarjeta('google', 'Cuenta de Google', via(true, 'Botón «Continuar con Google»') + dato('Correo', g0.usuario) + dato('Contraseña', g0.clave, true)
+      + (g0.nota ? `<p class="rd-acc-n">${esc(g0.nota)}</p>` : '') + hijos(conG)),
+    tt && tarjeta('tiktok', 'TikTok', via(false, 'Nunca con Google') + dato('Teléfono', tt.usuario) + dato('Contraseña', tt.clave, true)
+      + `<p class="rd-acc-av">${esc(tt.aviso || 'Con Google se crea otra cuenta con otro número.')}</p>`),
+  ].filter(Boolean).join('');
+  const pie = otras.map((x) => `<span class="rd-acc-otra">${marca(x.icono, 'xs')}<b>${esc(x.red)}</b> ${esc(x.nota || x.como || '')}</span>`).join('');
+  const ov = document.createElement('div'); ov.className = 'rd-acc';
+  ov.innerHTML = `<div class="rd-acc-in" role="dialog" aria-modal="true" aria-labelledby="rd-acc-t"><header class="rd-acc-top"><h2 id="rd-acc-t">Accesos a las redes</h2><button type="button" class="rd-acc-x" aria-label="Cerrar">×</button></header>`
+    + (j.ok && html ? `<div class="rd-acc-g">${html}</div>` : '<p class="rd-acc-n">Todavía no hay accesos guardados en el servidor.</p>')
+    + (pie ? `<div class="rd-acc-pie2">${pie}</div>` : '')
     + '<p class="rd-acc-pie">Solo se ven con la sesión del panel iniciada. Nunca se guardan en el código.</p></div>';
   const cierra = () => { ov.remove(); document.removeEventListener('keydown', tecla); };
   const tecla = (e) => { if (e.key === 'Escape') cierra(); };
@@ -405,12 +417,9 @@ async function accesos() {
   ov.addEventListener('click', (e) => {
     if (e.target === ov || e.target.closest('.rd-acc-x')) { cierra(); return; }
     const v = e.target.closest('[data-ver]');
-    if (v) { const c = ov.querySelector(`[data-clave="${v.dataset.ver}"]`), ver = v.textContent === 'Mostrar'; c.textContent = ver ? j.redes[+v.dataset.ver].clave : '••••••••••'; v.textContent = ver ? 'Ocultar' : 'Mostrar'; return; }
+    if (v) { const c = ov.querySelector(`[data-clave="${v.dataset.ver}"]`), ver = v.textContent === 'Ver'; c.textContent = ver ? claves[+v.dataset.ver] : '••••••••••'; v.textContent = ver ? 'Ocultar' : 'Ver'; return; }
     const cp = e.target.closest('[data-copia]');
-    if (cp) {
-      const k = cp.dataset.copia, x = j.redes[+k.slice(1)], t = k[0] === 'u' ? x.usuario : x.clave;
-      navigator.clipboard.writeText(t).then(() => { cp.textContent = 'Copiado'; setTimeout(() => { cp.textContent = 'Copiar'; }, 1500); }).catch(() => {});
-    }
+    if (cp) navigator.clipboard.writeText(claves[+cp.dataset.copia]).then(() => { cp.textContent = 'Copiado'; setTimeout(() => { cp.textContent = 'Copiar'; }, 1500); }).catch(() => {});
   });
   document.body.append(ov); ov.querySelector('.rd-acc-x').focus();
 }

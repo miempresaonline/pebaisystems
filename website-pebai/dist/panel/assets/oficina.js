@@ -943,18 +943,6 @@ async function montar() {
     /* cartel en el borde trasero de la sala, de cara a quien mira: así nunca tapa a los agentes */
     const sign = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, toneMapped: false, depthWrite: false })); sign.scale.set(4.4, 1.1, 1); sign.position.set(0, 1.1, -RSALA - .15); sign.center.set(.5, 0); g.add(sign);
     sign.userData.sala = d; plat.userData.sala = d; clicables.push(sign, plat);
-    /* pantalla LED curva en el fondo de la sala (como las paredes de pantallas del vídeo): una barra por agente */
-    let muro = null;
-    if (on) {
-      const cvM = document.createElement('canvas'); cvM.width = 1024; cvM.height = 256;
-      const txM = new THREE.CanvasTexture(cvM); txM.colorSpace = THREE.SRGBColorSpace; txM.anisotropy = 4;
-      txM.wrapS = THREE.RepeatWrapping; txM.repeat.x = -1;   // se ve por dentro: se da la vuelta para que no salga al revés
-      const arco = 1.25, rM = RS + .02;
-      const pant = new THREE.Mesh(new THREE.CylinderGeometry(rM, rM, 1.3, 48, 1, true, Math.PI - arco / 2, arco),
-        new THREE.MeshBasicMaterial({ map: txM, side: THREE.DoubleSide, toneMapped: false }));
-      pant.position.set(0, 4.15, 0); g.add(pant);
-      muro = { ctx: cvM.getContext('2d'), tx: txM, d };
-    }
     /* cable del núcleo al cristal de la columna */
     const fin = new THREE.Vector3(x, ALTO + (ALTA + .18) * esc, z);
     const dir = fin.clone().sub(NUC).setY(0).normalize();
@@ -976,7 +964,7 @@ async function montar() {
       });
       panelPie(0, 2.4);
     }
-    const s = { d, g, sign, muro, esc, W, tronco, ledsSala, reloj: null, bus: null, banda, bandaBase, destello, tiraRack, recMat, flash: 0, cristal, auraCol };
+    const s = { d, g, sign, esc, W, tronco, ledsSala, reloj: null, bus: null, banda, bandaBase, destello, tiraRack, recMat, flash: 0, cristal, auraCol };
     tronco.sala = s;
     salas.set(d.id, s);
     /* los agentes en círculo alrededor de la columna, mirando hacia ella; el primero, de cara a la cámara */
@@ -1054,26 +1042,6 @@ async function montar() {
     lamparas.forEach((l) => { l.pant.emissiveIntensity = .12 + .55 * noche; l.charco.opacity = .18 + .3 * noche; });
   }
   const flotantes = [];
-  /* La pantalla de la pared: fondo de puntos LED y una barra por agente (alto = lo hecho hoy frente a lo mejor de la sala),
-     del color de su estado; la del que trabaja, con brillo. Sin textos largos: solo el total de hoy. */
-  function pintaMuro(m) {
-    const g = m.ctx, W = 1024, H = 256, ags = agsDe(m.d.id);
-    g.fillStyle = '#05060d'; g.fillRect(0, 0, W, H);
-    for (let y = 6; y < H; y += 12) for (let x = 6; x < W; x += 12) { g.fillStyle = (x * 7 + y * 13) % 97 < 6 ? hexA(m.d.color, .5) : 'rgba(255,255,255,.045)'; g.fillRect(x, y, 3, 3); }
-    const tope = Math.max(1, ...ags.map((a) => a.cupo || a.hoy || 0));
-    const n = Math.max(1, ags.length), bw = Math.min(70, (W - 260) / n * .62), paso = (W - 260) / n;
-    ags.forEach((a, i) => {
-      const v = vis(a.st), col = COL_EST[v] || COL_EST.dormido;
-      const h = Math.max(10, (H - 70) * Math.min(1, (a.hoy || 0) / tope)), x = 230 + i * paso + (paso - bw) / 2;
-      g.fillStyle = 'rgba(255,255,255,.06)'; g.fillRect(x, 30, bw, H - 70);
-      if (v === 'trabajando') { g.shadowColor = col; g.shadowBlur = 24; }
-      g.fillStyle = col; g.fillRect(x, H - 40 - h, bw, h); g.shadowBlur = 0;
-    });
-    const tot = ags.reduce((t, a) => t + (a.hoy || 0), 0);
-    g.fillStyle = m.d.color; g.font = '800 92px Manrope, sans-serif'; g.textAlign = 'left'; g.textBaseline = 'alphabetic'; g.fillText(N(tot), 40, 150);
-    g.fillStyle = 'rgba(255,255,255,.55)'; g.font = '700 26px Manrope, sans-serif'; g.fillText('hoy', 44, 190);
-    m.tx.needsUpdate = true;
-  }
 
   /* ---------- fichas encima de cada agente: qué hace, cuánto lleva y cuándo entrega o recibe ---------- */
   // Progreso real: cupo del día, provincia «19 de 52» o tiempo de su turno de 45 min. null si no se puede saber.
@@ -1281,7 +1249,6 @@ async function montar() {
         ponOn(s.tronco, tr ? 1 : .25); if (s.bus) ponOn(s.bus, tr ? 1 : .15);
       }
       if (s.sign.material.map) s.sign.material.map.dispose(); s.sign.material.map = cartel(d, partes); s.sign.material.needsUpdate = true;
-      if (s.muro) pintaMuro(s.muro);
     });
     orbeMat.uniforms.uErr.value = pendientes().some((p) => p.err) ? .55 : 0;
     buscaTraspasos();
