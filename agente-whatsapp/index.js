@@ -95,10 +95,12 @@ async function conectar() {
     logger,
     browser: Browsers.macOS('Chrome'),
     markOnlineOnConnect: false,       // no aparecer "en línea" cada vez que el servidor se conecta
-    syncFullHistory: false,
+    syncFullHistory: true,            // Cerebro (27/10): al vincular, el móvil manda todo el historial de los chats
+    shouldSyncHistoryMessage: () => true,
     generateHighQualityLinkPreview: false,
   });
   sock.ev.on('creds.update', saveCreds);
+  sock.ev.on('contacts.upsert', (lista) => contactosACerebro(lista).catch(() => {}));
 
   sock.ev.on('connection.update', async ({ connection, lastDisconnect, qr }) => {
     // Sin sesión: se vincula escaneando un QR que sale en el panel (WA_VINCULO=qr, por defecto).
@@ -154,6 +156,7 @@ async function conectar() {
     if (type !== 'notify' && type !== 'append') return;
     for (const m of messages) {
       if (!m.message) continue;
+      await aCerebro(m, true);
       // Lo que envía el propio agente ya está registrado: se reconoce por su id y se salta (pero sirve de ancla del historial).
       if (m.key.fromMe && enviadosAgente.has(m.key.id)) { const t = await telDelChat(m.key); if (t) apuntaUltimo(t, m); continue; }
       if (!m.key.fromMe && type !== 'notify') continue;
@@ -185,9 +188,11 @@ async function conectar() {
     }
   });
   // Historial que manda el móvil cuando se le pide (recuperaHistorial): solo se guardan los mensajes de Daniel que faltan
-  sock.ev.on('messaging-history.set', async ({ messages = [], syncType }) => {
+  sock.ev.on('messaging-history.set', async ({ messages = [], contacts = [], syncType }) => {
     let n = 0;
     log('Historial recibido del móvil:', messages.length, 'mensajes (tipo ' + syncType + ')');
+    for (const m of messages) await aCerebro(m, false);
+    contactosACerebro(contacts).catch((e) => log('Cerebro: contactos', e.message));
     let notas = 0;
     for (const m of messages) {
       if (!m.message) continue;
@@ -258,6 +263,51 @@ async function historialTodos() {
     await sleep(rand(3e3, 6e3));
   }
   log('Historial pedido al móvil para', tels.length, 'chats');
+}
+
+/* -------------------------------------------------------------- Cerebro --- */
+// Cerebro lee todos los chats (no grupos, estados ni canales): lo que escriben a Daniel y lo que escribe él, en directo y del
+// historial. Solo lo manda al panel (api/agente.php → private/cerebro.sqlite) para avisar a la oficina y aprender. Nunca envía.
+const colaCerebro = { vivo: [], historial: [] };
+let cerebroTimer = null, cerebroSinNumero = 0;
+const SIN_TEXTO = ['protocolMessage', 'reactionMessage', 'senderKeyDistributionMessage', 'pollUpdateMessage', 'keepInChatMessage', 'pinInChatMessage', 'messageContextInfo'];
+const tsDe = (m) => { const t = m.messageTimestamp; return t && typeof t === 'object' ? (t.toNumber ? t.toNumber() : Number(t.low) || 0) : Number(t) || 0; };
+async function aCerebro(m, vivo) {
+  try {
+    if (!m.message || !m.key?.id || !/@(s\.whatsapp\.net|lid)$/.test(m.key.remoteJid || '')) return;
+    const crudo = m.message.deviceSentMessage?.message || m.message.ephemeralMessage?.message || m.message;
+    if (Object.keys(crudo).every((k) => SIN_TEXTO.includes(k))) return;
+    const tel = await telDelChat(m.key);
+    if (!tel || tel === NUMERO) { cerebroSinNumero++; return; }
+    (vivo ? colaCerebro.vivo : colaCerebro.historial).push({
+      tel, id: m.key.id, de_mi: !!m.key.fromMe, agente: enviadosAgente.has(m.key.id), texto: textoDe(m.message), ts: tsDe(m),
+      nombre: m.key.fromMe ? '' : (m.pushName || ''),
+    });
+    if (!cerebroTimer) cerebroTimer = setTimeout(vaciaCerebro, vivo ? 4000 : 1500);
+  } catch (e) { log('Cerebro: no se pudo leer un mensaje:', e.message); }
+}
+async function vaciaCerebro() {
+  cerebroTimer = null;
+  for (const vivo of [true, false]) {
+    const cola = vivo ? colaCerebro.vivo : colaCerebro.historial;
+    while (cola.length) {
+      const lote = cola.splice(0, 300);
+      const r = await api('cerebro', { vivo, mensajes: lote });
+      if (!r) { cola.unshift(...lote); cerebroTimer = setTimeout(vaciaCerebro, 60e3); return; }   // el panel no responde: se reintenta
+    }
+  }
+  if (cerebroSinNumero) { log('Cerebro: ' + cerebroSinNumero + ' mensajes sin número de chat (no se guardan)'); cerebroSinNumero = 0; }
+}
+// Nombres de la agenda del móvil o del perfil de cada contacto
+async function contactosACerebro(lista = []) {
+  const out = [];
+  for (const c of lista) {
+    let jid = c.phoneNumber || c.id || '';
+    if (isLidUser(jid)) jid = (await sock.signalRepository.lidMapping.getPNForLID(jid).catch(() => null)) || '';
+    const nombre = c.name || c.notify || c.verifiedName || '';
+    if (jid.endsWith('@s.whatsapp.net') && nombre) out.push({ tel: jid.split('@')[0].split(':')[0], nombre });
+  }
+  for (let i = 0; i < out.length; i += 1000) await api('cerebro_contactos', { contactos: out.slice(i, i + 1000) });
 }
 
 /* --------------------------------------------------- envío como persona --- */

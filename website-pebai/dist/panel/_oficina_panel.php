@@ -303,6 +303,36 @@ function of_scraper(): array
     return $a;
 }
 
+/** Cerebro: lee todos los chats de WhatsApp de Daniel (api/_cerebro_lib.php), avisa a la oficina y aprende. Nunca envía. */
+function of_cerebro(): array
+{
+    require_once dirname(__DIR__) . '/api/_cerebro_lib.php';
+    $a = of_agente(['id' => 'cerebro', 'dept' => 'captacion', 'nombre' => 'Cerebro', 'glifo' => 'flow', 'rol' => 'Lee todos tus chats de WhatsApp, avisa a la oficina y aprende de cómo respondes', 'unidad' => 'mensajes leídos']);
+    $a['actividad'] = of_actividad('cerebro', 30);
+    $a['errores'] = of_errores($a['actividad']);
+    $c = pebai_cerebro_cifras();
+    $a['hoy'] = $c['hoy'];
+    $ult = $a['actividad'][0] ?? null;
+    $reciente = $ult && strtotime($ult['ts']) > time() - 1200;
+    $a['st'] = $a['errores'] ? 'error' : ($reciente ? 'trabajando' : 'espera');
+    $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt']
+        : ($reciente ? $ult['txt']
+        : ($c['mensajes'] ? 'Escuchando tus chats: ' . number_format($c['mensajes'], 0, ',', '.') . ' mensajes de ' . $c['chats'] . ' chats leídos.'
+        : 'Esperando a que se vuelva a vincular WhatsApp para leer todo el historial.'));
+    if (!$c['mensajes']) {
+        $a['necesita'][] = 'Volver a vincular WhatsApp (escanear el QR) para que lea el historial antiguo';
+    }
+    $a['proxima'] = 'Siempre escuchando';
+    $a['ultima'] = of_ultima($a['actividad'], ['hito']);
+    $a['datos'] = [
+        ['Mensajes leídos', number_format($c['mensajes'], 0, ',', '.')],
+        ['Chats', (string)$c['chats']],
+        ['Escritos por ti', number_format($c['mios'], 0, ',', '.')],
+        ['Desde', $c['desde'] ? date('d/m/Y', $c['desde']) : '—'],
+    ];
+    return $a;
+}
+
 /** Redactor: rutina de Claude en la nube que lee la web de cada empresa y escribe su primer WhatsApp o email (api/redactor.php). */
 function of_redactor(): array
 {
@@ -555,7 +585,7 @@ function of_ultima(array $act, array $tipos): ?array
 function of_estado(PDO $db): array
 {
     $ags = [];
-    foreach (['of_scraper', 'of_redactor', 'of_whatsapp', 'of_email'] as $fn) {
+    foreach (['of_scraper', 'of_redactor', 'of_whatsapp', 'of_email', 'of_cerebro'] as $fn) {
         try {
             $ags[] = $fn();
         } catch (Throwable $e) {
@@ -595,7 +625,7 @@ function of_resumen_agentes(string $dept): array
     if ($dept === 'geo') {
         return array_column(OF_GEO_AGENTES, 1, 0) + ['geo' => 'Jefe GEO'];  // 'geo': el primer agente GEO
     }
-    return $dept === 'captacion' ? ['prospeccion' => 'Scraper', 'redactor' => 'Redactor', 'whatsapp' => 'WhatsApp', 'email' => 'Email'] : [];
+    return $dept === 'captacion' ? ['prospeccion' => 'Scraper', 'redactor' => 'Redactor', 'whatsapp' => 'WhatsApp', 'email' => 'Email', 'cerebro' => 'Cerebro'] : [];
 }
 
 /** Quita teléfonos y emails antes de mandar nada a la IA (datos mínimos). */

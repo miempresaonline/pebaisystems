@@ -31,6 +31,15 @@ $db = pebai_agentes_db();
 $now = date('Y-m-d H:i:s');
 
 switch ($in['accion'] ?? '') {
+    case 'cerebro':
+        // Cerebro: todos los mensajes de todos los chats (en directo o del historial), para avisar y aprender. Nunca envía.
+        require_once __DIR__ . '/_cerebro_lib.php';
+        out(['ok' => true] + pebai_cerebro_guardar(array_slice((array)($in['mensajes'] ?? []), 0, 500), !empty($in['vivo'])));
+
+    case 'cerebro_contactos':
+        require_once __DIR__ . '/_cerebro_lib.php';
+        out(['ok' => true, 'n' => pebai_cerebro_contactos(array_slice((array)($in['contactos'] ?? []), 0, 2000))]);
+
     case 'latido':
         // Estado del bot: conectado | esperando_vinculo | desvinculado | reconectando. Con el código de vinculación si toca.
         $estado = preg_replace('/[^a-z_]/', '', (string)($in['estado'] ?? ''));
