@@ -2,6 +2,17 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-27 (mañana: buscadores e IAs, mejora continua a)
+
+Sin novedades útiles en las últimas 48 h: las búsquedas sobre Google (AI Overviews/AI Mode), OpenAI, Perplexity y Bing/Copilot solo devuelven lo ya anotado (AFP, 16/10/2026) y material de 2024-2025. Descartado.
+
+**Preguntas del set hoy (solo WebSearch, vista de Claude, 27/10/2026) [V]:**
+- P11 «Agente de voz con IA para atender llamadas en una clínica»: salen Retell AI (dos guías, ranking de 8 agentes para clínicas, https://www.retellai.com/es/blog/top-8-ai-voice-agents-for-appointment-scheduling-in-clinics-and-healthcare), ElevenLabs (dos landings de atención médica) y CloudTalk (https://www.cloudtalk.io/es/agente-de-voz-ia-para-sanidad/). Todo software extranjero, nada de consultoras españolas; la respuesta menciona HIPAA (EE. UU.) y avisa de verificar RGPD. PEBAI no sale.
+- P13 «¿Cómo responder más rápido a los presupuestos con IA?»: GelatoConnect (impresión), eplaneai (aviación), Beam AI y Salesforce. Cifras de marketing (15 segundos, 5 minutos) sin verificar; sin ninguna fuente española de pymes de servicios. PEBAI no sale.
+*Qué cambia para PEBAI:* hay hueco real en ambas, con la ventaja de ser local (RGPD y datos de salud en España en P11; un caso propio, Gargom o Santacruz, en P13). En P11 los textos que ganan son guías de herramienta con «cumplimiento»; una página con RGPD/LOPDGDD y derivación a una persona sería diferencial. P13 ya está en cola de Contenido (satélite de presupuestos).
+
+Comprobación técnica 07:05 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-26 (20:00: mercado español, mejora continua b)
 
 Sin novedades fechadas de las últimas 48 h en buscadores ni IAs (la búsqueda solo devuelve material de 2025 o sin fecha). Descartado.
@@ -159,6 +170,8 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 3. **Competencia: javadex.es** [V]. Su web vende un sistema de IA desde 5.000 € (4-8 semanas) con GEO como un servicio más entre seis; sin páginas GEO propias visibles. Fuente: https://javadex.es (consultada 21/10/2026). *Para PEBAI:* hueco para páginas GEO dedicadas y citables.
 
 ## Para el Jefe
+
+- (Vigía 27/10 mañana) **Contenido:** al preparar el satélite de presupuestos (P13) y cualquier página de agente de voz (P11), abrir con el ángulo que los resultados no cubren: pyme española, RGPD, derivación a una persona y un caso propio. Hoy solo salen proveedores extranjeros de software.
 
 - (Vigía 26/10 20:00) **Refresco/Contenido:** en /posicionamiento-en-ia/ añadir una frase corta y citable (con fuente propia, sin citar a Upliora) del tipo «las IAs no distinguen dónde está tu consultora, leen las señales que construye tu web»; y preparar, para cuando haya medición con PEBAI citada, una sección «cómo medimos» con panel, motores y fechas. **Medición:** ese formato de cifra (n.º de preguntas, motores, fechas, veces citados) es el que hay que usar en el informe del lunes. Análisis en la entrada de arriba del 26/10 20:00.
 
