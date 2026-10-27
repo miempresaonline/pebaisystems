@@ -1,6 +1,6 @@
 # Borrador · /agentes-ia/whatsapp/
 
-Estado: **borrador completo, listo para maquetar** (26/10/2026, turno de tarde de geo_contenido). Subpilar 1 de P3 en `docs/geo/pilares.md`. Responde a P6 y P10 del set (hoy los ocupan blogs de herramientas y Aunoa, sin caso español de una pyme de servicios).
+Estado: **publicada el 27/10/2026** en https://pebaisystems.es/agentes-ia/whatsapp/ (commit aa57371), con dos secciones añadidas al maquetar: «App WhatsApp Business o API oficial» y «Conectar el agente con tu CRM, tu tienda o tu agenda». La fuente de verdad es ya el HTML; este archivo queda como histórico. Subpilar 1 de P3 en `docs/geo/pilares.md`. Responde a P6 y P10 del set (hoy los ocupan blogs de herramientas y Aunoa, sin caso español de una pyme de servicios).
 
 ## Ficha
 
