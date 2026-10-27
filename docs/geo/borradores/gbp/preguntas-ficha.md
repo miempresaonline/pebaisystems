@@ -37,3 +37,18 @@ Para la sección «Preguntas y respuestas» de la ficha. Se publican desde una c
 
 12. **¿Cómo hacéis que ChatGPT recomiende mi empresa?**
     Trabajamos la web para que las herramientas de IA la entiendan: respuestas claras, datos con fuente y páginas por tema. Nadie puede prometer el primer puesto en ChatGPT.
+
+## Por sector (añadidas 27/10, a partir del análisis de Upliora)
+Casos reales de `casos.md`, sin cifras ni nombres de contacto.
+
+13. **¿Hacéis software para constructoras?**
+    Sí. Para Construcciones Gargom hicimos una aplicación de gestión de obras: presupuestos, certificaciones, gastos, pagos, personal, proveedores y rentabilidad de cada obra.
+
+14. **¿Podéis hacer una aplicación para un taller o negocio de automoción?**
+    Sí. Para Fran García Cars construimos una aplicación de revisiones de coches importados, con expedientes, fotos, aprobación técnica y licitaciones, y un asistente de WhatsApp.
+
+15. **¿Hacéis webs y portales para residencias o entidades sociales?**
+    Sí. A la Residencia El Amparo le hicimos una web nueva y un portal donde el equipo publica noticias y recibe candidaturas y solicitudes de las familias.
+
+16. **¿Trabajáis con empresas con varias sedes o idiomas?**
+    Sí. Para Suministros Industriales Santacruz hicimos una aplicación de almacén y pedidos en cuatro idiomas para sus sedes de cuatro países.
