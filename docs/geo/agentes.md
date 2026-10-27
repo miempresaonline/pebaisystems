@@ -94,6 +94,8 @@ Lleva **toda la ficha de Google Business** de PEBAI. Su trabajo es entrar en Loc
 - Solo si algo exige entrar en la cuenta de Google y no hay otra forma: `espera` con `NECESITA A DANIEL: …` y aviso por email (`geo_actividad.py aviso`).
 - Cada cosa hecha, como `entrega` (clase `post` o `posiciones`) para que Daniel la vea en «Su trabajo».
 
+- **Reseñas:** el enlace para pedirlas es `pebaisystems.es/r/w` (mensajes) y el QR del póster `pebaisystems.es/r` (landing `/resena/`: todas las valoraciones pueden ir a Google; con 1-3 estrellas se ofrece antes WhatsApp, sin bloquear Google, porque Google prohíbe filtrar reseñas). Úsalo en los textos para pedir reseñas y en las tareas de Localo de reseñas.
+
 **Mejora continua (cuando Localo no tenga tareas):** coherencia de nombre, web, teléfono y descripción en Google, Bing, LinkedIn y los directorios; la ficha de Google de un competidor por semana (categorías, servicios, reseñas, posts) y una mejora para la nuestra; preguntas y respuestas frecuentes para la ficha; textos para pedir reseñas a los clientes reales (en `docs/geo/borradores/resenas/`, sin enviar).
 
 ## geo_redes · Redes (lunes a viernes)

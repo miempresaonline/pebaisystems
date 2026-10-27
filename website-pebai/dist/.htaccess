@@ -49,6 +49,9 @@ RewriteRule ^li/geo/?$ posicionamiento-en-ia/?utm_source=linkedin&utm_medium=emp
 RewriteRule ^li/agentes/?$ agentes-ia/?utm_source=linkedin&utm_medium=empresa [R=302,L,QSA,NE]
 # Ficha de Google (ofertas y botones de la ficha)
 RewriteRule ^g/oferta/?$ consultoria-gratuita/?utm_source=google&utm_medium=gbp_oferta [R=302,L,QSA,NE]
+# QR de reseñas (póster, tarjetas, WhatsApp): /r abre la valoración; /r/w para mandarlo por WhatsApp o email
+RewriteRule ^r/?$ resena/?o=qr [R=302,L,QSA,NE]
+RewriteRule ^r/w/?$ resena/?o=mensaje [R=302,L,QSA,NE]
 # Tarjetas de visita (QR) para puerta fría: /t/adrian, /t/dani (ver assets/brand/pebai-systems/tarjetas/)
 # /t/adrian y /t/dani son tarjetas digitales (carpetas en dist/t/): solo se redirige si no existe la carpeta
 RewriteCond %{REQUEST_FILENAME} !-d
