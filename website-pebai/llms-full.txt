@@ -75,7 +75,19 @@ Los proyectos de implantación parten de 1.500 €.
 - [Fran García Cars: asistente de WhatsApp](https://pebaisystems.es/#caso-fran-garcia-cars-whatsapp): asistente de Inteligencia Artificial con la información de la empresa que responde dudas frecuentes, agenda citas y deriva a una persona, gestionado desde un panel.
 - [Construcciones Gargom: gestión de obras a medida](https://pebaisystems.es/#caso-construcciones-gargom): construcción (España). Sustituye un programa antiguo: presupuestos, certificaciones, gastos, pagos, personal, proveedores y rentabilidad por obra en un solo sitio.
 - [Suministros Industriales Santacruz: plataforma de pedidos](https://pebaisystems.es/#caso-suministros-santacruz): sedes en España, Francia, Países Bajos y Bélgica. App nueva y segura en 4 idiomas que sustituye otra de 20-30 años; base de datos migrada con 343 pedidos de 2026.
-- [Residencia El Amparo: web y portal de gestión](https://pebaisystems.es/#caso-residencia-el-amparo): residencia de mayores (España). Web nueva y portal para subvenciones, empleo y visitas; entregado en octubre de 2026, con 16 subvenciones publicadas.
+
+## Vídeos
+
+Vídeos cortos de PEBAI Systems sobre Inteligencia Artificial aplicada a empresas (Instagram: https://www.instagram.com/pebaisystems/).
+
+- [Automatizar no es para el futuro: es para no cerrar en dos años](https://www.instagram.com/reel/DecY1NuNfp7/): Por qué automatizar los procesos de una empresa ya no es cosa del futuro: la competencia atiende en segundos y presupuesta en automático.
+- [El cliente que no atiendes ya está llamando al de al lado](https://www.instagram.com/reel/DepZZOPDdjG/): La atención instantánea decide si una venta entra en tu empresa o en la de la competencia.
+- [Entre empresas no gana el mejor producto: gana el que responde antes](https://www.instagram.com/reel/DewW8RuiXzN/): En la venta entre empresas gana el proveedor que responde con más rapidez y claridad.
+- [Tus clientes ya preguntan a la IA qué empresa elegir](https://www.instagram.com/reel/DerNVC3ANIU/): Cada vez más clientes preguntan a la Inteligencia Artificial qué empresa elegir; si la tuya no aparece, pierdes clientes sin saberlo.
+- [Si una IA no sabe explicar qué haces, no te va a recomendar](https://www.instagram.com/reel/DeeVabpgZka/): Una prueba de 15 segundos para saber si una Inteligencia Artificial sabe explicar qué hace tu empresa.
+- [No necesitas automatizarlo todo](https://www.instagram.com/reel/DekIJmljMMb/): Automatizarlo todo es un error: primero hay que detectar qué tareas hacen perder tiempo, dinero y clientes.
+- [Si tu negocio se para cuando te vas, no es un negocio](https://www.instagram.com/reel/Dee6mGjALfu/): El valor de una empresa se mide por lo que pasa cuando el dueño no está: automatizar y documentar procesos da libertad.
+- [Tu equipo no necesita más horas, necesita un sistema](https://www.instagram.com/reel/Der24dLCer9/): Pasar datos, perseguir presupuestos o copiar facturas son tareas que puede hacer un sistema en lugar de tu equipo.
 
 ## Equipo
 
@@ -92,6 +104,7 @@ PEBAI Systems trabaja con empresas con equipo de cualquier sector en España: co
 
 - [Cómo aparecer en ChatGPT y en las respuestas de IA de Google](https://pebaisystems.es/posicionamiento-en-ia/): guía para empresas sobre posicionamiento en Inteligencia Artificial (GEO), con lo que vimos en 63 respuestas de IA en España.
 - [Agentes de IA para empresas: cómo atender a tus clientes por WhatsApp, teléfono y web](https://pebaisystems.es/agentes-ia/): qué es un agente de Inteligencia Artificial y en qué se diferencia de un chatbot, qué exige y cobra Meta para usarlo en WhatsApp desde el 1/10/2026, agentes de voz, qué dice el Reglamento de IA y cuándo no conviene.
+- [Cómo automatizar el WhatsApp de una empresa de servicios con un agente de IA](https://pebaisystems.es/agentes-ia/whatsapp/): diferencias entre la app WhatsApp Business y la API oficial, qué pide Meta (verificación, límites de 250 y 2.000 contactos al día, coexistencia del número a 26/10/2026), qué preparar, cómo conectar el agente con el CRM, la tienda online o la agenda, plantillas fuera de las 24 horas, cuatro cifras para medirlo y el caso del asistente de WhatsApp de Fran García Cars.
 - [Cómo implantar Inteligencia Artificial en tu empresa: por dónde empezar](https://pebaisystems.es/ia-para-empresas/): guía para empresas en España con los datos del INE del primer trimestre de 2026 (33,6 % de las empresas de 10 o más empleados usa IA), cinco pasos para empezar, qué exigen el Reglamento de IA y el RGPD, el estado del Kit Digital a 23/10/2026, qué mueve el precio, cuándo no conviene y seis criterios para elegir consultora.
 - [Automatización de procesos con IA: qué tareas de tu empresa puedes automatizar y cómo](https://pebaisystems.es/automatizacion-de-procesos/): qué tareas se automatizan por área (pedidos, presupuestos, facturas de proveedores, partes, informes), cuatro preguntas para decidir si una tarea merece la pena, datos del INE del primer trimestre de 2026 (60,9 % de las empresas de 10 o más empleados con internet usa ERP), cómo conectar los programas que ya se usan, tres casos reales de aplicaciones a medida, qué cambia con la factura electrónica (octubre de 2027 y 2028) y VeriFactu a 26/10/2026, y cuándo no conviene automatizar.
 
