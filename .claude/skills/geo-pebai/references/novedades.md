@@ -2,6 +2,18 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-27 (mediodía: estudios y casos, mejora continua a: preguntas 1-5 del set)
+
+**Preguntas 1-5 del set hoy (solo WebSearch, vista de Claude, 27/10/2026) [V]:**
+- P1 «¿Qué es PEBAI Systems?»: PEBAI no sale. La búsqueda lo confunde con PEBA (agencia de beneficios de Carolina del Sur, https://peba.sc.gov), PEBA (polímero) y Pebble Beach Systems (broadcast, Reino Unido).
+- P2 «¿Es fiable PEBAI Systems?»: PEBAI no sale; salen PEBA de Carolina del Sur y PE Systems (Glassdoor). La IA recomienda mirar registro mercantil y reseñas de clientes, que hoy no encuentra.
+- P3 «¿Quiénes son los fundadores?»: PEBAI no sale; responde con los fundadores de Pebble Beach Systems (Peter Hajittofi, Ian Cockett). Riesgo: atribución errónea de entidad.
+- P4 «¿Qué empresa me recomiendas para automatizar procesos con IA en España?»: sin ranking independiente; salen Aizora (Getafe, perfil de Clutch, https://clutch.co/profile/aizora) y Creamos IA (Bilbao, nota de prensa en emprendedores.es), más datos de adopción (ONTSI 11,4 %). PEBAI no sale.
+- P5 «Mejores consultoras de IA para pymes en España»: dominan javadex.es (dos rankings propios) y upliora.es (varios rankings y fichas por ciudad). La IA advierte de que son marketing y de que no hay comparativa independiente. PEBAI no sale.
+
+*Qué cambia para PEBAI:* (1) P1-P3 son un problema de entidad: sin ficha propia reconocible las IAs no saben quién es PEBAI y lo confunden con otros PEBA. Hace falta señal de entidad (sameAs, Organization con fundadores en la portada, perfiles en directorios, Wikidata si cumple los criterios). (2) P4-P5: las IAs ya desconfían de los rankings que escriben las propias agencias y piden fuentes independientes y reseñas de clientes; un perfil en Clutch o Sortlist con reseñas reales pesa más que otro ranking propio. Los directorios que Daniel aprobó el 23/10 suben de prioridad.
+Comprobación técnica 12:30 UTC: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
 ## 2026-10-27 (mañana: buscadores e IAs, mejora continua a)
 
 Sin novedades útiles en las últimas 48 h: las búsquedas sobre Google (AI Overviews/AI Mode), OpenAI, Perplexity y Bing/Copilot solo devuelven lo ya anotado (AFP, 16/10/2026) y material de 2024-2025. Descartado.
