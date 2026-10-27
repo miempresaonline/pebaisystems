@@ -479,6 +479,8 @@ function of_geo_agente(string $id, string $nombre, string $rol, string $cuando):
         usort($a['actividad'], static fn($x, $y) => strcmp($y['ts'], $x['ts']));
     }
     $a['errores'] = of_errores($a['actividad']);
+    // Un problema que el agente ha encontrado y ya ha encargado a un compañero («… Encargo a Técnico…») es un hallazgo, no una avería suya
+    $a['errores'] = array_values(array_filter($a['errores'], static fn($ev) => !preg_match('/Encargo a [\p{L} ]+/u', $ev['txt'])));
     // Un "Resuelto: …" apuntado después de un error lo quita del cartel rojo
     foreach ($a['actividad'] as $e) {
         if ($e['tipo'] === 'hito' && preg_match('/^Resuelto/u', $e['txt'])) {
