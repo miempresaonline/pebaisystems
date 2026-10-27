@@ -188,3 +188,9 @@ WebPage + BreadcrumbList (Inicio › IA para empresas › Formación) + Article 
 - [ ] Grep de palabras prohibidas, raya larga, exclamaciones.
 - [ ] 3 slugs en 301 (`.htaccess`), sitemap, llms.txt y llms-full.txt («## Guías»), enlace desde /ia-para-empresas/ línea 506.
 - [ ] curl 200 tras el auto-despliegue, `gsc-sitemap`, `bing-url`.
+
+## Nota del Vigía 27/10 17:00 UTC (verificación del marco legal)
+- Reglamento (UE) 2026/1744: de 8/07/2026, DOUE 24/07/2026, en vigor 27/07/2026 (Cuatrecasas y Garrigues). Art. 4: medidas para apoyar la alfabetización, sin exigir un nivel concreto a cada persona; la Comisión publicará ejemplos y el Consejo de IA recomendaciones.
+- Art. 50 desde el 2/08/2026; plazo hasta el 2/12/2026 solo para marcar contenido sintético de sistemas ya comercializados (proveedor). Alto riesgo: anexo III 2/12/2027; anexo I sección A 2/08/2028.
+- Ley española: Proyecto de Ley Orgánica para el buen uso y la gobernanza de la IA, BOCG 12/06/2026, en tramitación en el Congreso (enmiendas hasta el 30/06/2026); no es ley vigente. Fuente: https://www.congreso.es/public_oficiales/L15/CONG/BOCG/A/BOCG-15-A-97-1.PDF
+- Detalle y URLs en `.claude/skills/geo-pebai/references/novedades.md`.
