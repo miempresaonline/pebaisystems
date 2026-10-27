@@ -106,7 +106,7 @@ if (isset($_GET['salir'])) {
 }
 
 $auth = !empty($_SESSION['auth']);
-if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || isset($_GET['oficina']) || isset($_GET['oficina_resumen']) || isset($_GET['qr']) || isset($_GET['mapa']) || isset($_GET['redes']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
+if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || isset($_GET['oficina']) || isset($_GET['oficina_resumen']) || isset($_GET['qr']) || isset($_GET['mapa']) || isset($_GET['redes']) || isset($_GET['web']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
     json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 401);
 }
 
@@ -119,7 +119,7 @@ if (is_file(__DIR__ . '/_oficina_panel.php')) {
     require __DIR__ . '/_oficina_panel.php';
 }
 // Captación › QRs para la calle y › Mapa de prospectos
-foreach (['_qr_panel.php', '_mapa_panel.php', '_conversaciones_panel.php', '_global_panel.php', '_redes_panel.php'] as $f) {
+foreach (['_qr_panel.php', '_mapa_panel.php', '_conversaciones_panel.php', '_global_panel.php', '_redes_panel.php', '_web_panel.php'] as $f) {
     if (is_file(__DIR__ . '/' . $f)) {
         require __DIR__ . '/' . $f;
     }
@@ -605,7 +605,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '103';
+$v = '104';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -630,6 +630,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <link rel="stylesheet" href="<?= BASE ?>assets/global.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/cajas.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/redes.css?v=<?= $v ?>">
+<link rel="stylesheet" href="<?= BASE ?>assets/web.css?v=<?= $v ?>">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="stylesheet" href="<?= BASE ?>assets/email.css?v=<?= $v ?>">
 <script>try{var t=localStorage.getItem('pebai-panel-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -695,6 +696,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     </div>
     <div class="grp"><small>Contenido</small>
       <button data-page="redes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="m10.5 9 4 3-4 3z"/></svg><span>Redes</span></button>
+      <button data-page="web" type="button"><svg class="pb-i" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="12" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v9M12 12H5v4.5M12 12h7v4.5"/></svg><span>Web</span></button>
     </div>
     <div class="grp"><small>Empresa</small>
       <button data-page="caja" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 13h.01"/><path d="M2 10h20"/><path d="M6 6V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg><span>Caja</span></button>
@@ -855,6 +857,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
   <section class="pb-page" id="page-qr" data-page="qr"><div class="pb-qr" id="pb-qr"></div></section>
 
   <section class="pb-page" id="page-redes" data-page="redes"><div class="rd" id="pb-redes"></div></section>
+  <section class="pb-page" id="page-web" data-page="web"><div class="wb" id="pb-web"></div></section>
 
   <section class="pb-page" id="page-caja" data-page="caja">
     <div class="pb-pagehead">
@@ -933,6 +936,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <script src="<?= BASE ?>assets/global.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/caja.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/redes.js?v=<?= $v ?>" defer></script>
+<script src="<?= BASE ?>assets/web.js?v=<?= $v ?>" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" defer></script>
 <script src="<?= BASE ?>assets/qr.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/mapa.js?v=<?= $v ?>" defer></script>
