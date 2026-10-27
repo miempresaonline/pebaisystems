@@ -395,15 +395,14 @@ async function accesos() {
     return `<div class="rd-acc-c"><small>${etq}</small><code ${oculto ? `data-clave="${k}"` : ''}>${oculto ? '••••••••••' : esc(v)}</code>`
       + (oculto ? `<button type="button" data-ver="${k}" title="Mostrar">Ver</button>` : '') + `<button type="button" data-copia="${k}" title="Copiar">Copiar</button></div>`;
   };
-  const via = (si, txt) => `<span class="rd-via ${si ? 'si' : 'no'}">${marca('google', 'xs')}<i>${si ? '✓' : '✕'}</i>${txt}</span>`;
   const hijos = (lista) => lista.length ? `<div class="rd-acc-arbol"><small>Con esta cuenta entras en</small><div>${lista.map((x) => `<span class="rd-acc-hijo">${marca(x.icono, 'sm')}<b>${esc(x.red)}</b></span>`).join('')}</div></div>` : '';
   const tarjeta = (logo, titulo, cuerpo) => `<section class="rd-acc-t"><header>${marca(logo)}<b>${titulo}</b></header>${cuerpo}</section>`;
   const html = [
-    ig && tarjeta('instagram', 'Cuenta de Instagram', via(false, 'No con Google') + dato('Usuario', ig.usuario) + dato('Contraseña', ig.clave, true) + hijos(conIg)),
-    g0.usuario && tarjeta('google', 'Cuenta de Google', via(true, 'Botón «Continuar con Google»') + dato('Correo', g0.usuario) + dato('Contraseña', g0.clave, true)
+    ig && tarjeta('instagram', 'Cuenta de Instagram', '<p class="rd-acc-como">Se entra con usuario y contraseña</p>' + dato('Usuario', ig.usuario) + dato('Contraseña', ig.clave, true) + hijos(conIg)),
+    g0.usuario && tarjeta('google', 'Cuenta de Google', '<p class="rd-acc-como">Se entra con Google, usando este correo</p>' + dato('Correo', g0.usuario) + dato('Contraseña', g0.clave, true)
       + (g0.nota ? `<p class="rd-acc-n">${esc(g0.nota)}</p>` : '') + hijos(conG)),
-    tt && tarjeta('tiktok', 'TikTok', via(false, 'Nunca con Google') + dato('Teléfono', tt.usuario) + dato('Contraseña', tt.clave, true)
-      + `<p class="rd-acc-av">${esc(tt.aviso || 'Con Google se crea otra cuenta con otro número.')}</p>`),
+    tt && tarjeta('tiktok', 'TikTok', '<p class="rd-acc-como">Se entra con el número de teléfono</p>' + dato('Teléfono', tt.usuario) + dato('Contraseña', tt.clave, true)
+      + '<p class="rd-acc-av">No usar Google: crearía otra cuenta con otro número.</p>'),
   ].filter(Boolean).join('');
   const pie = otras.map((x) => `<span class="rd-acc-otra">${marca(x.icono, 'xs')}<b>${esc(x.red)}</b> ${esc(x.nota || x.como || '')}</span>`).join('');
   const ov = document.createElement('div'); ov.className = 'rd-acc';
@@ -421,7 +420,7 @@ async function accesos() {
     const cp = e.target.closest('[data-copia]');
     if (cp) navigator.clipboard.writeText(claves[+cp.dataset.copia]).then(() => { cp.textContent = 'Copiado'; setTimeout(() => { cp.textContent = 'Copiar'; }, 1500); }).catch(() => {});
   });
-  document.body.append(ov); ov.querySelector('.rd-acc-x').focus();
+  document.body.append(ov); requestAnimationFrame(() => ov.classList.add('on')); ov.querySelector('.rd-acc-x').focus();
 }
 
 /* Tooltip de la curva */

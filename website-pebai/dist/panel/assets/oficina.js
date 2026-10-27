@@ -99,12 +99,85 @@ function pintaHud() {
     };
     b.append(q); lst.append(b);
   });
-  hud.append(c, botonParar(), botonVista()); horaHud();
+  hud.append(c, botonParar(), botonVista(), botonRepe()); horaHud();
   if (lista) pintaLista();
 }
 /* Vista Lista: lo mismo que la oficina, en filas (rápida de revisar; en el móvil es la de entrada y no se carga el 3D) */
 let lista = (() => { try { const v = localStorage.getItem('pb-of-vista'); if (v) return v === 'lista'; } catch (e) { /* sin almacenamiento */ } return matchMedia('(max-width: 760px)').matches; })();
 const listaBox = document.createElement('div'); listaBox.className = 'pb-of-lista'; wrap.append(listaBox);
+/* ---------- «Repetir el día»: la oficina reproduce hoy en ~40 s con un reloj que corre ----------
+   Turnos sacados del historial real de cada agente (Empieza…Termina; si no, un rato alrededor de cada cosa que hizo)
+   y los traspasos en su hora. Al acabar (o con ×) todo vuelve al estado de ahora. */
+const REPE_SEG = 40;
+let repe = null;
+const tsMs = (t) => new Date(String(t).replace(' ', 'T')).getTime();
+function turnosDeHoy(a) {
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const ev = (a.actividad || []).filter((e) => tsMs(e.ts) >= hoy.getTime()).sort((x, y) => tsMs(x.ts) - tsMs(y.ts));
+  const out = []; let ini = null;
+  ev.forEach((e) => {
+    const t = tsMs(e.ts);
+    if (/^Empieza/u.test(e.txt)) ini = t;
+    else if (/^Termina/u.test(e.txt) && ini != null) { out.push([ini, Math.max(t, ini + 60e3)]); ini = null; }
+    else if (ini == null && e.tipo !== 'espera') out.push([t - 90e3, t + 90e3]);
+  });
+  if (ini != null) out.push([ini, Date.now()]);
+  // Cada turno dura al menos 10 min en la repetición (si no, uno de 1 minuto sería un parpadeo)
+  // y los ratos separados por menos de 40 min se juntan (WhatsApp o el scraper trabajan seguido)
+  const ord = out.map(([x, y]) => [x, Math.max(y, x + 6e5)]).sort((p, q) => p[0] - q[0]), junta = [];
+  ord.forEach((r) => { const u = junta[junta.length - 1]; if (u && r[0] - u[1] < 24e5) u[1] = Math.max(u[1], r[1]); else junta.push(r); });
+  return junta;
+}
+function botonRepe() {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'pb-of-repe' + (repe ? ' on' : '');
+  b.innerHTML = repe ? '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>Parar' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>Repetir el día';
+  b.title = 'Ver en 40 segundos todo lo que ha pasado hoy en la oficina';
+  b.onclick = (e) => { e.stopPropagation(); if (repe) paraRepe(); else empiezaRepe(); };
+  return b;
+}
+function empiezaRepe() {
+  if (!G || lista) { if (lista) ponVista(false); setTimeout(() => G && empiezaRepe(), 900); return; }
+  cerrar();
+  const reales = new Map(S.agentes.map((a) => [a.id, a.st]));
+  const turnos = new Map(S.agentes.map((a) => [a.id, turnosDeHoy(a)]));
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const primero = Math.min(...[...turnos.values()].flat().map((x) => x[0]), Date.now() - 36e5);
+  const t0 = Math.max(hoy.getTime() + 7 * 36e5, primero - 15 * 6e4), t1 = Date.now();
+  const tras = G.traspasos().filter((x) => tsMs(x.ts) >= t0).sort((x, y) => tsMs(x.ts) - tsMs(y.ts));
+  const reloj = document.createElement('div'); reloj.className = 'pb-of-reloj';
+  reloj.innerHTML = '<b>--:--</b><span class="ln"><i></i></span><button type="button" aria-label="Parar">×</button>';
+  reloj.querySelector('button').onclick = (e) => { e.stopPropagation(); paraRepe(); };
+  wrap.append(reloj); wrap.classList.add('repe');
+  repe = { reales, turnos, t0, t1, tras, k: 0, reloj, ini: performance.now(), clave: '' };
+  pintaHud(); requestAnimationFrame(pasoRepe);
+}
+function pasoRepe(now) {
+  if (!repe) return;
+  const f = Math.min(1, (now - repe.ini) / (REPE_SEG * 1000)), t = repe.t0 + (repe.t1 - repe.t0) * f;
+  const d = new Date(t); repe.reloj.querySelector('b').textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  repe.reloj.querySelector('.ln i').style.width = (f * 100) + '%';
+  // estado de cada agente a esa hora (pausados, apagados o con error se quedan como están)
+  let clave = '';
+  S.agentes.forEach((a) => {
+    const real = repe.reales.get(a.id);
+    if (['pausado', 'apagado', 'error'].includes(real) || a.dept === 'embudo') return;
+    a.st = (repe.turnos.get(a.id) || []).some(([x, y]) => t >= x && t <= y) ? 'trabajando' : 'dormido';
+    clave += a.st[0];
+  });
+  if (clave !== repe.clave) { repe.clave = clave; G.refrescarEscena(true); }
+  while (repe.k < repe.tras.length && tsMs(repe.tras[repe.k].ts) <= t) {
+    const x = repe.tras[repe.k++]; const a = ag(x.de);
+    if (a && a.st === 'trabajando') G.lanzaEnvio(x);
+  }
+  if (f >= 1) { setTimeout(paraRepe, 1200); return; }
+  requestAnimationFrame(pasoRepe);
+}
+function paraRepe() {
+  if (!repe) return;
+  S.agentes.forEach((a) => { if (repe.reales.has(a.id)) a.st = repe.reales.get(a.id); });
+  repe.reloj.remove(); wrap.classList.remove('repe'); repe = null;
+  if (G) G.refrescarEscena(true); pintaHud();
+}
 function botonVista() {
   const b = document.createElement('div'); b.className = 'pb-of-vista';
   b.innerHTML = `<button type="button" data-v="3d" class="${lista ? '' : 'on'}">3D</button><button type="button" data-v="lista" class="${lista ? 'on' : ''}">Lista</button>`;
@@ -1162,7 +1235,7 @@ async function montar() {
     // uno cada poco: si no hay nada nuevo, se repite de vez en cuando una entrega de las últimas 24 h para ver el trabajo
     ultimoTr += dtR;
     if (!envios.length && colaTr.length && ultimoTr > 1.2) { const x = colaTr.shift(); if (despiertos(x)) lanzaEnvio(x); ultimoTr = 0; }
-    else if (!envios.length && !colaTr.length && ultimoTr > 22 && !document.hidden) {
+    else if (!repe && !envios.length && !colaTr.length && ultimoTr > 22 && !document.hidden) {
       const listos = recientesTr.filter(despiertos);
       if (listos.length) colaTr.push(listos[Math.floor(Math.random() * listos.length)]);
       ultimoTr = 0;
@@ -1218,7 +1291,7 @@ async function montar() {
     s.reloj.rt.needsUpdate = true;
   });
 
-  function refrescarEscena() {
+  function refrescarEscena(soloEstados) {
     puestos.forEach((o) => {
       const a = ag(o.a.id); if (!a) return; o.a = a;
       if (o.prevHoy !== undefined && a.hoy > o.prevHoy) flotar(o, a.hoy - o.prevHoy);
@@ -1251,7 +1324,7 @@ async function montar() {
       if (s.sign.material.map) s.sign.material.map.dispose(); s.sign.material.map = cartel(d, partes); s.sign.material.needsUpdate = true;
     });
     orbeMat.uniforms.uErr.value = pendientes().some((p) => p.err) ? .55 : 0;
-    buscaTraspasos();
+    if (!soloEstados) buscaTraspasos();
     pintaReloj(); luzDelDia(); autosPared.forEach(dibujaAuto);
   }
 
@@ -1457,7 +1530,7 @@ async function montar() {
     camera.lookAt(target);
     if (!lista) composer.render();
   }
-  G = { THREE, volar, HOME, refrescarEscena, puestos, salas, NUC };
+  G = { THREE, volar, HOME, refrescarEscena, puestos, salas, NUC, lanzaEnvio, traspasos: () => recientesTr };
   refrescarEscena(); requestAnimationFrame(tick);
 }
 
@@ -1474,7 +1547,7 @@ async function refrescar() {
 const alEntrar = () => { if (enPagina()) refrescar(); };
 document.addEventListener('pb:page', alEntrar);
 document.addEventListener('pb:agview', alEntrar);
-setInterval(() => { if (!document.hidden && enPagina() && !side.classList.contains('on')) refrescar(); }, 60000);
+setInterval(() => { if (!repe && !document.hidden && enPagina() && !side.classList.contains('on')) refrescar(); }, 60000);
 // Mientras se ve un QR de vinculación (caduca a los ~20 s), refrescar cada 5 s para que siempre esté vigente
 setInterval(() => { if (!document.hidden && enPagina() && side.classList.contains('on') && document.querySelector('.pb-of-qr')) refrescar(); }, 5000);
 alEntrar();
