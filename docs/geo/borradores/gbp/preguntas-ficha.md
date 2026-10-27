@@ -1,4 +1,4 @@
-# Preguntas y respuestas para la ficha de Google (borrador, 26/10/2026)
+# Preguntas y respuestas para la ficha de Google (borrador, ampliado el 27/10/2026)
 
 Para la sección «Preguntas y respuestas» de la ficha. Se publican desde una cuenta que no sea la del propietario y las responde el propietario. Sin precios, sin cifras que no estén en `casos.md`.
 
@@ -19,3 +19,21 @@ Para la sección «Preguntas y respuestas» de la ficha. Se publican desde una c
 
 6. **¿Atendéis fuera de vuestra ciudad?**
    Trabajamos en remoto con empresas de toda España. (Ajustar si Daniel define zonas de servicio.)
+
+7. **¿Qué pasa si el asistente no sabe responder a un cliente?**
+   Pasa la conversación a una persona del equipo. Se diseña así desde el principio: el asistente responde lo que está documentado y deriva el resto.
+
+8. **¿Qué diferencia hay entre un chatbot y un agente de IA en WhatsApp?**
+   Un chatbot sigue guiones fijos. Un agente entiende la pregunta, consulta la información de la empresa, agenda citas y avisa a una persona cuando hace falta.
+
+9. **¿Qué proceso conviene automatizar primero?**
+   El que más se repite, ocupa más horas y tiene pasos claros, como pedidos, presupuestos o partes de trabajo. En la consultoría inicial lo vemos con vuestro caso.
+
+10. **¿Qué no conviene automatizar?**
+    Lo que cambia cada vez, lo que exige criterio o trato personal y lo que aún no está ordenado. Si algo se resuelve sin Inteligencia Artificial, os lo decimos.
+
+11. **¿Podéis sustituir una aplicación antigua sin perder los datos?**
+    Sí. Migramos la base de datos de la aplicación antigua a la nueva. Lo hicimos con Suministros Industriales Santacruz.
+
+12. **¿Cómo hacéis que ChatGPT recomiende mi empresa?**
+    Trabajamos la web para que las herramientas de IA la entiendan: respuestas claras, datos con fuente y páginas por tema. Nadie puede prometer el primer puesto en ChatGPT.
