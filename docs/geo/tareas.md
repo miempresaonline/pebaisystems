@@ -92,7 +92,7 @@ Formato: `- [ ] AAAA-MM-DD · encargo · (de dónde sale: Vigía, informe, plan�
 ## geo_vigia · Vigía
 - [ ] 2026-10-27 · Analizar la página de javadex o upliora que más cita ChatGPT para «consultora IA España»: qué tiene que nosotros no, en 3 puntos, con encargo propuesto · (Daniel 27/10: cola llena, trabajo real)
 - [x] 2026-10-27 · Revisar las preguntas 1-5 del set (`prompts.md`) con WebSearch: qué empresas y qué fuentes salen hoy · (Daniel 27/10: cola llena, trabajo real) · hecho 27/10 mediodía (novedades.md)
-- [ ] 2026-10-27 · Buscar directorios y rankings españoles de agencias de IA donde aparecen competidores y nosotros no; lista con URL y cómo se entra, para preparar la ficha · (Daniel 27/10: cola llena, trabajo real)
+- [x] 2026-10-27 · Buscar directorios y rankings españoles de agencias de IA donde aparecen competidores y nosotros no; lista con URL y cómo se entra, para preparar la ficha · (Daniel 27/10: cola llena, trabajo real) · hecho 27/10 mediodía (docs/geo/borradores/directorios-rankings-27-10.md)
 
 ## Para Daniel (lo que ningún agente puede hacer)
 El Jefe lo apunta aquí y se lo manda por email a equipo@pebaisystems.es. Daniel lo borra cuando esté hecho.
