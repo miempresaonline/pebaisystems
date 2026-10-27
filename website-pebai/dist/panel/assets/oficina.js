@@ -886,17 +886,24 @@ async function montar() {
   /* reparto de los dos más cercanos al frente: izquierda y derecha en el orden de la lista */
   const sitio = new Map();
   ordenSalas.forEach((d, i) => { const a = huecos[i], r = d.activo ? RANILLO : PLAZA + RVACIA + 2.2; sitio.set(d.id, { x: Math.sin(a) * r, z: Math.cos(a) * r }); });
-  // Parqué de madera cálida para las salas con agentes (como las oficinas del vídeo)
-  const parquet = canvasTex(512, 512, (c) => {
-    const tonos = ['#6E4A2E', '#7A5233', '#684528', '#80573A', '#734D30'];
-    for (let fila = 0; fila < 16; fila++) {
-      let x = -((fila * 37) % 96);
-      while (x < 512) { const w = 70 + ((x * 7 + fila * 13) % 60); c.fillStyle = tonos[(fila + Math.floor(x / 50)) % tonos.length]; c.fillRect(x, fila * 32, w - 2, 30); x += w; }
+  // Suelo de oficina tecnológica para las salas con agentes: baldosas grandes de grafito pulido con juntas finas,
+  // alguna tira de luz del color de la sala entre baldosas y un anillo suave alrededor de las mesas.
+  const sueloTec = (col) => canvasTex(1024, 1024, (c) => {
+    const T = 128, tonos = ['#232b47', '#262f4d', '#212942', '#29324f'];
+    for (let fy = 0; fy < 8; fy++) for (let fx = 0; fx < 8; fx++) {
+      c.fillStyle = tonos[(fx * 3 + fy * 5) % tonos.length]; c.fillRect(fx * T, fy * T, T, T);
+      const g = c.createLinearGradient(fx * T, fy * T, fx * T + T, fy * T + T); g.addColorStop(0, 'rgba(255,255,255,.06)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(fx * T, fy * T, T, T);
     }
-    c.fillStyle = 'rgba(0,0,0,.18)'; for (let fila = 0; fila <= 16; fila++) c.fillRect(0, fila * 32 - 1, 512, 2);
-    const v = c.createRadialGradient(256, 256, 60, 256, 256, 256); v.addColorStop(0, 'rgba(255,214,160,.10)'); v.addColorStop(1, 'rgba(0,0,0,.35)'); c.fillStyle = v; c.fillRect(0, 0, 512, 512);
+    c.fillStyle = '#0e1222'; for (let k = 0; k <= 8; k++) { c.fillRect(k * T - 2, 0, 3, 1024); c.fillRect(0, k * T - 2, 1024, 3); }
+    c.fillStyle = 'rgba(255,255,255,.08)'; for (let k = 0; k <= 8; k++) { c.fillRect(k * T + 1, 0, 1, 1024); c.fillRect(0, k * T + 1, 1024, 1); }
+    // tiras de luz entre algunas baldosas (como suelo técnico con LED)
+    c.fillStyle = hexA(col, .75);
+    [[1, 2, 3, 'h'], [5, 1, 2, 'v'], [6, 5, 2, 'h'], [2, 5, 2, 'v'], [3, 7, 2, 'h']].forEach(([x, y, n, o]) => { if (o === 'h') c.fillRect(x * T, y * T - 2, n * T, 3); else c.fillRect(x * T - 2, y * T, 3, n * T); });
+    // anillo suave alrededor de las mesas y viñeta hacia el borde
+    c.strokeStyle = hexA(col, .28); c.lineWidth = 4; c.beginPath(); c.arc(512, 512, 330, 0, Math.PI * 2); c.stroke();
+    c.strokeStyle = hexA(col, .08); c.lineWidth = 2; c.beginPath(); c.arc(512, 512, 150, 0, Math.PI * 2); c.stroke();
+    const v = c.createRadialGradient(512, 512, 200, 512, 512, 512); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.25)'); c.fillStyle = v; c.fillRect(0, 0, 1024, 1024);
   });
-  parquet.wrapS = parquet.wrapT = THREE.RepeatWrapping; parquet.repeat.set(1.6, 1.6);
   const sueloSala = canvasTex(512, 512, (c) => {
     c.fillStyle = '#141731'; c.fillRect(0, 0, 512, 512);
     c.strokeStyle = 'rgba(255,255,255,.06)'; c.lineWidth = 2;
@@ -910,7 +917,7 @@ async function montar() {
     const { x, z } = sitio.get(d.id);
     const col = new THREE.Color(d.color), on = d.activo;
     /* plataforma redonda con su filo de luz */
-    const plat = new THREE.Mesh(new THREE.CylinderGeometry(RS, RS + .1, ALTO, 72), [new THREE.MeshStandardMaterial({ color: on ? 0x171b36 : 0x141730, roughness: .5, metalness: .35 }), new THREE.MeshStandardMaterial({ map: on ? parquet : sueloSala, roughness: on ? .7 : .55, metalness: on ? .05 : .3 }), new THREE.MeshStandardMaterial({ color: 0x101225 })]);
+    const plat = new THREE.Mesh(new THREE.CylinderGeometry(RS, RS + .1, ALTO, 72), [new THREE.MeshStandardMaterial({ color: on ? 0x171b36 : 0x141730, roughness: .5, metalness: .35 }), new THREE.MeshStandardMaterial({ map: on ? sueloTec(d.color) : sueloSala, roughness: on ? .42 : .55, metalness: on ? .12 : .3 }), new THREE.MeshStandardMaterial({ color: 0x101225 })]);
     plat.position.set(x, ALTO / 2, z); scene.add(plat);
     const banda = new THREE.Mesh(new THREE.TorusGeometry(RS + .02, .03, 8, 120), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: on ? .85 : .25, toneMapped: false }));
     banda.rotation.x = Math.PI / 2; banda.position.set(x, ALTO - .02, z); scene.add(banda); const bandaBase = on ? .85 : .25;
