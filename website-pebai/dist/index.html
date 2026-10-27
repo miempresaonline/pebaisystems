@@ -1448,13 +1448,13 @@ html.js .cx-panel.active{display:flex;animation:cxIn .6s var(--ease)}
 
 
 
-  /* tarjeta flotante: aparece al dejar atrás la del hero y se oculta en el cierre */
+  /* tarjeta flotante: en móvil desde el principio (el botón del hero queda bajo el pliegue), en escritorio al dejar atrás la del hero; se oculta en casos y en el cierre */
   var dock=document.getElementById('dock'),dockX=document.getElementById('dock-x'),heroCard=document.querySelector('.widget'),finalSec=document.querySelector('.final');
   var pastHero=false,atFinal=false,inCases=false,dismissed=false;
   try{dismissed=sessionStorage.getItem('pebai-dock')==='off';}catch(e){}
   var narrow=window.matchMedia('(max-width:820px)');
   function bannerOpen(){var b=document.querySelector('.pebai-cc');return !!(b&&b.offsetParent!==null);}
-  function syncDock(){dock.classList.toggle('show',pastHero&&!atFinal&&!inCases&&!dismissed&&!(narrow.matches&&bannerOpen()));}
+  function syncDock(){dock.classList.toggle('show',(pastHero||narrow.matches)&&!atFinal&&!inCases&&!dismissed&&!(narrow.matches&&bannerOpen()));}
   if('MutationObserver' in window)new MutationObserver(syncDock).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class','hidden']});
   dockX.addEventListener('click',function(){dismissed=true;try{sessionStorage.setItem('pebai-dock','off');}catch(e){}syncDock();});
   if('IntersectionObserver' in window){
