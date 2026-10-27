@@ -87,6 +87,7 @@ function cabecera(T) {
     <div class="rd-head-r">
       <div class="pb-seg rd-tandas">${tabs}</div>
       <div class="rd-vivo"><i></i><span class="rd-sello">Actualizado ${hace(S.data.actualizado)}</span><button type="button" class="pb-btn icon rd-act" title="Pedir ya los datos nuevos a Metricool">${ico('<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>')}</button></div>
+      <small class="rd-fuente" title="Metricool no actualiza TikTok, Instagram y Facebook al momento: el dato de los últimos días puede subir todavía. YouTube se lee directamente del canal.">YouTube al momento · TikTok, Instagram y Facebook vía Metricool (hasta 24-48 h de retraso)</small>
       ${S.data.aviso ? `<small class="rd-aviso">${esc(S.data.aviso)}</small>` : ''}
     </div>
   </div>`;

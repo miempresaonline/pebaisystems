@@ -219,3 +219,4 @@
 .rd-pill.lima{color:var(--lime);background:color-mix(in srgb,var(--lime) 12%,transparent);border:1px solid color-mix(in srgb,var(--lime) 30%,transparent)}
 .rd-trend.bien{stroke:var(--lime)}
 @media (max-width:860px){.rd-head-r{align-items:flex-start}}
+.rd-fuente{display:block;font-size:11px;color:var(--muted-2);text-align:right;max-width:340px;line-height:1.35}

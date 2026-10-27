@@ -9,6 +9,9 @@
  * El mismo vídeo publicado en las cuatro redes se agrupa en una fila por fecha, duración y texto.
  * Credenciales: private/metricool.json ({"token","user_id","blog_id"}) o 'metricool' en private/config.php.
  * LinkedIn no entra en este análisis.
+ * YouTube, además, se lee al momento del canal público (feed RSS, sin clave): Metricool tarda en traer los Shorts nuevos y
+ * a veces da la hora de subida en vez de la de publicación. Del feed salen las vistas al día, la hora real y los vídeos que
+ * Metricool aún no tiene. TikTok, Instagram y Facebook solo los da Metricool (pueden ir hasta 24-48 h por detrás).
  */
 if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
     http_response_code(404);
@@ -22,6 +25,31 @@ const REDES_PERIODOS = [
     ['id' => '2026-11', 'nombre' => 'Noviembre', 'desde' => '2026-11-06', 'hasta' => null],
 ];
 const REDES_PALABRAS = ['CONSULTORÍA', 'CONSULTORIA', 'RESPUESTA', 'GEO', 'FORMACIÓN', 'FORMACION'];
+const REDES_YT_CANAL = 'UCJ5ecot00P--vMBuv09dKIQ';  // canal público de PEBAI Systems en YouTube
+
+/** Últimos vídeos del canal desde su feed público: id => [titulo, ts, vistas, short]. Vacío si YouTube no responde. */
+function redes_yt_feed(): array
+{
+    $ch = curl_init('https://www.youtube.com/feeds/videos.xml?channel_id=' . REDES_YT_CANAL);
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15, CURLOPT_FOLLOWLOCATION => true]);
+    $xml = (string)curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    $out = [];
+    if ($code !== 200 || !preg_match_all('#<entry>(.*?)</entry>#s', $xml, $es)) {
+        return $out;
+    }
+    foreach ($es[1] as $e) {
+        if (!preg_match('#<yt:videoId>([^<]+)#', $e, $id) || !preg_match('#<published>([^<]+)#', $e, $pub)) {
+            continue;
+        }
+        preg_match('#<title>([^<]*)#', $e, $t);
+        preg_match('#views="(\d+)"#', $e, $v);
+        $out[$id[1]] = ['titulo' => html_entity_decode($t[1] ?? '', ENT_QUOTES | ENT_XML1, 'UTF-8'), 'ts' => redes_ts($pub[1]), 'v' => (int)($v[1] ?? 0),
+                        'short' => strpos($e, '/shorts/' . $id[1]) !== false];
+    }
+    return $out;
+}
 
 function redes_cred(): array
 {
@@ -69,13 +97,36 @@ function redes_publicaciones(array $cred, string $desde, string $hasta): array
                   'm' => ['v' => (int)$p['views'], 'r' => (int)$p['reach'], 'l' => (int)$p['likes'], 'c' => (int)$p['comments'], 'g' => (int)$p['saved'], 's' => (int)$p['shares'],
                           't' => round((float)$p['averageWatchTime'], 1), 'vr' => isset($p['reelsSkipRate']) ? round(100 - (float)$p['reelsSkipRate'], 1) : null]];
     }
+    $feed = [];
+    try {
+        $feed = redes_yt_feed();
+    } catch (Throwable $e) {
+        pebai_log('REDES feed YouTube: ' . $e->getMessage());
+    }
+    $enMetricool = [];
     foreach (redes_api($cred, '/v2/analytics/posts/youtube', $q) as $p) {
+        $f = $feed[$p['videoId'] ?? ''] ?? null;
+        $enMetricool[$p['videoId'] ?? ''] = true;
+        if ($f) {
+            // Del canal: la hora en que se publicó de verdad y las vistas de ahora mismo (Metricool va con retraso)
+            $p['publishedAt']['dateTime'] = $f['ts'];
+            $p['views'] = max((int)$p['views'], $f['v']);
+            $p['videoType'] = $f['short'] ? 'SHORT' : ($p['videoType'] ?? '');
+        }
         $tipo = (string)($p['videoType'] ?? '');
         if (($tipo !== '' && $tipo !== 'SHORT') || (float)($p['durationSeconds'] ?? 0) > 180) {
             continue; // los vídeos largos de YouTube no son reels
         }
         $out[] = ['red' => 'yt', 'short' => $tipo === 'SHORT', 'ts' => redes_ts($p['publishedAt']['dateTime']), 'dur' => (float)($p['durationSeconds'] ?? 0), 'texto' => (string)($p['title'] ?? ''), 'url' => $p['watchUrl'] ?? '',
                   'm' => ['v' => (int)$p['views'], 't' => round((float)$p['averageViewDuration'], 1), 'l' => (int)$p['likes'], 'c' => (int)$p['comments'], 's' => (int)$p['shares']]];
+    }
+    // Shorts que Metricool aún no ha traído: entran con lo que da el canal (vistas, título y hora)
+    foreach ($feed as $id => $f) {
+        if (isset($enMetricool[$id]) || !$f['short'] || substr($f['ts'], 0, 10) < $desde || substr($f['ts'], 0, 10) > $hasta) {
+            continue;
+        }
+        $out[] = ['red' => 'yt', 'short' => true, 'ts' => $f['ts'], 'dur' => 0.0, 'texto' => $f['titulo'], 'url' => 'https://www.youtube.com/shorts/' . $id,
+                  'm' => ['v' => $f['v'], 't' => 0, 'l' => 0, 'c' => 0, 's' => 0]];
     }
     foreach (redes_api($cred, '/v2/analytics/reels/facebook', $q) as $p) {
         $out[] = ['red' => 'fb', 'ts' => redes_ts($p['created']['dateTime']), 'dur' => (float)($p['length'] ?? 0), 'texto' => (string)($p['description'] ?? ''), 'url' => $p['reelUrl'] ?? '',
@@ -101,7 +152,7 @@ function redes_coste(array $p, array $g): ?float
     $dh = abs(strtotime($p['ts']) - strtotime($g['ts'])) / 3600;
     // Instagram y YouTube no siempre dan la duración (0): entonces deciden la hora y el texto
     $dd = ($p['dur'] && $g['dur']) ? abs($p['dur'] - $g['dur']) : 1.5;
-    if ($dh > 36 || $dd > 4) {
+    if ($dh > 36 || $dd > 2) {
         return null;
     }
     $wp = $p['palabras'];
