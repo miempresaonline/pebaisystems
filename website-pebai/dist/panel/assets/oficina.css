@@ -366,3 +366,18 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
   .pb-of-reloj .ln{flex:1;width:auto}
   .pb-of-reloj .sig{display:none}
 }
+/* «Su trabajo» con foto real de lo que hizo: la captura arriba, a todo el ancho */
+.pb-of-wi.con-foto{grid-template-columns:1fr}
+.pb-of-wi.con-foto>div{grid-column:1}
+.pb-of-wf{position:relative;display:block;aspect-ratio:16/10;border-radius:9px;overflow:hidden;background:#0A0912 linear-gradient(110deg,rgba(255,255,255,.03) 30%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.03) 70%) 0 0/300% 100%;animation:pb-of-brillo 1.6s linear infinite;cursor:zoom-in;border:1px solid rgba(255,255,255,.08)}
+.pb-of-wf img{width:100%!important;height:100%!important;object-fit:cover;object-position:top;border-radius:0!important;display:block;transition:transform .5s var(--ease)}
+.pb-of-wf:hover img{transform:scale(1.03)}
+.pb-of-wf::after{content:'Foto real';position:absolute;left:8px;top:8px;font:800 10px var(--sans);letter-spacing:.04em;text-transform:uppercase;color:#0b0f14;background:#B7FF3C;border-radius:999px;padding:2px 7px}
+@keyframes pb-of-brillo{to{background-position:-300% 0}}
+/* el mensaje tal como salió, con forma de burbuja de WhatsApp */
+.pb-of-wi p.pb-of-burbuja{position:relative;margin:8px 0 2px;padding:8px 11px;border-radius:12px 12px 12px 3px;background:#1f3d2b;color:#E9F5EC;font-size:12.5px;white-space:pre-line;max-width:100%}
+/* foto en grande */
+.pb-of-foto{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:24px;background:rgba(4,5,10,.82);backdrop-filter:blur(6px);cursor:zoom-out;animation:pb-of-up .25s var(--ease)}
+.pb-of-foto figure{margin:0;max-width:min(1100px,100%);display:flex;flex-direction:column;gap:10px}
+.pb-of-foto img{width:100%;max-height:80vh;object-fit:contain;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.6);background:#0A0912}
+.pb-of-foto figcaption{color:#C9CBDA;font:600 13px var(--sans);text-align:center}

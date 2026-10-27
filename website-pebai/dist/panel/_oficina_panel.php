@@ -147,6 +147,7 @@ function of_whatsapp(): array
     }
     $a['cola'] = $cola;
     $a['respuestas_hoy'] = $respHoy;
+    $a['entregas'] = of_trabajo_captacion('whatsapp');
     return $a;
 }
 
@@ -364,6 +365,7 @@ function of_redactor(): array
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
     $a['datos'] = [['Sin WhatsApp escrito', (string)$wa], ['Sin email escrito', (string)$em], ['Escritos hoy', (string)$escritos], ['Fuera hoy', (string)$fuera]];
     $a['acciones'] = ['ir' => 'prospectos'];
+    $a['entregas'] = of_trabajo_captacion('redactor');
     return $a;
 }
 
@@ -381,6 +383,48 @@ const OF_GEO_AGENTES = [  // horas de España (en verano, una hora más)
     ['geo_preguntas', 'Preguntas', 'Saca las preguntas reales de la gente y se las pasa a Contenido', 'L-V 11:30 y 18:30 (45 min)'],
 ];
 
+/** Foto real de una página pública: captura de pantalla de WordPress mShots (gratis, sin clave; solo recibe la URL). */
+function of_foto(string $url): string
+{
+    return preg_match('~^https?://[^\s]+$~', $url) ? 'https://s.wordpress.com/mshots/v1/' . rawurlencode($url) . '?w=640&h=400' : '';
+}
+
+/** «Su trabajo» de Captación: lo que el Redactor ha leído y escrito, y lo que WhatsApp ha enviado, con la web de cada empresa. */
+function of_trabajo_captacion(string $agente, int $n = 30): array
+{
+    $reglas = $agente === 'redactor'
+        ? [['/^(WhatsApp|Email) escrito/u', 'escrito'], ['/^Revisada y encaja/u', 'encaja'], ['/^Fuera /u', 'fuera']]
+        : [['/^Enviado a /u', 'enviado']];
+    $q = pebai_actividad_db()->prepare("SELECT ts, resumen, ref FROM agente_actividad WHERE agente = ? AND (ref LIKE 'wa:%' OR ref LIKE 'em:%') ORDER BY id DESC LIMIT 200");
+    $q->execute([$agente]);
+    $wa = pebai_agentes_db()->prepare('SELECT empresa, web, mensaje FROM prospectos WHERE id = ?');
+    $em = pebai_db()->prepare('SELECT empresa, web, cuerpo_personal mensaje FROM email_prospectos WHERE id = ?');
+    $out = [];
+    foreach ($q as $r) {
+        $clase = '';
+        foreach ($reglas as [$re, $c]) {
+            if (preg_match($re, $r['resumen'])) { $clase = $c; break; }
+        }
+        if (!$clase) {
+            continue;
+        }
+        [$tipo, $id] = explode(':', $r['ref'], 2) + ['', ''];
+        $st = $tipo === 'em' ? $em : $wa;
+        $st->execute([(int)$id]);
+        $p = $st->fetch(PDO::FETCH_ASSOC) ?: ['empresa' => '', 'web' => '', 'mensaje' => ''];
+        $web = (string)$p['web'];
+        if ($web !== '' && !preg_match('~^https?://~', $web)) {
+            $web = 'https://' . ltrim($web, '/');
+        }
+        $out[] = ['ts' => $r['ts'], 'clase' => $clase, 'titulo' => $r['resumen'], 'texto' => $clase === 'fuera' ? '' : mb_substr((string)$p['mensaje'], 0, 700),
+                  'url' => str_starts_with($web, 'https://') ? $web : '', 'img' => '', 'foto' => $agente === 'redactor' ? of_foto($web) : '', 'burbuja' => $clase === 'enviado' || $clase === 'escrito'];
+        if (count($out) >= $n) {
+            break;
+        }
+    }
+    return $out;
+}
+
 /** Trabajo entregado por un agente GEO (pestaña «Su trabajo»): lo último primero; solo enlaces https. */
 function of_entregas(string $agente, int $n = 40): array
 {
@@ -391,7 +435,9 @@ function of_entregas(string $agente, int $n = 40): array
     foreach ($q as $r) {
         $d = json_decode((string)$r['detalle'], true) ?: ['texto' => (string)$r['detalle']];
         $out[] = ['ts' => $r['ts'], 'clase' => (string)$r['ref'], 'titulo' => $r['resumen'],
-                  'texto' => (string)($d['texto'] ?? ''), 'url' => $https($d['url'] ?? ''), 'img' => $https($d['img'] ?? '')];
+                  'texto' => (string)($d['texto'] ?? ''), 'url' => $https($d['url'] ?? ''), 'img' => $https($d['img'] ?? ''),
+                  // foto real de lo entregado: la imagen que subió el agente o, si no, una captura de la página
+                  'foto' => $https($d['img'] ?? '') ?: of_foto($https($d['url'] ?? ''))];
     }
     return $out;
 }

@@ -390,7 +390,17 @@ const TIPO = { entrega: ['#B7FF3C', 'Entregado'], hito: ['#3DDC84', 'Hecho'], en
 /* «Su trabajo»: lo que el agente ha entregado (páginas, borradores, posts, informes…), agrupado y con enlace.
    Sale de los apuntes tipo 'entrega' (geo_actividad.py entrega …); sin IA, tal cual lo apuntó. */
 const CLASES = [['pagina', 'Páginas publicadas'], ['post', 'Posts de Google'], ['borrador', 'Borradores'], ['linkedin', 'Borradores de LinkedIn'],
-  ['informe', 'Informes y cifras'], ['posiciones', 'Posiciones en Google Maps'], ['novedad', 'Novedades encontradas'], ['encargo', 'Encargos repartidos'], ['mejora', 'Mejoras hechas']];
+  ['informe', 'Informes y cifras'], ['posiciones', 'Posiciones en Google Maps'], ['novedad', 'Novedades encontradas'], ['encargo', 'Encargos repartidos'], ['mejora', 'Mejoras hechas'],
+  ['escrito', 'Mensajes escritos'], ['encaja', 'Revisadas: encajan'], ['fuera', 'Fuera: no encajan'], ['enviado', 'Mensajes enviados']];
+// Foto en grande: la captura real de la página (la misma de mShots, a más resolución)
+function verFoto(src, titulo) {
+  const v = document.createElement('div'); v.className = 'pb-of-foto';
+  v.innerHTML = `<figure><img alt="" src="${esc(src.replace('w=640&h=400', 'w=1280&h=800'))}"><figcaption>${esc(titulo)}</figcaption></figure>`;
+  v.onclick = () => v.remove();
+  const k = (e) => { if (e.key === 'Escape') { v.remove(); document.removeEventListener('keydown', k, true); e.stopImmediatePropagation(); } };
+  document.addEventListener('keydown', k, true);
+  document.body.append(v);
+}
 function suTrabajo(a) {
   const box = document.createElement('div'); box.className = 'pb-of-work';
   const todo = a.entregas || [];
@@ -403,12 +413,21 @@ function suTrabajo(a) {
     items.forEach((e) => {
       const c = document.createElement(e.url ? 'a' : 'div'); c.className = 'pb-of-wi';
       if (e.url) { c.href = e.url; c.target = '_blank'; c.rel = 'noopener'; }
-      if (e.img) { const im = document.createElement('img'); im.src = e.img; im.alt = ''; im.loading = 'lazy'; c.append(im); }
+      const foto = e.foto || e.img;
+      if (foto) {
+        // foto real de lo que hizo: la imagen que subió o la captura de la página; se amplía al pulsarla
+        c.classList.add('con-foto');
+        const f = document.createElement('span'); f.className = 'pb-of-wf'; f.title = 'Ver la foto en grande';
+        const im = document.createElement('img'); im.src = foto; im.alt = ''; im.loading = 'lazy'; im.onerror = () => f.remove();
+        f.append(im); f.onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); verFoto(foto, e.titulo); };
+        c.append(f);
+      }
       const tx = document.createElement('div');
       const b = document.createElement('b'); b.textContent = e.titulo;
       const m = document.createElement('small'); m.textContent = fecha(e.ts) + (e.url ? ' · abrir ↗' : '');
       tx.append(b);
-      if (e.texto) { const p = document.createElement('p'); p.textContent = e.texto; tx.append(p); }
+      if (e.texto && e.burbuja) { const p = document.createElement('p'); p.className = 'pb-of-burbuja'; p.textContent = e.texto; tx.append(p); }
+      else if (e.texto) { const p = document.createElement('p'); p.textContent = e.texto; tx.append(p); }
       tx.append(m); c.append(tx); box.append(c);
     });
   });
