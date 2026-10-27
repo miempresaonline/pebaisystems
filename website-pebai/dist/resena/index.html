@@ -100,9 +100,28 @@
       .svc button:hover{border-color:rgba(239,237,231,.28)}
       .btn.g:hover{box-shadow:0 16px 40px -10px rgba(183,255,60,.6)}
     }
+    .modal{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;padding:16px;background:rgba(5,4,10,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+    .modal[hidden]{display:none}
+    .caja{width:100%;max-width:420px;padding:22px 20px 16px;text-align:center;animation:in .3s ease both}
+    .ok{width:54px;height:54px;margin:0 auto 10px;border-radius:50%;background:var(--accent);display:grid;place-items:center;box-shadow:0 0 0 8px rgba(183,255,60,.14)}
+    .ok svg{width:28px;height:28px;fill:none;stroke:#0B0F14;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .ok.mal{background:#FFB547;box-shadow:0 0 0 8px rgba(255,181,71,.14)}
+    .caja h2{font-size:21px}
+    .pasos{list-style:none;margin:14px 0 0;display:grid;gap:8px;text-align:left}
+    .pasos li{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600}
+    .pasos b{flex:none;width:24px;height:24px;border-radius:50%;background:var(--glass-2);border:1px solid var(--fg-10);display:grid;place-items:center;font-size:12px}
+    .pegar{display:inline-block;padding:2px 8px;border-radius:7px;background:#fff;color:#1f1f1f;font-weight:800;font-size:13px}
+    .mock{margin-top:14px;padding:12px;border-radius:14px;background:#fff;color:#5f6368;text-align:left}
+    .mock-stars{color:#FBBC05;font-size:18px;letter-spacing:2px}
+    .mock-box{position:relative;margin-top:8px;height:58px;border:1.5px solid #1a73e8;border-radius:8px;padding:10px;font-size:13px}
+    .mock-bubble{position:absolute;top:-16px;left:18px;padding:5px 11px;border-radius:8px;background:#202124;color:#fff;font-weight:700;font-size:12.5px;animation:late 1.6s ease-in-out infinite}
+    .mock-dedo{position:absolute;left:44px;top:24px;width:22px;height:22px;border-radius:50%;background:rgba(26,115,232,.35);box-shadow:0 0 0 6px rgba(26,115,232,.15);animation:late 1.6s ease-in-out infinite}
+    @keyframes late{50%{transform:scale(1.12)}}
+    .m-txt{display:block;width:100%;min-height:110px;margin-top:12px;padding:10px;border-radius:12px;border:1px solid var(--fg-10);background:rgba(10,9,18,.6);color:var(--fg);font:500 15px/1.45 var(--sans)}
+    .m-txt[hidden]{display:none}
     footer{margin-top:auto;padding-top:26px;text-align:center;color:var(--fg-40);font-size:12px}
     footer a{color:var(--fg-65)}
-    @media (prefers-reduced-motion:reduce){.bgfx i,.panel.on,.star.pop svg{animation:none}}
+    @media (prefers-reduced-motion:reduce){.bgfx i,.panel.on,.star.pop svg,.caja,.mock-bubble,.mock-dedo{animation:none}}
   </style>
 </head>
 <body>
@@ -124,21 +143,22 @@
     <p class="s">Es lo que más ayuda a que otras empresas nos encuentren.</p>
     <span class="k">¿Qué te hicimos? <i>(marca todo lo que aplique)</i></span>
     <div class="svc" id="servicios"></div>
-    <span class="k">Ideas para tu reseña <i>(elige hasta 4)</i><b class="cnt" id="cnt">0/4</b></span>
-    <div class="svc ide" id="chips"></div>
-    <p class="aviso" id="aviso" role="status" hidden>Máximo 4 ideas. Quita una para elegir otra.</p>
-    <button type="button" class="lnk mas" id="mas">Ver más ideas</button>
-    <div class="draft" id="draft" hidden>
+    <span class="k">Tu reseña, ya escrita</span>
+    <div class="draft" id="draft">
       <p class="t" id="draft-t"></p>
       <textarea id="txt" aria-label="Tu reseña"></textarea>
       <div class="row"><span class="tip">Es solo una ayuda: cámbiala a tu manera.</span><button type="button" class="lnk" id="editar">Editar</button></div>
     </div>
+    <span class="k">Añade una idea <i>(opcional)</i></span>
+    <div class="svc ide" id="chips"></div>
+    <p class="aviso" id="aviso" role="status" hidden>Máximo 4 ideas. Quita una para elegir otra.</p>
+    <button type="button" class="lnk mas" id="mas">Ver más ideas</button>
     <button type="button" class="lnk solo" id="escribir">Prefiero escribirla yo</button>
     <a class="btn g" id="btn-google" href="#" rel="noopener">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.6-.2-2.3H12v4.3h6c-.3 1.4-1.1 2.6-2.2 3.4v2.8h3.6c2-1.9 3.2-4.7 3.2-8.2z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.4-2.7l-3.6-2.8c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.7H2v2.9C3.8 20.5 7.6 23 12 23z"/><path fill="#FBBC05" d="M5.7 13.9c-.2-.7-.4-1.4-.4-2.1s.1-1.4.4-2.1V6.8H2C1.2 8.3.8 10 .8 11.8s.4 3.5 1.2 5l3.7-2.9z"/><path fill="#EA4335" d="M12 5c1.6 0 3.1.6 4.3 1.7l3.2-3.2C17.5 1.6 15 .6 12 .6 7.6.6 3.8 3.1 2 6.8l3.7 2.9C6.6 7 9.1 5 12 5z"/></svg>
-      Publicar en Google
+      Copiar y publicar en Google
     </a>
-    <p class="small tip">En Google, mantén pulsado para pegar el texto. Si añades una foto, la reseña cuenta más.</p>
+    <p class="small tip">Te la copiamos y en Google solo tienes que pegarla.</p>
   </section>
 
   <!-- 1 a 3 estrellas: hablar con el equipo primero, pero Google sigue disponible -->
@@ -160,6 +180,26 @@
   </section>
 </main>
 
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-tit" hidden>
+  <div class="glass caja">
+    <div class="ok" id="m-ok" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h2 id="m-tit">Reseña copiada</h2>
+    <p class="s" id="m-sub">Ahora en Google, pégala:</p>
+    <ol class="pasos">
+      <li><b>1</b>Toca el cuadro de texto</li>
+      <li><b>2</b>Mantén pulsado y elige <span class="pegar">Pegar</span></li>
+      <li><b>3</b>Pulsa Publicar</li>
+    </ol>
+    <div class="mock" aria-hidden="true">
+      <div class="mock-stars">★★★★★</div>
+      <div class="mock-box"><span class="mock-bubble">Pegar</span><span class="mock-ph">Comparte detalles de tu experiencia</span><i class="mock-dedo"></i></div>
+    </div>
+    <textarea id="m-txt" class="m-txt" readonly aria-label="Texto de tu reseña" hidden></textarea>
+    <a class="btn g" id="m-go" href="#" target="_blank" rel="noopener">Abrir Google y pegarla</a>
+    <button type="button" class="lnk solo" id="m-cerrar">Volver</button>
+  </div>
+</div>
+
 <footer><a href="https://pebaisystems.es/">pebaisystems.es</a> · Esta página no usa cookies</footer>
 
 <script>
@@ -178,6 +218,11 @@
     voz: ['Agente de voz', 'un agente de voz que atiende las llamadas'],
     consultoria: ['Consultoría', 'una consultoría de procesos'],
     formacion: ['Formación', 'formación en inteligencia artificial para el equipo']
+  };
+  /* Frase de base según la nota: la reseña está escrita desde el principio (para quien no quiere elegir nada) */
+  var BASE = {
+    5: ['Muy buena experiencia con PEBAI Systems, totalmente recomendables.', 'Trabajar con PEBAI Systems ha sido un acierto. Muy recomendables.', 'Encantados con PEBAI Systems: profesionales, cercanos y muy resolutivos.', 'Un equipo serio y muy resolutivo. Recomiendo PEBAI Systems sin dudarlo.'],
+    4: ['Buena experiencia con PEBAI Systems, los recomiendo.', 'Muy contentos con el trabajo de PEBAI Systems.', 'PEBAI Systems nos ha ayudado mucho. Recomendables.']
   };
   var INICIO = ['Con PEBAI hemos hecho %s.', 'Nos ayudaron con %s.', 'Trabajamos con ellos en %s.', 'Nos hicieron %s.'];
   /* Ideas para la reseña: las frases que recomienda Localo (ayudan a salir en Google Maps) y dos más personales.
@@ -209,7 +254,7 @@
   var limpia = function (v, n) { return (v || '').replace(/[^a-z0-9_-]/gi, '').slice(0, n).toLowerCase(); };
   var origen = limpia(q.get('o') || q.get('utm_source') || 'directo', 30);
   var servicios = (q.get('s') || '').split(',').map(function (v) { return limpia(v, 20); }).filter(function (v) { return SERV[v]; });
-  var nota = 0, elegidos = [], editado = false, abre = r(['', 'Muy contentos con PEBAI. ', 'Experiencia muy buena con PEBAI Systems. ', '']), MAX = 4;
+  var nota = 0, elegidos = [], editado = false, base = { 5: r(BASE[5]), 4: r(BASE[4]) }, MAX = 4;
 
   function contar(evento) {  /* contador propio y agregado: sin cookies ni datos personales */
     try { if (navigator.sendBeacon) navigator.sendBeacon('/api/visita.php', new URLSearchParams({ p: '/resena/', s: origen, m: 'resena', c: evento })); } catch (e) {}
@@ -246,6 +291,7 @@
     $('btn-wa').href = WA + encodeURIComponent('Hola, os escribo desde la valoración (' + n + ' de 5). Lo que podríais mejorar: ');
     $('google-baja').href = GOOGLE;
     contar('estrellas_' + n);
+    if (n >= 4) componer();
     ver(n >= 4 ? 'p-alta' : 'p-baja');
   }
 
@@ -277,7 +323,6 @@
       if (p >= 0) elegidos.splice(p, 1); else elegidos.push(frase);
       b.classList.toggle('on', p < 0); b.setAttribute('aria-pressed', p < 0 ? 'true' : 'false');
       $('aviso').hidden = true;
-      $('cnt').textContent = elegidos.length + '/' + MAX;
       $('chips').classList.toggle('lleno', elegidos.length >= MAX);
       componer();
     });
@@ -292,15 +337,14 @@
 
   function componer() {
     if (editado) return;
-    var partes = [];
+    var partes = [base[nota >= 5 ? 5 : 4]];
     if (servicios.length) {
       var l = servicios.map(function (k) { return SERV[k][1]; });
       var lista = l.length > 1 ? l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1] : l[0];
       partes.push(inicio.replace('%s', lista));
     }
     partes = partes.concat(elegidos);
-    if (!partes.length) { $('draft').hidden = true; return; }
-    var t = (abre + partes.join(' ')).trim();
+    var t = partes.join(' ').trim();
     $('draft-t').textContent = t; $('txt').value = t; $('draft').hidden = false;
   }
   function editar(vacio) {
@@ -312,15 +356,39 @@
   $('escribir').addEventListener('click', function () { editar(true); contar('escribe_solo'); });
   $('txt').addEventListener('input', function () { editado = true; });
 
+  /* Copiar: primero el método clásico (funciona también en los navegadores de WhatsApp e Instagram) y además el moderno */
+  function copiar(t) {
+    var ok = false;
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;font-size:16px';
+      document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0, t.length);
+      ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch (e) {}
+    try { if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () {}, function () {}); } catch (e) {}
+    return ok || !!(navigator.clipboard && window.isSecureContext);
+  }
+  var modal = $('modal');
+  $('m-go').href = GOOGLE;
   $('btn-google').addEventListener('click', function (e) {
     e.preventDefault();
     var t = $('txt').value.trim();
-    if (t && navigator.clipboard) { navigator.clipboard.writeText(t).then(function () { contar('copiado'); }, function () {}); }
-    contar('google_' + nota);
-    var w = window.open(GOOGLE, '_blank');
-    if (!w) { location.href = GOOGLE; return; }
-    setTimeout(function () { ver('p-fin'); }, 400);
+    var ok = t ? copiar(t) : false;
+    contar(ok ? 'copiado' : 'copia_fallida');
+    $('m-ok').classList.toggle('mal', !ok);
+    $('m-tit').textContent = !t ? 'Escribe tu reseña en Google' : (ok ? 'Reseña copiada' : 'Cópiala antes de ir');
+    $('m-sub').textContent = !t ? 'Te abrimos Google para que la escribas.' : (ok ? 'Ahora en Google, pégala:' : 'Mantén pulsado el texto de abajo y elige «Copiar». Después, en Google:');
+    $('m-txt').value = t; $('m-txt').hidden = ok || !t;
+    modal.hidden = false;
+    if (!ok && t) setTimeout(function () { $('m-txt').focus(); $('m-txt').select(); }, 80);
   });
+  $('m-go').addEventListener('click', function () {
+    contar('google_' + nota);
+    setTimeout(function () { modal.hidden = true; $('p-fin').classList.add('on'); $('btn-google').lastChild.textContent = ' Copiar otra vez y abrir Google'; }, 500);
+  });
+  $('m-cerrar').addEventListener('click', function () { modal.hidden = true; });
+  modal.addEventListener('click', function (e) { if (e.target === modal) modal.hidden = true; });
   $('btn-wa').addEventListener('click', function () { contar('whatsapp_' + nota); });
   $('google-baja').addEventListener('click', function () { contar('google_' + nota); });
   $('btn-ref').href = 'https://wa.me/?text=' + encodeURIComponent('Te paso esto por si te sirve: PEBAI Systems nos ha ayudado con la Inteligencia Artificial en la empresa. Hacen una consultoría de 25 minutos para ver qué se puede automatizar: https://pebaisystems.es/consultoria-gratuita/?utm_source=recomendacion&utm_medium=resena');
