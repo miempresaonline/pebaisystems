@@ -1004,6 +1004,8 @@ async function montar() {
       return +m[2] ? ['scraper', 'whatsapp', m[2] + (+m[2] === 1 ? ' empresa nueva' : ' empresas nuevas')] : +m[3] ? ['scraper', 'email', m[3] + ' empresas para email'] : null;
     },
   ];
+  // Solo se pasan trabajo dos agentes despiertos: un documento nunca sale de (ni llega a) una mesa que duerme
+  const despiertos = (x) => [x.de, x.a].every((id) => { const a = ag(id); return a && ['trabajando', 'espera'].includes(a.st); });
   const vistosTr = new Set(); let colaTr = [], ultimoTr = 0, recientesTr = [];
   function buscaTraspasos() {
     const lista = [];
@@ -1020,8 +1022,7 @@ async function montar() {
     recientesTr = lista.filter((x) => Date.now() - new Date(String(x.ts).replace(' ', 'T')) < 864e5);
     // Al abrir la oficina se ven los tres últimos; después, cada entrega nueva en cuanto llega
     // Al abrir: las últimas entregas, solo si quien entrega está despierto. Después, cada entrega nueva en cuanto llega.
-    const despierto = (x) => { const a = ag(x.de); return a && ['trabajando', 'espera'].includes(a.st); };
-    colaTr.push(...(primera ? nuevos.filter(despierto).slice(-3).map((x) => Object.assign({ repe: true }, x)) : nuevos));
+    colaTr.push(...(primera ? nuevos.filter(despiertos).slice(-3) : nuevos.filter(despiertos)));
   }
   const envios = [];
   const docTex = (col) => canvasTex(96, 120, (c) => {
@@ -1039,19 +1040,8 @@ async function montar() {
     const col = A.d.color;
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: docTex(col), transparent: true, depthWrite: false, depthTest: false, toneMapped: false })); sp.scale.set(.42, .52, 1); sp.renderOrder = 22;
     scene.add(sp);
-    anotaTraspaso(tr);
     const largo = curva.getLength();
     envios.push({ tr, curva, sp, A, B, col, k: 0, v: 1 / Math.max(2.2, Math.min(4.5, largo / 6)), rastro: 0 });
-  }
-  const registro = document.createElement('div'); registro.className = 'pb-of-reg'; registro.setAttribute('aria-live', 'polite'); wrap.append(registro);
-  function anotaTraspaso(tr) {
-    const A = ag(tr.de), B = ag(tr.a); if (!A || !B) return;
-    const f = document.createElement('div'); f.className = 'it';
-    const cuando = tr.repe ? tr.hace : 'ahora';
-    f.innerHTML = `<i style="--c:${(DEPTS.find((d) => d.id === A.dept) || {}).color || '#8E84FF'}"></i><b>${esc(A.nombre)}</b><span class="fl">→</span><b>${esc(B.nombre)}</b><span class="tx">${esc(tr.txt)}</span><time>${esc(cuando)}</time>`;
-    registro.prepend(f);
-    while (registro.childElementCount > 3) registro.lastElementChild.remove();
-    requestAnimationFrame(() => f.classList.add('on'));
   }
   const chispas = [];
   function tickEnvios(dtR) {
@@ -1059,10 +1049,10 @@ async function montar() {
     const kz = THREE.MathUtils.clamp(camera.position.distanceTo(target) / ((HOME.dist || 40) * .42), 1, 2.4);
     // uno cada poco: si no hay nada nuevo, se repite de vez en cuando una entrega de las últimas 24 h para ver el trabajo
     ultimoTr += dtR;
-    if (!envios.length && colaTr.length && ultimoTr > 1.2) { lanzaEnvio(colaTr.shift()); ultimoTr = 0; }
+    if (!envios.length && colaTr.length && ultimoTr > 1.2) { const x = colaTr.shift(); if (despiertos(x)) lanzaEnvio(x); ultimoTr = 0; }
     else if (!envios.length && !colaTr.length && ultimoTr > 22 && !document.hidden) {
-      const despiertos = recientesTr.filter((x) => { const a = ag(x.de); return a && ['trabajando', 'espera'].includes(a.st); });
-      if (despiertos.length) colaTr.push(Object.assign({ repe: true }, despiertos[Math.floor(Math.random() * despiertos.length)]));
+      const listos = recientesTr.filter(despiertos);
+      if (listos.length) colaTr.push(listos[Math.floor(Math.random() * listos.length)]);
       ultimoTr = 0;
     }
     for (let i = envios.length - 1; i >= 0; i--) {

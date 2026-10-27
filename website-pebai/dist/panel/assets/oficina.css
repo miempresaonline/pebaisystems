@@ -259,15 +259,3 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-wi b{display:block;font-size:13.5px;line-height:1.35;color:#EFEDE7}
 .pb-of-wi p{margin:4px 0 0;font-size:12.5px;line-height:1.45;color:#A9ABBD}
 .pb-of-wi small{display:block;margin-top:6px;font:600 11px var(--sans);color:#B7FF3C}
-/* registro de traspasos: lo que se pasan los agentes, sin tapar la oficina */
-.pb-of-reg{position:absolute;left:20px;top:66px;z-index:3;display:flex;flex-direction:column;align-items:flex-start;gap:4px;pointer-events:none;max-width:min(440px,calc(100% - 40px))}
-.pb-of-reg .it{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;background:rgba(11,13,24,.72);border:1px solid rgba(255,255,255,.06);font:600 11.5px var(--sans);color:#8C8FA3;white-space:nowrap;overflow:hidden;opacity:0;transform:translateY(6px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
-.pb-of-reg .it.on{opacity:1;transform:none}
-.pb-of-reg .it:nth-child(2){opacity:.6}.pb-of-reg .it:nth-child(3){opacity:.35}
-.pb-of-reg .it>i{flex:0 0 7px;height:7px;border-radius:50%;background:var(--c)}
-.pb-of-reg b{color:#E3E1DB;font-weight:700}
-.pb-of-reg .fl{color:#5C5F73}
-.pb-of-reg .tx{overflow:hidden;text-overflow:ellipsis;min-width:0}
-.pb-of-reg time{margin-left:auto;padding-left:6px;color:#5C5F73;font-weight:600}
-.pb-of-wrap.limpio .pb-of-reg,.pb-of-wrap.cine .pb-of-reg,.pb-of-wrap.foco .pb-of-reg{opacity:0}
-@media (max-width:760px){.pb-of-reg{display:none}}
