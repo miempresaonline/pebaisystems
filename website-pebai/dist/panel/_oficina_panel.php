@@ -394,7 +394,10 @@ function of_geo_agente(string $id, string $nombre, string $rol, string $cuando):
     $hoy = date('Y-m-d');
     $a['hoy'] = count(array_filter($a['actividad'], static fn($e) => substr($e['ts'], 0, 10) === $hoy && $e['tipo'] === 'hito'));
     $ult = $a['actividad'][0] ?? null;
-    $reciente = $ult && strtotime($ult['ts']) > time() - 1200 && $ult['tipo'] !== 'espera' && !preg_match('/^Termina/u', $ult['txt']);
+    // Lo que apunta el Jefe en su mesa («Encargo del Jefe: …») es trabajo para su próximo turno: no cuenta como que esté trabajando ya
+    $propia = null;
+    foreach ($a['actividad'] as $e) { if (!preg_match('/^Encargo del Jefe/u', $e['txt'])) { $propia = $e; break; } }
+    $reciente = $propia && strtotime($propia['ts']) > time() - 1200 && $propia['tipo'] !== 'espera' && !preg_match('/^Termina/u', $propia['txt']);
     // Los de cada día tienen turno a diario; los de L-V pueden pasar el fin de semana sin nada (de viernes tarde a lunes)
     $hueco = str_starts_with($cuando, 'Cada día') ? 26 * 3600 : 74 * 3600;
     $callado = $ult && strtotime($ult['ts']) < time() - $hueco;
