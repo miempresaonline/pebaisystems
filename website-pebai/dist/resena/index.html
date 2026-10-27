@@ -82,7 +82,8 @@
     .svc button.on i{background:var(--accent);border-color:var(--accent)}
     .svc button.on i::after{content:"";width:8px;height:5px;border:2px solid #0B0F14;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
     .solo{display:block;margin:12px auto 0}
-    .serv button{padding:10px 11px;gap:10px}
+    .serv button{padding:10px 11px;gap:10px;min-width:0;overflow:hidden}
+    .serv button .txt{min-width:0;overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
     .serv button .ico{flex:none;width:32px;height:32px;border-radius:10px;border:1px solid var(--fg-10);background:rgba(10,9,18,.45);display:grid;place-items:center;transition:background .15s,border-color .15s}
     .serv button .ico svg{width:18px;height:18px;fill:none;stroke:var(--fg-65);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:stroke .15s}
     .serv button.on .ico{background:var(--accent);border-color:var(--accent)}
@@ -98,12 +99,16 @@
     .mas{display:block;margin:10px auto 0}
     @media (min-width:760px){
       body{padding-top:40px}
-      main{max-width:540px}
+      main{max-width:580px}
       h1{font-size:62px}
       .rate{padding:24px 16px 18px}
       .star svg{width:54px;height:54px}
       .panel{padding:26px 28px}
       .svc{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .serv button{padding:9px 9px;gap:8px;font-size:13.5px}
+      .serv button .txt{hyphens:manual;-webkit-hyphens:manual}
+      .serv button .ico{width:28px;height:28px;border-radius:9px}
+      .serv button .ico svg{width:16px;height:16px}
       .svc button:hover{border-color:rgba(239,237,231,.28)}
       .btn.g:hover{box-shadow:0 16px 40px -10px rgba(183,255,60,.6)}
     }
@@ -306,7 +311,7 @@
   Object.keys(SERV).forEach(function (k) {
     var b = document.createElement('button'); b.type = 'button'; b.className = servicios.indexOf(k) >= 0 ? 'on' : '';
     b.setAttribute('aria-pressed', b.className ? 'true' : 'false');
-    b.innerHTML = '<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24">' + ICO[k] + '</svg></span>'; b.appendChild(document.createTextNode(SERV[k][0]));
+    b.innerHTML = '<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24">' + ICO[k] + '</svg></span><span class="txt"></span>'; b.lastChild.textContent = SERV[k][0];
     b.addEventListener('click', function () {
       var p = servicios.indexOf(k);
       if (p >= 0) servicios.splice(p, 1); else servicios.push(k);
