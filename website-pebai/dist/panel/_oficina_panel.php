@@ -284,8 +284,8 @@ function of_scraper(): array
     if ($agotadas) {
         $nombres = ['solar' => 'placas solares', 'climatizacion' => 'climatización', 'formacion' => 'formación (oposiciones, academias, idiomas)', 'dental' => 'clínicas dentales', 'inmobiliaria' => 'inmobiliarias'];
         $lista = implode(', ', array_map(static fn($s) => $nombres[$s] ?? $s, $agotadas));
-        $a['necesita'][] = 'Nicho terminado (' . $lista . '): España revisada entera. Dame otro nicho en el chat';
         if (!$reciente) {
+            $a['necesita'][] = 'Nicho terminado (' . $lista . '): España revisada entera. Dame otro nicho en el chat';
             $a['motivo'] = 'Nicho terminado: ' . $lista . '. Ha revisado toda España y ya no salen empresas nuevas. Dame otro nicho y sigue buscando. ' . $a['motivo'];
         }
     }
@@ -293,6 +293,19 @@ function of_scraper(): array
     $a['ultima'] = of_ultima($a['actividad'], ['hito']);
     $cola = (int)pebai_db()->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND nicho = 'solar'")->fetchColumn();
     $a['datos'] = [['En cola de WhatsApp', (string)$cola], ['Encontradas hoy', (string)$enc], ['Útiles hoy', (string)$ent], ['Con móvil hoy', (string)$mov]];
+    if (!empty($lista)) {
+        $a['datos'][] = ['Nichos terminados', $lista];
+    }
+    // «Su trabajo»: cada lote que ha dejado en su carpeta de Prospectos
+    $a['entregas'] = [];
+    foreach (pebai_actividad_ultimas('prospeccion', 120) as $r) {
+        if (preg_match('/^(.+?): a su carpeta de Prospectos/u', (string)$r['resumen'], $m)) {
+            $a['entregas'][] = ['ts' => $r['ts'], 'clase' => 'lote', 'titulo' => $m[1], 'texto' => '', 'url' => '', 'img' => '', 'foto' => ''];
+            if (count($a['entregas']) >= 30) {
+                break;
+            }
+        }
+    }
     $a['acciones'] = ['ir' => 'prospectos'];
     foreach ($a['actividad'] as &$e) {
         $e['txt'] = of_lote_bonito($e['txt']);
@@ -481,7 +494,9 @@ function of_geo_agente(string $id, string $nombre, string $rol, string $cuando):
     $a['st'] = $vigentes || $callado ? 'error' : ($reciente ? 'trabajando' : 'dormido');
     $a['motivo'] = $vigentes ? $vigentes[0]['txt']
         : ($callado ? 'Se ha saltado su turno: no hace nada desde ' . of_hace($ult['ts']) . '. Su rutina en la nube puede haberse parado.'
-        : ($reciente ? $ult['txt'] : ($ult ? 'Descansando hasta su turno (' . $cuando . '). Lo último: ' . $ult['txt'] : 'Empieza en su próximo turno: ' . $cuando . '.')));
+        : ($reciente ? $ult['txt'] : ($ult ? 'Descansando hasta su turno (' . $cuando . ').'
+            . (preg_match('/^Encargo del Jefe:\s*/u', $ult['txt']) ? ' Le toca: ' . preg_replace('/^Encargo del Jefe:\s*/u', '', $ult['txt']) : ' Lo último: ' . $ult['txt'])
+            : 'Empieza en su próximo turno: ' . $cuando . '.')));
     if ($callado) {
         $a['necesita'][] = 'Revisar su rutina en Claude (nube): no ha hecho su turno';
     }

@@ -169,7 +169,7 @@ function franjaDia(a) {
   const d0 = new Date(); d0.setHours(7, 0, 0, 0); const ini = d0.getTime(), fin = ini + 14 * 36e5, pos = (t) => Math.max(0, Math.min(100, (t - ini) / (fin - ini) * 100));
   const tr = turnosDeHoy(a).filter(([x, y]) => y > ini && x < fin);
   const segs = tr.map(([x, y]) => `<i style="left:${pos(x).toFixed(1)}%;width:${Math.max(1.2, pos(y) - pos(x)).toFixed(1)}%"></i>`).join('');
-  return `<div class="dia"><div class="b">${segs}<u style="left:${pos(Date.now()).toFixed(1)}%"></u></div><div class="h"><span>7:00</span><span>${tr.length ? tr.length + (tr.length === 1 ? ' rato trabajando hoy' : ' ratos trabajando hoy') : 'Hoy aún no ha trabajado'}</span><span>21:00</span></div></div>`;
+  return `<div class="dia"><div class="b">${segs}<u style="left:${pos(Date.now()).toFixed(1)}%"></u></div><div class="h"><span>7:00</span><span>${tr.length ? tr.length + (tr.length === 1 ? ' rato trabajando hoy' : ' ratos trabajando hoy') : a.st === 'espera' ? 'Atento todo el día' : 'Hoy aún no ha trabajado'}</span><span>21:00</span></div></div>`;
 }
 function botonRepe() {
   const b = document.createElement('button'); b.type = 'button'; b.className = 'pb-of-repe' + (repe ? ' on' : '');
@@ -391,7 +391,7 @@ const TIPO = { entrega: ['#B7FF3C', 'Entregado'], hito: ['#3DDC84', 'Hecho'], en
    Sale de los apuntes tipo 'entrega' (geo_actividad.py entrega …); sin IA, tal cual lo apuntó. */
 const CLASES = [['pagina', 'Páginas publicadas'], ['post', 'Posts de Google'], ['borrador', 'Borradores'], ['linkedin', 'Borradores de LinkedIn'],
   ['informe', 'Informes y cifras'], ['posiciones', 'Posiciones en Google Maps'], ['novedad', 'Novedades encontradas'], ['encargo', 'Encargos repartidos'], ['mejora', 'Mejoras hechas'],
-  ['escrito', 'Mensajes escritos'], ['encaja', 'Revisadas: encajan'], ['fuera', 'Fuera: no encajan'], ['enviado', 'Mensajes enviados']];
+  ['lote', 'Lotes entregados a Prospectos'], ['escrito', 'Mensajes escritos'], ['encaja', 'Revisadas: encajan'], ['fuera', 'Fuera: no encajan'], ['enviado', 'Mensajes enviados']];
 // Foto en grande: la captura real de la página (la misma de mShots, a más resolución)
 function verFoto(src, titulo) {
   const v = document.createElement('div'); v.className = 'pb-of-foto';
@@ -467,13 +467,13 @@ function abrirSala(d) {
       + (autos.length ? '<div class="pb-of-qa">' + q('Lo que ya funciona solo', autos.map((a) => `<div class="pb-of-auto"><div class="h">${tileHtml(a, 't')}<b>${esc(a.nombre)}${a.rol ? `<small>${esc(a.rol)}</small>` : ''}</b><span><i style="background:${(ST[a.st] || ST.espera)[0]}"></i>${a.st === 'espera' ? 'Atento' : (ST[a.st] || ST.espera)[1]}</span></div><p>${esc(a.motivo)}</p>${(a.necesita || []).map((n) => `<p class="warn">${esc(n)}</p>`).join('')}</div>`).join('')) + '</div>' : '');
     mostrar(); return;
   }
-  const lista = agsDe(d.id); const e = estadoDept(d.id);
-  const pend = pendientes().filter((p) => p.a.dept === d.id);
+  const lista = agsDe(d.id);
+  const pend = pendientes().filter((p) => p.a.dept === d.id), e = pend.some((p) => p.err) ? 'error' : pend.length ? 'aviso' : 'ok';
   sideIn.innerHTML = `<div class="k">Departamento</div><h2>${esc(d.nombre)}</h2><div class="rol">${esc(d.objetivo)}</div>
     <div class="pb-of-state" style="--c:${e === 'error' ? '#FF5E6C' : e === 'aviso' ? '#FFB547' : '#3DDC84'}"><i></i><div><b>${e === 'error' ? 'Hay un error' : e === 'aviso' ? 'Funciona, pero os necesita' : 'Todo en orden'}</b><span>${lista.filter((a) => a.st === 'trabajando').length} de ${lista.length} agentes trabajando ahora</span></div></div>
     <div class="pb-of-qa">
     ${pend.length ? q('Necesita de vosotros', pend.map((p) => `<p class="${p.err ? 'bad' : 'warn'}"><b>${esc(p.a.nombre)}</b>: ${esc(p.txt)}</p>`).join('')) : ''}
-    ${q('Agentes', lista.map((a) => `<div class="pb-of-row" data-id="${esc(a.id)}">${tileHtml(a, 't')}<b>${esc(a.nombre)}${a.rol ? `<small>${esc(a.rol)}</small>` : ''}</b><span><i style="background:${(ST[a.st] || ST.espera)[0]}"></i>${(ST[a.st] || ST.espera)[1]}</span></div>`).join(''))}
+    ${q('Agentes', lista.map((a) => `<div class="pb-of-row" data-id="${esc(a.id)}">${tileHtml(a, 't')}<b>${esc(a.nombre)}${a.hoy ? `<em class="hoy">${N(a.hoy)} ${esc(a.unidad || 'hoy')}</em>` : ''}${a.rol ? `<small>${esc(a.rol)}</small>` : ''}${franjaDia(a)}</b><span><i style="background:${(ST[a.st] || ST.espera)[0]}"></i>${(ST[a.st] || ST.espera)[1]}</span></div>`).join(''))}
     </div>`;
   sideIn.querySelectorAll('.pb-of-row').forEach((r) => r.addEventListener('click', () => abrirAgente(r.dataset.id)));
   mostrar();
@@ -645,9 +645,9 @@ const calma = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)'
 function enfocarSala(d) {
   foco = { sala: d.id }; wrap.classList.add('foco'); if (!G) return;
   const s = G.salas.get(d.id); if (!s) return;
-  const f = Math.max(1, s.W / 8.6), panel = wrap.clientWidth > 760 ? 2.7 * f : 0;
+  const f = Math.max(1, s.W / 8.6), ancho = wrap.clientWidth > 760, panel = ancho ? 3.3 * f : 0;
   const c = s.g.position.clone();
-  G.volar(c.clone().add(new G.THREE.Vector3(panel, 11 * f, 13.5 * f)), c.clone().add(new G.THREE.Vector3(panel, .9, -.9)));
+  G.volar(c.clone().add(new G.THREE.Vector3(panel, 12.5 * f, 15.5 * f)), c.clone().add(new G.THREE.Vector3(panel, ancho ? .9 : -1.6 * f, -.9)));
 }
 function enfocarServidor(id) {
   foco = { servidor: id }; wrap.classList.add('foco'); if (!G) return;
@@ -658,9 +658,16 @@ function enfocarServidor(id) {
 function enfocarAgente(id) {
   foco = { agente: id }; wrap.classList.add('foco'); if (!G) return;
   const o = G.puestos.get(id); if (!o) return;
-  const w = new G.THREE.Vector3(); o.p.getWorldPosition(w);
-  const panel = wrap.clientWidth > 760 ? 2.3 : 0;
-  G.volar(w.clone().add(new G.THREE.Vector3(panel, 6.6, 8.6)), w.clone().add(new G.THREE.Vector3(panel, 1.55, -.7)));
+  const T = G.THREE, w = new T.Vector3(); o.p.getWorldPosition(w);
+  const sa = G.salas.get(o.d.id), e = sa ? sa.esc : 1;
+  // hacia fuera de la sala, por detrás del robot, que mira a su pantalla
+  const fuera = o.phi != null ? new T.Vector3(Math.sin(o.phi), 0, Math.cos(o.phi)) : new T.Vector3(0, 0, 1);
+  const pos = w.clone().addScaledVector(fuera, 8.4 * e).add(new T.Vector3(0, 6.4 * e, 0)), mira = w.clone().addScaledVector(fuera, .5 * e).add(new T.Vector3(0, .6 * e, 0));
+  if (wrap.clientWidth > 760) {   // el panel ocupa la derecha: todo un poco a la derecha para que la mesa quede en el hueco libre
+    const dcha = new T.Vector3().subVectors(mira, pos).cross(new T.Vector3(0, 1, 0)).normalize().multiplyScalar(1.5 * e);
+    pos.add(dcha); mira.add(dcha);
+  } else { pos.add(new T.Vector3(0, 1.2 * e, 0)); mira.add(new T.Vector3(0, -1.1 * e, 0)); }   // móvil: la ficha sube desde abajo
+  G.volar(pos, mira);
 }
 
 async function montar() {
@@ -853,6 +860,12 @@ async function montar() {
         g.fillStyle = 'rgba(255,255,255,.07)'; g.beginPath(); g.roundRect(x0, y, 264, 30, 9); g.fill();
         g.fillStyle = col; g.globalAlpha = .35 + .65 * (1 - k); g.beginPath(); g.roundRect(x0 + 12, y + 11, Math.min(240, w * Math.min(1, k * 2.2)), 8, 4); g.fill(); g.globalAlpha = 1;
       }
+    } else if (st === 'espera' && a.id === 'cerebro') {
+      for (let i = 0; i < 13; i++) {
+        const h = 16 + Math.abs(Math.sin(t * 3.1 + i * .7) * Math.cos(t * 1.7 + i * .35)) * 120;
+        g.fillStyle = col; g.globalAlpha = .45 + .55 * (h / 136); g.beginPath(); g.roundRect(x0 + 6 + i * 20, 136 - h / 2, 11, h, 6); g.fill();
+      }
+      g.globalAlpha = 1; g.fillStyle = col; g.font = '700 26px Manrope, sans-serif'; g.textAlign = 'center'; g.fillText('Escuchando', 346, 236); g.textAlign = 'left';
     } else if (st === 'espera') {
       g.strokeStyle = '#FFB547'; g.lineWidth = 7; g.lineCap = 'round';
       g.beginPath(); g.arc(346, 130, 56, 0, Math.PI * 2); g.globalAlpha = .25; g.stroke(); g.globalAlpha = 1;
