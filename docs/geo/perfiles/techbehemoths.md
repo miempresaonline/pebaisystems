@@ -11,3 +11,4 @@ Empresa verificada el 28/10/2026 (insignia azul) con el enlace del pie de la por
 - Portfolio (28/10): Fran García Cars (app y asistente), Gargom y Santacruz, con imagen, servicios, tramo de presupuesto y duración. Logo 02 Glow puesto. El Amparo no se pone.
 - URL en el sameAs y en los llms (28/10).
 - Reseñas: no se piden.
+- 28/10/2026: pedida la importación de la reseña real de Google (Álvaro Lázaro, Fran García Cars, 5 estrellas) desde la ficha de Google Maps; la revisa su equipo. EXO Score 45 antes de la reseña.

@@ -74,3 +74,5 @@ Fuentes: [Sortlist, crear un buen perfil](https://help.sortlist.com/en/articles/
 Publicado el 28/10/2026: https://www.sortlist.es/agency/pebai-systems
 - Índice de calidad: 70 %. Faltan verificar el teléfono (SMS), verificar el NIF (decidido esperar al alta), 10 reseñas reales con media de +4, Sortlist+ (de pago, no) y más trabajos (3 de IA y 10 en total; hoy hay 4 casos reales).
 - Trabajos subidos: Fran García Cars (app y asistente de WhatsApp), Construcciones Gargom y Suministros Santacruz. Residencia El Amparo: no se pone en directorios (Daniel, 28/10/2026).
+
+28/10/2026 (revisión 100 %): calidad 70 %. Hecho todo lo que depende de datos reales (4 trabajos). Lo que falta: verificar el teléfono por SMS (Daniel), 10 trabajos (no hay tantos casos), reseñas y Trusted Partner. La reseña real de Google (Álvaro Lázaro, Fran García Cars) se puede añadir en Perfil › Reseñas › «Añadir reseña existente», pero Sortlist le escribe a él para confirmarla: necesita su email y el OK de Daniel.
