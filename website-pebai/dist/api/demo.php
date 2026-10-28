@@ -246,7 +246,7 @@ section.s{padding:96px 0 10px}
 .bt.p{background:var(--lime);color:#0b0f14;box-shadow:0 14px 40px rgba(183,255,60,.28)}
 .bt.p:hover{transform:translateY(-2px);box-shadow:0 18px 50px rgba(183,255,60,.4)}
 .bt.s{border:1px solid var(--line2);color:var(--fg);background:rgba(255,255,255,.04)}
-.plazas{font:500 11.5px var(--mono);color:var(--mut);margin-top:14px}
+.plazas,.cierre p.plazas{font:500 11.5px var(--mono);letter-spacing:.04em;color:var(--mut);margin:16px 0 0;max-width:none}
 footer{padding:56px 0 44px;color:var(--mut2);font-size:12.5px;text-align:center}
 footer a{color:var(--mut)}
 .rev{opacity:0;transform:translateY(26px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
