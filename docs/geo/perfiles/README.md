@@ -98,3 +98,13 @@ Abiertos en el Chrome de Daniel para que cree la cuenta; después los relleno yo
 - Wellfound (wellfound.com/recruit): página de empresa con fundadores.
 - Hotfrog España (hotfrog.es/register): ficha local que permite ocultar la dirección.
 - 28/10: Hotfrog, Wellfound y F6S publicados (ver sus fichas). Dealroom también.
+
+## Avisos por email (28/10/2026)
+
+Daniel contesta él; cada directorio avisa a equipo@pebaisystems.es cuando alguien escribe.
+- Sortlist: mensajes, proyectos, presupuestos y reuniones activados.
+- TechBehemoths: estaban apagados; activados (consultas «Inquiries», proyectos «Project briefs», ranking).
+- GoodFirms y DesignRush: el contacto del perfil es equipo@.
+- F6S: mensajes y recordatorios por email activados (cuenta de Google de equipo@).
+- Hotfrog, agentes.ai, Wellfound y Trustpilot: el formulario o la cuenta van a equipo@.
+- Ficha de Google: la lleva el agente Local (Localo); no tocar desde aquí.
