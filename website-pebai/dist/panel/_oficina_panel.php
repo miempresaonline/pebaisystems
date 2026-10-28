@@ -952,6 +952,9 @@ function of_pausar(string $id, bool $pausar): void
         }
         pebai_email_db()->prepare("UPDATE agente_estado SET pausado = ?, estado = CASE WHEN estado = 'sin_configurar' THEN estado ELSE ? END, detalle = ? WHERE agente = 'email'")
             ->execute([$pausar ? 1 : 0, $pausar ? 'pausado' : 'activo', $pausar ? 'En pausa: «Parar todo» desde el panel' : 'Reanudado desde el panel']);
+        if (!$pausar && function_exists('pebai_email_reanudado')) {
+            pebai_email_reanudado();
+        }
     } else {
         pebai_agentes_db()->prepare('UPDATE agente_estado SET pausado = ? WHERE agente = ?')->execute([$pausar ? 1 : 0, $id]);
     }

@@ -85,6 +85,9 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
             $edb->prepare("UPDATE agente_estado SET pausado = ?, estado = ?, detalle = ? WHERE agente = 'email'")
                 ->execute([$pausar ? 1 : 0, $pausar ? 'pausado' : 'activo', $pausar ? 'En pausa desde el panel' : 'Reanudado desde el panel']);
             pebai_actividad('email', 'cambio', $pausar ? 'Puesto en pausa desde el panel' : 'Reanudado desde el panel');
+            if (!$pausar) {
+                pebai_email_reanudado();
+            }
             json_out(['ok' => true]);
         case 'email_ajustes':
             $ventanas = [];

@@ -781,7 +781,10 @@ function pebai_email_salud(int $dias): array
 function pebai_email_revisar_rebotes(): void
 {
     $db = pebai_email_db();
-    $ids = $db->query("SELECT prospecto_id FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta') ORDER BY id DESC LIMIT 50")->fetchAll(PDO::FETCH_COLUMN);
+    $desde = (string)(json_decode((string)(pebai_agente('email')['config'] ?? '{}'), true)['rebotes_desde'] ?? '');   // se pone al reanudarlo
+    $q = $db->prepare("SELECT prospecto_id FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta') AND ts >= ? ORDER BY id DESC LIMIT 50");
+    $q->execute([$desde]);
+    $ids = $q->fetchAll(PDO::FETCH_COLUMN);
     if (count($ids) < 20) {
         return;
     }
@@ -1020,6 +1023,15 @@ function pebai_email_procesar(array $m, bool $avisar = true): string
     if ($avisar) {
         pebai_email_avisar($p, $m, $estado);
     }
+    // Como por WhatsApp (28/10): la IA lo clasifica, Demos le prepara su página y se le contesta con el estilo de Daniel
+    if ($estado !== 'baja') {
+        try {
+            require_once __DIR__ . '/_conversaciones_lib.php';
+            pebai_conv_al_momento('email', (int)$p['id']);
+        } catch (Throwable $e) {
+            pebai_log('EMAIL AL MOMENTO: ' . $e->getMessage());
+        }
+    }
     return $estado;
 }
 
@@ -1199,4 +1211,13 @@ function pebai_email_tick(bool $comprobarDns = true): array
     $detalle = $estado === 'frenado' ? $a['detalle'] : $out['envio'];
     $db->prepare("UPDATE agente_estado SET latido_at = ?, estado = ?, detalle = ? WHERE agente = 'email'")->execute([date('Y-m-d H:i:s'), $estado, mb_substr($detalle, 0, 400)]);
     return $out;
+}
+
+/** Al reanudar el Email a mano, la cuenta del freno por rebotes empieza desde ahora. */
+function pebai_email_reanudado(): void
+{
+    $db = pebai_email_db();
+    $cfg = json_decode((string)(pebai_agente('email')['config'] ?? '{}'), true) ?: [];
+    $cfg['rebotes_desde'] = date('Y-m-d H:i:s');
+    $db->prepare("UPDATE agente_estado SET config = ? WHERE agente = 'email'")->execute([json_encode($cfg, JSON_UNESCAPED_UNICODE)]);
 }

@@ -322,7 +322,7 @@ function pebai_conv_al_momento(string $canal, int $id): void
     }
     if (!in_array($res['estado'], ['auto', 'no_interesado'], true) && !pebai_conv_es_baja($canal, $p) && end($msgs)['sentido'] === 'entra' && !pebai_conv_cerrada($msgs)) {
         // Contesta una persona: Demos le prepara su página (si tiene web) antes de redactar, para poder ofrecérsela
-        if ($canal === 'whatsapp') {
+        if (in_array($canal, ['whatsapp', 'email'], true)) {
             try {
                 require_once __DIR__ . '/_demos_lib.php';
                 pebai_demo_crear($canal, $p);
@@ -332,8 +332,9 @@ function pebai_conv_al_momento(string $canal, int $id): void
         }
         $b = pebai_conv_borrador($canal, $id);
         // Respuesta automática (orden de Daniel, 28/10): por WhatsApp sale sola, con su estilo, a los pocos minutos y en horario de persona
-        if (isset($b['texto']) && $canal === 'whatsapp' && pebai_conv_auto_activo()) {
-            $r = pebai_conv_enviar($canal, $id, $b['texto'], pebai_conv_retraso_humano(), 'auto');
+        // (por email sale al momento: allí nadie espera ver «escribiendo»)
+        if (isset($b['texto']) && pebai_conv_auto_activo() && ($canal === 'whatsapp' || ((int)date('G') >= 8 && (int)date('G') < 21))) {
+            $r = pebai_conv_enviar($canal, $id, $b['texto'], $canal === 'whatsapp' ? pebai_conv_retraso_humano() : 0, 'auto');
             if (!empty($r['ok'])) {
                 return;
             }
@@ -449,7 +450,7 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
     $nuestros = implode("\n", array_map(static fn($m) => (string)$m['texto'], array_filter($msgs, static fn($m) => $m['sentido'] === 'sale')));
     $videoOfrecido = (bool)preg_match('/v[ií]deo|nuestra web|nuestras redes/iu', $nuestros);
     require_once __DIR__ . '/_demos_lib.php';
-    $demo = $canal === 'whatsapp' ? pebai_demo_de($canal, (int)$p['id']) : null;
+    $demo = pebai_demo_de($canal, (int)$p['id']);
     $demoDada = str_contains($nuestros, '/para/');
     $demoOfrecida = (bool)preg_match('/demo|os he preparado|te he preparado|he preparado/iu', $nuestros);
     $reglaDemo = !$demo || $auto ? ''
