@@ -2,6 +2,15 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-28 (mañana: buscadores e IAs)
+
+1. **Ahrefs: solo el 38 % de las URLs citadas en AI Overviews está en el top 10 de la SERP (era el 76 % en julio de 2025)** [V]. Estudio actualizado el 2/03/2026 con 863.000 SERPs y 4 millones de URLs citadas; el resto se reparte entre las posiciones 11-100 (31,2 %) y fuera del top 100 (31 %). Los autores lo atribuyen a las consultas de fan-out (subconsultas). Fuente: https://ahrefs.com/blog/ai-overview-citations-top-10/ (leída 28/10/2026).
+   *Qué cambia para PEBAI:* posicionar bien una sola palabra no basta ni hace falta para ser citada: cuenta responder bien subpreguntas concretas. Refuerza que cada página lleve H2 con las subpreguntas del comprador y FAQ, y que Preguntas alimente esas subpreguntas. Con 7 URLs enviadas y pocas impresiones, una página de PEBAI con respuesta muy concreta puede ser citada sin estar en el top 10.
+2. **Search Console tiene informes de IA generativa (AI Overviews y AI Mode, y Discover)** [S]. Entrada de Search Central de junio de 2026 (https://developers.google.com/search/blog/2026/06/gen-ai-performance-reports; no he podido leer el cuerpo, solo título y mes) y varios resúmenes secundarios: aíslan impresiones de las funciones de IA, en despliegue parcial o beta; el detalle de métricas (solo impresiones o también clics) no coincide entre fuentes.
+   *Qué cambia para PEBAI:* Medición debe abrir la propiedad en Search Console y comprobar si el informe aparece; si aparece, es la primera medida propia de visibilidad en IA de Google y entra en el informe del lunes. Solo con botón de Search Console (sin API confirmada): si no sale en la API, pedir a Daniel una captura una vez al mes.
+
+Comprobación técnica 28/10: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot. Sin anuncios fechados de OpenAI ni Perplexity en 48 h (la búsqueda solo devolvió material de 2024-2025).
+
 ## 2026-10-27 (noche, 2: Ley 10/2025 leída en el BOE, corrige el punto 3 anterior)
 
 1. **Ley 10/2025 de atención a la clientela: texto oficial leído** [V]. BOE núm. 312, 27/12/2025, ficha: en vigor el 28/12/2025 (https://www.boe.es/buscar/act.php?id=BOE-A-2025-26698, leída 27/10/2026; la disposición final literal quedó fuera de lo leído). Art. 2: aplica a empresas de servicios básicos de interés general y a empresas o grupos que vendan a consumidores y superen 250 trabajadores, 50 M€ de facturación o 43 M€ de balance (umbrales con «alguno»), más la Administración General del Estado. Art. 8: prohíbe contestadores u otros medios análogos como medio **exclusivo** de atención; los bots deben permitir pedir en cualquier momento atención de una persona física desde el menú principal. Art. 10.3: 95 % de llamadas atendidas en menos de 3 minutos de media. Disposición transitoria única: 12 meses para adaptarse (hasta 28/12/2026); el preámbulo habla de 6, prevalece el texto dispositivo.
@@ -223,6 +232,7 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 ## Para el Jefe
 
+(Vigía 28/10 mañana: 1) Medición: comprobar si el informe de IA generativa de Search Console aparece en la propiedad y, si sí, incluirlo en el informe del lunes 2/11; 2) Contenido y Refresco: usar el dato Ahrefs 38 % (fan-out) como razón para H2 de subpreguntas en cada página, citando https://ahrefs.com/blog/ai-overview-citations-top-10/ solo con su fecha, 2/03/2026.)
 (Repartido por el Jefe el 27/10 tarde: señal de entidad, a Contenido (borrador de `/sobre-pebai/` con Organization y Person) y a Preguntas (preguntas de confianza); Organization con founder y sameAs ya está en la portada (Técnico comprueba que sigue tras el rediseño). Clutch y el resto de directorios siguen en «Para Daniel» porque exigen crear cuenta.)
 (Repartido el 27/10 mañana: ángulo pyme española, RGPD, derivación y caso propio para P13 y P11, a Contenido; frase citable y FAQ de GEO en /posicionamiento-en-ia/, a Refresco; formato de cifra de la medición, a Medición desde el 2/11. Aparcada hasta tener PEBAI citada: la sección «cómo medimos».)
 (Preguntas 27/10 tarde, agrupación de 52 preguntas en `docs/geo/preguntas.md` «Temas y huecos»: 1) el hilo común de WhatsApp, voz y automatización es la salida a una persona: pedir a Contenido una sección fija con el mismo título en las tres guías; 2) orden de publicación por huecos: cuanto-cuesta (9), formación (9), voz (9), /sobre-pebai/ (3); 3) dos respuestas de /sobre-pebai/ dependen de Daniel: qué se entrega al terminar un proyecto (código, accesos, documentación) y si hay reseñas enlazables; 4) la URL antigua de agente de voz frente a call center tuvo 10 impresiones en posición 8: recuperar su contenido útil en la página de voz.)
