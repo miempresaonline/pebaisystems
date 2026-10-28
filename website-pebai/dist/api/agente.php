@@ -181,7 +181,12 @@ switch ($in['accion'] ?? '') {
             pebai_actividad('whatsapp', 'respuesta', 'Baja: ' . ($p['empresa'] ?: $tel) . ' pidió no recibir más mensajes', $texto, 'wa:' . $p['id']);
         } else {
             pebai_actividad('whatsapp', 'respuesta', 'Respondió ' . ($p['empresa'] ?: $tel), $texto, 'wa:' . $p['id']);
-            // En el momento: la IA lee la respuesta, la clasifica y deja preparada la contestación (sin esperar al cron)
+            // En el momento: la IA lee la respuesta, la clasifica, prepara su demo y contesta. Al bot se le responde ya
+            // (crear la demo tarda unos 20 s) y el trabajo sigue después.
+            if (function_exists('fastcgi_finish_request') || function_exists('litespeed_finish_request')) {
+                echo json_encode(['ok' => true]);
+                function_exists('fastcgi_finish_request') ? fastcgi_finish_request() : litespeed_finish_request();
+            }
             try {
                 require_once __DIR__ . '/_conversaciones_lib.php';
                 // «Mándame la información a este correo»: se envía sola (email + aviso por WhatsApp)

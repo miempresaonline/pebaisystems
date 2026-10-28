@@ -321,7 +321,23 @@ function pebai_conv_al_momento(string $canal, int $id): void
         return;
     }
     if (!in_array($res['estado'], ['auto', 'no_interesado'], true) && !pebai_conv_es_baja($canal, $p) && end($msgs)['sentido'] === 'entra' && !pebai_conv_cerrada($msgs)) {
+        // Contesta una persona: Demos le prepara su página (si tiene web) antes de redactar, para poder ofrecérsela
+        if ($canal === 'whatsapp') {
+            try {
+                require_once __DIR__ . '/_demos_lib.php';
+                pebai_demo_crear($canal, $p);
+            } catch (Throwable $e) {
+                pebai_log('DEMOS: ' . $e->getMessage());
+            }
+        }
         $b = pebai_conv_borrador($canal, $id);
+        // Respuesta automática (orden de Daniel, 28/10): por WhatsApp sale sola, con su estilo, a los pocos minutos y en horario de persona
+        if (isset($b['texto']) && $canal === 'whatsapp' && pebai_conv_auto_activo()) {
+            $r = pebai_conv_enviar($canal, $id, $b['texto'], pebai_conv_retraso_humano(), 'auto');
+            if (!empty($r['ok'])) {
+                return;
+            }
+        }
         if (isset($b['texto'])) {
             pebai_actividad($canal, 'respuesta', 'Respuesta preparada para ' . ($p['empresa'] ?: '#' . $id) . ': espera tu aprobación en Conversaciones', $b['texto'], ($canal === 'email' ? 'em:' : 'wa:') . $id);
         }
@@ -359,6 +375,7 @@ const PEBAI_CONV_ENLACE = '[ENLACE_RESERVA]';
 const PEBAI_CONV_VIDEO = '[ENLACE_VIDEO]';
 const PEBAI_CONV_VIDEO_URL = 'https://pebaisystems.es/consultoria-gratuita/?origen=daniel';
 // Cuando acepta la consultoría (orden de Daniel, 22/10): primero el formulario de diagnóstico; lo revisamos y después va el enlace de reserva
+const PEBAI_CONV_DEMO = '[ENLACE_DEMO]';   // la página de su demo (agente Demos, 28/10)
 const PEBAI_CONV_FORM = '[ENLACE_FORMULARIO]';
 const PEBAI_CONV_FORM_URL = 'https://pebaisystems.es/diagnostico/?origen=daniel';
 
@@ -431,6 +448,15 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
     // ¿Ya le ofrecimos el vídeo o la web? (solo cuenta lo que escribimos nosotros)
     $nuestros = implode("\n", array_map(static fn($m) => (string)$m['texto'], array_filter($msgs, static fn($m) => $m['sentido'] === 'sale')));
     $videoOfrecido = (bool)preg_match('/v[ií]deo|nuestra web|nuestras redes/iu', $nuestros);
+    require_once __DIR__ . '/_demos_lib.php';
+    $demo = $canal === 'whatsapp' ? pebai_demo_de($canal, (int)$p['id']) : null;
+    $demoDada = str_contains($nuestros, '/para/');
+    $demoOfrecida = (bool)preg_match('/demo|os he preparado|te he preparado|he preparado/iu', $nuestros);
+    $reglaDemo = !$demo || $auto ? ''
+        : ($demoDada ? "- Ya tiene su demo (su página con la búsqueda en IA, su asistente y su app). Si comenta algo de ella, contesta sobre eso con naturalidad.\n"
+        : ($demoOfrecida ? '- Ya le ofreciste su demo. Si dice que sí, que vale o la pide, pásasela con una frase natural poniendo exactamente ' . PEBAI_CONV_DEMO . " (no escribas la dirección).\n"
+        : "- Le hemos preparado una DEMO de verdad: una página suya con lo que contesta la IA cuando alguien busca su servicio en su ciudad (búsqueda real), una demo de su propio asistente que ya sabe lo que dice su web y el boceto de su app. "
+          . "Si muestra interés o pregunta qué hacemos, ofrécesela en una frase sin enlace (p. ej. «os he preparado una demo con vuestra web, ¿os la paso?»). No la ofrezcas si dice que no le interesa.\n"));
     $videoDado = str_contains($nuestros, 'consultoria-gratuita');
     $formDado = str_contains($nuestros, '/diagnostico/');
     // ¿Ya rellenó el formulario? (hay una solicitud suya de verdad, no una ficha de trato directo)
@@ -477,7 +503,7 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         . "repetitivas y lo conectamos con los programas que ya usan. Sus dolores típicos: mensajes que se quedan sin contestar fuera de horario, clientes que se van "
         . "a la competencia por tardar, y horas del equipo contestando lo mismo a mano.\n"
         . "CÓMO VAMOS (orden de Daniel, 21/10: con calma, sin prisa por vender): " . $etapa . "\n\n"
-        . "REGLAS:\n- Tutea, tono cercano, amable y profesional, español de España. Breve: "
+        . "REGLAS:\n" . $reglaDemo . "- Tutea, tono cercano, amable y profesional, español de España. Breve: "
         . ($email ? 'máximo 90 palabras, sin firma (se añade sola), sin asunto.' : 'máximo 60 palabras en total, como un WhatsApp de verdad, sin saludo largo ni firma. '
             . 'Escríbelo en 2 o 3 mensajes cortos separados por una línea en blanco (cada bloque sale como un WhatsApp aparte, como escribe todo el mundo).') . "\n"
         . "- Contesta primero a lo que han dicho o preguntado, con naturalidad.\n"
@@ -503,7 +529,7 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
         $prisa = ($auto && preg_match('/perdon|no me expliqu/iu', $t)) || (str_contains($t, PEBAI_CONV_ENLACE) && !$formHecho) || (!$interes && !$enlaceDado && str_contains($t, PEBAI_CONV_ENLACE))
             || (preg_match('/gratis|gratuit|sin coste|coste cero/iu', $t) && !preg_match('/\b5\b|cinco/iu', $t))
-            || (str_contains($t, PEBAI_CONV_VIDEO) && !$videoOfrecido) || preg_match('/factura de la luz/iu', $t);
+            || (str_contains($t, PEBAI_CONV_VIDEO) && !$videoOfrecido) || preg_match('/factura de la luz/iu', $t) || (str_contains($t, PEBAI_CONV_DEMO) && !$demo);
         if ($t !== '' && !$prisa && $n <= ($auto ? ($email ? 60 : 40) : ($email ? 130 : 85)) && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t)) {
             // Segundo mensaje a quien aún no ha leído nada: vuelve a ofrecer no escribir más (regla legal)
             if ($auto && !preg_match('/no (os |te )?(escribo|vuelvo|molesto)|no os escribir|digáis|dímelo|me lo dices/iu', $t)) {
@@ -585,7 +611,7 @@ function pebai_conv_borradores(int $max = 3): int
 }
 
 /** Envía la respuesta aprobada por Daniel. WhatsApp: a la cola del bot. Email: sale ahora, en el mismo hilo. */
-function pebai_conv_enviar(string $canal, int $id, string $texto): array
+function pebai_conv_enviar(string $canal, int $id, string $texto, int $retraso = 0, string $como = 'aprobada'): array
 {
     $db = pebai_conv_db();
     $p = pebai_conv_prospecto($canal, $id);
@@ -604,6 +630,14 @@ function pebai_conv_enviar(string $canal, int $id, string $texto): array
     $borrador = (string)$q->fetchColumn();
     $final = str_contains($texto, PEBAI_CONV_ENLACE) ? str_replace(PEBAI_CONV_ENLACE, pebai_booking_url(pebai_conv_lead_crear($canal, $p)), $texto) : $texto;
     $final = str_replace([PEBAI_CONV_VIDEO, PEBAI_CONV_FORM], [PEBAI_CONV_VIDEO_URL, PEBAI_CONV_FORM_URL], $final);
+    if (str_contains($final, PEBAI_CONV_DEMO)) {
+        require_once __DIR__ . '/_demos_lib.php';
+        $dm = pebai_demo_de($canal, $id);
+        if (!$dm) {
+            return ['error' => 'Esta empresa todavía no tiene demo.'];
+        }
+        $final = str_replace(PEBAI_CONV_DEMO, pebai_demo_url($dm['slug']), $final);
+    }
     $now = date('Y-m-d H:i:s');
     $quien = $p['empresa'] ?: ('#' . $id);
     if ($canal === 'email') {
@@ -629,8 +663,11 @@ function pebai_conv_enviar(string $canal, int $id, string $texto): array
            ->execute([$now, $id, $p['email'], 'Asunto: ' . $asunto . "\n\n" . $cuerpo]);
         pebai_actividad('email', 'envio', 'Respuesta aprobada enviada a ' . $quien, $cuerpo, 'em:' . $id);
     } else {
-        $db->prepare('INSERT INTO wa_salida (ts, prospecto_id, telefono, texto) VALUES (?, ?, ?, ?)')->execute([$now, $id, $p['telefono'], $final]);
-        pebai_actividad('whatsapp', 'envio', 'Respuesta aprobada para ' . $quien . ': el agente la envía en un momento', $final, 'wa:' . $id);
+        $db->prepare('INSERT INTO wa_salida (ts, prospecto_id, telefono, texto, no_antes) VALUES (?, ?, ?, ?, ?)')
+           ->execute([$now, $id, $p['telefono'], $final, $retraso > 0 ? date('Y-m-d H:i:s', time() + $retraso) : '']);
+        pebai_actividad('whatsapp', 'envio', $como === 'auto'
+            ? 'Respuesta de la IA para ' . $quien . ': sale sola en unos minutos (puedes revisarla en Conversaciones)'
+            : 'Respuesta aprobada para ' . $quien . ': el agente la envía en un momento', $final, 'wa:' . $id);
     }
     $msgs = pebai_conv_mensajes($canal, $id);
     $ctx = '';
@@ -743,4 +780,23 @@ function pebai_conv_cerrada(array $msgs): bool
         }
     }
     return false;
+}
+
+/** ¿Contestan solos los agentes a quien responde por WhatsApp? Sí por defecto (Daniel, 28/10); se apaga con private/conv_auto.json {"activo": false}. */
+function pebai_conv_auto_activo(): bool
+{
+    $f = pebai_private_dir() . '/conv_auto.json';
+    $c = is_file($f) ? (json_decode((string)file_get_contents($f), true) ?: []) : [];
+    return !array_key_exists('activo', $c) || !empty($c['activo']);
+}
+
+/** Retraso de una persona: 3-8 minutos en horario (9:00-21:00); fuera de horario, a primera hora del día siguiente. */
+function pebai_conv_retraso_humano(): int
+{
+    $h = (int)date('G');
+    if ($h >= 9 && $h < 21) {
+        return random_int(180, 480);
+    }
+    $man = strtotime(($h >= 21 ? 'tomorrow' : 'today') . ' 09:00') + random_int(300, 2400);
+    return max(180, $man - time());
 }
