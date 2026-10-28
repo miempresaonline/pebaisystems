@@ -80,4 +80,5 @@ The first step is a free 25-minute video consultation, available for five compan
 
 Publicado el 28/10/2026: https://www.crunchbase.com/organization/pebai-systems
 - Hecho: nombre, alias PEBAI, descripción corta y larga en inglés, fundada en 2026, 1-10 empleados, For Profit, sede Valencia (España), web, LinkedIn, X, Facebook, email, teléfono, logo e industrias (AI, Generative AI, BPA, Consulting, Software).
-- Falta: fundadores como People (no existen sus perfiles en Crunchbase; hay que crearlos).
+- Fundadores (28/10): perfiles creados y enlazados como «Founded Organizations»: https://www.crunchbase.com/person/daniel-pe%C3%B1uela-ruiz (con LinkedIn) y https://www.crunchbase.com/person/adri%C3%A1n-ballesteros-moscard%C3%B3 (sin LinkedIn: no consta). Logo 02 Glow puesto.
+- Falta: nada que dependa de nosotros (Instagram, YouTube y TikTok no tienen campo).
