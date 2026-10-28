@@ -171,13 +171,14 @@ function pebai_conv_cortesia_texto(array $p, array $msgs): string
             'Eres Daniel, de PEBAI Systems (consultora de procesos e Inteligencia Artificial). Escribiste en frío por WhatsApp a una empresa y te ha saltado su contestador automático. '
             . 'Escribe la respuesta que mandaría una persona a ese contestador para no quedarse en el aire: responde a lo que pregunta el contestador (si pregunta en qué pueden ayudar, dilo) '
             . 'resumiendo en UNA frase por qué les escribiste, sacado de tu primer mensaje, y termina con UNA pregunta fácil para llegar a la persona que lleva las solicitudes o los presupuestos. '
-            . 'Español de España, tuteo en plural (os), natural, como un WhatsApp de verdad. Máximo 35 palabras. Sin saludo largo, sin firma, sin enlaces, sin precios, sin porcentajes, sin leyes, sin emojis o como mucho uno. '
+            . 'Español de España, tuteo en plural (os), natural, como un WhatsApp de verdad. Máximo 35 palabras. Sin saludo largo, sin firma, sin enlaces, sin precios, sin porcentajes, sin leyes, sin ofrecer nada gratis, sin emojis o como mucho uno. '
             . 'No repitas el primer mensaje entero ni pidas perdón. Devuelve SOLO el texto.',
             [['role' => 'user', 'content' => 'Empresa: ' . ($p['empresa'] ?: 'sin nombre') . "\nTU PRIMER MENSAJE:\n{$nuestro}\n\nSU CONTESTADOR:\n{$suyo}"]],
             ['effort' => 'low', 'max_tokens' => 1500]) ?? '');
         $t = trim($t, " \n\r\t\"«»");
         $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
-        if ($t !== '' && $n <= 45 && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci|gratis/iu', $t)) {
+        // «gratis» solo vale si cita algo suyo entre comillas («Estudio gratis por WhatsApp»); nunca como oferta nuestra
+        if ($t !== '' && $n <= 45 && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t) && !preg_match('/gratis|gratuit/iu', preg_replace('/«[^»]*»/u', '', $t))) {
             return $t;
         }
     }
