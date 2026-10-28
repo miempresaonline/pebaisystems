@@ -454,9 +454,9 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
     $demoOfrecida = (bool)preg_match('/demo|os he preparado|te he preparado|he preparado/iu', $nuestros);
     $reglaDemo = !$demo || $auto ? ''
         : ($demoDada ? "- Ya tiene su demo (su página con la búsqueda en IA, su asistente y su app). Si comenta algo de ella, contesta sobre eso con naturalidad.\n"
-        : ($demoOfrecida ? '- Ya le ofreciste su demo. Si dice que sí, que vale o la pide, pásasela con una frase natural poniendo exactamente ' . PEBAI_CONV_DEMO . " (no escribas la dirección).\n"
+        : ($demoOfrecida ? '- Ya le ofreciste su demo. Si dice que sí, que vale o la pide, pásasela con una frase natural (y nada más: sin formulario ni llamada en ese mensaje) poniendo exactamente ' . PEBAI_CONV_DEMO . " (no escribas la dirección).\n"
         : "- Le hemos preparado una DEMO de verdad: una página suya con lo que contesta la IA cuando alguien busca su servicio en su ciudad (búsqueda real), una demo de su propio asistente que ya sabe lo que dice su web y el boceto de su app. "
-          . "Si muestra interés o pregunta qué hacemos, ofrécesela en una frase sin enlace (p. ej. «os he preparado una demo con vuestra web, ¿os la paso?»). No la ofrezcas si dice que no le interesa.\n"));
+          . "Si muestra interés o pregunta qué hacemos, ofrécesela en una frase sin enlace (p. ej. «os he preparado una demo con vuestra web, ¿os la paso?»). No la ofrezcas si dice que no le interesa. En el mensaje en que ofreces la demo no pidas formulario, llamada ni enlace: un paso cada vez.\n"));
     $videoDado = str_contains($nuestros, 'consultoria-gratuita');
     $formDado = str_contains($nuestros, '/diagnostico/');
     // ¿Ya rellenó el formulario? (hay una solicitud suya de verdad, no una ficha de trato directo)
