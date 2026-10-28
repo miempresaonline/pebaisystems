@@ -318,7 +318,7 @@ footer a{color:var(--mut)}
     pon(t, 'yo'); txt.value = '';
     const e = document.createElement('div'); e.className = 'escribe'; e.innerHTML = '<i></i><i></i><i></i>'; msgs.append(e); msgs.scrollTop = msgs.scrollHeight;
     try {
-      const r = await fetch('/api/demo_chat.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ s: <?= json_encode($slug) ?>, m: t, h: hist.slice(-8) }) });
+      const r = await fetch('/api/demo_chat.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ s: <?= json_encode($slug) ?>, m: t, h: hist.slice(-8), eq: <?= empty($_GET['equipo']) ? 0 : 1 ?> }) });
       const j = await r.json(); e.remove();
       if (j.ok) { pon(j.respuesta, 'ellos'); hist.push({ q: t, a: j.respuesta }); if (j.quedan !== undefined) quedan.textContent = j.quedan > 0 ? 'Te quedan ' + j.quedan + ' mensajes de prueba' : 'Fin de la prueba: hablemos y lo montamos de verdad'; }
       else { pon(j.error || 'Ahora mismo no puedo contestar.', 'ellos'); }

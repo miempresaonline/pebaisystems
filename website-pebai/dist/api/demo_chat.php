@@ -47,8 +47,11 @@ $r = pebai_claude('demos', 'claude-haiku-5-5', $system, $hilo, ['effort' => 'low
 if ($r === null) {
     $out(['ok' => false, 'error' => 'Ahora mismo no puedo contestar. Prueba en un momento.'], 502);
 }
-pebai_demos_db()->prepare('UPDATE demos SET chats = chats + 1 WHERE slug = ?')->execute([$slug]);
-if ((int)$d['chats'] === 0) {
+$equipo = !empty($in['eq']);   // la estamos mirando nosotros: ni gasta mensajes de prueba ni avisa
+if (!$equipo) {
+    pebai_demos_db()->prepare('UPDATE demos SET chats = chats + 1 WHERE slug = ?')->execute([$slug]);
+}
+if ((int)$d['chats'] === 0 && !$equipo) {
     pebai_actividad('demos', 'hito', 'Aviso a WhatsApp: ' . $d['empresa'] . ' está probando su asistente', $msg, 'demo');
 }
-$out(['ok' => true, 'respuesta' => $r, 'quedan' => PEBAI_DEMO_CHAT_MAX - (int)$d['chats'] - 1]);
+$out(['ok' => true, 'respuesta' => $r, 'quedan' => PEBAI_DEMO_CHAT_MAX - (int)$d['chats'] - ($equipo ? 0 : 1)]);
