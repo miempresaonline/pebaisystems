@@ -138,7 +138,7 @@ function pebai_conv_clasificar(int $max = 10): int
 /**
  * Contestador automático (orden de Daniel, 21/10): si salta justo después de nuestro primer mensaje, el agente espera 3-5 minutos,
  * como haría una persona, y contesta solo con una frase muy breve (el mensaje ya lo tienen arriba y lo verán cuando estén activos).
- * Una sola vez, solo por WhatsApp y solo si es la respuesta a nuestro primer mensaje (en las 3 horas siguientes).
+ * Una sola vez, solo por WhatsApp y solo si es la respuesta a nuestro primer mensaje (en las 24 horas siguientes: siempre se contesta, Daniel 28/10).
  */
 const PEBAI_CORTESIA = [
     '¡Gracias! Os lo dejo aquí arriba para cuando lo veáis.',
@@ -194,7 +194,7 @@ function pebai_conv_cortesia(string $canal, array $p, array $msgs, bool $esAuto 
     $entran = array_filter($msgs, static fn($m) => $m['sentido'] === 'entra');
     // Vale lo que diga la IA (Haiku la ha clasificado como contestador) o, si no, que todo suene a contestador
     $soloContestador = $entran && ($esAuto || !array_filter($entran, static fn($m) => !pebai_es_contestador((string)$m['texto'])));
-    if ($canal !== 'whatsapp' || !$soloContestador || count($salen) > 1 || $env === '' || strtotime($env) < time() - 3 * 3600 || pebai_conv_es_baja($canal, $p)) {
+    if ($canal !== 'whatsapp' || !$soloContestador || count($salen) > 1 || $env === '' || strtotime($env) < time() - 24 * 3600 || pebai_conv_es_baja($canal, $p)) {
         return;
     }
     $db = pebai_conv_db();
