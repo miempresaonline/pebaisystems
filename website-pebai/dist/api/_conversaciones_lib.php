@@ -148,14 +148,51 @@ const PEBAI_CORTESIA = [
     'Gracias. Lo dejo por aquí para cuando estéis.',
 ];
 
-function pebai_conv_cortesia(string $canal, array $p, array $msgs): void
+/**
+ * Lo que se contesta a un contestador (orden de Daniel, 28/10: «siempre hay que contestar, diciendo algo de nuestro mensaje,
+ * algo estratégico»). Claude Sonnet responde a lo que pregunta el contestador («¿en qué podemos ayudarte?») con el porqué de
+ * nuestro mensaje en una frase y una pregunta fácil para llegar a quien lleva los presupuestos. Si la IA no responde, una de las frases fijas.
+ */
+function pebai_conv_cortesia_texto(array $p, array $msgs): string
+{
+    $nuestro = '';
+    $suyo = '';
+    foreach ($msgs as $m) {
+        if ($m['sentido'] === 'sale' && $nuestro === '') {
+            $nuestro = (string)$m['texto'];
+        } elseif ($m['sentido'] === 'entra') {
+            $suyo .= trim((string)$m['texto']) . "\n";
+        }
+    }
+    $nuestro = $nuestro !== '' ? $nuestro : (string)($p['mensaje'] ?? '');
+    require_once __DIR__ . '/_claude_lib.php';
+    for ($i = 0; $i < 2; $i++) {
+        $t = trim((string)pebai_claude('conversaciones', 'claude-sonnet-5-5',
+            'Eres Daniel, de PEBAI Systems (consultora de procesos e Inteligencia Artificial). Escribiste en frío por WhatsApp a una empresa y te ha saltado su contestador automático. '
+            . 'Escribe la respuesta que mandaría una persona a ese contestador para no quedarse en el aire: responde a lo que pregunta el contestador (si pregunta en qué pueden ayudar, dilo) '
+            . 'resumiendo en UNA frase por qué les escribiste, sacado de tu primer mensaje, y termina con UNA pregunta fácil para llegar a la persona que lleva las solicitudes o los presupuestos. '
+            . 'Español de España, tuteo en plural (os), natural, como un WhatsApp de verdad. Máximo 35 palabras. Sin saludo largo, sin firma, sin enlaces, sin precios, sin porcentajes, sin leyes, sin emojis o como mucho uno. '
+            . 'No repitas el primer mensaje entero ni pidas perdón. Devuelve SOLO el texto.',
+            [['role' => 'user', 'content' => 'Empresa: ' . ($p['empresa'] ?: 'sin nombre') . "\nTU PRIMER MENSAJE:\n{$nuestro}\n\nSU CONTESTADOR:\n{$suyo}"]],
+            ['effort' => 'low', 'max_tokens' => 1500]) ?? '');
+        $t = trim($t, " \n\r\t\"«»");
+        $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
+        if ($t !== '' && $n <= 45 && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci|gratis/iu', $t)) {
+            return $t;
+        }
+    }
+    return PEBAI_CORTESIA[array_rand(PEBAI_CORTESIA)];
+}
+
+function pebai_conv_cortesia(string $canal, array $p, array $msgs, bool $esAuto = false): void
 {
     $salen = array_values(array_filter($msgs, static fn($m) => $m['sentido'] === 'sale'));
     // El contestador suele saltar antes de que el agente apunte el envío: entonces aún no hay «sale» y vale la hora en que empezó a escribir
     $env = (string)(($p['enviado_at'] ?? '') ?: ($p['enviando_at'] ?? ''));
     // Todo lo que han escrito tiene que sonar a contestador (si ya ha escrito una persona, no se manda la cortesía)
     $entran = array_filter($msgs, static fn($m) => $m['sentido'] === 'entra');
-    $soloContestador = $entran && !array_filter($entran, static fn($m) => !pebai_es_contestador((string)$m['texto']));
+    // Vale lo que diga la IA (Haiku la ha clasificado como contestador) o, si no, que todo suene a contestador
+    $soloContestador = $entran && ($esAuto || !array_filter($entran, static fn($m) => !pebai_es_contestador((string)$m['texto'])));
     if ($canal !== 'whatsapp' || !$soloContestador || count($salen) > 1 || $env === '' || strtotime($env) < time() - 3 * 3600 || pebai_conv_es_baja($canal, $p)) {
         return;
     }
@@ -165,7 +202,7 @@ function pebai_conv_cortesia(string $canal, array $p, array $msgs): void
     if ((int)$q->fetchColumn()) {
         return;
     }
-    $texto = PEBAI_CORTESIA[array_rand(PEBAI_CORTESIA)];
+    $texto = pebai_conv_cortesia_texto($p, $msgs);
     $cuando = date('Y-m-d H:i:s', time() + random_int(180, 300));
     $db->prepare("INSERT INTO wa_salida (ts, prospecto_id, telefono, texto, no_antes, plantilla) VALUES (?, ?, ?, ?, ?, 'cortesia')")
        ->execute([date('Y-m-d H:i:s'), $p['id'], $p['telefono'], $texto, $cuando]);
@@ -279,7 +316,7 @@ function pebai_conv_al_momento(string $canal, int $id): void
                   ON CONFLICT(canal, prospecto_id) DO UPDATE SET clasificacion = excluded.clasificacion, resumen = excluded.resumen, ultimo_msg = excluded.ultimo_msg, clasificado_at = excluded.clasificado_at')
        ->execute([$canal, $id, $res['estado'], $res['resumen'], $ult, date('Y-m-d H:i:s')]);
     if ($res['estado'] === 'auto') {
-        pebai_conv_cortesia($canal, $p, $msgs);
+        pebai_conv_cortesia($canal, $p, $msgs, true);
         return;
     }
     if (!in_array($res['estado'], ['auto', 'no_interesado'], true) && !pebai_conv_es_baja($canal, $p) && end($msgs)['sentido'] === 'entra' && !pebai_conv_cerrada($msgs)) {
