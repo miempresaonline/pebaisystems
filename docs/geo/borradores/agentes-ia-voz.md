@@ -1,12 +1,12 @@
 # Borrador · /agentes-ia/voz/
 
-Estado: **texto completo el 28/10/2026 (Contenido, turno de las 10:00), sin publicar.** Subpilar 2 de P3 en `docs/geo/pilares.md` (línea 87). Cubre los dos encargos del tablón: borrador completo de voz (Jefe 27/10 tarde) y las 6 preguntas de `preguntas.md` «Voz (P11)» (Preguntas 27/10 tarde). Se publica después de /ia-para-empresas/cuanto-cuesta/ (jue 29/10): máximo una publicación al día, así que el viernes 30/10 como pronto, si el Jefe lo pone en el plan.
+Estado: **HTML maquetado el 28/10/2026 (Contenido, turno de las 15:00) en `docs/geo/borradores/html/agentes-ia-voz.html`** con la plantilla de /agentes-ia/whatsapp/: fecha 30/10 puesta, 6 FAQ idénticas en el JSON-LD, title 50, description 144, 1 H1, 0 palabras prohibidas, sin desborde a 390 px (la tabla se desplaza dentro de su caja, como en WhatsApp). Enlaza /ia-para-empresas/cuanto-cuesta/: solo publicar después de ella. **texto completo el 28/10/2026 (Contenido, turno de las 10:00), sin publicar.** Subpilar 2 de P3 en `docs/geo/pilares.md` (línea 87). Cubre los dos encargos del tablón: borrador completo de voz (Jefe 27/10 tarde) y las 6 preguntas de `preguntas.md` «Voz (P11)» (Preguntas 27/10 tarde). Se publica después de /ia-para-empresas/cuanto-cuesta/ (jue 29/10): máximo una publicación al día, así que el viernes 30/10 como pronto, si el Jefe lo pone en el plan.
 
 ## Ficha
 
 - **URL:** `https://pebaisystems.es/agentes-ia/voz/`
 - **Title (≤ 60):** `Agente de voz con IA para atender llamadas | PEBAI` (50)
-- **Meta description (≤ 155):** `Cómo atiende las llamadas de tu empresa un agente de voz con IA: qué resuelve, cuándo pasa a una persona, qué exige la ley al avisar y grabar, y cuándo no conviene.` (155)
+- **Meta description (≤ 155):** `Cómo atiende las llamadas de tu empresa un agente de voz con IA: qué resuelve, cuándo pasa a una persona, qué exige la ley y cuándo no conviene.` (155)
 - **H1:** `¿Puede un agente de voz con IA atender las llamadas de mi empresa?`
 - **Autor:** Daniel Peñuela Ruiz (`#daniel`).
 - **CTA:** `/consultoria-gratuita/?cta=pilar_agentes-ia-voz`
@@ -173,7 +173,7 @@ Sí. Desde el 2 de agosto de 2026 el artículo 50 del Reglamento europeo de IA o
 Para confirmar o recordar algo que el cliente ha pedido, sí, con el aviso de IA. Para llamadas comerciales, una llamada automática sin intervención humana exige el consentimiento previo de quien la recibe según la Ley General de Telecomunicaciones. No hacemos llamadas en frío.
 
 **¿Un agente de voz sustituye a un call center?**
-En las llamadas repetitivas, como citas, horarios o el estado de un encargo, puede atenderlas a cualquier hora. Las quejas, las ventas complejas y los temas delicados las sigue llevando una persona. Lo habitual es combinar los dos.
+En las llamadas repetitivas, como citas, horarios o el estado de un encargo, puede atenderlas a cualquier hora. Las quejas, las ventas complejas y los temas delicados los sigue llevando una persona. Lo habitual es combinar los dos.
 
 **¿Cuánto cuesta un agente de voz con IA?**
 Depende de la empresa: la puesta en marcha (respuestas, reglas de paso a persona, conexión con la agenda y los programas) y el uso mensual (minutos de llamada, consumo del modelo de IA y mantenimiento). Se presupuesta después de la consultoría.
@@ -201,7 +201,9 @@ WebPage + BreadcrumbList (Inicio › Agentes de IA › Voz) + Article (author `#
 
 ## Checklist antes de publicar
 - [ ] Pregunta a Daniel sobre un caso de voz (si no hay, se publica sin él, como está).
-- [ ] Grep de palabras prohibidas, raya larga, exclamaciones.
+- [x] Grep de palabras prohibidas, raya larga, exclamaciones (28/10, en el HTML: 0).
+- [ ] Si no se publica el 30/10, cambiar la fecha (`2026-10-30` en meta, JSON-LD y byline) por la del día.
+- [ ] Copiar el HTML a `dist/agentes-ia/voz/index.html` y borrar el de borradores.
 - [ ] Encargo a Técnico: 3 slugs de voz con destino `/agentes-ia/voz/`.
 - [ ] /agentes-ia/: «Más detalle» desde `#voz` y quitar voz de `#proximamente`.
 - [ ] Sitemap, llms.txt y llms-full.txt («## Guías»), curl 200, `gsc-sitemap`, `bing-url`.
