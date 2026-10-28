@@ -97,3 +97,4 @@ Abiertos en el Chrome de Daniel para que cree la cuenta; después los relleno yo
 - F6S (f6s.com): perfil de fundador y página de empresa.
 - Wellfound (wellfound.com/recruit): página de empresa con fundadores.
 - Hotfrog España (hotfrog.es/register): ficha local que permite ocultar la dirección.
+- 28/10 noche: Hotfrog relleno (nombre, València con dirección oculta, «Gestión y consultoría», teléfono, email, web); falta que Daniel marque el anti-bots y pulse «Añade tu empresa». Wellfound relleno (logo 02, frase, Valencia, 1-10, mercados, Daniel como Founder); falta que Daniel acepte las condiciones y pulse «Next». Dealroom y F6S: sin sesión todavía.
