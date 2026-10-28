@@ -278,7 +278,8 @@ function pebai_demo_crear(string $canal, array $p): ?array
         return null;
     }
     // 2) Radiografía en IA (búsqueda real)
-    $radio = pebai_demo_radiografia($empresa, $sector, $ciudad ?: 'España', $web, (string)(((array)($kb['servicios'] ?? []))[0] ?? ''));
+    $radio = pebai_demo_radiografia($empresa, $sector, $ciudad ?: 'España', $web, (string)(((array)($kb['servicios'] ?? []))[0] ?? ''))
+          ?? pebai_demo_radiografia($empresa, $sector, $ciudad ?: 'España', $web);   // a veces la búsqueda no devuelve nada legible: un intento más
     // 3) Boceto de su app: para sus clientes, con sus servicios
     $app = pebai_claude_json('demos', 'claude-haiku-5-5',
         'Diseñas el boceto de una app móvil sencilla y útil para los CLIENTES de una empresa española, con sus servicios reales. Nada genérico: usa los servicios que te dan. Las cifras de las pantallas son de ejemplo (se mostrará así), que sean creíbles. Responde SOLO JSON.',
