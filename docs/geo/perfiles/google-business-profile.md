@@ -59,3 +59,14 @@ Abrimos nuestra ficha en Google. En PEBAI Systems ayudamos a empresas con equipo
 Botón: "Más información" → `https://pebaisystems.es/consultoria-gratuita/`
 
 Fuentes: [Google, normas para representar tu negocio](https://support.google.com/business/answer/3038177?hl=es) · [Google, negocios de área de servicio](https://support.google.com/business/answer/10514137?hl=en) · [BrightLocal, descripción de GBP (750 caracteres)](https://www.brightlocal.com/learn/google-business-profile/optimization/description/) · [Dalton Luka, lista de categorías 2026](https://daltonluka.com/blog/google-my-business-categories) · [Sortlist, validar oficinas con GBP](https://help.sortlist.com/en/articles/6310829-why-and-how-to-validate-your-offices).
+
+## Corregir el nombre de la ficha (28/10/2026)
+
+Bing Places importó de Google el nombre «PEBAI Systems | Consultoría de procesos e inteligencia artificial» (ver `bing-places.md`). Google prohíbe palabras clave en el nombre y puede suspender la ficha. Debe ser solo `PEBAI Systems`. Desde la nube no se ve Google Maps, así que el dato sale de Bing.
+
+Pasos para Daniel (2 minutos, con la cuenta de la ficha):
+1. Buscar «PEBAI Systems» en Google estando dentro de la cuenta, o entrar en business.google.com.
+2. Editar perfil › Nombre de la empresa › dejar exactamente `PEBAI Systems` › Guardar.
+3. En el mismo Editar perfil, comprobar el teléfono: `+34 624 84 27 99` (con +34).
+4. Esperar unas horas y en Bing Places pulsar «Sincronizar»; después poner el email equipo@pebaisystems.es.
+Cuando lo cambie, Local comprueba que Bing muestra `PEBAI Systems`.

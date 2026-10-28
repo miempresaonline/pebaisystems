@@ -21,3 +21,20 @@ Daniel, PEBAI Systems
 ## Notas
 - Prioridad: Fran García Cars, Construcciones Gargom, Suministros Santacruz y Residencia El Amparo (ver casos.md; sus nombres de contacto solo con su permiso).
 - Si el cliente da una frase, pedir permiso para usarla también como testimonio en la web y en LinkedIn.
+
+## Estado de la ficha (28/10/2026)
+Reseñas reales en la ficha de Google: no verificable desde la nube (Maps no se puede leer sin navegador con sesión) y las búsquedas web no devuelven la ficha. Daniel: mirar el número en business.google.com y decírselo a Contenido para `/sobre-pebai/`. Hasta entonces no se cita ninguna cifra de reseñas.
+
+## Mensajes listos para reenviar (sin enviar; enlace `pebaisystems.es/r/w`)
+Solo a clientes reales, sin ofrecer nada a cambio y sin dictar el contenido. Daniel sustituye [nombre] por la persona de contacto.
+
+### Fran García Cars
+Hola [nombre], soy Daniel, de PEBAI Systems. Me alegra que la aplicación de revisiones y el asistente de WhatsApp ya sean parte de vuestro día a día. Si os ha servido, ¿nos dejarías una reseña en Google contando cómo ha ido? Son dos minutos y ayuda a otras empresas a decidir. Gracias por la confianza. pebaisystems.es/r/w
+
+### Construcciones Gargom
+Hola [nombre], soy Daniel, de PEBAI Systems. Ya llevas un tiempo trabajando con la aplicación de gestión de obras. Si te ha resultado útil, ¿nos dejarías una reseña en Google con tus palabras, lo bueno y lo mejorable? Son dos minutos. Gracias por la confianza. pebaisystems.es/r/w
+
+### Suministros Santacruz
+Hola [nombre], soy Daniel, de PEBAI Systems. El equipo ya está empezando a usar la aplicación nueva de almacén y pedidos. Cuando tengáis un momento, nos ayudaría mucho una reseña sincera en Google sobre cómo está yendo el trabajo. Gracias por la confianza. pebaisystems.es/r/w
+
+Si alguno da una frase, pedir permiso para usarla como testimonio en la web y en LinkedIn. Residencia El Amparo: no pedir hasta que Daniel decida (salió de los directorios el 28/10).
