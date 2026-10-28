@@ -76,6 +76,12 @@ try {
             if ($match !== '' && $cita) {
                 pebai_evento((int)$cita['lead_id'], 'unida', 'Reserva unida automáticamente por ' . $match);
             }
+            if ($cita) {
+                require_once __DIR__ . '/_avisos_lib.php';
+                $cuando = strtotime((string)($cita['inicio'] ?? ''));
+                pebai_aviso('cita', 'Cita reservada: ' . ($datos['nombre'] ?? 'nueva reserva'), $cuando ? 'Para el ' . date('d/m', $cuando) . ' a las ' . date('H:i', $cuando) : 'Mira la agenda en Citas',
+                            (int)($cita['lead_id'] ?? 0) > 0 ? 'lead:' . (int)$cita['lead_id'] : 'pagina:citas', 'cita:' . $uid);
+            }
             if ($cita && (int)$cita['lead_id'] > 0) {
                 // Solo si en el formulario aceptó la publicidad. Mismo eventID que el píxel en /confirmacion-de-llamada/?uid=
                 $q = pebai_db()->prepare('SELECT telefono, nombre, dispositivo, meta_ok, meta_fbp, meta_fbc FROM leads WHERE id = ?');

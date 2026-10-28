@@ -316,6 +316,12 @@ function pebai_conv_al_momento(string $canal, int $id): void
     $db->prepare('INSERT INTO conversaciones (canal, prospecto_id, clasificacion, resumen, ultimo_msg, clasificado_at) VALUES (?, ?, ?, ?, ?, ?)
                   ON CONFLICT(canal, prospecto_id) DO UPDATE SET clasificacion = excluded.clasificacion, resumen = excluded.resumen, ultimo_msg = excluded.ultimo_msg, clasificado_at = excluded.clasificado_at')
        ->execute([$canal, $id, $res['estado'], $res['resumen'], $ult, date('Y-m-d H:i:s')]);
+    if (!in_array($res['estado'], ['auto', 'no_interesado'], true)) {
+        require_once __DIR__ . '/_avisos_lib.php';
+        $emp = (string)($p['empresa'] ?: '#' . $id);
+        pebai_aviso($res['estado'] === 'interesado' ? 'interesado' : 'respuesta', ($res['estado'] === 'interesado' ? '🔥 ' . $emp . ' está interesado' : $emp . ' ha contestado') . ($canal === 'email' ? ' (email)' : ''),
+                    (string)$res['resumen'], 'conv:' . $canal . ':' . $id, 'conv:' . $canal . ':' . $id . ':' . $ult);
+    }
     if ($res['estado'] === 'auto') {
         pebai_conv_cortesia($canal, $p, $msgs, true);
         return;

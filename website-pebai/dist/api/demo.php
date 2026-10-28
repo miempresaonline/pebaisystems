@@ -38,6 +38,8 @@ if (!$esBot && empty($_GET['equipo'])) {
         ->execute([$now, $now, $slug]);
     if ((string)$d['primera_visita'] === '') {
         pebai_actividad('demos', 'hito', 'Aviso a WhatsApp: ' . $empresa . ' ha abierto su demo', '', 'demo');
+        require_once __DIR__ . '/_avisos_lib.php';
+        pebai_aviso('demo', $empresa . ' ha abierto su demo', 'Es el mejor momento para escribirle', in_array($d['canal'], ['whatsapp', 'email'], true) ? 'conv:' . $d['canal'] . ':' . (int)$d['prospecto_id'] : 'pagina:agentes', 'demo:' . $slug);
     }
 }
 $radio = $radio ?: null;

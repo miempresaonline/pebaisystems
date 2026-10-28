@@ -175,6 +175,8 @@ $sendEmail = function () use ($lead, $id): bool {
 
 if ($saved) {
     respond_and_continue(['status' => 'ok', 'id' => $id]);
+    require_once __DIR__ . '/_avisos_lib.php';
+    pebai_aviso('solicitud', 'Nueva solicitud: ' . $lead['empresa'], trim(($lead['nombre'] ?? '') . ' · ' . ($lead['objetivo'] ?? ''), ' ·'), 'lead:' . $id, 'lead:' . $id);
     if ($lead['meta_ok'] === '1') {
         // Mismo eventID que el píxel en /formulario-completado/?solicitud=ID
         pebai_meta_event('Lead', 'lead-' . $id, 'https://pebaisystems.es/formulario-completado/', [

@@ -106,7 +106,7 @@ if (isset($_GET['salir'])) {
 }
 
 $auth = !empty($_SESSION['auth']);
-if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || isset($_GET['oficina']) || isset($_GET['oficina_resumen']) || isset($_GET['oficina_explica']) || isset($_GET['oficina_parte']) || isset($_GET['qr']) || isset($_GET['mapa']) || isset($_GET['redes']) || isset($_GET['web']) || isset($_GET['gasto']) || isset($_GET['demo_encargo']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
+if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || isset($_GET['oficina']) || isset($_GET['oficina_resumen']) || isset($_GET['oficina_explica']) || isset($_GET['oficina_parte']) || isset($_GET['qr']) || isset($_GET['mapa']) || isset($_GET['redes']) || isset($_GET['web']) || isset($_GET['gasto']) || isset($_GET['demo_encargo']) || isset($_GET['buscar']) || isset($_GET['push_clave']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
     json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 401);
 }
 
@@ -119,7 +119,7 @@ if (is_file(__DIR__ . '/_oficina_panel.php')) {
     require __DIR__ . '/_oficina_panel.php';
 }
 // Captación › QRs para la calle y › Mapa de prospectos
-foreach (['_qr_panel.php', '_mapa_panel.php', '_conversaciones_panel.php', '_global_panel.php', '_redes_panel.php', '_web_panel.php', '_gasto_panel.php'] as $f) {
+foreach (['_qr_panel.php', '_mapa_panel.php', '_conversaciones_panel.php', '_global_panel.php', '_redes_panel.php', '_web_panel.php', '_gasto_panel.php', '_avisos_panel.php'] as $f) {
     if (is_file(__DIR__ . '/' . $f)) {
         require __DIR__ . '/' . $f;
     }
@@ -605,7 +605,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '118';
+$v = '119';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -618,6 +618,11 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <link rel="icon" href="<?= BASE ?>assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="<?= BASE ?>assets/favicon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="<?= BASE ?>assets/apple-touch-icon.png">
+<link rel="manifest" href="<?= BASE ?>manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PEBAI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preload" href="<?= BASE ?>assets/Manrope-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -632,6 +637,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <link rel="stylesheet" href="<?= BASE ?>assets/redes.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/web.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/gasto.css?v=<?= $v ?>">
+<link rel="stylesheet" href="<?= BASE ?>assets/buscar.css?v=<?= $v ?>">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="stylesheet" href="<?= BASE ?>assets/email.css?v=<?= $v ?>">
 <script>try{var t=localStorage.getItem('pebai-panel-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -718,6 +724,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <main class="pb-shell pb-main">
   <div class="pb-top">
     <div class="pb-crumb" id="pb-crumb"><span>Embudo</span><b>Resumen</b></div>
+    <button class="pb-btn pb-buscar" id="pb-buscar" type="button" title="Buscar en todo el panel (Ctrl+K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Buscar</span><kbd>Ctrl K</kbd></button>
     <div class="pb-seg pb-only-embudo" id="pb-periodo" aria-label="Periodo">
       <button data-p="7">7 días</button><button data-p="30">30 días</button><button data-p="90">90 días</button><button data-p="todo">Todo</button>
     </div>
@@ -941,6 +948,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <script src="<?= BASE ?>assets/redes.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/web.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/gasto.js?v=<?= $v ?>" defer></script>
+<script src="<?= BASE ?>assets/buscar.js?v=<?= $v ?>" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" defer></script>
 <script src="<?= BASE ?>assets/qr.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/mapa.js?v=<?= $v ?>" defer></script>

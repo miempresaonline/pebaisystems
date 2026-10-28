@@ -274,7 +274,7 @@ function avisarNuevas() {
     const nuevas = S.leads.filter((l) => !S.conocidas.has(l.id));
     nuevas.forEach((l) => {
       toast('Nueva solicitud: ' + l.empresa);
-      try { if (window.Notification && Notification.permission === 'granted') { const n = new Notification('Nueva solicitud · PEBAI', { body: l.empresa + (l.objetivo ? ' · ' + l.objetivo : ''), icon: BASE + 'assets/favicon-192.png', tag: 'lead-' + l.id }); n.onclick = () => { window.focus(); openDetail(l.id); }; } } catch (e) {}
+      try { let push = false; try { push = localStorage.getItem('pebai-push') === '1'; } catch (er) { /* nada */ } if (!push && window.Notification && Notification.permission === 'granted') { const n = new Notification('Nueva solicitud · PEBAI', { body: l.empresa + (l.objetivo ? ' · ' + l.objetivo : ''), icon: BASE + 'assets/favicon-192.png', tag: 'lead-' + l.id }); n.onclick = () => { window.focus(); openDetail(l.id); }; } } catch (e) {}
     });
     if (nuevas.length) ping();
   }
@@ -286,14 +286,9 @@ function avisarNuevas() {
 function ping() {
   try { const a = new (window.AudioContext || window.webkitAudioContext)(); const o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = 880; g.gain.setValueAtTime(.0001, a.currentTime); g.gain.exponentialRampToValueAtTime(.12, a.currentTime + .02); g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + .5); o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + .5); } catch (e) {}
 }
-const bell = $('#pb-avisos');
-const pintaBell = () => { if (!bell) return; const on = window.Notification && Notification.permission === 'granted'; bell.classList.toggle('on', !!on); bell.title = on ? 'Avisos del navegador activados' : 'Activar avisos de nuevas solicitudes'; };
-if (bell) bell.addEventListener('click', () => {
-  if (!window.Notification) { toast('Este navegador no permite avisos.', true); return; }
-  if (Notification.permission === 'granted') { toast('Los avisos ya están activados en este navegador.'); return; }
-  Notification.requestPermission().then((p) => { pintaBell(); toast(p === 'granted' ? 'Avisos activados: te avisaremos de cada solicitud nueva.' : 'Avisos bloqueados en este navegador.', p !== 'granted'); });
-});
-pintaBell();
+// La campana (avisos al navegador y al móvil, también con el panel cerrado) vive en buscar.js.
+// Abrir una solicitud desde el buscador o desde un aviso
+document.addEventListener('pb:abrir-lead', (e) => { showPage('solicitudes'); openDetail(Number(e.detail)); });
 setInterval(() => { if (!document.hidden && S.loaded && ui.sel == null) load().then(draw).catch(() => {}); }, 60000);
 
 function drawSpark(rows) {
