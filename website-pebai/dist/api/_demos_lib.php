@@ -291,9 +291,8 @@ function pebai_demo_crear(string $canal, array $p): ?array
     $html = pebai_demo_html($web);
     // Si su logo es texto (p. ej. «JM» con letras), se usa ese monograma tal cual
     $logoTexto = '';
-    if (preg_match('~class=["\'][^"\']*logo[^"\']*["\'][^>]*>(.{1,200}?)</(a|div|span|p|h1|strong)>~is', $html, $m)) {
-        $logoTexto = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
-        $logoTexto = mb_strlen($logoTexto) <= 4 ? $logoTexto : '';
+    if (preg_match('~class=["\'][^"\']*logo[^"\']*["\'][^>]*>\s*([^<\s][^<]{0,5})<~i', $html, $m)) {
+        $logoTexto = trim(html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'));   // el primer texto del logo: «JM» de «JM<span>Solars</span>»
     }
     $datos = ['kb' => $kb, 'radio' => $radio, 'app' => is_array($app) ? $app : null, 'color' => pebai_demo_color($html), 'logo' => pebai_demo_logo($html, $web, $slug),
               'logo_texto' => $logoTexto,
