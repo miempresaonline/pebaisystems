@@ -1070,6 +1070,136 @@ OFICINA:
     json_out(['ok' => true] + of_cache($clave, $r));
 }
 
+// «Crear demo» a mano (para Adrián): se pega la web de una empresa y Demos le hace su página. Tarda 1-2 minutos, así que se
+// contesta al momento con el número de encargo y el trabajo sigue en segundo plano; el navegador pregunta cómo va.
+function of_demo_encargos(): PDO
+{
+    require_once dirname(__DIR__) . '/api/_demos_lib.php';
+    $db = pebai_demos_db();
+    $db->exec('CREATE TABLE IF NOT EXISTS encargos (id INTEGER PRIMARY KEY AUTOINCREMENT, web TEXT NOT NULL, estado TEXT NOT NULL DEFAULT "trabajando",
+               paso TEXT NOT NULL DEFAULT "", slug TEXT NOT NULL DEFAULT "", empresa TEXT NOT NULL DEFAULT "", error TEXT NOT NULL DEFAULT "",
+               inicio TEXT NOT NULL, fin TEXT NOT NULL DEFAULT "")');
+    return $db;
+}
+
+/** Segundos que tarda de media una demo hecha a mano (90 s mientras no haya ninguna). */
+function of_demo_media(PDO $db): int
+{
+    $m = $db->query("SELECT AVG(strftime('%s', fin) - strftime('%s', inicio)) FROM (SELECT fin, inicio FROM encargos WHERE estado = 'lista' ORDER BY id DESC LIMIT 20)")->fetchColumn();
+    return $m ? (int)round((float)$m) : 90;
+}
+
+function of_demo_encargo(PDO $db, int $id): array
+{
+    $q = $db->prepare('SELECT * FROM encargos WHERE id = ?');
+    $q->execute([$id]);
+    $e = $q->fetch() ?: [];
+    $q->closeCursor();
+    if (!$e) {
+        return ['estado' => 'fallo', 'error' => 'No existe ese encargo.'];
+    }
+    $r = ['id' => (int)$e['id'], 'estado' => $e['estado'], 'paso' => $e['paso'], 'empresa' => $e['empresa'], 'error' => $e['error'], 'media' => of_demo_media($db),
+          'segundos' => max(0, strtotime($e['fin'] ?: date('Y-m-d H:i:s')) - strtotime($e['inicio']))];
+    if ($e['slug'] !== '') {
+        $q = $db->prepare('SELECT empresa, ciudad, datos, usd FROM demos WHERE slug = ?');
+        $q->execute([$e['slug']]);
+        $d = $q->fetch() ?: [];
+        $q->closeCursor();
+        $x = json_decode((string)($d['datos'] ?? '{}'), true) ?: [];
+        $rad = $x['radio'] ?? null;
+        $r += ['url' => pebai_demo_url($e['slug']), 'ver' => pebai_demo_url($e['slug']) . '?equipo=1', 'ciudad' => (string)($d['ciudad'] ?? ''),
+               'centimos' => round((float)($d['usd'] ?? 0) * 100, 1), 'color' => (string)($x['color'] ?? ''),
+               'ia' => $rad ? ($rad['aparece'] ? 'Sale en la IA (puesto ' . $rad['posicion'] . ')' : 'No sale en la IA' . (!empty($rad['empresas']) ? '; sí salen ' . implode(', ', array_slice(array_column($rad['empresas'], 'nombre'), 0, 3)) : '')) : 'Sin radiografía',
+               'servicios' => array_slice((array)($x['kb']['servicios'] ?? []), 0, 4), 'app' => (string)($x['app']['nombre'] ?? '')];
+    }
+    return $r;
+}
+
+if ($auth && isset($_GET['demo_encargo'])) {
+    $db = of_demo_encargos();
+    if ($_GET['demo_encargo'] === 'lista') {
+        $l = [];
+        foreach ($db->query('SELECT id FROM encargos ORDER BY id DESC LIMIT 8')->fetchAll(PDO::FETCH_COLUMN) as $id) {
+            $l[] = of_demo_encargo($db, (int)$id);
+        }
+        json_out(['ok' => true, 'media' => of_demo_media($db), 'encargos' => $l]);
+    }
+    json_out(['ok' => true] + of_demo_encargo($db, (int)$_GET['demo_encargo']));
+}
+
+if ($auth && ($_POST['action'] ?? '') === 'demo_manual') {
+    if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
+        json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 400);
+    }
+    $web = trim((string)($_POST['web'] ?? ''));
+    if ($web !== '' && !preg_match('~^https?://~i', $web)) {
+        $web = 'https://' . ltrim($web, '/');
+    }
+    $host = strtolower(preg_replace('~^www\.~i', '', (string)parse_url($web, PHP_URL_HOST)));
+    if (!$host || !str_contains($host, '.') || filter_var($host, FILTER_VALIDATE_IP) || str_ends_with($host, 'pebaisystems.es')) {
+        json_out(['ok' => false, 'error' => 'Pega la dirección de la web de la empresa (por ejemplo, empresa.es).'], 422);
+    }
+    $db = of_demo_encargos();
+    // Si esa web ya tiene demo, se devuelve la que hay (sin gastar)
+    $q = $db->prepare("SELECT slug, empresa FROM demos WHERE web LIKE ? OR web LIKE ? ORDER BY creada DESC LIMIT 1");
+    $q->execute(['%://' . $host . '%', '%://www.' . $host . '%']);
+    $ya = $q->fetch();
+    $q->closeCursor();
+    $db->prepare('INSERT INTO encargos (web, inicio) VALUES (?, ?)')->execute([$web, date('Y-m-d H:i:s')]);
+    $id = (int)$db->lastInsertId();
+    if ($ya) {
+        $db->prepare("UPDATE encargos SET estado = 'lista', slug = ?, empresa = ?, paso = 'Ya tenía demo', fin = inicio WHERE id = ?")->execute([$ya['slug'], $ya['empresa'], $id]);
+        json_out(['ok' => true, 'ya' => true] + of_demo_encargo($db, $id));
+    }
+    // Contesta ya y sigue trabajando
+    $resp = json_encode(['ok' => true, 'id' => $id, 'estado' => 'trabajando', 'media' => of_demo_media($db)]);
+    ignore_user_abort(true);
+    set_time_limit(400);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Content-Length: ' . strlen($resp));
+    echo $resp;
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    } elseif (function_exists('litespeed_finish_request')) {
+        litespeed_finish_request();
+    } else {
+        @ob_end_flush();
+        flush();
+    }
+    $paso = static fn(string $t) => $db->prepare('UPDATE encargos SET paso = ? WHERE id = ?')->execute([$t, $id]);
+    $falla = static function (string $t) use ($db, $id) {
+        $db->prepare("UPDATE encargos SET estado = 'fallo', error = ?, fin = ? WHERE id = ?")->execute([$t, date('Y-m-d H:i:s'), $id]);
+        pebai_actividad('demos', 'espera', 'Demo a mano sin hacer: ' . $t);
+        exit;
+    };
+    try {
+        $paso('Leyendo su web');
+        $w = pebai_web_texto($web);
+        if (!$w) {
+            $falla('No se ha podido leer esa web (no carga o no tiene texto).');
+        }
+        // Quién es: nombre, sector y ciudad, sacados de su web
+        $quien = pebai_claude_json('demos', 'claude-haiku-5-5', 'Lees la web de una empresa y dices quién es, sin inventar. Responde SOLO JSON.',
+            "WEB ({$web}):\n" . mb_substr($w['texto'], 0, 4000) . "\n\nJSON: " . '{"empresa": "nombre comercial corto", "sector": "su sector en plural, p. ej. «clínicas dentales»", "ciudad": "ciudad principal donde trabajan o vacío"}',
+            ['effort' => 'low', 'max_tokens' => 600]);
+        $empresa = trim((string)($quien['empresa'] ?? '')) ?: ucfirst(explode('.', $host)[0]);
+        $db->prepare('UPDATE encargos SET empresa = ? WHERE id = ?')->execute([$empresa, $id]);
+        $paso('Buscando si la IA la recomienda y montando su asistente y su app');
+        $d = pebai_demo_crear('manual', ['id' => $id, 'web' => $web, 'empresa' => $empresa, 'ciudad' => (string)($quien['ciudad'] ?? ''),
+                                         'nicho' => '', 'sector' => (string)($quien['sector'] ?? '')]);
+        if (!$d) {
+            $falla('Su web no tiene datos suficientes para hacer la demo.');
+        }
+        $db->prepare("UPDATE encargos SET estado = 'lista', slug = ?, paso = 'Lista', fin = ? WHERE id = ?")->execute([$d['slug'], date('Y-m-d H:i:s'), $id]);
+    } catch (Throwable $e) {
+        $falla('Error al hacerla: ' . mb_substr($e->getMessage(), 0, 150));
+    }
+    exit;
+}
+
 if ($auth && ($_POST['action'] ?? '') === 'oficina_preguntar') {
     if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
         json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 400);

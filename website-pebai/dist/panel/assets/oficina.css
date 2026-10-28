@@ -422,3 +422,29 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 /* franja del día: una marca por cada hora (7:00-21:00) para leer cuándo trabajó */
 .dia .b{background-image:repeating-linear-gradient(90deg,transparent 0 calc(100% / 14 - 1px),rgba(255,255,255,.09) calc(100% / 14 - 1px) calc(100% / 14))!important}
 .pb-of-lista .dia .b{height:8px!important}
+/* «Crear demo» en la ficha de Demos (para Adrián: pegar la web y copiar el enlace) */
+.pb-of-demo{margin:2px 0 14px;padding:14px;border-radius:14px;border:1px solid rgba(251,146,60,.32);background:linear-gradient(135deg,rgba(251,146,60,.12),rgba(255,255,255,.02))}
+.pb-of-demo .h b{display:block;font-size:15px;color:#fff}
+.pb-of-demo .h small{display:block;color:#A9ACBD;font-size:12.5px;line-height:1.45;margin-top:3px}
+.pb-of-demo form{display:flex;gap:8px;margin-top:11px}
+.pb-of-demo input{flex:1;min-width:0;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.16);border-radius:11px;color:#fff;font:600 14px var(--sans);padding:10px 12px;outline:none}
+.pb-of-demo input:focus{border-color:#FB923C}
+.pb-of-demo form .pb-of-btn{white-space:nowrap}
+.pb-of-demo .est{margin-top:10px}
+.pb-of-demo .est p{font-size:13px;line-height:1.45;margin:4px 0 0}
+.pb-of-demo .sub{color:#8C8FA3;font-size:12px}
+.pb-of-demo .bad{color:#FF8A95}
+.pb-of-demo .bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
+.pb-of-demo .bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#FB923C,#FFD08A);transition:width 1s linear}
+.pb-of-demo .ok{border-left:3px solid var(--c);padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.22)}
+.pb-of-demo .ok .t b{color:#fff;font-size:14px}
+.pb-of-demo .ok .t small{display:block;color:#8C8FA3;font-size:12px;margin-top:2px}
+.pb-of-demo .ch{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.pb-of-demo .ch span{font-size:11.5px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.07);color:#D9D7E3}
+.pb-of-demo .bt{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.pb-of-demo .bt a{text-decoration:none}
+.pb-of-demo .nota{display:block;color:#7D8093;font-size:11.5px;margin-top:7px;line-height:1.4}
+.pb-of-demo .ult h5{margin:12px 0 4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8C8FA3}
+.pb-of-demo .ult .r{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px}
+.pb-of-demo .ult a{color:#EFEDE7;text-decoration:none}.pb-of-demo .ult a:hover{color:#FB923C}
+.pb-of-demo .ult button{background:none;border:1px solid rgba(255,255,255,.14);color:#C9C7D3;border-radius:8px;font:700 11px var(--sans);padding:4px 8px;cursor:pointer}

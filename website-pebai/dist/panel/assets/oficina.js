@@ -402,6 +402,7 @@ function abrirAgente(id) {
   sideIn.querySelectorAll('.pb-of-tabs button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); S.tab = b.dataset.t; abrirAgente(a.id); }; });
   const caja = $('#pb-of-tab');
   if (S.tab === 'estado') explica(a);
+  if (S.tab === 'estado' && a.id === 'demos') $('.pb-of-qa', caja).prepend(cajaCrearDemo());
   if (S.tab === 'actividad') caja.append(lineaTiempo(a));
   else if (S.tab === 'trabajo') caja.append(suTrabajo(a));
   else if (S.tab !== 'estado') {
@@ -418,6 +419,85 @@ function abrirAgente(id) {
   sideIn.querySelectorAll('.pb-of-nav button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); vecino(+b.dataset.d); }; });
   pintaQRs();
   mostrar();
+}
+/* «Crear demo» (ficha de Demos): se pega la web de una empresa y en un par de minutos está su página. Pensado para Adrián:
+   pegar, pulsar y copiar el enlace. El trabajo sigue en el servidor aunque se cierre la ficha; aquí solo se pregunta cómo va. */
+const segs = (s) => (s >= 60 ? `${Math.floor(s / 60)} min ${String(Math.round(s % 60)).padStart(2, '0')} s` : `${Math.round(s)} s`);
+function cajaCrearDemo() {
+  const box = document.createElement('div'); box.className = 'pb-of-demo';
+  box.innerHTML = `<div class="h"><b>Crear una demo</b><small>Pega la web de una empresa y Demos le prepara su página: si la IA la recomienda, su asistente y su app.</small></div>
+    <form><input type="text" inputmode="url" placeholder="empresa.es" autocomplete="off" spellcheck="false" aria-label="Web de la empresa"><button type="submit" class="pb-of-btn primary">Crear demo</button></form>
+    <div class="est" aria-live="polite"></div><div class="ult"></div>`;
+  const inp = $('input', box), btn = $('button', box), est = $('.est', box), ult = $('.ult', box);
+  inp.value = S.demoUrl || ''; inp.oninput = () => { S.demoUrl = inp.value; };
+  inp.onkeydown = (e) => e.stopPropagation();   // las flechas no cambian de agente mientras se escribe
+  const resultado = (j) => `<div class="ok" style="--c:${esc(j.color || '#FB923C')}"><div class="t"><b>${esc(j.empresa)}${j.ciudad ? ' · ' + esc(j.ciudad) : ''}</b>
+      <small>${j.ya ? 'Esta web ya tenía demo' : `Hecha en ${segs(j.segundos || 0)} · ${String(j.centimos || 0).replace('.', ',')} céntimos`}</small></div>
+      <p>${esc(j.ia || '')}</p>${(j.servicios || []).length ? `<div class="ch">${j.servicios.map((s) => `<span>${esc(s)}</span>`).join('')}</div>` : ''}
+      <div class="bt"><a class="pb-of-btn primary" href="${esc(j.ver)}" target="_blank" rel="noopener">Ver la demo ↗</a><button type="button" class="pb-of-btn" data-c="${esc(j.url)}">Copiar enlace para enviar</button></div>
+      <small class="nota">El enlace copiado es el de la empresa: cuenta sus visitas y avisa cuando la abra. «Ver la demo» no cuenta.</small></div>`;
+  const pinta = () => {
+    const j = S.demoJob;
+    btn.disabled = !!(j && j.estado === 'trabajando');
+    if (!j) { est.innerHTML = `<p class="sub">Tarda unos ${segs(S.demoMedia || 90)} de media y cuesta 2-3 céntimos.</p>`; }
+    else if (j.estado === 'trabajando') {
+      const t = (Date.now() - j.t0) / 1000, m = j.media || 90, pct = Math.min(96, t / m * 100);
+      est.innerHTML = `<div class="va"><div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div>
+        <p><b>${esc(j.paso || 'Empezando')}…</b>${j.empresa ? ' · ' + esc(j.empresa) : ''}</p><p class="sub">${segs(t)} de unos ${segs(m)}. Puedes cerrar esto: sigue sola y saldrá aquí.</p></div>`;
+    } else if (j.estado === 'lista') est.innerHTML = resultado(j);
+    else est.innerHTML = `<p class="bad">${esc(j.error || 'No se ha podido hacer.')}</p>`;
+    est.querySelectorAll('[data-c]').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); navigator.clipboard.writeText(b.dataset.c).then(() => toast('Enlace copiado.'), () => toast(b.dataset.c)); }; });
+  };
+  const pintaUlt = () => {
+    const l = (S.demoUlt || []).filter((e) => e.estado === 'lista' && (!S.demoJob || e.id !== S.demoJob.id)).slice(0, 5);
+    ult.innerHTML = l.length ? '<h5>Últimas hechas a mano</h5>' + l.map((e) => `<div class="r"><a href="${esc(e.ver)}" target="_blank" rel="noopener">${esc(e.empresa)}</a><button type="button" data-c="${esc(e.url)}" title="Copiar enlace para enviar">Copiar</button></div>`).join('') : '';
+    ult.querySelectorAll('[data-c]').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); navigator.clipboard.writeText(b.dataset.c).then(() => toast('Enlace copiado.'), () => toast(b.dataset.c)); }; });
+  };
+  S.demoPinta = () => { if (box.isConnected) { pinta(); pintaUlt(); } };
+  box.querySelector('form').onsubmit = async (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const web = inp.value.trim(); if (!web) { inp.focus(); return; }
+    btn.disabled = true;
+    try {
+      const r = await fetch(BASE, { method: 'POST', credentials: 'same-origin', headers: { 'Accept': 'application/json' }, body: new URLSearchParams({ action: 'demo_manual', csrf: S.csrf, web }) });
+      if (r.status === 401) { location.reload(); return; }
+      const j = await r.json().catch(() => ({ ok: false }));
+      if (!j.ok) throw new Error(j.error || 'No se ha podido empezar.');
+      S.demoJob = { ...j, t0: Date.now() - (j.segundos || 0) * 1000 }; S.demoUrl = ''; inp.value = '';
+      if (j.estado === 'trabajando') vigilaDemo();
+    } catch (er) { toast(er.message, true); }
+    S.demoPinta();
+  };
+  if (!S.demoUlt) fetch(BASE + '?demo_encargo=lista', { credentials: 'same-origin', cache: 'no-store' }).then((r) => r.json()).then((j) => {
+    if (!j.ok) return; S.demoUlt = j.encargos; S.demoMedia = j.media;
+    // si había una a medias (p. ej. se recargó la página), se sigue mirando
+    const enCurso = j.encargos.find((x) => x.estado === 'trabajando' && x.segundos < 600);
+    if (enCurso && !S.demoJob) { S.demoJob = { ...enCurso, t0: Date.now() - enCurso.segundos * 1000 }; vigilaDemo(); }
+    S.demoPinta();
+  }).catch(() => {});
+  pinta(); pintaUlt();
+  return box;
+}
+function vigilaDemo() {
+  clearInterval(S.demoTimer); let n = 0;
+  S.demoTimer = setInterval(async () => {
+    const j = S.demoJob; if (!j || j.estado !== 'trabajando') { clearInterval(S.demoTimer); return; }
+    if (++n % 3 === 0) {
+      try {
+        const r = await fetch(BASE + '?demo_encargo=' + j.id, { credentials: 'same-origin', cache: 'no-store' });
+        const x = await r.json();
+        if (x.ok) {
+          S.demoJob = { ...j, ...x, t0: j.t0 };
+          if (x.estado !== 'trabajando') {
+            clearInterval(S.demoTimer); S.demoMedia = x.media;
+            S.demoUlt = [x].concat((S.demoUlt || []).filter((e) => e.id !== x.id));
+            toast(x.estado === 'lista' ? `Demo de ${x.empresa} lista.` : x.error, x.estado !== 'lista');
+          }
+        }
+      } catch (e) { /* se vuelve a intentar */ }
+    }
+    if (S.demoPinta) S.demoPinta();
+  }, 1000);
 }
 /* Actividad paso a paso, por días, como un registro de ejecuciones: cada punto es una acción y su color dice cómo salió. */
 const TIPO = { entrega: ['#B7FF3C', 'Entregado'], hito: ['#3DDC84', 'Hecho'], envio: ['#3DDC84', 'Envío'], respuesta: ['#3FD5FF', 'Respuesta'], error: ['#FF5E6C', 'Fallo'], freno: ['#FF5E6C', 'Frenado'], espera: ['#5C5F73', 'Espera'], cambio: ['#FFB547', 'Cambio'] };
