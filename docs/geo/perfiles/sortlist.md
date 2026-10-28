@@ -64,7 +64,7 @@ Imágenes: `website-pebai/dist/casos/img/*.jpg` (ya difuminadas). Datos completo
 1. **Fran García Cars · App de revisiones de vehículos y asistente de WhatsApp.** Importadora de coches de Alemania a España (unos 60 al mes). Hacían las revisiones a mano y mandaban las fotos por WhatsApp sin orden. App a medida con expedientes, fotos, revisores, visto bueno técnico, licitaciones y pujas, y un asistente de IA en WhatsApp que responde, agenda citas y deriva a una persona. Resultado (22/10/2026): 659 usuarios registrados, 400 unidades con visto bueno técnico (98 % de aprobación), más de 62.000 fotos ordenadas.
 2. **Construcciones Gargom · Software de gestión de obras a medida.** Sustituye un programa antiguo: presupuestos, certificaciones, gastos, pagos, personal, proveedores y rentabilidad por obra en un solo sitio.
 3. **Suministros Industriales Santacruz · Plataforma de pedidos para 4 países.** Sustituye una aplicación de 20-30 años débil en seguridad. App nueva y segura en 4 idiomas (España, Francia, Países Bajos y Bélgica), con la base de datos antigua migrada (343 pedidos de 2026).
-4. **Residencia El Amparo · Web nueva y portal de gestión.** Portal a medida para publicar subvenciones y noticias y recibir candidaturas y solicitudes de familias en un solo sitio. Entregado en octubre de 2026.
+4. ~~**Residencia El Amparo**~~ (NO poner en directorios, Daniel 28/10/2026). **Web nueva y portal de gestión.** Portal a medida para publicar subvenciones y noticias y recibir candidaturas y solicitudes de familias en un solo sitio. Entregado en octubre de 2026.
 
 Fuentes: [Sortlist, crear un buen perfil](https://help.sortlist.com/en/articles/7878230-1-building-a-killing-profile) · [Sortlist, validar oficinas](https://help.sortlist.com/en/articles/6310829-why-and-how-to-validate-your-offices) · [Sortlist+, gratis frente a pago](https://help.sortlist.com/en/articles/6636955-understanding-sortlist) · [La Fabrique du Net, precios Sortlist](https://www.lafabriquedunet.fr/logiciel/sortlist) · [Sortlist, cómo funciona para agencias](https://www.sortlist.co.uk/how-it-works/agency).
 
@@ -73,4 +73,4 @@ Fuentes: [Sortlist, crear un buen perfil](https://help.sortlist.com/en/articles/
 
 Publicado el 28/10/2026: https://www.sortlist.es/agency/pebai-systems
 - Índice de calidad: 70 %. Faltan verificar el teléfono (SMS), verificar el NIF (decidido esperar al alta), 10 reseñas reales con media de +4, Sortlist+ (de pago, no) y más trabajos (3 de IA y 10 en total; hoy hay 4 casos reales).
-- Trabajos subidos: Fran García Cars (app y asistente de WhatsApp), Construcciones Gargom y Suministros Santacruz. El Amparo, pendiente de imagen publicable.
+- Trabajos subidos: Fran García Cars (app y asistente de WhatsApp), Construcciones Gargom y Suministros Santacruz. Residencia El Amparo: no se pone en directorios (Daniel, 28/10/2026).
