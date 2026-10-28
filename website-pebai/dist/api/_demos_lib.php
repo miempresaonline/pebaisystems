@@ -59,7 +59,7 @@ function pebai_demo_de(string $canal, int $id): ?array
 
 function pebai_demo_slug(string $empresa): string
 {
-    $s = strtolower(trim(preg_replace('/[^a-z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $empresa) ?: $empresa), '-'));
+    $s = trim(preg_replace('/[^a-z0-9]+/', '-', strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $empresa) ?: $empresa)), '-');
     $s = substr($s ?: 'empresa', 0, 40);
     return $s . '-' . substr(bin2hex(random_bytes(3)), 0, 5);   // con un trozo aleatorio: nadie adivina la de otra empresa
 }
@@ -169,7 +169,7 @@ function pebai_demo_crear(string $canal, array $p): ?array
     $radio = pebai_demo_radiografia($empresa, $sector, $ciudad ?: 'España', $web);
     // 3) Boceto de su app: para sus clientes, con sus servicios
     $app = pebai_claude_json('demos', 'claude-haiku-5-5',
-        'Diseñas el boceto de una app móvil sencilla y útil para los CLIENTES de una empresa española, con sus servicios reales. Nada genérico ni inventado: usa los servicios que te dan. Responde SOLO JSON.',
+        'Diseñas el boceto de una app móvil sencilla y útil para los CLIENTES de una empresa española, con sus servicios reales. Nada genérico: usa los servicios que te dan. Las cifras de las pantallas son de ejemplo (se mostrará así), que sean creíbles. Responde SOLO JSON.',
         "EMPRESA: {$empresa}\nQUÉ HACEN: {$kb['que_hacen']}\nSERVICIOS: " . implode(', ', (array)($kb['servicios'] ?? [])) . "\n\nJSON: "
         . '{"nombre": "nombre corto de la app", "lema": "frase corta", "pantallas": [exactamente 3: {"titulo": "...", "para_que": "una frase de qué resuelve al cliente", '
         . '"bloques": [3-5: {"tipo": "tarjeta|boton|lista|progreso|aviso", "texto": "corto", "detalle": "más corto aún o vacío", "valor": número 0-100 solo para progreso}]}]}',

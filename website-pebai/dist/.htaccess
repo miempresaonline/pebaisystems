@@ -20,6 +20,8 @@ RewriteRule ^(.*)$ https://pebaisystems.es/$1 [R=301,L]
 
 # QRs de calle (puerta fría): /q/<nombre>?p=a|d → api/qr.php cuenta el escaneo y redirige (ver docs/enlaces-y-utm.md)
 RewriteRule ^q/([a-z0-9-]+)/?$ api/qr.php?c=$1 [L,QSA]
+# Demos (28/10): página privada de cada empresa, la monta api/demo.php
+RewriteRule ^para/([a-z0-9-]+)/?$ api/demo.php?s=$1 [L,QSA]
 
 # Resolución directa para las landings principales
 RewriteRule ^consultoria-gratuita/?$ consultoria-gratuita/index.html [L]
