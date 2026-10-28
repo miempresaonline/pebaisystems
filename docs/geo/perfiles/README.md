@@ -84,3 +84,8 @@ Frase, corta, media y larga en [clutch.md](clutch.md). Traducción fiel de la es
 8. Con los primeros clientes: reseñas en Sortlist, Clutch, Trustpilot y Google; GoodFirms; enviar evidencia a Upliora.
 
 Cada vez que se cree un perfil: cambiar su estado aquí a "creado (fecha, URL)", añadir la URL al `sameAs` de `Organization` en el JSON-LD y marcarlo en `docs/geo/plan.md` (Fase 2, "Perfiles coherentes").
+
+## Imágenes de marca para directorios (Daniel, 28/10/2026)
+
+- Logo: `assets/brand/pebai-systems/foto-de-perfil/02_PEBAI_Perfil_Oscuro_Glow_Tech.png` (el del brillo). Ya puesto en Trustpilot y Crunchbase; falta en Sortlist, TechBehemoths, DesignRush y GoodFirms.
+- Portadas: los dos banners oscuros con el símbolo y «PEBAI SYSTEMS» centrado (2000×500 y 2000×339) que Daniel pegó en el chat. Pendiente de tenerlos como archivo en `assets/brand/pebai-systems/banners/`.
