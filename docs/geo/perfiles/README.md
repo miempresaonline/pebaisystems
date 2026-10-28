@@ -87,5 +87,5 @@ Cada vez que se cree un perfil: cambiar su estado aquí a "creado (fecha, URL)",
 
 ## Imágenes de marca para directorios (Daniel, 28/10/2026)
 
-- Logo: `assets/brand/pebai-systems/foto-de-perfil/02_PEBAI_Perfil_Oscuro_Glow_Tech.png` (el del brillo). Ya puesto en Trustpilot y Crunchbase; falta en Sortlist, TechBehemoths, DesignRush y GoodFirms.
+- Logo: `assets/brand/pebai-systems/foto-de-perfil/02_PEBAI_Perfil_Oscuro_Glow_Tech.png` (el del brillo). Puesto en Trustpilot, Crunchbase, Sortlist (con portada banner-pebai-ancho) y TechBehemoths. Falta en DesignRush (en revisión, no deja editar) y GoodFirms.
 - Portadas: `assets/brand/pebai-systems/banners/banner-pebai-ancho.jpg` (3168×792) y `banner-pebai-fino.jpg` (2256×382), oscuros, con el símbolo y «PEBAI SYSTEMS» centrado. Solo en local: la carpeta de banners no se sube al repositorio.
