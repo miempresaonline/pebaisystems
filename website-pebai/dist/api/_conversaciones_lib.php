@@ -331,7 +331,7 @@ function pebai_conv_al_momento(string $canal, int $id): void
             }
         }
         $b = pebai_conv_borrador($canal, $id);
-        // Respuesta automática (orden de Daniel, 28/10): por WhatsApp sale sola, con su estilo, a los pocos minutos y en horario de persona
+        // Respuesta automática: APAGADA desde el 28/10 tarde (Daniel). Solo sale si está encendida en private/conv_auto.json; si no, queda el borrador
         // (por email sale al momento: allí nadie espera ver «escribiendo»)
         if (isset($b['texto']) && pebai_conv_auto_activo() && ($canal === 'whatsapp' || ((int)date('G') >= 8 && (int)date('G') < 21))) {
             $r = pebai_conv_enviar($canal, $id, $b['texto'], $canal === 'whatsapp' ? pebai_conv_retraso_humano() : 0, 'auto');
@@ -783,12 +783,13 @@ function pebai_conv_cerrada(array $msgs): bool
     return false;
 }
 
-/** ¿Contestan solos los agentes a quien responde por WhatsApp? Sí por defecto (Daniel, 28/10); se apaga con private/conv_auto.json {"activo": false}. */
+/** ¿Contestan solos los agentes a quien responde (WhatsApp y email)? NO por defecto: Daniel lo apagó el 28/10 tarde («está escribiendo sin consultarme»).
+ *  Solo se preparan borradores para su aprobación en Conversaciones. Se encendería con private/conv_auto.json {"activo": true}, y solo si él lo pide. */
 function pebai_conv_auto_activo(): bool
 {
     $f = pebai_private_dir() . '/conv_auto.json';
     $c = is_file($f) ? (json_decode((string)file_get_contents($f), true) ?: []) : [];
-    return !array_key_exists('activo', $c) || !empty($c['activo']);
+    return !empty($c['activo']);
 }
 
 /** Retraso de una persona: 3-8 minutos en horario (9:00-21:00); fuera de horario, a primera hora del día siguiente. */
