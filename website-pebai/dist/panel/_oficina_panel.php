@@ -385,8 +385,10 @@ function of_cerebro(): array
     }
     try {
         $nomV = ['asistente' => 'Asistente', 'geo' => 'Visibilidad en IA', 'app' => 'App'];
-        foreach (pebai_lab_resultados() as $v => $o) {
-            $a['datos'][] = ['Laboratorio · ' . ($nomV[$v] ?? $v), $o['enviados'] . ' enviados · ' . $o['personas'] . ' personas contestan (' . ($o['enviados'] ? round($o['personas'] / $o['enviados'] * 100) : 0) . ' %) · ' . $o['interes'] . ' con interés'];
+        $nomN = ['solar' => 'placas', 'dentales' => 'dentales', 'inmobiliarias' => 'inmobiliarias', 'reformas' => 'reformas'];
+        foreach (pebai_lab_resultados() as $k => $o) {
+            [$v, $n] = explode('|', $k) + ['', ''];
+            $a['datos'][] = ['Laboratorio · ' . ($nomV[$v] ?? $v) . ' · ' . ($nomN[$n] ?? $n), $o['enviados'] . ' enviados · ' . $o['personas'] . ' personas contestan (' . ($o['enviados'] ? round($o['personas'] / $o['enviados'] * 100) : 0) . ' %) · ' . $o['interes'] . ' con interés'];
         }
     } catch (Throwable $e) {
         pebai_log('LAB: ' . $e->getMessage());
