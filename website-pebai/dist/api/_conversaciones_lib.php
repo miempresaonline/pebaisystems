@@ -460,6 +460,8 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
           . "Si muestra interés o pregunta qué hacemos, ofrécesela en una frase sin enlace (p. ej. «os he preparado una demo con vuestra web, ¿os la paso?»). No la ofrezcas si dice que no le interesa. En el mensaje en que ofreces la demo no pidas formulario, llamada ni enlace: un paso cada vez.\n"));
     $videoDado = str_contains($nuestros, 'consultoria-gratuita');
     $formDado = str_contains($nuestros, '/diagnostico/');
+    // ¿Ya le ofrecimos la consultoría? (Daniel, 28/10: no se ofrece hasta que muestra interés, y va sola en su mensaje)
+    $consultaOfrecida = (bool)preg_match('/consultor[ií]a|sesi[oó]n|llamada|videollamada|agend/iu', $nuestros);
     // ¿Ya rellenó el formulario? (hay una solicitud suya de verdad, no una ficha de trato directo)
     $leadId = pebai_conv_lead((string)($p['telefono'] ?? ''), $canal === 'email' ? (string)($p['email'] ?? '') : '');
     $formHecho = false;
@@ -481,21 +483,24 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         : ($enlaceDado
         ? 'Ya tiene el enlace para reservar. Resuelve lo que pregunte y, si hace falta, recuérdale con suavidad que puede elegir hora cuando quiera. No repitas el enlace salvo que lo pida (entonces pon ' . PEBAI_CONV_ENLACE . ').'
         : ($interes
-            ? ($formHecho
+            ? (!$consultaOfrecida && !$formHecho
+                ? 'Ha mostrado interés. AHORA, y no antes, ofrécele la consultoría: 25 minutos con uno de nuestros expertos para ver su caso; este mes solo hay 5 plazas sin coste. '
+                  . 'Pregúntale si le apetece. Solo eso: sin formulario, sin enlace y sin proponer día ni hora (lo elige él después).'
+                : ($formHecho
                 ? 'Ya ha rellenado el formulario de diagnóstico. Dale las gracias en una frase y pásale el enlace para elegir hora de la consultoría (25 minutos con un experto), poniendo exactamente '
                   . PEBAI_CONV_ENLACE . '.'
                 : ($formDado
                     ? 'Ya le pasamos el formulario. Si pregunta algo, contéstale breve; si no lo ha rellenado aún, recuérdale con naturalidad que en cuanto lo tengamos le pasamos la hora. No pongas el enlace de reserva.'
                     : 'Ha mostrado interés o ha dicho que sí a la consultoría. Siguiente paso: el formulario de diagnóstico. Dile que para prepararla bien rellene este formulario cortito '
                       . '(poniendo exactamente ' . PEBAI_CONV_FORM . '), que lo revisamos y le pasamos el enlace para elegir hora. Si antes pregunta algo, contéstale breve. '
-                      . 'NUNCA pongas el enlace de reserva en este paso.'))
+                      . 'NUNCA pongas el enlace de reserva en este paso.')))
             : ($videoOfrecido && !$videoDado
                 ? 'Ya le ofrecimos un vídeo o nuestra web para conocernos. Si en su último mensaje dice que sí o que vale, contesta muy breve y pásale el vídeo poniendo exactamente '
                   . PEBAI_CONV_VIDEO . ' (se cambia solo por el enlace), con una frase de qué va a ver. Si pregunta otra cosa, contéstale y vuelve a ofrecerle el vídeo. Nada de llamada todavía.'
-                : 'Aún NO ha mostrado interés. Preséntanos en una frase como una consultora de IA, con el ejemplo del asistente hecho a medida con toda la información de su empresa, '
-                  . 'que contesta como ellos, filtra curiosos y agenda visitas. Cierra ofreciendo la consultoría: este mes hacemos 5 consultorías sin coste (normalmente se cobran); '
-                  . 'pregúntale si le agendas una con uno de nuestros expertos para ver si de verdad les ahorraría tiempo y dinero. '
-                  . 'No pongas aún ningún enlace (va cuando diga que sí). Si duda o pide saber más antes, ofrécele un vídeo cortito o nuestra web.')));
+                : 'Aún NO ha mostrado interés (regla de Daniel: un paso cada vez, con calma). Contesta a lo que ha dicho y, en una frase, cuéntale lo que hacemos por él: '
+                  . 'un asistente con toda la información de su empresa que contesta como ellos, al momento y también fuera de horario. Termina con UNA pregunta corta para ver si le interesa '
+                  . '(p. ej. «¿Te interesaría verlo?»). PROHIBIDO en este mensaje: ofrecer la consultoría o una llamada, hablar de plazas o de «sin coste», «te agendo», enlaces '
+                  . 'y volver a presentarnos («Somos PEBAI…») si ya nos presentamos. Si duda o pide saber más, ofrécele un vídeo cortito o nuestra web.')));
     $prompt = "Eres Daniel, de PEBAI Systems, una consultora de procesos e Inteligencia Artificial. Escribimos en frío a {$p['empresa']}"
         . ($p['ciudad'] ? " ({$p['ciudad']})" : '') . ", una empresa instaladora de placas solares, y nos han contestado. Escribe la siguiente respuesta de Daniel por "
         . ($email ? 'email' : 'WhatsApp') . ".\n\n"
@@ -530,6 +535,7 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
         $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
         $prisa = ($auto && preg_match('/perdon|no me expliqu/iu', $t)) || (str_contains($t, PEBAI_CONV_ENLACE) && !$formHecho) || (!$interes && !$enlaceDado && str_contains($t, PEBAI_CONV_ENLACE))
             || (preg_match('/gratis|gratuit|sin coste|coste cero/iu', $t) && !preg_match('/\b5\b|cinco/iu', $t))
+            || (!$interes && !$auto && preg_match('/consultor[ií]a|plazas|sin coste|te agendo|agendar|llamada|videollamada/iu', $t))
             || (str_contains($t, PEBAI_CONV_VIDEO) && !$videoOfrecido) || preg_match('/factura de la luz/iu', $t) || (str_contains($t, PEBAI_CONV_DEMO) && !$demo);
         if ($t !== '' && !$prisa && $n <= ($auto ? ($email ? 60 : 40) : ($email ? 130 : 85)) && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t)) {
             // Segundo mensaje a quien aún no ha leído nada: vuelve a ofrecer no escribir más (regla legal)
