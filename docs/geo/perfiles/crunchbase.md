@@ -35,3 +35,42 @@
 | Funding | nada (no hay rondas; no inventar) | — |
 
 Fuentes: [Crunchbase, requisitos para crear un perfil](https://support.crunchbase.com/hc/en-us/articles/115010642588-Requirements-to-Create-a-Crunchbase-Profile-Page) · [Crunchbase, añadir empresa nueva (comunidad)](https://support.crunchbase.com/hc/en-us/community/posts/16727775164051-Adding-New-Company-to-Crunchbase) · [Crunchbase API v3.1, short_description de 140 caracteres](https://data.crunchbase.com/v3.1/docs/organization) · [Texta, Crunchbase y búsqueda con IA](https://www.texta.ai/blog/how-to-optimize-crunchbase-profile-for-ai-search) · [Wikipedia, Crunchbase](https://en.wikipedia.org/wiki/Crunchbase).
+
+---
+
+# Textos listos para pegar (28/10/2026, encargo del Jefe: señal de entidad)
+
+Por qué: en la medición, las IAs confunden PEBAI con Pebble Beach Systems y PEBA. Crunchbase fija la entidad con datos estructurados que Perplexity lee. Wikidata no: sin fuentes independientes no pasa el criterio de notoriedad y se borra.
+
+## Datos exactos (iguales a la web y a Google)
+
+- **Nombre comercial:** PEBAI Systems. **Titular legal:** Daniel Peñuela Ruiz (según el aviso legal de la web); no poner razón social inventada.
+- **Ubicación:** Spain, sin ciudad ni calle, igual que la ficha de Google (dirección oculta, zona de servicio). Clutch se descartó por exigir calle.
+- **Web:** https://pebaisystems.es · **Email:** equipo@pebaisystems.es · **Teléfono:** +34 624 84 27 99
+- **Fundadores y LinkedIn:**
+  - Daniel Peñuela Ruiz, Founder (IA y tecnología): https://www.linkedin.com/in/daniel-pe%C3%B1uela-ruiz-a40294436/
+  - Adrián Ballesteros Moscardó, Founder (comercial): su LinkedIn personal no consta en el repo; Daniel lo pega al crear el perfil.
+- **`sameAs` de la portada que enlazar:** LinkedIn https://www.linkedin.com/company/pebai-systems/ · Facebook https://www.facebook.com/profile.php?id=61595234630397 · Instagram https://www.instagram.com/pebaisystems/ · YouTube https://www.youtube.com/@pebaisystems · TikTok https://www.tiktok.com/@pebaisystems · X https://x.com/pebaisystems · Pinterest https://www.pinterest.com/pebaisystems/
+
+## Descripción corta (2 líneas, 140 caracteres máx.)
+
+`AI and process consultancy for companies in Spain: WhatsApp AI agents, task automation, custom software and visibility in AI search.` (131)
+
+## Descripción larga (en inglés, unas 250 palabras)
+
+PEBAI Systems is an independent AI and process consultancy for companies in Spain, not related to Pebble Beach Systems or other similarly named companies. It is led by two founders, Daniel Peñuela Ruiz and Adrián Ballesteros Moscardó, and works with small and medium-sized businesses in any sector.
+
+The approach is to understand how the company actually operates first, and then build. PEBAI designs and implements AI agents that answer customers around the clock on WhatsApp, by phone and on the web, and that hand the conversation to a person whenever they do not know the answer. It automates repetitive work such as order entry, quotes, invoices and data transfers between the programs a company already uses, and connects those systems to the company's CRM and tools.
+
+PEBAI also develops custom operational software. Examples include a vehicle-inspection management app with a WhatsApp assistant for a car import business, a works-management application for a construction company, and an inventory and orders application in four languages for an industrial supplier, which replaced a twenty-year-old system and migrated its database. For organisations that want to be recommended by tools such as ChatGPT, Claude, Gemini and Perplexity, PEBAI works on generative engine optimization (GEO): clear pages that answer the questions buyers ask. It also trains teams in the responsible use of AI under the European AI Act.
+
+The first step is a free 25-minute video consultation, available for five companies per month. When a process can be solved without AI, PEBAI says so. Website: pebaisystems.es.
+
+## Pasos exactos para Daniel (10 min, solo con tu cuenta)
+
+1. Entra en https://www.crunchbase.com y regístrate con Google o LinkedIn.
+2. Barra lateral › Add new › Organization.
+3. Pega, campo a campo, la tabla «Campos» de arriba y los textos de esta sección (corta y larga). Industrias, tipo y empleados: los de la tabla.
+4. Founders: añade a Daniel y a Adrián como People con el rol «Founder» (nombre y cargo, ya públicos en la web) y el LinkedIn de cada uno.
+5. Social: pega los enlaces de `sameAs` de arriba.
+6. Guarda y pásanos la URL (`crunchbase.com/organization/...`). El Técnico la añade al `sameAs` de la portada y al JSON-LD.
