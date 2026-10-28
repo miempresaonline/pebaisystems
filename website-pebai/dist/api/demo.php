@@ -25,6 +25,7 @@ $e = static fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 $empresa = (string)$d['empresa'];
 $ciudad = (string)$d['ciudad'];
 $inicial = mb_strtoupper(mb_substr(preg_replace('/^(la|el|los|las)\s+/iu', '', $empresa), 0, 1));
+$inicial = (string)($x['logo_texto'] ?? '') !== '' ? (string)$x['logo_texto'] : $inicial;   // su monograma de verdad si su logo es texto
 $meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 $fecha = static fn($ts) => (int)date('j', strtotime($ts)) . ' de ' . $meses[(int)date('n', strtotime($ts)) - 1] . ' de ' . date('Y', strtotime($ts));
 

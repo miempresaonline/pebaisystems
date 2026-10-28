@@ -139,6 +139,8 @@ function pebai_demo_logo(string $html, string $base, string $slug): string
             $cands[] = $abs($m[1]);
         }
     }
+    $p0 = parse_url($base);
+    $cands[] = ($p0['scheme'] ?? 'https') . '://' . ($p0['host'] ?? '') . '/favicon.ico';   // el icono de siempre, si lo tiene
     $dir = dirname(__DIR__) . '/demos/logos';
     if (!is_dir($dir)) {
         @mkdir($dir, 0755, true);
@@ -287,7 +289,14 @@ function pebai_demo_crear(string $canal, array $p): ?array
 
     $slug = pebai_demo_slug($empresa);
     $html = pebai_demo_html($web);
+    // Si su logo es texto (p. ej. «JM» con letras), se usa ese monograma tal cual
+    $logoTexto = '';
+    if (preg_match('~class=["\'][^"\']*logo[^"\']*["\'][^>]*>(.{1,200}?)</(a|div|span|p|h1|strong)>~is', $html, $m)) {
+        $logoTexto = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+        $logoTexto = mb_strlen($logoTexto) <= 4 ? $logoTexto : '';
+    }
     $datos = ['kb' => $kb, 'radio' => $radio, 'app' => is_array($app) ? $app : null, 'color' => pebai_demo_color($html), 'logo' => pebai_demo_logo($html, $web, $slug),
+              'logo_texto' => $logoTexto,
               'dominio' => preg_replace('~^www\.~', '', (string)parse_url($web, PHP_URL_HOST))];
     $usd = max(0, pebai_claude_gasto_mes() - $antes);
     pebai_demos_db()->prepare('INSERT OR IGNORE INTO demos (slug, canal, prospecto_id, empresa, ciudad, sector, web, datos, creada, usd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
