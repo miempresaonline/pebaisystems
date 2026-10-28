@@ -222,10 +222,25 @@ section.s{padding:96px 0 10px}
 .bl.lista b::before{content:'• ';color:var(--marca)}
 .ejemplo{font:500 11.5px var(--mono);color:var(--mut2);margin-top:18px;text-align:center}
 /* cierre */
-.cierre{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:38px}
-.cierre img{width:124px;height:124px;border-radius:30px;object-fit:cover;box-shadow:0 20px 50px rgba(0,0,0,.4)}
-.cierre h2{font:400 clamp(32px,4.2vw,50px)/1.04 var(--serif);margin:0 0 10px}
-.cierre p{margin:0 0 22px;color:#C9CBDA;max-width:560px}
+.cierre{display:grid;grid-template-columns:1.3fr .7fr;gap:0;align-items:stretch;overflow:hidden;padding:0}
+.cierre .tx{padding:54px 48px;display:flex;flex-direction:column;justify-content:center}
+.cierre small{font:500 12px var(--mono);letter-spacing:.08em;color:color-mix(in srgb,var(--marca) 55%,#fff)}
+.cierre h2{font:400 clamp(36px,4.6vw,60px)/1.02 var(--serif);margin:12px 0 16px}
+.cierre p{margin:0 0 28px;color:#C9CBDA;max-width:520px;font-size:17px}
+.puntos{list-style:none;margin:0 0 30px;padding:0;display:flex;flex-direction:column;gap:10px}
+.puntos li{display:flex;gap:10px;align-items:center;font-size:15px;color:#D7D8E2}
+.puntos li::before{content:'';width:18px;height:18px;border-radius:6px;flex:none;background:var(--lime) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 12 4 4 10-10' fill='none' stroke='%230b0f14' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat}
+.foto{position:relative;min-height:440px;background:#1a1640}
+.foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 18%}
+.foto::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,6,11,.85)),linear-gradient(90deg,rgba(5,6,11,.35),transparent 30%)}
+.foto figcaption{position:absolute;left:22px;right:22px;bottom:20px;z-index:1}
+.foto figcaption b{display:block;font:400 24px var(--serif)}
+.foto figcaption span{font:500 11.5px var(--mono);color:var(--mut)}
+/* fin de la prueba del asistente: tarjeta de PEBAI dentro del chat */
+.fin{align-self:stretch;margin:10px 6px 4px;padding:16px;border-radius:16px;text-align:center;background:linear-gradient(160deg,rgba(183,255,60,.14),rgba(126,115,255,.12));border:1px solid rgba(183,255,60,.35);animation:entra .4s var(--ease)}
+.fin b{display:block;font:400 21px/1.2 var(--serif);color:#fff;margin-bottom:6px}
+.fin p{margin:0 0 12px;font-size:13px;color:#C9CBDA}
+.fin a{display:inline-flex;padding:10px 16px;border-radius:12px;background:var(--lime);color:#0b0f14;font-weight:800;font-size:13.5px;text-decoration:none}
 .btns{display:flex;gap:12px;flex-wrap:wrap}
 .bt{display:inline-flex;align-items:center;gap:10px;padding:15px 22px;border-radius:16px;font-weight:800;text-decoration:none;transition:transform .3s var(--ease),box-shadow .3s}
 .bt.p{background:var(--lime);color:#0b0f14;box-shadow:0 14px 40px rgba(183,255,60,.28)}
@@ -236,7 +251,7 @@ footer{padding:56px 0 44px;color:var(--mut2);font-size:12.5px;text-align:center}
 footer a{color:var(--mut)}
 .rev{opacity:0;transform:translateY(26px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
 .rev.ver{opacity:1;transform:none}
-@media (max-width:900px){.inf,.demo{grid-template-columns:1fr}.claves,.indice{grid-template-columns:1fr}.tels{grid-template-columns:repeat(3,84%);overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 4px 16px}.tel{scroll-snap-align:center;transform:none!important}.cierre{grid-template-columns:1fr;text-align:center}.cierre img{margin:0 auto}.btns{justify-content:center}.duo span.n,.duo .x,.duo .pb{display:none}.hero{padding-top:56px}.barra{grid-template-columns:110px 1fr 60px;gap:8px;font-size:13px}}
+@media (max-width:900px){.inf,.demo{grid-template-columns:1fr}.claves,.indice{grid-template-columns:1fr}.tels{grid-template-columns:repeat(3,84%);overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 4px 16px}.tel{scroll-snap-align:center;transform:none!important}.cierre{grid-template-columns:1fr}.cierre .tx{padding:34px 24px;order:2}.foto{min-height:340px;order:1}.duo span.n,.duo .x,.duo .pb{display:none}.hero{padding-top:56px}.barra{grid-template-columns:110px 1fr 60px;gap:8px;font-size:13px}}
 @media (prefers-reduced-motion:reduce){.rev{opacity:1;transform:none}*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -362,13 +377,15 @@ footer a{color:var(--mut)}
 
   <section class="s rev">
     <div class="cierre vidrio">
-      <img src="/team/avatar-dani.webp" alt="Daniel, de PEBAI Systems" width="124" height="124">
-      <div>
+      <div class="tx">
+        <small>SIGUIENTE PASO</small>
         <h2>¿Lo vemos juntos en 25 minutos?</h2>
-        <p>Te enseño cómo quedaría todo esto con vuestra información real, qué haría falta y por dónde empezaría yo. Sin compromiso.</p>
+        <p>Te enseño cómo quedaría con vuestra información real y por dónde empezaría yo. Sin compromiso.</p>
+        <ul class="puntos"><li>Vuestro asistente con toda vuestra información</li><li>Qué hacer para que la IA os recomiende</li><li>Qué haría falta y en cuánto tiempo</li></ul>
         <div class="btns"><a class="bt p" href="<?= $e($wa) ?>" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.7-2.7-1.1-4.4-3.8-4.6-4-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.3.4c-.1.1-.3.3-.1.6.2.3.7 1.2 1.6 2 1.1 1 2 1.3 2.3 1.4.3.2.5.1.6 0l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.1.1.6-.1 1.3z"/></svg>Hablarlo por WhatsApp</a><a class="bt s" href="/consultoria-gratuita/?origen=demo" target="_blank" rel="noopener">Ver cómo trabajamos</a></div>
         <p class="plazas">LA CONSULTORÍA ES GRATUITA SOLO PARA 5 EMPRESAS AL MES</p>
       </div>
+      <figure class="foto" style="margin:0"><img src="/brand/home/dani.webp" alt="Daniel Peñuela, de PEBAI Systems" loading="lazy"><figcaption><b>Daniel Peñuela</b><span>FUNDADOR · PEBAI SYSTEMS</span></figcaption></figure>
     </div>
   </section>
   <footer>PEBAI Systems · Procesos e Inteligencia Artificial para empresas · <a href="/privacidad/">Privacidad</a><br>Página preparada solo para <?= $e($empresa) ?>.</footer>
@@ -394,7 +411,7 @@ footer a{color:var(--mut)}
     mio.querySelector('.tick').classList.add('visto');           // visto
     await espera(500 + Math.random() * 700);
     let j = await pide;
-    const trozos = j.ok ? String(j.respuesta).split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean).slice(0, 3) : [j.error || 'Ahora mismo no puedo contestar.'];
+    const trozos = j.ok ? String(j.respuesta || '').split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean).slice(0, 3) : [j.error || 'Ahora mismo no puedo contestar.'];
     for (let i = 0; i < trozos.length; i++) {
       escribiendo(true);
       const e = document.createElement('div'); e.className = 'escribe'; e.innerHTML = '<i></i><i></i><i></i>'; msgs.append(e); msgs.scrollTop = msgs.scrollHeight;
@@ -403,8 +420,17 @@ footer a{color:var(--mut)}
       if (i < trozos.length - 1) { escribiendo(false); await espera(500 + Math.random() * 600); }
     }
     escribiendo(false);
-    if (j.ok) { hist.push({ q: t, a: j.respuesta }); if (j.quedan !== undefined) quedan.textContent = j.quedan > 0 ? 'Te quedan ' + j.quedan + ' mensajes de prueba' : 'Fin de la prueba: hablemos y lo montamos de verdad'; }
+    if (j.ok) { hist.push({ q: t, a: j.respuesta }); if (j.quedan !== undefined) quedan.textContent = j.quedan > 0 ? 'Te quedan ' + j.quedan + (j.quedan === 1 ? ' mensaje' : ' mensajes') + ' de prueba' : 'Prueba terminada'; }
+    if (j.ok && (j.quedan === 0 || j.fin)) { await espera(900); finPrueba(); return; }
     ocupado = false; caja.querySelector('button').disabled = false; txt.focus();
+  }
+  // Fin de la prueba: no habla el asistente, habla PEBAI, y se invita a montarlo de verdad
+  function finPrueba() {
+    const f = document.createElement('div'); f.className = 'fin';
+    f.innerHTML = '<b>Así contestaría a cada cliente, a cualquier hora.</b><p>Con toda vuestra información y vuestro tono, no solo con lo que hay en la web.</p><a href="<?= $e($wa) ?>" target="_blank" rel="noopener">Quiero el nuestro</a>';
+    msgs.append(f); msgs.scrollTop = msgs.scrollHeight;
+    txt.disabled = true; txt.placeholder = 'Prueba terminada'; caja.querySelector('button').disabled = true;
+    document.getElementById('sug').remove();
   }
   caja.addEventListener('submit', (ev) => { ev.preventDefault(); manda(txt.value); });
   document.querySelectorAll('#sug button').forEach((b) => b.addEventListener('click', () => { manda(b.textContent); b.remove(); }));

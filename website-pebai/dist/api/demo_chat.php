@@ -26,7 +26,7 @@ if (!$d || $msg === '') {
     $out(['ok' => false, 'error' => 'No disponible.'], 404);
 }
 if ((int)$d['chats'] >= PEBAI_DEMO_CHAT_MAX) {
-    $out(['ok' => true, 'respuesta' => 'Hasta aquí la prueba 🙂 Para tener el asistente de verdad, con toda vuestra información, habla con Daniel por WhatsApp desde el botón de abajo.', 'quedan' => 0]);
+    $out(['ok' => true, 'respuesta' => '', 'quedan' => 0, 'fin' => true]);
 }
 $x = json_decode((string)$d['datos'], true) ?: [];
 $kb = $x['kb'] ?? [];

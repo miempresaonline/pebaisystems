@@ -12,7 +12,7 @@ require_once __DIR__ . '/_agentes_lib.php';
 require_once __DIR__ . '/_claude_lib.php';
 require_once __DIR__ . '/_ia_lib.php';
 
-const PEBAI_DEMO_CHAT_MAX = 15;   // mensajes del chat de demo por empresa (para que nadie gaste el crédito)
+const PEBAI_DEMO_CHAT_MAX = 4;    // mensajes de prueba en el asistente: después, invitación a montarlo de verdad   // mensajes del chat de demo por empresa (para que nadie gaste el crédito)
 
 function pebai_demos_db(): PDO
 {
