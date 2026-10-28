@@ -30,7 +30,8 @@ $fecha = static fn($ts) => (int)date('j', strtotime($ts)) . ' de ' . $meses[(int
 
 // Visitas: la primera avisa a la oficina (es la mejor señal de interés)
 $esBot = preg_match('/bot|crawl|spider|preview|whatsapp|facebookexternalhit|telegram|slack|discord/i', (string)($_SERVER['HTTP_USER_AGENT'] ?? ''));
-if (!$esBot) {
+// ?equipo=1: la miramos nosotros (desde el panel): no cuenta como visita ni avisa
+if (!$esBot && empty($_GET['equipo'])) {
     $now = date('Y-m-d H:i:s');
     pebai_demos_db()->prepare("UPDATE demos SET visitas = visitas + 1, ultima_visita = ?, primera_visita = CASE WHEN primera_visita = '' THEN ? ELSE primera_visita END WHERE slug = ?")
         ->execute([$now, $now, $slug]);
