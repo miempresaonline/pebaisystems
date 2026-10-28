@@ -71,3 +71,26 @@ La única de las tres con dirección en Valencia ciudad, así que es la que de v
 
 ### Mejora concreta para nuestra ficha
 Conseguir las primeras reseñas reales de los 4 clientes de `casos.md`: pedir a Daniel que mande `pebaisystems.es/r/w` a cada uno (texto en `docs/geo/borradores/resenas/` si existe). Es lo único en lo que Lienzzo nos saca ventaja clara.
+
+## 28/10/2026 · Dobuss (dobuss.es)
+Agencia de marketing digital con IA como una línea más. Sede en Córdoba y oficina listada en Valencia; no es competidor local puro, pero sale en las respuestas de IA. Datos de su web pública; Maps no es verificable desde la nube.
+
+| Dato | Lo que consta |
+|---|---|
+| Servicios de IA | Agencia IA, consultoría de IA, agentes IA y marketing automation, cada uno con página propia |
+| Reseñas | Dice 4,9 con 930 opiniones en Google (cifra de su web), ninguna sobre consultoría de IA |
+| Casos | Logos de grandes marcas, sin detalle de consultoría de IA |
+| Blog | SEO, GEO, IA (por ejemplo «Diferencias entre SEO y GEO») |
+| Local | Una ficha por ciudad con dirección y teléfono |
+| Vacíos | Sin metodología de la consultoría de IA, sin primer paso gratuito explícito |
+
+### 3 cosas aplicables a la ficha de PEBAI
+1. **Una página por servicio con su nombre de búsqueda** (consultoría de IA, agentes IA): PEBAI ya las tiene; poner en la ficha el enlace de cada servicio a su página.
+2. **Reseñas con texto sobre el servicio:** las suyas hablan de SEO, no de IA. Las primeras reseñas reales de PEBAI deberían mencionar qué se hizo (app, asistente, automatización); la guía para pedirlas está en `resenas/pedir-resena.md`.
+3. **Contenido GEO propio:** compiten por «cómo aparecer en la IA». Nuestra ventaja es el caso real con datos, no el logo de marca.
+
+### Dónde PEBAI ya gana
+Casos con cifras y primer paso gratuito explícito; es consultoría de IA y no una línea de agencia.
+
+### Mejora concreta para nuestra ficha
+En «Servicios» de la ficha, enlazar cada servicio a su página (`/agentes-ia/`, `/automatizacion-de-procesos/`, `/posicionamiento-en-ia/`) con el texto de `servicios.md`.
