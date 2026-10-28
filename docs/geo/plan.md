@@ -105,6 +105,8 @@ Miércoles 28/10 (Jefe). Cifra clave: 0 de 5 preguntas con PEBAI (Medición 28/1
 4. Refresco: dejar las FAQ de los pilares en 6 (hoy 8-9) y revisar /agentes-ia/, la más antigua. (geo_refresco)
 5. Daniel: «Solicitar indexación» de /posicionamiento-en-ia/ y /agentes-ia/whatsapp/ (2 min), servicios de la ficha y directorios.
 
+Miércoles 28/10 tarde (Jefe): hecho 1 (formación publicada, 6 FAQ, 200), 3 en buena parte (Crunchbase, Sortlist y Trustpilot publicados; 5 directorios más en revisión) y 2 a medias (301 de voz y ciudades hechas; ClaudeBot vuelve a dar 429 en la portada a las 15:2x UTC pese a la precarga). Calidad de los 6 pilares: 0 palabras prohibidas, 0 rayas, 0 exclamaciones, FAQ visible = JSON-LD; fallan 7 FAQ en 2 páginas, una fuente sin enlace (art. 50) y fechas movidas solo por enlaces. Riesgos nuevos para Daniel: nombre de la ficha de Google con palabras clave y una calle inventada en 2 directorios. Cola fijada: cuánto cuesta (jue), voz (vie), presupuestos (lun 2/11), /sobre-pebai/ (cuando responda Daniel), después instaladoras.
+
 ## Propuestas del Vigía
 
 (El Vigía añade aquí lo que cambie el plan; el Jefe las resuelve.)
