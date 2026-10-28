@@ -14,7 +14,8 @@ En la práctica, eso significa tres cosas:
 
 Mandar al equipo a leer las instrucciones de la herramienta no suele bastar. Una sesión corta, con ejemplos de vuestro trabajo diario, sí.
 
-Los detalles legales de cada caso conviene confirmarlos con tu asesor.
+Los detalles legales de cada caso conviene confirmarlos con tu asesor. Lo que dice el artículo 4 tras la reforma de 2026, con sus fuentes, está en nuestra guía: https://pebaisystems.es/ia-para-empresas/formacion/?utm_source=linkedin&utm_medium=empresa
+
 
 Si quieres ver qué formación necesita tu equipo, la consultoría es de 25 minutos por videollamada. Gratuita para cinco empresas al mes; después, de pago.
 
