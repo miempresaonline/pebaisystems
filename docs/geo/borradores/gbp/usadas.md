@@ -8,3 +8,4 @@ Una línea por post: `fecha · layout · tema · seed · titular`. El agente de 
 2026-11-18 · foco · dark · 2 · Del programa antiguo a tu medida
 2026-11-25 · pregunta · dark · 9 · ¿Quién contesta a tus clientes?
 2026-12-02 · foco · light · 4 · ¿Qué proceso automatizar primero?
+2026-12-09 · pregunta · light · 6 · ¿Chatbot o agente de IA?
