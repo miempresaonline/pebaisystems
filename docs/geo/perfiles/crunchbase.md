@@ -31,7 +31,7 @@
 | Founders | `Daniel Peñuela Ruiz`, `Adrián Ballesteros Moscardó` | — |
 | Contact email | `equipo@pebaisystems.es` | — |
 | Phone | `+34 624 84 27 99` | — |
-| Social | LinkedIn de empresa (cuando exista), X `https://x.com/pebaisystems`, Facebook `https://www.facebook.com/profile.php?id=61595234630397` | — |
+| Social | LinkedIn `https://www.linkedin.com/company/pebai-systems/`, X `https://x.com/pebaisystems`, Facebook `https://www.facebook.com/profile.php?id=61595234630397` | — |
 | Funding | nada (no hay rondas; no inventar) | — |
 
 Fuentes: [Crunchbase, requisitos para crear un perfil](https://support.crunchbase.com/hc/en-us/articles/115010642588-Requirements-to-Create-a-Crunchbase-Profile-Page) · [Crunchbase, añadir empresa nueva (comunidad)](https://support.crunchbase.com/hc/en-us/community/posts/16727775164051-Adding-New-Company-to-Crunchbase) · [Crunchbase API v3.1, short_description de 140 caracteres](https://data.crunchbase.com/v3.1/docs/organization) · [Texta, Crunchbase y búsqueda con IA](https://www.texta.ai/blog/how-to-optimize-crunchbase-profile-for-ai-search) · [Wikipedia, Crunchbase](https://en.wikipedia.org/wiki/Crunchbase).
