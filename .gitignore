@@ -98,3 +98,6 @@ website-pebai/private/*
 
 # Informes del modo Audit de design-motion-principles
 motion-audits/
+
+# Logos de las empresas de las demos: los guarda el servidor (agente Demos), no van al repositorio
+website-pebai/dist/demos/

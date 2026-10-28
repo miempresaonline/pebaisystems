@@ -64,14 +64,20 @@ function pebai_demo_slug(string $empresa): string
     return $s . '-' . substr(bin2hex(random_bytes(3)), 0, 5);   // con un trozo aleatorio: nadie adivina la de otra empresa
 }
 
-/** Color de marca de su web (theme-color o el color más repetido), para que la demo se sienta suya. */
-function pebai_demo_color(string $url): string
+/** HTML de su portada (una sola descarga para el color y el logo). */
+function pebai_demo_html(string $url): string
 {
     $ch = curl_init($url);
     curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_TIMEOUT => 12, CURLOPT_SSL_VERIFYPEER => false,
                             CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130 Safari/537.36']);
     $html = (string)curl_exec($ch);
     curl_close($ch);
+    return $html;
+}
+
+/** Color de marca de su web: theme-color, sus variables de color principal o el color con fuerza que más repite. */
+function pebai_demo_color(string $html): string
+{
     if (preg_match('~<meta[^>]+name=["\']theme-color["\'][^>]+content=["\'](#[0-9a-f]{6})~i', $html, $m)) {
         return strtolower($m[1]);
     }
@@ -80,29 +86,104 @@ function pebai_demo_color(string $url): string
     foreach ($mm[1] as $h) {
         $h = strtolower($h);
         [$r, $g, $b] = [hexdec(substr($h, 0, 2)), hexdec(substr($h, 2, 2)), hexdec(substr($h, 4, 2))];
-        $sat = max($r, $g, $b) - min($r, $g, $b);
-        if ($sat > 60 && max($r, $g, $b) > 70) {   // fuera blancos, negros y grises
+        if (max($r, $g, $b) - min($r, $g, $b) > 60 && max($r, $g, $b) > 70) {   // fuera blancos, negros y grises
             $cuenta[$h] = ($cuenta[$h] ?? 0) + 1;
         }
+    }
+    if (preg_match('~--[\w-]*(?:primary|brand|accent|main)[\w-]*\s*:\s*#([0-9a-f]{6})~i', $html, $m)) {
+        $cuenta[strtolower($m[1])] = ($cuenta[strtolower($m[1])] ?? 0) + 2;   // su variable de color principal suma
     }
     arsort($cuenta);
     return $cuenta ? '#' . array_key_first($cuenta) : '#6a5cff';
 }
 
-/** Radiografía en IA: Claude busca de verdad en internet y dice si la empresa sale y quién sale. */
-function pebai_demo_radiografia(string $empresa, string $sector, string $ciudad, string $web): ?array
+/**
+ * Su logo de verdad: la imagen con «logo» de su web (o su icono). Se guarda en public_html/demos/logos/ (lo crea el servidor;
+ * no va al repositorio) y se devuelve su ruta, o '' si no hay.
+ */
+function pebai_demo_logo(string $html, string $base, string $slug): string
 {
-    $consulta = 'mejores ' . mb_strtolower($sector) . ' en ' . $ciudad;
+    $abs = static function (string $u) use ($base): string {
+        $u = html_entity_decode(trim($u));
+        if ($u === '' || str_starts_with($u, 'data:')) {
+            return $u;
+        }
+        if (str_starts_with($u, '//')) {
+            return 'https:' . $u;
+        }
+        if (preg_match('~^https?://~i', $u)) {
+            return $u;
+        }
+        $p = parse_url($base);
+        return ($p['scheme'] ?? 'https') . '://' . ($p['host'] ?? '') . (str_starts_with($u, '/') ? '' : '/') . $u;
+    };
+    $cands = [];
+    foreach (preg_match_all('~<img\b[^>]*>~i', $html, $mm) ? $mm[0] : [] as $tag) {
+        if (!preg_match('~logo~i', $tag)) {
+            continue;
+        }
+        foreach (['data-src', 'data-lazy-src', 'src'] as $at) {
+            if (preg_match('~\b' . $at . '=["\']([^"\']+)~i', $tag, $m) && !str_contains($m[1], 'data:image/gif')) {
+                $cands[] = $abs($m[1]);
+                break;
+            }
+        }
+        if (count($cands) >= 2) {
+            break;
+        }
+    }
+    foreach (['apple-touch-icon', 'icon', 'shortcut icon'] as $rel) {
+        if (preg_match('~<link[^>]+rel=["\']' . $rel . '["\'][^>]*href=["\']([^"\']+)~i', $html, $m) || preg_match('~<link[^>]+href=["\']([^"\']+)["\'][^>]*rel=["\']' . $rel . '["\']~i', $html, $m)) {
+            $cands[] = $abs($m[1]);
+        }
+    }
+    $dir = dirname(__DIR__) . '/demos/logos';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
+    foreach ($cands as $u) {
+        $bin = '';
+        $tipo = '';
+        if (preg_match('~^data:image/(png|jpe?g|webp|svg\+xml);base64,(.+)$~is', $u, $m)) {
+            $bin = (string)base64_decode($m[2], true);
+            $tipo = $m[1];
+        } elseif (preg_match('~^https?://~i', $u)) {
+            $ch = curl_init($u);
+            curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_TIMEOUT => 10, CURLOPT_SSL_VERIFYPEER => false,
+                                    CURLOPT_USERAGENT => 'Mozilla/5.0 Chrome/130']);
+            $bin = (string)curl_exec($ch);
+            $ct = (string)curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+            curl_close($ch);
+            $tipo = preg_match('~image/(png|jpe?g|webp|svg\+xml|x-icon|vnd\.microsoft\.icon)~i', $ct, $m) ? $m[1] : '';
+        }
+        if ($bin === '' || strlen($bin) < 200 || strlen($bin) > 400000 || $tipo === '') {
+            continue;
+        }
+        $ext = ['svg+xml' => 'svg', 'jpeg' => 'jpg', 'jpg' => 'jpg', 'png' => 'png', 'webp' => 'webp', 'x-icon' => 'ico', 'vnd.microsoft.icon' => 'ico'][strtolower($tipo)] ?? 'png';
+        if ($ext === 'svg' && preg_match('~<script|on\w+=~i', $bin)) {
+            continue;   // un SVG con código no se sirve
+        }
+        $f = $slug . '.' . $ext;
+        if (@file_put_contents($dir . '/' . $f, $bin) !== false) {
+            return '/demos/logos/' . $f;
+        }
+    }
+    return '';
+}
+
+/** Radiografía en IA: Claude hace DOS búsquedas web reales (dos formas de preguntar) y dice en cuáles sale la empresa y quién sale. */
+function pebai_demo_radiografia(string $empresa, string $sector, string $ciudad, string $web, string $servicio = ''): ?array
+{
+    $consultas = ['mejores ' . mb_strtolower($sector) . ' en ' . $ciudad,
+                  ($servicio !== '' ? mb_strtolower($servicio) : 'empresa de confianza de ' . mb_strtolower($sector)) . ' en ' . $ciudad . ' recomendaciones'];
     $dominio = preg_replace('~^www\.~', '', (string)parse_url($web, PHP_URL_HOST));
     $t = pebai_claude('demos', 'claude-haiku-5-5',
-        'Eres un analista de visibilidad en buscadores con IA. Haces UNA búsqueda web real y cuentas solo lo que sale en los resultados, sin inventar nada. Responde SOLO JSON.',
-        [['role' => 'user', 'content' => "Busca en internet: «{$consulta}». Con lo que salga, responde JSON:\n"
-            . '{"empresas": [hasta 8 empresas recomendadas o listadas en los resultados, en el orden en que salen: {"nombre": "...", "web": "dominio o vacío"}], '
-            . '"aparece": true/false según si «' . $empresa . '»' . ($dominio ? " (web {$dominio})" : '') . ' sale en los resultados, '
-            . '"posicion": número de su puesto en la lista o null, "fuentes": [hasta 4: {"titulo": "...", "url": "..."}], '
-            . '"resumen": "una frase de qué ve alguien que pregunta esto a una IA"}']],
-        ['effort' => 'low', 'max_tokens' => 3000, 'timeout' => 90,
-         'tools' => [['type' => 'web_search_20250305', 'name' => 'web_search', 'max_uses' => 1,
+        'Eres un analista de visibilidad en buscadores con IA. Haces búsquedas web reales y cuentas solo lo que sale en los resultados, sin inventar nada. Responde SOLO JSON.',
+        [['role' => 'user', 'content' => "Haz estas DOS búsquedas en internet, una cada vez:\n1. «{$consultas[0]}»\n2. «{$consultas[1]}»\nCon lo que salga en cada una, responde JSON:\n"
+            . '{"busquedas": [para cada búsqueda, en orden: {"empresas": [hasta 8 empresas recomendadas o listadas, en el orden en que salen: {"nombre": "...", "web": "dominio o vacío"}], '
+            . '"fuentes": [hasta 3: {"titulo": "...", "url": "..."}]}], "resumen": "una frase de qué ve alguien que pregunta esto a una IA, y si sale ' . $empresa . '"}']],
+        ['effort' => 'low', 'max_tokens' => 4000, 'timeout' => 120,
+         'tools' => [['type' => 'web_search_20250305', 'name' => 'web_search', 'max_uses' => 2,
                       'user_location' => ['type' => 'approximate', 'country' => 'ES', 'city' => $ciudad, 'timezone' => 'Europe/Madrid']]]]);
     if ($t === null) {
         return null;
@@ -112,21 +193,42 @@ function pebai_demo_radiografia(string $empresa, string $sector, string $ciudad,
     if (!is_array($j) && preg_match('/\{.*\}/s', $t, $m)) {
         $j = json_decode($m[0], true);
     }
-    if (!is_array($j) || empty($j['empresas'])) {
+    if (!is_array($j) || empty($j['busquedas'])) {
         return null;
     }
-    $empresas = array_slice(array_values(array_filter(array_map(static fn($e) => ['nombre' => mb_substr(trim((string)($e['nombre'] ?? '')), 0, 80), 'web' => mb_substr(trim((string)($e['web'] ?? '')), 0, 80)], (array)$j['empresas']), static fn($e) => $e['nombre'] !== '')), 0, 8);
-    $fuentes = array_slice(array_values(array_filter(array_map(static fn($f) => ['titulo' => mb_substr(trim((string)($f['titulo'] ?? '')), 0, 120), 'url' => (string)($f['url'] ?? '')], (array)($j['fuentes'] ?? [])), static fn($f) => str_starts_with($f['url'], 'http'))), 0, 4);
-    // Comprobación propia: si su dominio o su nombre está en la lista, sale (no nos fiamos solo de lo que diga el modelo)
-    $norm = static fn($s) => preg_replace('/[^a-z0-9]/', '', strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s) ?: $s));
-    $pos = null;
-    foreach ($empresas as $i => $e) {
-        if (($dominio && str_contains($norm($e['web']), $norm($dominio))) || ($norm($empresa) !== '' && (str_contains($norm($e['nombre']), $norm($empresa)) || str_contains($norm($empresa), $norm($e['nombre']))))) {
-            $pos = $i + 1;
-            break;
+    // Comprobación propia: sale si su dominio o su nombre está en la lista (no nos fiamos solo de lo que diga el modelo)
+    $norm = static fn($s) => preg_replace('/[^a-z0-9]/', '', strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', (string)$s) ?: (string)$s));
+    $busq = [];
+    foreach (array_slice((array)$j['busquedas'], 0, 2) as $k => $b) {
+        $emp = array_slice(array_values(array_filter(array_map(static fn($e) => ['nombre' => mb_substr(trim((string)($e['nombre'] ?? '')), 0, 80), 'web' => mb_substr(trim((string)($e['web'] ?? '')), 0, 80)], (array)($b['empresas'] ?? [])), static fn($e) => $e['nombre'] !== '')), 0, 8);
+        $pos = null;
+        foreach ($emp as $i => $e) {
+            if (($dominio && $e['web'] !== '' && str_contains($norm($e['web']), $norm($dominio))) || ($norm($empresa) !== '' && (str_contains($norm($e['nombre']), $norm($empresa)) || str_contains($norm($empresa), $norm($e['nombre']))))) {
+                $pos = $i + 1;
+                break;
+            }
+        }
+        $busq[] = ['consulta' => $consultas[$k], 'empresas' => $emp, 'posicion' => $pos,
+                   'fuentes' => array_slice(array_values(array_filter(array_map(static fn($f) => ['titulo' => mb_substr(trim((string)($f['titulo'] ?? '')), 0, 120), 'url' => (string)($f['url'] ?? '')], (array)($b['fuentes'] ?? [])), static fn($f) => str_starts_with($f['url'], 'http'))), 0, 3)];
+    }
+    // Quién sale más veces entre las dos búsquedas
+    $veces = [];
+    foreach ($busq as $b) {
+        foreach ($b['empresas'] as $i => $e) {
+            $k = $norm($e['nombre']);
+            $veces[$k] = ['nombre' => $veces[$k]['nombre'] ?? $e['nombre'], 'n' => ($veces[$k]['n'] ?? 0) + 1, 'mejor' => min($veces[$k]['mejor'] ?? 99, $i + 1)];
         }
     }
-    return ['consulta' => $consulta, 'empresas' => $empresas, 'aparece' => $pos !== null, 'posicion' => $pos, 'fuentes' => $fuentes,
+    uasort($veces, static fn($a, $b) => [$b['n'], $a['mejor']] <=> [$a['n'], $b['mejor']]);
+    // Nota de visibilidad 0-100: salir arriba en las dos búsquedas = 100
+    $nota = 0;
+    foreach ($busq as $b) {
+        $nota += $b['posicion'] ? (int)round(50 * max(.2, 1 - ($b['posicion'] - 1) / 8)) : 0;
+    }
+    $primera = $busq[0] ?? ['empresas' => [], 'posicion' => null, 'fuentes' => [], 'consulta' => $consultas[0]];
+    return ['consulta' => $primera['consulta'], 'empresas' => $primera['empresas'], 'aparece' => (bool)array_filter(array_column($busq, 'posicion')),
+            'posicion' => $primera['posicion'] ?? (array_values(array_filter(array_column($busq, 'posicion')))[0] ?? null), 'fuentes' => $primera['fuentes'],
+            'busquedas' => $busq, 'competidores' => array_slice(array_values($veces), 0, 6), 'nota' => $nota,
             'resumen' => mb_substr((string)($j['resumen'] ?? ''), 0, 300), 'fecha' => date('Y-m-d H:i')];
 }
 
@@ -166,7 +268,7 @@ function pebai_demo_crear(string $canal, array $p): ?array
         return null;
     }
     // 2) Radiografía en IA (búsqueda real)
-    $radio = pebai_demo_radiografia($empresa, $sector, $ciudad ?: 'España', $web);
+    $radio = pebai_demo_radiografia($empresa, $sector, $ciudad ?: 'España', $web, (string)(((array)($kb['servicios'] ?? []))[0] ?? ''));
     // 3) Boceto de su app: para sus clientes, con sus servicios
     $app = pebai_claude_json('demos', 'claude-haiku-5-5',
         'Diseñas el boceto de una app móvil sencilla y útil para los CLIENTES de una empresa española, con sus servicios reales. Nada genérico: usa los servicios que te dan. Las cifras de las pantallas son de ejemplo (se mostrará así), que sean creíbles. Responde SOLO JSON.',
@@ -175,9 +277,10 @@ function pebai_demo_crear(string $canal, array $p): ?array
         . '"bloques": [3-5: {"tipo": "tarjeta|boton|lista|progreso|aviso", "texto": "corto", "detalle": "más corto aún o vacío", "valor": número 0-100 solo para progreso}]}]}',
         ['effort' => 'low', 'max_tokens' => 3000]);
 
-    $datos = ['kb' => $kb, 'radio' => $radio, 'app' => is_array($app) ? $app : null, 'color' => pebai_demo_color($web),
-              'dominio' => preg_replace('~^www\.~', '', (string)parse_url($web, PHP_URL_HOST))];
     $slug = pebai_demo_slug($empresa);
+    $html = pebai_demo_html($web);
+    $datos = ['kb' => $kb, 'radio' => $radio, 'app' => is_array($app) ? $app : null, 'color' => pebai_demo_color($html), 'logo' => pebai_demo_logo($html, $web, $slug),
+              'dominio' => preg_replace('~^www\.~', '', (string)parse_url($web, PHP_URL_HOST))];
     $usd = max(0, pebai_claude_gasto_mes() - $antes);
     pebai_demos_db()->prepare('INSERT OR IGNORE INTO demos (slug, canal, prospecto_id, empresa, ciudad, sector, web, datos, creada, usd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         ->execute([$slug, $canal, (int)$p['id'], $empresa, $ciudad, $sector, $web, json_encode($datos, JSON_UNESCAPED_UNICODE), date('Y-m-d H:i:s'), $usd]);
