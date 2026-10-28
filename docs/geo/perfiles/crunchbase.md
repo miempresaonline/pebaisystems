@@ -74,3 +74,10 @@ The first step is a free 25-minute video consultation, available for five compan
 4. Founders: añade a Daniel y a Adrián como People con el rol «Founder» (nombre y cargo, ya públicos en la web) y el LinkedIn de cada uno.
 5. Social: pega los enlaces de `sameAs` de arriba.
 6. Guarda y pásanos la URL (`crunchbase.com/organization/...`). El Técnico la añade al `sameAs` de la portada y al JSON-LD.
+
+
+## Estado
+
+Publicado el 28/10/2026: https://www.crunchbase.com/organization/pebai-systems
+- Hecho: nombre, alias PEBAI, descripción corta y larga en inglés, fundada en 2026, 1-10 empleados, For Profit, sede Valencia (España), web, LinkedIn, X, Facebook, email, teléfono, logo e industrias (AI, Generative AI, BPA, Consulting, Software).
+- Falta: fundadores como People (no existen sus perfiles en Crunchbase; hay que crearlos).

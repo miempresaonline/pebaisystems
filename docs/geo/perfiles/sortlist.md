@@ -67,3 +67,10 @@ Imágenes: `website-pebai/dist/casos/img/*.jpg` (ya difuminadas). Datos completo
 4. **Residencia El Amparo · Web nueva y portal de gestión.** Portal a medida para publicar subvenciones y noticias y recibir candidaturas y solicitudes de familias en un solo sitio. Entregado en octubre de 2026.
 
 Fuentes: [Sortlist, crear un buen perfil](https://help.sortlist.com/en/articles/7878230-1-building-a-killing-profile) · [Sortlist, validar oficinas](https://help.sortlist.com/en/articles/6310829-why-and-how-to-validate-your-offices) · [Sortlist+, gratis frente a pago](https://help.sortlist.com/en/articles/6636955-understanding-sortlist) · [La Fabrique du Net, precios Sortlist](https://www.lafabriquedunet.fr/logiciel/sortlist) · [Sortlist, cómo funciona para agencias](https://www.sortlist.co.uk/how-it-works/agency).
+
+
+## Estado
+
+Publicado el 28/10/2026: https://www.sortlist.es/agency/pebai-systems
+- Índice de calidad: 70 %. Faltan verificar el teléfono (SMS), verificar el NIF (decidido esperar al alta), 10 reseñas reales con media de +4, Sortlist+ (de pago, no) y más trabajos (3 de IA y 10 en total; hoy hay 4 casos reales).
+- Trabajos subidos: Fran García Cars (app y asistente de WhatsApp), Construcciones Gargom y Suministros Santacruz. El Amparo, pendiente de imagen publicable.
