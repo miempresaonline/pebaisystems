@@ -419,3 +419,6 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-shim{display:flex;flex-direction:column;gap:7px;margin-top:4px}
 .pb-of-shim i{display:block;height:9px;border-radius:5px;background:rgba(255,255,255,.08)}
 .pb-of-shim i:nth-child(2){width:86%}.pb-of-shim i:nth-child(3){width:64%}.pb-of-shim i:nth-child(4){width:72%}
+/* franja del día: una marca por cada hora (7:00-21:00) para leer cuándo trabajó */
+.dia .b{background-image:repeating-linear-gradient(90deg,transparent 0 calc(100% / 14 - 1px),rgba(255,255,255,.09) calc(100% / 14 - 1px) calc(100% / 14))!important}
+.pb-of-lista .dia .b{height:8px!important}

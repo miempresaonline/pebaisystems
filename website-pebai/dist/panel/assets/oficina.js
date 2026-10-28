@@ -149,6 +149,7 @@ const velAnim = () => (repe ? (repe.pausa ? 0 : repe.vel) : 1);   // ritmo de la
 let repe = null;
 const tsMs = (t) => new Date(String(t).replace(' ', 'T')).getTime();
 function turnosDeHoy(a) {
+  if (Array.isArray(a.franja)) return a.franja.map(([x, y]) => [+x, +y]);   // el servidor la calcula con todo lo del día
   const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
   const ev = (a.actividad || []).filter((e) => tsMs(e.ts) >= hoy.getTime()).sort((x, y) => tsMs(x.ts) - tsMs(y.ts));
   const out = []; let ini = null;

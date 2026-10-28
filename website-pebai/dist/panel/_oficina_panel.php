@@ -725,6 +725,27 @@ function of_estado(PDO $db): array
         }
     }
     unset($a);
+    // Franja de hoy con TODO lo apuntado hoy (no solo los 30 últimos apuntes): los turnos de la mañana no se pierden
+    try {
+        $q = pebai_actividad_db()->prepare("SELECT agente, ts, tipo, resumen FROM agente_actividad WHERE ts >= ? ORDER BY ts");
+        $q->execute([date('Y-m-d 00:00:00')]);
+        $porAg = [];
+        foreach ($q->fetchAll(PDO::FETCH_ASSOC) as $r) {
+            $porAg[$r['agente']][] = $r;
+        }
+        $alias = ['scraper' => ['prospeccion'], 'geo_jefe' => ['geo_jefe', 'geo']];
+        foreach ($ags as &$a) {
+            $ev = [];
+            foreach ($alias[$a['id']] ?? [$a['id']] as $k) {
+                $ev = array_merge($ev, $porAg[$k] ?? []);
+            }
+            usort($ev, static fn($x, $y) => strcmp($x['ts'], $y['ts']));
+            $a['franja'] = of_franja($ev);
+        }
+        unset($a);
+    } catch (Throwable $e) {
+        pebai_log('OFICINA franja: ' . $e->getMessage());
+    }
     // IA de cada agente este mes (ia_gasto). Conversaciones prepara las respuestas de WhatsApp: cuenta en su mesa.
     try {
         require_once dirname(__DIR__) . '/api/_claude_lib.php';
@@ -749,6 +770,42 @@ function of_estado(PDO $db): array
         pebai_log('OFICINA IA uso: ' . $e->getMessage());
     }
     return $ags;
+}
+
+/**
+ * Ratos de trabajo de hoy a partir de sus apuntes: de «Empieza» a «Termina», o un apunte suelto (±90 s);
+ * cada rato dura al menos 10 min (si no, sería un punto invisible) y los separados por menos de 40 min se juntan.
+ * Devuelve [[inicio, fin], …] en milisegundos.
+ */
+function of_franja(array $ev): array
+{
+    $out = [];
+    $ini = null;
+    foreach ($ev as $e) {
+        $t = strtotime($e['ts']) * 1000;
+        if (preg_match('/^Empieza/u', $e['resumen'])) {
+            $ini = $t;
+        } elseif (preg_match('/^Termina/u', $e['resumen']) && $ini !== null) {
+            $out[] = [$ini, max($t, $ini + 60000)];
+            $ini = null;
+        } elseif ($ini === null && $e['tipo'] !== 'espera' && !preg_match('/^Encargo del Jefe/u', $e['resumen'])) {
+            $out[] = [$t - 90000, $t + 90000];
+        }
+    }
+    if ($ini !== null) {
+        $out[] = [$ini, time() * 1000];
+    }
+    $junta = [];
+    foreach ($out as [$x, $y]) {
+        $y = max($y, $x + 600000);
+        $u = count($junta) - 1;
+        if ($u >= 0 && $x - $junta[$u][1] < 2400000) {
+            $junta[$u][1] = max($junta[$u][1], $y);
+        } else {
+            $junta[] = [$x, $y];
+        }
+    }
+    return $junta;
 }
 
 /** Caché pequeña en private/ para lo que escribe Claude en la oficina (explicaciones, parte del día): no se paga dos veces lo mismo. */
