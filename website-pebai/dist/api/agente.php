@@ -110,7 +110,16 @@ switch ($in['accion'] ?? '') {
         $embudo = pebai_telefonos_embudo();
         $p = null;
         // Solo empresas con su mensaje personal ya escrito: nunca se envía una plantilla genérica
-        foreach ($db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND mensaje <> '' AND nicho IN ('solar','dentales','inmobiliarias','reformas') AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY prioridad DESC, RANDOM() LIMIT 50") as $c) {
+        // Reparto por nichos (40 % placas, 30 % reformas, 30 % el resto): primero el grupo que va más por debajo hoy
+        $cands = [];
+        foreach (pebai_reparto_orden(pebai_reparto_hoy()) as $g) {
+            $ns = implode(',', array_map(static fn($n) => $db->quote($n), PEBAI_REPARTO[$g][1]));
+            $cands = $db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND mensaje <> '' AND nicho IN ($ns) AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY prioridad DESC, RANDOM() LIMIT 50")->fetchAll();
+            if ($cands) {
+                break;
+            }
+        }
+        foreach ($cands as $c) {
             if (isset($embudo[$c['telefono']])) {
                 $db->prepare("UPDATE prospectos SET estado = 'descartado', error = 'Ya es solicitud del embudo', updated_at = ? WHERE id = ?")->execute([$now, $c['id']]);
                 pebai_actividad('whatsapp', 'bloqueo', 'No se escribe a ' . ($c['empresa'] ?: $c['telefono']) . ': ya es solicitud del embudo', '', 'wa:' . $c['id']);

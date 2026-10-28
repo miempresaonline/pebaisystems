@@ -152,7 +152,13 @@ function cajaCard(titulo, lista, extra, onOpen, todas) {
   const pie = el('div', 'pie'); pie.append(el('span', null, N(provs.size) + (provs.size === 1 ? ' provincia' : ' provincias')), el('span', null, N(cola) + ' por escribir'), el('span', resp ? 'ok' : null, N(resp) + (resp === 1 ? ' respondió' : ' respondieron')), el('span', null, N(fijos) + ' con fijo'));
   const chips = el('div', 'provs'); [...provs.entries()].sort((a, b) => b[1] - a[1]).slice(0, extra || 4).forEach(([pv, k]) => chips.append(el('span', null, pv + ' · ' + N(k))));
   const cuenta = el('div', 'n'); cuenta.append(el('b', null, N(lista.length)), el('span', null, lista.length === 1 ? 'empresa' : 'empresas'));
-  c.append(top, h, cuenta); c.onclick = onOpen;   // la carpeta con su número; el resto se ve al abrirla
+  // Minigráfica: de las empresas de la carpeta, a cuántas ya se les ha escrito (y cuántas contestaron) y cuántas faltan
+  const escritas = lista.filter((p) => p.enviado_at || ['enviando', 'enviado', 'respondio', 'baja'].includes(p.estado)).length;
+  const tot = Math.max(1, lista.length), pE = escritas / tot * 100, pR = Math.min(escritas, resp) / tot * 100;
+  const mini = el('div', 'mini');
+  mini.innerHTML = `<div class="barra"><i class="esc" style="width:${pE.toFixed(1)}%"></i><i class="res" style="width:${pR.toFixed(1)}%"></i></div>`
+    + `<div class="ley"><span><u class="esc"></u>${N(escritas)} escritas</span><span><u class="sin"></u>${N(lista.length - escritas)} sin escribir</span></div>`;
+  c.append(top, h, cuenta, mini); c.onclick = onOpen;   // la carpeta con su número; el resto se ve al abrirla
   return c;
 }
 function provCard(nombre, lista, onOpen) {

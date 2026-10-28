@@ -507,6 +507,43 @@ function pebai_agentes_vigilar(): void
 }
 
 /** ¿Es un mensaje de contestador automático (bienvenida, ausencia, fuera de horario)? Por sus frases típicas. */
+/** Reparto de los primeros mensajes por nicho (Daniel, 28/10): grupo => [parte del día, nichos]. */
+const PEBAI_REPARTO = [
+    'solar' => [0.40, ['solar']],
+    'reformas' => [0.30, ['reformas']],
+    'resto' => [0.30, ['dentales', 'inmobiliarias', 'climatizacion', 'formacion', 'oposiciones', 'idiomas']],
+];
+
+/**
+ * Grupos de nichos por orden de prioridad para el próximo mensaje: primero el que más se ha quedado por debajo de su parte
+ * (contando lo enviado hoy). $hay: grupo => si tiene algo listo. Si un grupo no tiene nada, se salta y su hueco lo llenan los otros.
+ */
+function pebai_reparto_orden(array $enviadosHoy): array
+{
+    $total = array_sum($enviadosHoy) + 1;
+    $falta = [];
+    foreach (PEBAI_REPARTO as $g => [$parte]) {
+        $falta[$g] = $parte * $total - ($enviadosHoy[$g] ?? 0);
+    }
+    arsort($falta);
+    return array_keys($falta);
+}
+
+/** Enviados hoy por grupo de reparto. */
+function pebai_reparto_hoy(): array
+{
+    $out = [];
+    $q = pebai_agentes_db()->query("SELECT nicho, COUNT(*) n FROM prospectos WHERE enviado_at >= '" . date('Y-m-d') . "' GROUP BY nicho");
+    foreach ($q->fetchAll() as $r) {
+        foreach (PEBAI_REPARTO as $g => [, $nichos]) {
+            if (in_array($r['nicho'], $nichos, true)) {
+                $out[$g] = ($out[$g] ?? 0) + (int)$r['n'];
+            }
+        }
+    }
+    return $out;
+}
+
 function pebai_es_contestador(string $t): bool
 {
     return (bool)preg_match('/gracias por (comunicarte|contactar|escribir|tu mensaje|su mensaje|ponerte en contacto)|en este momento no (podemos|estamos)|'

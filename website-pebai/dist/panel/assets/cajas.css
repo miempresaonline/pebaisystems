@@ -112,3 +112,13 @@
 .pb-caja.todas{background:linear-gradient(180deg,color-mix(in srgb,var(--violet) 14%,var(--panel-2)),var(--panel));border-style:solid;border-color:color-mix(in srgb,var(--violet-2) 35%,var(--line))}
 .pb-caja.todas::before{border-style:solid;border-color:color-mix(in srgb,var(--violet-2) 35%,var(--line));background:color-mix(in srgb,var(--violet) 14%,var(--panel-2))}
 .pb-caja.todas .ic{background:color-mix(in srgb,var(--violet) 22%,transparent);color:var(--violet-2)}
+/* minigráfica de cada carpeta: escritas (verde), de ellas respondieron (lima) y sin escribir (gris) */
+.pb-caja .mini{margin-top:12px;width:100%}
+.pb-caja .mini .barra{position:relative;height:6px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
+.pb-caja .mini .barra i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;transition:width .9s cubic-bezier(.16,1,.3,1)}
+.pb-caja .mini .barra i.esc{background:#6A5CFF}
+.pb-caja .mini .barra i.res{background:#B7FF3C}
+.pb-caja .mini .ley{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+.pb-caja .mini .ley span{display:inline-flex;align-items:center;gap:5px}
+.pb-caja .mini .ley u{width:7px;height:7px;border-radius:2px;display:inline-block}
+.pb-caja .mini .ley u.esc{background:#6A5CFF}.pb-caja .mini .ley u.sin{background:rgba(255,255,255,.18)}

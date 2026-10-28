@@ -385,7 +385,7 @@ function of_cerebro(): array
     }
     try {
         $nomV = ['asistente' => 'Asistente', 'geo' => 'Visibilidad en IA', 'app' => 'App'];
-        $nomN = ['solar' => 'placas', 'dentales' => 'dentales', 'inmobiliarias' => 'inmobiliarias', 'reformas' => 'reformas'];
+        $nomN = ['solar' => 'placas', 'dentales' => 'dentales', 'inmobiliarias' => 'inmobiliarias', 'reformas' => 'reformas', 'climatizacion' => 'climatización', 'formacion' => 'formación', 'oposiciones' => 'oposiciones', 'idiomas' => 'idiomas'];
         foreach (pebai_lab_resultados() as $k => $o) {
             [$v, $n] = explode('|', $k) + ['', ''];
             $a['datos'][] = ['Laboratorio · ' . ($nomV[$v] ?? $v) . ' · ' . ($nomN[$n] ?? $n), $o['enviados'] . ' enviados · ' . $o['personas'] . ' personas contestan (' . ($o['enviados'] ? round($o['personas'] / $o['enviados'] * 100) : 0) . ' %) · ' . $o['interes'] . ' con interés'];

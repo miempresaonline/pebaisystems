@@ -229,6 +229,18 @@ const PEBAI_LAB_NICHOS = [
     'inmobiliarias' => ['sector' => 'inmobiliarias', 'quien' => 'una inmobiliaria',
                         'app' => 'recibir avisos de pisos nuevos que encajan con lo que buscan, pedir visita y seguir su compra o alquiler',
                         'asistente' => 'contestar al momento cada consulta de compradores e inquilinos, filtrar a los interesados y agendar las visitas'],
+    'climatizacion' => ['sector' => 'empresas de climatización', 'quien' => 'una empresa de climatización y aire acondicionado',
+                        'app' => 'pedir presupuesto, programar el mantenimiento de sus equipos y recibir avisos de revisión',
+                        'asistente' => 'contestar al momento a quien pide presupuesto o una reparación urgente y agendar la visita del técnico'],
+    'formacion' => ['sector' => 'centros de formación', 'quien' => 'un centro de formación',
+                    'app' => 'inscribirse en cursos, ver horarios, materiales y avisos de clase',
+                    'asistente' => 'contestar al momento a quien pregunta por cursos, precios o plazas y apuntarle'],
+    'oposiciones' => ['sector' => 'academias de oposiciones', 'quien' => 'una academia de oposiciones',
+                      'app' => 'seguir el temario, hacer test, ver su progreso y recibir avisos de convocatorias',
+                      'asistente' => 'contestar al momento a quien pregunta por grupos, horarios o matrícula y apuntarle'],
+    'idiomas' => ['sector' => 'academias de idiomas', 'quien' => 'una academia de idiomas',
+                  'app' => 'reservar clases, ver su nivel y sus deberes y recibir avisos',
+                  'asistente' => 'contestar al momento a quien pregunta por cursos, niveles o precios y darle una prueba de nivel'],
     'reformas' => ['sector' => 'empresas de reformas integrales', 'quien' => 'una empresa de reformas',
                    'app' => 'pedir presupuesto con fotos y medidas, ver el avance de su obra y hablar con el equipo',
                    'asistente' => 'contestar al momento a quien pide presupuesto, pedirle fotos y medidas y dar cita para la visita'],
@@ -247,19 +259,43 @@ function pebai_lab_preparar(int $max = 1): int
 {
     require_once __DIR__ . '/_demos_lib.php';
     $db = pebai_agentes_db();
-    $hoy = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE plantilla IN ('lab-geo','lab-app') AND updated_at >= '" . date('Y-m-d') . "' AND mensaje <> ''")->fetchColumn();
+    $hoy = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE plantilla IN ('lab-geo','lab-app','lab-asistente') AND updated_at >= '" . date('Y-m-d') . "' AND mensaje <> ''")->fetchColumn();
     if ($hoy >= PEBAI_LAB_DIA) {
         return 0;
     }
     $hechos = 0;
-    // Se van alternando los nichos (al azar), para que todos tengan datos pronto
-    $cola = $db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND mensaje = '' AND web <> '' AND plantilla = ''
-                        AND ((nicho = 'solar' AND id % 3 <> 0) OR (nicho IN ('dentales','inmobiliarias','reformas') AND error LIKE '[revisado]%'))
-                        AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY RANDOM() LIMIT " . (int)$max)->fetchAll();
+    // Mismo reparto que el envío: escribe para el grupo que tiene menos mensajes listos en proporción a su parte.
+    // Nichos nuevos: solo empresas revisadas por el Redactor ([revisado]) o, en los que él no revisa, Cerebro comprueba que encajan.
+    $listos = [];
+    foreach (PEBAI_REPARTO as $g => [$parte, $nichos]) {
+        $ns = implode(',', array_map(static fn($n) => $db->quote($n), $nichos));
+        $listos[$g] = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE estado = 'pendiente' AND mensaje <> '' AND nicho IN ($ns)")->fetchColumn() / $parte;
+    }
+    asort($listos);
+    $cola = [];
+    foreach (array_keys($listos) as $g) {
+        $ns = implode(',', array_map(static fn($n) => $db->quote($n), PEBAI_REPARTO[$g][1]));
+        $cola = $db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND mensaje = '' AND web <> '' AND plantilla = '' AND nicho IN ($ns)
+                            AND ((nicho = 'solar' AND id % 3 <> 0) OR nicho IN ('climatizacion','formacion','oposiciones','idiomas') OR error LIKE '[revisado]%')
+                            AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY RANDOM() LIMIT " . (int)$max)->fetchAll();
+        if ($cola) {
+            break;
+        }
+    }
     foreach ($cola as $p) {
         $web = preg_match('~^https?://~', (string)$p['web']) ? (string)$p['web'] : 'https://' . ltrim((string)$p['web'], '/');
         $w = pebai_web_texto($web);
         $N = PEBAI_LAB_NICHOS[$p['nicho']] ?? PEBAI_LAB_NICHOS['solar'];
+        // Nichos sin revisión del Redactor: Cerebro mira su web y solo sigue si es una empresa independiente, activa y con equipo
+        if (in_array($p['nicho'], ['climatizacion', 'formacion', 'oposiciones', 'idiomas'], true)) {
+            $enc = $w ? pebai_claude_json('cerebro', 'claude-haiku-5-5', 'Decides si una empresa española encaja como cliente de PEBAI Systems (asistentes de IA, visibilidad en IA y apps para pymes). Responde SOLO JSON {"encaja": true/false, "motivo": "una frase"}.',
+                "Encaja si es " . $N['quien'] . " independiente (no franquicia ni cadena), activa, con equipo y que recibe consultas de clientes. No encaja si es un autónomo solo, una web abandonada, una tienda o un distribuidor, o de otro país.\nEMPRESA: {$p['empresa']}\nWEB:\n" . mb_substr($w['texto'], 0, 2500),
+                ['effort' => 'low', 'max_tokens' => 800]) : null;
+            if (!is_array($enc) || empty($enc['encaja'])) {
+                $db->prepare("UPDATE prospectos SET plantilla = 'lab-no', error = ? WHERE id = ? AND mensaje = ''")->execute(['[no encaja] ' . mb_substr((string)($enc['motivo'] ?? 'sin web legible'), 0, 200), $p['id']]);
+                continue;
+            }
+        }
         $variante = ['asistente', 'geo', 'app'][(int)$p['id'] % 3];
         if ($p['nicho'] === 'solar' && $variante === 'asistente') {
             $variante = 'app';   // en solar el asistente lo sigue escribiendo el Redactor
