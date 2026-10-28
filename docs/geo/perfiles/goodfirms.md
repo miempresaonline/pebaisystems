@@ -42,3 +42,5 @@ Enviado el 28/10/2026 (4 pasos completos), pendiente de revisión de GoodFirms.
 - El paso 1 no avanzaba porque exigía al menos una herramienta de IA con su uso: Claude (agentes y software) y Gemini (respuestas instantáneas en asistentes).
 - Hecho: logo 02 Glow, frase, descripción, 2026, 2-9, tarifa NA, contacto, redes, 3 razones; sede en València (Plaza del Ayuntamiento, 46002; la exige); servicios AI 50 % (agentes, voz, consultoría, integración) y Software Development 50 % (API, modernización); clientes 75 % pequeña y 25 % mediana; sectores Automotive 34 %, Industrial 33 % y Other 33 %; clientes clave: Fran García Cars, Construcciones Gargom y Suministros Santacruz (El Amparo no se pone).
 - Falta: portfolio (se desbloquea cuando aprueben el perfil) y la URL pública. No se piden reseñas.
+
+- 28/10/2026 (noche): Daniel aprobó en el chat GEO quitar la calle (no es nuestra dirección). Probado: el formulario no deja guardar sin calle («Street» obligatorio), así que sigue la de antes hasta que se decida qué hacer (no se pone otra inventada).

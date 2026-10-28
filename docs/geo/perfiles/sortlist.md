@@ -77,3 +77,5 @@ Publicado el 28/10/2026: https://www.sortlist.es/agency/pebai-systems
 
 28/10/2026 (revisión 100 %): calidad 70 %. Hecho todo lo que depende de datos reales (4 trabajos). Lo que falta: verificar el teléfono por SMS (Daniel), 10 trabajos (no hay tantos casos), reseñas y Trusted Partner. La reseña real de Google (Álvaro Lázaro, Fran García Cars) se puede añadir en Perfil › Reseñas › «Añadir reseña existente», pero Sortlist le escribe a él para confirmarla: necesita su email y el OK de Daniel.
 - 28/10/2026: enviada (con OK de Daniel) la reseña real de Google de Álvaro Lázaro, cofundador de Fran García Cars, 5 estrellas, servicio IA. Sortlist le manda un email para confirmarla; hasta entonces no se ve en el panel.
+
+- 28/10/2026 (noche): la oficina sigue como «Plaça de l'Ajuntament, València». Sortlist solo acepta una dirección exacta o el perfil de Google Business (no encuentra el nuestro). Alternativa: borrar la oficina y marcar «Trabajo en remoto»; pendiente de decidir.

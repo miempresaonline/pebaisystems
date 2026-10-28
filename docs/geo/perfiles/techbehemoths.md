@@ -12,3 +12,5 @@ Empresa verificada el 28/10/2026 (insignia azul) con el enlace del pie de la por
 - URL en el sameAs y en los llms (28/10).
 - Reseñas: no se piden.
 - 28/10/2026: pedida la importación de la reseña real de Google (Álvaro Lázaro, Fran García Cars, 5 estrellas) desde la ficha de Google Maps; la revisa su equipo. EXO Score 45 antes de la reseña.
+
+- 28/10/2026 (noche): Daniel aprobó en el chat GEO quitar la calle (no es nuestra dirección). Probado: el formulario no deja guardar sin calle ni sin código postal, así que sigue la de antes hasta que se decida qué hacer (no se pone otra inventada).
