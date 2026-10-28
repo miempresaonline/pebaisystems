@@ -200,3 +200,7 @@ WebPage + BreadcrumbList (Inicio › IA para empresas › Formación) + Article 
 - EUR-Lex sigue sin leerse desde la nube: art. 4 parafraseado con Cuatrecasas, Garrigues y Lefebvre.
 - Añadido: H3 art. 4 frente a art. 26, «obligación de medios», supervisión desde agosto de 2026, caso Fran García Cars (paso a persona).
 - 301 de los 3 slugs: encargadas a Técnico en el tablón.
+
+## Nota del Vigía 28/10 mediodía (FUNDAE, para que Refresco la añada como FAQ)
+- Verificado en el BOE (Ley 30/2015, art. 9; https://www.boe.es/buscar/act.php?id=BOE-A-2015-9734, consultado 28/10/2026): la formación programada por la empresa solo debe guardar relación con su actividad; el crédito anual se aplica con bonificaciones en las cotizaciones; las empresas de menos de 50 personas pueden acumularlo hasta dos ejercicios; cofinanciación de la empresa 0 % (1-5), 5 % (6-9), 10 % (10-49), 20 % (50-249), 40 % (250 o más); acciones de al menos 2 horas.
+- Respuesta sugerida para la FAQ: sí se puede bonificar formación en IA con el crédito de formación si se relaciona con la actividad de la empresa; el importe depende del crédito y de la modalidad. Sin importes por hora (solo en blogs comerciales, sin verificar en fundae.es, que dio 503).
