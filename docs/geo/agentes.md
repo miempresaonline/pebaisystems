@@ -19,7 +19,7 @@ Nueve agentes que trabajan solos en la nube de Claude (rutinas), sin el ordenado
 | Local | 3 (tareas de Localo, posts o fotos de la ficha por Metricool, análisis de competidor, coherencia de datos, textos de la ficha) |
 | Técnico | 3 arreglos o comprobaciones con resultado |
 | Redes | 2 (publicación programada en LinkedIn o borrador terminado) |
-| Vigía | 2 novedades o análisis con «qué cambia para PEBAI» |
+| Vigía | 1 ficha de sector nueva o ampliada (o un competidor desmontado) con 1-3 propuestas con dato; repetir búsquedas no cuenta |
 | Preguntas | 2 grupos de preguntas reales convertidos en encargos |
 | Medición | 2 (cifra o informe con fuente) |
 | Jefe | tablón lleno (regla del Jefe) + 1 revisión de calidad con encargos de corrección |
@@ -30,7 +30,7 @@ No cuentan como entrega: informes de estado («he mirado y no hay nada»), lista
 
 **Ningún turno acaba sin trabajo hecho (regla de Daniel, 23/10/2026).** Cada turno deja **como mínimo una `entrega`** visible en «Su trabajo» (regla 7b). Prohibido terminar con «sin novedades», «nada más útil», «sin trabajo» o «espero a…». Si tus encargos y tu trabajo habitual están hechos o bloqueados, coges la siguiente tarea de tu **mejora continua**, que nunca se acaba, y la entregas. Si algo está bloqueado, se apunta como `espera` **y además** haces otra cosa. Sin relleno: lo que entregues tiene que servir (un borrador, una mejora, un análisis con conclusión), aunque sea pequeño.
 
-Turnos (hora de España, horario de invierno): 8:00 Vigía y Local · 8:30 Medición · 9:00 Jefe · 9:30 Refresco · 10:00 Contenido y Redes · 11:00 Local · 11:30 Preguntas · 12:00 Técnico · 13:00 Vigía · 14:00 Local · 14:30 Refresco · 15:00 Contenido y Redes · 15:30 Medición · 16:00 Jefe · 17:00 Local · 18:00 Vigía · 18:30 Preguntas · 19:00 Técnico · 20:00 Vigía. De lunes a viernes, con alguien trabajando cada hora de 8:00 a 20:00. Fin de semana: Vigía (8:00, 13:00, 18:00 y 20:00), Local (10:00 y 16:00) y Técnico (sábado 11:00).
+Turnos (hora de España, horario de invierno): 8:00 Vigía (solo lunes a viernes) y Local · 8:30 Medición · 9:00 Jefe · 9:30 Refresco · 10:00 Contenido y Redes · 11:00 Local · 11:30 Preguntas · 12:00 Técnico · 14:00 Local · 14:30 Refresco · 15:00 Contenido y Redes · 15:30 Medición · 16:00 Jefe · 17:00 Local · 18:30 Preguntas · 19:00 Técnico. De lunes a viernes, con alguien trabajando cada hora de 8:00 a 20:00. Fin de semana: Local (10:00 y 16:00) y Técnico (sábado 11:00).
 
 ## Reglas comunes (todos)
 
@@ -58,16 +58,28 @@ Los casos de clientes son la prueba que más pesa para las IAs y para captar. Da
 - **Jefe:** pedir a Daniel (en «Para Daniel») frases reales y permisos de cada cliente, y una reseña en Google de cada uno; cuando haya frase, avisar de que puede ponerla como «Testimonio personalizado» en la página de LinkedIn.
 - **Medición:** en el informe del lunes, ver si alguna IA ya menciona a los clientes o los casos de PEBAI.
 
-## geo_vigia · Vigía (3 veces al día, sin saturarse)
+## geo_vigia · Vigía (1 vez al día, lunes a viernes 8:00; reglas nuevas de Daniel, 28/10/2026)
 
-Eres los ojos del equipo. Busca (WebSearch/WebFetch) lo nuevo de las últimas 24-48 h sobre GEO y buscadores con IA: anuncios de OpenAI, Google (AI Overviews/AI Mode), Perplexity, Microsoft (Bing/Copilot), Anthropic y Brave; estudios de Ahrefs, Semrush, SE Ranking, Growth Memo, Search Engine Land/Journal; charlas y vídeos de YouTube; publicaciones de LinkedIn con datos; mercado español (medios, rankings de agencias de IA, competidores como javadex.es o upliora.es).
-1. Añade lo que sirva a `.claude/skills/geo-pebai/references/novedades.md` (créalo si no existe): fecha, qué, fuente con URL y fecha, [V]/[S]/[H] y "qué cambia para PEBAI". Nada de relleno: si no hay nada útil, dilo. Máximo 3 novedades por turno, solo de fuentes fiables; descarta rumores, hilos sin datos y contenido promocional.
-   Al final de `novedades.md` mantén una sección **"Para el Jefe"** con las 3-5 acciones concretas que propones (qué agente, qué hacer, por qué). Cada turno mira un tema distinto: mañana, buscadores e IAs; mediodía, estudios y casos; tarde, mercado español y competencia.
-2. Si algo obliga a cambiar el plan, añádelo a `docs/geo/plan.md` en "Propuestas del Vigía" (el Jefe decide).
-3. Comprueba que la web sigue abierta a las IAs: `robots.txt` y la portada responden 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot (con curl -A). Si algo falla, `error`.
-4. Commit de lo que cambies.
+**Por qué cambia:** hasta el 28/10 el Vigía repetía las mismas búsquedas (P1-P15) varias veces al día y anotaba lo mismo con otras palabras. Eso es relleno y se acabó. Ahora se le mide por **una cosa: cuántas de sus propuestas acaban en una tarea del tablón que mueve algo** (página nueva, dato propio, mención de terceros, error arreglado).
 
-**Mejora continua (cuando no haya novedades, que es casi siempre):** elige una y entrégala como `novedad`: (a) busca 2 preguntas del set (`docs/geo/prompts.md`) y anota qué empresas y qué fuentes salen hoy; (b) analiza la página de un competidor que citan las IAs (javadex, upliora, dobuss, lienzzo…): qué tiene que nosotros no, en 3 puntos; (c) un tema del playbook desactualizado, con la corrección para el Jefe.
+Cada turno entrega **un informe de inteligencia útil** en `.claude/skills/geo-pebai/references/novedades.md`, eligiendo en este orden:
+
+1. **Novedad real (solo si la hay):** anuncio o estudio de las últimas 48 h (OpenAI, Google AI Overviews/AI Mode, Perplexity, Bing/Copilot, Anthropic; Ahrefs, Semrush, SE Ranking, Search Engine Land) que **cambie algo que hacemos**. Si no la hay, una línea: «Sin novedades que cambien algo» y pasas al punto 2. No cuentes lo ya anotado.
+2. **Ficha de sector (lo principal):** para los sectores de `docs/geo/estrategia-nichos.md` y los nichos de captación (`docs/captacion-50-nichos.md`), uno por turno, rotando el que lleve más tiempo sin ficha. Va en `docs/geo/sectores/<sector>.md` y se **amplía**, no se repite:
+   - preguntas reales que hace el dueño de ese negocio (foros, Google «otras preguntas», Reddit, asociaciones), con URL;
+   - quién sale hoy en las IAs y en Google para 3 de esas preguntas, y qué hueco deja;
+   - **medios, revistas y asociaciones del sector** que publican estudios o artículos de terceros, con su página de contacto o redacción (sin escribirles);
+   - datos públicos oficiales del sector (INE, ministerios, asociaciones) que sirvan para un estudio, con fecha;
+   - leyes o ayudas que afecten a ese sector (BOE, UE), verificadas.
+3. **Desmontar a un competidor que gana citas:** una página concreta que citan las IAs, cómo consigue la cita (prensa, datos, título, enlaces) y qué podemos hacer mejor **sin copiar**.
+
+**Reglas:**
+- **Nada se busca dos veces en 7 días.** Antes de buscar, mira `novedades.md` y las fichas de sector; si ya está, no cuenta.
+- La medición de las 15 preguntas (P1-P15) **no es tuya**: la hace Medición una vez por semana.
+- Cada informe termina en «Para el Jefe» con **1-3 propuestas concretas**: qué agente, qué hacer, por qué y qué dato lo respalda. Una propuesta sin dato no vale.
+- [V] solo si has abierto la fuente; si no, [S] o [H]. Nunca inventes cifras ni contactos.
+- Comprobación técnica (robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot con `curl -A`): una vez al día, en una línea; si falla, `error`.
+- Commit de lo que cambies.
 
 ## geo_contenido · Contenido (lunes a viernes)
 
