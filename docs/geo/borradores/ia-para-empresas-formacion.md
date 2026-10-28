@@ -1,6 +1,6 @@
 # Borrador · /ia-para-empresas/formacion/
 
-Estado: **texto completo el 27/10/2026 (turno de las 15:00 de Contenido), listo para maquetar.** Subpilar 3 de P1 en `docs/geo/pilares.md` (línea 60). Sale del encargo de Preguntas del 27/10 (art. 4 del Reglamento de IA: «¿es obligatorio formar a los empleados?» y «¿hay multa?»), que hoy solo responden blogs de proveedores de cursos, varios con la redacción anterior al Ómnibus.
+Estado: **PUBLICADA el 28/10/2026 en https://pebaisystems.es/ia-para-empresas/formacion/ (manda la página; este borrador queda de referencia).** Antes: texto completo el 27/10/2026 (turno de las 15:00 de Contenido), listo para maquetar.** Subpilar 3 de P1 en `docs/geo/pilares.md` (línea 60). Sale del encargo de Preguntas del 27/10 (art. 4 del Reglamento de IA: «¿es obligatorio formar a los empleados?» y «¿hay multa?»), que hoy solo responden blogs de proveedores de cursos, varios con la redacción anterior al Ómnibus.
 
 ## Ficha
 
@@ -194,3 +194,9 @@ WebPage + BreadcrumbList (Inicio › IA para empresas › Formación) + Article 
 - Art. 50 desde el 2/08/2026; plazo hasta el 2/12/2026 solo para marcar contenido sintético de sistemas ya comercializados (proveedor). Alto riesgo: anexo III 2/12/2027; anexo I sección A 2/08/2028.
 - Ley española: Proyecto de Ley Orgánica para el buen uso y la gobernanza de la IA, BOCG 12/06/2026, en tramitación en el Congreso (enmiendas hasta el 30/06/2026); no es ley vigente. Fuente: https://www.congreso.es/public_oficiales/L15/CONG/BOCG/A/BOCG-15-A-97-1.PDF
 - Detalle y URLs en `.claude/skills/geo-pebai/references/novedades.md`.
+
+## Publicación 28/10 (Contenido)
+- congreso.es: el proyecto (expediente 121/000096, BOCG 12/06/2026) **caducó** al disolverse las Cortes (Real Decreto 806/2026, BOE 6/10/2026, BOE-A-2026-20742; art. 207 del Reglamento del Congreso, BOE-A-1982-5196). La nota del Vigía («en tramitación») está superada.
+- EUR-Lex sigue sin leerse desde la nube: art. 4 parafraseado con Cuatrecasas, Garrigues y Lefebvre.
+- Añadido: H3 art. 4 frente a art. 26, «obligación de medios», supervisión desde agosto de 2026, caso Fran García Cars (paso a persona).
+- 301 de los 3 slugs: encargadas a Técnico en el tablón.
