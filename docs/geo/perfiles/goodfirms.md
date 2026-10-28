@@ -38,4 +38,7 @@ Fuentes: [GoodFirms, por qué GoodFirms](https://www.goodfirms.co/why-goodfirms)
 
 ## Estado
 
-28/10/2026: cuenta creada (Chrome de Daniel). Paso 1 relleno (nombre, frase, logo, 2026, 2-9, tarifa NA, web, teléfono, email, redes, descripción, 3 razones), pero "Save & Next" no avanza y no muestra error. Pendiente de revisar con Daniel.
+Enviado el 28/10/2026 (4 pasos completos), pendiente de revisión de GoodFirms.
+- El paso 1 no avanzaba porque exigía al menos una herramienta de IA con su uso: Claude (agentes y software) y Gemini (respuestas instantáneas en asistentes).
+- Hecho: logo 02 Glow, frase, descripción, 2026, 2-9, tarifa NA, contacto, redes, 3 razones; sede en València (Plaza del Ayuntamiento, 46002; la exige); servicios AI 50 % (agentes, voz, consultoría, integración) y Software Development 50 % (API, modernización); clientes 75 % pequeña y 25 % mediana; sectores Automotive, Healthcare, Industrial y Other (25 % cada uno); clientes clave: los 4 casos.
+- Falta: portfolio (presupuesto y duración de cada caso) y la URL pública cuando lo aprueben. No se piden reseñas.
