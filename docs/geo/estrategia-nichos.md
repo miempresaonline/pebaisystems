@@ -88,6 +88,5 @@ Un pack cada 2 semanas: 6 nichos en unos 3 meses.
 
 ## 8. Pendiente
 
-- Métodos de la empresa del padre de Daniel (agente digitalizador del Kit Digital, Meta Ads): faltan los archivos para incorporarlos.
 - Recuentos reales por nicho del buscador (están en el panel del servidor).
 - OK de Daniel: correos a medios por estudio y publicación de estadísticas agregadas.
