@@ -94,3 +94,39 @@ Estado: **R** respondida en una página publicada · **P** parcial · **H** huec
 - **Local** (2): demanda en Córdoba y Murcia; sin página por decisión.
 - **Más repetidas:** coste (en 3 fuentes), aviso de IA (WhatsApp, voz y chatbot) y salida a una persona (WhatsApp, voz, automatización). Esa salida a una persona es el mejor hilo común: merece una sección fija con el mismo título en las tres guías.
 - **Propuesta al Jefe, orden por preguntas respondidas:** 1) cuanto-cuesta (9 huecos), 2) formación (9), 3) voz (9), 4) /sobre-pebai/ (3 y señal de entidad). No hay hueco que justifique página nueva fuera de estas cuatro.
+
+## Turno 28/10 mañana (presupuestos, chatbot web, soporte de nivel 1, URLs viejas)
+Fuentes: Search Console 28 días cruzado página × consulta (28/10) y búsquedas web del 28/10 (blogs de proveedores y guías; sus cifras son de parte y no se usan). Reddit y foros no devolvieron hilos.
+
+### Responder presupuestos más rápido (P13)
+2026-10-28 · ¿Cuántos presupuestos al mes hacen falta para que merezca la pena automatizarlos? · búsqueda web (Javadex da «más de 15 al mes» como umbral orientativo; proveedor, no estudio) · satélite de presupuestos bajo /automatizacion-de-procesos/ · no · H2 «¿Merece la pena en mi empresa?»: depende de cuántos haces y cuánto tarda cada uno; no dar umbral numérico
+2026-10-28 · ¿Se puede generar un presupuesto automático a partir de lo que me escribe el cliente por WhatsApp o email? · búsqueda web (guías: partir de una ficha de cliente con los datos recogidos) · satélite P13 · no · H2 con el flujo: recoger datos, ordenar el encargo, borrador para revisar
+2026-10-28 · ¿Debe enviarse el presupuesto sin que lo revise una persona? · búsqueda web (guías coinciden: borrador que revisa una persona al principio) · satélite P13 · no · H2 «Quién revisa»: la IA prepara, una persona aprueba, sobre todo en precios y condiciones
+2026-10-28 · ¿Qué hago con los presupuestos que el cliente no contesta? · búsqueda web (seguimiento automático a presupuestos sin respuesta, blog de IA para pymes) · satélite P13 · no · FAQ: recordatorio automático a los días, con salida a una persona si responde
+2026-10-28 · ¿Por dónde empiezo: la captura de datos o el presupuesto entero? · búsqueda web (Javadex: primero la captura de datos y el brief, luego el presupuesto) · satélite P13 · no · H2 de primer paso: estructurar la petición del cliente antes de automatizar el cálculo
+2026-10-28 · ¿Funciona con mi programa de facturación o mi Excel de tarifas? · búsqueda web (la integración es la barrera) y GSC (7 impresiones del 28/10 a la antigua página de A3ERP, posición 8) · satélite P13 y /automatizacion-de-procesos/ · parcial (hay un bloque de integración) · FAQ: se conecta a lo que ya usas; verificar cada integración antes de prometerla
+Encargo a Contenido (esquema de H2): 1) Cuánto tardas hoy y dónde se pierde el tiempo, 2) Qué se automatiza y qué revisa una persona, 3) El flujo en 4 pasos (petición, datos, borrador, revisión), 4) ¿Merece la pena en mi empresa?, 5) Seguimiento de los que no responden, 6) Con qué programas se conecta. Sin cifras ni precios.
+
+### URLs viejas con 301 (Search Console 28 días, página × consulta)
+Hallazgo: casi todas las impresiones de esas URLs son la consulta de marca «pebai» (madrid: 6 de 24, con 1 clic; murcia: 4 de 8; voz frente a call center: 2 de 10, con 1 clic). La demanda real por tema es mínima.
+2026-10-28 · «agente de voz con ia para empresas» (4 imp., pos. 75,5) y «agentes de voz ia telefonicos empresas» (2, pos. 94,5) · Search Console, página /agentes-de-voz-ia-telefonicos-empresas/ · /agentes-ia/voz/ (P11) · no · van al borrador de voz (encargo ya en Contenido); sin acción extra
+2026-10-28 · «agentes de voz ia vs call center subcontratado» (10 imp., pos. 7,7, 1 clic): la consulta exacta no consta, solo «pebai» (2 imp.) · Search Console · /agentes-ia/voz/ · no · la pregunta «¿sustituye a un call center?» ya está en «Voz (P11)»; mantener en el borrador
+2026-10-28 · «necesito una auditoría de marca en ia en madrid que sea confiable» (1 imp., pos. 3) · Search Console, página /agencia-inteligencia-artificial-empresas-madrid/ · /posicionamiento-en-ia/ · parcial (encargo a Refresco del 27/10) · sin acción nueva
+2026-10-28 · «agencia ia cordoba» (2, pos. 75,5) y «agencia de ia murcia» (1, pos. 69) · Search Console · sin página (decisión: sin páginas de ciudad) · no · propuesta al Jefe en «Para el Jefe»: la demanda local es de 3 impresiones en 28 días; mantener los 301 a la portada, sin página
+(Las de ciudad con solo «pebai» como consulta no son demanda del tema: son personas que ya nos buscaban por nombre.)
+
+### Contratar un chatbot para la web
+2026-10-28 · ¿Cuánto tarda en estar listo un chatbot para mi web? · búsqueda web (plazos de 1 semana a varios meses según integraciones y pruebas; proveedores, sin estudio) · /agentes-ia/#web · parcial (bloque de chat con documentos, sin plazos) · FAQ sin cifras: depende de cuántos documentos y sistemas se conectan; se mide en pruebas con preguntas reales antes de abrirlo
+2026-10-28 · ¿Qué tengo que preparar antes de contratarlo? · búsqueda web (propósito, a quién atiende, servicios y preguntas frecuentes, plataforma de la web) · /agentes-ia/ · parcial (hay pasos de implantación) · FAQ o lista: las 5-10 preguntas que más recibes, tus servicios y condiciones, dónde está tu web
+2026-10-28 · ¿Cuota mensual o costes de API aparte? · búsqueda web (pregunta típica al proveedor) · /agentes-ia/ y P8 · parcial (coste de Meta en WhatsApp) · una frase en «Cuánto cuesta»: pedir por escrito qué incluye la cuota y qué paga el consumo del modelo
+2026-10-28 · ¿Puede captar el correo y el teléfono de quien pregunta? · búsqueda web · /agentes-ia/#web · no · FAQ: sí, con aviso y consentimiento (RGPD); enlace a la parte de ley
+2026-10-28 · ¿Funciona en mi web (WordPress, Wix, Shopify)? · búsqueda web (compatibilidad con la plataforma) · /agentes-ia/#web · no · FAQ: normalmente basta pegar un fragmento de código; se confirma en la consultoría
+2026-10-28 · ¿Qué pasa si falla o dice algo incorrecto tras el lanzamiento? · búsqueda web (pregunta al proveedor sobre soporte y mantenimiento) · /agentes-ia/#errores · sí (H2 «Qué pasa si el agente se equivoca») · sin acción
+2026-10-28 · ¿Chat en la web o WhatsApp, cuál me conviene? · búsqueda web · /agentes-ia/ · parcial · FAQ corta: depende de dónde te escriben hoy tus clientes; WhatsApp si ya lo usan; ambos pueden compartir las mismas respuestas
+
+### Agente de IA para soporte de primer nivel
+2026-10-28 · ¿Qué consultas resuelve solo un agente de nivel 1? · búsqueda web (restablecer contraseñas, errores comunes, preguntas del centro de ayuda; proveedores) · /agentes-ia/ · parcial (FAQ de soporte publicada el 27/10) · sin acción; vigilar posición 14
+2026-10-28 · ¿Cuándo pasa el caso a una persona? · búsqueda web (el cliente la pide, baja confianza, enfado, facturación o reembolsos, asuntos legales o de seguridad; Eesel, Zendesk) · /agentes-ia/ · parcial · añadir a la FAQ de soporte esos disparadores de derivación
+2026-10-28 · ¿Debe un agente hacer acciones que no se pueden deshacer, como un reembolso? · búsqueda web (guías: lo irreversible siempre lo confirma una persona) · /agentes-ia/ y /automatizacion-de-procesos/ · no · una frase en el H2 «Qué pasa si el agente se equivoca»
+2026-10-28 · ¿Qué recibe la persona cuando el agente le pasa un caso? · búsqueda web (Zendesk: contexto completo para no repetir) · /agentes-ia/ · parcial · una frase: resumen de la conversación y del problema al traspasar
+2026-10-28 · ¿Cómo sé si el agente de soporte funciona bien? · búsqueda web (guías de proveedores; cifras de parte, no usar) · /agentes-ia/ · no · FAQ: qué se mide (casos resueltos sin persona, traspasos, quejas), sin cifras prometidas

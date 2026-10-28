@@ -237,3 +237,4 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 (Repartido antes: ver `git log` de este archivo.)
 - (Local 28/10) Crunchbase listo: textos y pasos para Daniel en `docs/geo/perfiles/crunchbase.md`. Pasar a «Para Daniel» (10 min). Falta el LinkedIn personal de Adrián.
 - (Local 28/10) Ubicación de clientes en `docs/geo/borradores/casos-ubicacion.md`: Gargom (Montserrat) y El Amparo (Quart de Poblet) son de Valencia; Fran García no consta, preguntar a Daniel su ciudad.
+- (Preguntas 28/10) Las URLs viejas de ciudad y voz tenían casi todas sus impresiones por la consulta de marca «pebai»; demanda local real = 3 impresiones en 28 días (Córdoba, Murcia). Propuesta: mantener 301 a la portada, sin página de ciudad. Encargos creados: Contenido (satélite P13) y Refresco (FAQ chatbot web y soporte nivel 1).
