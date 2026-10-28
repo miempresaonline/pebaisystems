@@ -317,6 +317,38 @@ function of_scraper(): array
     return $a;
 }
 
+/** Demos: prepara la página de cada empresa que responde (api/_demos_lib.php): radiografía en IA, su asistente y su app. */
+function of_demos(): array
+{
+    require_once dirname(__DIR__) . '/api/_demos_lib.php';
+    $a = of_agente(['id' => 'demos', 'dept' => 'captacion', 'nombre' => 'Demos', 'glifo' => 'flow', 'rol' => 'Prepara la página de cada empresa que responde: si la IA la recomienda, su asistente y su app', 'unidad' => 'demos hechas']);
+    $a['actividad'] = of_actividad('demos', 30);
+    $a['errores'] = of_errores($a['actividad']);
+    $db = pebai_demos_db();
+    $r = $db->query("SELECT COUNT(*) n, SUM(visitas > 0) vistas, SUM(chats) chats, AVG(usd) usd FROM demos")->fetch();
+    $a['hoy'] = (int)$db->query("SELECT COUNT(*) FROM demos WHERE creada >= '" . date('Y-m-d') . "'")->fetchColumn();
+    $ult = $a['actividad'][0] ?? null;
+    $reciente = $ult && strtotime($ult['ts']) > time() - 1200;
+    $a['st'] = $a['errores'] ? 'error' : ($reciente ? 'trabajando' : 'espera');
+    $a['motivo'] = $a['errores'] ? $a['errores'][0]['txt'] : ($reciente ? $ult['txt'] : 'Atento: en cuanto una persona responde, le prepara su demo.');
+    $a['proxima'] = 'Cuando responda la próxima empresa';
+    $a['ultima'] = of_ultima($a['actividad'], ['entrega', 'hito']);
+    $a['datos'] = [['Demos hechas', (string)(int)$r['n']], ['Abiertas por la empresa', (string)(int)$r['vistas']], ['Mensajes en sus asistentes', (string)(int)$r['chats']],
+                   ['Coste medio', $r['n'] ? number_format((float)$r['usd'] * 100, 1, ',', '') . ' céntimos' : '—']];
+    $a['entregas'] = [];
+    foreach ($db->query('SELECT slug, empresa, ciudad, creada, visitas, chats, datos FROM demos ORDER BY creada DESC LIMIT 30') as $d) {
+        $x = json_decode((string)$d['datos'], true) ?: [];
+        $rad = $x['radio'] ?? null;
+        $url = pebai_demo_url($d['slug']) . '?equipo=1';
+        $a['entregas'][] = ['ts' => $d['creada'], 'clase' => 'demo', 'titulo' => $d['empresa'] . ($d['ciudad'] ? ' · ' . $d['ciudad'] : ''),
+                            'texto' => ($rad ? ($rad['aparece'] ? 'Sale en la IA (puesto ' . $rad['posicion'] . ')' : 'No sale en la IA') : 'Sin radiografía')
+                                . ' · ' . ((int)$d['visitas'] ? 'la ha abierto ' . (int)$d['visitas'] . ($d['visitas'] == 1 ? ' vez' : ' veces') : 'aún no la ha abierto')
+                                . ((int)$d['chats'] ? ' · ' . (int)$d['chats'] . ' mensajes a su asistente' : ''),
+                            'url' => $url, 'img' => '', 'foto' => of_foto($url)];
+    }
+    return $a;
+}
+
 /** Cerebro: lee todos los chats de WhatsApp de Daniel (api/_cerebro_lib.php), avisa a la oficina y aprende. Nunca envía. */
 function of_cerebro(): array
 {
@@ -663,7 +695,7 @@ function of_ultima(array $act, array $tipos): ?array
 function of_estado(PDO $db): array
 {
     $ags = [];
-    foreach (['of_scraper', 'of_redactor', 'of_whatsapp', 'of_email', 'of_cerebro'] as $fn) {
+    foreach (['of_scraper', 'of_redactor', 'of_whatsapp', 'of_email', 'of_cerebro', 'of_demos'] as $fn) {
         try {
             $ags[] = $fn();
         } catch (Throwable $e) {
@@ -698,7 +730,7 @@ function of_estado(PDO $db): array
         require_once dirname(__DIR__) . '/api/_claude_lib.php';
         $q = pebai_ia_gasto_db()->prepare("SELECT agente, SUM(usd) usd, SUM(ok=1) n, MAX(ts) ult FROM ia_gasto WHERE ts >= ? GROUP BY agente");
         $q->execute([date('Y-m-01 00:00:00')]);
-        $mapa = ['cerebro' => 'cerebro', 'conversaciones' => 'whatsapp', 'redactor' => 'redactor'];
+        $mapa = ['cerebro' => 'cerebro', 'conversaciones' => 'whatsapp', 'redactor' => 'redactor', 'demos' => 'demos'];
         $uso = [];
         foreach ($q->fetchAll(PDO::FETCH_ASSOC) as $r) {
             $id = $mapa[$r['agente']] ?? null;
@@ -740,7 +772,7 @@ function of_resumen_agentes(string $dept): array
     if ($dept === 'geo') {
         return array_column(OF_GEO_AGENTES, 1, 0) + ['geo' => 'Jefe GEO'];  // 'geo': el primer agente GEO
     }
-    return $dept === 'captacion' ? ['prospeccion' => 'Scraper', 'redactor' => 'Redactor', 'whatsapp' => 'WhatsApp', 'email' => 'Email', 'cerebro' => 'Cerebro'] : [];
+    return $dept === 'captacion' ? ['prospeccion' => 'Scraper', 'redactor' => 'Redactor', 'whatsapp' => 'WhatsApp', 'email' => 'Email', 'cerebro' => 'Cerebro', 'demos' => 'Demos'] : [];
 }
 
 /** Quita teléfonos y emails antes de mandar nada a la IA (datos mínimos). */

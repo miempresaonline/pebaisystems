@@ -29,7 +29,7 @@ $meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agost
 $fecha = static fn($ts) => (int)date('j', strtotime($ts)) . ' de ' . $meses[(int)date('n', strtotime($ts)) - 1] . ' de ' . date('Y', strtotime($ts));
 
 // Visitas: la primera avisa a la oficina (es la mejor señal de interés)
-$esBot = preg_match('/bot|crawl|spider|preview|whatsapp|facebookexternalhit|telegram|slack|discord/i', (string)($_SERVER['HTTP_USER_AGENT'] ?? ''));
+$esBot = preg_match('/bot|crawl|spider|preview|whatsapp|facebookexternalhit|telegram|slack|discord|mshots|wordpress|headless/i', (string)($_SERVER['HTTP_USER_AGENT'] ?? ''));
 // ?equipo=1: la miramos nosotros (desde el panel): no cuenta como visita ni avisa
 if (!$esBot && empty($_GET['equipo'])) {
     $now = date('Y-m-d H:i:s');
