@@ -76,6 +76,9 @@ switch ($in['accion'] ?? '') {
         try {
             require_once __DIR__ . '/_cerebro_lib.php';
             pebai_cerebro_procesar(3);
+            if ((int)date('G') >= 7 && (int)date('G') < 20) {
+                pebai_lab_preparar(1);
+            }
         } catch (Throwable $e) {
             pebai_log('CEREBRO: ' . $e->getMessage());
         }
@@ -121,7 +124,7 @@ switch ($in['accion'] ?? '') {
             out(['ok' => true, 'esperar' => 1800, 'motivo' => 'sin_prospectos']);
         }
         // El mensaje es el escrito para esta empresa, tal cual
-        $plantilla = 'personal';
+        $plantilla = str_starts_with((string)$p['plantilla'], 'lab-') ? (string)$p['plantilla'] : 'personal';   // laboratorio de Cerebro: se mide aparte
         $texto = trim((string)$p['mensaje']);
         $db->prepare("UPDATE prospectos SET estado = 'enviando', enviando_at = ?, plantilla = ?, updated_at = ? WHERE id = ? AND estado = 'pendiente'")->execute([$now, $plantilla, $now, $p['id']]);
         out(['ok' => true, 'prospecto' => ['id' => (int)$p['id'], 'telefono' => $p['telefono'], 'empresa' => $p['empresa']], 'texto' => $texto]);

@@ -383,6 +383,14 @@ function of_cerebro(): array
         $nom = ['cliente' => 'clientes', 'negocio' => 'de trabajo', 'prospecto' => 'prospectos', 'personal' => 'personales', 'spam' => 'spam', 'otro' => 'otros'];
         $a['datos'][] = ['Chats entendidos', implode(' · ', array_map(static fn($k) => $clases[$k] . ' ' . ($nom[$k] ?? $k), array_keys($clases)))];
     }
+    try {
+        $nomV = ['asistente' => 'Asistente', 'geo' => 'Visibilidad en IA', 'app' => 'App'];
+        foreach (pebai_lab_resultados() as $v => $o) {
+            $a['datos'][] = ['Laboratorio · ' . ($nomV[$v] ?? $v), $o['enviados'] . ' enviados · ' . $o['personas'] . ' personas contestan (' . ($o['enviados'] ? round($o['personas'] / $o['enviados'] * 100) : 0) . ' %) · ' . $o['interes'] . ' con interés'];
+        }
+    } catch (Throwable $e) {
+        pebai_log('LAB: ' . $e->getMessage());
+    }
     $a['entregas'] = [];
     foreach ($db->query("SELECT tel, nombre, clase, resumen, borrador, te_toca, interes, analizado FROM contactos
                          WHERE clase IN ('cliente','negocio','prospecto','otro') AND (borrador <> '' OR te_toca = 1 OR interes = 1) ORDER BY analizado DESC LIMIT 30") as $r) {

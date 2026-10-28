@@ -207,3 +207,99 @@ function pebai_cerebro_procesar(int $max = 4): int
     }
     return $hechos;
 }
+
+/* ------------------------------------------------------ Laboratorio --- */
+/*
+ * Laboratorio de primeros mensajes (Daniel, 28/10: «Cerebro debe ser el encargado de todo el departamento»).
+ * Una de cada tres empresas de la cola recibe un primer WhatsApp sobre VISIBILIDAD EN IA, con un dato real de una búsqueda
+ * («he preguntado a la IA por … y salen A y B, pero no vosotros»); otra de cada tres, sobre SU APP; el resto lo escribe el
+ * Redactor como siempre (asistente). Se marcan con su plantilla (lab-geo, lab-app) y se mide quién responde de verdad.
+ * Mismas reglas que el Redactor: se presenta, ofrece la baja, sin enlaces, sin precios, una sola pregunta.
+ */
+const PEBAI_LAB_DIA = 12;   // primeros mensajes del laboratorio al día como mucho (cada uno ~1-2 céntimos)
+
+function pebai_lab_ok(string $t): bool
+{
+    $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
+    return $n >= 25 && $n <= 75 && str_contains($t, 'PEBAI') && substr_count($t, '?') === 1
+        && preg_match('/no (os |te )?(escribo|vuelvo|molesto)|me lo dec[ií]s/iu', $t)
+        && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci|gratis|gratuit|garantiz/iu', $t);
+}
+
+/** Prepara hasta $max primeros mensajes del laboratorio. Devuelve cuántos ha escrito. */
+function pebai_lab_preparar(int $max = 1): int
+{
+    require_once __DIR__ . '/_demos_lib.php';
+    $db = pebai_agentes_db();
+    $hoy = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE plantilla IN ('lab-geo','lab-app') AND updated_at >= '" . date('Y-m-d') . "' AND mensaje <> ''")->fetchColumn();
+    if ($hoy >= PEBAI_LAB_DIA) {
+        return 0;
+    }
+    $hechos = 0;
+    $cola = $db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND nicho = 'solar' AND mensaje = '' AND web <> '' AND plantilla = '' AND id % 3 <> 0
+                        AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY prioridad DESC, id LIMIT " . (int)$max)->fetchAll();
+    foreach ($cola as $p) {
+        $web = preg_match('~^https?://~', (string)$p['web']) ? (string)$p['web'] : 'https://' . ltrim((string)$p['web'], '/');
+        $w = pebai_web_texto($web);
+        $variante = (int)$p['id'] % 3 === 1 ? 'geo' : 'app';
+        $ciudad = trim((string)$p['ciudad']) ?: 'su zona';
+        $dato = '';
+        if ($variante === 'geo') {
+            $r = pebai_demo_radiografia((string)$p['empresa'], 'instaladoras de placas solares', $ciudad, $web);
+            $otros = $r ? array_slice(array_column($r['busquedas'][0]['empresas'] ?? [], 'nombre'), 0, 3) : [];
+            if (!$r || $r['aparece'] || count($otros) < 2) {
+                $variante = 'app';   // si ya salen (o la búsqueda no dice nada claro), el gancho de la IA no vale: va a la app
+            } else {
+                $dato = 'Has buscado en internet con una IA «' . $r['busquedas'][0]['consulta'] . '» y salen ' . implode(', ', $otros) . '; ' . $p['empresa'] . ' no sale.';
+            }
+        }
+        $sistema = 'Escribes el PRIMER WhatsApp en frío de Daniel, de PEBAI Systems (consultora española de procesos e Inteligencia Artificial), a una instaladora de placas solares. '
+            . 'Español de España, tuteo en plural (os), natural, como lo escribiría una persona: 2 o 3 párrafos cortos separados por una línea en blanco, 35-60 palabras en total. '
+            . 'Empieza exactamente por «Hola, soy Daniel, de PEBAI Systems.». Una sola pregunta, al final, fácil de contestar. Termina con una frase corta para darse de baja (p. ej. «Si no os interesa, me lo decís y no os escribo más.»). '
+            . 'Prohibido: enlaces, precios, porcentajes, cifras de ahorro, «gratis», leyes, subvenciones, prometer resultados, hablar de su web o venderles una web. Nada inventado. Devuelve SOLO el mensaje.';
+        $tema = $variante === 'geo'
+            ? "TEMA: visibilidad en Inteligencia Artificial. DATO REAL (úsalo tal cual, sin exagerar): {$dato} Cuéntalo en una frase, di que en PEBAI ayudamos a que la IA recomiende a empresas como la suya cuando un cliente pregunta, y pregunta si quieren que les enseñes lo que salió."
+            : 'TEMA: una app propia para sus clientes (pedir presupuesto con fotos, seguir el estado de su instalación, avisos de mantenimiento). Usa UN detalle concreto de su web para que se note que la has mirado, '
+              . 'di que en PEBAI hacemos apps a medida para empresas como la suya y pregunta si les interesaría ver cómo sería la suya.';
+        $t = '';
+        for ($i = 0; $i < 2 && !pebai_lab_ok($t); $i++) {
+            $t = trim((string)pebai_claude('cerebro', 'claude-sonnet-5-5', $sistema,
+                [['role' => 'user', 'content' => 'EMPRESA: ' . $p['empresa'] . " ({$ciudad})\n" . $tema . ($w ? "\nSU WEB (extracto):\n" . mb_substr($w['texto'], 0, 2500) : '')]],
+                ['effort' => 'low', 'max_tokens' => 2000]) ?? '');
+        }
+        if (!pebai_lab_ok($t)) {
+            $db->prepare("UPDATE prospectos SET plantilla = 'lab-no' WHERE id = ? AND mensaje = ''")->execute([$p['id']]);   // que lo escriba el Redactor
+            continue;
+        }
+        $db->prepare("UPDATE prospectos SET mensaje = ?, plantilla = ?, updated_at = ? WHERE id = ? AND mensaje = '' AND estado = 'pendiente'")
+           ->execute([$t, 'lab-' . $variante, date('Y-m-d H:i:s'), $p['id']]);
+        pebai_actividad('cerebro', 'hito', 'Laboratorio: primer mensaje de ' . ($variante === 'geo' ? 'visibilidad en IA' : 'app') . ' para ' . $p['empresa'], $t, 'wa:' . $p['id']);
+        $hechos++;
+    }
+    return $hechos;
+}
+
+/** Resultados del laboratorio: por variante, enviados, personas que contestan (sin contestadores) e interesados. */
+function pebai_lab_resultados(): array
+{
+    require_once __DIR__ . '/_conversaciones_lib.php';
+    $clas = [];
+    foreach (pebai_conv_db()->query("SELECT prospecto_id, clasificacion FROM conversaciones WHERE canal = 'whatsapp'") as $r) {
+        $clas[(int)$r['prospecto_id']] = (string)$r['clasificacion'];
+    }
+    $out = [];
+    foreach (pebai_agentes_db()->query("SELECT id, plantilla, respondido_at FROM prospectos WHERE enviado_at <> '' AND nicho = 'solar'") as $r) {
+        $v = str_starts_with((string)$r['plantilla'], 'lab-') ? substr($r['plantilla'], 4) : 'asistente';
+        $o = $out[$v] ?? ['enviados' => 0, 'personas' => 0, 'interes' => 0];
+        $o['enviados']++;
+        $c = $clas[(int)$r['id']] ?? '';
+        if ($r['respondido_at'] !== '' && $c !== 'auto') {
+            $o['personas']++;
+        }
+        if (in_array($c, ['interesado', 'pregunta', 'info_enviada'], true)) {
+            $o['interes']++;
+        }
+        $out[$v] = $o;
+    }
+    return $out;
+}
