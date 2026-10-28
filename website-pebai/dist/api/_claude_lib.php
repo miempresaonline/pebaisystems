@@ -78,7 +78,8 @@ function pebai_claude_coste(string $modelo, array $u): float
 {
     [$in, $out] = PEBAI_CLAUDE_PRECIOS[$modelo] ?? PEBAI_CLAUDE_PRECIOS['claude-sonnet-5-5'];
     return ((int)($u['input_tokens'] ?? 0) * $in + (int)($u['output_tokens'] ?? 0) * $out
-          + (int)($u['cache_read_input_tokens'] ?? 0) * $in * 0.1 + (int)($u['cache_creation_input_tokens'] ?? 0) * $in * 1.25) / 1e6;
+          + (int)($u['cache_read_input_tokens'] ?? 0) * $in * 0.1 + (int)($u['cache_creation_input_tokens'] ?? 0) * $in * 1.25) / 1e6
+          + (int)($u['server_tool_use']['web_search_requests'] ?? 0) * 0.01;   // búsqueda web: 10 $ por cada 1.000
 }
 
 /**
@@ -86,7 +87,7 @@ function pebai_claude_coste(string $modelo, array $u): float
  * entonces quien llama usa Gemini.
  *   $system: instrucciones (van primero)
  *   $mensajes: [['role' => 'user'|'assistant', 'content' => '…'], …]
- *   $opc: effort (low|medium|high), max_tokens, timeout, cache (guardar $system en caché)
+ *   $opc: effort (low|medium|high), max_tokens, timeout, cache (guardar $system en caché), tools (herramientas del servidor)
  */
 function pebai_claude(string $agente, string $modelo, string $system, array $mensajes, array $opc = []): ?string
 {
@@ -99,6 +100,9 @@ function pebai_claude(string $agente, string $modelo, string $system, array $men
     }
     $body = ['model' => $modelo, 'max_tokens' => (int)($opc['max_tokens'] ?? 4000), 'messages' => $mensajes,
              'output_config' => ['effort' => (string)($opc['effort'] ?? 'low')]];
+    if (!empty($opc['tools'])) {
+        $body['tools'] = $opc['tools'];   // p. ej. la búsqueda web de Demos
+    }
     if ($system !== '') {
         // caché solo si se pide: escribirla cuesta un 25 % más, y solo compensa con instrucciones fijas que se repiten
         $body['system'] = [['type' => 'text', 'text' => $system] + (!empty($opc['cache']) ? ['cache_control' => ['type' => 'ephemeral']] : [])];
