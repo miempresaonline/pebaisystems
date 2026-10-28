@@ -47,7 +47,24 @@ indexnow() {
   log "IndexNow -> HTTP $codigo"
 }
 
+precarga() {
+  # Hostinger da 429 a GPTBot y ClaudeBot. Una regla de caché de Cloudflare sirve las páginas a los bots
+  # de IA desde su caché (4 h); aquí se rellena cada 3 h para que nunca lleguen al servidor.
+  local f rel n=0
+  while IFS= read -r f; do
+    rel="${f#$REPO/$PREFIJO}"
+    case "$rel" in panel/*|api/*|para/*|baja/*|scratch/*) continue ;; esac
+    curl -s -o /dev/null -m 20 -A 'Mozilla/5.0 (compatible; pebai-precarga/1.0)' "$SITE/${rel%index.html}" && n=$((n+1))
+    sleep 1
+  done <<< "$(find "$REPO/$PREFIJO" -name index.html)"
+  for f in robots.txt llms.txt sitemap.xml; do curl -s -o /dev/null -m 20 -A 'Mozilla/5.0 (compatible; pebai-precarga/1.0)' "$SITE/$f"; done
+  date +%s > "$BASE/precarga"
+  log "Precarga de caché para bots: $n páginas"
+}
+
 while true; do
+  # Precarga de la caché para los bots de IA cada 3 h
+  [ $(( $(date +%s) - $(cat "$BASE/precarga" 2>/dev/null || echo 0) )) -ge 10800 ] && precarga
   if git fetch -q origin main 2>>"$LOG"; then
     nuevo=$(git rev-parse origin/main)
     viejo=$(cat "$ESTADO")
