@@ -32,3 +32,8 @@
 La misma que en [google-business-profile.md](google-business-profile.md).
 
 Fuentes: [Bing, nuevo Bing Places for Business (oct. 2025)](https://blogs.bing.com/search/October-2025/Introducing-the-New-Bing-Places-for-Business-Built-for-Business-Owners,-Powered-by-Research) · [Search Engine World](https://www.searchengineworld.com/microsoft-introduces-the-new-bing-places-for-business) · [Dalton Luka, sincronizar Bing Places con GBP](https://daltonluka.com/blog/sync-bing-places-with-google-my-business).
+
+
+## Estado
+
+28/10/2026: ficha creada y sincronizada con Google, verificación terminada, publicación pendiente (7-12 días). Ojo: el nombre viene de Google como "PEBAI Systems | Consultoría de procesos e inteligencia artificial"; lo canónico es "PEBAI Systems". Falta el email.

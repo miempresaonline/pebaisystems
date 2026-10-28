@@ -34,3 +34,8 @@
 Usar los textos en inglés de [clutch.md](clutch.md): "Short" para el resumen y "Company overview" para la descripción.
 
 Fuentes: [GoodFirms, por qué GoodFirms](https://www.goodfirms.co/why-goodfirms) · [GoodFirms, sobre nosotros (23 % de aceptación)](https://www.goodfirms.co/about-us) · [GoodFirms PRO](https://www.goodfirms.co/goodfirms-pro).
+
+
+## Estado
+
+28/10/2026: cuenta creada (Chrome de Daniel). Paso 1 relleno (nombre, frase, logo, 2026, 2-9, tarifa NA, web, teléfono, email, redes, descripción, 3 razones), pero "Save & Next" no avanza y no muestra error. Pendiente de revisar con Daniel.

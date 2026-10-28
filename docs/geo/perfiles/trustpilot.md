@@ -34,3 +34,10 @@ PEBAI Systems es una consultoría de procesos e Inteligencia Artificial para emp
 ```
 
 Fuentes: [Trustpilot, precios y plan gratuito](https://no.business.trustpilot.com/pricing) · [Simply Business, cómo conseguir reseñas en Trustpilot](https://www.simplybusiness.co.uk/knowledge/marketing/how-to-get-trustpilot-reviews-small-business-tips/) · [Trustpilot, términos para empresas](https://es.corporate.trustpilot.com/legal/for-businesses/terms-of-use-and-sale-for-businesses) · [CMOtech, estudio Trustpilot/Seer 2026](https://cmotech.news/story/trustpilot-study-says-active-reviews-boost-ai-citations) · [PR Newswire, nota del estudio](https://tools.prnewswire.com/en-us/live/20813/release/20260512EN56379).
+
+
+## Estado
+
+Publicado el 28/10/2026: https://es.trustpilot.com/review/pebaisystems.es
+- Hecho: nombre PEBAI Systems, logo, descripción (193 palabras), categorías (Consultoría de negocios e informática, Compañía de software, Consultor informático), email, teléfono y ciudad València.
+- Falta (lo hace Daniel): insignia de verificación (identidad o sincronizar Google My Business). Sin reseñas hasta que las dejen clientes reales.

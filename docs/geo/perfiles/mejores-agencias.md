@@ -39,3 +39,8 @@ Equipo de PEBAI Systems
 ```
 
 Fuentes: lectura directa de https://www.mejores-agencias.com/ y de /contacto, 21/10/2026 · medición `docs/geo/mediciones/2026-10-21.md`.
+
+
+## Estado
+
+Solicitud enviada el 28/10/2026 por el formulario (asunto Alta de Nueva Agencia), con firma de Daniel. Contestarán a equipo@. Si piden pago, decide el equipo.

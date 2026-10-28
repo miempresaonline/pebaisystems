@@ -35,3 +35,8 @@ Consultoría de procesos e IA para empresas de cualquier sector en España. Chat
 (Si el campo admite más texto, usar la descripción media de [README.md](README.md).)
 
 Fuentes: lectura directa de https://www.agentes.ai/agencias y de su código (modal de precios), 21/10/2026 · medición `docs/geo/mediciones/2026-10-21.md`.
+
+
+## Estado
+
+Enviado el 28/10/2026 (plan gratis 3 meses, publicación en 24 h). Categoría Consultoría IA, departamento Atención al Cliente, València. Falta: guardar la URL de la ficha cuando salga (agentes.ai/agencia/...) y añadirla al sameAs. El plan gratis acaba el 28/01/2027: decidir si se paga.
