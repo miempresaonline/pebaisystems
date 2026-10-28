@@ -119,7 +119,9 @@ function pebai_demo_logo(string $html, string $base, string $slug): string
     };
     $cands = [];
     foreach (preg_match_all('~<img\b[^>]*>~i', $html, $mm) ? $mm[0] : [] as $tag) {
-        if (!preg_match('~logo~i', $tag)) {
+        // «logo» en la clase, el id, el texto alternativo o el nombre del archivo (no dentro de una imagen en base64)
+        $sin = preg_replace('~base64,[A-Za-z0-9+/=\s]+~', 'base64,', $tag);
+        if (!preg_match('~(class|id|alt)=["\'][^"\']*logo|(src|data-src)=["\'][^"\']*logo[^"\']*\.(png|svg|webp|jpe?g)~i', $sin)) {
             continue;
         }
         foreach (['data-src', 'data-lazy-src', 'src'] as $at) {
@@ -208,8 +210,14 @@ function pebai_demo_radiografia(string $empresa, string $sector, string $ciudad,
                 break;
             }
         }
+        if (!$emp) {
+            continue;
+        }
         $busq[] = ['consulta' => $consultas[$k], 'empresas' => $emp, 'posicion' => $pos,
                    'fuentes' => array_slice(array_values(array_filter(array_map(static fn($f) => ['titulo' => mb_substr(trim((string)($f['titulo'] ?? '')), 0, 120), 'url' => (string)($f['url'] ?? '')], (array)($b['fuentes'] ?? [])), static fn($f) => str_starts_with($f['url'], 'http'))), 0, 3)];
+    }
+    if (!$busq) {
+        return null;
     }
     // Quién sale más veces entre las dos búsquedas
     $veces = [];
@@ -223,7 +231,7 @@ function pebai_demo_radiografia(string $empresa, string $sector, string $ciudad,
     // Nota de visibilidad 0-100: salir arriba en las dos búsquedas = 100
     $nota = 0;
     foreach ($busq as $b) {
-        $nota += $b['posicion'] ? (int)round(50 * max(.2, 1 - ($b['posicion'] - 1) / 8)) : 0;
+        $nota += $b['posicion'] ? (int)round(100 / count($busq) * max(.2, 1 - ($b['posicion'] - 1) / 8)) : 0;
     }
     $primera = $busq[0] ?? ['empresas' => [], 'posicion' => null, 'fuentes' => [], 'consulta' => $consultas[0]];
     return ['consulta' => $primera['consulta'], 'empresas' => $primera['empresas'], 'aparece' => (bool)array_filter(array_column($busq, 'posicion')),
