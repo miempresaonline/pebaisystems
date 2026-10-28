@@ -140,7 +140,7 @@ function pebai_agente(string $agente): array
 {
     $q = pebai_agentes_db()->prepare('SELECT * FROM agente_estado WHERE agente = ?');
     $q->execute([$agente]);
-    return $q->fetch() ?: ['agente' => $agente, 'latido_at' => '', 'estado' => 'sin_arrancar', 'detalle' => '', 'codigo' => '', 'pausado' => 0, 'config' => '{}', 'alerta_at' => ''];
+    return pebai_fila($q) ?: ['agente' => $agente, 'latido_at' => '', 'estado' => 'sin_arrancar', 'detalle' => '', 'codigo' => '', 'pausado' => 0, 'config' => '{}', 'alerta_at' => ''];
 }
 
 function pebai_wa_config(): array
@@ -206,7 +206,7 @@ function pebai_wa_enviados_hoy(): int
 {
     $q = pebai_agentes_db()->prepare("SELECT COUNT(*) FROM agente_mensajes WHERE agente = 'whatsapp' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta','cortesia') AND ts >= ?");
     $q->execute([date('Y-m-d 00:00:00')]);
-    return (int)$q->fetchColumn();
+    return (int)pebai_uno($q);
 }
 
 /**
@@ -271,7 +271,7 @@ function pebai_wa_plantilla(string $nicho, array $nichos): array
     $mejor = null;
     foreach (array_keys($vars) as $v) {
         $q->execute([$nicho . '-' . $v]);
-        $n = (int)$q->fetchColumn() + mt_rand() / mt_getrandmax() * 0.5;
+        $n = (int)pebai_uno($q) + mt_rand() / mt_getrandmax() * 0.5;
         if ($mejor === null || $n < $mejor[1]) {
             $mejor = [$v, $n];
         }

@@ -36,6 +36,25 @@ function pebai_log(string $msg): void
     @file_put_contents(pebai_private_dir() . '/errors.log', '[' . date('Y-m-d H:i:s') . '] ' . $msg . "\n", FILE_APPEND | LOCK_EX);
 }
 
+/**
+ * Leer y cerrar: con SQLite, una consulta a medio leer deja abierta su «foto» de la base de datos y, si otro proceso escribe
+ * mientras tanto (el bot, un cron), la siguiente escritura de este proceso falla con «database is locked» (28/10: por eso no se
+ * contestaban los contestadores). Estas dos leen lo que hace falta y cierran la consulta.
+ */
+function pebai_uno(PDOStatement $q)
+{
+    $v = $q->fetchColumn();
+    $q->closeCursor();
+    return $v;
+}
+
+function pebai_fila(PDOStatement $q)
+{
+    $v = $q->fetch();
+    $q->closeCursor();
+    return $v;
+}
+
 function pebai_db(): PDO
 {
     static $pdo = null;

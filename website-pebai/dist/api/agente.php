@@ -133,7 +133,7 @@ switch ($in['accion'] ?? '') {
         $id = (int)($in['id'] ?? 0);
         $q = $db->prepare('SELECT * FROM prospectos WHERE id = ?');
         $q->execute([$id]);
-        $p = $q->fetch();
+        $p = pebai_fila($q);
         if (!$p) {
             out(['ok' => false, 'error' => 'no existe'], 404);
         }
@@ -157,7 +157,7 @@ switch ($in['accion'] ?? '') {
         $tel = pebai_phone_digits((string)($in['telefono'] ?? ''));
         $q = $db->prepare("SELECT * FROM prospectos WHERE telefono = ? AND estado IN ('enviando','enviado','respondio','baja')");
         $q->execute([$tel]);
-        $p = $q->fetch();
+        $p = pebai_fila($q);
         if (!$p) {
             out(['ok' => true, 'ignorado' => true]);
         }
@@ -223,14 +223,14 @@ switch ($in['accion'] ?? '') {
         $tel = pebai_phone_digits((string)($in['telefono'] ?? ''));
         $q = $db->prepare("SELECT id FROM prospectos WHERE telefono = ? AND enviado_at <> ''");
         $q->execute([$tel]);
-        $pid = (int)$q->fetchColumn();
+        $pid = (int)pebai_uno($q);
         $ts = (int)($in['ts'] ?? 0);
         if (!$pid || $ts < 1700000000) {
             out(['ok' => true, 'ignorado' => true]);
         }
         $q = $db->prepare("SELECT id, ts FROM agente_mensajes WHERE agente = 'whatsapp' AND prospecto_id = ? AND sentido = 'entra' AND texto LIKE '[nota de voz%' ORDER BY ABS(strftime('%s', ts) - ?) LIMIT 1");
         $q->execute([$pid, $ts + (int)date('Z')]);   // ts guardado en hora de Madrid; strftime lo lee como UTC
-        $fila = $q->fetch();
+        $fila = pebai_fila($q);
         if (!$fila || abs(strtotime($fila['ts']) - $ts) > 180) {
             out(['ok' => true, 'ignorado' => true]);
         }
@@ -248,7 +248,7 @@ switch ($in['accion'] ?? '') {
         $tel = pebai_phone_digits((string)($in['telefono'] ?? ''));
         $q = $db->prepare("SELECT id FROM prospectos WHERE telefono = ? AND enviado_at <> ''");
         $q->execute([$tel]);
-        $pid = (int)$q->fetchColumn();
+        $pid = (int)pebai_uno($q);
         if (!$pid) {
             out(['ok' => true, 'ignorado' => true]);
         }
@@ -256,7 +256,7 @@ switch ($in['accion'] ?? '') {
         // Puede llegar dos veces (en directo y al recuperar el historial del móvil), o ser uno que ya envió el agente: no se duplica
         $q = $db->prepare("SELECT COUNT(*) FROM agente_mensajes WHERE agente = 'whatsapp' AND prospecto_id = ? AND sentido = 'sale' AND texto = ?");
         $q->execute([$pid, $texto]);
-        if ((int)$q->fetchColumn()) {
+        if ((int)pebai_uno($q)) {
             out(['ok' => true, 'ignorado' => true]);
         }
         $ts = (int)($in['ts'] ?? 0);
@@ -273,7 +273,7 @@ switch ($in['accion'] ?? '') {
         $db->exec("UPDATE wa_salida SET estado = 'error', error = 'Baja: no se envía' WHERE estado = 'pendiente' AND telefono IN (SELECT telefono FROM bajas)");
         $q = $db->prepare("SELECT id, prospecto_id, telefono, texto FROM wa_salida WHERE estado = 'pendiente' AND (no_antes = '' OR no_antes <= ?) ORDER BY id LIMIT 1");
         $q->execute([$now]);
-        $w = $q->fetch();
+        $w = pebai_fila($q);
         if ($w) {
             $db->prepare("UPDATE wa_salida SET estado = 'enviando', enviado_at = ? WHERE id = ?")->execute([$now, $w['id']]);
         }
@@ -284,13 +284,13 @@ switch ($in['accion'] ?? '') {
         $db = pebai_conv_db();
         $q = $db->prepare('SELECT * FROM wa_salida WHERE id = ?');
         $q->execute([(int)($in['id'] ?? 0)]);
-        $w = $q->fetch();
+        $w = pebai_fila($q);
         if (!$w) {
             out(['ok' => true, 'ignorado' => true]);
         }
         $q = $db->prepare('SELECT empresa FROM prospectos WHERE id = ?');
         $q->execute([$w['prospecto_id']]);
-        $quien = (string)$q->fetchColumn() ?: $w['telefono'];
+        $quien = (string)pebai_uno($q) ?: $w['telefono'];
         if (!empty($in['ok'])) {
             $db->prepare("UPDATE wa_salida SET estado = 'enviado', enviado_at = ?, error = '' WHERE id = ?")->execute([$now, $w['id']]);
             $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla) VALUES (?, 'whatsapp', ?, ?, 'sale', ?, ?)")

@@ -115,14 +115,14 @@ function pebai_conv_clasificar(int $max = 10): int
         $canal = $r['agente'] === 'email' ? 'email' : 'whatsapp';
         $q = $db->prepare('SELECT ultimo_msg, manual FROM conversaciones WHERE canal = ? AND prospecto_id = ?');
         $q->execute([$canal, $r['prospecto_id']]);
-        $c = $q->fetch();
+        $c = pebai_fila($q);
         if ($c && ((int)$c['manual'] || (int)$c['ultimo_msg'] >= (int)$r['ult'])) {
             continue;
         }
         $t = $canal === 'email' ? 'email_prospectos' : 'prospectos';
         $q = $db->prepare("SELECT empresa FROM $t WHERE id = ?");
         $q->execute([$r['prospecto_id']]);
-        $res = pebai_conv_clasificar_una((string)$q->fetchColumn(), pebai_conv_mensajes($canal, (int)$r['prospecto_id']));
+        $res = pebai_conv_clasificar_una((string)pebai_uno($q), pebai_conv_mensajes($canal, (int)$r['prospecto_id']));
         if (!$res) {
             continue;
         }
@@ -200,7 +200,7 @@ function pebai_conv_cortesia(string $canal, array $p, array $msgs, bool $esAuto 
     $db = pebai_conv_db();
     $q = $db->prepare('SELECT COUNT(*) FROM wa_salida WHERE prospecto_id = ?');
     $q->execute([$p['id']]);
-    if ((int)$q->fetchColumn()) {
+    if ((int)pebai_uno($q)) {
         return;
     }
     $texto = pebai_conv_cortesia_texto($p, $msgs);
@@ -230,13 +230,13 @@ function pebai_conv_info_por_email(array $p, string $texto): bool
     $db = pebai_email_db();
     $q = $db->prepare('SELECT * FROM email_prospectos WHERE email = ?');
     $q->execute([$to]);
-    $e = $q->fetch();
+    $e = pebai_fila($q);
     if ($e && in_array($e['estado'], ['respondio', 'baja'], true) && $e['asunto'] === 'Lo que te comentaba por WhatsApp') {
         return false;   // ya se le mandó
     }
     $q = $db->prepare('SELECT COUNT(*) FROM bajas_email WHERE email = ?');
     $q->execute([$to]);
-    if ((int)$q->fetchColumn()) {
+    if ((int)pebai_uno($q)) {
         return false;
     }
     // Nombre si el correo es de una persona (mario@… → Mario); empresa sin la coletilla de Google Maps
@@ -306,7 +306,7 @@ function pebai_conv_al_momento(string $canal, int $id): void
         }
     }
     $p = pebai_conv_prospecto($canal, $id);
-    if (!$p || !$ult || (int)$q->fetchColumn()) {
+    if (!$p || !$ult || (int)pebai_uno($q)) {
         return;
     }
     $res = pebai_conv_clasificar_una((string)$p['empresa'], $msgs);
@@ -383,7 +383,7 @@ function pebai_conv_prospecto(string $canal, int $id): ?array
 {
     $q = pebai_conv_db()->prepare('SELECT * FROM ' . ($canal === 'email' ? 'email_prospectos' : 'prospectos') . ' WHERE id = ?');
     $q->execute([$id]);
-    return $q->fetch() ?: null;
+    return pebai_fila($q) ?: null;
 }
 
 /** ¿Ha pedido no recibir más mensajes? Entonces no se le contesta nunca. */
@@ -400,7 +400,7 @@ function pebai_conv_es_baja(string $canal, array $p): bool
         $q = $db->prepare('SELECT COUNT(*) FROM bajas WHERE telefono = ?');
         $q->execute([$p['telefono']]);
     }
-    return (int)$q->fetchColumn() > 0;
+    return (int)pebai_uno($q) > 0;
 }
 
 /** Ficha de cliente de trato directo (no es una solicitud del formulario): sirve para el enlace de reserva y la cita. */
@@ -441,7 +441,7 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
     $email = $canal === 'email';
     $q = $db->prepare('SELECT clasificacion FROM conversaciones WHERE canal = ? AND prospecto_id = ?');
     $q->execute([$canal, (int)$p['id']]);
-    $clasif = (string)$q->fetchColumn();
+    $clasif = (string)pebai_uno($q);
     $interes = $clasif === 'interesado';
     $auto = $clasif === 'auto';
     $enlaceDado = str_contains($hilo, '/reservar/?s=');
@@ -465,7 +465,7 @@ function pebai_conv_redactar(string $canal, array $p, array $msgs, string $instr
     if ($leadId) {
         $q2 = pebai_db()->prepare("SELECT tipo FROM leads WHERE id = ?");
         $q2->execute([$leadId]);
-        $formHecho = (string)$q2->fetchColumn() !== 'cliente';
+        $formHecho = (string)pebai_uno($q2) !== 'cliente';
     }
     // Por pasos (orden de Daniel, 21/10): 1) ver si le interesa, sin llamada ni enlace; 2) si muestra interés, proponer la llamada
     // y preguntar si quiere el enlace; 3) el enlace solo cuando lo acepta o lo pide
@@ -592,7 +592,7 @@ function pebai_conv_borradores(int $max = 3): int
         $canal = $r['agente'] === 'email' ? 'email' : 'whatsapp';
         $q = $db->prepare('SELECT clasificacion, borrador_para, contestado_hasta FROM conversaciones WHERE canal = ? AND prospecto_id = ?');
         $q->execute([$canal, $r['prospecto_id']]);
-        $c = $q->fetch();
+        $c = pebai_fila($q);
         // Primero la clasifica la IA; a contestadores automáticos, a quien no quiere y a lo que Daniel ya contestó por su cuenta no se les prepara nada
         if (!$c || in_array($c['clasificacion'], ['', 'auto', 'no_interesado'], true) || (int)$c['borrador_para'] >= (int)$r['id'] || (int)$c['contestado_hasta'] >= (int)$r['id']) {
             continue;
@@ -627,7 +627,7 @@ function pebai_conv_enviar(string $canal, int $id, string $texto, int $retraso =
     }
     $q = $db->prepare('SELECT borrador FROM conversaciones WHERE canal = ? AND prospecto_id = ?');
     $q->execute([$canal, $id]);
-    $borrador = (string)$q->fetchColumn();
+    $borrador = (string)pebai_uno($q);
     $final = str_contains($texto, PEBAI_CONV_ENLACE) ? str_replace(PEBAI_CONV_ENLACE, pebai_booking_url(pebai_conv_lead_crear($canal, $p)), $texto) : $texto;
     $final = str_replace([PEBAI_CONV_VIDEO, PEBAI_CONV_FORM], [PEBAI_CONV_VIDEO_URL, PEBAI_CONV_FORM_URL], $final);
     if (str_contains($final, PEBAI_CONV_DEMO)) {

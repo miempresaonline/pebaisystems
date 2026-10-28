@@ -196,7 +196,7 @@ function pebai_email_enviados_hoy(): int
 {
     $q = pebai_email_db()->prepare("SELECT COUNT(*) FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta') AND ts >= ?");
     $q->execute([date('Y-m-d 00:00:00')]);
-    return (int)$q->fetchColumn();
+    return (int)pebai_uno($q);
 }
 
 /* --------------------------------------------------------------- calendario --- */
@@ -418,13 +418,13 @@ function pebai_email_qa(array $p, array $msg, int $paso, bool $comprobarDns = tr
     }
     $q = $db->prepare('SELECT COUNT(*) FROM bajas_email WHERE email = ? OR (dominio <> "" AND dominio = ? AND motivo LIKE "dominio:%")');
     $q->execute([$email, $p['dominio']]);
-    if ((int)$q->fetchColumn()) {
+    if ((int)pebai_uno($q)) {
         $err[] = 'tiene baja';
     }
     if ($p['telefono'] !== '') {
         $q = $db->prepare('SELECT COUNT(*) FROM bajas WHERE telefono = ?');
         $q->execute([$p['telefono']]);
-        if ((int)$q->fetchColumn()) {
+        if ((int)pebai_uno($q)) {
             $err[] = 'tiene baja en WhatsApp';
         }
         if (isset(pebai_telefonos_embudo()[$p['telefono']])) {
@@ -434,7 +434,7 @@ function pebai_email_qa(array $p, array $msg, int $paso, bool $comprobarDns = tr
             $q = $db->prepare("SELECT COUNT(*) FROM prospectos WHERE telefono = ? AND (enviando_at >= ? OR enviado_at >= ? OR estado = 'pendiente')");
             $hace30 = date('Y-m-d H:i:s', time() - 30 * 86400);
             $q->execute([$p['telefono'], $hace30, $hace30]);
-            if ((int)$q->fetchColumn()) {
+            if ((int)pebai_uno($q)) {
                 $err[] = 'está en la cola de WhatsApp o le escribió hace menos de 30 días';
             }
         }
@@ -460,7 +460,7 @@ function pebai_email_qa(array $p, array $msg, int $paso, bool $comprobarDns = tr
     }
     $q = $db->prepare('SELECT COUNT(*) FROM leads WHERE lower(cliente_email) = ?');
     $q->execute([$email]);
-    if ((int)$q->fetchColumn()) {
+    if ((int)pebai_uno($q)) {
         $err[] = 'ya es solicitud del embudo';
     }
     if ($paso === 1) {
@@ -469,7 +469,7 @@ function pebai_email_qa(array $p, array $msg, int $paso, bool $comprobarDns = tr
         }
         $q = $db->prepare("SELECT COUNT(*) FROM email_prospectos WHERE dominio = ? AND id <> ? AND paso > 0 AND tipo_email <> 'gratuito'");
         $q->execute([$p['dominio'], $p['id']]);
-        if ((int)$q->fetchColumn()) {
+        if ((int)pebai_uno($q)) {
             $err[] = 'ya se escribió a otra persona de esta empresa';
         }
         $n = pebai_email_palabras($msg['texto']);
@@ -765,13 +765,13 @@ function pebai_email_salud(int $dias): array
     $desde = date('Y-m-d H:i:s', time() - $dias * 86400);
     $q = $db->prepare("SELECT COUNT(*) FROM agente_mensajes WHERE agente = 'email' AND sentido = 'sale' AND plantilla NOT IN ('manual','respuesta') AND ts >= ?");
     $q->execute([$desde]);
-    $env = (int)$q->fetchColumn();
+    $env = (int)pebai_uno($q);
     $q = $db->prepare("SELECT estado, COUNT(*) n FROM email_prospectos WHERE updated_at >= ? GROUP BY estado");
     $q->execute([$desde]);
     $por = array_column($q->fetchAll(), 'n', 'estado');
     $q = $db->prepare("SELECT COUNT(*) FROM bajas_email WHERE ts >= ? AND motivo LIKE 'queja%'");
     $q->execute([$desde]);
-    $quejas = (int)$q->fetchColumn();
+    $quejas = (int)pebai_uno($q);
     $reb = (int)($por['rebote'] ?? 0);
     return ['enviados' => $env, 'rebotes' => $reb, 'rebotes_pct' => $env ? round($reb / $env * 100, 1) : 0, 'quejas' => $quejas,
             'respuestas' => (int)($por['respondio'] ?? 0) + (int)($por['interesado'] ?? 0), 'interesados' => (int)($por['interesado'] ?? 0), 'bajas' => (int)($por['baja'] ?? 0)];
@@ -940,7 +940,7 @@ function pebai_email_prospecto_de(array $m): ?array
         if ($id !== '') {
             $q = $db->prepare('SELECT * FROM email_prospectos WHERE msgid = ?');
             $q->execute([$id]);
-            if ($p = $q->fetch()) {
+            if ($p = pebai_fila($q)) {
                 return $p;
             }
         }
@@ -948,7 +948,7 @@ function pebai_email_prospecto_de(array $m): ?array
     foreach (array_filter([$m['fallido'], $m['from']]) as $e) {
         $q = $db->prepare('SELECT * FROM email_prospectos WHERE email = ? AND paso > 0');
         $q->execute([$e]);
-        if ($p = $q->fetch()) {
+        if ($p = pebai_fila($q)) {
             return $p;
         }
     }
@@ -1060,7 +1060,7 @@ function pebai_email_leer_buzon(): string
     $get = static function (string $k) use ($db): string {
         $q = $db->prepare('SELECT valor FROM email_imap WHERE clave = ?');
         $q->execute([$k]);
-        return (string)$q->fetchColumn();
+        return (string)pebai_uno($q);
     };
     $set = static function (string $k, string $v) use ($db): void {
         $db->prepare('INSERT INTO email_imap (clave, valor) VALUES (?, ?) ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor')->execute([$k, $v]);
