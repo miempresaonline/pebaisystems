@@ -89,3 +89,11 @@ Cada vez que se cree un perfil: cambiar su estado aquí a "creado (fecha, URL)",
 
 - Logo: `assets/brand/pebai-systems/foto-de-perfil/02_PEBAI_Perfil_Oscuro_Glow_Tech.png` (el del brillo). Puesto en Trustpilot, Crunchbase, Sortlist (con portada banner-pebai-ancho) y TechBehemoths. Falta en DesignRush (en revisión, no deja editar) y GoodFirms.
 - Portadas: `assets/brand/pebai-systems/banners/banner-pebai-ancho.jpg` (3168×792) y `banner-pebai-fino.jpg` (2256×382), oscuros, con el símbolo y «PEBAI SYSTEMS» centrado. Solo en local: la carpeta de banners no se sube al repositorio.
+
+## Nuevos propuestos (28/10/2026)
+
+Abiertos en el Chrome de Daniel para que cree la cuenta; después los relleno yo con los textos canónicos, el logo 02 y los banners.
+- Dealroom (app.dealroom.co): cuenta y luego «Add your entity» con nombre, web y LinkedIn de empresa. Es la base de datos del ecosistema de València (también cubre el mapa de Startup Valencia).
+- F6S (f6s.com): perfil de fundador y página de empresa.
+- Wellfound (wellfound.com/recruit): página de empresa con fundadores.
+- Hotfrog España (hotfrog.es/register): ficha local que permite ocultar la dirección.

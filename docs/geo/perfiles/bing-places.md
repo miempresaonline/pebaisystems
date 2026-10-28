@@ -37,3 +37,5 @@ Fuentes: [Bing, nuevo Bing Places for Business (oct. 2025)](https://blogs.bing.c
 ## Estado
 
 28/10/2026: ficha creada y sincronizada con Google, verificación terminada, publicación pendiente (7-12 días). Ojo: el nombre viene de Google como "PEBAI Systems | Consultoría de procesos e inteligencia artificial"; lo canónico es "PEBAI Systems". Falta el email.
+
+28/10/2026 (tarde): en Bing el nombre, el teléfono y la dirección están bloqueados (vienen de Google) y el teléfono sin +34 da «no es un número válido», así que no deja guardar ni el email. Arreglo: en el Perfil de Empresa de Google, nombre «PEBAI Systems» y teléfono «+34 624 84 27 99»; luego «Sincronizar» en Bing y poner equipo@pebaisystems.es.

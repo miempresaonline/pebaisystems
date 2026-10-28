@@ -40,4 +40,4 @@ Fuentes: [Trustpilot, precios y plan gratuito](https://no.business.trustpilot.co
 
 Publicado el 28/10/2026: https://es.trustpilot.com/review/pebaisystems.es
 - Hecho: nombre PEBAI Systems, logo, descripción (193 palabras), categorías (Consultoría de negocios e informática, Compañía de software, Consultor informático), email, teléfono y ciudad València.
-- Falta (lo hace Daniel): insignia de verificación (identidad o sincronizar Google My Business). Sin reseñas hasta que las dejen clientes reales.
+- Verificación: Daniel la hizo el 28/10 (por confirmar en el perfil público). Sin reseñas hasta que las dejen clientes reales.
