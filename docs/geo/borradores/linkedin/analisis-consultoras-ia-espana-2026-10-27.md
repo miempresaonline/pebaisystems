@@ -18,3 +18,18 @@ Fuentes (perfiles, consultados el 27/10/2026): https://www.linkedin.com/in/cesar
 1. **«Qué no automatizar»**: una publicación con 3 cosas que se dejan en manos de una persona y por qué. Ya está en preguntas.md (27/10) y en el post de la cola; reforzarla con un caso real (Fran García: el asistente avisa a una persona cuando no sabe).
 2. **Condición previa antes de automatizar**: «antes de la IA, ordena el proceso» (los datos y el proceso escritos). Encaja con la consultoría de 25 minutos. Publicación propuesta para diciembre, sin cifras.
 3. **Caso con dato de uso**: ninguna de las vistas publica uso real; mantener los casos con cifras verificadas (Fran García, Santacruz) como diferencia, siempre con permiso y sin inventar.
+
+## Rendimiento a 48 h de las publicaciones de la página (Metricool, 29/10/2026)
+Datos de Metricool (LinkedIn, página de PEBAI), 26-29/10. Muestra muy pequeña: sirve para orientar, no para concluir.
+
+| Publicación | Impresiones | Clics | Comentarios | Engagement |
+|---|---|---|---|---|
+| Caso Fran García Cars con cifras (27/10) | 22 | 5 | 0 | 22,7 % |
+| Preguntas frecuentes automáticas (27/10) | 17 | 2 | 0 | 17,6 % |
+| Primera respuesta por WhatsApp (28/10) | 6 | 1 | 1 | 16,7 % |
+| Excel en pedidos (26/10) | 5 | 1 | 0 | 20,0 % |
+
+Conclusión:
+1. El caso con cifras reales es el que más se ve y más clics saca (5 de 22 impresiones, el mejor ratio con diferencia). Repetir el formato con Santacruz el 3/11 y mantener las cifras verificadas en el cuerpo del texto.
+2. Los alcances son de 5 a 22 impresiones: la página tiene muy poca audiencia, así que ninguna conclusión de formato es firme. Lo que más mueve es ampliar seguidores, no cambiar el texto.
+3. Siguiente paso: pedir a Daniel que comparta cada caso desde su perfil personal y comparar el alcance de la misma pieza con y sin ese empuje.
