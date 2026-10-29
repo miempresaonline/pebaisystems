@@ -2,6 +2,14 @@
 
 Estado: **borrador completo el 28/10/2026 (Contenido, turno de las 10:00), sin publicar.** Lo revisa el Jefe y lo aprueba Daniel: hay 4 huecos marcados `[PREGUNTA A DANIEL]` que no se pueden escribir sin él (no se inventan). Sale del encargo del Jefe del 27/10 tarde (señal de entidad: P1-P3 confunden PEBAI con otros «PEBA») y del grupo «Confianza al elegir consultora» de `docs/geo/preguntas.md` (6 preguntas). Medición 28/10: 0 resultados de pebaisystems.es para «¿Qué es PEBAI Systems?».
 
+**Maquetada el 29/10/2026 (Contenido, 10:00) en `docs/geo/borradores/html/sobre-pebai.html`**, lista para copiar a `dist/sobre-pebai/index.html` el día que Daniel responda. Cambios respecto a este texto:
+- Pregunta 4 resuelta: año **2026** (el que dio para Crunchbase); va en la respuesta corta, la ficha rápida y `foundingDate`. Sin `legalName` (no consta sociedad).
+- Pregunta 2 resuelta: no hay reseñas reales, la línea de reseñas se quita.
+- Fuera **Residencia El Amparo** (Daniel lo sacó de los directorios; no se usa sin su OK, Jefe 28/10).
+- Fran García Cars con 400 unidades aprobadas y 659 usuarios (panel, 22/10/2026), las mismas cifras que /agentes-ia/; el enlace del caso va a /agentes-ia/whatsapp/#caso-real.
+- «Datos de la empresa y dónde encontrarnos» con Crunchbase, Sortlist y Trustpilot; `#daniel` con su Crunchbase en `sameAs`. JSON-LD: AboutPage + BreadcrumbList + Organization (`disambiguatingDescription`, `foundingDate`, `founder`, `employee`, por `@id`) + 2 Person + FAQPage (6 = visibles). Comprobado: 0 prohibidas, enlaces internos 200, title 48 y description 151 caracteres, un H1, respuesta de 58 palabras, sin scroll horizontal a 390 px.
+- **Faltan solo la 1 y la 3** (qué se entrega y a nombre de quién, y 2-3 líneas de experiencia de Daniel y Adrián). Hasta entonces la página no dice nada de propiedad de código ni de cuentas. Al responder: añadir 2-3 frases en `#despues` y en la FAQ «¿Quién mantiene…?», y las líneas de experiencia en `#equipo`; reverificar y publicar (sitemap, llms, enlace desde `/#equipo` de la portada).
+
 ## Ficha
 
 - **URL:** `https://pebaisystems.es/sobre-pebai/`
