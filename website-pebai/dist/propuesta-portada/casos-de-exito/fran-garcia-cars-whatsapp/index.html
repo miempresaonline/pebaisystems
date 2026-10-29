@@ -1340,6 +1340,83 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
   .final{padding-bottom:28px!important}
 }
 
+/* ===== PROPUESTA v5 ===== */
+/* titular: la frase entera cambia */
+.h5-rot{font-size:clamp(40px,4.3vw,70px);line-height:1.02}
+.h5-rot .rot-w{align-self:end}
+.h5-rot .rot-a{display:block}
+.h5-rot em{display:block}
+.an-note{margin-top:12px;font-size:13px;color:var(--fg-40)}
+
+/* muro: tiles nuevos */
+.wt-clip .wt-m,.wt-vid .wt-m{position:relative;display:block;aspect-ratio:16/10;background:#05060B;overflow:hidden}
+.wt-vid .wt-m{aspect-ratio:16/9}
+.wt-clip video,.wt-vid video{width:100%;height:100%;object-fit:cover;display:block}
+.wt-vid{aspect-ratio:auto;padding:0;background:var(--s1)}
+.wt-vid .wt-play{top:auto;right:auto;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;background:var(--violet);box-shadow:0 10px 30px -6px rgba(106,92,255,.8)}
+.wt-vid .wt-play::after{left:18px;top:15px;border-left:13px solid #fff;border-top-width:8px;border-bottom-width:8px}
+@media (hover:none),(pointer:coarse){.wall:hover .wl-track{animation-play-state:running}}
+
+/* servicios: los tres grupos a la vista también en ordenador */
+@media (min-width:821px){
+  .sv-sec .sv-tabs{display:none}
+  html.js .sv-sec .sv-panel,html.js .sv-sec .sv-panel.active{display:grid;margin-top:64px;animation:none}
+  .sv-sec .sv-tabs+.sv-panel{margin-top:48px}
+  .sv-sec .sv-k{display:flex;justify-content:space-between;width:100%;padding-bottom:14px;border-bottom:1px solid var(--fg-10);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg)}
+  .sv-sec .sv-k b{order:2;font-weight:600;color:var(--fg-40)}
+  .sv-sec .sv-head{flex-wrap:wrap;row-gap:22px}
+  .sv-sec .sv-k{flex:0 0 100%}
+  .sv-cards.n5{grid-template-columns:repeat(5,minmax(0,1fr))}
+}
+@media (min-width:821px) and (max-width:1279px){
+  .sv-cards.n5{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+/* quiénes somos: las fichas bajan con el scroll */
+@media (min-width:821px){
+  .qs-hero .pg-title,.qs-hero .pg-sub{max-width:min(720px,54%)}
+  .qs-team[data-drop]{position:relative;z-index:3;will-change:translate}
+}
+
+/* casos: página más ordenada */
+.ch{padding:56px 0}
+.ch-b{gap:16px}
+.ch-t{font-size:clamp(30px,2.8vw,44px)}
+
+@media (max-width:820px){
+  .h5-rot{font-size:40px}
+  /* analizar en una fila */
+  .an-row{flex-direction:row}
+  .an-row .btn{width:auto;padding:0 18px}
+  .an-row input{height:48px;padding:0 10px}
+  .an-row .btn{height:48px}
+  .an-lg{display:none}
+  .wt-clip,.wt-vid{width:268px;display:flex;flex-direction:column}
+  .wt-clip .wt-m,.wt-vid .wt-m{aspect-ratio:auto;flex:1;min-height:0}
+  .wt-vid .wt-play{width:36px;height:36px;margin:-18px 0 0 -18px}
+  .wt-vid .wt-play::after{left:14px;top:11px;border-left-width:11px;border-top-width:7px;border-bottom-width:7px}
+
+  /* «¿No sabes cuál necesitas?» centrado */
+  .sv-cons{flex-direction:column;align-items:center;text-align:center;gap:10px;padding:20px 18px}
+  .sv-cons-go{margin:4px 0 0;justify-content:center;width:100%;height:44px;border-radius:12px;background:var(--tag-bg)}
+
+  /* casos de la portada: carrusel como el de servicios */
+  .bento{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;gap:10px;margin:28px calc(var(--pad)*-1) 0;padding:0 var(--pad)}
+  .bento::-webkit-scrollbar{display:none}
+  .bento>li{flex:0 0 82vw;scroll-snap-align:start;scroll-margin-left:var(--pad)}
+  .bx,.bx-s,.bx-big{flex-direction:column}
+  .bx-big .bx-m,.bx-s .bx-m{flex:none;aspect-ratio:16/10;min-height:0}
+  .bx-figs,.bx .cc-who em{display:none}
+  .bx-b,.bx-s .bx-b{padding:14px 16px 16px;gap:8px}
+  .bx-t,.bx-s .bx-b>b{font-size:16px}
+  .bx-q{padding-top:10px}
+  .bx-q q{font-size:16px}
+  .bx .aa{font-size:12.5px}
+  .bx .aa em{width:44px;font-size:9.5px}
+
+  .ch{padding:36px 0}
+}
+
 </style>
 <!-- Metricool: medición de audiencia sin cookies (exenta de consentimiento, ver /politica-de-cookies/) -->
 <script>function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"1f93f597864f09fbd98fe7aaf3444936"})});</script>
@@ -1355,7 +1432,7 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
     </a>
     <nav class="topnav" aria-label="Principal">
       <div class="tn-sol"><button type="button" id="sol-btn" aria-expanded="false" aria-controls="mega">Soluciones <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="mega" id="mega" role="region" aria-label="Soluciones">
-      <div class="mg-cols"><div class="mg-col"><span class="mg-h">Inteligencia Artificial</span><ul><li><a href="/agentes-ia/whatsapp/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg></span><span><b>Agente de WhatsApp IA</b><small>Responde, cualifica y agenda las 24 horas</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21l4-4M8 9h8M8 12h5"/></svg></span><span><b>Chatbot web IA</b><small>Resuelve dudas con la información de tu empresa</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span><span><b>Asistente telefónico IA</b><small>Coge las llamadas que hoy se pierden</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg></span><span><b>Agentes IA para empresas</b><small>Empleados digitales que hacen tareas completas, también en una oficina 3D</small></span></a></li></ul></div><div class="mg-col"><span class="mg-h">Software</span><ul><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg></span><span><b>Software a medida</b><small>Programas hechos para vuestro proceso, sin licencias por usuario</small></span></a></li><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></span><span><b>Desarrollo de apps móviles</b><small>Vuestro proceso en el móvil de todo el equipo</small></span></a></li><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span><span><b>Automatización de procesos</b><small>Pedidos, facturas y datos que pasan de un programa a otro solos</small></span></a></li></ul></div><div class="mg-col"><span class="mg-h">Crecimiento</span><ul><li><a href="/posicionamiento-en-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span><b>GEO: posicionamiento en IA</b><small>Que ChatGPT y Gemini recomienden tu empresa</small></span></a></li><li><a href="/ia-para-empresas/formacion/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></span><span><b>Formación en IA para empresas</b><small>Tu equipo usando la IA con criterio, desde el primer día</small></span></a></li><li><a href="/diagnostico/?cta=web_desarrollo_web"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><span><b>Desarrollo web a medida</b><small>Webs rápidas, claras y preparadas para la IA</small></span></a></li></ul></div></div>
+      <div class="mg-cols"><div class="mg-col"><span class="mg-h">Inteligencia Artificial</span><ul><li><a href="/agentes-ia/whatsapp/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg></span><span><b>Agente de WhatsApp IA</b><small>Responde, cualifica y agenda las 24 horas</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21l4-4M8 9h8M8 12h5"/></svg></span><span><b>Chatbot web IA</b><small>Resuelve dudas con la información de tu empresa</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span><span><b>Asistente telefónico IA</b><small>Coge las llamadas que hoy se pierden</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg></span><span><b>Agentes IA para empresas</b><small>Empleados digitales que hacen tareas completas</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg></span><span><b>Agentes IA 3D</b><small>Tu equipo de agentes trabajando a la vista, en una oficina 3D</small></span></a></li></ul></div><div class="mg-col"><span class="mg-h">Software</span><ul><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg></span><span><b>Software a medida</b><small>Programas hechos para vuestro proceso, sin licencias por usuario</small></span></a></li><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></span><span><b>Desarrollo de apps móviles</b><small>Vuestro proceso en el móvil de todo el equipo</small></span></a></li><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span><span><b>Automatización de procesos</b><small>Pedidos, facturas y datos que pasan de un programa a otro solos</small></span></a></li></ul></div><div class="mg-col"><span class="mg-h">Crecimiento</span><ul><li><a href="/posicionamiento-en-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span><b>GEO: posicionamiento en IA</b><small>Que ChatGPT y Gemini recomienden tu empresa</small></span></a></li><li><a href="/ia-para-empresas/formacion/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></span><span><b>Formación en IA para empresas</b><small>Tu equipo usando la IA con criterio, desde el primer día</small></span></a></li><li><a href="/diagnostico/?cta=web_desarrollo_web"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><span><b>Desarrollo web a medida</b><small>Webs rápidas, claras y preparadas para la IA</small></span></a></li></ul></div></div>
       <div class="mg-foot"><span>¿No sabes por dónde empezar?</span><a href="/diagnostico/?cta=web_menu_soluciones">Consultoría gratuita de 25 minutos <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a></div>
     </div></div>
       <a href="/propuesta-portada/casos-de-exito/">Casos de éxito</a>
@@ -1375,7 +1452,7 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
   <div class="mm-in">
     <nav aria-label="Secciones">
       <ul class="mm-list">
-        <li><button type="button" class="mm-acc" aria-expanded="false" aria-controls="mm-sol">Soluciones <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="mm-sol" id="mm-sol"><span class="mm-h">Inteligencia Artificial</span><ul><li><a href="/agentes-ia/whatsapp/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg><span>Agente de WhatsApp IA</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21l4-4M8 9h8M8 12h5"/></svg><span>Chatbot web IA</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span>Asistente telefónico IA</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg><span>Agentes IA para empresas</span></a></li></ul><span class="mm-h">Software</span><ul><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg><span>Software a medida</span></a></li><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><span>Desarrollo de apps móviles</span></a></li><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Automatización de procesos</span></a></li></ul><span class="mm-h">Crecimiento</span><ul><li><a href="/posicionamiento-en-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>GEO: posicionamiento en IA</span></a></li><li><a href="/ia-para-empresas/formacion/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg><span>Formación en IA para empresas</span></a></li><li><a href="/diagnostico/?cta=web_desarrollo_web"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>Desarrollo web a medida</span></a></li></ul></div></li>
+        <li><button type="button" class="mm-acc" aria-expanded="false" aria-controls="mm-sol">Soluciones <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="mm-sol" id="mm-sol"><span class="mm-h">Inteligencia Artificial</span><ul><li><a href="/agentes-ia/whatsapp/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg><span>Agente de WhatsApp IA</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21l4-4M8 9h8M8 12h5"/></svg><span>Chatbot web IA</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span>Asistente telefónico IA</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg><span>Agentes IA para empresas</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg><span>Agentes IA 3D</span></a></li></ul><span class="mm-h">Software</span><ul><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg><span>Software a medida</span></a></li><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><span>Desarrollo de apps móviles</span></a></li><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Automatización de procesos</span></a></li></ul><span class="mm-h">Crecimiento</span><ul><li><a href="/posicionamiento-en-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>GEO: posicionamiento en IA</span></a></li><li><a href="/ia-para-empresas/formacion/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg><span>Formación en IA para empresas</span></a></li><li><a href="/diagnostico/?cta=web_desarrollo_web"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>Desarrollo web a medida</span></a></li></ul></div></li>
         <li><a href="/propuesta-portada/casos-de-exito/">Casos de éxito</a></li>
         <li><a href="/propuesta-portada/quienes-somos/">Quiénes somos</a></li>
         <li><a href="/propuesta-portada/#redes">En redes</a></li>
@@ -1630,7 +1707,7 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
   if(fine&&!calm)[].slice.call(document.querySelectorAll('.rl-v')).forEach(function(a){var v=a.querySelector('video');a.addEventListener('mouseenter',function(){var p=v.play();if(p&&p.catch)p.catch(function(){});});a.addEventListener('mouseleave',function(){v.pause();});});
 
   /* barra de la propuesta */
-  var bar=document.createElement('div');bar.className='pbar';bar.innerHTML='Propuesta v4 · no es la web pública <button type="button">Ocultar notas</button>';document.body.appendChild(bar);
+  var bar=document.createElement('div');bar.className='pbar';bar.innerHTML='Propuesta v5 · no es la web pública <button type="button">Ocultar notas</button>';document.body.appendChild(bar);
   bar.querySelector('button').addEventListener('click',function(){var on=root.classList.toggle('notes');this.textContent=on?'Ocultar notas':'Ver notas';});
 })();
 
@@ -1760,6 +1837,19 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
     dlg.addEventListener('click',function(e){if(e.target===dlg)close();});
     dlg.addEventListener('close',function(){fv.pause();});
   }
+})();
+
+(function(){
+  /* quiénes somos: las fichas empiezan junto al título y bajan con el scroll hasta su sitio */
+  var el=document.querySelector('[data-drop]'),top=document.querySelector('.qs-hero .eyebrow');
+  if(!el||!top)return;
+  var wide=window.matchMedia('(min-width:821px)'),calm=window.matchMedia('(prefers-reduced-motion: reduce)').matches,off=0,ticking=false;
+  function measure(){el.style.translate='';if(!wide.matches||calm){off=0;return;}off=Math.max(0,(el.getBoundingClientRect().top+scrollY)-(top.getBoundingClientRect().top+scrollY));apply();}
+  function apply(){ticking=false;var d=Math.max(0,off-scrollY);el.style.translate=d?'0 '+(-d)+'px':'';}
+  measure();
+  window.addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(apply);}},{passive:true});
+  window.addEventListener('resize',measure);
+  window.addEventListener('load',measure);
 })();
 
 </script>
