@@ -1,6 +1,6 @@
 # Borrador · /ia-para-empresas/instaladoras/
 
-Estado: **texto completo el 29/10/2026 (Contenido, turno de las 10:00), sin publicar.** Sale del encargo del Jefe (28/10 tarde y 29/10 mañana) con el esquema de 6 H2 de `preguntas.md` («Turno 28/10 tarde», 8 preguntas) y el H2 de cualificar el lead que añadió el Vigía (`sectores/energia-solar.md`). Cola: se maqueta después de voz (30/10) y presupuestos (2/11). La deducción de IRPF del RDL 7/2026 **no entra** hasta que el Vigía lea el BOE-A-2026-6544 (encargo suyo del 30/10); sin porcentajes.
+Estado: **texto completo el 29/10/2026 (10:00); maquetada el 29/10 (15:00) en `borradores/html/ia-para-empresas-instaladoras.html` con fechas del 3/11 (cambiar si sale otro día). Sin las líneas «Pregunta real» (son notas internas).** Sale del encargo del Jefe (28/10 tarde y 29/10 mañana) con el esquema de 6 H2 de `preguntas.md` («Turno 28/10 tarde», 8 preguntas) y el H2 de cualificar el lead que añadió el Vigía (`sectores/energia-solar.md`). Cola: se maqueta después de voz (30/10) y presupuestos (2/11). La deducción de IRPF del RDL 7/2026 **no entra** hasta que el Vigía lea el BOE-A-2026-6544 (encargo suyo del 30/10); sin porcentajes.
 
 ## Ficha
 
