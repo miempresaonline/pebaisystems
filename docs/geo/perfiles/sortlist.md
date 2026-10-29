@@ -79,3 +79,4 @@ Publicado el 28/10/2026: https://www.sortlist.es/agency/pebai-systems
 - 28/10/2026: enviada (con OK de Daniel) la reseña real de Google de Álvaro Lázaro, cofundador de Fran García Cars, 5 estrellas, servicio IA. Sortlist le manda un email para confirmarla; hasta entonces no se ve en el panel.
 
 - 28/10/2026 (noche): la oficina sigue como «Plaça de l'Ajuntament, València». Sortlist solo acepta una dirección exacta o el perfil de Google Business (no encuentra el nuestro). Alternativa: borrar la oficina y marcar «Trabajo en remoto»; pendiente de decidir.
+- 29/10/2026: el servicio «Inteligencia Artificial» decía 690 usuarios; corregido a 659 usuarios registrados y 98 % de aprobación (22/10/2026), como en la web. Revisados los demás perfiles: solo Sortlist tenía la cifra mal; Santacruz dice 343 pedidos de 2026 en todos y El Amparo no aparece (salvo DesignRush, en revisión).
