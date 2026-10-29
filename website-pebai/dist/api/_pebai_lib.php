@@ -749,7 +749,7 @@ function pebai_lead_email_bloque(array $lead): string
     }
     if (($lead['web'] ?? '') !== '') {
         $filas[] = ['Web', '<a href="' . h($lead['web']) . '" style="color:#594AF7">' . h(preg_replace('~^https?://|/$~', '', $lead['web'])) . '</a> <span style="color:#9AA0AE">· análisis en marcha, sale en el panel</span>'];
-    } elseif (array_key_exists('web', $lead)) {
+    } elseif (($lead['problema'] ?? '') !== '') {   // solo el formulario nuevo pregunta la web
         $filas[] = ['Web', 'No tienen web'];
     }
     if (($lead['decisor'] ?? '') !== '') {
