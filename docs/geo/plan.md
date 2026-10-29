@@ -114,6 +114,13 @@ Jueves 29/10 mañana (Jefe). Cifra clave: 0 de 5 preguntas con PEBAI y la búsqu
 4. Técnico: Bing con las 8 URLs, URLs viejas con 301 en un salto y piloto interno del estudio de instaladoras. (geo_tecnico)
 5. Daniel: «Solicitar indexación» de formación y WhatsApp (y cuánto cuesta desde el viernes), nombre de la ficha de Google y OK a la estrategia por nichos.
 
+Jueves 29/10 tarde (Jefe). Cifra clave: 0 de 10 preguntas con PEBAI hoy (mañana y tarde, solo WebSearch) y 10 URLs en el sitemap tras cuánto cuesta y Valencia (esta la publicó Daniel). Hecho de la mañana: 1 (cuánto cuesta publicada; presupuestos e instaladoras maquetadas), 2 (resumen, fuentes y FAQ en 6), 3 (El Amparo a borrador; GoodFirms, Yelp y EnrollBusiness en el `sameAs`) y 4 (301 en un salto; método del piloto). Riesgo nuevo: errores 522/525 de Cloudflare en 1 de cada 6 peticiones desde las 14:45 UTC. Hasta el lunes:
+1. Técnico y Daniel: que la web deje de fallar (diagnóstico desde fuera, pasos de hPanel para Daniel). (geo_tecnico, geo_medicion)
+2. Contenido: voz el vie 30/10 y presupuestos el lun 2/11; borradores de cómo elegir consultora e integración con ERP. (geo_contenido)
+3. Refresco: Valencia con fuentes y 6.ª FAQ, el GEO de /posicionamiento-en-ia/ sin «agencia» y cifras de casos iguales en toda la web. (geo_refresco)
+4. Valencia visible: post de Google del 4/11, LinkedIn del 3/12, preguntas locales e indexación. (geo_local, geo_redes, geo_preguntas, geo_medicion)
+5. Daniel: la incidencia en hPanel, nombre de la ficha, «Solicitar indexación» y OK a la estrategia por nichos.
+
 ## Propuestas del Vigía
 
 (El Vigía añade aquí lo que cambie el plan; el Jefe las resuelve.)

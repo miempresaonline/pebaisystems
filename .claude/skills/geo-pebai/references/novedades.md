@@ -270,11 +270,7 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 ## Para el Jefe
 
 
+(Repartido por el Jefe el 29/10 tarde: lo de Redes (El Amparo ya en borrador, sigue en la pregunta de casos de «Para Daniel»; el artículo de LinkedIn, a «Para Daniel» con sus pasos); la incidencia 522/525 de Medición, a Técnico, Medición y Daniel; las consultas de Search Console sin página, a Refresco y Preguntas; Valencia (publicada por Daniel), a Refresco, Técnico, Medición, Local, Redes y Preguntas.)
 (Repartido por el Jefe el 29/10 mañana: art. 50 y cifras de casos en /agentes-ia/ ya estaban en el tablón de Refresco; el primer contacto del lead ya está en el encargo de instaladoras; propuestas del Vigía del 29/10: 1 como H2 de instaladoras (no satélite aparte), 2 como piloto interno de Técnico a la espera del OK de Daniel, 3 al Vigía para el 30/10; El Amparo del 5/11, a Redes con urgencia.)
 (Repartido por el Jefe el 28/10 tarde: Crunchbase ya publicado con los fundadores, fuera de «Para Daniel»; ubicación de clientes: Valencia desbloqueada con Gargom, prioridad baja, y la ciudad de Fran García va a Daniel; URLs viejas de ciudad: 301 a la portada, sin página de ciudad (decidido); cola de Contenido: cuánto cuesta jue 29/10, voz vie 30/10, presupuestos lun 2/11 con slug `/automatizacion-de-procesos/presupuestos/` (decidido) y /sobre-pebai/ cuando responda Daniel; la pregunta del caso de presupuestos, a Daniel.)
 (Repartido antes: ver `git log` de este archivo.)
-
-
-## Para el Jefe (Redes 29/10)
-- El post de LinkedIn de El Amparo del 5/11 estaba programado: pasado a borrador en Metricool; el hueco lo cubre «Chat en la web o WhatsApp». Pendiente de la respuesta de Daniel sobre El Amparo.
-- Artículo de LinkedIn: Metricool no publica artículos. Pasos de 2 minutos para Daniel en `docs/geo/borradores/linkedin/articulo-chatgpt-pasos-daniel.md`; pásalo a «Para Daniel».
