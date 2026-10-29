@@ -46,3 +46,4 @@ Enviado el 28/10/2026 (4 pasos completos), pendiente de revisión de GoodFirms.
 - 28/10/2026 (noche): Daniel aprobó en el chat GEO quitar la calle (no es nuestra dirección). Probado: el formulario no deja guardar sin calle («Street» obligatorio), así que sigue la de antes hasta que se decida qué hacer (no se pone otra inventada).
 
 - 29/10/2026: aprobado y publicado: https://www.goodfirms.co/company/pebai-systems (en el sameAs y los llms). Falta subir el portfolio (Fran García Cars, Gargom, Santacruz).
+- 29/10/2026: portfolio subido (4): app de revisiones y asistente de WhatsApp de Fran García Cars, Gargom y Santacruz, con imagen, enlace al caso en la web, 0-10.000 $ y duración real. Perfil LIVE y al 81 %; lo que falta son reseñas.
