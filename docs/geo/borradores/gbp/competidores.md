@@ -117,3 +117,25 @@ Casos con cliente real y datos, método de 25 minutos explicado, autor con nombr
 
 ### Mejora concreta para nuestra ficha
 Añadir a «Preguntas y respuestas» de la ficha la pregunta «¿Trabajáis con empresas de València si no estáis en la misma ciudad?» con respuesta honesta (videollamada de 25 minutos y trabajo remoto), para cubrir la búsqueda local sin prometer presencia: texto en `preguntas-ficha.md`.
+
+## 29/10/2026 (tarde) · AI Hispania (aihispania.com)
+Agencia de automatizaciones con n8n que se presenta para «empresas en España». Datos de su portada pública (WebFetch 29/10); su ficha de Maps no es verificable desde la nube.
+
+| Dato | Lo que consta |
+|---|---|
+| Sede | No consta ciudad ni dirección ni teléfono; solo «España» en el título |
+| Servicios | Agentes de WhatsApp o Telegram, facturas, cualificación de leads, agentes de voz, contenido para redes, consultoría de IA |
+| Casos | Enlace a «Proyectos» y una imagen llamada «casos-exito», sin cliente ni dato en la portada |
+| Reseñas y blog | No constan |
+| Contacto | Formulario y widget de WhatsApp |
+
+### 3 cosas aplicables a la ficha de PEBAI
+1. **Lista de servicios muy concreta (WhatsApp, voz, leads, facturas):** es lo que busca el dueño. Mantener en «Servicios» de la ficha los nombres literales de `servicios.md`.
+2. **Mezclan contenido para redes con IA:** se diluye. Nosotros no entramos en marketing (decisión del 26/10); no copiarlo.
+3. **Sin dirección ni teléfono visibles:** pierden confianza local. Nuestra ficha tiene zona de servicio y teléfono coherentes; mantenerlos iguales en todos los perfiles.
+
+### Dónde PEBAI ya gana
+Autor con nombre, casos con cliente y datos reales, método de 25 minutos explicado, NAP coherente.
+
+### Mejora concreta para nuestra ficha
+Incluir en la descripción de la ficha las dos palabras que ellos usan como servicio estrella y nosotros también ofrecemos: «agentes de WhatsApp» y «agentes de voz» (hoy la descripción habla de «agentes de IA» en general). Texto propuesto en `servicios.md` al revisar la ficha.
