@@ -47,8 +47,11 @@ Casos reales de `casos.md`, sin cifras ni nombres de contacto.
 14. **¿Podéis hacer una aplicación para un taller o negocio de automoción?**
     Sí. Para Fran García Cars construimos una aplicación de revisiones de coches importados, con expedientes, fotos, aprobación técnica y licitaciones, y un asistente de WhatsApp.
 
-15. **¿Hacéis webs y portales para residencias o entidades sociales?**
+15. **[PAUSADA 29/10: El Amparo fuera de lo público hasta que Daniel confirme; no pegar en la ficha]** **¿Hacéis webs y portales para residencias o entidades sociales?**
     Sí. A la Residencia El Amparo le hicimos una web nueva y un portal donde el equipo publica noticias y recibe candidaturas y solicitudes de las familias.
 
 16. **¿Trabajáis con empresas con varias sedes o idiomas?**
     Sí. Para Suministros Industriales Santacruz hicimos una aplicación de almacén y pedidos en cuatro idiomas para sus sedes de cuatro países.
+
+17. **¿Trabajáis con empresas de València si no estáis en su misma ciudad?**
+    Sí. Empezamos con una videollamada de 25 minutos, sin desplazamientos, y trabajamos en remoto con tu equipo. Si un proyecto pide ir a la empresa, se acuerda antes.

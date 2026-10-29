@@ -94,3 +94,26 @@ Casos con cifras y primer paso gratuito explícito; es consultoría de IA y no u
 
 ### Mejora concreta para nuestra ficha
 En «Servicios» de la ficha, enlazar cada servicio a su página (`/agentes-ia/`, `/automatizacion-de-procesos/`, `/posicionamiento-en-ia/`) con el texto de `servicios.md`.
+
+## 29/10/2026 · everyWAN (everywan.com)
+Proveedor de TI de Barcelona (Minorisa de Sistemas Informáticos y Gestión S.L.) con páginas por ciudad, también Valencia, Paterna y Alzira, que salen en las búsquedas «automatización IA Valencia». Datos de su página pública `/en/ai-automation-valencia`; su ficha de Maps no es verificable desde la nube.
+
+| Dato | Lo que consta |
+|---|---|
+| Sede | Sant Fruitós de Bages (Barcelona). En Valencia no tiene oficina: «atendemos Valencia en remoto» |
+| Servicios | Consultoría, desarrollo a medida y monitorización, sin alcance ni entregables |
+| Reseñas y casos | Ninguno en la página; enlaza a una ficha de Google |
+| Cifras | -80 % de tareas manuales, 25.000 € de ahorro, ROI en 6 meses, sin cliente, base ni fuente |
+| Precio | No lo dice, «contacta para una consulta gratuita» (solo en la FAQ) |
+| Idioma | Página en inglés con etiquetas en español |
+
+### 3 cosas aplicables a la ficha de PEBAI
+1. **Páginas por ciudad solo para llegar a las búsquedas locales:** ellos lo hacen sin oficina. Nosotros tenemos zona de servicio real en la ficha; mantener València y alrededores en «Zona de servicio» y no abrir páginas por ciudad duplicadas (canibalización).
+2. **Primer paso gratuito visible:** a ellos les queda escondido en la FAQ. En la ficha, el botón de reserva y los posts ya lo destacan; mantenerlo en la descripción de la ficha.
+3. **Cifras sin fuente son su punto débil:** las IAs desconfían. Nuestros posts usan hechos de casos reales (343 pedidos, 16 subvenciones); seguir así.
+
+### Dónde PEBAI ya gana
+Casos con cliente real y datos, método de 25 minutos explicado, autor con nombre. Ellos no muestran un solo cliente.
+
+### Mejora concreta para nuestra ficha
+Añadir a «Preguntas y respuestas» de la ficha la pregunta «¿Trabajáis con empresas de València si no estáis en la misma ciudad?» con respuesta honesta (videollamada de 25 minutos y trabajo remoto), para cubrir la búsqueda local sin prometer presencia: texto en `preguntas-ficha.md`.
