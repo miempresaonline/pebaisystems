@@ -1,4 +1,4 @@
-# Estrategia GEO por nichos (propuesta del 28/10/2026, pendiente de OK de Daniel)
+# Estrategia GEO por nichos (propuesta del 28/10/2026; añadidos aprobados por Daniel el 29/10/2026)
 
 Objetivo: que las IAs y Google recomienden a PEBAI en cada sector donde vendemos, y que eso traiga clientes. Hoy salimos en 0 de 15 preguntas sin marca (mediciones del 21/10 al 28/10).
 
@@ -85,6 +85,19 @@ Un pack cada 2 semanas: 6 nichos en unos 3 meses.
 | Citados en las preguntas del nicho (3 por nicho) | Al menos 1 de 3 en algún motor |
 | Mención de terceros | 1 por estudio |
 | Solicitudes desde ese nicho (panel) | Se mide; sin meta hasta tener datos |
+
+## 7 bis. Añadidos del 29/10 (Daniel probó Claude, ChatGPT y Gemini)
+
+Las tres IAs, preguntadas por «consultoras de IA en Valencia», no nombran a PEBAI. Las tres coinciden en lo mismo: menciones de terceros, reseñas, Valencia visible, casos con cifras, especialización y datos iguales en todas partes. Aprobado por Daniel:
+
+| # | Añadido | Quién | Estado |
+|---|---|---|---|
+| 1 | «Valencia» en el título y la descripción de la portada, y página exacta `/ia-para-empresas/valencia/` | chat GEO | 29/10 |
+| 2 | «Desarrollado por PEBAI Systems» con enlace en las apps de los clientes, con su permiso | Daniel pide permiso; el chat GEO lo pone | pendiente del permiso |
+| 3 | Ecosistema valenciano (Valencia Plaza, Economía 3, Startup Valencia, CEV…) como «mención de terceros» de cada pack | Vigía (ficha), Daniel aprueba los contactos | encargado |
+| 4 | Cifras de los casos idénticas y fechadas en la web y en todos los directorios (ChatGPT vio 659 frente a 690) | chat de directorios | encargado |
+
+Descartado: Reddit «orgánico» (es suplantar clientes), comparativas que nombran competidores, Kit Digital y llamarse «agencia».
 
 ## 8. Pendiente
 
