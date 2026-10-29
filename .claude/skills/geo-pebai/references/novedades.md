@@ -8,7 +8,7 @@ Sin novedades de buscadores que cambien algo (hoy no se buscó: tema de sector).
 
 **Ficha nueva:** `docs/geo/sectores/energia-solar.md` (preguntas, quién sale, medios y asociaciones con contacto, datos oficiales, ley). Dos datos clave [V]: la Agencia Tributaria confirma una deducción de IRPF solo para instalaciones de autoconsumo hechas en 2026 (RDL 7/2026), y UNEF cifra +65 % de baterías en 2025 con 61 % de lo residencial ya con almacenamiento (IFEMA, 29/06/2026).
 
-*Para el Jefe:*
+*Para el Jefe (repartido el 29/10 mañana):*
 1. **Contenido: satélite «cualificar leads de placas solares antes de la visita» para instaladoras.** Dato: las guías que salen son de EE. UU. y Brasil o de plataformas de leads (Habitissimo, involve.me) y no hay ninguna en español para pyme; y la deducción del RDL 7/2026 exige terminar la instalación en 2026, lo que da urgencia al instalador. Usar solo lo que conste en `casos.md` (Gargom/Santacruz) y no citar porcentajes de la deducción hasta leer el BOE-A-2026-6544.
 2. **Refresco/Contenido (Observatorio): estudio propio de uso de WhatsApp, formulario, chat y reservas en webs de instaladoras.** Dato: UNEF y Alimarket dan potencia y facturación (-27,6 % en 2024, 875 M€) pero ningún dato de captación; el buscador cubre más de 1.000 instaladoras. Destino: Energías Renovables y UNEF (contactos en la ficha); el envío lo aprueba Daniel.
 3. **Vigía (mañana): verificar el texto del BOE-A-2026-6544 (porcentajes y base de la deducción) y abrir el PDF del Informe Anual UNEF 2026.** Dato: hoy solo los tengo por resúmenes [S].
@@ -269,10 +269,8 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 ## Para el Jefe
 
-- **Refresco** (Vigía 28/10 tarde): corregir la cita del art. 50 en /agentes-ia/ y /formacion/ (ver novedad 1 de la tarde del 28/10); y fila de cifras reales de `casos.md` arriba en /agentes-ia/ (novedad 2).
-- **Contenido** (Vigía 28/10 tarde): borrador de instaladoras abre con el primer contacto del lead y la derivación a una persona (novedad 3).
 
+(Repartido por el Jefe el 29/10 mañana: art. 50 y cifras de casos en /agentes-ia/ ya estaban en el tablón de Refresco; el primer contacto del lead ya está en el encargo de instaladoras; propuestas del Vigía del 29/10: 1 como H2 de instaladoras (no satélite aparte), 2 como piloto interno de Técnico a la espera del OK de Daniel, 3 al Vigía para el 30/10; El Amparo del 5/11, a Redes con urgencia.)
 (Repartido por el Jefe el 28/10 tarde: Crunchbase ya publicado con los fundadores, fuera de «Para Daniel»; ubicación de clientes: Valencia desbloqueada con Gargom, prioridad baja, y la ciudad de Fran García va a Daniel; URLs viejas de ciudad: 301 a la portada, sin página de ciudad (decidido); cola de Contenido: cuánto cuesta jue 29/10, voz vie 30/10, presupuestos lun 2/11 con slug `/automatizacion-de-procesos/presupuestos/` (decidido) y /sobre-pebai/ cuando responda Daniel; la pregunta del caso de presupuestos, a Daniel.)
 (Repartido antes: ver `git log` de este archivo.)
 
-- (Local 29/10) Para el Jefe / Redes: el post de LinkedIn del 5/11 17:00 sigue siendo de El Amparo en Metricool. Local ya pasó a borrador la foto de El Amparo de la ficha de Google (29/10 11:00).

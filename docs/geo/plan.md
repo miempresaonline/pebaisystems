@@ -107,6 +107,13 @@ Miércoles 28/10 (Jefe). Cifra clave: 0 de 5 preguntas con PEBAI (Medición 28/1
 
 Miércoles 28/10 tarde (Jefe): hecho 1 (formación publicada, 6 FAQ, 200), 3 en buena parte (Crunchbase, Sortlist y Trustpilot publicados; 5 directorios más en revisión) y 2 a medias (301 de voz y ciudades hechas; ClaudeBot vuelve a dar 429 en la portada a las 15:2x UTC pese a la precarga). Calidad de los 6 pilares: 0 palabras prohibidas, 0 rayas, 0 exclamaciones, FAQ visible = JSON-LD; fallan 7 FAQ en 2 páginas, una fuente sin enlace (art. 50) y fechas movidas solo por enlaces. Riesgos nuevos para Daniel: nombre de la ficha de Google con palabras clave y una calle inventada en 2 directorios. Cola fijada: cuánto cuesta (jue), voz (vie), presupuestos (lun 2/11), /sobre-pebai/ (cuando responda Daniel), después instaladoras.
 
+Jueves 29/10 mañana (Jefe). Cifra clave: 0 de 5 preguntas con PEBAI y la búsqueda de marca no devuelve la web (Medición 29/10, solo WebSearch); 6 de 8 URLs indexadas en Google (/posicionamiento-en-ia/ entra el 28/10), Bing lee 5 de 8 del sitemap. Sin entidad no hay citas: hasta el lunes, publicar y que nos reconozcan.
+1. Contenido: publicar hoy /ia-para-empresas/cuanto-cuesta/ (borrador revisado por el Jefe: 6 FAQ = JSON-LD, 0 prohibidas, solo el dato público de 1.500 €), voz el vie 30/10 y presupuestos el lun 2/11; instaladoras con el H2 de cualificar el lead. (geo_contenido)
+2. Refresco: /ia-para-empresas/ con resumen y fuentes fechadas (único pilar sin ellos), cita del art. 50 corregida y FAQ en 6 en los 2 pilares que tienen 7. (geo_refresco)
+3. Entidad y redes: el post de LinkedIn de El Amparo del 5/11 a borrador hoy; fichas de directorios en revisión al `sameAs` cuando salgan; preguntas de confianza para /sobre-pebai/. (geo_redes, geo_local, geo_preguntas)
+4. Técnico: Bing con las 8 URLs, URLs viejas con 301 en un salto y piloto interno del estudio de instaladoras. (geo_tecnico)
+5. Daniel: «Solicitar indexación» de formación y WhatsApp (y cuánto cuesta desde el viernes), nombre de la ficha de Google y OK a la estrategia por nichos.
+
 ## Propuestas del Vigía
 
 (El Vigía añade aquí lo que cambie el plan; el Jefe las resuelve.)
