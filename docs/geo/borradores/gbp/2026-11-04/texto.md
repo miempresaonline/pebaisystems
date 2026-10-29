@@ -1,7 +1,7 @@
-En muchas empresas, una persona del equipo pasa horas cada semana copiando datos de un programa a otro, pasando facturas a mano o contestando las mismas consultas. Son tareas repetitivas que la Inteligencia Artificial puede hacer sola, conectando los programas que ya usáis.
+¿Buscas una consultoría de Inteligencia Artificial en Valencia? PEBAI Systems tiene su base aquí y trabaja en remoto con empresas de toda España.
 
-En PEBAI Systems hemos publicado una guía que explica qué tareas de una empresa se pueden automatizar, cómo se conectan las herramientas, qué cambia con la factura electrónica y cuándo no conviene automatizar.
+Ayudamos a empresas con equipo a atender a sus clientes a cualquier hora, quitar tareas manuales como presupuestos, pedidos o facturas, y conectar la IA a los programas que ya usan. Los casos que enseñamos son reales.
 
-Si quieres que miremos qué podrías automatizar en tu negocio, la consultoría es de 25 minutos por videollamada. Es gratuita para cinco empresas al mes; después, de pago.
+La consultoría es una videollamada de 25 minutos en pantalla compartida, así que no hace falta desplazarse. Es gratuita para cinco empresas al mes; después, de pago.
 
-Botón: Más información → https://pebaisystems.es/automatizacion-de-procesos/?cta=gbp_post
+Más información: https://pebaisystems.es/ia-para-empresas/valencia/?cta=gbp_post
