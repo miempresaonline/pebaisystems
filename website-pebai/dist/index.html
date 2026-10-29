@@ -550,7 +550,7 @@ html.js .reveal.in{opacity:1;transform:none}
 /* al bajar, un velo con el color de fondo para que el logo y los botones no floten sobre el texto */
 .header::before{content:"";position:absolute;left:0;right:0;top:0;height:calc(100% + 28px);background:linear-gradient(var(--bg) 55%,transparent);opacity:0;transition:opacity .3s ease;pointer-events:none}
 .header.scrolled::before{opacity:1}
-.header .wrap{height:84px;display:flex;align-items:center;justify-content:space-between}
+.header .wrap{position:relative;height:84px;display:flex;align-items:center;justify-content:space-between}
 .header .wrap > *{pointer-events:auto}
 .logo{display:inline-flex;align-items:center;height:50px;padding:0 16px;border-radius:999px;background:var(--glass-2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .logo img{height:26px;width:auto}

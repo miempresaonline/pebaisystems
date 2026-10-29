@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0A0912">
 <meta name="robots" content="noindex, nofollow">
-<title>Propuesta de portada | PEBAI Systems</title>
+<title>Propuesta de portada v2 | PEBAI Systems</title>
 <meta name="description" content="Implantamos IA en tu empresa: clientes atendidos 24 h, menos tareas manuales y sistemas conectados. Consultoría gratuita, 5 plazas al mes.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="PEBAI Systems">
@@ -104,7 +104,7 @@ html.js .reveal.in{opacity:1;transform:none}
 /* al bajar, un velo con el color de fondo para que el logo y los botones no floten sobre el texto */
 .header::before{content:"";position:absolute;left:0;right:0;top:0;height:calc(100% + 28px);background:linear-gradient(var(--bg) 55%,transparent);opacity:0;transition:opacity .3s ease;pointer-events:none}
 .header.scrolled::before{opacity:1}
-.header .wrap{height:84px;display:flex;align-items:center;justify-content:space-between}
+.header .wrap{position:relative;height:84px;display:flex;align-items:center;justify-content:space-between}
 .header .wrap > *{pointer-events:auto}
 .logo{display:inline-flex;align-items:center;height:50px;padding:0 16px;border-radius:999px;background:var(--glass-2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .logo img{height:26px;width:auto}
@@ -860,6 +860,140 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
   .mk *,.prompt::after,.pr-caret{animation:none!important;opacity:1!important}
 }
 
+/* ===== PROPUESTA v2: diseño editorial, sin aspecto «típico de IA» ===== */
+.header .wrap{position:relative}
+.eyebrow,.tag{display:inline-flex;align-items:center;gap:12px;height:auto;padding:0;border-radius:0;background:none;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-65)}
+.eyebrow::before,.tag::before{content:"";width:28px;height:1px;border-radius:0;background:var(--accent)}
+.n-reto{left:0;bottom:-46px}
+.n-hvid{right:0;bottom:-46px}
+.n-ct,.n-rd{right:var(--pad);top:40px}
+.n-qs{position:relative!important;display:none}
+html.notes .n-qs{display:inline-flex;margin-top:18px}
+#redes,.ct-sec,.h3-copy,.h3-media{position:relative}
+
+/* hero */
+.hero3{padding:140px 0 56px}
+.h3-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:56px;align-items:center}
+.h3-title{font-size:clamp(42px,5.2vw,82px);line-height:1;margin-top:20px}
+.reto-box{margin-top:34px;display:flex;flex-direction:column;gap:16px}
+.reto-q{font-size:15px;font-weight:600;color:var(--fg)}
+.retos{display:flex;flex-wrap:wrap;gap:8px}
+.reto{height:40px;padding:0 14px;border-radius:12px;font-size:13.5px;font-weight:600;color:var(--fg-65);box-shadow:inset 0 0 0 1px var(--fg-10);transition:background .2s ease,color .2s ease,box-shadow .2s ease}
+.reto:hover{color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg-40)}
+.reto.on{background:var(--fg);color:var(--bg);box-shadow:none}
+.reto-a{padding:16px 0 4px;border-top:1px solid var(--fg-10);min-height:96px}
+.reto-k{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-40)}
+.reto-sol{display:inline-flex;align-items:center;gap:8px;margin-top:6px;font-family:var(--serif);font-size:28px;line-height:1.1;color:var(--accent)}
+.reto-sol svg{width:16px;height:16px}
+.reto-d{margin-top:6px;font-size:14px;line-height:1.5;color:var(--fg-65);max-width:460px}
+.reto-a.flash .reto-sol,.reto-a.flash .reto-d{animation:fadeUp .45s var(--ease)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.reto-cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.reto-note{font-size:12px;color:var(--fg-40)}
+.h3-media .player{transform:none;border-radius:22px}
+
+/* servicios */
+.sv-sec .sv-panel{grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}
+.sv-sec .sv-head{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:40px}
+.sv-sec .sv-head .p{max-width:420px}
+.sv-sec .sv-h{max-width:620px}
+.sv-cards.n6,.sv-cards.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.sv3{display:flex;flex-direction:column;height:100%;border-radius:22px;overflow:hidden;background:var(--s1);box-shadow:inset 0 0 0 1px var(--fg-10);transition:transform .35s var(--ease),box-shadow .35s ease}
+.sv3:hover{transform:translateY(-4px);box-shadow:inset 0 0 0 1px var(--fg-40)}
+.sv3-m{position:relative;display:block;aspect-ratio:16/10;overflow:hidden;background:#0B0D15}
+.sv3-m img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+.sv3:hover .sv3-m img{transform:scale(1.03)}
+.sv3-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--accent);background:repeating-linear-gradient(135deg,rgba(255,255,255,.03) 0 12px,transparent 12px 24px),#0E0D18}
+.sv3-soon{position:absolute;left:10px;bottom:10px;padding:5px 9px;border-radius:8px;background:rgba(10,9,18,.78);color:#EFEDE7;font-size:10.5px;font-weight:700;letter-spacing:.04em}
+.sv3-b{display:flex;flex-direction:column;gap:6px;padding:16px 18px 18px;flex:1}
+.sv3-i{color:var(--accent)}
+.sv3-b b{font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--fg)}
+.sv3-b small{font-size:13px;line-height:1.45;color:var(--fg-65)}
+.sv3-go{margin-top:auto;padding-top:10px;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-65)}
+.sv3:hover .sv3-go{color:var(--accent)}
+.sv-tab[aria-selected="true"]{background:var(--fg);color:var(--bg);box-shadow:none}
+.sv-tab[aria-selected="true"] span{color:var(--fg-40)}
+
+/* casos (resumen) */
+.ct-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:44px}
+.ct{display:flex;flex-direction:column;border-radius:22px;overflow:hidden;background:var(--s1);box-shadow:inset 0 0 0 1px var(--fg-10);transition:transform .35s var(--ease)}
+.ct:hover{transform:translateY(-4px)}
+.ct-m{aspect-ratio:16/9;overflow:hidden;background:#fff}
+.ct-m img{width:100%;height:100%;object-fit:cover;object-position:left top}
+.ct-b{display:flex;flex-direction:column;gap:4px;padding:16px 18px 20px}
+.ct-b small{font-size:12px;color:var(--fg-40)}
+.ct-b b{font-size:18px;font-weight:600}
+.ct-f{margin-top:6px;font-size:13px;color:var(--fg-65)}
+.ct-f em{font-family:var(--serif);font-style:normal;font-size:26px;color:var(--accent);margin-right:4px}
+
+/* diferencias */
+.df-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 40px;margin-top:40px}
+.df{display:flex;flex-direction:column;gap:10px;padding:26px 0 30px;border-top:1px solid var(--fg-10)}
+.df-n{font-family:var(--serif);font-size:44px;line-height:1;color:var(--accent)}
+.df .h3{font-size:20px}
+
+/* redes */
+.rl-rail{display:flex;gap:14px;margin-top:40px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:6px}
+.rl-rail::-webkit-scrollbar{display:none}
+.rl{flex:0 0 clamp(190px,16vw,240px);scroll-snap-align:start;display:flex;flex-direction:column;gap:10px}
+.rl-v{position:relative;display:block;aspect-ratio:9/16;border-radius:20px;overflow:hidden;background:#000;box-shadow:inset 0 0 0 1px var(--fg-10)}
+.rl-v video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rl-v::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(6,5,14,.9));pointer-events:none}
+.rl-d{position:absolute;top:10px;right:10px;z-index:1;padding:4px 8px;border-radius:8px;background:rgba(10,9,18,.7);color:#EFEDE7;font-size:11px;font-weight:700}
+.rl-t{position:absolute;left:14px;right:14px;bottom:14px;z-index:1;font-family:var(--serif);font-size:20px;line-height:1.05;color:#F5F3EE}
+.rl-ig{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-65)}
+.rl-ig:hover{color:var(--fg)}
+
+/* páginas nuevas */
+.pg-hero{padding:150px 0 20px}
+.pg-title{font-size:clamp(44px,6vw,90px);line-height:1;margin-top:18px;max-width:1000px}
+.pg-sub{margin-top:20px;max-width:560px;font-size:16px;line-height:1.5}
+.qs-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:56px;align-items:start}
+.qs-txt{display:flex;flex-direction:column;gap:18px}
+.qs-lead{font-size:clamp(28px,3vw,42px);line-height:1.08}
+.qs-lead em{font-style:italic;color:var(--accent)}
+.qs-txt .p{font-size:15px;line-height:1.6;max-width:620px}
+.qs-team{display:flex;flex-direction:column;gap:10px}
+.qs-team li{display:flex;gap:16px;align-items:center;padding:12px;border-radius:20px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--fg-10)}
+.qs-team img{width:84px;height:104px;border-radius:14px;object-fit:cover}
+.qs-team b{display:block;font-size:16px;font-weight:600}
+.qs-team small{display:block;font-size:13px;color:var(--fg-65);margin-top:3px}
+.qs-team a{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;font-weight:700;color:var(--fg-65)}
+.qs-nums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px;margin-top:64px}
+.qs-nums li{padding-top:20px;border-top:1px solid var(--fg-10)}
+.qs-nums b{display:block;font-family:var(--serif);font-weight:400;font-size:52px;line-height:1;color:var(--accent)}
+.qs-nums span{display:block;margin-top:8px;font-size:13px;color:var(--fg-65)}
+
+@media (max-width:1100px){
+  .h3-grid{grid-template-columns:minmax(0,1fr);gap:36px}
+  .sv-cards.n6{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:820px){
+  .hero3{padding:108px 0 36px}
+  .h3-title{font-size:40px}
+  .reto{height:38px;font-size:13px;padding:0 12px}
+  .reto-sol{font-size:24px}
+  .reto-cta .btn{width:100%}
+  .sv-sec .sv-head{flex-direction:column;align-items:flex-start;gap:10px}
+  .sv-cards li{flex:0 0 78vw}
+  .ct-list{grid-template-columns:minmax(0,1fr);gap:10px;margin-top:28px}
+  .ct{flex-direction:row}
+  .ct-m{flex:0 0 42%;aspect-ratio:auto}
+  .ct-b{padding:14px}
+  .ct-b b{font-size:15px}
+  .ct-f em{font-size:22px}
+  .df-grid{grid-template-columns:minmax(0,1fr)}
+  .df{padding:20px 0 22px}
+  .df-n{font-size:34px}
+  .rl-rail{margin-right:calc(var(--pad) * -1);padding-right:var(--pad)}
+  .rl{flex-basis:58vw}
+  .pg-hero{padding:116px 0 10px}
+  .pg-title{font-size:42px}
+  .qs-grid{grid-template-columns:minmax(0,1fr);gap:32px}
+  .qs-nums{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 20px;margin-top:40px}
+  .qs-nums b{font-size:40px}
+}
+
 </style>
 <!-- Metricool: medición de audiencia sin cookies (exenta de consentimiento, ver /politica-de-cookies/) -->
 <script>function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"1f93f597864f09fbd98fe7aaf3444936"})});</script>
@@ -869,18 +1003,18 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
 
 <header class="header nav2">
   <div class="wrap">
-    <a class="logo" href="#inicio" aria-label="PEBAI Systems, inicio">
+    <a class="logo" href="/propuesta-portada/" aria-label="PEBAI Systems, inicio">
       <img class="only-dark" src="/brand/pebai-horizontal-color-mineral-cropped.webp" alt="PEBAI Systems" width="400" height="116">
       <img class="only-light" src="/brand/home/logo-ink.webp" alt="PEBAI Systems" width="400" height="116">
     </a>
     <nav class="topnav" aria-label="Principal">
       <div class="tn-sol"><button type="button" id="sol-btn" aria-expanded="false" aria-controls="mega">Soluciones <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="mega" id="mega" role="region" aria-label="Soluciones">
-      <div class="mg-cols"><div class="mg-col"><span class="mg-h">Atender clientes</span><ul><li><a href="/agentes-ia/whatsapp/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg></span><span><b>Agente de WhatsApp</b><small>Responde, cualifica y agenda las 24 h</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span><span><b>Asistente telefónico</b><small>Coge las llamadas que hoy se pierden</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21l4-4M8 9h8M8 12h5"/></svg></span><span><b>Chat para tu web</b><small>Dudas resueltas con la información de tu empresa</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><span><b>Citas y recordatorios</b><small>Agenda llena sin llamar a nadie</small></span></a></li></ul></div><div class="mg-col"><span class="mg-h">Operativa y software</span><ul><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></span><span><b>Aplicaciones a medida</b><small>Vuestro proceso, en una app hecha para vosotros</small></span></a></li><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"/><path d="M9 12h6M9 16h4"/></svg></span><span><b>Facturas, pedidos y albaranes</b><small>Se leen solos y pasan a vuestro programa</small></span></a></li><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span><span><b>Conectar ERP y CRM</b><small>Que vuestros programas se hablen</small></span></a></li><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span><b>Paneles de control</b><small>Las cifras del negocio en tiempo real</small></span></a></li></ul></div><div class="mg-col"><span class="mg-h">Visibilidad y estrategia</span><ul><li><a href="/posicionamiento-en-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span><b>Posicionamiento en IA</b><small>Que ChatGPT y Gemini recomienden tu empresa</small></span></a></li><li><a href="#prueba"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></svg></span><span><b>Radiografía en IA</b><small>Qué dice hoy la IA de tu empresa</small></span></a></li><li><a href="/ia-para-empresas/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h7"/></svg></span><span><b>IA para empresas</b><small>Por dónde empezar, paso a paso</small></span></a></li><li><a href="/ia-para-empresas/cuanto-cuesta/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 6.5A7 7 0 1 0 17 17.5M4 10h9M4 14h9"/></svg></span><span><b>Cuánto cuesta</b><small>Precios orientativos sin letra pequeña</small></span></a></li></ul></div></div>
+      <div class="mg-cols"><div class="mg-col"><span class="mg-h">Inteligencia Artificial</span><ul><li><a href="/consultoria-gratuita/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg></span><span><b>Consultoría IA (0 €)</b><small>25 minutos para ver dónde se te escapan el tiempo y el dinero</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg></span><span><b>Agentes IA para empresas</b><small>Empleados digitales que hacen tareas completas</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg></span><span><b>Agentes IA 3D</b><small>Tu equipo de agentes trabajando a la vista, en una oficina 3D</small></span></a></li><li><a href="/agentes-ia/whatsapp/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg></span><span><b>Agente de WhatsApp IA</b><small>Responde, cualifica y agenda las 24 horas</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21l4-4M8 9h8M8 12h5"/></svg></span><span><b>Chatbot web IA</b><small>Resuelve dudas con la información de tu empresa</small></span></a></li><li><a href="/agentes-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span><span><b>Asistente telefónico IA</b><small>Coge las llamadas que hoy se pierden</small></span></a></li></ul></div><div class="mg-col"><span class="mg-h">Software</span><ul><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg></span><span><b>Software a medida</b><small>Programas hechos para vuestro proceso, sin licencias por usuario</small></span></a></li><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></span><span><b>Desarrollo de apps móviles</b><small>Vuestro proceso en el móvil de todo el equipo</small></span></a></li><li><a href="/automatizacion-de-procesos/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span><span><b>Automatización de procesos</b><small>Pedidos, facturas y datos que pasan de un programa a otro solos</small></span></a></li></ul></div><div class="mg-col"><span class="mg-h">Visibilidad y estrategia</span><ul><li><a href="/posicionamiento-en-ia/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span><b>GEO: posicionamiento en IA</b><small>Que ChatGPT y Gemini recomienden tu empresa</small></span></a></li><li><a href="/ia-para-empresas/formacion/"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></span><span><b>Formación en IA para empresas</b><small>Tu equipo usando la IA con criterio, desde el primer día</small></span></a></li><li><a href="/diagnostico/?cta=web_desarrollo_web"><span class="mg-i"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><span><b>Desarrollo web a medida</b><small>Webs rápidas, claras y preparadas para la IA</small></span></a></li></ul></div></div>
       <div class="mg-foot"><span>¿No sabes por dónde empezar?</span><a href="/diagnostico/?cta=web_menu_soluciones">Consultoría gratuita de 25 minutos <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a></div>
     </div></div>
-      <a href="#casos">Casos reales</a>
-      <a href="#proceso">Cómo trabajamos</a>
-      <a href="#equipo">Equipo</a>
+      <a href="/propuesta-portada/casos-de-exito/">Casos de éxito</a>
+      <a href="/propuesta-portada/quienes-somos/">Quiénes somos</a>
+      <a href="#redes">En redes</a>
     </nav>
     <div class="hdr-right">
       <button class="round theme-btn" type="button" id="theme-btn" aria-label="Cambiar a fondo claro" aria-pressed="false"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/></svg></button>
@@ -888,21 +1022,20 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
       <a class="btn btn-lime hdr-cta" href="/diagnostico/?cta=web_header" data-event="click_consultoria_header">Consultoría gratuita</a>
     </div>
   </div>
-  <span class="pnote n-hdr" data-n="1">Cabecera como Lienzzo: Soluciones con todo lo que hacemos, en 3 columnas</span>
+  <span class="pnote n-hdr" data-n="1">Menú con tus servicios. «Casos de éxito» y «Quiénes somos» son páginas propias, como Lienzzo. El botón ya no desaparece al bajar</span>
 </header>
 
 <div class="menu mm" id="menu" role="dialog" aria-modal="true" aria-label="Menú">
   <div class="mm-in">
     <nav aria-label="Secciones">
       <ul class="mm-list">
-        <li><button type="button" class="mm-acc" aria-expanded="false" aria-controls="mm-sol">Soluciones <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="mm-sol" id="mm-sol"><span class="mm-h">Atender clientes</span><ul><li><a href="/agentes-ia/whatsapp/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg><span>Agente de WhatsApp</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span>Asistente telefónico</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21l4-4M8 9h8M8 12h5"/></svg><span>Chat para tu web</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Citas y recordatorios</span></a></li></ul><span class="mm-h">Operativa y software</span><ul><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><span>Aplicaciones a medida</span></a></li><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"/><path d="M9 12h6M9 16h4"/></svg><span>Facturas, pedidos y albaranes</span></a></li><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Conectar ERP y CRM</span></a></li><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Paneles de control</span></a></li></ul><span class="mm-h">Visibilidad y estrategia</span><ul><li><a href="/posicionamiento-en-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Posicionamiento en IA</span></a></li><li><a href="#prueba"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></svg><span>Radiografía en IA</span></a></li><li><a href="/ia-para-empresas/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h7"/></svg><span>IA para empresas</span></a></li><li><a href="/ia-para-empresas/cuanto-cuesta/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 6.5A7 7 0 1 0 17 17.5M4 10h9M4 14h9"/></svg><span>Cuánto cuesta</span></a></li></ul></div></li>
-        <li><a href="#casos">Casos reales</a></li>
-        <li><a href="#proceso">Cómo trabajamos</a></li>
-        <li><a href="#equipo">Equipo</a></li>
+        <li><button type="button" class="mm-acc" aria-expanded="false" aria-controls="mm-sol">Soluciones <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="mm-sol" id="mm-sol"><span class="mm-h">Inteligencia Artificial</span><ul><li><a href="/consultoria-gratuita/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg><span>Consultoría IA (0 €)</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg><span>Agentes IA para empresas</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg><span>Agentes IA 3D</span></a></li><li><a href="/agentes-ia/whatsapp/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg><span>Agente de WhatsApp IA</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21l4-4M8 9h8M8 12h5"/></svg><span>Chatbot web IA</span></a></li><li><a href="/agentes-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span>Asistente telefónico IA</span></a></li></ul><span class="mm-h">Software</span><ul><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg><span>Software a medida</span></a></li><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><span>Desarrollo de apps móviles</span></a></li><li><a href="/automatizacion-de-procesos/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Automatización de procesos</span></a></li></ul><span class="mm-h">Visibilidad y estrategia</span><ul><li><a href="/posicionamiento-en-ia/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>GEO: posicionamiento en IA</span></a></li><li><a href="/ia-para-empresas/formacion/"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg><span>Formación en IA para empresas</span></a></li><li><a href="/diagnostico/?cta=web_desarrollo_web"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>Desarrollo web a medida</span></a></li></ul></div></li>
+        <li><a href="/propuesta-portada/casos-de-exito/">Casos de éxito</a></li>
+        <li><a href="/propuesta-portada/quienes-somos/">Quiénes somos</a></li>
+        <li><a href="#redes">En redes</a></li>
         <li><a href="https://wa.me/34624842799" target="_blank" rel="noopener">WhatsApp</a></li>
       </ul>
     </nav>
-    <span class="pnote n-mm" data-n="2">Menú del móvil sencillo: 5 líneas y el botón fijo abajo</span>
   </div>
   <div class="mm-cta"><a class="btn btn-lime" href="/diagnostico/?cta=web_menu" data-event="click_consultoria_menu">Consultoría gratuita</a></div>
 </div>
@@ -920,50 +1053,27 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
 <main id="contenido">
 
 <!-- HERO -->
-<section class="hero2" id="inicio">
-  <div class="wrap">
-    <span class="tag h2-tag">Procesos e Inteligencia Artificial</span>
-    <h1 class="serif h1 h2-title">Inteligencia Artificial trabajando <em>dentro</em> de tu empresa.</h1>
-    <p class="p h2-sub">Asistentes que atienden a tus clientes, sistemas que quitan el trabajo manual y visibilidad en los buscadores de IA.</p>
-    <form class="prompt" id="prueba" autocomplete="off">
-      <div class="pr-line"><span class="pr-ico"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.7L18.5 9l-4.7 1.8L12 15.5l-1.8-4.7L5.5 9l4.7-1.3z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></span><span class="pr-type" data-phrases="Contesta los WhatsApp de mis clientes a las 3 de la mañana|Coge las llamadas que hoy se nos escapan|Pasa los albaranes al programa sin copiarlos a mano|Haz que ChatGPT recomiende mi empresa|Dime cuántas horas pierde mi equipo cada semana">Contesta los WhatsApp de mis clientes a las 3 de la mañana</span><span class="pr-caret"></span></div>
-      <div class="pr-row">
-        <label class="sr" for="pr-web">Web de tu empresa</label>
-        <input id="pr-web" type="text" inputmode="url" placeholder="tuempresa.es" aria-describedby="pr-help">
-        <button class="btn btn-lime" type="submit">Ver mi radiografía</button>
+<section class="hero3" id="inicio">
+  <div class="wrap h3-grid">
+    <div class="h3-copy">
+      <p class="eyebrow">Procesos e Inteligencia Artificial</p>
+      <h1 class="serif h1 h3-title">Inteligencia Artificial trabajando <em>dentro</em> de tu empresa.</h1>
+      <div class="reto-box">
+        <p class="reto-q">¿Qué te quita más tiempo?</p>
+        <div class="retos" role="group" aria-label="Elige lo que más tiempo te quita"><button type="button" class="reto on" data-reto="whatsapp" data-sol="Agente de WhatsApp IA" data-desc="Contesta al momento, cualifica y agenda la cita. Tú entras solo cuando hace falta." data-url="/agentes-ia/whatsapp/" aria-pressed="true">WhatsApp sin contestar</button><button type="button" class="reto" data-reto="llamadas" data-sol="Asistente telefónico IA" data-desc="Coge todas las llamadas, también fuera de horario, y deja la cita o el aviso apuntados." data-url="/agentes-ia/" aria-pressed="false">Llamadas perdidas</button><button type="button" class="reto" data-reto="papeles" data-sol="Automatización de procesos" data-desc="Se leen solos y pasan a vuestro programa. Nadie vuelve a copiar datos." data-url="/automatizacion-de-procesos/" aria-pressed="false">Facturas y albaranes a mano</button><button type="button" class="reto" data-reto="excel" data-sol="Software a medida" data-desc="Una aplicación hecha para cómo trabajáis, con todo en un solo sitio." data-url="/automatizacion-de-procesos/" aria-pressed="false">Todo en hojas de cálculo</button><button type="button" class="reto" data-reto="ia" data-sol="GEO: posicionamiento en IA" data-desc="Que ChatGPT y Gemini te nombren cuando tus clientes preguntan. Compruébalo gratis en 30 segundos." data-url="/posicionamiento-en-ia/" aria-pressed="false">Que la IA no me recomiende</button></div>
+        <div class="reto-a" aria-live="polite"><span class="reto-k">Lo resolvemos con</span><a class="reto-sol" href="/agentes-ia/whatsapp/">Agente de WhatsApp IA <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a><p class="reto-d">Contesta al momento, cualifica y agenda la cita. Tú entras solo cuando hace falta.</p></div>
+        <div class="reto-cta"><a class="btn btn-lime" id="reto-go" href="/diagnostico/?cta=web_hero&amp;reto=whatsapp" data-event="click_consultoria_hero">Pedir consultoría gratuita</a><span class="reto-note">25 minutos · gratis para 5 empresas al mes</span></div>
       </div>
-      <p class="pr-help" id="pr-help">Gratis · 30 segundos · qué dice la IA de tu empresa y una demo de tu asistente</p>
-      <span class="pnote n-prompt" data-n="3">Lo que nos diferencia de Lienzzo: aquí se prueba de verdad (agente Demos), no se promete</span>
-    </form>
-  </div>
-  <div class="showcase" aria-label="Lo que hace la Inteligencia Artificial en una empresa">
-    <div class="sc-track">
-      <div class="sc-card sc-v"><div class="player" id="player">
+      <span class="pnote n-reto" data-n="2">El hero ya no gira en torno a «pon tu web»: cada opción explica una solución y lleva a la consultoría con el reto ya marcado</span>
+    </div>
+    <div class="h3-media">
+      <div class="player" id="player">
           <video id="hero-video" autoplay muted loop playsinline preload="auto" poster="/video/presentacion_bucle_poster.jpg?v=20261014d" src="/video/presentacion_bucle.mp4?v=20261014d" data-full="/video/presentacion.mp4?v=20261014"></video>
           <script>(function(){var v=document.getElementById('hero-video');if(window.matchMedia('(max-width:820px)').matches){v.src='/video/presentacion_bucle_m.mp4?v=20261027';}})();</script>
           <button class="sound" id="sound-btn" type="button" aria-label="Ver el vídeo con sonido desde el principio"><span class="pill"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg>Ver con sonido</span></button>
-        </div></div>
-      <div class="sc-card g1"><span class="sc-t">Atiende a tus clientes</span><div class="mk mk-wa"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg><b>WhatsApp</b><span>ahora</span></div>
-      <p class="b in" style="--t:0">¿Tenéis hueco el jueves?</p>
-      <p class="b out" style="--t:1">Sí: a las 10:30 o a las 12:00. ¿Cuál prefieres?</p>
-      <p class="b in" style="--t:2">10:30 perfecto</p>
-      <p class="b out ok" style="--t:3"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Reservado. Te aviso el día antes.</p></div></div>
-      <div class="sc-card g2"><span class="sc-t">Coge las llamadas</span><div class="mk mk-call"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><b>Llamada · 22:14</b><span class="live">en curso</span></div>
-      <div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <p class="ln" style="--t:0"><b>Cliente</b> Quería un presupuesto para…</p>
-      <p class="ln" style="--t:1"><b>Asistente</b> Claro, ¿me dices la dirección?</p>
-      <p class="ln ok" style="--t:2"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Visita creada en la agenda</p></div></div>
-      <div class="sc-card g3"><span class="sc-t">Lee facturas y albaranes</span><div class="mk mk-doc"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"/><path d="M9 12h6M9 16h4"/></svg><b>albaran_0425.pdf</b><span>leyendo</span></div>
-      <div class="doc"><i style="--t:0"></i><i style="--t:1"></i><i style="--t:2"></i><i style="--t:3"></i><span class="scanl"></span></div>
-      <p class="ln ok" style="--t:3"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> En el ERP en 4 segundos</p></div></div>
-      <div class="sc-card g4"><span class="sc-t">Te recomienda en la IA</span><div class="mk mk-ai"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><b>Pregunta a la IA</b><span>ChatGPT</span></div>
-      <p class="q">¿Qué empresa de placas solares me recomiendas en Valencia?</p>
-      <p class="a"><span class="type">Te recomiendo <mark>tu empresa</mark>: buenas opiniones y respuesta en el día…</span></p></div></div>
-      <div class="sc-card g5"><span class="sc-t">Mide lo que ahorras</span><div class="mk mk-chart"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><b>Horas ahorradas</b><span>este mes</span></div>
-      <div class="bars"><i style="--h:30%;--t:0"></i><i style="--h:45%;--t:1"></i><i style="--h:38%;--t:2"></i><i style="--h:62%;--t:3"></i><i style="--h:70%;--t:4"></i><i style="--h:88%;--t:5"></i></div>
-      <p class="big"><b>+86 h</b> que tu equipo dedica a vender</p></div></div>
+        </div>
+      <span class="pnote n-hvid" data-n="3">Aquí irá el vídeo del hero que está haciendo el chat de edición (sistemas funcionando). Mientras, el vuestro</span>
     </div>
-    <span class="pnote n-show" data-n="4">Todo lo que hacemos en una pantalla, animado. En la versión final, vídeos cortos de pantallas reales</span>
   </div>
 </section>
 
@@ -972,254 +1082,64 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
   <div class="wrap tr2">
     <span class="tr2-t">Confían en nosotros</span>
     <ul class="tr2-logos">
-      <li><a href="#caso-fran-garcia-cars" data-case="fran-app" aria-label="Caso Fran García Cars"><img src="/clients/fran-garcia-cars-logo.png" alt="Fran García Cars" width="1399" height="601" loading="lazy"></a></li>
-      <li><a class="on-dark" href="#caso-construcciones-gargom" data-case="gargom" aria-label="Caso Construcciones Gargom"><img src="/clients/construcciones-gargom-logo.png" alt="Construcciones Gargom" width="1504" height="374" loading="lazy"></a></li>
-      <li><a href="#caso-suministros-santacruz" data-case="santacruz" aria-label="Caso Suministros Santacruz"><img src="/clients/suministros-santacruz-logo.png" alt="Suministros Industriales Santacruz" width="418" height="95" loading="lazy"></a></li>
+      <li><a href="/propuesta-portada/casos-de-exito/#caso-fran-garcia-cars" aria-label="Caso Fran García Cars"><img src="/clients/fran-garcia-cars-logo.png" alt="Fran García Cars" width="1399" height="601" loading="lazy"></a></li>
+      <li><a class="on-dark" href="/propuesta-portada/casos-de-exito/#caso-construcciones-gargom" aria-label="Caso Construcciones Gargom"><img src="/clients/construcciones-gargom-logo.png" alt="Construcciones Gargom" width="1504" height="374" loading="lazy"></a></li>
+      <li><a href="/propuesta-portada/casos-de-exito/#caso-suministros-santacruz" aria-label="Caso Suministros Santacruz"><img src="/clients/suministros-santacruz-logo.png" alt="Suministros Industriales Santacruz" width="418" height="95" loading="lazy"></a></li>
     </ul>
     <a class="gr" href="https://www.google.com/maps/place/?q=place_id:ChIJ8b91KHLXPIMRWRqoQZfLHhQ" target="_blank" rel="noopener">
       <span class="gr-top"><b>5,0</b><span class="stars" aria-hidden="true">★★★★★</span><span class="gr-g">Google</span></span>
       <q>Nos crearon una app de IA de revisión de coches literalmente desde 0. Dani es un mega crack.</q>
       <small>Álvaro Lázaro · Fran García Cars</small>
     </a>
-    <span class="pnote n-trust" data-n="5">La reseña real de Google (la única), visible y enlazada. Sin pedir reseñas</span>
   </div>
 </section>
-
-<!-- QUÉ HACEMOS (primero, como Lienzzo) -->
+<!-- QUÉ HACEMOS -->
 <section class="section sv-sec" id="servicios">
   <div class="wrap">
     <div class="head reveal">
       <div class="intro">
-        <span class="tag">Qué hacemos</span>
+        <p class="eyebrow">Qué hacemos</p>
         <h2 class="serif h2">Todo lo que la IA puede hacer <em>en tu empresa.</em></h2>
       </div>
       <div class="head-side"><p class="p">Lo construimos, lo conectamos a los programas que ya usáis y lo mantenemos mes a mes.</p></div>
     </div>
-    <div class="sv-tabs" role="tablist" aria-label="Servicios"><button class="sv-tab" type="button" role="tab" id="svt-0" aria-controls="svp-0" aria-selected="true"><span>01</span>Atender clientes</button><button class="sv-tab" type="button" role="tab" id="svt-1" aria-controls="svp-1" aria-selected="false"><span>02</span>Operativa y software</button><button class="sv-tab" type="button" role="tab" id="svt-2" aria-controls="svp-2" aria-selected="false"><span>03</span>Visibilidad en IA</button></div>
-    <div class="sv-panel active" id="svp-0" role="tabpanel" aria-labelledby="svt-0">
-        <div class="sv-head"><span class="sv-k"><b>01</b>Atender clientes</span><h3 class="serif sv-h">Ningún cliente sin respuesta, <em>a ninguna hora.</em></h3><p class="p">Asistentes de WhatsApp, teléfono y web que responden con la información de tu empresa, cualifican y agendan.</p><a class="sv-more" href="/agentes-ia/">Agentes de IA <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a></div>
-        <ul class="sv-cards"><li><a class="svc2 g1" href="/agentes-ia/whatsapp/"><span class="sc-t">Agente de WhatsApp</span><div class="mk mk-wa"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg><b>WhatsApp</b><span>ahora</span></div>
-      <p class="b in" style="--t:0">¿Tenéis hueco el jueves?</p>
-      <p class="b out" style="--t:1">Sí: a las 10:30 o a las 12:00. ¿Cuál prefieres?</p>
-      <p class="b in" style="--t:2">10:30 perfecto</p>
-      <p class="b out ok" style="--t:3"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Reservado. Te aviso el día antes.</p></div><span class="svc2-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a></li><li><a class="svc2 g2" href="/agentes-ia/"><span class="sc-t">Asistente telefónico</span><div class="mk mk-call"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><b>Llamada · 22:14</b><span class="live">en curso</span></div>
-      <div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <p class="ln" style="--t:0"><b>Cliente</b> Quería un presupuesto para…</p>
-      <p class="ln" style="--t:1"><b>Asistente</b> Claro, ¿me dices la dirección?</p>
-      <p class="ln ok" style="--t:2"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Visita creada en la agenda</p></div><span class="svc2-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a></li><li><a class="svc2 g4" href="/agentes-ia/"><span class="sc-t">Chat para tu web</span><div class="mk mk-wa"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21l4-4M8 9h8M8 12h5"/></svg><b>Chat de tu web</b><span>24 h</span></div><p class="b in" style="--t:0">¿Hacéis envíos a Francia?</p><p class="b out" style="--t:1">Sí, en 48-72 h. ¿Quieres que te prepare un presupuesto?</p></div><span class="svc2-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a></li><li><a class="svc2 g5" href="/agentes-ia/"><span class="sc-t">Citas y recordatorios</span><div class="mk mk-cal"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><b>Agenda</b><span>jueves</span></div><p class="slot" style="--t:0">09:00 · Visita técnica</p><p class="slot on" style="--t:1">10:30 · Nueva cita <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></p><p class="slot" style="--t:2">12:00 · Recordatorio enviado</p></div><span class="svc2-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a></li></ul>
-        <div class="sv-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-      </div><div class="sv-panel" id="svp-1" role="tabpanel" aria-labelledby="svt-1">
-        <div class="sv-head"><span class="sv-k"><b>02</b>Operativa y software</span><h3 class="serif sv-h">Menos copiar y pegar, <em>más trabajo que suma.</em></h3><p class="p">Aplicaciones a medida y conexiones entre programas para que pedidos, facturas y datos vayan solos.</p><a class="sv-more" href="/automatizacion-de-procesos/">Automatización y software <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a></div>
-        <ul class="sv-cards"><li><a class="svc2 g3" href="/automatizacion-de-procesos/"><span class="sc-t">Aplicaciones a medida</span><div class="mk mk-app"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><b>App de revisiones</b><span>659 usuarios</span></div><div class="tiles"><i style="--t:0"><b>168</b>en curso</i><i style="--t:1"><b>400</b>aprobadas</i><i style="--t:2"><b>98 %</b>aprobación</i><i style="--t:3"><b>18</b>licitaciones</i></div></div><span class="svc2-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a></li><li><a class="svc2 g1" href="/automatizacion-de-procesos/"><span class="sc-t">Facturas y albaranes</span><div class="mk mk-doc"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"/><path d="M9 12h6M9 16h4"/></svg><b>albaran_0425.pdf</b><span>leyendo</span></div>
-      <div class="doc"><i style="--t:0"></i><i style="--t:1"></i><i style="--t:2"></i><i style="--t:3"></i><span class="scanl"></span></div>
-      <p class="ln ok" style="--t:3"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> En el ERP en 4 segundos</p></div><span class="svc2-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a></li><li><a class="svc2 g4" href="/automatizacion-de-procesos/"><span class="sc-t">Conectar ERP y CRM</span><div class="mk mk-link"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><b>Sincronización</b><span>automática</span></div><div class="nodes"><span>CRM</span><i></i><span>ERP</span><i></i><span>Excel</span></div><p class="ln ok" style="--t:1"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> 124 pedidos sincronizados hoy</p></div><span class="svc2-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a></li><li><a class="svc2 g5" href="/automatizacion-de-procesos/"><span class="sc-t">Paneles de control</span><div class="mk mk-chart"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><b>Horas ahorradas</b><span>este mes</span></div>
-      <div class="bars"><i style="--h:30%;--t:0"></i><i style="--h:45%;--t:1"></i><i style="--h:38%;--t:2"></i><i style="--h:62%;--t:3"></i><i style="--h:70%;--t:4"></i><i style="--h:88%;--t:5"></i></div>
-      <p class="big"><b>+86 h</b> que tu equipo dedica a vender</p></div><span class="svc2-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a></li></ul>
-        <div class="sv-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-      </div><div class="sv-panel" id="svp-2" role="tabpanel" aria-labelledby="svt-2">
-        <div class="sv-head"><span class="sv-k"><b>03</b>Visibilidad en IA</span><h3 class="serif sv-h">Que la IA <em>te recomiende a ti.</em></h3><p class="p">Cada vez más clientes preguntan a ChatGPT o Gemini qué empresa contratar. Trabajamos para que la respuesta seas tú.</p><a class="sv-more" href="/posicionamiento-en-ia/">Posicionamiento en IA <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a></div>
-        <ul class="sv-cards"><li><a class="svc2 g4" href="/posicionamiento-en-ia/"><span class="sc-t">Posicionamiento en IA</span><div class="mk mk-ai"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><b>Pregunta a la IA</b><span>ChatGPT</span></div>
-      <p class="q">¿Qué empresa de placas solares me recomiendas en Valencia?</p>
-      <p class="a"><span class="type">Te recomiendo <mark>tu empresa</mark>: buenas opiniones y respuesta en el día…</span></p></div><span class="svc2-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a></li><li><a class="svc2 g2" href="#prueba"><span class="sc-t">Radiografía en IA</span><div class="mk mk-rx"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></svg><b>Radiografía</b><span>ejemplo</span></div><div class="rx"><span class="ring" style="--p:62"><b>62</b></span><p>Apareces en <b>2 de 5</b> respuestas. Tu competencia, en 4.</p></div></div><span class="svc2-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a></li><li><a class="svc2 g3" href="/ia-para-empresas/"><span class="sc-t">IA para empresas</span><div class="mk mk-list"><div class="mk-top"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h7"/></svg><b>Por dónde empezar</b><span>guía</span></div><p class="ln" style="--t:0">1. Dónde se pierde el tiempo</p><p class="ln" style="--t:1">2. Qué conviene automatizar</p><p class="ln ok" style="--t:2"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> 3. Cuánto ahorras</p></div><span class="svc2-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a></li></ul>
+    <div class="sv-tabs" role="tablist" aria-label="Servicios"><button class="sv-tab" type="button" role="tab" id="svt-0" aria-controls="svp-0" aria-selected="true"><span>01</span>Inteligencia Artificial</button><button class="sv-tab" type="button" role="tab" id="svt-1" aria-controls="svp-1" aria-selected="false"><span>02</span>Software</button><button class="sv-tab" type="button" role="tab" id="svt-2" aria-controls="svp-2" aria-selected="false"><span>03</span>Visibilidad y estrategia</button></div>
+    <div class="sv-panel sv-ia active" id="svp-0" role="tabpanel" aria-labelledby="svt-0">
+        <div class="sv-head"><span class="sv-k"><b>01</b>Inteligencia Artificial</span><h3 class="serif sv-h">IA que hace el trabajo repetitivo <em>de tu equipo.</em></h3><p class="p">Asistentes y agentes conectados a vuestros programas para atender, responder y ejecutar tareas a cualquier hora.</p></div>
+        <ul class="sv-cards n6"><li><a class="sv3" href="/consultoria-gratuita/"><span class="sv3-m"><img src="/video/presentacion_bucle_poster.jpg?v=20261014d" alt="" loading="lazy" style="object-position:center"><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg></span><b>Consultoría IA (0 €)</b><small>25 minutos para ver dónde se te escapan el tiempo y el dinero</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li><li><a class="sv3" href="/agentes-ia/"><span class="sv3-m"><img src="/video/redes/7697177715941575958.webp" alt="" loading="lazy" style="object-position:center 30%"><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg></span><b>Agentes IA para empresas</b><small>Empleados digitales que hacen tareas completas</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li><li><a class="sv3" href="/agentes-ia/"><span class="sv3-m"><span class="sv3-ph"><svg aria-hidden="true" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg></span><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg></span><b>Agentes IA 3D</b><small>Tu equipo de agentes trabajando a la vista, en una oficina 3D</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li><li><a class="sv3" href="/agentes-ia/whatsapp/"><span class="sv3-m"><img src="/casos/img/fran-garcia-whatsapp.webp?v=2" alt="" loading="lazy" style="object-position:left top"><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg></span><b>Agente de WhatsApp IA</b><small>Responde, cualifica y agenda las 24 horas</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li><li><a class="sv3" href="/agentes-ia/"><span class="sv3-m"><img src="/video/redes/7698085846519516438.webp" alt="" loading="lazy" style="object-position:center 30%"><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21l4-4M8 9h8M8 12h5"/></svg></span><b>Chatbot web IA</b><small>Resuelve dudas con la información de tu empresa</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li><li><a class="sv3" href="/agentes-ia/"><span class="sv3-m"><img src="/propuesta-portada/img/telefono.webp" alt="" loading="lazy" style="object-position:center 30%"><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span><b>Asistente telefónico IA</b><small>Coge las llamadas que hoy se pierden</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li></ul>
+        <div class="sv-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div><div class="sv-panel sv-sw" id="svp-1" role="tabpanel" aria-labelledby="svt-1">
+        <div class="sv-head"><span class="sv-k"><b>02</b>Software</span><h3 class="serif sv-h">Software hecho a la medida <em>de cómo trabajáis.</em></h3><p class="p">Aplicaciones internas y automatizaciones que sustituyen hojas de cálculo, papeles y copiar datos a mano.</p></div>
+        <ul class="sv-cards n3"><li><a class="sv3" href="/automatizacion-de-procesos/"><span class="sv3-m"><img src="/casos/img/gargom-app.webp" alt="" loading="lazy" style="object-position:left top"><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg></span><b>Software a medida</b><small>Programas hechos para vuestro proceso, sin licencias por usuario</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li><li><a class="sv3" href="/automatizacion-de-procesos/"><span class="sv3-m"><img src="/casos/img/fran-garcia-app.webp" alt="" loading="lazy" style="object-position:left top"><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></span><b>Desarrollo de apps móviles</b><small>Vuestro proceso en el móvil de todo el equipo</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li><li><a class="sv3" href="/automatizacion-de-procesos/"><span class="sv3-m"><img src="/casos/img/santacruz-app.webp" alt="" loading="lazy" style="object-position:left top"><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span><b>Automatización de procesos</b><small>Pedidos, facturas y datos que pasan de un programa a otro solos</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li></ul>
+        <div class="sv-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+      </div><div class="sv-panel sv-vis" id="svp-2" role="tabpanel" aria-labelledby="svt-2">
+        <div class="sv-head"><span class="sv-k"><b>03</b>Visibilidad y estrategia</span><h3 class="serif sv-h">Que te encuentren, <em>también en la IA.</em></h3><p class="p">Cada vez más clientes preguntan a ChatGPT qué empresa contratar. Trabajamos tu presencia y formamos a tu equipo.</p></div>
+        <ul class="sv-cards n3"><li><a class="sv3" href="/posicionamiento-en-ia/"><span class="sv3-m"><img src="/video/redes/7698347811053505814.webp" alt="" loading="lazy" style="object-position:center 30%"><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><b>GEO: posicionamiento en IA</b><small>Que ChatGPT y Gemini recomienden tu empresa</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li><li><a class="sv3" href="/ia-para-empresas/formacion/"><span class="sv3-m"><img src="/video/redes/7696420519650020611.webp" alt="" loading="lazy" style="object-position:center 30%"><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></span><b>Formación en IA para empresas</b><small>Tu equipo usando la IA con criterio, desde el primer día</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li><li><a class="sv3" href="/diagnostico/?cta=web_desarrollo_web"><span class="sv3-m"><img src="/brand/og/og-consultoria.jpg?v=3" alt="" loading="lazy" style="object-position:center"><span class="sv3-soon">Vídeo en preparación</span></span><span class="sv3-b"><span class="sv3-i"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><b>Desarrollo web a medida</b><small>Webs rápidas, claras y preparadas para la IA</small><span class="sv3-go">Ver solución <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li></ul>
         <div class="sv-dots" aria-hidden="true"><i></i><i></i><i></i></div>
       </div>
-    <span class="pnote n-svc" data-n="6">Servicios justo después del hero. Ordenador: pestañas. Móvil: cada grupo con su carrusel, como Lienzzo</span>
+    <span class="pnote n-svc" data-n="4">Tus 12 servicios en 3 grupos. Cada tarjeta llevará su vídeo real (lo hace el chat de edición); de momento, capturas y fotos reales</span>
   </div>
 </section>
-
-<!-- CASOS REALES (todo el texto en el HTML; el JS solo cambia la pestaña visible) -->
-<section class="section cases-sec" id="casos" aria-labelledby="casos-title">
+<!-- CASOS DE ÉXITO (resumen) -->
+<section class="section ct-sec" id="casos">
   <div class="wrap">
-    <span class="pnote n-cases" data-n="9">Casos reales: se quedan igual, ahora después de los servicios</span>
     <div class="head reveal">
       <div class="intro">
-        <span class="tag">Casos reales</span>
-        <h2 class="serif h2" id="casos-title">Sistemas en producción, <em>en empresas reales.</em></h2>
+        <p class="eyebrow">Casos de éxito</p>
+        <h2 class="serif h2">Sistemas que ya usan <em>cada día.</em></h2>
       </div>
-      <div class="head-side">
-        <p class="p">Aplicaciones y asistentes que nuestros clientes usan cada día.</p>
-      </div>
+      <div class="head-side"><a class="btn-light" href="/propuesta-portada/casos-de-exito/">Ver todos los casos <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a></div>
     </div>
-
-    <div class="trust reveal" style="--d:.08s">
-      <span class="trust-t">Han confiado en nosotros</span>
-      <ul class="trust-logos">
-        <li><a href="#caso-fran-garcia-cars" data-case="fran-app" aria-label="Ver el caso de Fran García Cars"><img src="/clients/fran-garcia-cars-logo.webp" alt="Fran García Cars" width="420" height="180" loading="lazy"></a></li>
-        <li><a class="on-dark" href="#caso-construcciones-gargom" data-case="gargom" aria-label="Ver el caso de Construcciones Gargom"><img src="/clients/construcciones-gargom-logo.webp" alt="Construcciones Gargom" width="520" height="129" loading="lazy"></a></li>
-        <li><a href="#caso-suministros-santacruz" data-case="santacruz" aria-label="Ver el caso de Suministros Industriales Santacruz"><img src="/clients/suministros-santacruz-logo.png" alt="Suministros Industriales Santacruz" width="418" height="95" loading="lazy"></a></li>
-      </ul>
-    </div>
-
-    <div class="cx reveal" style="--d:.12s">
-      <div class="cx-tabs" role="tablist" aria-label="Casos de clientes">
-        <div class="cx-group" role="presentation">
-          <span class="cx-group-h" aria-hidden="true"><b>Fran García Cars</b><em>2 servicios</em></span>
-          <button class="cx-tab" type="button" role="tab" id="tab-fran-app" aria-controls="caso-fran-garcia-cars" aria-selected="true" data-case="fran-app" aria-label="Fran García Cars: app de revisiones"><span class="cx-n">01</span><span class="cx-name"><b>App de revisiones</b><small>Aplicación a medida</small></span><span class="cx-kpi">659</span></button>
-          <button class="cx-tab" type="button" role="tab" id="tab-fran-wa" aria-controls="caso-fran-garcia-cars-whatsapp" aria-selected="false" data-case="fran-wa" aria-label="Fran García Cars: asistente de WhatsApp"><span class="cx-n">02</span><span class="cx-name"><b>Asistente de WhatsApp</b><small>Inteligencia Artificial</small></span><span class="cx-kpi cx-go" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
-        </div>
-        <button class="cx-tab" type="button" role="tab" id="tab-gargom" aria-controls="caso-construcciones-gargom" aria-selected="false" data-case="gargom"><span class="cx-n">03</span><span class="cx-name"><b>Construcciones Gargom</b><small>Gestión de obras</small></span><span class="cx-kpi cx-go" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
-        <button class="cx-tab" type="button" role="tab" id="tab-santacruz" aria-controls="caso-suministros-santacruz" aria-selected="false" data-case="santacruz"><span class="cx-n">04</span><span class="cx-name"><b>Suministros Santacruz</b><small>Pedidos en 4 países</small></span><span class="cx-kpi">4</span></button>
-      </div>
-
-      <div class="cx-panels">
-        <div class="cx-swipe" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
-        <!-- 1. Fran García Cars · app -->
-        <article class="cx-panel active" id="caso-fran-garcia-cars" role="tabpanel" aria-labelledby="tab-fran-app" data-case="fran-app">
-          <div class="cx-stage">
-            <figure class="cx-shot">
-              <div class="cx-frame"><div class="cx-bar" aria-hidden="true"><i></i><i></i><i></i><span>App de revisiones · Fran García Cars</span></div>
-                <div class="cx-view"><img src="/casos/img/fran-garcia-app.webp" alt="Panel de la app de revisiones de Fran García Cars con 168 expedientes en curso, 400 unidades aprobadas, 98 % de aprobación y 659 usuarios registrados" width="1914" height="883" loading="lazy"></div>
-              </div>
-            </figure>
-            <ul class="cx-figs" aria-label="Cifras del panel de la app a 22/10/2026">
-              <li><b>659</b><span>usuarios registrados</span></li>
-              <li><b>98 %</b><span>de aprobación</span></li>
-            </ul>
-          </div>
-          <div class="cx-row">
-            <div class="cx-copy">
-              <p class="cx-kicker"><span class="cx-k-svc">Aplicación a medida</span><span class="cx-k-n">Servicio 1 de 2</span><span class="cx-k-more">Mismo cliente: <a href="#caso-fran-garcia-cars-whatsapp" data-case="fran-wa">ver su asistente de WhatsApp</a></span></p>
-              <h3 class="cx-h">Fran García Cars: aplicación de gestión de revisiones</h3>
-              <p class="cx-sum">Hacían las revisiones a mano y las fotos iban por WhatsApp. Les construimos una app con expedientes, fotos, revisores y licitaciones.</p>
-            </div>
-            <div class="cx-act">
-              <a class="cx-web" href="https://frangarciacars.com/" target="_blank" rel="noopener">frangarciacars.com</a>
-              <a class="btn-light" href="/diagnostico/?cta=caso_fran-garcia-cars" data-event="click_caso_fran-garcia-cars">Quiero algo así <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
-            </div>
-          </div>
-          <details class="cx-more">
-            <summary><span class="cx-more-t">Ver el caso completo</span><span class="cx-more-h">El problema · Qué hicimos · El resultado</span><span class="cx-plus" aria-hidden="true"></span></summary>
-            <div class="cx-more-in"><div class="cx-more-pad">
-              <p class="cx-meta"><span>Importación y revisión de vehículos</span><span>España</span><span class="cx-svc">Aplicación a medida</span></p>
-              <dl class="cx-steps">
-                <div><dt>El problema</dt><dd>Fran García Cars importa unos 60 coches al mes de Alemania. Las revisiones se hacían a mano y las fotos se enviaban por WhatsApp, sin orden: había líos con los clientes y se perdía mucho tiempo.</dd></div>
-                <div><dt>Qué hicimos</dt><dd>Todo el flujo en una aplicación a medida: expedientes, fotos, revisores, aprobación técnica, licitaciones y pujas. El cliente ve su revisión con un diseño cuidado y parte del proceso tiene lecturas automáticas con Inteligencia Artificial.</dd></div>
-                <div><dt>El resultado</dt><dd>Hoy es una de sus principales herramientas de trabajo: 659 usuarios registrados, 400 unidades aprobadas y un 98 % de tasa de aprobación. Seguimos añadiéndole funciones.</dd></div>
-              </dl>
-              <p class="cx-note">Datos del panel a 22/10/2026. Captura real con los datos personales difuminados.</p>
-            </div></div>
-          </details>
-        </article>
-
-        <!-- 2. Fran García Cars · asistente de WhatsApp -->
-        <article class="cx-panel" id="caso-fran-garcia-cars-whatsapp" role="tabpanel" aria-labelledby="tab-fran-wa" data-case="fran-wa">
-          <div class="cx-stage">
-            <figure class="cx-shot">
-              <div class="cx-frame"><div class="cx-bar" aria-hidden="true"><i></i><i></i><i></i><span>Panel del asistente · Fran García Cars</span></div>
-                <div class="cx-view"><img src="/casos/img/fran-garcia-whatsapp.webp?v=2" alt="Panel del asistente de WhatsApp de Fran García Cars con respuestas automáticas y una conversación derivada a una persona" width="2000" height="989" loading="lazy"></div>
-              </div>
-            </figure>
-            <ul class="cx-figs" aria-label="Qué hace el asistente">
-              <li class="cx-fig-word"><b>Responde, agenda y deriva</b></li>
-            </ul>
-          </div>
-          <div class="cx-row">
-            <div class="cx-copy">
-              <p class="cx-kicker"><span class="cx-k-svc">Asistente de WhatsApp</span><span class="cx-k-n">Servicio 2 de 2</span><span class="cx-k-more">Mismo cliente: <a href="#caso-fran-garcia-cars" data-case="fran-app">ver su app de revisiones</a></span></p>
-              <h3 class="cx-h">Fran García Cars: asistente de Inteligencia Artificial en WhatsApp</h3>
-              <p class="cx-sum">Contestaban a mano las mismas preguntas por WhatsApp. Pusimos un asistente de Inteligencia Artificial con la información de la empresa, gestionado desde un panel.</p>
-            </div>
-            <div class="cx-act">
-              <a class="cx-web" href="https://frangarciacars.com/" target="_blank" rel="noopener">frangarciacars.com</a>
-              <a class="btn-light" href="/diagnostico/?cta=caso_fran-garcia-cars-whatsapp" data-event="click_caso_fran-garcia-cars-whatsapp">Quiero algo así <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
-            </div>
-          </div>
-          <details class="cx-more">
-            <summary><span class="cx-more-t">Ver el caso completo</span><span class="cx-more-h">El problema · Qué hicimos · El resultado</span><span class="cx-plus" aria-hidden="true"></span></summary>
-            <div class="cx-more-in"><div class="cx-more-pad">
-              <p class="cx-meta"><span>Importación y revisión de vehículos</span><span>España</span><span class="cx-svc">Asistente de WhatsApp</span></p>
-              <dl class="cx-steps">
-                <div><dt>El problema</dt><dd>Muchas preguntas repetidas por WhatsApp que el equipo contestaba a mano y le quitaban tiempo.</dd></div>
-                <div><dt>Qué hicimos</dt><dd>Un asistente con toda la información de la empresa, afinado hasta contestar como un responsable: resuelve las dudas frecuentes, agenda citas y pasa la conversación a una persona cuando no tiene la respuesta. Todo se gestiona desde un panel.</dd></div>
-                <div><dt>El resultado</dt><dd>Las dudas frecuentes se responden solas y el equipo entra solo cuando hace falta.</dd></div>
-              </dl>
-              <p class="cx-note">Captura real con las conversaciones difuminadas. Servicio: <a href="/agentes-ia/">agentes de Inteligencia Artificial para WhatsApp</a>.</p>
-            </div></div>
-          </details>
-        </article>
-
-        <!-- 3. Construcciones Gargom -->
-        <article class="cx-panel" id="caso-construcciones-gargom" role="tabpanel" aria-labelledby="tab-gargom" data-case="gargom">
-          <div class="cx-stage">
-            <figure class="cx-shot">
-              <div class="cx-frame"><div class="cx-bar" aria-hidden="true"><i></i><i></i><i></i><span>Gestión de obras · Construcciones Gargom</span></div>
-                <div class="cx-view"><img src="/casos/img/gargom-app.webp" alt="Aplicación de gestión de obras de Construcciones Gargom con certificaciones, desglose de gastos y principales proveedores, importes difuminados" width="1919" height="904" loading="lazy"></div>
-              </div>
-            </figure>
-          </div>
-          <div class="cx-row">
-            <div class="cx-copy">
-              <p class="cx-kicker"><span class="cx-k-svc">Software a medida</span></p>
-              <h3 class="cx-h">Construcciones Gargom: software de gestión de obras a medida</h3>
-              <p class="cx-sum">Un programa antiguo les limitaba. Les hicimos una aplicación a medida con presupuestos, certificaciones, gastos, personal, proveedores y la rentabilidad de cada obra.</p>
-            </div>
-            <div class="cx-act">
-              <a class="cx-web" href="https://gargom.net/" target="_blank" rel="noopener">gargom.net</a>
-              <a class="btn-light" href="/diagnostico/?cta=caso_construcciones-gargom" data-event="click_caso_construcciones-gargom">Quiero algo así <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
-            </div>
-          </div>
-          <details class="cx-more">
-            <summary><span class="cx-more-t">Ver el caso completo</span><span class="cx-more-h">El problema · Qué hicimos · El resultado</span><span class="cx-plus" aria-hidden="true"></span></summary>
-            <div class="cx-more-in"><div class="cx-more-pad">
-              <p class="cx-meta"><span>Construcción</span><span>España</span><span class="cx-svc">Software a medida</span></p>
-              <dl class="cx-steps">
-                <div><dt>El problema</dt><dd>Construcciones Gargom trabajaba con un programa antiguo que no se adaptaba a cómo trabajan y les limitaba en el día a día.</dd></div>
-                <div><dt>Qué hicimos</dt><dd>Una aplicación a medida para gestionar sus obras: presupuestos, certificaciones, gastos por tipo, pagos, personal, proveedores y la rentabilidad de cada obra.</dd></div>
-                <div><dt>El resultado</dt><dd>Más organización y toda la información de la empresa en un solo sitio, organizada a su manera. Sus cifras son confidenciales.</dd></div>
-              </dl>
-              <p class="cx-note">Captura real con los importes difuminados por confidencialidad.</p>
-            </div></div>
-          </details>
-        </article>
-
-        <!-- 4. Suministros Industriales Santacruz -->
-        <article class="cx-panel" id="caso-suministros-santacruz" role="tabpanel" aria-labelledby="tab-santacruz" data-case="santacruz">
-          <div class="cx-stage">
-            <figure class="cx-shot">
-              <div class="cx-frame"><div class="cx-bar" aria-hidden="true"><i></i><i></i><i></i><span>Control de almacén · Suministros Santacruz</span></div>
-                <div class="cx-view"><img src="/casos/img/santacruz-app.webp" alt="Panel de control de almacén de Suministros Santacruz con 343 pedidos de 2026 repartidos entre España, Francia, Países Bajos y Bélgica" width="1917" height="910" loading="lazy"></div>
-              </div>
-            </figure>
-            <ul class="cx-figs" aria-label="Datos del panel a 22/10/2026">
-              <li><b>4</b><span>países</span></li>
-              <li><b>343</b><span>pedidos migrados</span></li>
-            </ul>
-          </div>
-          <div class="cx-row">
-            <div class="cx-copy">
-              <p class="cx-kicker"><span class="cx-k-svc">Aplicación a medida</span></p>
-              <h3 class="cx-h">Suministros Santacruz: plataforma de pedidos segura para cuatro países</h3>
-              <p class="cx-sum">Su aplicación tenía 20 o 30 años y era insegura. Hicimos una nueva, segura y en cuatro idiomas, con su base de datos migrada.</p>
-            </div>
-            <div class="cx-act">
-              <a class="cx-web" href="https://suministrossantacruz.es/" target="_blank" rel="noopener">suministrossantacruz.es</a>
-              <a class="btn-light" href="/diagnostico/?cta=caso_suministros-santacruz" data-event="click_caso_suministros-santacruz">Quiero algo así <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
-            </div>
-          </div>
-          <details class="cx-more">
-            <summary><span class="cx-more-t">Ver el caso completo</span><span class="cx-more-h">El problema · Qué hicimos · El resultado</span><span class="cx-plus" aria-hidden="true"></span></summary>
-            <div class="cx-more-in"><div class="cx-more-pad">
-              <p class="cx-meta"><span>Suministros industriales</span><span>España, Francia, Países Bajos y Bélgica</span><span class="cx-svc">Aplicación a medida</span></p>
-              <dl class="cx-steps">
-                <div><dt>El problema</dt><dd>Suministros Industriales Santacruz usaba una aplicación de hace 20 o 30 años, sin las funciones que necesitaban y débil en seguridad: la llegaron a atacar.</dd></div>
-                <div><dt>Qué hicimos</dt><dd>Una aplicación nueva y segura en cuatro idiomas, con control de almacén y pedidos por sede, conectada a sus herramientas y con la base de datos antigua migrada.</dd></div>
-                <div><dt>El resultado</dt><dd>La están empezando a usar con los 343 pedidos de 2026 de sus sedes en España, Francia, Países Bajos y Bélgica ya cargados.</dd></div>
-              </dl>
-              <p class="cx-note">Datos del panel a 22/10/2026. Captura real con la facturación difuminada.</p>
-            </div></div>
-          </details>
-        </article>
-      </div>
-    </div>
+    <ul class="ct-list reveal"><li><a class="ct" href="/propuesta-portada/casos-de-exito/#caso-fran-garcia-cars"><span class="ct-m"><img src="/casos/img/fran-garcia-app.webp" alt="" loading="lazy"></span><span class="ct-b"><small>App de revisiones de vehículos</small><b>Fran García Cars</b><span class="ct-f"><em>659</em> usuarios registrados</span></span></a></li><li><a class="ct" href="/propuesta-portada/casos-de-exito/#caso-construcciones-gargom"><span class="ct-m"><img src="/casos/img/gargom-app.webp" alt="" loading="lazy"></span><span class="ct-b"><small>Software de gestión de obras</small><b>Construcciones Gargom</b><span class="ct-f"><em>Todo</em> en un solo sitio</span></span></a></li><li><a class="ct" href="/propuesta-portada/casos-de-exito/#caso-suministros-santacruz"><span class="ct-m"><img src="/casos/img/santacruz-app.webp" alt="" loading="lazy"></span><span class="ct-b"><small>Plataforma de pedidos</small><b>Suministros Santacruz</b><span class="ct-f"><em>4</em> países</span></span></a></li></ul>
+    <span class="pnote n-ct" data-n="5">En la portada solo un resumen; el detalle de cada caso pasa a su página «Casos de éxito»</span>
   </div>
 </section>
-
 <!-- CÓMO TRABAJAMOS -->
 <section class="section" id="proceso">
   <div class="wrap">
     <div class="head reveal">
       <div class="intro">
-        <span class="tag">Cómo trabajamos</span>
+        <p class="eyebrow">Cómo trabajamos</p>
         <h2 class="serif h2">De la primera llamada al sistema funcionando, <em>en cuatro pasos.</em></h2>
       </div>
       <div class="head-side">
@@ -1227,26 +1147,39 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
         <a class="btn-light" href="/diagnostico/?cta=web_metodo" data-event="click_consultoria_metodo">Solicitar mi plaza <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
       </div>
     </div>
-    <ol class="timeline"><li class="tl reveal" style="--d:0.0s"><span class="tl-node">1</span><div class="tl-card"><span class="tl-when">Hoy · 25 minutos</span><h3 class="h3">Consultoría</h3><p class="p">Videollamada en pantalla compartida. Gratis para cinco empresas al mes.</p></div></li><li class="tl reveal" style="--d:0.1s"><span class="tl-node">2</span><div class="tl-card"><span class="tl-when">En la misma sesión</span><h3 class="h3">Mapa técnico</h3><p class="p">Qué conviene automatizar primero y cuánto tiempo y dinero ahorras.</p></div></li><li class="tl reveal" style="--d:0.2s"><span class="tl-node">3</span><div class="tl-card"><span class="tl-when">Semanas, no meses</span><h3 class="h3">Desarrollo</h3><p class="p">Lo construimos y lo conectamos a los programas que ya usáis.</p></div></li><li class="tl reveal" style="--d:0.3s"><span class="tl-node">4</span><div class="tl-card"><span class="tl-when">Mes a mes</span><h3 class="h3">Acompañamiento</h3><p class="p">Lo medimos, lo ajustamos y le añadimos lo que vaya haciendo falta.</p></div></li></ol>
-    <span class="pnote n-proc" data-n="7">Método y proceso juntos en una sola línea de tiempo (antes eran dos bloques)</span>
+    <ol class="timeline"><li class="tl reveal" style="--d:0.0s"><span class="tl-node">1</span><div class="tl-card"><span class="tl-when">Hoy · 25 minutos</span><h3 class="h3">Consultoría</h3><p class="p">Videollamada en pantalla compartida. Gratis para cinco empresas al mes.</p></div></li><li class="tl reveal" style="--d:0.1s"><span class="tl-node">2</span><div class="tl-card"><span class="tl-when">En la misma sesión</span><h3 class="h3">Mapa técnico</h3><p class="p">Qué conviene hacer primero y cuánto tiempo y dinero ahorras.</p></div></li><li class="tl reveal" style="--d:0.2s"><span class="tl-node">3</span><div class="tl-card"><span class="tl-when">Precio cerrado</span><h3 class="h3">Desarrollo</h3><p class="p">Lo construimos y lo conectamos a los programas que ya usáis.</p></div></li><li class="tl reveal" style="--d:0.3s"><span class="tl-node">4</span><div class="tl-card"><span class="tl-when">Mes a mes</span><h3 class="h3">Acompañamiento</h3><p class="p">Lo medimos, lo ajustamos y le añadimos lo que vaya haciendo falta.</p></div></li></ol>
   </div>
 </section>
-
-<!-- POR QUÉ PEBAI -->
+<!-- LO QUE NOS DIFERENCIA -->
 <section class="section" id="porque">
   <div class="wrap">
     <div class="head reveal">
       <div class="intro">
-        <span class="tag">Por qué PEBAI</span>
-        <h2 class="serif h2">Pocos clientes, <em>todo el foco.</em></h2>
+        <p class="eyebrow">Por qué PEBAI</p>
+        <h2 class="serif h2">Seis cosas que <em>nos diferencian.</em></h2>
       </div>
-      <div class="head-side"><p class="p">Solo cinco consultorías gratuitas al mes para poder dedicarle a cada empresa el tiempo que necesita.</p></div>
     </div>
-    <ul class="pq-grid reveal"><li class="pq"><span class="pq-ic"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span><h3 class="h3">Lo pruebas antes de hablar con nadie</h3><p class="p">Tu radiografía en IA y la demo de tu asistente en 30 segundos. Ninguna consultora lo enseña antes de vender.</p></li><li class="pq"><span class="pq-ic"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span><h3 class="h3">Hablas con quien lo construye</h3><p class="p">Daniel diseña y construye cada sistema y está contigo desde la primera consultoría.</p></li><li class="pq"><span class="pq-ic"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span><h3 class="h3">Sistemas en producción, no maquetas</h3><p class="p">Apps y asistentes que nuestros clientes usan cada día: una de ellas, con 659 usuarios.</p></li><li class="pq"><span class="pq-ic"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span><h3 class="h3">Sin licencias por usuario</h3><p class="p">Pagas el sistema, no cada persona que lo usa.</p></li><li class="pq pq-q"><span class=pq-flag>¿Lo cumplimos? Confírmalo</span><span class="pq-ic"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span><h3 class="h3">El código y los datos son tuyos</h3><p class="p">Todo lo que construimos es de tu empresa y queda documentado.</p></li><li class="pq pq-q"><span class=pq-flag>¿Lo cumplimos? Confírmalo</span><span class="pq-ic"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span><h3 class="h3">Precio cerrado antes de empezar</h3><p class="p">Sabes lo que cuesta cada fase antes de firmar.</p></li></ul>
-    <span class="pnote n-pq" data-n="8">Nuestro «por qué» frente a sus 169 reseñas: pruebas que se comprueban. Los marcados, solo si los cumplimos</span>
+    <ul class="df-grid reveal"><li class="df"><span class="df-n">01</span><h3 class="h3">Sales con un plan, contrates o no</h3><p class="p">La consultoría termina con tu mapa técnico: qué hacer primero y cuánto ahorras.</p></li><li class="df"><span class="df-n">02</span><h3 class="h3">Hablas con quien lo construye</h3><p class="p">Daniel diseña y construye cada sistema y está contigo desde la primera llamada.</p></li><li class="df"><span class="df-n">03</span><h3 class="h3">Precio cerrado antes de empezar</h3><p class="p">Sabes lo que cuesta cada fase antes de firmar. Sin sorpresas a mitad de proyecto.</p></li><li class="df"><span class="df-n">04</span><h3 class="h3">El código y los datos son tuyos</h3><p class="p">Todo lo que construimos es de tu empresa y queda documentado.</p></li><li class="df"><span class="df-n">05</span><h3 class="h3">Sin licencias por usuario</h3><p class="p">Pagas el sistema, no cada persona que lo usa. Crece sin multiplicar la factura.</p></li><li class="df"><span class="df-n">06</span><h3 class="h3">Lo explicamos cada semana en redes</h3><p class="p">Enseñamos cómo funciona la IA en vídeos cortos. Nos ves antes de hablar con nosotros.</p></li></ul>
+    <span class="pnote n-pq" data-n="6">Fuera «pocos clientes». Las seis que mejor nos separan de Lienzzo y del resto, todas ciertas</span>
   </div>
 </section>
-
+<!-- EN REDES -->
+<section class="section" id="redes">
+  <div class="wrap">
+    <div class="head reveal">
+      <div class="intro">
+        <p class="eyebrow">En redes</p>
+        <h2 class="serif h2">Lo explicamos <em>cada semana.</em></h2>
+      </div>
+      <div class="head-side">
+        <p class="p">Vídeos cortos sobre Inteligencia Artificial aplicada a empresas, en Instagram, TikTok y YouTube.</p>
+        <a class="btn-light" href="https://www.instagram.com/pebaisystems/" target="_blank" rel="noopener">Seguir en Instagram <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+      </div>
+    </div>
+    <ul class="rl-rail reveal"><li class="rl"><a class="rl-v" href="https://www.instagram.com/reel/DecY1NuNfp7/" target="_blank" rel="noopener"><video muted playsinline loop preload="none" poster="/video/redes/7696168755683970326.webp" width="540" height="960"><source src="/video/redes/7696168755683970326.mp4" type="video/mp4"></video><span class="rl-d">0:32</span><span class="rl-t">Automatizar no es para el futuro: es para no cerrar en dos años</span></a><a class="rl-ig" href="https://www.instagram.com/reel/DecY1NuNfp7/" target="_blank" rel="noopener"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg> Ver en Instagram</a></li><li class="rl"><a class="rl-v" href="https://www.instagram.com/reel/DepZZOPDdjG/" target="_blank" rel="noopener"><video muted playsinline loop preload="none" poster="/video/redes/7698085846519516438.webp" width="540" height="960"><source src="/video/redes/7698085846519516438.mp4" type="video/mp4"></video><span class="rl-d">0:22</span><span class="rl-t">El cliente que no atiendes ya está llamando al de al lado</span></a><a class="rl-ig" href="https://www.instagram.com/reel/DepZZOPDdjG/" target="_blank" rel="noopener"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg> Ver en Instagram</a></li><li class="rl"><a class="rl-v" href="https://www.instagram.com/reel/DewW8RuiXzN/" target="_blank" rel="noopener"><video muted playsinline loop preload="none" poster="/video/redes/7699051109108796694.webp" width="540" height="960"><source src="/video/redes/7699051109108796694.mp4" type="video/mp4"></video><span class="rl-d">0:24</span><span class="rl-t">Entre empresas gana el que responde antes</span></a><a class="rl-ig" href="https://www.instagram.com/reel/DewW8RuiXzN/" target="_blank" rel="noopener"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg> Ver en Instagram</a></li><li class="rl"><a class="rl-v" href="https://www.instagram.com/reel/DerNVC3ANIU/" target="_blank" rel="noopener"><video muted playsinline loop preload="none" poster="/video/redes/7698347811053505814.webp" width="540" height="960"><source src="/video/redes/7698347811053505814.mp4" type="video/mp4"></video><span class="rl-d">0:22</span><span class="rl-t">Tus clientes ya preguntan a la IA qué empresa elegir</span></a><a class="rl-ig" href="https://www.instagram.com/reel/DerNVC3ANIU/" target="_blank" rel="noopener"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg> Ver en Instagram</a></li><li class="rl"><a class="rl-v" href="https://www.instagram.com/reel/DeeVabpgZka/" target="_blank" rel="noopener"><video muted playsinline loop preload="none" poster="/video/redes/7696420519650020611.webp" width="540" height="960"><source src="/video/redes/7696420519650020611.mp4" type="video/mp4"></video><span class="rl-d">0:39</span><span class="rl-t">Si una IA no sabe explicar qué haces, no te recomendará</span></a><a class="rl-ig" href="https://www.instagram.com/reel/DeeVabpgZka/" target="_blank" rel="noopener"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg> Ver en Instagram</a></li><li class="rl"><a class="rl-v" href="https://www.instagram.com/reel/DekIJmljMMb/" target="_blank" rel="noopener"><video muted playsinline loop preload="none" poster="/video/redes/7697177715941575958.webp" width="540" height="960"><source src="/video/redes/7697177715941575958.mp4" type="video/mp4"></video><span class="rl-d">0:26</span><span class="rl-t">No necesitas automatizarlo todo</span></a><a class="rl-ig" href="https://www.instagram.com/reel/DekIJmljMMb/" target="_blank" rel="noopener"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg> Ver en Instagram</a></li><li class="rl"><a class="rl-v" href="https://www.instagram.com/reel/Dee6mGjALfu/" target="_blank" rel="noopener"><video muted playsinline loop preload="none" poster="/video/redes/7696575558964120854.webp" width="540" height="960"><source src="/video/redes/7696575558964120854.mp4" type="video/mp4"></video><span class="rl-d">0:27</span><span class="rl-t">Si tu negocio se para cuando te vas, no es un negocio</span></a><a class="rl-ig" href="https://www.instagram.com/reel/Dee6mGjALfu/" target="_blank" rel="noopener"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg> Ver en Instagram</a></li><li class="rl"><a class="rl-v" href="https://www.instagram.com/reel/Der24dLCer9/" target="_blank" rel="noopener"><video muted playsinline loop preload="none" poster="/video/redes/7698399098424200450.webp" width="540" height="960"><source src="/video/redes/7698399098424200450.mp4" type="video/mp4"></video><span class="rl-d">0:32</span><span class="rl-t">Tu equipo no necesita más horas, necesita un sistema</span></a><a class="rl-ig" href="https://www.instagram.com/reel/Der24dLCer9/" target="_blank" rel="noopener"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg> Ver en Instagram</a></li></ul>
+    <span class="pnote n-rd" data-n="7">Las redes como ventaja: os ven antes de llamaros. En noviembre se cambian por los nuevos vídeos del plan</span>
+  </div>
+</section>
 <!-- CIERRE Y EQUIPO -->
 <section class="final" id="equipo">
   <div class="wrap final-grid">
@@ -1261,9 +1194,9 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
       </div>
     </div>
     <div class="team reveal" style="--d:.08s">
-      <span class="tag">Quiénes estamos detrás</span>
+      <p class="eyebrow">Quiénes estamos detrás</p>
       <p class="team-t serif">Un equipo de ingeniería <em>con criterio.</em></p>
-      <p class="p">Si algo se resuelve sin Inteligencia Artificial, te lo decimos claro.</p>
+      <p class="p">Si algo se resuelve sin Inteligencia Artificial, te lo decimos claro. <a href="/propuesta-portada/quienes-somos/" style="text-decoration:underline;text-underline-offset:3px">Conócenos</a></p>
       <ul class="team-p">
         <li><img src="/brand/home/dani-sm.webp?v=2" alt="Daniel Peñuela Ruiz" width="160" height="200" loading="lazy"><div><b>Daniel Peñuela Ruiz</b><small>Fundador · Ingeniería de procesos y sistemas</small></div></li>
         <li><img src="/brand/home/adrian-v2-sm.webp" alt="Adrián Ballesteros Moscardó" width="160" height="200" loading="lazy"><div><b>Adrián Ballesteros Moscardó</b><small>Responsable comercial</small></div></li>
@@ -1312,7 +1245,7 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&menu.classList.contains('open')){setMenu(false);mbtn.focus();}});
 
   /* vídeo */
-  var v=document.getElementById('hero-video'),s=document.getElementById('sound-btn'),p=document.getElementById('player');
+  var v=document.getElementById('hero-video'),s=document.getElementById('sound-btn'),p=document.getElementById('player');if(v&&s){
   var loopSrc=v.currentSrc||v.getAttribute('src');
   /* si el navegador no arranca solo el vídeo (ahorro de batería, pestaña en segundo plano), se arranca en cuanto se pueda */
   var heroVis=true;
@@ -1323,12 +1256,12 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
   /* fuera de pantalla el bucle se pausa para no gastar */
   if('IntersectionObserver' in window)new IntersectionObserver(function(en){if(!v.loop)return;heroVis=en[0].isIntersecting;if(heroVis)heroPlay();else v.pause();}).observe(v);
   s.addEventListener('click',function(){v.src=v.dataset.full;v.muted=false;v.loop=false;v.controls=true;s.classList.add('hidden');p.classList.add('live');v.play();});
-  v.addEventListener('ended',function(){if(v.loop)return;v.controls=false;v.muted=true;v.loop=true;v.src=loopSrc;s.classList.remove('hidden');p.classList.remove('live');v.play();});
+  v.addEventListener('ended',function(){if(v.loop)return;v.controls=false;v.muted=true;v.loop=true;v.src=loopSrc;s.classList.remove('hidden');p.classList.remove('live');v.play();});}
 
 
 
   /* tarjeta flotante: en móvil desde el principio (el botón del hero queda bajo el pliegue), en escritorio al dejar atrás la del hero; se oculta en casos y en el cierre */
-  var dock=document.getElementById('dock'),dockX=document.getElementById('dock-x'),heroCard=document.querySelector('.prompt'),finalSec=document.querySelector('.final');
+  var dock=document.getElementById('dock'),dockX=document.getElementById('dock-x'),heroCard=(document.querySelector('.reto-box')||document.querySelector('.pg-hero')),finalSec=document.querySelector('.final');
   var pastHero=false,atFinal=false,inCases=false,dismissed=false;
   try{dismissed=sessionStorage.getItem('pebai-dock')==='off';}catch(e){}
   var narrow=window.matchMedia('(max-width:820px)');
@@ -1354,7 +1287,7 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
   }
   window.pebaiTrackEvent=track;
   document.addEventListener('click',function(e){var a=e.target.closest('a[data-event], a[href*="wa.me"]');if(!a)return;var n=a.getAttribute('data-event');if(n)track(n,{href:a.href});if(/wa\.me/.test(a.href))track('whatsapp_lead_click',{href:a.href});});
-  s.addEventListener('click',function(){track('video_sound_on');},{once:true});
+  if(s)s.addEventListener('click',function(){track('video_sound_on');},{once:true});
 
 
   /* casos: pestañas (el texto ya está en el HTML) */
@@ -1426,18 +1359,15 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
   var acc=document.querySelector('.mm-acc');
   if(acc)acc.addEventListener('click',function(){acc.setAttribute('aria-expanded',acc.getAttribute('aria-expanded')==='true'?'false':'true');});
 
-  /* frases que se escriben solas en el recuadro del hero */
-  var ty=document.querySelector('.pr-type');
-  if(ty&&!calm){
-    var ph=ty.dataset.phrases.split('|'),k=0;
-    var write=function(s,i){ty.textContent=s.slice(0,i);if(i<s.length)setTimeout(function(){write(s,i+1);},34);else setTimeout(function(){erase(s,s.length);},2300);};
-    var erase=function(s,i){ty.textContent=s.slice(0,i);if(i>0)setTimeout(function(){erase(s,i-1);},12);else{k=(k+1)%ph.length;setTimeout(function(){write(ph[k],0);},250);}};
-    setTimeout(function(){erase(ph[0],ph[0].length);},2600);
-  }
-
-  /* prueba (en la propuesta solo avisa de lo que hará) */
-  var f=document.getElementById('prueba'),toast=document.createElement('div');toast.className='ptoast';document.body.appendChild(toast);
-  if(f)f.addEventListener('submit',function(e){e.preventDefault();toast.textContent='En la versión final, aquí se genera en unos 30 segundos la radiografía en IA de esa empresa y una demo de su asistente (agente Demos). En esta propuesta solo se enseña el diseño.';toast.classList.add('on');setTimeout(function(){toast.classList.remove('on');},6500);});
+  /* hero: ¿qué te quita más tiempo? */
+  var retos=[].slice.call(document.querySelectorAll('.reto')),box=document.querySelector('.reto-a');
+  retos.forEach(function(b){b.addEventListener('click',function(){
+    retos.forEach(function(x){var on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false');});
+    var a=box.querySelector('.reto-sol');a.firstChild.textContent=b.dataset.sol+' ';a.href=b.dataset.url;
+    box.querySelector('.reto-d').textContent=b.dataset.desc;
+    document.getElementById('reto-go').href='/diagnostico/?cta=web_hero&reto='+b.dataset.reto;
+    box.classList.remove('flash');void box.offsetWidth;box.classList.add('flash');
+  });});
 
   /* pestañas de servicios */
   var tabs=[].slice.call(document.querySelectorAll('.sv-tab'));
@@ -1450,11 +1380,12 @@ html.js .sv-panel.active{display:grid;animation:cxIn .6s var(--ease)}
     ul.addEventListener('scroll',sync,{passive:true});sync();
   });
 
-  /* los logos de confianza abren su caso */
-  [].slice.call(document.querySelectorAll('.tr2-logos a')).forEach(function(a){a.addEventListener('click',function(e){var t=document.querySelector('.cx-tab[data-case="'+a.dataset.case+'"]');if(t){e.preventDefault();t.click();document.getElementById('casos').scrollIntoView({behavior:calm?'auto':'smooth'});}});});
+  /* reels: vista previa al pasar el ratón */
+  var fine=window.matchMedia&&window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if(fine&&!calm)[].slice.call(document.querySelectorAll('.rl-v')).forEach(function(a){var v=a.querySelector('video');a.addEventListener('mouseenter',function(){var p=v.play();if(p&&p.catch)p.catch(function(){});});a.addEventListener('mouseleave',function(){v.pause();});});
 
   /* barra de la propuesta */
-  var bar=document.createElement('div');bar.className='pbar';bar.innerHTML='Propuesta de portada · no es la web pública <button type="button">Ocultar notas</button>';document.body.appendChild(bar);
+  var bar=document.createElement('div');bar.className='pbar';bar.innerHTML='Propuesta v2 · no es la web pública <button type="button">Ocultar notas</button>';document.body.appendChild(bar);
   bar.querySelector('button').addEventListener('click',function(){var on=root.classList.toggle('notes');this.textContent=on?'Ocultar notas':'Ver notas';});
 })();
 
