@@ -154,8 +154,8 @@ Y cuando un cliente pregunta algo que no está documentado, el sistema no lo inv
 **¿Puede la IA hacer el presupuesto entero sola?**
 Puede preparar el borrador entero: ficha, partidas, precio según tarifa y texto. Lo que no conviene es que salga sin revisión, sobre todo al principio: una persona aprueba precio, plazos y condiciones. Con semanas de borradores correctos podéis decidir revisar menos los más sencillos.
 
-**¿Se puede generar un presupuesto a partir de un WhatsApp o un correo del cliente?**
-Sí. El sistema lee el mensaje, ordena lo que pide en una ficha, pregunta al cliente lo que falta y prepara el borrador con vuestras tarifas. Funciona mejor cuando la petición llega por un canal y no repartida en tres.
+**¿Cómo respondo antes que los demás cuando el cliente pide varios presupuestos?**
+Contestando en minutos aunque el presupuesto tarde más. El sistema lee el WhatsApp o el correo, confirma lo recibido y pregunta lo que falta (medidas, fotos, plazo, dirección). Con eso prepara el borrador y una persona lo revisa. Si hace falta ver la obra, se dice y se agenda la visita: sin visita no se da un precio cerrado.
 
 **¿Cuántos presupuestos al mes hacen falta para que merezca la pena?**
 No hay una cifra que valga para todas las empresas. Depende de cuántos hacéis, cuánto tarda cada uno y cuánto se parecen entre sí. Multiplica presupuestos al mes por minutos de cada uno y compáralo con otras tareas: la que más horas suma es por donde conviene empezar.
@@ -184,7 +184,8 @@ No. Según la Agencia Tributaria, el reglamento de sistemas de facturación solo
 WebPage + BreadcrumbList (Inicio › Automatización de procesos › Presupuestos) + Article (`author` `#daniel`, `publisher` `#organization`, `datePublished`/`dateModified` del día, `about` «Automatización de presupuestos», `isPartOf` /automatizacion-de-procesos/) + FAQPage con las 6 preguntas de arriba, texto idéntico. Sin Review ni AggregateRating.
 
 ### Checklist antes de publicar
-- [ ] Jefe: decide slug (`/presupuestos/` o `/presupuestos-facturas-y-pedidos/`) y día.
+- [x] Jefe: slug `/automatizacion-de-procesos/presupuestos/`, se publica el lun 2/11 (Jefe 28/10 tarde).
+- [x] FAQ «¿Cómo respondo antes que los demás?» (encargo de Preguntas 28/10): sustituye a la de «¿Se puede generar un presupuesto a partir de un WhatsApp o un correo?», que ya responde el H2 del flujo; se mantienen 6 FAQ (29/10).
 - [ ] Respuesta de Daniel a la pregunta del caso (si no hay, se publica sin ella, como está).
 - [ ] Reabrir la FAQ de la AEAT y comprobar que sigue igual (fecha de actualización).
 - [ ] Grep de palabras prohibidas sobre el HTML, sin raya larga, emojis ni exclamaciones.
