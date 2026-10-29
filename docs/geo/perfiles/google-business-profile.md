@@ -26,7 +26,7 @@
 |---|---|
 | Nombre | `PEBAI Systems` (nada más: sin "consultoría IA", sin ciudad; Google prohíbe añadir palabras clave al nombre) |
 | Categoría principal | Escribir "inteligencia artificial" en el buscador de categorías y usar la que salga. Si no hay ninguna: `Consultor de gestión empresarial` (Business management consultant) |
-| Categorías secundarias | `Empresa de software` (Software company), `Consultor informático` (Computer consultant), `Empresa de automatización` (Automation company), `Servicio de marketing en Internet` (Internet marketing service, para GEO). Los nombres en español pueden variar: elegir los que ofrezca el buscador |
+| Categorías secundarias | `Empresa de software` (Software company), `Consultor informático` (Computer consultant), `Empresa de automatización` (Automation company). No añadir categorías de marketing, publicidad ni diseño web: PEBAI no es agencia de marketing (decisión de Daniel, 26/10/2026); la visibilidad en IA se cuenta en la descripción y los servicios, no en una categoría. Los nombres en español pueden variar: elegir los que ofrezca el buscador |
 | Dirección | oculta (solo para verificar) `[PENDIENTE: dato del equipo]` |
 | Zonas de servicio | 🔵 hasta 20; p. ej. la provincia de la dirección y las limítrofes. Sin decisión del equipo, no poner "España" entera |
 | Teléfono | `+34 624 84 27 99` |
