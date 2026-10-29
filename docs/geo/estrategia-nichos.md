@@ -93,7 +93,7 @@ Las tres IAs, preguntadas por «consultoras de IA en Valencia», no nombran a PE
 | # | Añadido | Quién | Estado |
 |---|---|---|---|
 | 1 | «Valencia» en el título y la descripción de la portada, y página exacta `/ia-para-empresas/valencia/` | chat GEO | 29/10 |
-| 2 | «Desarrollado por PEBAI Systems» con enlace en las apps de los clientes, con su permiso | Daniel pide permiso; el chat GEO lo pone | pendiente del permiso |
+| 2 | «Desarrollado por PEBAI Systems» con enlace en las apps de los clientes, con su permiso | Daniel pide permiso; el chat GEO lo pone | ✅ 29/10 en frangarciacars.com; Gargom y Santacruz no (solo apps privadas) |
 | 3 | Ecosistema valenciano (Valencia Plaza, Economía 3, Startup Valencia, CEV…) como «mención de terceros» de cada pack | Vigía (ficha), Daniel aprueba los contactos | encargado |
 | 4 | Cifras de los casos idénticas y fechadas en la web y en todos los directorios (ChatGPT vio 659 frente a 690) | chat de directorios | encargado |
 
