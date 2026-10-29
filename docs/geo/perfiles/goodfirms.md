@@ -44,3 +44,5 @@ Enviado el 28/10/2026 (4 pasos completos), pendiente de revisión de GoodFirms.
 - Falta: portfolio (se desbloquea cuando aprueben el perfil) y la URL pública. No se piden reseñas.
 
 - 28/10/2026 (noche): Daniel aprobó en el chat GEO quitar la calle (no es nuestra dirección). Probado: el formulario no deja guardar sin calle («Street» obligatorio), así que sigue la de antes hasta que se decida qué hacer (no se pone otra inventada).
+
+- 29/10/2026: aprobado y publicado: https://www.goodfirms.co/company/pebai-systems (en el sameAs y los llms). Falta subir el portfolio (Fran García Cars, Gargom, Santacruz).
