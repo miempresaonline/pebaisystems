@@ -47,3 +47,4 @@ Enviado el 28/10/2026 (4 pasos completos), pendiente de revisión de GoodFirms.
 
 - 29/10/2026: aprobado y publicado: https://www.goodfirms.co/company/pebai-systems (en el sameAs y los llms). Falta subir el portfolio (Fran García Cars, Gargom, Santacruz).
 - 29/10/2026: portfolio subido (4): app de revisiones y asistente de WhatsApp de Fran García Cars, Gargom y Santacruz, con imagen, enlace al caso en la web, 0-10.000 $ y duración real. Perfil LIVE y al 81 %; lo que falta son reseñas.
+- 29/10/2026: GoodFirms no importa reseñas de Google (solo Clutch, Trustpilot y G2). Con el OK de Daniel, enviada la petición de reseña a Álvaro Lázaro (Fran García Cars); la escribe él en GoodFirms y la verifican en 48 h.
