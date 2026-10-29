@@ -36,8 +36,9 @@
 | Atributos | Citas online, consultas online (si aparecen) |
 
 ### Descripción (≤ 750 caracteres; los primeros 250 son los visibles; sin enlaces, precios ni ofertas)
+Versión del 29/10/2026 (721 caracteres), con las palabras clave de Localo (aviso BUSINESS_DESCRIPTION_KEYWORDS), aprobada por Daniel. No incluye «agencia», porque PEBAI no es agencia de marketing.
 ```
-PEBAI Systems es una consultoría de procesos e Inteligencia Artificial para empresas de cualquier sector en España. Primero entendemos la operativa; después, construimos. Implantamos sistemas que atienden a los clientes las 24 horas (chatbots con IA y agentes de voz en WhatsApp, teléfono y web), eliminan tareas manuales como partes de trabajo, pedidos, presupuestos o facturas, y se conectan a los programas y al CRM que la empresa ya usa. También desarrollamos software operativo a medida, trabajamos la visibilidad en buscadores de Inteligencia Artificial (GEO) y formamos a los equipos. Si algo se resuelve sin Inteligencia Artificial, lo decimos claro.
+PEBAI Systems es una consultoría de inteligencia artificial y procesos de Valencia que trabaja en remoto con empresas de toda España. Hacemos automatización de procesos donde más tiempo se pierde: chatbots para empresas en WhatsApp y en la web, agentes de voz para empresas que atienden llamadas y agendan citas, y automatización de presupuestos, pedidos, partes de trabajo y facturas. Todo se conecta a los programas y al CRM que ya usáis, sin licencias por usuario. También desarrollamos software a medida, trabajamos la visibilidad en ChatGPT, Gemini y Perplexity (GEO) y formamos a los equipos. Primero entendemos cómo trabajáis; después construimos. Si algo se resuelve sin inteligencia artificial, lo decimos claro.
 ```
 
 ### Servicios (nombre + descripción breve; sin precios)
