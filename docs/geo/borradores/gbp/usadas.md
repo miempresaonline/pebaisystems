@@ -10,3 +10,4 @@ Una línea por post: `fecha · layout · tema · seed · titular`. El agente de 
 2026-11-25 · pregunta · dark · 9 · ¿Quién contesta a tus clientes?
 2026-12-02 · foco · light · 4 · ¿Qué proceso automatizar primero?
 2026-12-09 · pregunta · light · 6 · ¿Chatbot o agente de IA?
+2026-11-16 · foto de la ficha (Metricool gmb photo): captura difuminada Gargom (casos/img/gargom-app.jpg)
