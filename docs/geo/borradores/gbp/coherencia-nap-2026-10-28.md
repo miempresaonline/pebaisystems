@@ -21,3 +21,12 @@ Referencia: Organization de la portada (nombre `PEBAI Systems`, web `https://peb
 - **LinkedIn 5/11 17:00 (El Amparo):** es de Redes, ya tiene su encargo; sigue programado hasta que ellos lo cambien (se lo señalo en `novedades.md`).
 - **Fichas nuevas en revisión:** agentes.ai (sitemap sin `pebai`), TechBehemoths (publicada, pero WebFetch devuelve 403 a robots; no verificable desde la nube), GoodFirms, DesignRush y mejores-agencias.com: sin resultado público en WebSearch. Se vuelve a mirar el próximo turno.
 - **Dirección en TechBehemoths:** el formulario exige calle y código postal (probado 28/10); se mantiene la de antes hasta que Daniel decida. No se inventa otra.
+
+## Perfiles públicos sin calle (29/10/2026)
+| Perfil | Resultado |
+|---|---|
+| Trustpilot (pebaisystems.es) | Nombre `PEBAI Systems`, teléfono `+34 624 84 27 99`, web y email correctos; ubicación solo «València, Spain», sin calle. Cuadra |
+| Sortlist, Crunchbase | WebFetch devuelve 403 a robots: no verificable desde la nube. Daniel (1 min en Chrome): comprobar que no muestran calle |
+| GoodFirms | Sin ficha pública (bloqueada hasta tener clientes para entrevista, `perfiles/goodfirms.md`); no hay dirección que quitar |
+| TechBehemoths | Muestra la sede que exige el formulario (Plaça de l'Ajuntament); pendiente de decisión (arriba) |
+| agentes.ai, DesignRush | Sin ficha pública aún |
