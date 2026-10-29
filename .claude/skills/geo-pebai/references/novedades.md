@@ -263,3 +263,5 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 (Repartido por el Jefe el 28/10 tarde: Crunchbase ya publicado con los fundadores, fuera de «Para Daniel»; ubicación de clientes: Valencia desbloqueada con Gargom, prioridad baja, y la ciudad de Fran García va a Daniel; URLs viejas de ciudad: 301 a la portada, sin página de ciudad (decidido); cola de Contenido: cuánto cuesta jue 29/10, voz vie 30/10, presupuestos lun 2/11 con slug `/automatizacion-de-procesos/presupuestos/` (decidido) y /sobre-pebai/ cuando responda Daniel; la pregunta del caso de presupuestos, a Daniel.)
 (Repartido antes: ver `git log` de este archivo.)
+
+- (Local 29/10) Para el Jefe / Redes: el post de LinkedIn del 5/11 17:00 sigue siendo de El Amparo en Metricool. Local ya pasó a borrador la foto de El Amparo de la ficha de Google (29/10 11:00).

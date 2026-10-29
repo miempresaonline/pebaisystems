@@ -15,3 +15,9 @@ Referencia: Organization de la portada (nombre `PEBAI Systems`, web `https://peb
 - Lo único que no cuadra con certeza es el **nombre de Facebook** (`| Valencia`). Es también un punto abierto en `embudo-y-voz.md` (ubicación: la web y el pie ya dicen València, la ficha oculta la dirección).
 - Citas en Localo: LinkedIn ya estaba registrada.
 - Las tres redes que bloquean a los robots quedan como comprobación de Daniel; no hay otra forma desde la nube.
+
+## Revisión 29/10/2026 (Local)
+- **Foto de El Amparo en la ficha:** estaba programada en Metricool (red `gmb`, tipo `photo`) para hoy 29/10 a las 11:00. Daniel sacó a El Amparo de los directorios el 28/10 y no hay su respuesta sobre la ficha, así que la he pasado a **borrador** (reversible, post 2639695153274374130). Si Daniel confirma que sí, se vuelve a programar.
+- **LinkedIn 5/11 17:00 (El Amparo):** es de Redes, ya tiene su encargo; sigue programado hasta que ellos lo cambien (se lo señalo en `novedades.md`).
+- **Fichas nuevas en revisión:** agentes.ai (sitemap sin `pebai`), TechBehemoths (publicada, pero WebFetch devuelve 403 a robots; no verificable desde la nube), GoodFirms, DesignRush y mejores-agencias.com: sin resultado público en WebSearch. Se vuelve a mirar el próximo turno.
+- **Dirección en TechBehemoths:** el formulario exige calle y código postal (probado 28/10); se mantiene la de antes hasta que Daniel decida. No se inventa otra.
