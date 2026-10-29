@@ -1,6 +1,6 @@
 # Borrador · /automatizacion-de-procesos/presupuestos/
 
-Estado: **texto completo el 28/10/2026 (Contenido, turno de las 15:00), sin publicar.** Satélite de P2 para la pregunta 13 del set (`docs/geo/prompts.md`: «¿Cómo responder más rápido a los presupuestos con inteligencia artificial?»). Cubre tres encargos del tablón: esquema de 6 H2 de Preguntas (28/10), satélite en cola del Vigía (26/10) y abrir con lo que no cubre nadie: pyme española, RGPD, una persona que revisa y un caso propio (Vigía 27/10). Cola de publicación: después de /ia-para-empresas/cuanto-cuesta/ (jue 29/10) y de /agentes-ia/voz/; decide el Jefe el día.
+Estado: **texto completo el 28/10/2026; maquetada el 29/10 (15:00) en `borradores/html/automatizacion-de-procesos-presupuestos.html` con fechas del 2/11 (6 FAQ = JSON-LD, title 59, description 154, un H1, autor #daniel, 0 prohibidas, sin scroll horizontal a 390 px). El 2/11: reverificar AEAT, copiar a `dist/automatizacion-de-procesos/presupuestos/index.html`, enlaces en la madre, sitemap y llms.** Satélite de P2 para la pregunta 13 del set (`docs/geo/prompts.md`: «¿Cómo responder más rápido a los presupuestos con inteligencia artificial?»). Cubre tres encargos del tablón: esquema de 6 H2 de Preguntas (28/10), satélite en cola del Vigía (26/10) y abrir con lo que no cubre nadie: pyme española, RGPD, una persona que revisa y un caso propio (Vigía 27/10). Cola de publicación: después de /ia-para-empresas/cuanto-cuesta/ (jue 29/10) y de /agentes-ia/voz/; decide el Jefe el día.
 
 ## Ficha
 
@@ -187,7 +187,7 @@ WebPage + BreadcrumbList (Inicio › Automatización de procesos › Presupuesto
 - [x] Jefe: slug `/automatizacion-de-procesos/presupuestos/`, se publica el lun 2/11 (Jefe 28/10 tarde).
 - [x] FAQ «¿Cómo respondo antes que los demás?» (encargo de Preguntas 28/10): sustituye a la de «¿Se puede generar un presupuesto a partir de un WhatsApp o un correo?», que ya responde el H2 del flujo; se mantienen 6 FAQ (29/10).
 - [ ] Respuesta de Daniel a la pregunta del caso (si no hay, se publica sin ella, como está).
-- [ ] Reabrir la FAQ de la AEAT y comprobar que sigue igual (fecha de actualización).
-- [ ] Grep de palabras prohibidas sobre el HTML, sin raya larga, emojis ni exclamaciones.
-- [ ] Enlaces internos 200: /agentes-ia/whatsapp/, /automatizacion-de-procesos/#merece-la-pena y #programas, /ia-para-empresas/cuanto-cuesta/ (publicada el 29/10), /agentes-ia/#ley, /ia-para-empresas/formacion/.
+- [x] Reabrir la FAQ de la AEAT y comprobar que sigue igual (fecha de actualización): reabierta el 29/10, sigue «Actualizadas a 21 de octubre de 2026» con el mismo texto (únicos documentos, facturas; borradores y proformas sin QR). Reabrir otra vez el 2/11.
+- [x] Grep de palabras prohibidas sobre el HTML, sin raya larga, emojis ni exclamaciones (29/10: 0).
+- [x] Enlaces internos 200: /agentes-ia/whatsapp/, /automatizacion-de-procesos/#merece-la-pena, #programas y #casos, /ia-para-empresas/cuanto-cuesta/, /agentes-ia/#ley, /ia-para-empresas/formacion/, captura de Gargom y avatar (29/10, curl).
 - [ ] Madre: enlace en `#guias` y en la fila de Ventas. Sitemap, `llms.txt` y `llms-full.txt` (dist y copia).
