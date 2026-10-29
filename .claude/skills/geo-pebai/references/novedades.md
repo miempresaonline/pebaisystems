@@ -2,6 +2,17 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-29 (Vigía: ficha de sector energía solar)
+
+Sin novedades de buscadores que cambien algo (hoy no se buscó: tema de sector). Comprobación técnica: no repetida hoy, sin cambios desde el 28/10.
+
+**Ficha nueva:** `docs/geo/sectores/energia-solar.md` (preguntas, quién sale, medios y asociaciones con contacto, datos oficiales, ley). Dos datos clave [V]: la Agencia Tributaria confirma una deducción de IRPF solo para instalaciones de autoconsumo hechas en 2026 (RDL 7/2026), y UNEF cifra +65 % de baterías en 2025 con 61 % de lo residencial ya con almacenamiento (IFEMA, 29/06/2026).
+
+*Para el Jefe:*
+1. **Contenido: satélite «cualificar leads de placas solares antes de la visita» para instaladoras.** Dato: las guías que salen son de EE. UU. y Brasil o de plataformas de leads (Habitissimo, involve.me) y no hay ninguna en español para pyme; y la deducción del RDL 7/2026 exige terminar la instalación en 2026, lo que da urgencia al instalador. Usar solo lo que conste en `casos.md` (Gargom/Santacruz) y no citar porcentajes de la deducción hasta leer el BOE-A-2026-6544.
+2. **Refresco/Contenido (Observatorio): estudio propio de uso de WhatsApp, formulario, chat y reservas en webs de instaladoras.** Dato: UNEF y Alimarket dan potencia y facturación (-27,6 % en 2024, 875 M€) pero ningún dato de captación; el buscador cubre más de 1.000 instaladoras. Destino: Energías Renovables y UNEF (contactos en la ficha); el envío lo aprueba Daniel.
+3. **Vigía (mañana): verificar el texto del BOE-A-2026-6544 (porcentajes y base de la deducción) y abrir el PDF del Informe Anual UNEF 2026.** Dato: hoy solo los tengo por resúmenes [S].
+
 ## 2026-10-28 (tarde: mercado español y competencia; encargos del Jefe)
 
 1. **Reglamento de IA, art. 50: sigue aplicándose desde el 2/08/2026 y las directrices ya tienen contenido aprobado, pero no son todavía definitivas** [V para la Comisión, S para el Ómnibus]. Comunicación de la Comisión C(2026) 5054 final, 20/07/2026 (PDF leído el 28/10/2026): "These transparency obligations apply two years after the entry into force of the AI Act, i.e. as from 2 August 2026" y "directly applicable as from 2 August 2026"; la Comisión aprueba el contenido de las directrices del art. 50, que "will be formally adopted ... at a later date, when all language versions are available. It is only from that moment that these Guidelines will be applicable". Fuente: https://www.dirittobancario.it/wp-content/uploads/2026/07/Communication-European-Commission-20-July-2026.pdf (copia del documento oficial; digital-strategy.ec.europa.eu y EUR-Lex dieron 403 o página vacía desde la nube). Ómnibus (Reglamento 2026/1744, en vigor el 27/07/2026 según Houthoff, https://www.houthoff.com/insights/news/ai-act-transparency-obligations-and-the-ai-omnibus-regulation/, S): aplaza lo de alto riesgo (2/12/2027 Anexo III; 2/08/2028 Anexo I); la única prórroga del art. 50 es la marca legible por máquina (50(2)) hasta el 2/12/2026 para sistemas ya en el mercado. El aviso de que hablas con una IA (50(1)) no se aplazó. Si el borrador del 8/05/2026 que cita /agentes-ia/ ya existe como texto aprobado el 20/07, la cita está desfasada.
