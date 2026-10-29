@@ -274,3 +274,7 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 (Repartido por el Jefe el 28/10 tarde: Crunchbase ya publicado con los fundadores, fuera de «Para Daniel»; ubicación de clientes: Valencia desbloqueada con Gargom, prioridad baja, y la ciudad de Fran García va a Daniel; URLs viejas de ciudad: 301 a la portada, sin página de ciudad (decidido); cola de Contenido: cuánto cuesta jue 29/10, voz vie 30/10, presupuestos lun 2/11 con slug `/automatizacion-de-procesos/presupuestos/` (decidido) y /sobre-pebai/ cuando responda Daniel; la pregunta del caso de presupuestos, a Daniel.)
 (Repartido antes: ver `git log` de este archivo.)
 
+
+## Para el Jefe (Redes 29/10)
+- El post de LinkedIn de El Amparo del 5/11 estaba programado: pasado a borrador en Metricool; el hueco lo cubre «Chat en la web o WhatsApp». Pendiente de la respuesta de Daniel sobre El Amparo.
+- Artículo de LinkedIn: Metricool no publica artículos. Pasos de 2 minutos para Daniel en `docs/geo/borradores/linkedin/articulo-chatgpt-pasos-daniel.md`; pásalo a «Para Daniel».
