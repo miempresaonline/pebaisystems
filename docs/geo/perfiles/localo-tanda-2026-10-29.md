@@ -8,7 +8,7 @@ Reglas: datos idénticos a Google (PEBAI Systems, https://pebaisystems.es, +34 6
 | 2 | Apple Business Connect (Maps) | Descartado | Apple Maps no admite negocios de zona de servicio (ni ocultar dirección ni área). Ver apple-business-connect.md |
 | 3 | OpenStreetMap | Descartado | OSM solo mapea lugares físicos que se pueden visitar; sin local no hay forma correcta |
 | 4 | Foursquare | Descartado | Ya no acepta negocios de zona de servicio (los marca la comunidad) |
-| 5 | Páginas Amarillas | Necesita cuenta | Área de Negocios de beedigital; Daniel crea la cuenta y después se mira si deja ocultar la calle |
+| 5 | Páginas Amarillas | Bloqueado por NIF | Cuenta de Daniel en Beedigital creada (aceptó el contacto comercial). El último paso del alta gratis exige «NIF Empresa *». Retomar cuando haya NIF |
 | 6 | Yelp | Completado, en revisión de Yelp | Cuenta de Daniel. Sin calle (dirección oculta), CP 46002, zona de servicio Valencia, «Consultora comercial», horario L-V 8:30-20:30, descripción y 4 fotos (logo y 3 casos) |
 | 7 | EnrollBusiness | Publicado | https://es.enrollbusiness.com/BusinessProfile/8025881/PEBAI%20Systems — solo ciudad (sin calle), teléfono, web, «Consultoría de Negocio», descripción. Cita ya existía en Localo |
 | 8 | Cylex | Necesita cuenta | Según BrightLocal permite ocultar la dirección |
