@@ -7,13 +7,13 @@
  * POST web (+ hp vacío, t = momento en que se pintó el formulario) → {ok, id, k, estado}
  * GET  ?id=&k=                                                    → {ok, estado, paso, url}
  *
- * Límites para que nadie gaste el crédito: 3 análisis por persona y día, 40 al día en total.
+ * Límites para que nadie gaste el crédito: por persona y día (en pruebas, sin límite práctico; al lanzar, 1) y 40 al día en total.
  * Si esa web ya tiene análisis se devuelve el mismo (sin gastar). Coste medido: ~1,5 céntimos por análisis.
  */
 require_once __DIR__ . '/_pebai_lib.php';
 require_once __DIR__ . '/_demos_lib.php';
 
-const PEBAI_ANALIZAR_IP_DIA = 3;
+const PEBAI_ANALIZAR_IP_DIA = 1000; // en pruebas (29/10/2026, Daniel): sin límite por persona; al lanzar la portada, 1
 const PEBAI_ANALIZAR_DIA = 40;
 
 header('Content-Type: application/json; charset=utf-8');
