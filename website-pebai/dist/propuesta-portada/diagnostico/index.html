@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0A0912">
+  <title>Solicitud Privada de Consultoría | PEBAI Systems</title>
+  <meta name="description" content="Solicitud privada de consultoría técnica para la implantación de procesos de Inteligencia Artificial y automatización con PEBAI Systems.">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="https://pebaisystems.es/diagnostico/">
+
+  <meta property="og:site_name" content="PEBAI Systems">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Solicitud Privada de Consultoría | PEBAI Systems">
+  <meta property="og:description" content="Solicitud privada de consultoría técnica para tu empresa con PEBAI Systems.">
+  <meta property="og:url" content="https://pebaisystems.es/diagnostico/">
+  <meta property="og:image" content="https://pebaisystems.es/brand/og/og-solicitud.jpg?v=3">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://pebaisystems.es/brand/og/og-solicitud.jpg?v=3">
+
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="preload" href="/brand/Manrope-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/brand/InstrumentSerif-latin-italic.woff2" as="font" type="font/woff2" crossorigin>
+
+  <script>
+    /* mismo tema que la web: oscuro salvo que la persona haya elegido claro */
+    try { var t = new URLSearchParams(location.search).get('theme') || localStorage.getItem('pebai-theme'); document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark'; } catch (e) {}
+  </script>
+
+  <style>
+@font-face{font-family:'Manrope';src:url('/brand/Manrope-latin-variable.woff2') format('woff2');font-weight:200 800;font-display:swap}
+@font-face{font-family:'Instrument Serif';src:url('/brand/InstrumentSerif-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Instrument Serif';src:url('/brand/InstrumentSerif-latin-italic.woff2') format('woff2');font-weight:400;font-style:italic;font-display:swap}
+:root{
+  --bg:#0A0912;--s1:#161427;--s2:#1E1A36;--fg:#EFEDE7;--fg-65:rgba(239,237,231,.65);--fg-40:rgba(239,237,231,.42);--fg-10:rgba(239,237,231,.1);
+  --accent:#B7FF3C;--tag:rgba(183,255,60,.1);--violet:#6A5CFF;--violet-h:#7B6EFF;--err:#FF8A8A;--glass:rgba(10,9,18,.55);
+  --au-1:rgba(106,92,255,.45);--au-2:rgba(183,255,60,.14);--au-3:rgba(56,214,255,.2);
+  --serif:'Instrument Serif',Georgia,serif;--sans:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--ease:cubic-bezier(.2,.8,.2,1)
+}
+:root[data-theme="light"]{
+  --bg:#F3F1EC;--s1:#FFFFFF;--s2:#ECE9E3;--fg:#12121A;--fg-65:rgba(18,18,26,.68);--fg-40:rgba(18,18,26,.48);--fg-10:rgba(18,18,26,.1);
+  --accent:#4C3DE0;--tag:rgba(106,92,255,.1);--err:#C2410C;--glass:rgba(255,255,255,.7);--au-1:rgba(106,92,255,.22);--au-2:rgba(183,255,60,.22);--au-3:rgba(56,214,255,.14)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:var(--bg)}
+body{min-height:100svh;font-family:var(--sans);background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(60% 50% at 15% 10%,var(--au-1),transparent 70%),radial-gradient(45% 40% at 90% 85%,var(--au-3),transparent 70%),radial-gradient(40% 35% at 80% 10%,var(--au-2),transparent 70%)}
+.top{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px clamp(16px,4vw,40px)}
+.logo{display:inline-flex;align-items:center;height:46px;padding:0 16px;border-radius:999px;background:var(--glass);box-shadow:inset 0 0 0 1px var(--fg-10)}
+.logo img{height:24px;width:auto;display:block}
+:root[data-theme="light"] .only-dark,:root:not([data-theme="light"]) .only-light{display:none}
+.count{font-size:13px;font-weight:600;color:var(--fg-65)}
+.count b{color:var(--fg)}
+main{position:relative;z-index:1;width:min(640px,100%);margin:0 auto;padding:clamp(12px,6vh,64px) clamp(16px,4vw,24px) 48px;min-height:calc(100svh - 86px);display:flex;flex-direction:column}
+.prog{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:36px}
+.prog i{height:4px;border-radius:4px;background:var(--fg-10);overflow:hidden;position:relative}
+.prog i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--violet),var(--accent));transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.prog i.on::after{transform:scaleX(1)}
+.back{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;margin:-20px 0 18px;font-size:13px;font-weight:600;color:var(--fg-65)}
+.back:hover{color:var(--fg)}
+.back[hidden]{display:none}
+form{flex:1}
+.q{display:none;flex-direction:column}
+.q.on{display:flex;animation:qIn .45s var(--ease) both}
+.q.out-back{animation:qBack .45s var(--ease) both}
+@keyframes qIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes qBack{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+.kick{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.h{margin-top:12px;font-family:var(--serif);font-weight:400;font-size:clamp(36px,6vw,54px);line-height:1.04;letter-spacing:-.01em}
+.h em{font-style:italic;color:var(--accent)}
+.sub{margin-top:14px;font-size:16px;line-height:1.5;color:var(--fg-65);max-width:520px}
+.field{margin-top:28px}
+.field+.field{margin-top:14px}
+label.l{display:block;margin-bottom:8px;font-size:13px;font-weight:600;color:var(--fg-65)}
+.in{width:100%;height:58px;padding:0 18px;border:0;border-radius:16px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--fg-10);color:var(--fg);font:500 17px var(--sans);outline:none;transition:box-shadow .2s ease}
+textarea.in{height:auto;min-height:128px;padding:16px 18px;line-height:1.5;resize:vertical}
+.in::placeholder{color:var(--fg-40)}
+.in:focus{box-shadow:inset 0 0 0 1.5px var(--violet),0 0 0 4px rgba(106,92,255,.15)}
+.in.bad{box-shadow:inset 0 0 0 1.5px var(--err)}
+.hint{margin-top:10px;font-size:13.5px;line-height:1.5;color:var(--fg-40)}
+.hint b{color:var(--fg-65);font-weight:600}
+.err{margin-top:10px;font-size:13px;font-weight:600;color:var(--err)}
+.err:empty{display:none}
+.acts{display:flex;align-items:center;flex-wrap:wrap;gap:12px 18px;margin-top:28px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:56px;padding:0 26px 0 30px;border-radius:999px;background:var(--violet);color:#fff;font-size:15px;font-weight:700;box-shadow:0 12px 30px -8px rgba(106,92,255,.6);transition:background .2s ease,transform .2s ease}
+.btn::after{content:"";width:8px;height:8px;border-radius:50%;background:#fff}
+.btn:hover{background:var(--violet-h);transform:translateY(-1px)}
+.btn:disabled{opacity:.6;cursor:default;transform:none}
+.kbd{font-size:12.5px;color:var(--fg-40)}
+.kbd b{font-weight:700;color:var(--fg-65)}
+.link{font-size:14px;font-weight:600;color:var(--fg-65);text-decoration:underline;text-underline-offset:4px}
+.link:hover{color:var(--fg)}
+.opts{display:grid;gap:10px;margin-top:28px}
+.opt{display:flex;align-items:center;gap:16px;width:100%;padding:18px 20px;border-radius:18px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--fg-10);text-align:left;transition:box-shadow .2s ease,transform .2s ease}
+.opt:hover{box-shadow:inset 0 0 0 1px var(--fg-40);transform:translateY(-1px)}
+.opt.sel{box-shadow:inset 0 0 0 1.5px var(--violet),0 0 0 4px rgba(106,92,255,.12)}
+.opt .k{flex:none;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--fg-65);box-shadow:inset 0 0 0 1px var(--fg-10)}
+.opt.sel .k{background:var(--violet);color:#fff;box-shadow:none}
+.opt b{display:block;font-size:16px;font-weight:600}
+.opt small{display:block;margin-top:3px;font-size:13.5px;color:var(--fg-65)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg .opt{justify-content:center;padding:15px;font-weight:600}
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:28px}
+.chips .opt{padding:15px 16px;font-size:14.5px;font-weight:600;line-height:1.3}
+.priv{display:flex;align-items:flex-start;gap:12px;margin-top:22px;font-size:13.5px;line-height:1.5;color:var(--fg-65);cursor:pointer}
+.priv input{flex:none;width:20px;height:20px;margin-top:1px;accent-color:#6A5CFF}
+.priv a{text-decoration:underline;text-underline-offset:3px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.state{display:none;flex-direction:column;align-items:flex-start;gap:14px;margin-top:8px}
+.state.on{display:flex;animation:qIn .45s var(--ease) both}
+.spin{width:44px;height:44px;border-radius:50%;border:3px solid var(--fg-10);border-top-color:var(--accent);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.trust{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:36px;font-size:12.5px;color:var(--fg-40)}
+.trust b{color:var(--fg-65);font-weight:600}
+.trust span{color:#FFC94D;letter-spacing:1px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:640px){
+  .top{padding:14px 16px}
+  .logo{height:42px;padding:0 14px}
+  .logo img{height:21px}
+  main{padding-top:8px;min-height:calc(100svh - 70px)}
+  .prog{margin-bottom:28px}
+  .sub{font-size:15px}
+  .acts .btn{width:100%}
+  .kbd{display:none}
+  .chips{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.q.on,.q.out-back,.state.on{animation:none}}
+  </style>
+  <script src="/utm.js?v=5"></script>
+  <link rel="stylesheet" href="/funnel.css">
+  <script>try{if(sessionStorage.getItem('pebai_handoff')){sessionStorage.removeItem('pebai_handoff');document.documentElement.classList.add('handoff')}}catch(e){}</script>
+<!-- Metricool: medición de audiencia sin cookies (exenta de consentimiento, ver /politica-de-cookies/) -->
+<script>function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"1f93f597864f09fbd98fe7aaf3444936"})});</script>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+  <header class="top">
+    <a class="logo" href="/" aria-label="PEBAI Systems, inicio">
+      <img class="only-dark" src="/brand/pebai-horizontal-color-mineral-cropped.webp" alt="PEBAI Systems" width="400" height="116">
+      <img class="only-light" src="/brand/home/logo-ink.webp" alt="PEBAI Systems" width="400" height="116">
+    </a>
+    <span class="count" aria-live="polite">Paso <b id="n">1</b> de 5</span>
+  </header>
+
+  <main>
+    <div class="prog" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+    <button type="button" class="back" id="back" hidden>← Atrás</button>
+
+    <form id="f" novalidate>
+      <input type="text" id="input-website" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <!-- 1 · web -->
+      <section class="q on" data-q="1" aria-labelledby="t1">
+        <p class="kick">Consultoría gratuita · 25 minutos</p>
+        <h1 class="h" id="t1">¿Cuál es la <em>web</em> de tu empresa?</h1>
+        <p class="sub">La revisamos antes de hablar para llegar con ideas concretas para vosotros.</p>
+        <div class="field">
+          <label class="sr" for="q-web">Web de tu empresa</label>
+          <input class="in" id="q-web" name="web" type="url" inputmode="url" autocomplete="url" autocapitalize="off" spellcheck="false" placeholder="tuempresa.es" enterkeyhint="next">
+          <p class="err" id="e1" role="alert"></p>
+        </div>
+        <div class="acts"><button type="button" class="btn" data-next>Continuar</button><button type="button" class="link" id="noweb">No tenemos web</button></div>
+      </section>
+
+      <!-- 2 · lo que les quita tiempo -->
+      <section class="q" data-q="2" aria-labelledby="t2">
+        <p class="kick">Tu caso</p>
+        <h2 class="h" id="t2">¿Qué os quita <em>más tiempo?</em></h2>
+        <div class="field">
+          <label class="sr" for="q-problema">Lo que os quita más tiempo</label>
+          <textarea class="in" id="q-problema" name="problema" rows="4" maxlength="1000" placeholder="Cuéntalo con tus palabras" enterkeyhint="next"></textarea>
+          <p class="hint"><b>Por ejemplo:</b> «Pasamos 2 horas al día copiando pedidos del email al ERP».</p>
+          <p class="err" id="e2" role="alert"></p>
+        </div>
+        <div class="acts"><button type="button" class="btn" data-next>Continuar</button><span class="kbd">o pulsa <b>Enter ↵</b></span></div>
+      </section>
+
+      <!-- 3 · presupuesto -->
+      <section class="q" data-q="3" aria-labelledby="t3">
+        <p class="kick">Inversión mínima desde 1.500 €</p>
+        <h2 class="h" id="t3">¿Tenéis presupuesto si vemos un <em>retorno claro?</em></h2>
+        <div class="opts" role="group" aria-labelledby="t3">
+          <button type="button" class="opt" data-opcion="A" data-presupuesto="Sí, buscamos rentabilidad y tenemos presupuesto."><span class="k">A</span><span><b>Sí, tenemos presupuesto</b><small>Buscamos rentabilidad y un retorno medible.</small></span></button>
+          <button type="button" class="opt" data-opcion="B" data-presupuesto="De momento no, estamos explorando opciones."><span class="k">B</span><span><b>De momento no</b><small>Estamos explorando opciones.</small></span></button>
+        </div>
+      </section>
+
+      <!-- 4 · contacto -->
+      <section class="q" data-q="4" aria-labelledby="t4">
+        <p class="kick">Contacto</p>
+        <h2 class="h" id="t4">¿Con quién <em>hablamos?</em></h2>
+        <div class="field">
+          <label class="l" for="q-nombre">Tu nombre</label>
+          <input class="in" id="q-nombre" name="nombre" type="text" autocomplete="given-name" autocapitalize="words" placeholder="Laura" enterkeyhint="next">
+        </div>
+        <div class="field">
+          <label class="l" for="q-empresa">Empresa</label>
+          <input class="in" id="q-empresa" name="empresa" type="text" autocomplete="organization" placeholder="Clínica Dental Norte" enterkeyhint="next">
+        </div>
+        <div class="field">
+          <label class="l" for="q-telefono">WhatsApp</label>
+          <input class="in" id="q-telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" placeholder="612 34 56 78" enterkeyhint="next">
+        </div>
+        <div class="field">
+          <span class="l" id="l-dec">¿Eres quien decide?</span>
+          <div class="seg" role="group" aria-labelledby="l-dec"><button type="button" class="opt" data-decisor="si">Sí</button><button type="button" class="opt" data-decisor="no">No</button></div>
+        </div>
+        <p class="err" id="e4" role="alert"></p>
+        <div class="acts"><button type="button" class="btn" data-next>Continuar</button></div>
+      </section>
+
+      <!-- 5 · cómo nos conociste (reparto de canal: pebai_canal() en api/_pebai_lib.php) -->
+      <section class="q" data-q="5" aria-labelledby="t5">
+        <p class="kick">Último paso</p>
+        <h2 class="h" id="t5">¿Cómo nos <em>conociste?</em></h2>
+        <div class="chips" role="group" aria-labelledby="t5">
+          <button type="button" class="opt" data-conocio="google">Buscando en Google</button>
+          <button type="button" class="opt" data-conocio="ia">Me lo recomendó ChatGPT u otra IA</button>
+          <button type="button" class="opt" data-conocio="redes">Instagram, TikTok o YouTube</button>
+          <button type="button" class="opt" data-conocio="anuncio">Un anuncio</button>
+          <button type="button" class="opt" data-conocio="mensaje">Me escribisteis por email o WhatsApp</button>
+          <button type="button" class="opt" data-conocio="visita">Me llamasteis o visitasteis</button>
+          <button type="button" class="opt" data-conocio="recomendacion">Me lo recomendó alguien</button>
+          <button type="button" class="opt" data-conocio="otro">Otro</button>
+        </div>
+        <label class="priv"><input type="checkbox" id="q-priv"> <span>He leído y acepto la <a href="/privacidad/" target="_blank" rel="noopener">política de privacidad</a> y autorizo el tratamiento de mis datos para valorar mi caso.</span></label>
+        <p class="err" id="e5" role="alert"></p>
+        <div class="acts"><button type="submit" class="btn" id="send">Enviar solicitud</button></div>
+      </section>
+    </form>
+
+    <div class="state" id="sending" aria-live="polite"><span class="spin" aria-hidden="true"></span><h2 class="h">Enviando tu <em>solicitud…</em></h2></div>
+    <div class="state" id="failed" role="alert">
+      <h2 class="h">No se ha podido <em>enviar.</em></h2>
+      <p class="sub" id="fail-msg">Revisa tu conexión y vuelve a intentarlo.</p>
+      <div class="acts"><button type="button" class="btn" id="retry">Reintentar</button><button type="button" class="link" id="fix">Revisar mis datos</button><a class="link" href="https://wa.me/34624842799" target="_blank" rel="noopener">Escríbenos por WhatsApp</a></div>
+    </div>
+
+    <p class="trust"><b>5,0</b><span aria-hidden="true">★★★★★</span>en Google · Te respondemos por WhatsApp en menos de 24 horas</p>
+  </main>
+
+  <script>
+  (function () {
+    var f = document.getElementById('f'), steps = [].slice.call(f.querySelectorAll('.q')), bars = [].slice.call(document.querySelectorAll('.prog i'));
+    var back = document.getElementById('back'), cur = 1, sending = false;
+    var fine = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    var S = { web: '', noweb: false, problema: '', opcion: '', presupuesto: '', nombre: '', empresa: '', telefono: '', decisor: '', conocio: '', cta: '' };
+    function $(id) { return document.getElementById(id); }
+    function ev(name) { if (typeof window.clarity === 'function') { try { window.clarity('event', name); } catch (e) {} } }
+
+    /* lo que llega en la URL (enlaces de WhatsApp, VSL, «Analizar mi empresa») */
+    var P = new URLSearchParams(location.search);
+    $('q-web').value = (P.get('web') || '').trim();
+    $('q-empresa').value = (P.get('empresa') || P.get('company') || '').trim();
+    $('q-nombre').value = (P.get('nombre') || P.get('name') || '').trim();
+    $('q-telefono').value = (P.get('telefono') || P.get('phone') || '').trim();
+    S.cta = (P.get('cta') || '').trim();
+    var org = (P.get('origen') || '').trim();
+    if (!S.cta && org.indexOf('vsl_') === 0) S.cta = org;
+
+    function focusStep(n) {
+      if (n === 1 && !fine) return;   // en el móvil, sin abrir el teclado nada más llegar
+      var i = steps[n - 1].querySelector('.in');
+      if (i) setTimeout(function () { try { i.focus({ preventScroll: true }); } catch (e) { i.focus(); } }, 80);
+    }
+    function show(n, dir) {
+      steps.forEach(function (s, i) { s.classList.toggle('on', i === n - 1); s.classList.toggle('out-back', i === n - 1 && dir < 0); });
+      bars.forEach(function (b, i) { b.classList.toggle('on', i < n); });
+      $('n').textContent = n; back.hidden = n === 1; cur = n;
+      window.scrollTo(0, 0); focusStep(n); ev('solicitud_paso_' + n);
+    }
+    function err(n, msg, el) { $('e' + n).textContent = msg || ''; [].slice.call(steps[n - 1].querySelectorAll('.in')).forEach(function (i) { i.classList.remove('bad'); }); if (el) { el.classList.add('bad'); el.focus(); } return !msg; }
+
+    function validWeb(v) { return /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/\S*)?$/i.test(v.trim()); }
+    function validatePhone(raw) {
+      var d = (raw || '').replace(/\D+/g, '');
+      if (d.indexOf('0034') === 0) d = d.slice(4);
+      if (d.length === 11 && d.indexOf('34') === 0) d = d.slice(2);
+      if (d.length === 9) return /^[6789]/.test(d) ? '' : 'Revisa el número: en España empieza por 6, 7, 8 o 9.';
+      if (d.length >= 10 && d.length <= 15 && /^\+/.test((raw || '').trim())) return '';
+      return d.length < 9 ? 'Faltan dígitos: el teléfono tiene 9 cifras.' : 'Revisa el número de teléfono.';
+    }
+
+    function check(n) {
+      if (n === 1) {
+        var w = $('q-web').value.trim();
+        if (!validWeb(w)) return err(1, 'Escribe la web, por ejemplo tuempresa.es, o pulsa «No tenemos web».', $('q-web'));
+        S.web = w; S.noweb = false; return err(1, '');
+      }
+      if (n === 2) {
+        var p = $('q-problema').value.trim();
+        if (p.length < 8) return err(2, 'Cuéntanos un poco más: con una frase basta.', $('q-problema'));
+        S.problema = p; return err(2, '');
+      }
+      if (n === 4) {
+        var nom = $('q-nombre').value.trim(), emp = $('q-empresa').value.trim(), tel = $('q-telefono').value.trim();
+        if (nom.length < 2) return err(4, 'Escribe tu nombre para saber a quién saludar.', $('q-nombre'));
+        if (emp.length < 2) return err(4, 'Escribe el nombre de tu empresa o negocio.', $('q-empresa'));
+        var et = tel ? validatePhone(tel) : 'Necesitamos tu WhatsApp para responderte.';
+        if (et) return err(4, et, $('q-telefono'));
+        if (!S.decisor) return err(4, 'Dinos si eres quien decide.');
+        S.nombre = nom; S.empresa = emp; S.telefono = tel; return err(4, '');
+      }
+      return true;
+    }
+    function next() { if (sending) return; if (check(cur)) show(cur + 1, 1); }
+
+    [].slice.call(f.querySelectorAll('[data-next]')).forEach(function (b) { b.addEventListener('click', next); });
+    back.addEventListener('click', function () { if (cur > 1) show(cur - 1, -1); });
+    $('noweb').addEventListener('click', function () { S.web = ''; S.noweb = true; $('q-web').value = ''; err(1, ''); show(2, 1); });
+
+    /* Enter avanza (en el texto largo, Mayúsculas + Enter hace salto de línea) */
+    f.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' || e.isComposing) return;
+      if (e.target.tagName === 'TEXTAREA' && e.shiftKey) return;
+      if (e.target.tagName === 'BUTTON' || e.target.type === 'checkbox') return;
+      e.preventDefault();
+      if (cur < 5) next(); else submit();
+    });
+
+    /* respuestas de un clic */
+    function pick(group, btn) { [].slice.call(group.querySelectorAll('.opt')).forEach(function (o) { o.classList.toggle('sel', o === btn); o.setAttribute('aria-pressed', o === btn ? 'true' : 'false'); }); }
+    [].slice.call(f.querySelectorAll('[data-opcion]')).forEach(function (b) { b.addEventListener('click', function () { pick(b.parentNode, b); S.opcion = b.dataset.opcion; S.presupuesto = b.dataset.presupuesto; setTimeout(function () { show(4, 1); }, 220); }); });
+    [].slice.call(f.querySelectorAll('[data-decisor]')).forEach(function (b) { b.addEventListener('click', function () { pick(b.parentNode, b); S.decisor = b.dataset.decisor; if ($('e4').textContent.indexOf('decide') > -1) err(4, ''); }); });
+    [].slice.call(f.querySelectorAll('[data-conocio]')).forEach(function (b) { b.addEventListener('click', function () { pick(b.parentNode, b); S.conocio = b.dataset.conocio; err(5, ''); }); });
+    [].slice.call(f.querySelectorAll('.in')).forEach(function (i) { i.addEventListener('input', function () { i.classList.remove('bad'); }); });
+
+    function urlAttribution() {
+      var t = {};
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'origen', 'palabra', 'gclid', 'fbclid', 'ttclid'].forEach(function (k) { var v = P.get(k); if (v) t[k] = v; });
+      if (t.origen && t.origen.indexOf('vsl_') === 0) delete t.origen;
+      if (!t.utm_source && t.origen) t.utm_source = t.origen;
+      if (!t.utm_term && t.palabra) t.utm_term = t.palabra;
+      if (Object.keys(t).length) { t.landing = location.pathname; t.referrer = document.referrer || ''; }
+      return t;
+    }
+
+    function state(id) { ['sending', 'failed'].forEach(function (s) { $(s).classList.toggle('on', s === id); }); f.hidden = !!id; back.hidden = !!id || cur === 1; }
+
+    function submit() {
+      if (sending) return;
+      if (!S.conocio) return err(5, 'Dinos cómo nos conociste.');
+      if (!$('q-priv').checked) return err(5, 'Acepta la política de privacidad para enviar la solicitud.');
+      err(5, ''); send();
+    }
+    f.addEventListener('submit', function (e) { e.preventDefault(); submit(); });
+    $('retry').addEventListener('click', send);
+    $('fix').addEventListener('click', function () { state(null); show(4, -1); });
+
+    function send() {
+      sending = true; state('sending');
+      var attr = (window.PEBAI_ATTR && window.PEBAI_ATTR.get) ? window.PEBAI_ATTR.get() : {};
+      var payload = {
+        empresa: S.empresa, nombre: S.nombre, telefono: S.telefono,
+        web: S.noweb ? '' : S.web, problema: S.problema, decisor: S.decisor,
+        presupuesto: S.presupuesto, opcion: S.opcion, conocio: S.conocio,
+        privacidad_aceptada: true,
+        cta: S.cta || attr.cta || '',
+        primer_toque: attr.first || null, ultimo_toque: attr.last || null, url_params: urlAttribution(),
+        pagina: location.href,
+        meta: (window.PEBAI_CONSENT && window.PEBAI_CONSENT.metaIds) ? window.PEBAI_CONSENT.metaIds() : null,
+        website: $('input-website').value
+      };
+      var ctrl = window.AbortController ? new AbortController() : null, to = setTimeout(function () { if (ctrl) ctrl.abort(); }, 20000);
+      fetch('/api/lead.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl ? ctrl.signal : undefined })
+        .then(function (r) { return r.json().catch(function () { return null; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (x) {
+          clearTimeout(to);
+          if (!x.ok || !x.j || x.j.status !== 'ok') { fail(x.j && x.j.message); return; }
+          ev('solicitud_privada_submitted');
+          var nextUrl = '/formulario-completado/?solicitud=' + encodeURIComponent(x.j.id || '');
+          if (window.PEBAI_FUNNEL) window.PEBAI_FUNNEL.go({ title: 'Solicitud enviada', detail: S.empresa, note: 'Preparando el siguiente paso…', href: nextUrl });
+          else location.href = nextUrl;
+        })
+        .catch(function () { clearTimeout(to); fail(''); });
+    }
+    function fail(msg) {
+      sending = false; state('failed');
+      $('fail-msg').textContent = msg ? msg + ' Si el problema sigue, escríbenos por WhatsApp.' : 'Revisa tu conexión y vuelve a intentarlo. Si el problema sigue, escríbenos por WhatsApp.';
+      ev('solicitud_error');
+    }
+
+    focusStep(1);
+  })();
+  </script>
+  <script src="/funnel.js" defer></script>
+  <script src="/consent.js?v=5" defer></script>
+</body>
+</html>

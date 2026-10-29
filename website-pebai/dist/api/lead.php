@@ -85,6 +85,11 @@ $metaId = function ($v): string {
 };
 
 $opcion = strtoupper($str($data['opcion'] ?? '', 1));
+// Formulario de 5 pasos (29/10/2026): web (o «no tenemos»), lo que les quita tiempo y si decide
+require_once __DIR__ . '/_analizar_lib.php';
+$web = pebai_web_normal($str($data['web'] ?? '', 200));
+$problema = $str($data['problema'] ?? '', 1000);
+$decisor = in_array($data['decisor'] ?? '', ['si', 'no'], true) ? $data['decisor'] : '';
 $lead = [
     'created_at' => date('Y-m-d H:i:s'),
     'empresa' => $empresa,
@@ -93,7 +98,7 @@ $lead = [
     'canal' => $str($data['canal'] ?? '', 150),
     'volumen' => $str($data['volumen'] ?? '', 150),
     'equipo' => $str($data['equipo'] ?? '', 80),
-    'objetivo' => $str($data['objetivo'] ?? '', 500),
+    'objetivo' => $str($data['objetivo'] ?? '', 500) ?: mb_substr($problema, 0, 500),
     'presupuesto' => $str($data['presupuesto'] ?? '', 150),
     'opcion' => in_array($opcion, ['A', 'B'], true) ? $opcion : '',
     'fuente' => $last['utm_source'] ?? ($last['origen'] ?? 'directo'),
@@ -110,6 +115,9 @@ $lead = [
     'meta_ok' => $metaIn ? '1' : '',
     'meta_fbp' => $metaIn ? $metaId($metaIn['fbp'] ?? '') : '',
     'meta_fbc' => $metaIn ? $metaId($metaIn['fbc'] ?? '') : '',
+    'web' => $web,
+    'problema' => $problema,
+    'decisor' => $decisor,
     'conocio' => array_key_exists($str($data['conocio'] ?? '', 20), PEBAI_CONOCIO) ? $str($data['conocio'] ?? '', 20) : '',
 ];
 // Canal y dueño (acuerdo de colaboración): utm + respuesta de "¿Cómo nos conociste?"
@@ -189,6 +197,23 @@ if ($saved) {
             pebai_db()->prepare('UPDATE leads SET email_enviado = 1 WHERE id = ?')->execute([$id]);
         } catch (Throwable $e) {
             pebai_log('DB update: ' . $e->getMessage());
+        }
+    }
+    // Análisis de su web para decidir la plaza gratis (agente Demos, ~1,5 céntimos; tope diario compartido)
+    if ($web !== '') {
+        set_time_limit(400);
+        try {
+            pebai_db()->prepare("UPDATE leads SET analisis_estado = 'trabajando' WHERE id = ?")->execute([$id]);
+            $an = pebai_analisis_lead($id, $web, $lead['empresa']);
+        } catch (Throwable $e) {
+            $an = ['estado' => 'sin_hacer', 'motivo' => 'Error: ' . mb_substr($e->getMessage(), 0, 150)];
+        }
+        try {
+            pebai_db()->prepare('UPDATE leads SET analisis_url = ?, analisis_estado = ? WHERE id = ?')
+                ->execute([$an['url'] ?? '', $an['estado'] === 'sin_hacer' ? 'sin hacer: ' . $an['motivo'] : $an['estado'], $id]);
+            pebai_evento($id, 'analisis', ($an['url'] ?? '') !== '' ? 'Análisis de su web listo' : 'Análisis de su web sin hacer: ' . $an['motivo']);
+        } catch (Throwable $e) {
+            pebai_log('ANALISIS (lead ' . $id . '): ' . $e->getMessage());
         }
     }
     exit;

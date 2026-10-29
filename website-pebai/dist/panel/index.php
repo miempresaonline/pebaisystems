@@ -439,7 +439,7 @@ if ($auth && $db && isset($_GET['csv'])) {
     fwrite($out, "\xEF\xBB\xBF");
     $cols = ['id', 'created_at', 'estado', 'empresa', 'nombre', 'telefono', 'equipo', 'canal', 'volumen', 'objetivo', 'presupuesto',
              'opcion', 'fuente', 'medio', 'campana', 'contenido', 'palabra', 'cta', 'conocio', 'canal_dueno', 'canal_revisar', 'canal_motivo',
-             'cita_inicio', 'cliente_email', 'notas'];
+             'cita_inicio', 'cliente_email', 'notas', 'web', 'problema', 'decisor', 'analisis_url'];
     fputcsv($out, $cols, ';');
     foreach ($db->query('SELECT ' . implode(',', $cols) . ' FROM leads ORDER BY id DESC') as $r) {
         fputcsv($out, $r, ';');
@@ -460,7 +460,8 @@ if ($auth && isset($_GET['data'])) {
     $cols = ['id', 'created_at', 'estado', 'notas', 'empresa', 'nombre', 'telefono', 'equipo', 'canal', 'volumen', 'objetivo', 'presupuesto', 'opcion',
              'fuente', 'medio', 'campana', 'contenido', 'palabra', 'cta', 'primer_toque', 'ultimo_toque', 'pagina', 'dispositivo',
              'email_enviado', 'updated_at', 'cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at',
-             'conocio', 'canal_dueno', 'canal_auto', 'canal_motivo', 'canal_revisar', 'canal_manual', 'tipo'];
+             'conocio', 'canal_dueno', 'canal_auto', 'canal_motivo', 'canal_revisar', 'canal_manual', 'tipo',
+             'web', 'problema', 'decisor', 'analisis_url', 'analisis_estado'];
     $leads = $db->query('SELECT ' . implode(',', $cols) . ' FROM leads ORDER BY id DESC LIMIT 3000')->fetchAll();
     foreach ($leads as &$l) {
         $l['id'] = (int)$l['id'];
@@ -605,7 +606,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '120';
+$v = '121';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">

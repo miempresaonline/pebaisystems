@@ -97,7 +97,7 @@ function pebai_db(): PDO
         $cols = array_column($pdo->query('PRAGMA table_info(leads)')->fetchAll(), 'name');
         foreach (['cita_inicio', 'cita_fin', 'cita_uid', 'cita_estado', 'cliente_nombre', 'cliente_email', 'visto_at', 'enlace_at', 'equipo',
                   'conocio', 'canal_dueno', 'canal_auto', 'canal_motivo', 'canal_revisar', 'canal_manual', 'tipo',
-                  'meta_ok', 'meta_fbp', 'meta_fbc'] as $col) {
+                  'meta_ok', 'meta_fbp', 'meta_fbc', 'web', 'problema', 'decisor', 'analisis_url', 'analisis_estado'] as $col) {
             if (!in_array($col, $cols, true)) {
                 $pdo->exec("ALTER TABLE leads ADD COLUMN $col TEXT NOT NULL DEFAULT ''");
             }
@@ -740,6 +740,32 @@ function pebai_email_icon_row(string $icon, string $label, string $value, bool $
  * Aviso al equipo: solo la empresa y un botón al panel (allí está toda la ficha).
  * Sin imágenes: el webmail de Hostinger bloquea las externas y enseña las incrustadas como adjuntos.
  */
+/** Filas «Lo que les quita tiempo / Web / ¿Decide?» del email de una solicitud. */
+function pebai_lead_email_bloque(array $lead): string
+{
+    $filas = [];
+    if (($lead['problema'] ?? '') !== '') {
+        $filas[] = ['Lo que les quita tiempo', h($lead['problema'])];
+    }
+    if (($lead['web'] ?? '') !== '') {
+        $filas[] = ['Web', '<a href="' . h($lead['web']) . '" style="color:#594AF7">' . h(preg_replace('~^https?://|/$~', '', $lead['web'])) . '</a> <span style="color:#9AA0AE">· análisis en marcha, sale en el panel</span>'];
+    } elseif (array_key_exists('web', $lead)) {
+        $filas[] = ['Web', 'No tienen web'];
+    }
+    if (($lead['decisor'] ?? '') !== '') {
+        $filas[] = ['¿Decide?', $lead['decisor'] === 'si' ? 'Sí' : 'No'];
+    }
+    if (!$filas) {
+        return '';
+    }
+    $out = '<tr><td style="padding:22px 30px 0">';
+    foreach ($filas as [$k, $v]) {
+        $out .= '<div style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9AA0AE">' . h($k) . '</div>'
+              . '<div style="margin-top:3px;font-size:15px;line-height:1.45;color:#0B0F14">' . $v . '</div>';
+    }
+    return $out . '</td></tr>';
+}
+
 function pebai_lead_email(array $lead, int $id): array
 {
     $qualified = $lead['opcion'] === 'A';
@@ -774,6 +800,8 @@ function pebai_lead_email(array $lead, int $id): array
         . ($canal !== '' ? '<div style="margin-top:4px;font-size:14px;color:#5B6172">Canal: <b style="color:#0B0F14">' . h($canal) . '</b>'
             . (!empty($lead['canal_revisar']) ? ' <span style="color:#C2410C;font-weight:700">&middot; revisar</span>' : '') . '</div>' : '')
         . '</td></tr>'
+        // Lo que nos cuenta (formulario de diagnóstico de 5 pasos, 29/10/2026)
+        . pebai_lead_email_bloque($lead)
         // Botón
         . '<tr><td style="padding:26px 30px 30px">'
         . '<table role="presentation" cellpadding="0" cellspacing="0"><tr><td bgcolor="#0B0F14" style="background:#0B0F14;border-radius:10px">'
@@ -784,6 +812,9 @@ function pebai_lead_email(array $lead, int $id): array
         . '</td></tr></table></body></html>';
 
     $text = "Nueva solicitud: {$lead['empresa']} ($etiqueta)\n"
+        . (($lead['problema'] ?? '') !== '' ? "Lo que les quita tiempo: {$lead['problema']}\n" : '')
+        . (($lead['web'] ?? '') !== '' ? "Web: {$lead['web']} (análisis en marcha, sale en el panel)\n" : '')
+        . (($lead['decisor'] ?? '') !== '' ? 'Decide: ' . ($lead['decisor'] === 'si' ? 'sí' : 'no') . "\n" : '')
         . ($canal !== '' ? "Canal: $canal" . (!empty($lead['canal_revisar']) ? ' (revisar)' : '') . "\n" : '')
         . "\nVer en el panel: $panel\n";
     $subject = 'Nueva solicitud: ' . $lead['empresa'] . ($qualified ? ' · con presupuesto' : '');

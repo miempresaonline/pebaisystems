@@ -675,11 +675,21 @@ function drawDetalle() {
   if (r.canal.redes) { canalVis = el('span', 'pb-stack'); ['instagram', 'tiktok', 'facebook'].forEach((k) => canalVis.append(tile({ key: k, ...ICONS.brands[k] }, 'sm'))); }
   else if (r.canal.brand) canalVis = tile({ key: r.canal.brand, ...ICONS.brands[r.canal.brand] });
   else canalVis = el('span', 'pb-ico'), canalVis.append(icon(r.canal.ui));
+  // Formulario de 5 pasos (29/10/2026): lo que les quita tiempo, su web con el análisis y si decide, lo primero
+  if (l.problema) { const pv = el('span', 'pb-ico lime'); pv.append(icon('clock')); ans('Lo que les quita tiempo', pv, l.problema); }
+  if (l.web || l.problema) {
+    const wv = el('span', 'pb-ico'); wv.append(icon('globe'));
+    let wx = null;
+    if (l.analisis_url) { wx = el('a', 'pb-btn'); wx.href = l.analisis_url + '?equipo=1'; wx.target = '_blank'; wx.rel = 'noopener'; wx.append(icon('sparkles'), 'Ver su análisis'); }
+    else if (l.analisis_estado) wx = el('small', null, l.analisis_estado === 'trabajando' ? 'Analizando su web…' : 'Análisis ' + l.analisis_estado);
+    ans('Web', wv, l.web ? l.web.replace(/^https?:\/\//, '').replace(/\/$/, '') : 'No tienen web', wx);
+  }
+  if (l.decisor) { const dv = el('span', 'pb-ico' + (l.decisor === 'si' ? ' lime' : '')); dv.append(icon('user')); ans('¿Decide?', dv, l.decisor === 'si' ? 'Sí, decide' : 'No decide'); }
   if (l.equipo) { const eq = el('span', 'pb-ico'); eq.append(icon('users')); ans('Personas en la empresa', eq, l.equipo); }
   if (l.canal) ans('Sus clientes llegan por', canalVis, l.canal);
   const meter = el('span', 'pb-meter'); [1, 2, 3].forEach((n) => meter.append(el('i', n <= r.nivel ? 'on' : ''))); if (!r.nivel) { meter.replaceChildren(); meter.className = 'pb-ico'; meter.append(icon('bars')); }
   if (l.volumen) ans('Consultas al mes', meter, l.volumen);
-  const ob = el('span', 'pb-ico'); ob.append(icon(r.obj)); ans('Objetivo a 3 meses', ob, l.objetivo);
+  if (l.objetivo && l.objetivo !== (l.problema || '').slice(0, 500)) { const ob = el('span', 'pb-ico'); ob.append(icon(r.obj)); ans('Objetivo a 3 meses', ob, l.objetivo); }
   const pr = el('span', 'pb-ico ' + (l.opcion === 'A' ? 'lime' : '')); pr.append(icon('euro'));
   ans('Presupuesto', pr, l.opcion === 'A' ? 'Sí, con presupuesto' : l.opcion === 'B' ? 'De momento explorando' : l.presupuesto);
   box.append(section('Lo que nos contó', 'msg', grid));
