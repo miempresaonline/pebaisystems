@@ -176,3 +176,24 @@ Salía en la búsqueda de agentes de IA en Valencia, pero su web no menciona Val
 ### Dónde PEBAI ya gana
 - Valencia: BRACAI no compite por la zona.
 - Casos con nombre, captura y cifras fechadas.
+
+## 30/10/2026 (tarde) · Sciling (sciling.com)
+De la lista de la línea base (Bolher y Sincronizate360) la búsqueda no devuelve nada [V: WebSearch 30/10, sin resultados], así que se analiza Sciling, consultora de IA con sede en Alboraya (Valencia) que sale en las búsquedas de consultoría de IA en Valencia. Datos de su web [V: sciling.com, 30/10].
+
+| Dato | Lo que consta |
+|---|---|
+| Zona | Alboraya (Valencia), oficina física; trabaja también fuera (eventos en Valladolid) |
+| Servicios | Formación in company, consultoría estratégica y tecnológica, desarrollo (PoC, MVP, producción), sistemas multiagente, chatbots, PLN; productos propios (asistente de reuniones y análisis de licitaciones) |
+| Primer paso | Formulario o correo; sin oferta concreta ni duración |
+| Casos y reseñas | 12 testimonios con empresa y casos con nombre (grandes marcas); se declara PYME innovadora con 10 años de trayectoria |
+| Contenido propio | Blog, casos de uso y un observatorio de informes con eventos del sector |
+| Teléfono | no visible en la web |
+| Ficha de Google | no verificable desde la nube |
+
+### 1 mejora para la nuestra (no exige a Daniel)
+**Convertir el primer paso en nuestra ventaja visible en la ficha.** Ellos piden «contactar»; PEBAI ofrece 25 minutos y cinco empresas al mes. Reforzarlo en el título de cada post y en la oferta mensual (ya preparada) y en la respuesta a preguntas de la ficha. Además, su observatorio de informes les da citas de terceros: la respuesta de PEBAI es el estudio propio que ya está en el plan de Contenido (datos con fuente), no copiar su formato.
+
+### Dónde PEBAI ya gana
+- Casos de pymes con captura y cifras fechadas, más cercanos al comprador que logos de multinacionales.
+- Primer paso concreto y gratuito (25 minutos).
+- Teléfono y WhatsApp visibles en web y ficha.
