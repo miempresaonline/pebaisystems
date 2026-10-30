@@ -182,7 +182,7 @@ Regla general: la carpeta nueva desactiva sola el 302 si se reutiliza el slug, p
 | `software-a-medida-para-empresas`, `programas-gestion-empresa-a-medida`, `desarrollo-software-ia-a-medida-espana`, `migracion-procesos-antiguos-a-sistemas-ia` | `/software-a-medida/` (o `/automatizacion-de-procesos/` si P5 no se aprueba) |
 | `agente-ia-{clinicas,despachos,inmobiliarias,talleres,construccion-reformas,farmacias,hoteles,distribucion}…` | Vertical correspondiente de la sección 4 (o `/ia-para-empresas/` hasta que exista) |
 
-**En 301 desde el 28/10/2026 (Técnico):** formación → `/ia-para-empresas/formacion/`; los 3 slugs de voz → `/agentes-ia/` (cambiar el destino a `/agentes-ia/voz/` el día que se publique); las ciudades → `/` (menos `consultoria-inteligencia-artificial-valencia`, que sigue en 302).
+**En 301 desde el 28/10/2026 (Técnico):** formación → `/ia-para-empresas/formacion/`; los 3 slugs de voz → `/agentes-ia/voz/` (publicada el 30/10; antes iban a `/agentes-ia/`); las ciudades → `/` (menos `consultoria-inteligencia-artificial-valencia`, que sigue en 302).
 
 Anticanibalización: el sitemap actual solo tiene `/` y `/consultoria-gratuita/` (🟢), así que no hay choques hoy. Choques a vigilar: home ↔ P1 ("consultoría ia"), P2 ↔ P3 (automatizar vs. atender), P2 ↔ P5 (presupuestos y partes), madre P4 ↔ subpilar ChatGPT.
 
