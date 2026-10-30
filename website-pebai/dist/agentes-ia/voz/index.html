@@ -139,18 +139,10 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "¿Qué hace un agente de voz si no entiende a quien llama?",
+          "name": "¿Qué hace un agente de voz si no entiende a quien llama o hay mala cobertura?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Lo intenta dos veces y, si sigue sin entender, pasa la llamada a una persona con un resumen de lo que ha entendido. Si no hay nadie disponible, toma nota, dice cuándo le van a llamar y deja el aviso apuntado para el equipo."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿Entiende acentos y llamadas con mala cobertura?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Con habla clara funciona bien; con un acento muy marcado, cortes de línea o mucho ruido puede fallar. Por eso se prueba con llamadas reales de vuestros clientes antes de dejarlo solo y se mide cuántas llamadas acaban en una persona porque no entendió."
+            "text": "Lo intenta dos veces y, si sigue sin entender, pasa la llamada a una persona con un resumen de lo que ha entendido. Si no hay nadie disponible, toma nota, dice cuándo le van a llamar y deja el aviso apuntado para el equipo. Con habla clara funciona bien; con un acento muy marcado, cortes de línea o mucho ruido puede fallar, por eso se prueba con llamadas reales de vuestros clientes antes de dejarlo solo."
           }
         },
         {
@@ -158,7 +150,7 @@
           "name": "¿Tengo que avisar de que habla una IA y de que se graba la llamada?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Sí. Desde el 2 de agosto de 2026 el artículo 50 del Reglamento europeo de IA obliga a que la persona sepa que habla con una IA. Si se graba o se transcribe la llamada, el RGPD obliga a informar al empezar de quién la trata y para qué."
+            "text": "Sí. Desde el 2 de agosto de 2026 el artículo 50 del Reglamento europeo de IA obliga a que la persona sepa que habla con una IA. Si se graba o se transcribe la llamada, el RGPD obliga a informar al empezar de quién la trata y para qué. No hay un plazo único de conservación fijado por ley: lo define la empresa según la finalidad, se informa a quien llama y la AEPD recuerda que solo se guarda el tiempo necesario. Conviene que escuchen la grabación pocas personas, y quien llama puede pedir acceso a ella."
           }
         },
         {
@@ -171,10 +163,18 @@
         },
         {
           "@type": "Question",
-          "name": "¿Un agente de voz sustituye a un call center?",
+          "name": "¿Hay que cambiar de número, atiende solo fuera de horario y se conecta con mi agenda?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "En las llamadas repetitivas, como citas, horarios o el estado de un encargo, puede atenderlas a cualquier hora. Las quejas, las ventas complejas y los temas delicados los sigue llevando una persona. Lo habitual es combinar los dos."
+            "text": "No hace falta cambiar de número: se activa un desvío desde el que ya tenéis, y puede atender siempre, solo fuera de horario o solo cuando comunica o nadie contesta. Se conecta con la agenda y los programas que uséis para dar citas o consultar un encargo, según lo que permita cada programa, y se ve en la consultoría."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Sirve un agente de voz para una clínica o un despacho, y sustituye a una persona?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sirve para las llamadas repetitivas de una clínica o un despacho, como pedir cita, horarios o el estado de un trámite, a cualquier hora. En clínicas las llamadas pueden incluir datos de salud, que el RGPD protege de forma especial, así que el agente solo gestiona la cita y lo clínico lo lleva una persona. Las quejas, las ventas complejas y los temas delicados siguen siendo de una persona; lo habitual es combinar los dos."
           }
         },
         {
@@ -2321,24 +2321,24 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
         <h2 id="preguntas">Preguntas frecuentes sobre los agentes de voz con IA</h2>
         <div class="faq">
           <details>
-            <summary>¿Qué hace un agente de voz si no entiende a quien llama?</summary>
-            <p>Lo intenta dos veces y, si sigue sin entender, pasa la llamada a una persona con un resumen de lo que ha entendido. Si no hay nadie disponible, toma nota, dice cuándo le van a llamar y deja el aviso apuntado para el equipo.</p>
-          </details>
-          <details>
-            <summary>¿Entiende acentos y llamadas con mala cobertura?</summary>
-            <p>Con habla clara funciona bien; con un acento muy marcado, cortes de línea o mucho ruido puede fallar. Por eso se prueba con llamadas reales de vuestros clientes antes de dejarlo solo y se mide cuántas llamadas acaban en una persona porque no entendió.</p>
+            <summary>¿Qué hace un agente de voz si no entiende a quien llama o hay mala cobertura?</summary>
+            <p>Lo intenta dos veces y, si sigue sin entender, pasa la llamada a una persona con un resumen de lo que ha entendido. Si no hay nadie disponible, toma nota, dice cuándo le van a llamar y deja el aviso apuntado para el equipo. Con habla clara funciona bien; con un acento muy marcado, cortes de línea o mucho ruido puede fallar, por eso se prueba con llamadas reales de vuestros clientes antes de dejarlo solo.</p>
           </details>
           <details>
             <summary>¿Tengo que avisar de que habla una IA y de que se graba la llamada?</summary>
-            <p>Sí. Desde el 2 de agosto de 2026 el artículo 50 del Reglamento europeo de IA obliga a que la persona sepa que habla con una IA. Si se graba o se transcribe la llamada, el RGPD obliga a informar al empezar de quién la trata y para qué.</p>
+            <p>Sí. Desde el 2 de agosto de 2026 el artículo 50 del Reglamento europeo de IA obliga a que la persona sepa que habla con una IA. Si se graba o se transcribe la llamada, el RGPD obliga a informar al empezar de quién la trata y para qué. No hay un plazo único de conservación fijado por ley: lo define la empresa según la finalidad, se informa a quien llama y la AEPD recuerda que solo se guarda el tiempo necesario. Conviene que escuchen la grabación pocas personas, y quien llama puede pedir acceso a ella.</p>
           </details>
           <details>
             <summary>¿Puede un agente de voz llamar a mis clientes?</summary>
             <p>Para confirmar o recordar algo que el cliente ha pedido, sí, con el aviso de IA. Para llamadas comerciales, una llamada automática sin intervención humana exige el consentimiento previo de quien la recibe según la Ley General de Telecomunicaciones. No hacemos llamadas en frío.</p>
           </details>
           <details>
-            <summary>¿Un agente de voz sustituye a un call center?</summary>
-            <p>En las llamadas repetitivas, como citas, horarios o el estado de un encargo, puede atenderlas a cualquier hora. Las quejas, las ventas complejas y los temas delicados los sigue llevando una persona. Lo habitual es combinar los dos.</p>
+            <summary>¿Hay que cambiar de número, atiende solo fuera de horario y se conecta con mi agenda?</summary>
+            <p>No hace falta cambiar de número: se activa un desvío desde el que ya tenéis, y puede atender siempre, solo fuera de horario o solo cuando comunica o nadie contesta. Se conecta con la agenda y los programas que uséis para dar citas o consultar un encargo, según lo que permita cada programa, y se ve en la consultoría.</p>
+          </details>
+          <details>
+            <summary>¿Sirve un agente de voz para una clínica o un despacho, y sustituye a una persona?</summary>
+            <p>Sirve para las llamadas repetitivas de una clínica o un despacho, como pedir cita, horarios o el estado de un trámite, a cualquier hora. En clínicas las llamadas pueden incluir datos de salud, que el RGPD protege de forma especial, así que el agente solo gestiona la cita y lo clínico lo lleva una persona. Las quejas, las ventas complejas y los temas delicados siguen siendo de una persona; lo habitual es combinar los dos.</p>
           </details>
           <details>
             <summary>¿Cuánto cuesta un agente de voz con IA?</summary>
