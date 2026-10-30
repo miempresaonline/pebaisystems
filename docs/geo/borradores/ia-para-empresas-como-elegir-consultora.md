@@ -1,5 +1,7 @@
 # Borrador · /ia-para-empresas/como-elegir-consultora/
 
+**Maquetada el 30/10 (15:00) en `borradores/html/ia-para-empresas-como-elegir-consultora.html` con el diseño nuevo de guías** (fechada el 4/11, cambiar si el Jefe elige otro día): 6 H2 + FAQ, tabla de 7 criterios con `caption` y `scope`, la tabla de comparar con celdas vacías pasa a lista de 7 preguntas, enlace de presupuesto corregido a `/ia-para-empresas/cuanto-cuesta/#que-pedir` (`#presupuesto` no existe), la FAQ 5 lleva la frase de Valencia también en el JSON-LD para que sean idénticas. Comprobado: respuesta de 57 palabras, 6 FAQ = JSON-LD, 0 prohibidas, title 56 y description 152, un H1, anclas internas que existen, BOE 200 (art. 45 de la LPI releído hoy), EUR-Lex 202 desde la nube, 390 px sin scroll horizontal. Al publicar: reverificar fuentes, cambiar fecha si hace falta, copiar a `dist/ia-para-empresas/como-elegir-consultora/index.html` y lo de la checklist.
+
 Estado: **texto completo el 30/10/2026 (turno de las 10:00), sin maquetar.** Encargo del Jefe del 29/10 tarde (`tareas.md`, Contenido): guía para el comprador con criterios que se puedan comprobar. Responde a P4 y P5 del set (`docs/geo/prompts.md`), donde hoy salen rankings que publican las propias consultoras (Medición 29/10: P4 y P16 sin PEBAI). Falta: maquetar en `borradores/html/` con el diseño de /ia-para-empresas/cuanto-cuesta/ y publicar el día que decida el Jefe (cola: presupuestos el lun 2/11; después instaladoras).
 
 ## Ficha
