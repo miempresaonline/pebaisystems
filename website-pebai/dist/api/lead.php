@@ -115,6 +115,8 @@ $lead = [
     'meta_ok' => $metaIn ? '1' : '',
     'meta_fbp' => $metaIn ? $metaId($metaIn['fbp'] ?? '') : '',
     'meta_fbc' => $metaIn ? $metaId($metaIn['fbc'] ?? '') : '',
+    // «Contactar» de la cabecera: llega como solicitud, marcada aparte de la consultoría (30/10/2026)
+    'tipo' => $str($data['cta'] ?? '', 80) === 'web_contactar' ? 'contacto' : '',
     'web' => $web,
     'problema' => $problema,
     'decisor' => $decisor,

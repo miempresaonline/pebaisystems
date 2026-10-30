@@ -746,6 +746,9 @@ const PEBAI_DECISOR = ['si' => 'Sí, decide quien escribe', 'varios' => 'Lo deci
 function pebai_lead_email_bloque(array $lead): string
 {
     $filas = [];
+    if (($lead['tipo'] ?? '') === 'contacto' && ($lead['objetivo'] ?? '') !== '') {
+        $filas[] = ['Mensaje', nl2br(h($lead['objetivo']))];
+    }
     if (($lead['problema'] ?? '') !== '') {
         $filas[] = ['Lo que les quita tiempo', h($lead['problema'])];
     }
@@ -771,10 +774,11 @@ function pebai_lead_email_bloque(array $lead): string
 function pebai_lead_email(array $lead, int $id): array
 {
     $qualified = $lead['opcion'] === 'A';
+    $contacto = ($lead['tipo'] ?? '') === 'contacto';
     $panel = 'https://panel.pebaisystems.es/?id=' . $id;
     $font = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
-    $etiqueta = $qualified ? 'Con presupuesto' : 'Explorando';
-    $punto = $qualified ? '#7BC21A' : '#9AA0AE';
+    $etiqueta = $contacto ? 'Contacto (botón «Contactar»)' : ($qualified ? 'Con presupuesto' : 'Explorando');
+    $punto = $contacto ? '#594AF7' : ($qualified ? '#7BC21A' : '#9AA0AE');
     $canal = PEBAI_CANALES[$lead['canal_dueno'] ?? ''][0] ?? '';
 
     $html = '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -795,7 +799,7 @@ function pebai_lead_email(array $lead, int $id): array
         . '</tr></table></td></tr>'
         // Aviso
         . '<tr><td style="padding:28px 30px 0">'
-        . '<div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#594AF7">Nueva solicitud</div>'
+        . '<div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#594AF7">' . ($contacto ? 'Nuevo contacto' : 'Nueva solicitud') . '</div>'
         . '<div style="margin-top:8px;font-size:24px;line-height:1.25;font-weight:800;color:#0B0F14">' . h($lead['empresa']) . '</div>'
         . '<div style="margin-top:10px;font-size:14px;color:#5B6172">'
         . '<span style="color:' . $punto . ';font-size:16px">&#9679;</span>&nbsp;' . h($etiqueta) . ' &middot; ' . h(pebai_fecha($lead['created_at'])) . '</div>'
@@ -819,7 +823,7 @@ function pebai_lead_email(array $lead, int $id): array
         . (($lead['decisor'] ?? '') !== '' ? 'Decide: ' . (PEBAI_DECISOR[$lead['decisor']] ?? $lead['decisor']) . "\n" : '')
         . ($canal !== '' ? "Canal: $canal" . (!empty($lead['canal_revisar']) ? ' (revisar)' : '') . "\n" : '')
         . "\nVer en el panel: $panel\n";
-    $subject = 'Nueva solicitud: ' . $lead['empresa'] . ($qualified ? ' · con presupuesto' : '');
+    $subject = ($contacto ? 'Nuevo contacto: ' : 'Nueva solicitud: ') . $lead['empresa'] . ($qualified ? ' · con presupuesto' : '');
 
     return [$subject, $html, $text];
 }

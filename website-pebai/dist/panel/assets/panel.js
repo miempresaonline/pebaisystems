@@ -689,7 +689,8 @@ function drawDetalle() {
   if (l.canal) ans('Sus clientes llegan por', canalVis, l.canal);
   const meter = el('span', 'pb-meter'); [1, 2, 3].forEach((n) => meter.append(el('i', n <= r.nivel ? 'on' : ''))); if (!r.nivel) { meter.replaceChildren(); meter.className = 'pb-ico'; meter.append(icon('bars')); }
   if (l.volumen) ans('Consultas al mes', meter, l.volumen);
-  if (l.objetivo && l.objetivo !== (l.problema || '').slice(0, 500)) { const ob = el('span', 'pb-ico'); ob.append(icon(r.obj)); ans('Objetivo a 3 meses', ob, l.objetivo); }
+  if (l.tipo === 'contacto') { const cv = el('span', 'pb-ico lime'); cv.append(icon('msg')); ans('Contacto · su mensaje', cv, l.objetivo || 'Sin mensaje'); }
+  else if (l.objetivo && l.objetivo !== (l.problema || '').slice(0, 500)) { const ob = el('span', 'pb-ico'); ob.append(icon(r.obj)); ans('Objetivo a 3 meses', ob, l.objetivo); }
   const pr = el('span', 'pb-ico ' + (l.opcion === 'A' ? 'lime' : '')); pr.append(icon('euro'));
   ans('Presupuesto', pr, l.opcion === 'A' ? 'Sí, con presupuesto' : l.opcion === 'B' ? 'De momento explorando' : l.presupuesto);
   box.append(section('Lo que nos contó', 'msg', grid));
