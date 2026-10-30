@@ -121,6 +121,13 @@ Jueves 29/10 tarde (Jefe). Cifra clave: 0 de 10 preguntas con PEBAI hoy (mañana
 4. Valencia visible: post de Google del 4/11, LinkedIn del 3/12, preguntas locales e indexación. (geo_local, geo_redes, geo_preguntas, geo_medicion)
 5. Daniel: la incidencia en hPanel, nombre de la ficha, «Solicitar indexación» y OK a la estrategia por nichos.
 
+Viernes 30/10 mañana (Jefe). Cifra clave: 0 de 3 preguntas locales de Valencia con PEBAI (Medición 30/10, solo WebSearch; upliora.es en 2 de 3); 6 de 10 URLs indexadas (Google «no reconoce» formación ni cuánto cuesta y Valencia está «descubierta»). La incidencia 52x baja a 0 de 20. Revisión de calidad: cuánto cuesta, formación y WhatsApp pasan (0 prohibidas, 0 rayas, FAQ = JSON-LD, autor Daniel, enlaces externos 200 salvo Red.es, 403); Valencia sigue sin fuentes; Local adelanta posts y ofertas hasta enero, se para. Hasta el lunes:
+1. Contenido: publicar /agentes-ia/voz/ hoy y presupuestos el lun 2/11; H2 de deducciones de 2026 en los esquemas de reformas e instaladoras. (geo_contenido)
+2. Indexación: enlaces internos a formación y cuánto cuesta, `llms.txt` igual en raíz y `dist/`, revisión técnica de voz; Daniel, «Solicitar indexación» de 4 URLs. (geo_tecnico, Daniel)
+3. Valencia: fuentes, FAQ de agentes con CRM (P18), preguntas de la ficha y desmontar upliora. (geo_refresco, geo_local, geo_vigia)
+4. Reformas: preguntas de la ficha del Vigía al tablón y esquema de la vertical. (geo_preguntas, geo_contenido)
+5. Daniel: «Solicitar indexación», nombre de la ficha y OK a la estrategia por nichos.
+
 ## Propuestas del Vigía
 
 (El Vigía añade aquí lo que cambie el plan; el Jefe las resuelve.)
