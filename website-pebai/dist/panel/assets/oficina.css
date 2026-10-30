@@ -452,3 +452,7 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-demo .autor span{margin-right:4px}
 .pb-of-demo .autor button{border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.2);color:#D9D7E3;font:700 12.5px var(--sans);padding:6px 12px;border-radius:999px;cursor:pointer}
 .pb-of-demo .autor button.on{background:#FB923C;border-color:#FB923C;color:#0b0f14}
+/* Botón para pedir un resumen a Claude (no se pide solo al abrir: gasta) */
+.pb-of-pedir{display:inline-flex;align-items:center;gap:8px;border-color:rgba(217,119,87,.45);background:rgba(217,119,87,.12);color:#F4C2AE}
+.pb-of-pedir:hover{border-color:#D97757;background:rgba(217,119,87,.2)}
+.pb-of-pedir svg{width:15px;height:15px}

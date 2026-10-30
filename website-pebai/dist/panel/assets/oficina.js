@@ -348,18 +348,45 @@ function pintaQRs() {
 const CLAUDE_SVG = '<svg viewBox="0 0 24 24" class="cl" aria-hidden="true"><path fill="#D97757" d="' + PROPIOS.redactor + '"/></svg>';
 const notaHtml = (n) => `<span class="pb-of-nota" style="--c:${n >= 8 ? '#3DDC84' : n >= 5 ? '#FFB547' : '#FF5E6C'}" title="Cómo va hoy, del 1 al 10">${n}<small>/10</small></span>`;
 // Claude Haiku explica en palabras normales qué ha hecho el agente y, si algo va mal, qué hacer (el servidor lo guarda hasta que haya novedades)
+/* Los resúmenes de Claude (agente, núcleo y salas) solo se piden al pulsar su botón: abrir una ficha no gasta (Daniel, 30/10).
+   Lo que ya se pidió en esta sesión se guarda aquí y se vuelve a enseñar sin llamar otra vez. */
+S.ia = S.ia || {};
+const botonIA = (box, texto, fn) => {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'pb-of-btn pb-of-pedir'; b.innerHTML = CLAUDE_SVG + '<span>' + esc(texto) + '</span>';
+  b.onclick = (e) => { e.stopPropagation(); fn(); };
+  box.append(b);
+};
+function explicaBoton(a) {
+  const box = $('#pb-of-expl'); if (!box) return;
+  if (S.ia['ag:' + a.id]) { pintaExplica(box, S.ia['ag:' + a.id]); return; }
+  box.innerHTML = `<div class="h">${CLAUDE_SVG}<b>Explicado por Claude</b></div>`;
+  botonIA(box, 'Explícamelo', () => { box.innerHTML = `<div class="h">${CLAUDE_SVG}<b>Explicado por Claude</b></div><div class="pb-of-shim"><i></i><i></i><i></i></div>`; box.classList.remove('listo'); explica(a); });
+  box.classList.add('listo');
+}
+function pintaExplica(box, j) {
+  box.innerHTML = `<div class="h">${CLAUDE_SVG}<b>Explicado por Claude</b>${j.nota ? notaHtml(j.nota) : ''}</div>
+      <p>${esc(j.hoy)}</p>${j.ahora ? `<p class="sub">${esc(j.ahora)}</p>` : ''}${j.ojo ? `<p class="ojo">${esc(j.ojo)}</p>` : ''}`;
+  box.classList.add('listo');
+}
 async function explica(a) {
   const box = $('#pb-of-expl'); if (!box) return;
   try {
     const r = await fetch(BASE + '?oficina_explica=' + encodeURIComponent(a.id), { credentials: 'same-origin' });
     const j = await r.json(); if (!j.ok) throw new Error(j.error);
+    S.ia['ag:' + a.id] = j;
     if (!document.body.contains(box)) return;
-    box.innerHTML = `<div class="h">${CLAUDE_SVG}<b>Explicado por Claude</b>${j.nota ? notaHtml(j.nota) : ''}</div>
-      <p>${esc(j.hoy)}</p>${j.ahora ? `<p class="sub">${esc(j.ahora)}</p>` : ''}${j.ojo ? `<p class="ojo">${esc(j.ojo)}</p>` : ''}`;
-    box.classList.add('listo');
-  } catch (e) { if (document.body.contains(box)) box.remove(); }
+    pintaExplica(box, j);
+  } catch (e) { if (document.body.contains(box)) box.innerHTML = `<div class="h">${CLAUDE_SVG}<b>Explicado por Claude</b></div><p class="sub">Claude no ha podido explicarlo ahora.</p>`; }
 }
 // Parte del día en el núcleo (Claude Sonnet), se renueva cada 2 horas o al pulsar «Otra vez»
+function parteBoton() {
+  const box = $('#pb-of-parte'); if (!box) return;
+  if (S.ia.parte) { box.querySelector('.nota').innerHTML = S.ia.parte.nota; box.querySelector('.cuerpo').innerHTML = S.ia.parte.cuerpo; box.classList.add('listo'); return; }
+  box.querySelector('.otra').hidden = true;
+  const c = box.querySelector('.cuerpo'); c.innerHTML = '';
+  botonIA(c, 'Escribir el parte del día', () => { box.querySelector('.otra').hidden = false; parteDia(false); });
+  box.classList.add('listo');
+}
 async function parteDia(fresh) {
   const box = $('#pb-of-parte'); if (!box) return;
   box.classList.remove('listo'); box.querySelector('.cuerpo').innerHTML = '<div class="pb-of-shim"><i></i><i></i><i></i><i></i></div>';
@@ -370,6 +397,7 @@ async function parteDia(fresh) {
     box.querySelector('.nota').innerHTML = j.nota ? notaHtml(j.nota) : '';
     box.querySelector('.cuerpo').innerHTML = `${j.titular ? `<p class="tit">${esc(j.titular)}</p>` : ''}<p>${esc(j.parte)}</p>
       ${(j.prioridades || []).length ? `<ol>${j.prioridades.map((p) => `<li>${esc(p)}</li>`).join('')}</ol>` : ''}<p class="sub">Escrito a las ${esc(j.hora || '')}</p>`;
+    S.ia.parte = { nota: box.querySelector('.nota').innerHTML, cuerpo: box.querySelector('.cuerpo').innerHTML };
     box.classList.add('listo');
   } catch (e) { if (document.body.contains(box)) box.querySelector('.cuerpo').innerHTML = '<p class="sub">Claude no ha podido escribir el parte ahora.</p>'; }
 }
@@ -401,7 +429,7 @@ function abrirAgente(id) {
   side.classList.toggle('ancho', ['ajustes', 'rendimiento'].includes(S.tab));
   sideIn.querySelectorAll('.pb-of-tabs button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); S.tab = b.dataset.t; abrirAgente(a.id); }; });
   const caja = $('#pb-of-tab');
-  if (S.tab === 'estado') explica(a);
+  if (S.tab === 'estado') explicaBoton(a);
   if (S.tab === 'estado' && a.id === 'demos') $('.pb-of-qa', caja).prepend(cajaCrearDemo());
   if (S.tab === 'actividad') caja.append(lineaTiempo(a));
   else if (S.tab === 'trabajo') caja.append(suTrabajo(a));
@@ -624,7 +652,7 @@ function abrirNucleo() {
   sideIn.querySelectorAll('.pb-of-row').forEach((r) => r.addEventListener('click', () => abrirSala(DEPTS.find((d) => d.id === r.dataset.sala))));
   $('#pb-of-preg').onclick = (e) => { e.stopPropagation(); qIn.focus(); };
   sideIn.querySelector('#pb-of-parte .otra').onclick = (e) => { e.stopPropagation(); parteDia(true); };
-  parteDia(false);
+  parteBoton();
   mostrar();
 }
 /* servidor de una sala: resumen con IA de lo que han hecho hoy sus agentes (index.php?oficina_resumen=<sala>) */
@@ -633,14 +661,22 @@ async function abrirServidor(id, fresco) {
   enfocarServidor(id);
   const cab = `<div class="k">Servidor · ${esc(d.nombre)}</div><h2>Lo que han hecho hoy</h2><div class="rol">${esc(d.objetivo)}</div>`;
   if (!d.activo || !agsDe(d.id).length) { sideIn.innerHTML = cab + '<div class="pb-of-state" style="--c:#5C5F73"><i></i><div><b>Sin agentes todavía</b><span>Cuando este departamento tenga bots, su servidor resumirá aquí lo que hacen cada día.</span></div></div>'; mostrar(); return; }
+  if (!fresco && !S.ia['sala:' + id] && !S.ia['pide:' + id]) {
+    sideIn.innerHTML = cab + `<div class="pb-of-state" style="--c:${d.color}"><i></i><div><b>Resumen de hoy</b><span>Claude lee lo que han hecho hoy sus agentes y te lo cuenta en corto.</span></div></div><div class="pb-of-acts" id="pb-of-pedirsala"></div>`;
+    botonIA($('#pb-of-pedirsala'), 'Pedir el resumen', () => { S.ia['pide:' + id] = 1; abrirServidor(id); });
+    mostrar(); return;
+  }
+  let j = !fresco && S.ia['sala:' + id];
+  if (!j) {
   sideIn.innerHTML = cab + `<div class="pb-of-state" style="--c:${d.color}"><i></i><div><b>Un momento</b><span>La IA está leyendo lo que ha pasado hoy…</span></div></div>`; mostrar();
-  let j;
   try {
     const r = await fetch(BASE + '?oficina_resumen=' + encodeURIComponent(id) + (fresco ? '&fresco=1' : ''), { credentials: 'same-origin', cache: 'no-store' });
     if (r.status === 401) { location.reload(); return; }
     j = await r.json().catch(() => ({ ok: false }));
     if (!j.ok) throw new Error(j.error || 'No se ha podido leer la actividad de hoy.');
   } catch (e) { j = { ok: false, error: e.message }; }
+  if (j.ok) S.ia['sala:' + id] = j;
+  }
   if (!foco || foco.servidor !== id) return;  /* mientras tanto se ha abierto otra cosa */
   if (!j.ok) { sideIn.innerHTML = cab + `<div class="pb-of-state" style="--c:#FF5E6C"><i></i><div><b>No ha salido</b><span>${esc(j.error)}</span></div></div>`; mostrar(); return; }
   const lis = (l, cls) => l.map((t) => `<p${cls ? ` class="${cls}"` : ''}>${esc(t)}</p>`).join('');
