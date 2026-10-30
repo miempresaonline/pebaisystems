@@ -148,6 +148,13 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 pebai_evento($id, $estado, 'Cambiado a mano en el panel', false);
             }
             json_out(['ok' => true]);
+        case 'borrar_lead':
+            // Borrar una solicitud (pruebas o duplicadas), con sus eventos; sus citas se quedan, sin unir
+            $id = (int)($_POST['id'] ?? 0);
+            $db->prepare('DELETE FROM eventos WHERE lead_id = ?')->execute([$id]);
+            $db->prepare('UPDATE citas SET lead_id = 0 WHERE lead_id = ?')->execute([$id]);
+            $db->prepare('DELETE FROM leads WHERE id = ?')->execute([$id]);
+            json_out(['ok' => true]);
         case 'visto':
             // Abrir la ficha de una solicitud nueva la pasa a "En revisión" (fase 2)
             $id = (int)($_POST['id'] ?? 0);
@@ -606,7 +613,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '124';
+$v = '125';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -640,6 +647,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <link rel="stylesheet" href="<?= BASE ?>assets/gasto.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/buscar.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/movil.css?v=<?= $v ?>">
+<link rel="stylesheet" href="<?= BASE ?>assets/solicitudes.css?v=<?= $v ?>">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="stylesheet" href="<?= BASE ?>assets/email.css?v=<?= $v ?>">
 <script>try{var t=localStorage.getItem('pebai-panel-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -740,13 +748,28 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
   </section>
 
   <section class="pb-page" id="page-solicitudes" data-page="solicitudes">
-    <h1 class="pb-h1">Solicitudes, <i>una a una</i></h1>
-    <p class="pb-lead">Cada empresa que ha rellenado el diagnóstico. Pulsa una fila para abrir su ficha, contactar por WhatsApp y anotar el seguimiento.</p>
-    <div class="pb-plazas" id="pb-plazas"></div>
-    <div class="pb-card pb-pendientes pb-anim" id="pb-pendientes" style="--i:0;margin-bottom:14px">
-      <div class="hd"><div><h2>Qué toca ahora</h2><p class="note">Se actualiza solo cada minuto. Las fases avanzan solas; aquí queda lo que necesita una persona.</p></div></div>
+    <!-- Lo primero, las solicitudes (Daniel, 30/10); lo que toca, las plazas y el análisis, debajo -->
+    <div class="pb-sol-cab">
+      <h1 class="pb-h1">Solicitudes</h1>
+      <div class="pb-filters">
+        <div class="grow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pb-q" type="search" placeholder="Buscar empresa, teléfono, email…" aria-label="Buscar"><span class="pb-kbd">/</span></div>
+        <details class="pb-masfiltros"><summary class="pb-btn ghost">Filtros</summary><div>
+          <select id="pb-f-estado" aria-label="Estado"><option value="">Todos los estados</option></select>
+          <select id="pb-f-fuente" aria-label="Fuente"><option value="">Todas las fuentes</option></select>
+          <select id="pb-f-opcion" aria-label="Opción"><option value="">Con y sin presupuesto</option><option value="A">Con presupuesto</option><option value="B">Explorando</option></select>
+          <select id="pb-f-canal" aria-label="De quién es"><option value="">Todos</option></select>
+          <button class="pb-btn ghost" id="pb-limpiar" type="button">Limpiar</button>
+        </div></details>
+      </div>
+    </div>
+    <div class="pb-chips" id="pb-chips"></div>
+    <div class="pb-list" id="pb-leads"></div>
+    <div class="pb-sol-abajo">
+    <div class="pb-card pb-pendientes pb-anim" id="pb-pendientes" style="--i:0;margin:22px 0 14px">
+      <div class="hd"><div><h2>Qué toca ahora</h2></div></div>
       <div class="pb-pend-list" id="pb-pend-list"></div>
     </div>
+    <div class="pb-plazas" id="pb-plazas"></div>
     <details class="pb-analisis" id="pb-analisis">
       <summary><b>Análisis de las solicitudes</b><span>Embudo, ritmo de entrada y de dónde vienen · periodo de arriba</span></summary>
       <p class="pb-lead" id="pb-takeaway">—</p>
@@ -786,16 +809,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
       </div>
     </div>
     </details>
-    <div class="pb-chips" id="pb-chips"></div>
-    <div class="pb-filters">
-      <div class="grow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pb-q" type="search" placeholder="Buscar empresa, teléfono, email, notas…" aria-label="Buscar"><span class="pb-kbd">/</span></div>
-      <select id="pb-f-estado" aria-label="Estado"><option value="">Todos los estados</option></select>
-      <select id="pb-f-fuente" aria-label="Fuente"><option value="">Todas las fuentes</option></select>
-      <select id="pb-f-opcion" aria-label="Opción"><option value="">Con y sin presupuesto</option><option value="A">Opción A · con presupuesto</option><option value="B">Opción B · explorando</option></select>
-      <select id="pb-f-canal" aria-label="Canal y dueño"><option value="">Todos los canales</option></select>
-      <button class="pb-btn ghost" id="pb-limpiar" type="button">Limpiar</button>
     </div>
-    <div class="pb-list" id="pb-leads"></div>
   </section>
 
   <section class="pb-page" id="page-citas" data-page="citas">

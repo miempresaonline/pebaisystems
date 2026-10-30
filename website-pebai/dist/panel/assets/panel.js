@@ -21,7 +21,9 @@ const EVENTOS = {
 /* Canal y dueño (acuerdo de colaboración). Las etiquetas llegan del servidor (PEBAI_CANALES); estos son los colores. */
 const CANAL_COLOR = { salida_adrian: '#FFB547', salida_daniel: '#3FD5FF', seo_geo: '#B7FF3C', linkedin_daniel: '#0A66C2', anuncios: '#FF6BD6', redes: '#6A5CFF', pendiente: '#3A404D' };
 const canalInfo = (k) => (S.canales || []).find((c) => c.clave === k) || { clave: k || 'pendiente', label: k || 'Sin asignar', dueno: '' };
-const DUENO = { adrian: 'Adrián', daniel: 'Daniel', compartido: 'Compartido 5/5', '': 'Sin dueño' };
+const DUENO = { adrian: 'Adrián', daniel: 'Daniel', compartido: 'Los dos', '': 'Sin dueño' };
+// De quién es el cliente, en una palabra (ficha y lista)
+const QUIEN = { adrian: 'Adrián', daniel: 'Daniel', compartido: 'Los dos', '': 'Sin asignar' };
 const FASES = [['Solicitud', ['nuevo']], ['Revisión', ['contactado']], ['Reserva', ['cita', 'reserva']], ['Sesión', ['sesion']]];
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -383,11 +385,16 @@ $('#pb-origen tbody').addEventListener('click', (e) => {
 /* ============ dibujo: solicitudes ============ */
 function drawSolicitudes() {
   const porEstado = calcPorEstado();
+  // Arriba solo las fases que tienen algo (y «Todas»), para filtrar de un toque
   const chips = $('#pb-chips'); chips.replaceChildren();
-  Object.entries(ESTADOS).forEach(([k, v]) => {
-    const b = el('button', 'pb-chip' + (ui.estado === k ? ' on' : '')); b.type = 'button'; const i = el('i'); i.style.background = v[1];
-    b.append(i, el('b', null, N(porEstado[k])), el('small', null, v[0])); b.addEventListener('click', () => set({ estado: ui.estado === k ? null : k, limit: 120 })); chips.append(b);
-  });
+  const chip = (k, txt, n, color) => {
+    const b = el('button', 'pb-chip' + ((ui.estado || null) === k ? ' on' : '')); b.type = 'button';
+    if (color) { const i = el('i'); i.style.background = color; b.append(i); }
+    b.append(el('small', null, txt), el('b', null, N(n)));
+    b.addEventListener('click', () => set({ estado: k, limit: 120 })); chips.append(b);
+  };
+  chip(null, 'Todas', S.leads.length);
+  Object.entries(ESTADOS).forEach(([k, v]) => { if (porEstado[k]) chip(k, v[0], porEstado[k], v[1]); });
   fEstado.value = ui.estado ?? '';
   const fuentes = d3.rollups(S.leads, (v) => v.length, (l) => l.fuente).sort((a, b) => b[1] - a[1]);
   fFuente.replaceChildren(new Option('Todas las fuentes', ''), ...fuentes.map(([f, c]) => new Option((f || 'directo') + ' (' + c + ')', f || '(directo)')));
@@ -406,16 +413,19 @@ function drawSolicitudes() {
   ui.orden = rows.map((l) => l.id);
   if (!rows.length) { list.append(el('div', 'pb-empty', S.loaded ? 'Todavía no hay solicitudes con estos filtros.' : '')); return; }
   rows.slice(0, ui.limit).forEach((l, i) => {
-    const b = el('button', 'pb-row pb-anim' + (ui.sel === l.id ? ' sel' : '')); b.type = 'button'; b.style.setProperty('--i', Math.min(i, 12));
-    const av = el('div', 'pb-avatar ' + (l.opcion || ''), l.opcion || '·'); av.title = l.opcion === 'A' ? 'Opción A · con presupuesto' : 'Opción B · explorando';
-    const mid = el('div'); const emp = el('div', 'emp'); emp.append(l.empresa, el('span', null, '#' + l.id + ' · ' + l.telefono)); mid.append(emp);
-    const meta = el('div', 'meta'); const parts = [fecha(parse(l.created_at)), l.fuente || 'sin fuente']; if (l.palabra) parts.push(l.palabra); if (l.objetivo) parts.push(l.objetivo);
-    parts.forEach((t, j) => { if (j) meta.append(el('span', 'sep', '·')); meta.append(el('span', null, t)); });
-    if (l.cita_inicio && l.cita_estado !== 'cancelada') { meta.append(el('span', 'sep', '·')); meta.append(el('span', 'cita', 'Cita ' + fechaCorta(parseUTC(l.cita_inicio)))); }
-    mid.append(meta);
-    if (l.canal_dueno) mid.append(canalPill(l, true));
-    const r = el('div', 'r'); r.append(badge(l.estado));
-    const dias = Math.floor((S.ahora - parse(l.created_at)) / 86400000); r.append(el('span', 'age', dias <= 0 ? 'hoy' : 'hace ' + dias + ' d'));
+    const b = el('button', 'pb-row pb-sol pb-anim' + (ui.sel === l.id ? ' sel' : '') + (l.estado === 'nuevo' ? ' nueva' : '')); b.type = 'button'; b.style.setProperty('--i', Math.min(i, 12));
+    const nombre = (l.empresa && !/@/.test(l.empresa) ? l.empresa : '') || l.nombre || l.empresa || 'Sin nombre';
+    const c = canalInfo(l.canal_dueno);
+    const av = el('div', 'pb-avatar', (nombre.match(/[\p{L}\p{N}]/u) || ['·'])[0].toUpperCase()); av.style.setProperty('--c', CANAL_COLOR[c.clave] || '#3A404D');
+    const mid = el('div', 'mid');
+    mid.append(el('div', 'emp', nombre));
+    mid.append(el('div', 'meta', [l.nombre && l.nombre !== nombre ? l.nombre : '', l.telefono, l.problema ? l.problema.slice(0, 70) + (l.problema.length > 70 ? '…' : '') : ''].filter(Boolean).join(' · ')));
+    const o = ORIGEN(l.fuente);
+    const pie = el('div', 'pie'); pie.append(tile(o, 'xs'), el('span', null, o.label));
+    const q = el('span', 'quien'); q.style.setProperty('--c', CANAL_COLOR[c.clave] || '#3A404D'); q.textContent = QUIEN[c.dueno] || 'Sin asignar'; if (l.canal_revisar === '1') q.classList.add('rev'); pie.append(q);
+    if (l.cita_inicio && l.cita_estado !== 'cancelada') pie.append(el('span', 'cita', 'Cita ' + fechaCorta(parseUTC(l.cita_inicio))));
+    mid.append(pie);
+    const r = el('div', 'r'); r.append(badge(l.estado), el('span', 'age', hace(parse(l.created_at))));
     b.append(av, mid, r); b.addEventListener('click', () => openDetail(l.id)); list.append(b);
   });
   if (rows.length > ui.limit) { const m = el('div', 'pb-more'); const b = el('button', 'pb-btn', 'Ver ' + N(rows.length - ui.limit) + ' más'); b.type = 'button'; b.addEventListener('click', () => set({ limit: ui.limit + 200 })); m.append(b); list.append(m); }
@@ -579,169 +589,92 @@ function drawDetalle() {
   const section = (title, ico, ...nodes) => { const s = el('section', 'pb-fsec'); const h = el('h3'); h.append(icon(ico), title); s.append(h, ...nodes); return s; };
   const origen = ORIGEN(l.fuente);
 
-  /* ---------- cabecera ---------- */
-  const hero = el('header', 'pb-hero');
-  hero.style.setProperty('--brand', /gradient/.test(origen.bg) ? '#6A5CFF' : origen.bg);
-  const idRow = el('div', 'pb-hero-top');
-  idRow.append(tile(origen, 'lg'));
-  const who = el('div', 'who');
-  who.append(el('div', 'k', '#' + l.id + ' · llegó ' + hace(parse(l.created_at)) + ' · ' + fecha(parse(l.created_at))), el('h2', 'n', l.empresa));
-  const line = el('div', 'p');
-  if (l.nombre) { const s = el('span'); s.append(icon('user'), l.nombre); line.append(s); }
-  const ph = el('a'); ph.href = 'tel:' + tel; ph.append(icon('phone'), l.telefono); line.append(ph);
-  if (l.cliente_email) { const m = el('a'); m.href = 'mailto:' + l.cliente_email; m.append(icon('mail'), l.cliente_email); line.append(m); }
-  who.append(line);
-  const tags = el('div', 'tags');
-  tags.append(badge(l.estado));
-  const opt = el('span', 'pb-pill ' + (l.opcion === 'A' ? 'a' : 'b')); opt.append(icon('euro'), l.opcion === 'A' ? 'Con presupuesto' : l.opcion === 'B' ? 'Explorando' : 'Sin dato'); tags.append(opt);
-  idRow.append(who, tags);
-  hero.append(idRow);
+  /* ---------- cabecera: quién es, cuándo llegó y cómo contactar ---------- */
+  // Si en «empresa» escribió su email o nada, se enseña su nombre
+  const titulo = (l.empresa && !/@/.test(l.empresa) ? l.empresa : '') || l.nombre || l.empresa || 'Sin nombre';
+  const hero = el('header', 'pb-fh');
+  const fk = el('div', 'k'); fk.append(el('span', null, '#' + l.id + ' · llegó ' + hace(parse(l.created_at)) + ' · ' + fecha(parse(l.created_at))), badge(l.estado));
+  hero.append(fk, el('h2', null, titulo));
+  const datos = el('div', 'cto');
+  if (l.nombre && l.nombre !== titulo) { const s = el('span'); s.append(icon('user'), l.nombre); datos.append(s); }
+  const ph = el('a'); ph.href = 'tel:' + tel; ph.append(icon('phone'), l.telefono); datos.append(ph);
+  const correo = l.cliente_email || (/@/.test(l.empresa || '') ? l.empresa : '');
+  if (correo) { const m = el('a'); m.href = 'mailto:' + correo; m.append(icon('mail'), correo); datos.append(m); }
+  hero.append(datos);
 
-  // Las 4 fases de la web, con su fecha
-  const fase = { nuevo: 0, contactado: 1, cita: 2, sesion: 3, no_asistio: 3, cliente: 3, descartado: -1 }[l.estado];
-  const steps = el('ol', 'pb-steps');
-  FASES.forEach(([t, tipos], i) => {
-    const li = el('li', i < fase ? 'done' : i === fase ? (l.estado === 'no_asistio' ? 'bad' : ['sesion', 'cliente'].includes(l.estado) ? 'done' : 'now') : '');
-    const ev = evs.find((e) => tipos.includes(e.tipo)) || (i === 0 ? { ts: l.created_at, auto: 1 } : null);
-    const dot = el('span', 'dot'); if (li.classList.contains('done')) dot.append(icon('check')); else if (li.classList.contains('bad')) dot.append(icon('x')); else dot.textContent = String(i + 1);
-    li.append(dot, el('b', null, t));
-    li.append(el('small', null, ev && i <= fase ? (() => { const f = parse(ev.ts); return f.getDate() + ' ' + MESES[f.getMonth()] + (ev.auto ? ' · auto' : ''); })() : i === fase + 1 ? 'Siguiente' : ''));
-    steps.append(li);
-  });
-  steps.style.setProperty('--prog', Math.max(0, Math.min(3, fase)) / 3);
-  hero.append(steps);
+  // Acciones: WhatsApp, llamar, copiar el enlace y UN botón con lo que toca según la fase (sin párrafos)
+  function copiar(e) { const b = e.currentTarget; navigator.clipboard.writeText(l.booking_url).then(() => { b.lastChild.textContent = 'Copiado'; toast('Enlace de reserva copiado.'); registrar(l.id, 'copiar'); }, () => toast('No se pudo copiar.', true)); }
+  function cambiaEstado(estado, b) { const ta = $('#pb-notas'); act('update', { id: l.id, estado, notas: ta ? ta.value : l.notas }, 'Fase actualizada: ' + ESTADOS[estado][0] + '.', b); }
+  const acc = el('div', 'acc');
+  const cita = citasClasificadas().filter((c) => c.lead_id === l.id).sort((a, b) => b.d - a.d)[0];
+  const plz = plazasAhora(), lleno = plz.usadas >= PLAZAS_MES;
+  const principal = (key, texto) => { const a = waTpl(key, 'primary'); a.lastChild.textContent = texto; return a; };
+  if (['nuevo', 'contactado'].includes(l.estado) && !l.enlace_at) acc.append(lleno ? principal('plazas', 'Plazas llenas: ofrecer otra opción') : principal('enlace', 'Enviar enlace de reserva'));
+  else if (['nuevo', 'contactado'].includes(l.estado) && (S.ahora - parse(l.enlace_at)) / 3600000 > 48) acc.append(principal('seguimiento', 'Hacer seguimiento'));
+  else if (l.estado === 'cita' && cita && cita.meet_url) acc.append(link('primary', icon('video'), 'Sesión ' + fechaCorta(cita.d) + ' · Meet', cita.meet_url));
+  else if (l.estado === 'sesion') acc.append(btn('primary', icon('trophy'), 'Es cliente', (e) => cambiaEstado('cliente', e.currentTarget)));
+  else if (l.estado === 'no_asistio') acc.append(principal('reprogramar', 'Ofrecer otra hora'));
+  acc.append(link('wa', brandSvg('whatsapp'), 'WhatsApp', wa(''), () => registrar(l.id, 'whatsapp')));
+  const call = el('a', 'pb-btn'); call.href = 'tel:' + tel; call.append(icon('phone'), 'Llamar'); acc.append(call);
+  acc.append(btn('', icon('link'), 'Copiar enlace de reserva', copiar));
+  const more = el('details', 'pb-msgs'); const sum = el('summary'); sum.append(icon('msg'), 'Mensajes'); more.append(sum);
+  const ml = el('div', 'list'); Object.keys(tpl).forEach((k) => { const a = waTpl(k, 'ghost'); a.title = tpl[k][1]; ml.append(a); }); more.append(ml);
+  acc.append(more);
+  hero.append(acc);
+  if (l.estado === 'cita' && cita) {
+    const rec = el('div', 'rec'); rec.append(icon('calendar'), 'Sesión ' + fechaCorta(cita.d) + ' · recordatorios: 24 h ' + (cita.rec24 ? '✓' : '·') + '  1 h ' + (cita.rec1 ? '✓' : '·'));
+    hero.append(rec);
+  }
   box.append(hero);
 
-  /* ---------- siguiente paso ---------- */
-  const next = el('section', 'pb-next');
-  const nh = el('div', 'nh'); const nt = el('div'); const na = el('div', 'na'); const nq = el('div', 'nq');
-  const setNext = (tono, titulo, texto) => { next.dataset.tono = tono; nt.append(el('div', 'eyebrow', 'Siguiente paso'), el('h3', null, titulo)); if (texto) nt.append(el('p', null, texto)); };
-  const cita = citasClasificadas().filter((c) => c.lead_id === l.id).sort((a, b) => b.d - a.d)[0];
-  const edad = (S.ahora - parse(l.created_at)) / 3600000;
-  const plz = plazasAhora(), lleno = plz.usadas >= PLAZAS_MES, libres = Math.max(0, PLAZAS_MES - plz.usadas);
-  if (['nuevo', 'contactado'].includes(l.estado) && !l.enlace_at && lleno) {
-    setNext('warn', 'Plazas gratis de ' + MESES_L[plz.mes] + ' completas', 'Las ' + PLAZAS_MES + ' sesiones gratis de este mes ya están reservadas. Ofrécele la sesión de pago o una plaza gratis en ' + MESES_L[plz.sigMes] + ' (quedan ' + Math.max(0, PLAZAS_MES - plz.sigUsadas) + ').');
-    na.append(waTpl('plazas', 'primary big'), waTpl('enlace', ''), waTpl('no_encaja', 'danger'));
-  } else if (['nuevo', 'contactado'].includes(l.estado) && !l.enlace_at) {
-    setNext(edad > 24 ? 'bad' : 'go', 'Revisar y enviar el enlace de reserva', 'Llegó ' + hace(parse(l.created_at)) + '. ' + (edad > 24 ? 'Ya pasaron las 24 h que prometemos para escribir por WhatsApp.' : 'Prometemos escribir por WhatsApp en menos de 24 h.') + ' Quedan ' + libres + (libres === 1 ? ' plaza gratis' : ' plazas gratis') + ' en ' + MESES_L[plz.mes] + '.');
-    na.append(waTpl('enlace', 'primary big'), waTpl('plazas', ''), waTpl('no_encaja', 'danger'));
-  } else if (['nuevo', 'contactado'].includes(l.estado)) {
-    const h = (S.ahora - parse(l.enlace_at)) / 3600000;
-    setNext(h > 48 ? 'warn' : 'wait', h > 48 ? 'Toca hacer seguimiento' : 'Esperando su reserva', 'Enlace enviado ' + hace(parse(l.enlace_at)) + '. ' + (h > 48 ? 'Aún no ha reservado.' : 'La fase pasa sola a Reserva cuando elija hora.'));
-    na.append(waTpl('seguimiento', h > 48 ? 'primary big' : ''), btn('', icon('link'), 'Copiar enlace', copiar), waTpl('no_encaja', 'danger'));
-  } else if (l.estado === 'cita' && cita) {
-    const hrs = (cita.d - S.ahoraUTC) / 3600000;
-    setNext('ok', 'Sesión técnica ' + (hrs < 24 && hrs > 0 ? 'en ' + Math.max(1, Math.round(hrs)) + ' h' : fechaCorta(cita.d)), 'Reservada por ' + (cita.nombre || '—') + (cita.email ? ' · ' + cita.email : '') + '. Al terminar pasa sola a Sesión hecha.');
-    const cal = el('div', 'pb-cal'); cal.append(el('small', null, MESES[cita.d.getMonth()]), el('b', null, String(cita.d.getDate())), el('em', null, pad(cita.d.getHours()) + ':' + pad(cita.d.getMinutes())));
-    nh.append(cal);
-    if (cita.meet_url) na.append(link('primary big', icon('video'), 'Abrir Google Meet', cita.meet_url));
-    const rec = el('span', 'pb-chiprow'); [['Recordatorio 24 h', cita.rec24], ['Recordatorio 1 h', cita.rec1]].forEach(([t, ok]) => { const c = el('span', 'pb-chip2' + (ok ? ' ok' : '')); c.append(icon(ok ? 'check' : 'clock'), t + (ok ? ' enviado' : ' pendiente')); rec.append(c); });
-    nq.append(rec);
-  } else if (l.estado === 'sesion' && cita && cita.asistencia === 'auto') {
-    setNext('info', '¿Asistió a la sesión?', 'La sesión del ' + fechaCorta(cita.d) + ' se marcó sola al pasar la hora. Confírmalo o corrígelo.');
-    asistenciaBtns(cita, na);
-  } else if (l.estado === 'sesion') {
-    setNext('go', '¿Cómo terminó?', 'Sesión hecha. Marca el resultado para cerrar el embudo.');
-    na.append(btn('primary big', icon('trophy'), 'Es cliente', (e) => cambiaEstado('cliente', e.currentTarget)), btn('danger', icon('x'), 'Descartar', (e) => cambiaEstado('descartado', e.currentTarget)));
-  } else if (l.estado === 'no_asistio') {
-    setNext('bad', 'No se presentó', 'Ofrécele otra hora con el mismo enlace.');
-    na.append(waTpl('reprogramar', 'primary big'), btn('danger', icon('x'), 'Descartar', (e) => cambiaEstado('descartado', e.currentTarget)));
-  } else if (l.estado === 'cliente') {
-    setNext('win', 'Ya es cliente', 'Embudo completado.');
-  } else {
-    setNext('muted', 'Solicitud descartada', 'Si vuelve a interesarse, puedes reabrirla.');
-    na.append(btn('', icon('undo'), 'Reabrir', (e) => cambiaEstado('contactado', e.currentTarget)));
-  }
-  nh.prepend(nt); next.append(nh, na); if (nq.childElementCount) next.append(nq);
-  // Acciones rápidas siempre a mano
-  const quick = el('div', 'pb-quick');
-  quick.append(link('wa', brandSvg('whatsapp'), 'WhatsApp', wa(''), () => registrar(l.id, 'whatsapp')));
-  const call = el('a', 'pb-btn'); call.href = 'tel:' + tel; call.append(icon('phone'), 'Llamar'); quick.append(call);
-  function copiar(e) { const b = e.currentTarget; navigator.clipboard.writeText(l.booking_url).then(() => { b.lastChild.textContent = 'Copiado'; toast('Enlace de reserva copiado.'); registrar(l.id, 'copiar'); }, () => toast('No se pudo copiar.', true)); }
-  quick.append(btn('', icon('link'), 'Copiar enlace de reserva', copiar));
-  const more = el('details', 'pb-msgs'); const sum = el('summary'); sum.append(icon('msg'), 'Más mensajes'); more.append(sum);
-  const ml = el('div', 'list'); Object.keys(tpl).forEach((k) => { const a = waTpl(k, 'ghost'); a.title = tpl[k][1]; ml.append(a); }); more.append(ml);
-  quick.append(more);
-  next.append(quick);
-  box.append(next);
-
-  function cambiaEstado(estado, b) { const ta = $('#pb-notas'); act('update', { id: l.id, estado, notas: ta ? ta.value : l.notas }, 'Fase actualizada: ' + ESTADOS[estado][0] + '.', b); }
-
-  /* ---------- lo que nos contó ---------- */
-  const r = respuestas(l);
-  const grid = el('div', 'pb-answers');
-  const ans = (label, visual, value, extra) => { const a = el('div', 'pb-ans'); const v = el('div', 'vis'); v.append(visual); a.append(v, el('small', null, label), el('b', null, value || '—')); if (extra) a.append(extra); grid.append(a); };
-  let canalVis;
-  if (r.canal.redes) { canalVis = el('span', 'pb-stack'); ['instagram', 'tiktok', 'facebook'].forEach((k) => canalVis.append(tile({ key: k, ...ICONS.brands[k] }, 'sm'))); }
-  else if (r.canal.brand) canalVis = tile({ key: r.canal.brand, ...ICONS.brands[r.canal.brand] });
-  else canalVis = el('span', 'pb-ico'), canalVis.append(icon(r.canal.ui));
-  // Formulario de 5 pasos (29/10/2026): lo que les quita tiempo, su web con el análisis y si decide, lo primero
-  if (l.problema) { const pv = el('span', 'pb-ico lime'); pv.append(icon('clock')); ans('Lo que les quita tiempo', pv, l.problema); }
+  /* ---------- lo que rellenó: pregunta → respuesta, tal cual y en el orden del formulario ---------- */
+  const form = el('dl', 'pb-form');
+  const fila = (p, valor, extra) => { if (valor == null || valor === '') return; const dt = el('dt', null, p), dd = el('dd'); if (valor instanceof Node) dd.append(valor); else dd.append(String(valor)); if (extra) dd.append(extra); form.append(dt, dd); };
+  if (l.tipo === 'contacto') fila('Su mensaje', l.objetivo || 'Sin mensaje');
   if (l.web || l.problema) {
-    const wv = el('span', 'pb-ico'); wv.append(icon('globe'));
     let wx = null;
-    if (l.analisis_url) { wx = el('a', 'pb-btn'); wx.href = l.analisis_url + '?equipo=1'; wx.target = '_blank'; wx.rel = 'noopener'; wx.append(icon('sparkles'), 'Ver su análisis'); }
-    else if (l.analisis_estado) wx = el('small', null, l.analisis_estado === 'trabajando' ? 'Analizando su web…' : 'Análisis ' + l.analisis_estado);
-    ans('Web', wv, l.web ? l.web.replace(/^https?:\/\//, '').replace(/\/$/, '') : 'No tienen web', wx);
+    if (l.analisis_url) { wx = el('a', 'pb-mini'); wx.href = l.analisis_url + '?equipo=1'; wx.target = '_blank'; wx.rel = 'noopener'; wx.append(icon('sparkles'), 'Ver su análisis'); }
+    else if (l.analisis_estado) wx = el('small', 'pb-mini', l.analisis_estado === 'trabajando' ? 'Analizando su web…' : 'Análisis ' + l.analisis_estado);
+    let w = 'No tiene web';
+    if (l.web) { w = el('a'); w.href = /^https?:/.test(l.web) ? l.web : 'https://' + l.web; w.target = '_blank'; w.rel = 'noopener'; w.textContent = l.web.replace(/^https?:\/\//, '').replace(/\/$/, ''); }
+    fila('Web', w, wx);
   }
-  if (l.decisor) { const dv = el('span', 'pb-ico' + (l.decisor === 'si' ? ' lime' : '')); dv.append(icon(l.decisor === 'varios' ? 'users' : 'user')); ans('¿Decide?', dv, { si: 'Sí, decide', varios: 'Entre varios', otro: 'Otra persona', no: 'No decide' }[l.decisor] || l.decisor); }
-  if (l.equipo) { const eq = el('span', 'pb-ico'); eq.append(icon('users')); ans('Personas en la empresa', eq, l.equipo); }
-  if (l.canal) ans('Sus clientes llegan por', canalVis, l.canal);
-  const meter = el('span', 'pb-meter'); [1, 2, 3].forEach((n) => meter.append(el('i', n <= r.nivel ? 'on' : ''))); if (!r.nivel) { meter.replaceChildren(); meter.className = 'pb-ico'; meter.append(icon('bars')); }
-  if (l.volumen) ans('Consultas al mes', meter, l.volumen);
-  if (l.tipo === 'contacto') { const cv = el('span', 'pb-ico lime'); cv.append(icon('msg')); ans('Contacto · su mensaje', cv, l.objetivo || 'Sin mensaje'); }
-  else if (l.objetivo && l.objetivo !== (l.problema || '').slice(0, 500)) { const ob = el('span', 'pb-ico'); ob.append(icon(r.obj)); ans('Objetivo a 3 meses', ob, l.objetivo); }
-  const pr = el('span', 'pb-ico ' + (l.opcion === 'A' ? 'lime' : '')); pr.append(icon('euro'));
-  ans('Presupuesto', pr, l.opcion === 'A' ? 'Sí, con presupuesto' : l.opcion === 'B' ? 'De momento explorando' : l.presupuesto);
-  box.append(section('Lo que nos contó', 'msg', grid));
+  fila('Lo que les quita tiempo', l.problema);
+  fila('Presupuesto', l.opcion === 'A' ? 'Sí, tiene presupuesto' : l.opcion === 'B' ? 'De momento, explorando' : l.presupuesto);
+  fila('¿Decide?', l.decisor ? ({ si: 'Sí, decide', varios: 'Entre varios', otro: 'Otra persona', no: 'No decide' }[l.decisor] || l.decisor) : '');
+  fila('Personas en la empresa', l.equipo);
+  fila('Consultas al mes', l.volumen);
+  fila('Sus clientes llegan por', l.canal);
+  if (l.tipo !== 'contacto' && l.objetivo && l.objetivo !== (l.problema || '').slice(0, 500)) fila('Objetivo', l.objetivo);
+  fila('¿Cómo nos conoció?', l.conocio ? (S.conocio[l.conocio] || l.conocio) : '');
+  if (!form.childElementCount) form.append(el('dd', 'vacio', 'No rellenó nada más.'));
+  box.append(section('Lo que rellenó', 'msg', form));
 
-  /* ---------- de dónde viene ---------- */
+  /* ---------- de dónde viene y de quién es ---------- */
   const leer = (json) => { try { return JSON.parse(json || '{}') || {}; } catch (e) { return {}; } };
-  const t1 = leer(l.primer_toque), t2 = leer(l.ultimo_toque);
-  const src = el('div', 'pb-src');
-  const srcMain = el('div', 'main'); srcMain.append(tile(origen, 'xl'));
-  const st = el('div'); st.append(el('b', null, origen.label));
-  const sub = [MEDIO(l.medio), l.campana && 'campaña ' + l.campana, l.contenido].filter(Boolean).join(' · ');
-  st.append(el('span', null, sub || 'Sin campaña'));
-  srcMain.append(st);
-  if (l.palabra) { const k = el('div', 'kw'); k.append(el('small', null, 'Palabra clave'), el('b', null, l.palabra)); srcMain.append(k); }
-  src.append(srcMain);
-  const paso = (t, titulo) => {
-    const o = ORIGEN(t.utm_source || t.origen); const p = el('div', 'stop');
-    p.append(tile(o, 'sm')); const tx = el('div'); tx.append(el('small', null, titulo), el('b', null, o.label + (t.utm_medium ? ' · ' + MEDIO(t.utm_medium) : '')));
-    const extra = [t.landing && 'entró por ' + t.landing, t.ts && fechaCorta(new Date(t.ts))].filter(Boolean).join(' · '); if (extra) tx.append(el('span', null, extra));
-    p.append(tx); return p;
-  };
-  const camino = el('div', 'pb-path');
-  const mismo = JSON.stringify(t1) === JSON.stringify(t2);
-  if (Object.keys(t1).length) camino.append(paso(t1, mismo ? 'Primera y última visita' : 'Primera visita'));
-  if (Object.keys(t2).length && !mismo) { camino.append(el('i', 'arrow')); camino.append(paso(t2, 'Última visita')); }
-  const fin = el('div', 'stop end'); const ft = el('span', 'pb-tile sm'); ft.style.background = 'var(--lime)'; ft.append(icon('send')); fin.append(ft);
-  const fx = el('div'); fx.append(el('small', null, 'Envió el formulario'), el('b', null, (l.pagina || '/diagnostico/').replace(/^https?:\/\/[^/]+/, '')), el('span', null, l.cta ? 'botón ' + l.cta : fecha(parse(l.created_at)))); fin.append(fx);
-  camino.append(el('i', 'arrow')); camino.append(fin);
-  src.append(camino);
-
-  // Canal y dueño: lo calcula lead.php con los utm y la respuesta "¿Cómo nos conociste?"; aquí se confirma o corrige
-  const cbox = el('div', 'pb-canal' + (l.canal_revisar === '1' ? ' rev' : ''));
-  const ctop = el('div', 'cab');
+  const t1 = leer(l.primer_toque);
+  const ori = el('div', 'pb-orig');
+  const o1 = el('div', 'fila'); o1.append(tile(origen, 'lg'));
+  const o1t = el('div'); o1t.append(el('b', null, origen.label));
+  const sub = [MEDIO(l.medio), l.campana && 'campaña ' + l.campana, l.palabra && '«' + l.palabra + '»'].filter(Boolean).join(' · ');
+  const entro = (t1.landing || '').replace(/^https?:\/\/[^/]+/, '');
+  o1t.append(el('span', null, [sub, entro && 'entró por ' + entro].filter(Boolean).join(' · ') || 'Llegó directo a la web'));
+  o1.append(o1t); ori.append(o1);
+  // De quién es el cliente (acuerdo Adrián–Daniel): grande y claro; se puede corregir
   const cinfo = canalInfo(l.canal_dueno);
-  const ctx = el('div'); ctx.append(el('small', null, 'Canal y dueño'), canalPill(l));
-  ctx.append(el('span', 'own', 'Dueño: ' + DUENO[cinfo.dueno] + (l.canal_manual === '1' ? ' · corregido a mano (automático: ' + canalInfo(l.canal_auto).label + ')' : '')));
-  ctop.append(ctx);
+  const o2 = el('div', 'fila dueno' + (l.canal_revisar === '1' ? ' rev' : ''));
+  const d = el('div'); d.append(el('small', null, 'Cliente de'), el('b', null, QUIEN[cinfo.dueno] || 'Sin asignar'));
+  d.append(el('span', null, cinfo.label + (l.canal_revisar === '1' ? ' · por confirmar' : '') + (l.canal_manual === '1' ? ' · corregido a mano' : '')));
+  if (l.canal_motivo) d.title = l.canal_motivo;
+  o2.style.setProperty('--c', CANAL_COLOR[cinfo.clave] || '#3A404D');
   const cact = el('div', 'acts');
-  const csel = el('select'); csel.setAttribute('aria-label', 'Cambiar canal y dueño');
+  const csel = el('select'); csel.setAttribute('aria-label', 'Cambiar de quién es');
   (S.canales || []).forEach((c) => csel.append(new Option(c.label, c.clave))); csel.value = l.canal_dueno || 'pendiente';
-  csel.addEventListener('change', () => act('canal', { id: l.id, canal: csel.value }, 'Canal: ' + canalInfo(csel.value).label + '.', csel));
+  csel.addEventListener('change', () => act('canal', { id: l.id, canal: csel.value }, 'Ahora es: ' + canalInfo(csel.value).label + '.', csel));
   cact.append(csel);
-  if (l.canal_revisar === '1' && l.canal_dueno !== 'pendiente') cact.append(btn('primary', icon('check'), 'Confirmar', (e) => act('canal', { id: l.id, canal: l.canal_dueno }, 'Canal confirmado.', e.currentTarget)));
-  ctop.append(cact);
-  cbox.append(ctop);
-  const cdet = el('div', 'why');
-  cdet.append(el('span', null, 'Respuesta del formulario: ' + (l.conocio ? (S.conocio[l.conocio] || l.conocio) : 'sin respuesta')));
-  if (l.canal_motivo) cdet.append(el('span', null, 'Por qué: ' + l.canal_motivo));
-  cbox.append(cdet);
-  src.prepend(cbox);
-  box.append(section('De dónde viene', 'pin', src));
+  if (l.canal_revisar === '1' && l.canal_dueno !== 'pendiente') cact.append(btn('primary', icon('check'), 'Confirmar', (e) => act('canal', { id: l.id, canal: l.canal_dueno }, 'Confirmado.', e.currentTarget)));
+  o2.append(d, cact); ori.append(o2);
+  box.append(section('De dónde viene', 'pin', ori));
 
   /* ---------- notas y fase ---------- */
   const notes = el('div', 'pb-notes');
@@ -781,6 +714,12 @@ function drawDetalle() {
   if (!l.email_enviado) f2.className = 'warn';
   foot.append(f1, f2);
   box.append(foot);
+  const borra = btn('danger pb-borrar', icon('x'), 'Borrar esta solicitud', (e) => {
+    if (!confirm('¿Borrar la solicitud #' + l.id + ' (' + titulo + ')? No se puede deshacer.')) return;
+    const b = e.currentTarget; b.disabled = true;
+    post('borrar_lead', { id: l.id }).then(() => { toast('Solicitud #' + l.id + ' borrada.'); closeDetail(); draw(); }).catch((er) => { toast(er.message, true); b.disabled = false; });
+  });
+  box.append(borra);
 }
 
 /* Navegar entre solicitudes sin cerrar la ficha */

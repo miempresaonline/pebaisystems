@@ -1,0 +1,79 @@
+/* PEBAI · Panel — Solicitudes (30/10): primero la lista, ficha limpia (quién, lo que rellenó, de dónde viene y de quién es) */
+
+/* ---------- cabecera y filtros ---------- */
+.pb-sol-cab{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 18px;flex-wrap:wrap;margin-bottom:12px}
+.pb-sol-cab .pb-h1{margin:0}
+.pb-sol-cab .pb-filters{margin:0;flex:1;max-width:520px;flex-wrap:nowrap}
+.pb-masfiltros{position:relative}
+.pb-masfiltros summary{list-style:none;cursor:pointer}
+.pb-masfiltros summary::-webkit-details-marker{display:none}
+.pb-masfiltros>div{position:absolute;right:0;top:calc(100% + 6px);z-index:8;display:flex;flex-direction:column;gap:8px;width:250px;padding:10px;border-radius:14px;
+  background:var(--panel-solid);border:1px solid var(--line-2);box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.pb-masfiltros select{width:100%}
+
+/* ---------- fases arriba: pastillas finas ---------- */
+#page-solicitudes .pb-chips{gap:6px;margin-bottom:12px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+#page-solicitudes .pb-chip{flex:none;min-width:0;flex-direction:row;align-items:center;gap:7px;padding:7px 12px;border-radius:999px}
+#page-solicitudes .pb-chip:hover{transform:none}
+#page-solicitudes .pb-chip i{width:7px;height:7px;border-radius:50%;margin:0}
+#page-solicitudes .pb-chip small{font-size:12.5px;color:var(--fg)}
+#page-solicitudes .pb-chip b{font-family:var(--sans);font-size:12px;font-weight:800;color:var(--muted)}
+#page-solicitudes .pb-chip.on b{color:var(--lime)}
+
+/* ---------- lista ---------- */
+.pb-row.pb-sol{grid-template-columns:auto minmax(0,1fr) auto;padding:14px 16px;gap:14px}
+.pb-row.pb-sol:hover{transform:none}
+.pb-row.pb-sol.nueva{border-color:color-mix(in srgb,var(--lime) 45%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--lime) 18%,transparent)}
+.pb-row.pb-sol .pb-avatar{width:44px;height:44px;border-radius:14px;font-size:17px;background:color-mix(in srgb,var(--c) 22%,var(--panel-2));color:var(--fg-strong);border:1px solid color-mix(in srgb,var(--c) 45%,transparent)}
+.pb-row.pb-sol .mid{min-width:0}
+.pb-row.pb-sol .emp{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pb-row.pb-sol .meta{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.pb-row.pb-sol .pie{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.pb-tile.xs{width:20px;height:20px;border-radius:6px;box-shadow:none}
+.pb-row.pb-sol .quien{font-weight:800;font-size:11.5px;padding:2px 9px;border-radius:999px;color:var(--fg-strong);background:color-mix(in srgb,var(--c) 22%,transparent);border:1px solid color-mix(in srgb,var(--c) 50%,transparent)}
+.pb-row.pb-sol .quien.rev:after{content:" ?";color:var(--amber)}
+.pb-row.pb-sol .cita{color:var(--green);font-weight:700}
+.pb-sol-abajo{margin-top:8px}
+@media (max-width:640px){
+  .pb-sol-cab .pb-filters{max-width:none;width:100%}
+  .pb-row.pb-sol{grid-template-columns:auto minmax(0,1fr);padding:12px}
+  .pb-row.pb-sol .r{grid-column:2;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px}
+}
+
+/* ---------- ficha ---------- */
+.pb-fh{padding:4px 0 18px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.pb-fh .k{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:12.5px;flex-wrap:wrap}
+.pb-fh h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4vw,38px);line-height:1.05;color:var(--fg-strong);margin:8px 0 10px;word-break:break-word}
+.pb-fh .cto{display:flex;gap:8px 16px;flex-wrap:wrap;font-size:14px}
+.pb-fh .cto>*{display:inline-flex;align-items:center;gap:6px;color:var(--fg);text-decoration:none}
+.pb-fh .cto a:hover{color:var(--lime)}
+.pb-fh .cto .pb-i{width:15px;height:15px;color:var(--muted)}
+.pb-fh .acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.pb-fh .rec{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;color:var(--muted)}
+.pb-fh .rec .pb-i{width:15px;height:15px;color:var(--green)}
+
+/* lo que rellenó: pregunta → respuesta */
+.pb-form{display:grid;grid-template-columns:minmax(150px,210px) 1fr;margin:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel)}
+.pb-form dt,.pb-form dd{margin:0;padding:12px 16px;border-bottom:1px solid var(--line);font-size:14px;line-height:1.5}
+.pb-form dt{color:var(--muted);font-weight:600;font-size:13px}
+.pb-form dd{color:var(--fg-strong);white-space:pre-wrap;word-break:break-word}
+.pb-form dt:nth-last-child(2),.pb-form dd:last-child{border-bottom:0}
+.pb-form dd a{color:var(--fg-strong)}
+.pb-form .vacio{grid-column:1/-1;color:var(--muted)}
+.pb-mini{display:inline-flex;align-items:center;gap:6px;margin-left:10px;font-size:12px;font-weight:700;color:var(--lime);text-decoration:none;white-space:nowrap}
+.pb-mini .pb-i{width:14px;height:14px}
+@media (max-width:640px){.pb-form{grid-template-columns:1fr}.pb-form dt{padding-bottom:0;border-bottom:0}.pb-form dd{padding-top:3px}.pb-mini{margin:6px 0 0;display:flex}}
+
+/* de dónde viene y de quién es */
+.pb-orig{display:flex;flex-direction:column;gap:10px}
+.pb-orig .fila{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.pb-orig .fila b{display:block;color:var(--fg-strong);font-size:16px}
+.pb-orig .fila span{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.pb-orig .dueno{justify-content:space-between;flex-wrap:wrap;border-color:color-mix(in srgb,var(--c) 45%,var(--line));background:linear-gradient(120deg,color-mix(in srgb,var(--c) 12%,var(--panel)),var(--panel))}
+.pb-orig .dueno.rev{border-style:dashed;border-color:var(--amber)}
+.pb-orig .dueno small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--muted)}
+.pb-orig .dueno b{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.1}
+.pb-orig .dueno .acts{display:flex;gap:8px;align-items:center}
+.pb-borrar{margin-top:22px}
+/* en el móvil, el periodo y el CSV (solo cuentan para el análisis de abajo) no empujan la lista */
+@media (max-width:960px){body[data-page=solicitudes] .pb-top .pb-only-embudo{display:none}}

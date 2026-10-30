@@ -150,13 +150,13 @@ function pebai_db(): PDO
 
 // Reparto del acuerdo de colaboración: cada solicitud pertenece a un canal y cada canal a un dueño.
 const PEBAI_CANALES = [
-    'salida_adrian' => ['Salida · Adrián', 'adrian'],
-    'salida_daniel' => ['Salida · Daniel', 'daniel'],
+    'salida_adrian' => ['Adrián', 'adrian'],          // cuenta propia de Adrián (salida)
+    'salida_daniel' => ['Daniel', 'daniel'],          // cuenta propia de Daniel (salida)
     'seo_geo' => ['SEO/GEO · Daniel', 'daniel'],
     // LinkedIn lo lleva Daniel (la página cuelga de la empresa de su padre y solo él tiene acceso): hasta la revisión de los 3 meses
     'linkedin_daniel' => ['LinkedIn · Daniel', 'daniel'],
-    'anuncios' => ['Anuncios · 5/5', 'compartido'],
-    'redes' => ['Redes · 5/5', 'compartido'],
+    'anuncios' => ['Anuncios', 'compartido'],         // de los dos (5/5)
+    'redes' => ['Redes', 'compartido'],               // de los dos (5/5)
     'pendiente' => ['Sin asignar', ''],
 ];
 
