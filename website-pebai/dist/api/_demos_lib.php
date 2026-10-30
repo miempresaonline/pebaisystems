@@ -178,68 +178,101 @@ function pebai_demo_logo(string $html, string $base, string $slug): string
 /** Radiografía en IA: Claude hace DOS búsquedas web reales (dos formas de preguntar) y dice en cuáles sale la empresa y quién sale. */
 function pebai_demo_radiografia(string $empresa, string $sector, string $ciudad, string $web, string $servicio = ''): ?array
 {
+    // 100 % real (Daniel, 30/10): todo sale de los resultados que devolvió la búsqueda (su dirección, su título y su orden).
+    // El modelo solo pone nombre a cada resultado de verdad; si cita algo que no salió en la búsqueda, se descarta.
     $consultas = ['mejores ' . mb_strtolower($sector) . ' en ' . $ciudad,
                   ($servicio !== '' ? mb_strtolower($servicio) : 'empresa de confianza de ' . mb_strtolower($sector)) . ' en ' . $ciudad . ' recomendaciones'];
-    $dominio = preg_replace('~^www\.~', '', (string)parse_url($web, PHP_URL_HOST));
+    $host = static fn($u) => strtolower(preg_replace('~^www\.~i', '', (string)parse_url((string)$u, PHP_URL_HOST)));
+    $dominio = $host($web);
     $t = pebai_claude('demos', 'claude-haiku-5-5',
-        'Eres un analista de visibilidad en buscadores con IA. Haces búsquedas web reales y cuentas solo lo que sale en los resultados, sin inventar nada. Responde SOLO JSON.',
-        [['role' => 'user', 'content' => "Haz estas DOS búsquedas en internet, una cada vez:\n1. «{$consultas[0]}»\n2. «{$consultas[1]}»\nCon lo que salga en cada una, responde JSON:\n"
-            . '{"busquedas": [para cada búsqueda, en orden: {"empresas": [hasta 8 empresas recomendadas o listadas, en el orden en que salen: {"nombre": "...", "web": "dominio o vacío"}], '
-            . '"fuentes": [hasta 3: {"titulo": "...", "url": "..."}]}], "resumen": "una frase de qué ve alguien que pregunta esto a una IA, y si sale ' . $empresa . '"}']],
+        'Eres un analista de visibilidad en buscadores con IA. Haces búsquedas web reales y describes SOLO los resultados que te devuelve la búsqueda, sin añadir nada que no salga en ellos. Responde SOLO JSON.',
+        [['role' => 'user', 'content' => "Haz estas DOS búsquedas en internet, una cada vez:\n1. «{$consultas[0]}»\n2. «{$consultas[1]}»\n"
+            . 'Después, para CADA resultado que te haya devuelto la búsqueda (con su URL exacta), di quién es. JSON: {"resultados": [{"url": "URL exacta del resultado", '
+            . '"nombre": "nombre de la empresa si la web es de una empresa; si es un directorio, blog o artículo, su título corto", "tipo": "empresa" o "directorio"}], '
+            . '"resumen": "una frase de qué ve alguien que busca esto, y si sale ' . $empresa . ' (su web es ' . ($dominio ?: 'desconocida') . ')"}']],
         ['effort' => 'low', 'max_tokens' => 4000, 'timeout' => 120,
          'tools' => [['type' => 'web_search_20250305', 'name' => 'web_search', 'max_uses' => 2,
                       'user_location' => ['type' => 'approximate', 'country' => 'ES', 'city' => $ciudad, 'timezone' => 'Europe/Madrid']]]]);
-    if ($t === null) {
-        return null;
+    // Lo que de verdad hizo y devolvió la búsqueda: cada consulta con sus resultados, en su orden
+    $hechas = [];
+    $pend = null;
+    foreach ((array)($GLOBALS['pebai_claude_bloques'] ?? []) as $b) {
+        if (($b['type'] ?? '') === 'server_tool_use' && ($b['name'] ?? '') === 'web_search') {
+            $pend = (string)($b['input']['query'] ?? '');
+        } elseif (($b['type'] ?? '') === 'web_search_tool_result') {
+            $res = [];
+            foreach ((array)($b['content'] ?? []) as $r) {
+                if (($r['type'] ?? '') === 'web_search_result' && str_starts_with((string)($r['url'] ?? ''), 'http')) {
+                    $res[] = ['url' => (string)$r['url'], 'titulo' => trim((string)($r['title'] ?? ''))];
+                }
+            }
+            if ($res) {
+                $hechas[] = ['consulta' => $pend ?: ($consultas[count($hechas)] ?? ''), 'resultados' => $res];
+            }
+            $pend = null;
+        }
     }
-    $t = trim(preg_replace('/^```(?:json)?|```$/m', '', $t));
-    $j = json_decode($t, true);
-    if (!is_array($j) && preg_match('/\{.*\}/s', $t, $m)) {
-        $j = json_decode($m[0], true);
+    if (!$hechas) {
+        return null;   // sin búsqueda real no hay informe
     }
-    if (!is_array($j) || empty($j['busquedas'])) {
-        return null;
+    // Nombres que puso el modelo, solo para direcciones que salieron de verdad
+    $j = null;
+    if ($t !== null) {
+        $t = trim(preg_replace('/^```(?:json)?|```$/m', '', $t));
+        $j = json_decode($t, true);
+        if (!is_array($j) && preg_match('/\{.*\}/s', $t, $m)) {
+            $j = json_decode($m[0], true);
+        }
     }
-    // Comprobación propia: sale si su dominio o su nombre está en la lista (no nos fiamos solo de lo que diga el modelo)
+    $nombres = [];
+    foreach ((array)($j['resultados'] ?? []) as $r) {
+        $u = rtrim((string)($r['url'] ?? ''), '/');
+        if ($u !== '') {
+            $nombres[$u] = ['nombre' => mb_substr(trim((string)($r['nombre'] ?? '')), 0, 80), 'tipo' => ($r['tipo'] ?? '') === 'empresa' ? 'empresa' : 'directorio'];
+        }
+    }
     $norm = static fn($s) => preg_replace('/[^a-z0-9]/', '', strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', (string)$s) ?: (string)$s));
     $busq = [];
-    foreach (array_slice((array)$j['busquedas'], 0, 2) as $k => $b) {
-        $emp = array_slice(array_values(array_filter(array_map(static fn($e) => ['nombre' => mb_substr(trim((string)($e['nombre'] ?? '')), 0, 80), 'web' => mb_substr(trim((string)($e['web'] ?? '')), 0, 80)], (array)($b['empresas'] ?? [])), static fn($e) => $e['nombre'] !== '')), 0, 8);
+    foreach (array_slice($hechas, 0, 2) as $h) {
+        $emp = [];
         $pos = null;
-        foreach ($emp as $i => $e) {
-            if (($dominio && $e['web'] !== '' && str_contains($norm($e['web']), $norm($dominio))) || ($norm($empresa) !== '' && (str_contains($norm($e['nombre']), $norm($empresa)) || str_contains($norm($empresa), $norm($e['nombre']))))) {
+        foreach (array_slice($h['resultados'], 0, 8) as $i => $r) {
+            $hh = $host($r['url']);
+            $n = $nombres[rtrim($r['url'], '/')] ?? null;
+            $nombre = ($n['nombre'] ?? '') !== '' ? $n['nombre'] : (preg_replace('/\s*[|·–—-]\s.*$/u', '', $r['titulo']) ?: $hh);
+            // Sale si el resultado es su propia web (o su nombre está en el título del resultado)
+            $esSuya = ($dominio !== '' && ($hh === $dominio || str_ends_with($hh, '.' . $dominio)))
+                || ($norm($empresa) !== '' && strlen($norm($empresa)) >= 4 && str_contains($norm($r['titulo']), $norm($empresa)));
+            if ($esSuya && $pos === null) {
                 $pos = $i + 1;
-                break;
             }
+            $emp[] = ['nombre' => $nombre, 'web' => $hh, 'url' => $r['url'], 'tipo' => $n['tipo'] ?? 'directorio'];
         }
-        if (!$emp) {
-            continue;
-        }
-        $busq[] = ['consulta' => $consultas[$k], 'empresas' => $emp, 'posicion' => $pos,
-                   'fuentes' => array_slice(array_values(array_filter(array_map(static fn($f) => ['titulo' => mb_substr(trim((string)($f['titulo'] ?? '')), 0, 120), 'url' => (string)($f['url'] ?? '')], (array)($b['fuentes'] ?? [])), static fn($f) => str_starts_with($f['url'], 'http'))), 0, 3)];
+        $busq[] = ['consulta' => $h['consulta'], 'empresas' => $emp, 'posicion' => $pos,
+                   'fuentes' => array_slice(array_values(array_map(static fn($e) => ['titulo' => $e['nombre'], 'url' => $e['url']], array_filter($emp, static fn($e) => $e['tipo'] !== 'empresa'))), 0, 3)];
     }
-    if (!$busq) {
-        return null;
-    }
-    // Quién sale más veces entre las dos búsquedas
+    // Quién sale más veces entre las búsquedas (solo empresas, contadas por su web)
     $veces = [];
     foreach ($busq as $b) {
         foreach ($b['empresas'] as $i => $e) {
-            $k = $norm($e['nombre']);
+            if ($e['tipo'] !== 'empresa') {
+                continue;
+            }
+            $k = $e['web'];
             $veces[$k] = ['nombre' => $veces[$k]['nombre'] ?? $e['nombre'], 'n' => ($veces[$k]['n'] ?? 0) + 1, 'mejor' => min($veces[$k]['mejor'] ?? 99, $i + 1)];
         }
     }
     uasort($veces, static fn($a, $b) => [$b['n'], $a['mejor']] <=> [$a['n'], $b['mejor']]);
-    // Nota de visibilidad 0-100: salir arriba en las dos búsquedas = 100
+    // Nota de visibilidad 0-100: salir el primero en todas las búsquedas = 100
     $nota = 0;
     foreach ($busq as $b) {
         $nota += $b['posicion'] ? (int)round(100 / count($busq) * max(.2, 1 - ($b['posicion'] - 1) / 8)) : 0;
     }
-    $primera = $busq[0] ?? ['empresas' => [], 'posicion' => null, 'fuentes' => [], 'consulta' => $consultas[0]];
+    $primera = $busq[0];
     return ['consulta' => $primera['consulta'], 'empresas' => $primera['empresas'], 'aparece' => (bool)array_filter(array_column($busq, 'posicion')),
             'posicion' => $primera['posicion'] ?? (array_values(array_filter(array_column($busq, 'posicion')))[0] ?? null), 'fuentes' => $primera['fuentes'],
             'busquedas' => $busq, 'competidores' => array_slice(array_values($veces), 0, 6), 'nota' => $nota,
-            'resumen' => mb_substr((string)($j['resumen'] ?? ''), 0, 300), 'fecha' => date('Y-m-d H:i')];
+            'resumen' => mb_substr((string)($j['resumen'] ?? ''), 0, 300), 'fecha' => date('Y-m-d H:i'), 'real' => 1];
 }
 
 /**
@@ -297,11 +330,12 @@ function pebai_demo_crear(string $canal, array $p): ?array
     }
     $datos = ['kb' => $kb, 'radio' => $radio, 'app' => is_array($app) ? $app : null, 'color' => pebai_demo_color($html), 'logo' => pebai_demo_logo($html, $web, $slug),
               'logo_texto' => $logoTexto,
+              'autor' => ($p['autor'] ?? '') === 'adrian' ? 'adrian' : 'daniel',   // quién la envía: su cara y su nombre en la página
               'dominio' => preg_replace('~^www\.~', '', (string)parse_url($web, PHP_URL_HOST))];
     $usd = max(0, pebai_claude_gasto_mes() - $antes);
     pebai_demos_db()->prepare('INSERT OR IGNORE INTO demos (slug, canal, prospecto_id, empresa, ciudad, sector, web, datos, creada, usd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         ->execute([$slug, $canal, (int)$p['id'], $empresa, $ciudad, $sector, $web, json_encode($datos, JSON_UNESCAPED_UNICODE), date('Y-m-d H:i:s'), $usd]);
     pebai_actividad('demos', 'entrega', 'Demo lista para ' . $empresa, json_encode(['url' => pebai_demo_url($slug),
-        'texto' => ($radio ? ($radio['aparece'] ? 'Sale en la IA (puesto ' . $radio['posicion'] . ')' : 'No sale en la IA; sí salen ' . implode(', ', array_slice(array_column($radio['empresas'], 'nombre'), 0, 3))) : 'Sin radiografía') . ' · ' . number_format($usd * 100, 1, ',', '') . ' céntimos'], JSON_UNESCAPED_UNICODE), 'demo');
+        'texto' => ($radio ? ($radio['aparece'] ? 'Sale en la IA (puesto ' . $radio['posicion'] . ')' : 'No sale en la IA; sí salen ' . implode(', ', array_slice(array_column($radio['competidores'] ?? [], 'nombre'), 0, 3))) : 'Sin radiografía') . ' · ' . number_format($usd * 100, 1, ',', '') . ' céntimos'], JSON_UNESCAPED_UNICODE), 'demo');
     return pebai_demo_de($canal, (int)$p['id']);
 }

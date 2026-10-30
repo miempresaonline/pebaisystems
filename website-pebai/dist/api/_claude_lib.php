@@ -91,6 +91,7 @@ function pebai_claude_coste(string $modelo, array $u): float
  */
 function pebai_claude(string $agente, string $modelo, string $system, array $mensajes, array $opc = []): ?string
 {
+    $GLOBALS['pebai_claude_bloques'] = [];
     $cfg = pebai_claude_cfg();
     if ($cfg['key'] === '' || !isset(PEBAI_CLAUDE_PRECIOS[$modelo])) {
         return null;
@@ -129,6 +130,8 @@ function pebai_claude(string $agente, string $modelo, string $system, array $men
     if (($j['stop_reason'] ?? '') === 'refusal') {
         return null;
     }
+    // Los bloques tal cual (búsquedas hechas y sus resultados reales): los usa quien necesite comprobar lo que dice el modelo
+    $GLOBALS['pebai_claude_bloques'] = (array)($j['content'] ?? []);
     $txt = '';
     foreach ((array)($j['content'] ?? []) as $b) {
         if (($b['type'] ?? '') === 'text') {

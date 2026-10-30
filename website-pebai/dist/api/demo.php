@@ -48,7 +48,11 @@ $nota = (int)($radio['nota'] ?? ($radio && $radio['aparece'] ? 50 : 0));
 $comp = $radio['competidores'] ?? array_map(static fn($e) => ['nombre' => $e['nombre'], 'n' => 1, 'mejor' => 1], $radio['empresas'] ?? []);
 $salen = count(array_filter(array_column($busq, 'posicion')));
 $logo = (string)($x['logo'] ?? '');
-$wa = 'https://wa.me/34624842799?text=' . rawurlencode('Hola Daniel, he visto la demo que preparaste para ' . $empresa . '. ¿Lo hablamos?');
+// Quién la envía (se elige al crearla): sale su cara, su nombre y el WhatsApp va a su nombre
+$autor = ($x['autor'] ?? 'daniel') === 'adrian'
+    ? ['nombre' => 'Adrián Ballesteros', 'corto' => 'Adrián', 'cargo' => 'RESPONSABLE COMERCIAL · PEBAI SYSTEMS', 'foto' => '/brand/home/adrian-v2.webp']
+    : ['nombre' => 'Daniel Peñuela', 'corto' => 'Daniel', 'cargo' => 'FUNDADOR · PEBAI SYSTEMS', 'foto' => '/brand/home/dani.webp'];
+$wa = 'https://wa.me/34624842799?text=' . rawurlencode('Hola ' . $autor['corto'] . ', he visto la demo que preparaste para ' . $empresa . '. ¿Lo hablamos?');
 $avatarEmpresa = $logo !== '' ? '<img src="' . $e($logo) . '" alt="">' : $e($inicial);
 ?><!doctype html>
 <html lang="es">
@@ -58,7 +62,7 @@ $avatarEmpresa = $logo !== '' ? '<img src="' . $e($logo) . '" alt="">' : $e($ini
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#05060b">
 <title><?= $e($empresa) ?> · Preparado por PEBAI Systems</title>
-<link rel="icon" href="/brand/favicon.svg">
+<link rel="icon" href="/brand/pebai-mark-256.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -117,6 +121,7 @@ section.s{padding:96px 0 10px}
 .inf .caja{padding:26px}
 .nota{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}
 .nota svg{width:220px;height:220px}
+.rank a{color:inherit;text-decoration:none}.rank a:hover{text-decoration:underline}.rank .dir{font-size:.72em;opacity:.6;margin-left:6px;letter-spacing:.04em;text-transform:uppercase}
 .nota .pista{fill:none;stroke:rgba(255,255,255,.08);stroke-width:14}
 .nota .val{fill:none;stroke-width:14;stroke-linecap:round;stroke-dasharray:0 600;transition:stroke-dasharray 1.8s var(--ease);filter:drop-shadow(0 0 10px currentColor)}
 .nota .num{font:400 64px var(--serif);fill:var(--fg)}
@@ -262,7 +267,7 @@ footer a{color:var(--mut)}
 <div class="w">
   <header class="top vidrio">
     <div class="duo">
-      <span class="tile"><img src="/brand/favicon.svg" alt="PEBAI Systems"></span><span class="pb">PEBAI</span>
+      <span class="tile"><img src="/brand/pebai-mark-256.png" alt="PEBAI Systems"></span><span class="pb">PEBAI</span>
       <span class="x">×</span>
       <span class="tile emp"><?= $logo !== '' ? '<img src="' . $e($logo) . '" alt="' . $e($empresa) . '">' : '<b>' . $e($inicial) . '</b>' ?></span><span class="n"><?= $e($empresa) ?></span>
     </div>
@@ -302,8 +307,8 @@ footer a{color:var(--mut)}
         <div class="consulta vidrio">
           <div class="q"><span>«<?= $e(ucfirst($b['consulta'])) ?>»</span><em class="est <?= $pos ? 'si' : 'no' ?>"><?= $pos ? 'Salís en el puesto ' . $pos : 'No salís' ?></em></div>
           <ol class="rank">
-<?php foreach (array_slice($b['empresas'], 0, 6) as $i => $c): $yo = $pos === $i + 1; ?>
-            <li class="<?= $yo ? 'yo' : '' ?>"><span class="n"><?= $i + 1 ?></span><div class="b" style="--w:<?= max(25, 100 - $i * 11) ?>%;--d:<?= $k * 200 + $i * 80 ?>ms"><span><?= $yo ? '<b>' . $e($c['nombre']) . '</b> · vosotros' : $e($c['nombre']) ?></span><?= $c['web'] ? '<em>' . $e($c['web']) . '</em>' : '' ?></div></li>
+<?php foreach (array_slice($b['empresas'], 0, 8) as $i => $c): $yo = $pos === $i + 1; $nom = $yo ? '<b>' . $e($c['nombre']) . '</b> · vosotros' : $e($c['nombre']) . (($c['tipo'] ?? '') === 'directorio' ? ' <small class="dir">artículo</small>' : ''); ?>
+            <li class="<?= $yo ? 'yo' : '' ?>"><span class="n"><?= $i + 1 ?></span><div class="b" style="--w:<?= max(25, 100 - $i * 9) ?>%;--d:<?= $k * 200 + $i * 80 ?>ms"><span><?= !empty($c['url']) ? '<a href="' . $e($c['url']) . '" target="_blank" rel="noopener nofollow">' . $nom . '</a>' : $nom ?></span><?= $c['web'] ? '<em>' . $e($c['web']) . '</em>' : '' ?></div></li>
 <?php endforeach; if (!$pos): ?>
             <li class="falta"><span class="n">—</span><div class="b"><span><b><?= $e($empresa) ?></b> · no aparece</span></div></li>
 <?php endif; ?>
@@ -316,7 +321,7 @@ footer a{color:var(--mut)}
 <?php if ($comp): $maxN = max(1, max(array_column($comp, 'n'))); ?>
     <div class="comp vidrio">
       <h3>Quién se lleva las recomendaciones</h3>
-      <p class="sub">Veces que la IA nombra a cada empresa en las <?= count($busq) ?> búsquedas.</p>
+      <p class="sub">Veces que sale cada empresa en los resultados de las <?= count($busq) ?> búsquedas.</p>
       <div class="barras">
 <?php foreach ($comp as $i => $c): ?>
         <div class="barra"><span><?= $e($c['nombre']) ?></span><div class="t"><u style="--w:<?= round($c['n'] / $maxN * 100) ?>%;--d:<?= $i * 90 ?>ms"></u></div><em><?= (int)$c['n'] ?> de <?= count($busq) ?></em></div>
@@ -324,7 +329,7 @@ footer a{color:var(--mut)}
         <div class="barra yo"><span><b><?= $e($empresa) ?></b></span><div class="t"><u style="--w:3%"></u></div><em>0 de <?= count($busq) ?></em></div>
 <?php endif; ?>
       </div>
-      <p class="metodo">MÉTODO · <?= count($busq) ?> búsquedas web reales hechas el <?= $e($fecha($radio['fecha'])) ?> a las <?= $e(substr($radio['fecha'], 11, 5)) ?> con Claude (Anthropic), como lo haría un cliente de <?= $e($ciudad ?: 'vuestra zona') ?>. Las IAs cambian sus respuestas con el tiempo: esto es lo que veía un cliente ese día.</p>
+      <p class="metodo">MÉTODO · <?= count($busq) ?> búsquedas web reales hechas el <?= $e($fecha($radio['fecha'])) ?> a las <?= $e(substr($radio['fecha'], 11, 5)) ?> con Claude (Anthropic), como lo haría un cliente de <?= $e($ciudad ?: 'vuestra zona') ?>. Solo aparece lo que devolvió la búsqueda, en su orden: cada nombre enlaza a su resultado. Las IAs cambian sus respuestas con el tiempo: esto es lo que veía un cliente ese día.</p>
     </div>
 <?php endif; ?>
     <div class="claves">
@@ -387,7 +392,7 @@ footer a{color:var(--mut)}
         <div class="btns"><a class="bt p" href="<?= $e($wa) ?>" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.7-2.7-1.1-4.4-3.8-4.6-4-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.3.4c-.1.1-.3.3-.1.6.2.3.7 1.2 1.6 2 1.1 1 2 1.3 2.3 1.4.3.2.5.1.6 0l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.1.1.6-.1 1.3z"/></svg>Hablarlo por WhatsApp</a><a class="bt s" href="/consultoria-gratuita/?origen=demo" target="_blank" rel="noopener">Ver cómo trabajamos</a></div>
         <p class="plazas">LA CONSULTORÍA ES GRATUITA SOLO PARA 5 EMPRESAS AL MES</p>
       </div>
-      <figure class="foto" style="margin:0"><img src="/brand/home/dani.webp" alt="Daniel Peñuela, de PEBAI Systems" loading="lazy"><figcaption><b>Daniel Peñuela</b><span>FUNDADOR · PEBAI SYSTEMS</span></figcaption></figure>
+      <figure class="foto" style="margin:0"><img src="<?= $e($autor['foto']) ?>" alt="<?= $e($autor['nombre']) ?>, de PEBAI Systems" loading="lazy"><figcaption><b><?= $e($autor['nombre']) ?></b><span><?= $e($autor['cargo']) ?></span></figcaption></figure>
     </div>
   </section>
   <footer>PEBAI Systems · Procesos e Inteligencia Artificial para empresas · <a href="/privacidad/">Privacidad</a><br>Página preparada solo para <?= $e($empresa) ?>.</footer>

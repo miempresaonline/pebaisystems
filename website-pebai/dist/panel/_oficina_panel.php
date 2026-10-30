@@ -1109,7 +1109,7 @@ function of_demo_encargo(PDO $db, int $id): array
         $rad = $x['radio'] ?? null;
         $r += ['url' => pebai_demo_url($e['slug']), 'ver' => pebai_demo_url($e['slug']) . '?equipo=1', 'ciudad' => (string)($d['ciudad'] ?? ''),
                'centimos' => round((float)($d['usd'] ?? 0) * 100, 1), 'color' => (string)($x['color'] ?? ''),
-               'ia' => $rad ? ($rad['aparece'] ? 'Sale en la IA (puesto ' . $rad['posicion'] . ')' : 'No sale en la IA' . (!empty($rad['empresas']) ? '; sí salen ' . implode(', ', array_slice(array_column($rad['empresas'], 'nombre'), 0, 3)) : '')) : 'Sin radiografía',
+               'ia' => $rad ? ($rad['aparece'] ? 'Sale en la IA (puesto ' . $rad['posicion'] . ')' : 'No sale en la IA' . (!empty($rad['competidores']) ? '; sí salen ' . implode(', ', array_slice(array_column($rad['competidores'], 'nombre'), 0, 3)) : '')) : 'Sin radiografía',
                'servicios' => array_slice((array)($x['kb']['servicios'] ?? []), 0, 4), 'app' => (string)($x['app']['nombre'] ?? '')];
     }
     return $r;
@@ -1139,8 +1139,9 @@ if ($auth && ($_POST['action'] ?? '') === 'demo_manual') {
     if (!$host || !str_contains($host, '.') || filter_var($host, FILTER_VALIDATE_IP) || str_ends_with($host, 'pebaisystems.es')) {
         json_out(['ok' => false, 'error' => 'Pega la dirección de la web de la empresa (por ejemplo, empresa.es).'], 422);
     }
+    $autor = ($_POST['autor'] ?? '') === 'adrian' ? 'adrian' : 'daniel';
     $db = of_demo_encargos();
-    // Si esa web ya tiene demo, se devuelve la que hay (sin gastar)
+    // Si esa web ya tiene demo, se devuelve la que hay (sin gastar), con la cara de quien la pide ahora
     $q = $db->prepare("SELECT slug, empresa FROM demos WHERE web LIKE ? OR web LIKE ? ORDER BY creada DESC LIMIT 1");
     $q->execute(['%://' . $host . '%', '%://www.' . $host . '%']);
     $ya = $q->fetch();
@@ -1148,6 +1149,12 @@ if ($auth && ($_POST['action'] ?? '') === 'demo_manual') {
     $db->prepare('INSERT INTO encargos (web, inicio) VALUES (?, ?)')->execute([$web, date('Y-m-d H:i:s')]);
     $id = (int)$db->lastInsertId();
     if ($ya) {
+        $q = $db->prepare('SELECT datos FROM demos WHERE slug = ?');
+        $q->execute([$ya['slug']]);
+        $dx = json_decode((string)$q->fetchColumn(), true) ?: [];
+        $q->closeCursor();
+        $dx['autor'] = $autor;
+        $db->prepare('UPDATE demos SET datos = ? WHERE slug = ?')->execute([json_encode($dx, JSON_UNESCAPED_UNICODE), $ya['slug']]);
         $db->prepare("UPDATE encargos SET estado = 'lista', slug = ?, empresa = ?, paso = 'Ya tenía demo', fin = inicio WHERE id = ?")->execute([$ya['slug'], $ya['empresa'], $id]);
         json_out(['ok' => true, 'ya' => true] + of_demo_encargo($db, $id));
     }
@@ -1189,7 +1196,7 @@ if ($auth && ($_POST['action'] ?? '') === 'demo_manual') {
         $db->prepare('UPDATE encargos SET empresa = ? WHERE id = ?')->execute([$empresa, $id]);
         $paso('Buscando si la IA la recomienda y montando su asistente y su app');
         $d = pebai_demo_crear('manual', ['id' => $id, 'web' => $web, 'empresa' => $empresa, 'ciudad' => (string)($quien['ciudad'] ?? ''),
-                                         'nicho' => '', 'sector' => (string)($quien['sector'] ?? '')]);
+                                         'nicho' => '', 'sector' => (string)($quien['sector'] ?? ''), 'autor' => $autor]);
         if (!$d) {
             $falla('Su web no tiene datos suficientes para hacer la demo.');
         }

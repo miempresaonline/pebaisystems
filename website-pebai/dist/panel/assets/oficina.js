@@ -426,10 +426,16 @@ const segs = (s) => (s >= 60 ? `${Math.floor(s / 60)} min ${String(Math.round(s 
 function cajaCrearDemo() {
   const box = document.createElement('div'); box.className = 'pb-of-demo';
   box.innerHTML = `<div class="h"><b>Crear una demo</b><small>Pega la web de una empresa y Demos le prepara su página: si la IA la recomienda, su asistente y su app.</small></div>
+    <div class="autor" role="radiogroup" aria-label="¿Quién la envía?"><span>¿Quién la envía?</span><button type="button" data-a="daniel">Daniel</button><button type="button" data-a="adrian">Adrián</button></div>
     <form><input type="text" inputmode="url" placeholder="empresa.es" autocomplete="off" spellcheck="false" aria-label="Web de la empresa"><button type="submit" class="pb-of-btn primary">Crear demo</button></form>
     <div class="est" aria-live="polite"></div><div class="ult"></div>`;
   const inp = $('input', box), btn = $('button', box), est = $('.est', box), ult = $('.ult', box);
   inp.value = S.demoUrl || ''; inp.oninput = () => { S.demoUrl = inp.value; };
+  // Quién la envía: en la página sale su cara y su nombre (se recuerda en este navegador)
+  let autor = 'daniel'; try { autor = localStorage.getItem('pb-demo-autor') || 'daniel'; } catch (e) { /* sin almacenamiento */ }
+  const pintaAutor = () => box.querySelectorAll('.autor button').forEach((b) => { b.classList.toggle('on', b.dataset.a === autor); b.setAttribute('aria-checked', b.dataset.a === autor); });
+  box.querySelectorAll('.autor button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); autor = b.dataset.a; try { localStorage.setItem('pb-demo-autor', autor); } catch (er) { /* nada */ } pintaAutor(); }; });
+  pintaAutor();
   inp.onkeydown = (e) => e.stopPropagation();   // las flechas no cambian de agente mientras se escribe
   const resultado = (j) => `<div class="ok" style="--c:${esc(j.color || '#FB923C')}"><div class="t"><b>${esc(j.empresa)}${j.ciudad ? ' · ' + esc(j.ciudad) : ''}</b>
       <small>${j.ya ? 'Esta web ya tenía demo' : `Hecha en ${segs(j.segundos || 0)} · ${String(j.centimos || 0).replace('.', ',')} céntimos`}</small></div>
@@ -459,7 +465,7 @@ function cajaCrearDemo() {
     const web = inp.value.trim(); if (!web) { inp.focus(); return; }
     btn.disabled = true;
     try {
-      const r = await fetch(BASE, { method: 'POST', credentials: 'same-origin', headers: { 'Accept': 'application/json' }, body: new URLSearchParams({ action: 'demo_manual', csrf: S.csrf, web }) });
+      const r = await fetch(BASE, { method: 'POST', credentials: 'same-origin', headers: { 'Accept': 'application/json' }, body: new URLSearchParams({ action: 'demo_manual', csrf: S.csrf, web, autor }) });
       if (r.status === 401) { location.reload(); return; }
       const j = await r.json().catch(() => ({ ok: false }));
       if (!j.ok) throw new Error(j.error || 'No se ha podido empezar.');
