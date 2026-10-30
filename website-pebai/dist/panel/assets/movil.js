@@ -66,4 +66,8 @@ const copiaN = () => {
 };
 const cn = $('#pb-conv-n'); if (cn) new MutationObserver(copiaN).observe(cn, { childList: true, characterData: true, subtree: true });
 copiaN();
+// En la hoja, los contadores a 0 o vacíos no se enseñan (solo distraen)
+const ceros = () => nav.querySelectorAll('button em').forEach((e) => { const t = e.textContent.trim(); e.toggleAttribute('data-cero', !t || t === '0' || t === '—'); });
+nav.querySelectorAll('button em').forEach((e) => new MutationObserver(ceros).observe(e, { childList: true, characterData: true, subtree: true }));
+ceros();
 })();
