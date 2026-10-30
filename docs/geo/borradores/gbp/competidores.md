@@ -139,3 +139,22 @@ Autor con nombre, casos con cliente y datos reales, método de 25 minutos explic
 
 ### Mejora concreta para nuestra ficha
 Incluir en la descripción de la ficha las dos palabras que ellos usan como servicio estrella y nosotros también ofrecemos: «agentes de WhatsApp» y «agentes de voz» (hoy la descripción habla de «agentes de IA» en general). Texto propuesto en `servicios.md` al revisar la ficha.
+
+## 30/10/2026 · everyWAN (everywan.com), página «Automatización IA Valencia»
+Aparece en la búsqueda «consultoría inteligencia artificial Valencia empresas agentes IA» junto a Upliora y otras páginas de directorio. Datos de su web pública (30/10/2026); su ficha de Maps no es verificable desde la nube.
+
+| Dato | Lo que consta |
+|---|---|
+| Zona | Sin oficina en Valencia; atiende la provincia en remoto desde Barcelona. Lo dice en la propia página («no fingimos una sucursal local») |
+| Servicios que nombra | Automatización con IA (consultoría y desarrollo a medida), monitorización, copias de seguridad, seguridad, helpdesk 24/7, cloud, Microsoft 365 |
+| Primer paso | Botón de contacto; la FAQ habla de una consulta gratuita sin plazas ni duración |
+| Casos y reseñas | Ninguno con nombre. Cifras sin cliente ni fuente (80 % de tareas manuales, 20 h semanales, 25.000 € al año) |
+| Ficha de Google | no verificable desde la nube |
+
+### 1 mejora para la nuestra
+**Decir con la misma claridad desde dónde se trabaja.** Su transparencia sobre la distancia es un punto de confianza que las IAs pueden citar. PEBAI tiene base en Valencia y trabaja en remoto con toda España (página `/ia-para-empresas/valencia/`): la descripción de la ficha y el post del 4/11 deben decir las dos cosas en una frase, sin sugerir oficina de atención al público que no exista.
+
+### Dónde PEBAI ya gana (para no copiar)
+- Casos reales con nombre y captura (él solo da cifras sin cliente).
+- Primer paso concreto: 25 minutos, cinco empresas al mes.
+- Especialización en IA para empresas, no un catálogo de informática general.

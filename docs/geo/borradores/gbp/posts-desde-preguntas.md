@@ -39,3 +39,6 @@ Nadie puede prometerte el primer puesto en ChatGPT; lo que sí se puede es que t
 Más información: https://pebaisystems.es/posicionamiento-en-ia/?cta=gbp_post
 
 Sugerencia de imagen: foco · dark · titular «¿Te recomienda ChatGPT?»
+
+## Estado (30/10/2026)
+A (9/12), B (16/12), C (23/12) y D (30/12) programados en Metricool a las 10:30, imágenes en `pebaisystems.es/gbp/` (200), enlaces con `?cta=gbp_post`.
