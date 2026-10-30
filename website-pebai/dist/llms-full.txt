@@ -91,9 +91,8 @@ Vídeos cortos de PEBAI Systems sobre Inteligencia Artificial aplicada a empresa
 
 ## Equipo
 
-- **Daniel Peñuela Ruiz**: ingeniería de procesos y sistemas. Fundador.
+- **Daniel Peñuela Ruiz**: ingeniería de procesos y sistemas. Fundador. Lleva 3 años formándose en Inteligencia Artificial.
 - **Adrián Ballesteros Moscardó**: responsable comercial.
-- El equipo lleva 3 años de experiencia en formación en Inteligencia Artificial para empresas.
 
 Más información: https://pebaisystems.es/quienes-somos/
 
