@@ -2,6 +2,17 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-30 (Vigía: ficha de sector reformas y construcción)
+
+Sin novedades de buscadores que cambien algo. Comprobación técnica: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot (30/10).
+
+**Ficha nueva:** `docs/geo/sectores/reformas-construccion.md` (preguntas con URL, hueco frente a Habitissimo/Upliora, medios y asociaciones con contacto, datos Andimac y Alimarket, leyes del BOE, esquema de la vertical). Cerrada la verificación pendiente del 29/10: BOE-A-2026-6544 abierto [V]. Autoconsumo: 10 % (20 % en edificio residencial), base 5.000 €/año, instalación acabada en 2026, pago bancario y CIE. Eficiencia energética: 20 % / 40 %, obras hasta el 31/12/2026 y certificado antes del 1/01/2027. Corrección: «9.100 €» no es la reforma integral (Andimac: unos 32.000 €); es la cocina.
+
+*Para el Jefe:*
+1. **Contenido: en la vertical de reformas y en la de instaladoras, sección «deducciones de 2026 y por qué manda el plazo».** Dato: DA 50.ª y 62.ª de la Ley del IRPF según RDL 7/2026 (BOE 21/03/2026): obra terminada y certificada antes del 1/01/2027. Ninguna guía de reformas que salió liga el plazo con responder el mismo día. Citar solo porcentajes de esta ficha.
+2. **Medición/Observatorio: estudio propio de captación de empresas de reformas (WhatsApp visible, formulario, reservas, reseñas por provincia).** Dato: Andimac da 1,9 M de reformas y el gasto, y Alimarket facturación de 66 especialistas; ninguno mide cómo captan. Destino: Interempresas (colaboraciones editoriales) y Andimac, con aprobación de Daniel.
+3. **Refresco: corregir en cualquier texto la cifra «9.100 € reforma integral».** Dato: Interempresas, 31/03/2026: integral ~32.000 €, cocina 9.100 €. Grep en `dist/` y borradores.
+
 ## 2026-10-29 (Vigía: ficha de sector energía solar)
 
 Sin novedades de buscadores que cambien algo (hoy no se buscó: tema de sector). Comprobación técnica: no repetida hoy, sin cambios desde el 28/10.

@@ -46,3 +46,6 @@ Idea de estudio propia: el buscador de PEBAI mide el uso real de WhatsApp, formu
 
 ## 6. Propuestas derivadas
 Ver «Para el Jefe» en `.claude/skills/geo-pebai/references/novedades.md`, entrada del 29/10/2026.
+
+## Verificación BOE (30/10/2026) [V]
+BOE-A-2026-6544 (RDL 7/2026), DA 62.ª Ley IRPF: 10 % de lo pagado en 2026 (vivienda propia) y 20 % si es propietario en edificio de uso predominante residencial; base máxima 5.000 €/año; instalación terminada en 2026; pago por tarjeta, transferencia, cheque nominativo o ingreso (no efectivo); se descuentan subvenciones; hace falta CIE. Incompatible con la DA 50.ª para la misma instalación. No aplica si el sistema está afecto a una actividad económica. Ya se pueden citar estos porcentajes. Informe Anual UNEF 2026 en PDF: sigue sin abrir.
