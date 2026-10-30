@@ -30,3 +30,4 @@ PEBAI es una consultora de procesos e IA para empresas de todos los sectores. La
 15. Consultora de IA para empresas en Madrid
 
 Añadidos: 16. (26/10/2026) Agencia GEO generative engine optimization en España (variante de la 7: «GEO» a secas devuelve geoespacial)
+Añadidos (30/10/2026, encargo de Daniel del 29/10, variantes locales): 17. Recomiéndame consultoras de IA en Valencia · 18. ¿Qué empresa de Valencia implanta agentes de IA conectados a un CRM? · 19. Consultora de inteligencia artificial en Valencia para pymes
