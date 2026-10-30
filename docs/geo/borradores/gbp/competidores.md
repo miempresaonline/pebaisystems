@@ -158,3 +158,21 @@ Aparece en la búsqueda «consultoría inteligencia artificial Valencia empresas
 - Casos reales con nombre y captura (él solo da cifras sin cliente).
 - Primer paso concreto: 25 minutos, cinco empresas al mes.
 - Especialización en IA para empresas, no un catálogo de informática general.
+
+## 30/10/2026 · BRACAI (bracai.eu)
+Salía en la búsqueda de agentes de IA en Valencia, pero su web no menciona Valencia: la sede es Barcelona (trabaja en España y Noruega, presencial u online). New Tech Vision no tiene web ni ubicación localizable (solo un fragmento de un directorio), por eso no se analiza. Datos de su web pública (30/10/2026); su ficha de Maps no es verificable desde la nube.
+
+| Dato | Lo que consta |
+|---|---|
+| Zona | Barcelona; sin presencia declarada en Valencia |
+| Servicios | Talleres de IA (11, de 3 a 8 h), soluciones y agentes de IA para un proceso concreto, estrategia de IA |
+| Primer paso | Enviar un correo; taller introductorio desde 480 € por grupo (no copiar precios en páginas públicas) |
+| Casos y reseñas | Logos de participantes en talleres y 2 testimonios con nombre; 45 talleres y valoración 9,2/10 (cifras suyas, sin fuente externa) |
+| Ficha de Google | no verificable desde la nube |
+
+### 1 mejora para la nuestra (no exige a Daniel)
+**Dejar claro en la ficha que los agentes de IA son un servicio de proyecto, no un taller.** BRACAI mezcla formación y agentes; PEBAI implanta y conecta al CRM. Añadir en la descripción de cada servicio de `servicios.md` la frase «conectado a vuestro CRM y a vuestros programas» (ya sale en las preguntas 13-15 nuevas de `preguntas-ficha.md`). Pasos para Daniel si lo pega él: Ficha › Editar servicios.
+
+### Dónde PEBAI ya gana
+- Valencia: BRACAI no compite por la zona.
+- Casos con nombre, captura y cifras fechadas.
