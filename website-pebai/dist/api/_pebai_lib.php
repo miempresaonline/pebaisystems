@@ -740,7 +740,7 @@ function pebai_email_icon_row(string $icon, string $label, string $value, bool $
  * Aviso al equipo: solo la empresa y un botón al panel (allí está toda la ficha).
  * Sin imágenes: el webmail de Hostinger bloquea las externas y enseña las incrustadas como adjuntos.
  */
-const PEBAI_DECISOR = ['si' => 'Sí, lo decide él', 'varios' => 'Lo deciden entre varios', 'otro' => 'Lo decide otra persona', 'no' => 'No'];
+const PEBAI_DECISOR = ['si' => 'Sí, decide quien escribe', 'varios' => 'Lo deciden entre varios', 'otro' => 'Lo decide otra persona', 'no' => 'No'];
 
 /** Filas «Lo que les quita tiempo / Web / ¿Decide?» del email de una solicitud. */
 function pebai_lead_email_bloque(array $lead): string
