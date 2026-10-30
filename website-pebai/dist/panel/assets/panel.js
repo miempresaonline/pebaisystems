@@ -225,47 +225,7 @@ function drawResumen(p) {
   tk.append('En ' + nombre + ': ', Object.assign(el('b'), { textContent: N(r.total) + ' solicitudes' }), ', ', Object.assign(el('b'), { textContent: N(r.citas) + ' citas' }), ' y ', Object.assign(el('b'), { textContent: N(r.clientes) + ' clientes' }), '. ');
   if (worst && worst.perdida > 0) tk.append('Donde más se pierde es entre ' + PASOS[worst.orden - 1].toLowerCase() + ' y ' + worst.paso.toLowerCase() + ': ', Object.assign(el('b'), { textContent: '−' + pct(worst.perdida) }), '.');
   else if (!r.total) tk.append('Todavía no hay solicitudes en este periodo.');
-  pintaPlazas($('#pb-plazas')); drawPendientes(); drawSpark(dia); drawFunnel(emb); drawRitmo(p, dia); drawOrigen(p); drawAgenda($('#pb-proximas-mini'), 'proximas', 5);
-}
-
-function pendientes() {
-  const H = 3600000, out = [];
-  const nuevas = S.leads.filter((l) => l.estado === 'nuevo');
-  const tarde = nuevas.filter((l) => S.ahora - parse(l.created_at) > 24 * H);
-  if (nuevas.length) out.push({ nivel: tarde.length ? 'bad' : 'new', n: nuevas.length, t: nuevas.length === 1 ? 'solicitud sin revisar' : 'solicitudes sin revisar',
-    d: tarde.length ? tarde.length + ' con más de 24 h: prometimos WhatsApp en 24 h' : 'Ábrelas para pasarlas a En revisión', ids: nuevas.map((l) => l.id), go: { estado: 'nuevo' } });
-  const sinReserva = S.leads.filter((l) => l.estado === 'contactado' && l.enlace_at && S.ahora - parse(l.enlace_at) > 48 * H);
-  if (sinReserva.length) out.push({ nivel: 'warn', n: sinReserva.length, t: 'con enlace enviado y sin reservar', d: 'Más de 48 h: toca el mensaje de seguimiento', ids: sinReserva.map((l) => l.id), go: { estado: 'contactado' } });
-  const atascadas = S.leads.filter((l) => l.estado === 'contactado' && !l.enlace_at && S.ahora - parse(l.visto_at || l.created_at) > 48 * H);
-  if (atascadas.length) out.push({ nivel: 'warn', n: atascadas.length, t: 'en revisión sin decisión', d: 'Más de 48 h sin enviar enlace ni descartar', ids: atascadas.map((l) => l.id), go: { estado: 'contactado' } });
-  const revisar = S.leads.filter((l) => l.canal_revisar === '1');
-  if (revisar.length) out.push({ nivel: 'warn', n: revisar.length, t: revisar.length === 1 ? 'canal por revisar' : 'canales por revisar',
-    d: 'Los utm y la respuesta del formulario no cuadran, o falta saber de quién es: confírmalo en la ficha', ids: revisar.map((l) => l.id), go: { canal: 'revisar' } });
-  const cl = citasClasificadas();
-  const hoy = cl.filter((c) => c.tramo === 'proximas' && c.d.toDateString() === new Date().toDateString());
-  if (hoy.length) out.push({ nivel: 'ok', n: hoy.length, t: hoy.length === 1 ? 'sesión hoy' : 'sesiones hoy', d: hoy.map((c) => pad(c.d.getHours()) + ':' + pad(c.d.getMinutes()) + ' ' + (c.lead ? c.lead.empresa : c.nombre)).join(' · '), page: 'citas' });
-  const auto = cl.filter((c) => c.asistencia === 'auto');
-  if (auto.length) out.push({ nivel: 'info', n: auto.length, t: auto.length === 1 ? 'sesión marcada sola' : 'sesiones marcadas solas', d: 'Confirma que asistieron o marca No se presentó', page: 'citas' });
-  const sueltas = cl.filter((c) => c.tramo === 'sin_vincular');
-  if (sueltas.length) out.push({ nivel: 'warn', n: sueltas.length, t: sueltas.length === 1 ? 'reserva sin solicitud' : 'reservas sin solicitud', d: 'No se pudieron unir solas: escribe su número', page: 'citas' });
-  return out;
-}
-function drawPendientes() {
-  const box = $('#pb-pendientes'), list = $('#pb-pend-list'); list.replaceChildren();
-  const items = pendientes();
-  box.classList.toggle('clear', !items.length);
-  if (!items.length) { list.append(el('div', 'pb-pend-ok', 'Todo al día. Nada pendiente ahora mismo.')); return; }
-  items.forEach((it, i) => {
-    const b = el('button', 'pb-pend ' + it.nivel + ' pb-anim'); b.type = 'button'; b.style.setProperty('--i', i);
-    const n = el('b', 'n', N(it.n)); const tx = el('div'); tx.append(el('div', 't', it.t), el('div', 'd', it.d));
-    b.append(n, tx, el('span', 'go', '→'));
-    b.addEventListener('click', () => {
-      if (it.ids && it.ids.length === 1) { openDetail(it.ids[0]); return; }
-      if (it.go) { Object.assign(ui, { estado: null, fuente: null, opcion: null, canal: null, q: null }, it.go); showPage('solicitudes'); return; }
-      showPage(it.page);
-    });
-    list.append(b);
-  });
+  drawSpark(dia); drawFunnel(emb); drawRitmo(p, dia); drawOrigen(p); drawAgenda($('#pb-proximas-mini'), 'proximas', 5);
 }
 
 /* ============ avisos en directo ============ */
@@ -496,6 +456,8 @@ function drawAgenda(box, tramo, limit) {
 /* ============ ficha de la solicitud ============ */
 const SVGNS = 'http://www.w3.org/2000/svg';
 const ICONS = window.PB_ICONS || { brands: {}, ui: {} };
+// «Directo» (escribió la dirección o entró desde un favorito): una flecha centrada, más limpia que el globo
+ICONS.ui.directo = 'p:M7 17 17 7|p:M9 7h8v8';
 const icon = (name, cls) => {
   const svg = document.createElementNS(SVGNS, 'svg'); svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('class', 'pb-i' + (cls ? ' ' + cls : ''));
   (ICONS.ui[name] || ICONS.ui.globe || '').split('|').forEach((part) => {
@@ -521,7 +483,7 @@ const ORIGEN = (raw) => {
     [/whatsapp|^wa$/, 'whatsapp'], [/mail|newsletter/, 'gmail']];
   const hit = alias.find(([re]) => re.test(s));
   if (hit) return { key: hit[1], ...ICONS.brands[hit[1]] };
-  if (!s || s === 'directo' || s === '(direct)' || s === 'desconocido') return { key: '', label: 'Directo', bg: 'linear-gradient(135deg,#6A5CFF,#7E73FF)', ui: 'globe' };
+  if (!s || s === 'directo' || s === '(direct)' || s === 'desconocido') return { key: '', label: 'Directo', bg: 'linear-gradient(135deg,#2E3350,#4A5078)', ui: 'directo' };
   return { key: '', label: s === 'bing' ? 'Bing' : s.charAt(0).toUpperCase() + s.slice(1), bg: 'linear-gradient(135deg,#3A404D,#5A6172)', ui: 'globe' };
 };
 const MEDIO = (m) => ({ social: 'Publicación en redes', organic: 'Búsqueda orgánica', cpc: 'Anuncio', paid: 'Anuncio', ads: 'Anuncio', ppc: 'Anuncio', referral: 'Enlace desde otra web', video: 'Vídeo', email: 'Email', bio: 'Enlace de la bio', dm: 'Mensaje directo', story: 'Historia', comment: 'Comentario' })[String(m || '').toLowerCase()] || m || '';
@@ -741,6 +703,7 @@ function draw() {
   if (!S.loaded) return;
   // El resumen de toda la app lo pinta global.js; el análisis del formulario vive en Solicitudes
   if (ui.page === 'solicitudes') { drawResumen(ui.periodo); drawSolicitudes(); }
+  if (ui.page === 'resumen') pintaPlazas($('#pb-plazas-resumen'));   // plazas gratis del mes, en el Resumen (30/10)
   if (ui.page === 'clientes') drawClientes();
   if (ui.page === 'citas') { pintaPlazas($('#pb-plazas-citas')); drawAgenda($('#pb-proximas'), 'proximas'); drawAgenda($('#pb-pasadas'), 'pasadas'); drawAgenda($('#pb-sinvincular'), 'sin_vincular'); }
   drawDetalle();

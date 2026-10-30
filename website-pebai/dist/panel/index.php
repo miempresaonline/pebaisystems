@@ -613,7 +613,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '125';
+$v = '126';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -744,6 +744,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 
   <section class="pb-page" id="page-resumen" data-page="resumen">
     <h1 class="pb-h1">PEBAI, <i>de un vistazo</i></h1>
+    <div class="pb-plazas" id="pb-plazas-resumen"></div>
     <div id="pb-global" class="pg"></div>
   </section>
 
@@ -765,11 +766,6 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
     <div class="pb-chips" id="pb-chips"></div>
     <div class="pb-list" id="pb-leads"></div>
     <div class="pb-sol-abajo">
-    <div class="pb-card pb-pendientes pb-anim" id="pb-pendientes" style="--i:0;margin:22px 0 14px">
-      <div class="hd"><div><h2>Qué toca ahora</h2></div></div>
-      <div class="pb-pend-list" id="pb-pend-list"></div>
-    </div>
-    <div class="pb-plazas" id="pb-plazas"></div>
     <details class="pb-analisis" id="pb-analisis">
       <summary><b>Análisis de las solicitudes</b><span>Embudo, ritmo de entrada y de dónde vienen · periodo de arriba</span></summary>
       <p class="pb-lead" id="pb-takeaway">—</p>
@@ -792,7 +788,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
         <div class="pb-legend"><span><i style="background:var(--violet)"></i>Solicitudes</span><span><i style="background:var(--lime)"></i>Con presupuesto</span></div>
       </div>
     </div>
-    <div class="pb-grid two">
+    <div class="pb-grid pb-uno">
       <div class="pb-card pb-anim" style="--i:8">
         <div class="hd"><div><h2>De dónde vienen</h2><p class="note">Origen de cada solicitud en el periodo. Pulsa una fila para ver sus solicitudes.</p></div>
           <div class="pb-subtabs" id="pb-dim"><button data-d="fuente" class="on" type="button">Fuente · medio</button><button data-d="campana" type="button">Campaña</button><button data-d="palabra" type="button">Palabra</button><button data-d="canal" type="button">Canal · dueño</button></div></div>

@@ -77,3 +77,4 @@
 .pb-borrar{margin-top:22px}
 /* en el móvil, el periodo y el CSV (solo cuentan para el análisis de abajo) no empujan la lista */
 @media (max-width:960px){body[data-page=solicitudes] .pb-top .pb-only-embudo{display:none}}
+.pb-grid.pb-uno{grid-template-columns:1fr}
