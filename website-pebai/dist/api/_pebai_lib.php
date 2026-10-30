@@ -740,6 +740,8 @@ function pebai_email_icon_row(string $icon, string $label, string $value, bool $
  * Aviso al equipo: solo la empresa y un botón al panel (allí está toda la ficha).
  * Sin imágenes: el webmail de Hostinger bloquea las externas y enseña las incrustadas como adjuntos.
  */
+const PEBAI_DECISOR = ['si' => 'Sí, lo decide él', 'varios' => 'Lo deciden entre varios', 'otro' => 'Lo decide otra persona', 'no' => 'No'];
+
 /** Filas «Lo que les quita tiempo / Web / ¿Decide?» del email de una solicitud. */
 function pebai_lead_email_bloque(array $lead): string
 {
@@ -753,7 +755,7 @@ function pebai_lead_email_bloque(array $lead): string
         $filas[] = ['Web', 'No tienen web'];
     }
     if (($lead['decisor'] ?? '') !== '') {
-        $filas[] = ['¿Decide?', $lead['decisor'] === 'si' ? 'Sí' : 'No'];
+        $filas[] = ['¿Decide?', PEBAI_DECISOR[$lead['decisor']] ?? $lead['decisor']];
     }
     if (!$filas) {
         return '';
@@ -814,7 +816,7 @@ function pebai_lead_email(array $lead, int $id): array
     $text = "Nueva solicitud: {$lead['empresa']} ($etiqueta)\n"
         . (($lead['problema'] ?? '') !== '' ? "Lo que les quita tiempo: {$lead['problema']}\n" : '')
         . (($lead['web'] ?? '') !== '' ? "Web: {$lead['web']} (análisis en marcha, sale en el panel)\n" : '')
-        . (($lead['decisor'] ?? '') !== '' ? 'Decide: ' . ($lead['decisor'] === 'si' ? 'sí' : 'no') . "\n" : '')
+        . (($lead['decisor'] ?? '') !== '' ? 'Decide: ' . (PEBAI_DECISOR[$lead['decisor']] ?? $lead['decisor']) . "\n" : '')
         . ($canal !== '' ? "Canal: $canal" . (!empty($lead['canal_revisar']) ? ' (revisar)' : '') . "\n" : '')
         . "\nVer en el panel: $panel\n";
     $subject = 'Nueva solicitud: ' . $lead['empresa'] . ($qualified ? ' · con presupuesto' : '');

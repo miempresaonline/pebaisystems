@@ -89,7 +89,7 @@ $opcion = strtoupper($str($data['opcion'] ?? '', 1));
 require_once __DIR__ . '/_analizar_lib.php';
 $web = pebai_web_normal($str($data['web'] ?? '', 200));
 $problema = $str($data['problema'] ?? '', 1000);
-$decisor = in_array($data['decisor'] ?? '', ['si', 'no'], true) ? $data['decisor'] : '';
+$decisor = in_array($data['decisor'] ?? '', ['si', 'varios', 'otro', 'no'], true) ? $data['decisor'] : '';   // si = lo decide él, varios = entre varios, otro = otra persona
 $lead = [
     'created_at' => date('Y-m-d H:i:s'),
     'empresa' => $empresa,

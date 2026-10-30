@@ -684,7 +684,7 @@ function drawDetalle() {
     else if (l.analisis_estado) wx = el('small', null, l.analisis_estado === 'trabajando' ? 'Analizando su web…' : 'Análisis ' + l.analisis_estado);
     ans('Web', wv, l.web ? l.web.replace(/^https?:\/\//, '').replace(/\/$/, '') : 'No tienen web', wx);
   }
-  if (l.decisor) { const dv = el('span', 'pb-ico' + (l.decisor === 'si' ? ' lime' : '')); dv.append(icon('user')); ans('¿Decide?', dv, l.decisor === 'si' ? 'Sí, decide' : 'No decide'); }
+  if (l.decisor) { const dv = el('span', 'pb-ico' + (l.decisor === 'si' ? ' lime' : '')); dv.append(icon(l.decisor === 'varios' ? 'users' : 'user')); ans('¿Decide?', dv, { si: 'Sí, lo decide él', varios: 'Entre varios', otro: 'Otra persona', no: 'No decide' }[l.decisor] || l.decisor); }
   if (l.equipo) { const eq = el('span', 'pb-ico'); eq.append(icon('users')); ans('Personas en la empresa', eq, l.equipo); }
   if (l.canal) ans('Sus clientes llegan por', canalVis, l.canal);
   const meter = el('span', 'pb-meter'); [1, 2, 3].forEach((n) => meter.append(el('i', n <= r.nivel ? 'on' : ''))); if (!r.nivel) { meter.replaceChildren(); meter.className = 'pb-ico'; meter.append(icon('bars')); }
