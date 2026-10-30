@@ -206,6 +206,8 @@ function tarjetaAjustes() {
   const f1 = el('form', 'pe-form');
   f1.append(field('Tope de emails al día (máx. 50)', input('limite_max', c.limite_max, { type: 'number', min: 0, max: 50 })),
     field('Horario (lun–vie)', input('ventanas', (c.ventanas || []).map((v) => v.join('-')).join(', '))),
+    field('Formulario de su web (empresas sin móvil)', input('formularios', '1', { type: 'checkbox', checked: !!c.formularios })),
+    field('% por formulario (el resto por email)', input('form_pct', c.form_pct ?? 60, { type: 'number', min: 0, max: 100 })),
     el('p', 'note', `La subida es automática: ${S.escalones.join(' → ')} al día, un escalón por semana si la anterior salió limpia (rebotes < 2 %, sin quejas). Nada en agosto, del 20/12 al 7/1, Semana Santa ni festivos.`));
   const b1 = btn('primary', 'Guardar'); b1.type = 'submit'; f1.append(b1);
   f1.addEventListener('submit', (e) => { e.preventDefault(); accion('email_ajustes', new FormData(f1), 'Ajustes guardados.', b1); });

@@ -22,6 +22,7 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
     exit;
 }
 require_once __DIR__ . '/_agentes_lib.php';
+require_once __DIR__ . '/_formularios_lib.php'; // 60 % de las empresas sin móvil van por el formulario de su web
 require_once __DIR__ . '/_actividad_lib.php'; // cada decisión del agente queda apuntada (Automático › Agentes)
 
 const PEBAI_EMAIL_ESTADOS = ['pendiente', 'enviado', 'recordado', 'respondio', 'interesado', 'baja', 'rebote', 'descartado', 'error'];
@@ -58,6 +59,9 @@ const PEBAI_EMAIL_CONFIG = [
     'dias' => [1, 2, 3, 4, 5],
     'pausa_min' => 180,
     'recordatorio_dias' => 3,
+    // Formulario de contacto de la web (30/10): apagado hasta que Daniel lo active; form_pct = % de primeros contactos por formulario.
+    'formularios' => 0,
+    'form_pct' => 60,
     'plantilla' => PEBAI_EMAIL_PLANTILLA,
     'recordatorio' => PEBAI_EMAIL_RECORDATORIO,
     'asuntos' => PEBAI_EMAIL_ASUNTOS,
@@ -128,7 +132,7 @@ function pebai_email_db(): PDO
         )');
         // Textos escritos a mano para cada empresa (20/10: el chat principal los escribe y salen tal cual, sin fichas).
         $cols = array_column($db->query('PRAGMA table_info(email_prospectos)')->fetchAll(), 'name');
-        foreach (['asunto_personal', 'cuerpo_personal', 'asunto_recordatorio', 'cuerpo_recordatorio'] as $col) {
+        foreach (['asunto_personal', 'cuerpo_personal', 'asunto_recordatorio', 'cuerpo_recordatorio', 'via', 'form_url'] as $col) {
             if (!in_array($col, $cols, true)) {
                 $db->exec("ALTER TABLE email_prospectos ADD COLUMN $col TEXT NOT NULL DEFAULT ''");
             }
@@ -593,7 +597,7 @@ function pebai_email_siguiente(array $cfg): ?array
 {
     $db = pebai_email_db();
     // Recordatorios: a los de texto personal solo si su recordatorio está escrito.
-    $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'enviado' AND paso = 1 AND respondido_at = '' AND (no_antes = '' OR no_antes <= ?)
+    $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'enviado' AND paso = 1 AND via <> 'form' AND respondido_at = '' AND (no_antes = '' OR no_antes <= ?)
                        AND (cuerpo_personal = '' OR cuerpo_recordatorio <> '') ORDER BY enviado1_at LIMIT 30");
     $q->execute([date('Y-m-d H:i:s')]);
     foreach ($q->fetchAll() as $p) {
@@ -710,6 +714,9 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
             $db->prepare('UPDATE email_prospectos SET estado = ?, error = ?, updated_at = ? WHERE id = ?')->execute([$estado, implode('; ', $qa), $now, $p['id']]);
             continue;
         }
+        if ($paso === 1 && ($r = pebai_email_por_formulario($p, $msg, $cfg, $b)) !== '') {
+            return $r;
+        }
         if ($p['token'] === '') {
             $p['token'] = bin2hex(random_bytes(16));
             $db->prepare('UPDATE email_prospectos SET token = ? WHERE id = ?')->execute([$p['token'], $p['id']]);
@@ -726,7 +733,7 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
             return 'error al enviar: ' . $m;
         }
         if ($paso === 1) {
-            $db->prepare("UPDATE email_prospectos SET estado = 'enviado', paso = 1, asunto = ?, msgid = ?, enviado1_at = ?, error = '', updated_at = ? WHERE id = ?")
+            $db->prepare("UPDATE email_prospectos SET estado = 'enviado', paso = 1, via = 'email', asunto = ?, msgid = ?, enviado1_at = ?, error = '', updated_at = ? WHERE id = ?")
                ->execute([$msg['asunto'], $msgid, $now, $now, $p['id']]);
             if ($cfg['escalon_desde'] === '') {
                 pebai_email_cfg_guardar(['escalon_desde' => date('Y-m-d')]);
@@ -741,6 +748,52 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
         return 'enviado (' . ($paso === 1 ? 'primer email' : 'recordatorio') . ') a ' . $p['email'];
     }
     return 'varios prospectos descartados por la comprobación previa';
+}
+
+/** ¿Toca formulario? Mantiene el reparto form_pct / resto en los primeros contactos de los últimos 30 días. */
+function pebai_email_toca_formulario(array $cfg): bool
+{
+    if (empty($cfg['formularios'])) {
+        return false;
+    }
+    $q = pebai_email_db()->prepare("SELECT SUM(via = 'form'), SUM(via = 'email') FROM email_prospectos WHERE paso >= 1 AND enviado1_at >= ?");
+    $q->execute([date('Y-m-d H:i:s', strtotime('-30 days'))]);
+    [$f, $e] = array_map('intval', $q->fetch(PDO::FETCH_NUM) ?: [0, 0]);
+    return $f + $e === 0 || $f / ($f + $e) < max(0, min(100, (int)$cfg['form_pct'])) / 100;
+}
+
+/**
+ * Primer contacto por el formulario de su web si toca y la web lo permite. Devuelve '' si no se ha usado
+ * (entonces sale por email, como siempre) o la descripción del envío.
+ */
+function pebai_email_por_formulario(array $p, array $msg, array $cfg, array $b): string
+{
+    if (trim((string)$p['web']) === '' || !pebai_email_toca_formulario($cfg)) {
+        return '';
+    }
+    $texto = preg_replace('/Tu (email|correo) lo saqu[ée][^.\n]*\.\s*/u', '', $msg['texto']);
+    $datos = ['nombre' => 'Daniel', 'empresa' => 'PEBAI Systems', 'email' => $b['user'], 'telefono' => '624842799', 'asunto' => $msg['asunto'] ?: 'Consulta', 'texto' => $texto];
+    $empresa = $p['empresa'] ?: $p['email'];
+    try {
+        $r = pebai_form_enviar((string)$p['web'], $datos);
+    } catch (Throwable $e) {
+        $r = ['ok' => false, 'motivo' => 'error: ' . $e->getMessage(), 'url' => (string)$p['web'], 'tipo' => ''];
+    }
+    $db = pebai_email_db();
+    if (!$r['ok']) {
+        pebai_actividad('email', 'bloqueo', 'Formulario de ' . $empresa . ' no usable: va por email', ($r['url'] ?: $p['web']) . "\nMotivo: " . $r['motivo'], 'email:' . $p['id']);
+        return '';
+    }
+    $now = date('Y-m-d H:i:s');
+    $db->prepare("UPDATE email_prospectos SET estado = 'enviado', paso = 1, via = 'form', form_url = ?, asunto = ?, enviado1_at = ?, error = '', updated_at = ? WHERE id = ?")
+       ->execute([$r['url'], $msg['asunto'], $now, $now, $p['id']]);
+    $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto) VALUES (?, 'email', ?, ?, 'sale', ?)")
+       ->execute([$now, $p['id'], $p['email'], "📝 Por el formulario de su web (" . $r['url'] . ")\nAsunto: " . $msg['asunto'] . "\n\n" . $texto]);
+    pebai_actividad('email', 'envio', 'Formulario web de ' . $empresa, $r['url'] . ' · ' . $r['tipo'] . ' · ' . $r['motivo'] . "\nAsunto: " . $msg['asunto'] . "\n\n" . $texto, 'email:' . $p['id']);
+    if ($cfg['escalon_desde'] === '') {
+        pebai_email_cfg_guardar(['escalon_desde' => date('Y-m-d')]);
+    }
+    return 'enviado por formulario a ' . $empresa . ' (' . $r['url'] . ')';
 }
 
 /** Sube un escalón si lleva ≥ 7 días en el actual y la semana salió limpia (rebotes < 2 %, sin quejas ni frenos). */
