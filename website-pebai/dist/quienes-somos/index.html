@@ -1744,6 +1744,14 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
   .hero9 .h6-logos .h6-lg{width:96px}
 }
 .hero9 .h6-logos li:first-child .h6-lg img{height:26px}
+/* quiénes somos: lo que nos diferencia como equipo */
+.qs-dif{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px;margin-top:72px}
+.qs-dif li{padding-top:20px;border-top:1px solid var(--fg-10)}
+.qs-dif b{display:block;font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--fg)}
+.qs-dif p{margin-top:10px;font-size:14px;line-height:1.6;color:var(--fg-65)}
+.qs .qs-nums{margin-top:64px}
+@media (max-width:1100px){.qs-dif{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 32px}}
+@media (max-width:820px){.qs-dif{grid-template-columns:minmax(0,1fr);gap:22px;margin-top:48px}.qs .qs-nums{margin-top:44px}}
 
 </style>
 <!-- Metricool: medición de audiencia sin cookies (exenta de consentimiento, ver /politica-de-cookies/) -->
@@ -1879,26 +1887,25 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
 <section class="pg-hero qs-hero">
   <div class="wrap">
     <p class="eyebrow">Quiénes somos</p>
-    <h1 class="serif h1 pg-title">Un equipo de ingeniería <em>con criterio.</em></h1>
-    <p class="p pg-sub">Consultoría de procesos e Inteligencia Artificial con base en València. Primero entendemos cómo trabaja tu empresa; después, construimos.</p>
+    <h1 class="serif h1 pg-title">Jóvenes, con ambición y con sistemas <em>que ya funcionan.</em></h1>
+    <p class="p pg-sub">Somos PEBAI Systems, una consultora de procesos e Inteligencia Artificial de València. Llevamos la IA de las demos al día a día de empresas reales.</p>
   </div>
 </section>
-
 <section class="section qs">
   <div class="wrap qs-grid">
     <div class="qs-txt reveal">
-      <p class="qs-lead serif">Si algo se resuelve sin Inteligencia Artificial, <em>te lo decimos claro.</em></p>
-      <p class="p">La Inteligencia Artificial no viene a sustituir a nadie. Bien aplicada, tu equipo rinde más y la empresa gasta menos. Por eso cada proyecto empieza igual: mirando cómo trabajáis hoy, dónde se pierde el tiempo y qué conviene cambiar primero.</p>
-      <p class="p">Somos un equipo joven y con ambición. Daniel lleva tres años formándose en Inteligencia Artificial y hoy se nota en los sistemas que usan nuestros clientes cada día.</p>
-      <p class="p">Construimos asistentes, agentes, aplicaciones y automatizaciones que ya usan empresas de España, Francia, Países Bajos y Bélgica, y lo contamos cada semana en redes.</p>
+      <p class="qs-lead serif">Tres años formándose en IA. <em>Hoy se nota en lo que construimos.</em></p>
+      <p class="p">Daniel lleva tres años formándose en Inteligencia Artificial: aprendiendo, probando cada herramienta nueva y separando lo que funciona de lo que es humo. Esa formación hoy está en sistemas que usan cada día una importadora de coches con 659 usuarios en su aplicación, una constructora que gestiona todas sus obras en un solo programa y una distribuidora industrial con sedes en cuatro países.</p>
+      <p class="p">Somos un equipo joven y con ambición: al otro lado del teléfono está quien construye tu sistema, y cada proyecto es nuestra mejor carta de presentación. <a href="/casos-de-exito/" style="text-decoration:underline;text-underline-offset:3px">Ver los casos de éxito</a></p>
     </div>
     <ul class="qs-team" data-drop>
-      <li><img src="/brand/home/dani-sm.webp?v=2" alt="Daniel Peñuela Ruiz" width="160" height="200" loading="lazy"><div><b>Daniel Peñuela Ruiz</b><small>Fundador · Ingeniería de procesos y sistemas · 3 años formándose en IA</small><a href="https://www.linkedin.com/in/daniel-pe%C3%B1uela-ruiz-a40294436/" target="_blank" rel="noopener">LinkedIn <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a></div></li>
-      <li><img src="/brand/home/adrian-v2-sm.webp" alt="Adrián Ballesteros Moscardó" width="160" height="200" loading="lazy"><div><b>Adrián Ballesteros Moscardó</b><small>Responsable comercial</small></div></li>
+      <li><img src="/brand/home/dani-sm.webp?v=2" alt="Daniel Peñuela Ruiz" width="160" height="200" loading="lazy"><div><b>Daniel Peñuela Ruiz</b><small>Fundador · Diseña y construye cada sistema · 3 años formándose en IA</small><a href="https://www.linkedin.com/in/daniel-pe%C3%B1uela-ruiz-a40294436/" target="_blank" rel="noopener">LinkedIn <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a></div></li>
+      <li><img src="/brand/home/adrian-v2-sm.webp" alt="Adrián Ballesteros Moscardó" width="160" height="200" loading="lazy"><div><b>Adrián Ballesteros Moscardó</b><small>Responsable comercial · Tu contacto desde la primera llamada</small></div></li>
     </ul>
   </div>
   <div class="wrap">
-    <ul class="qs-nums reveal"><li><b>3 años</b><span>de Daniel formándose en Inteligencia Artificial</span></li><li><b>4</b><span>países con clientes usando nuestros sistemas</span></li><li><b>659</b><span>usuarios en una sola de nuestras apps</span></li><li><b>&lt;24 h</b><span>en responder a cada solicitud</span></li></ul>
+    <ul class="qs-dif reveal"><li><b>Hablas con quien lo construye</b><p>Daniel diseña y programa cada sistema. Lo que se habla en la primera llamada no se pierde entre comerciales, jefes de proyecto y programadores que no conoces.</p></li><li><b>Al día de verdad</b><p>Daniel lleva tres años formándose en Inteligencia Artificial sin parar. Probamos cada novedad antes de recomendarla y solo te ofrecemos lo que ya funciona.</p></li><li><b>Rápidos</b><p>Un equipo joven y pequeño decide en el día. Respondemos a cada solicitud en menos de 24 horas y enseñamos avances cada semana.</p></li><li><b>Lo contamos en abierto</b><p>Cada semana explicamos en Instagram, TikTok y YouTube lo que hacemos y cómo lo hacemos. Antes de llamarnos ya sabes cómo trabajamos.</p></li></ul>
+    <ul class="qs-nums reveal"><li><b>3 años</b><span>de Daniel formándose en Inteligencia Artificial</span></li><li><b>659</b><span>usuarios en una sola de nuestras aplicaciones</span></li><li><b>4</b><span>países con empresas usando nuestros sistemas</span></li><li><b>&lt;24 h</b><span>en responder a cada solicitud</span></li></ul>
   </div>
 </section>
 <!-- CIERRE Y EQUIPO -->
@@ -1916,11 +1923,11 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
     </div>
     <div class="team reveal" style="--d:.08s">
       <p class="eyebrow">Quiénes estamos detrás</p>
-      <p class="team-t serif">Un equipo de ingeniería <em>con criterio.</em></p>
-      <p class="p">Si algo se resuelve sin Inteligencia Artificial, te lo decimos claro. <a href="/quienes-somos/" style="text-decoration:underline;text-underline-offset:3px">Conócenos</a></p>
+      <p class="team-t serif">Jóvenes, con ambición y con sistemas <em>que ya se usan cada día.</em></p>
+      <p class="p">Hablas directamente con quien lo construye: sin intermediarios ni promesas que luego hace otro. <a href="/quienes-somos/" style="text-decoration:underline;text-underline-offset:3px">Conócenos</a></p>
       <ul class="team-p">
-        <li><img src="/brand/home/dani-sm.webp?v=2" alt="Daniel Peñuela Ruiz" width="160" height="200" loading="lazy"><div><b>Daniel Peñuela Ruiz</b><small>Fundador · Ingeniería de procesos y sistemas · 3 años formándose en IA</small></div></li>
-        <li><img src="/brand/home/adrian-v2-sm.webp" alt="Adrián Ballesteros Moscardó" width="160" height="200" loading="lazy"><div><b>Adrián Ballesteros Moscardó</b><small>Responsable comercial</small></div></li>
+        <li><img src="/brand/home/dani-sm.webp?v=2" alt="Daniel Peñuela Ruiz" width="160" height="200" loading="lazy"><div><b>Daniel Peñuela Ruiz</b><small>Fundador · Diseña y construye cada sistema · 3 años formándose en IA</small></div></li>
+        <li><img src="/brand/home/adrian-v2-sm.webp" alt="Adrián Ballesteros Moscardó" width="160" height="200" loading="lazy"><div><b>Adrián Ballesteros Moscardó</b><small>Responsable comercial · Tu contacto desde la primera llamada</small></div></li>
       </ul>
       <div class="menu-social team-social">
         <a href="https://www.instagram.com/pebaisystems/" target="_blank" rel="noopener" aria-label="Instagram"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg></a>
