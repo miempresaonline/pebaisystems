@@ -68,7 +68,8 @@
 .pb-orig{display:flex;flex-direction:column;gap:10px}
 .pb-orig .fila{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
 .pb-orig .fila b{display:block;color:var(--fg-strong);font-size:16px}
-.pb-orig .fila span{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+/* solo el texto: el icono (.pb-tile, también un span) tiene que seguir centrado */
+.pb-orig .fila>div>span{display:block;color:var(--muted);font-size:13px;margin-top:2px}
 .pb-orig .dueno{justify-content:space-between;flex-wrap:wrap;border-color:color-mix(in srgb,var(--c) 45%,var(--line));background:linear-gradient(120deg,color-mix(in srgb,var(--c) 12%,var(--panel)),var(--panel))}
 .pb-orig .dueno.rev{border-style:dashed;border-color:var(--amber)}
 .pb-orig .dueno small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--muted)}
@@ -78,3 +79,6 @@
 /* en el móvil, el periodo y el CSV (solo cuentan para el análisis de abajo) no empujan la lista */
 @media (max-width:960px){body[data-page=solicitudes] .pb-top .pb-only-embudo{display:none}}
 .pb-grid.pb-uno{grid-template-columns:1fr}
+
+/* La lupa del buscador busca empresas: solo sale en Prospectos › Empresas (30/10) */
+body:not([data-page=prospectos]) #pb-buscar,body:not([data-page=prospectos]) .pb-lupa-movil{display:none!important}
