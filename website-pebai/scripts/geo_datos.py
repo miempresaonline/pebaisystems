@@ -235,6 +235,9 @@ def gsc_inspeccion(urls):
                 break
             except OSError:
                 continue
+        if not isinstance(res, dict):  # respuesta no JSON (429/5xx): se anota y se sigue
+            out.append({'url': u, 'http': code, 'error': str(res)[:120]})
+            continue
         ix = ((res or {}).get('inspectionResult') or {}).get('indexStatusResult') or {}
         out.append({'url': u, 'http': code, 'veredicto': ix.get('verdict'), 'estado': ix.get('coverageState'),
                     'ultimo_rastreo': ix.get('lastCrawlTime'), 'canonical_google': ix.get('googleCanonical')})
