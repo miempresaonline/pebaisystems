@@ -128,6 +128,8 @@ Viernes 30/10 mañana (Jefe). Cifra clave: 0 de 3 preguntas locales de Valencia 
 4. Reformas: preguntas de la ficha del Vigía al tablón y esquema de la vertical. (geo_preguntas, geo_contenido)
 5. Daniel: «Solicitar indexación», nombre de la ficha y OK a la estrategia por nichos.
 
+Viernes 30/10 tarde (Jefe). Cifra clave: 8 de 17 URLs del sitemap indexadas en Google (formación y Valencia entran hoy) y 9 que Google aún no conoce, entre ellas /agentes-ia/whatsapp/ desde el 27/10; Bing lee 7. La web vuelve a estar estable (0 de 60 peticiones con error en tres chequeos). Revisión de calidad de las 9 guías y 7 borradores: 0 prohibidas, 0 rayas, FAQ = JSON-LD, autor Daniel; fallan la cita del «borrador del 8 de mayo» en /agentes-ia/, fuentes del 15/10 en /posicionamiento-en-ia/, un post de LinkedIn que promete la guía y enlaza a la consultoría, y encargos de Preguntas que no llegaban al tablón. Decidido: /sobre-pebai/ no se publica, su bloque de preguntas va a /quienes-somos/. Semana que viene: presupuestos (lun 2/11), instaladoras (mar 3/11), cómo elegir consultora (mié 4/11), preguntas de quiénes somos (jue 5/11) e integración con ERP (vie 6/11); Técnico, que Google y Bing descubran las 9 URLs nuevas.
+
 ## Propuestas del Vigía
 
 (El Vigía añade aquí lo que cambie el plan; el Jefe las resuelve.)
