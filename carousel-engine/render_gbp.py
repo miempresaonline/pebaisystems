@@ -45,7 +45,8 @@ def load_specs(paths):
 
 
 async def launch(p):
-    for kwargs in ({}, {"channel": "msedge"}, {"channel": "chrome"}):
+    exe = os.environ.get("CHROMIUM_PATH")
+    for kwargs in ([{"executable_path": exe, "args": ["--no-sandbox"]}] if exe else []) + [{}, {"channel": "msedge"}, {"channel": "chrome"}]:
         try:
             return await p.chromium.launch(headless=True, **kwargs)
         except Exception:
