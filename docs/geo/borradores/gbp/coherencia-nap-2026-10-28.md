@@ -30,3 +30,17 @@ Referencia: Organization de la portada (nombre `PEBAI Systems`, web `https://peb
 | GoodFirms | Sin ficha pública (bloqueada hasta tener clientes para entrevista, `perfiles/goodfirms.md`); no hay dirección que quitar |
 | TechBehemoths | Muestra la sede que exige el formulario (Plaça de l'Ajuntament); pendiente de decisión (arriba) |
 | agentes.ai, DesignRush | Sin ficha pública aún |
+
+## Revisión 30/10/2026 · páginas nuevas (Local)
+Referencia: ficha de Google (`PEBAI Systems`, `+34 624 84 27 99`, `https://pebaisystems.es`, base en Valencia, calle oculta). Comprobado sobre `website-pebai/dist/` en `main` [V].
+
+| Página | Nombre visible | Teléfono | Ciudad | Web | JSON-LD | Veredicto |
+|---|---|---|---|---|---|---|
+| `/quienes-somos/` | PEBAI Systems | `tel:+34624842799` (pie) | València (texto y pie) | sí | `AboutPage`, 2 `Person`; sin `Organization` propia, enlaza al `#organization` de la portada | Cuadra |
+| `/casos-de-exito/` | PEBAI Systems | `tel:+34624842799` (pie) | València (pie) | sí | `CollectionPage` + `ItemList`; sin `Organization` propia | Cuadra |
+| Pie de `/agentes-ia/` (y guías con el pie nuevo) | PEBAI Systems | `tel:+34624842799` | València | sí | `WebPage`, `Article`, `FAQPage` | Cuadra |
+
+No cuadra (para Técnico, es JSON-LD de la portada):
+- La portada declara un segundo nodo `#service` con nombre **«PEBAI Systems | Consultoría de procesos e Inteligencia Artificial»**. Es el nombre con palabras clave que Google prohíbe en la ficha y que Bing copió. Propuesta: poner `name` = `PEBAI Systems` y dejar el texto largo en `alternateName` o `description`.
+- `Organization` de la portada: `address` solo con `addressCountry: ES`, sin `addressLocality`. Propuesta: añadir `addressLocality: València` (sin calle), para que coincida con las páginas y la ficha.
+- Pequeño matiz de grafía: la web usa «València» y la ficha/directorios «Valencia»; Google la trata igual, no se cambia.
