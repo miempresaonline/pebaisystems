@@ -1,6 +1,6 @@
 # Borrador · /ia-para-empresas/instaladoras/
 
-Estado: **texto completo el 29/10/2026 (10:00); maquetada el 29/10 (15:00) en `borradores/html/ia-para-empresas-instaladoras.html` con fechas del 3/11 (cambiar si sale otro día). Sin las líneas «Pregunta real» (son notas internas).** Sale del encargo del Jefe (28/10 tarde y 29/10 mañana) con el esquema de 6 H2 de `preguntas.md` («Turno 28/10 tarde», 8 preguntas) y el H2 de cualificar el lead que añadió el Vigía (`sectores/energia-solar.md`). Cola: se maqueta después de voz (30/10) y presupuestos (2/11). La deducción de IRPF del RDL 7/2026 **no entra** hasta que el Vigía lea el BOE-A-2026-6544 (encargo suyo del 30/10); sin porcentajes.
+Estado: **texto completo el 29/10/2026 (10:00); maquetada el 29/10 (15:00) en `borradores/html/ia-para-empresas-instaladoras.html` con fechas del 3/11 (cambiar si sale otro día). Sin las líneas «Pregunta real» (son notas internas).** Sale del encargo del Jefe (28/10 tarde y 29/10 mañana) con el esquema de 6 H2 de `preguntas.md` («Turno 28/10 tarde», 8 preguntas) y el H2 de cualificar el lead que añadió el Vigía (`sectores/energia-solar.md`). Cola: se maqueta después de voz (30/10) y presupuestos (2/11). **30/10: añadido el H2 `#deducciones` con el RDL 7/2026 leído en el BOE (DA 50.ª y 62.ª), y el enlace de voz ya apunta a /agentes-ia/voz/.**
 
 ## Ficha
 
@@ -139,6 +139,15 @@ El flujo es el mismo (petición, datos, presupuesto, seguimiento); cambian las p
 
 Si hacéis varias cosas (placas con aerotermia, o placas con cargador), el asistente pregunta primero qué busca el cliente y sigue la plantilla que toque.
 
+### H2 · Deducciones de 2026: por qué manda el plazo {#deducciones}
+
+Añadido el 30/10 (encargo del Jefe 30/10, propuesta 1 del Vigía). Fuente leída hoy en el BOE: Real Decreto-ley 7/2026, art. 36, que redacta las DA 50.ª y 62.ª de la Ley 35/2006 del IRPF (BOE-A-2026-6544, BOE núm. 71 de 21/03/2026), https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-6544. Texto maquetado en el HTML (tabla de 4 filas y 3 viñetas):
+
+- DA 62.ª.1: autoconsumo renovable en inmueble propio, 10 % de lo pagado del 1/01 al 31/12/2026; 62.2: propietarios en edificio de uso predominante residencial, 20 %; 62.3: base máxima 5.000 €/año, pago por tarjeta, transferencia, cheque nominativo o ingreso (nunca efectivo), descontando subvenciones, instalación terminada como tarde en 2026, con CIE; 62.4: no si está afecta a una actividad económica; 62.5: incompatible con la DA 50.ª para la misma instalación.
+- DA 50.ª.1: 20 % por obras hasta el 31/12/2026 que reduzcan al menos un 7 % la demanda de calefacción y refrigeración, base 5.000 €/año; 50.2: 40 % si el consumo de energía primaria no renovable baja al menos un 30 % o la vivienda pasa a clase A o B, base 7.500 €/año; en los dos casos, certificado de eficiencia energética posterior expedido antes del 1/01/2027.
+- Lo que cambia para la instaladora: responder el mismo día (un presupuesto aceptado en diciembre e instalado en enero ya no entra), preguntar en el primer mensaje si quiere la instalación terminada este año y marcar esas peticiones, y avisar sin asesorar (lo confirma su asesoría o la AEAT; el CIE lo emite la instaladora).
+- No se pone en la FAQ (sigue en 6) para no salir del tema de la página.
+
 ### FAQ (6, idénticas en el JSON-LD)
 
 **¿Puede la IA hacer sola el presupuesto de una instalación fotovoltaica?**
@@ -179,7 +188,7 @@ WebPage + BreadcrumbList (Inicio › IA para empresas › Instaladoras) + Articl
 
 ### Checklist antes de publicar
 - [ ] Publicada `/automatizacion-de-procesos/presupuestos/` (2/11): el enlace del H2 del flujo depende de ella.
-- [ ] Vigía: deducción del RDL 7/2026 leída en el BOE. Si está, añadir una línea en #oficios (solar) con el porcentaje y la fuente; si no, se publica sin ella.
+- [x] Deducción del RDL 7/2026 leída en el BOE (30/10, Contenido): H2 `#deducciones`. Reverificar el día de publicar.
 - [ ] Reverificar los 3 BOE el día de publicar.
 - [ ] Grep de palabras prohibidas sobre el HTML, sin raya larga, emojis ni exclamaciones; FAQ visible = JSON-LD.
 - [ ] Enlaces internos 200: /agentes-ia/whatsapp/ (y #caso-real), /automatizacion-de-procesos/presupuestos/, /automatizacion-de-procesos/#casos, /agentes-ia/ (y #ley), /ia-para-empresas/cuanto-cuesta/.
