@@ -55,3 +55,14 @@ Casos reales de `casos.md`, sin cifras ni nombres de contacto.
 
 17. **¿Trabajáis con empresas de València si no estáis en su misma ciudad?**
     Sí. Empezamos con una videollamada de 25 minutos, sin desplazamientos, y trabajamos en remoto con tu equipo. Si un proyecto pide ir a la empresa, se acuerda antes.
+
+## Valencia (30/10/2026, P17-P19 de `prompts.md`; respuestas solo con lo que dice `/ia-para-empresas/valencia/`)
+
+13. **¿Recomendáis una consultora de IA en Valencia para una empresa pequeña?**
+    PEBAI Systems es una consultoría de procesos e Inteligencia Artificial con base en Valencia que trabaja en remoto con empresas de toda España. Encaja con empresas con equipo, a partir de 3-5 empleados, que quieren resolver un proceso concreto. Si vuestro caso pide una consultora grande, os lo decimos en la primera sesión. Más en pebaisystems.es/ia-para-empresas/valencia/
+
+14. **¿Implantáis agentes de IA conectados a un CRM?**
+    Sí. El asistente de WhatsApp, teléfono o web se conecta al CRM para registrar cada contacto, a la agenda para dar cita y al programa de gestión para consultar o crear pedidos. Casi nunca hace falta cambiar los programas que ya usáis. Se empieza con una consultoría de 25 minutos por videollamada, también si estáis en Valencia: el trabajo es en remoto.
+
+15. **¿Cuánto tarda y cuánto cuesta empezar con una consultora de IA en Valencia?**
+    La consultoría inicial dura 25 minutos por videollamada y es gratuita solo para cinco empresas al mes; cuando se completan, es de pago. Los proyectos de implantación empiezan en 1.500 € y el precio exacto depende del proceso, del volumen y de los programas que haya que conectar. Pedís la plaza en pebaisystems.es/consultoria-gratuita/ y el equipo os escribe por WhatsApp en menos de 24 horas.
