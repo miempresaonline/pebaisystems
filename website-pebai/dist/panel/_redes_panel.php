@@ -306,7 +306,8 @@ function redes_sync(): array
             if (!$dentro) {
                 continue;
             }
-            $sp[$k] = [$antes ? end($antes) : reset($dentro), end($dentro)];
+            // [al empezar, ahora, desde qué día cuenta Metricool, último dato]: Metricool solo guarda seguidores desde que se conectó cada red
+            $sp[$k] = [$antes ? end($antes) : reset($dentro), end($dentro), $antes ? array_key_last($antes) : array_key_first($dentro), array_key_last($dentro)];
         }
         $periodos[] = $p + ['hasta_real' => min($hasta, $hoy), 'videos' => $vs, 'seguidores' => $sp];
     }

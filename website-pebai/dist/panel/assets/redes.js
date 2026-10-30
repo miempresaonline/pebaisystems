@@ -121,7 +121,12 @@ function hero(T, C) {
   const partes = REDES.map((r) => `<i style="--w:${(C.red[r.k].vistas / C.total * 100).toFixed(2)}%" class="rd-c-${r.k}" title="${r.n}: ${N(C.red[r.k].vistas)}"></i>`).join('');
   const leyenda = REDES.map((r) => `<span><i class="rd-dot rd-c-${r.k}"></i>${r.n}<b>${Math.round(C.red[r.k].vistas / C.total * 100)}%</b></span>`).join('');
   const kpi = (lbl, val, sub, cls) => `<div class="rd-kpi ${cls || ''}"><span>${lbl}</span><b data-cuenta="${val}">0</b><small>${sub}</small></div>`;
-  const segs = Object.entries(T.seguidores || {}).map(([k, [a, b]]) => `${RN[k].n.split(' ')[0]} ${a}→${b}`).join(' · ');
+  // Seguidores: lo ganado se cuenta desde el primer día que Metricool tiene datos de cada red (no antes); y el total de ahora, sumando redes
+  const segE = Object.entries(T.seguidores || {});
+  const segs = segE.map(([k, [a, b]]) => `${RN[k].n.split(' ')[0]} ${a}→${b}`).join(' · ');
+  const totalSeg = sum(segE.map(([, [, b]]) => b));
+  const desdeSeg = segE.map(([, v]) => v[2]).filter(Boolean).sort()[0];
+  const subSeg = `${totalSeg} en total ahora${desdeSeg && desdeSeg > T.desde ? ` · cuenta desde el ${fecha(desdeSeg)}, cuando Metricool empezó a guardarlos` : ''}<br>${segs}`;
   return `<section class="rd-hero rd-rev">
     <div class="rd-hero-main">
       <span class="rd-tag">Vistas en cuatro redes</span>
@@ -131,7 +136,7 @@ function hero(T, C) {
       <div class="rd-split-l">${leyenda}</div>
     </div>
     <div class="rd-kpis">
-      ${kpi('Seguidores ganados', C.ganados, esc(segs), 'lima')}
+      ${kpi('Seguidores ganados', C.ganados, subSeg, 'lima')}
       ${kpi('Interacciones', C.inter, 'me gusta, comentarios, guardados y compartidos')}
       ${kpi('Comentarios', C.com, 'con y sin palabra clave', 'rojo')}
       ${kpi('Solicitudes desde redes', sol ? sol.redes : 0, sol ? `de ${N(sol.total)} solicitudes desde el ${fecha(T.desde)} · en vivo` : 'sin conexión con la base de datos', sol && sol.redes ? 'lima' : 'rojo')}
