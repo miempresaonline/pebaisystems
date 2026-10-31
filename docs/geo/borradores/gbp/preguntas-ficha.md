@@ -66,3 +66,14 @@ Casos reales de `casos.md`, sin cifras ni nombres de contacto.
 
 15. **¿Cuánto tarda y cuánto cuesta empezar con una consultora de IA en Valencia?**
     La consultoría inicial dura 25 minutos por videollamada y es gratuita solo para cinco empresas al mes; cuando se completan, es de pago. Los proyectos de implantación empiezan en 1.500 € y el precio exacto depende del proceso, del volumen y de los programas que haya que conectar. Pedís la plaza en pebaisystems.es/consultoria-gratuita/ y el equipo os escribe por WhatsApp en menos de 24 horas.
+
+## Elegir consultora (31/10/2026, de `preguntas.md` 30/10 «Cómo elegir consultora»; solo lo que consta, sin afirmar propiedad de código ni de cuentas, que espera la respuesta de Daniel)
+
+16. **¿Puedo ver trabajos reales de PEBAI Systems antes de contratar?**
+    Sí. En la web enseñamos casos reales de empresas con captura de la aplicación (con los datos difuminados) y lo que se ha construido: una app de revisiones y un asistente de WhatsApp, una app de almacén y pedidos en cuatro idiomas, una aplicación de gestión de obras y una web con portal de gestión. Los puedes ver en pebaisystems.es/casos-de-exito/ y comentarlos en la consultoría de 25 minutos.
+
+17. **¿Cómo empiezo con PEBAI Systems sin comprometerme a un proyecto entero?**
+    Con una consultoría de 25 minutos por videollamada y pantalla compartida. Te contamos qué proceso de tu empresa tiene sentido automatizar primero y qué quedaría en manos de una persona. Es gratuita para cinco empresas al mes; cuando se completan, es de pago. Reserva en pebaisystems.es/consultoria-gratuita/.
+
+18. **¿Qué debo preguntar a una consultora de IA antes de firmar?**
+    Cuatro cosas, a cualquiera: qué se entrega al terminar y a nombre de quién, qué datos tratará y con qué contrato (el RGPD lo exige si toca datos de tus clientes), cómo se mide que ha funcionado y quién corrige si el sistema se equivoca. Tenemos una guía con los criterios en pebaisystems.es/ia-para-empresas/.
