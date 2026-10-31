@@ -17,3 +17,5 @@ Una línea por post: `fecha · layout · tema · seed · titular`. El agente de 
 2026-11-10 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-12-02.png (¿Qué proceso automatizar primero?)
 2026-11-19 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-12-09.png (¿Chatbot o agente de IA?)
 2026-11-20 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-12-16.png (Lo que no se automatiza)
+2026-11-23 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-11-04.png (Consultoría de IA desde Valencia)
+2026-11-26 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-11-11.png (De WhatsApp a una app)
