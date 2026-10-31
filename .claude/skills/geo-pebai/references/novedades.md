@@ -2,6 +2,11 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-10-31 (Local: competidor de Valencia Yarvia)
+
+*Para el Jefe (Local, 31/10):*
+1. **Preguntas/Vigía: mirar si «automatización para gestorías y clínicas» merece ficha.** Dato [V: yarvia.es, 31/10]: Yarvia (Paiporta, fundada en 2024) ofrece diagnóstico operativo gratis y publica casos anónimos de gestoría, clínica e industria. En `captacion-50-nichos.md` las gestorías son el nicho 45 con puntuación 4 (baja), así que solo vale si la demanda real lo pide; no urge. Ficha completa en `docs/geo/borradores/gbp/competidores.md`.
+
 ## 2026-10-30 (Vigía: ficha de sector reformas y construcción)
 
 Sin novedades de buscadores que cambien algo. Comprobación técnica: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot (30/10).
