@@ -197,3 +197,22 @@ De la lista de la línea base (Bolher y Sincronizate360) la búsqueda no devuelv
 - Casos de pymes con captura y cifras fechadas, más cercanos al comprador que logos de multinacionales.
 - Primer paso concreto y gratuito (25 minutos).
 - Teléfono y WhatsApp visibles en web y ficha.
+
+## 31/10/2026 · Yarvia (yarvia.es), Paiporta (Valencia)
+Sale al buscar consultoras de automatización e IA en Valencia; no estaba en la línea base. Metrio y Tyris: WebSearch 31/10 no devuelve web propia (Tyris solo en agregadores, Metrio no existe como consultora en Valencia). Datos de empresa [V: yarvia.es, designrush.com/agency/profile/yarvia y proveedores.com/proveedores/yarvia, abiertas el 31/10].
+
+| Dato | Lo que consta |
+|---|---|
+| Zona | Paiporta (Valencia), dirección física publicada; se anuncia para toda España. Fundada en 2024, menos de 49 empleados (DesignRush) |
+| Servicios | Diagnóstico operativo, IA conversacional, agentes, chatbots, asistentes de voz, OCR documental, integraciones CRM/ERP con n8n, Make y APIs |
+| Primer paso | Diagnóstico operativo gratuito por formulario, sin duración ni límite publicados |
+| Casos | 3 anónimos (gestoría, clínica, industria) con horas recuperadas y citas fuera de horario; en DesignRush lista 3 clientes con nombre |
+| Reseñas | DesignRush sin reseñas ni puntuación para Yarvia (las notas de la página son de otras agencias) |
+| Ficha de Google | no verificable desde la nube |
+
+### 1 mejora para la nuestra (no exige a Daniel)
+**Competimos con una oferta casi igual (diagnóstico gratis), así que la diferencia tiene que verse en la ficha:** duración exacta (25 minutos), tope honesto (cinco empresas al mes) y casos con nombre y captura. Ellos tienen casos anónimos; los nuestros llevan captura y cifra fechada. Usar «caso real con captura» en el titular de los posts de casos y en la descripción de servicios. Yarvia también nombra sectores concretos (gestorías, clínicas, fincas): línea para Preguntas y el Vigía, comprobar si «automatización para gestorías» entra en `estrategia-nichos.md`.
+
+### Dónde PEBAI ya gana
+- Casos con captura y datos fechados frente a ejemplos anónimos.
+- Primer paso con duración y plazas (menos vago que «diagnóstico gratuito»).
