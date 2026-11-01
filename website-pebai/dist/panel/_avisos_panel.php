@@ -19,6 +19,13 @@ if (isset($_GET['avisos_sw']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     json_out($l === null ? ['ok' => false] : ['ok' => true, 'avisos' => $l]);
 }
 
+// La pastilla de arriba del panel: los últimos avisos (solicitudes, citas, respuestas, demos abiertas) de los últimos 3 días
+if ($auth && isset($_GET['avisos_ultimos'])) {
+    $q = pebai_avisos_db()->prepare("SELECT id, ts, tipo, titulo, texto, ir FROM avisos WHERE tipo <> 'prueba' AND ts >= ? ORDER BY id DESC LIMIT 6");
+    $q->execute([date('Y-m-d H:i:s', time() - 3 * 86400)]);
+    json_out(['ok' => true, 'avisos' => $q->fetchAll()]);
+}
+
 if ($auth && isset($_GET['push_clave'])) {
     try {
         json_out(['ok' => true, 'clave' => pebai_vapid()['pub']]);

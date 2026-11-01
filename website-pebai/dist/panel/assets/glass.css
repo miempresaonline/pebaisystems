@@ -1,0 +1,133 @@
+/* PEBAI · Panel — estilo «cristal» (Daniel, 01/11/2026), sacado del vídeo «Glassy Dashboard» con la marca de PEBAI:
+   cristal oscuro esmerilado sobre luces lima y violeta difuminadas, dock de iconos a la izquierda, pastilla de secciones abajo,
+   pastilla de avisos arriba y entradas de sección en tres tiempos (desenfoque → tarjetas de cristal → contenido en cascada).
+   Va el último: cambia los tokens de color de panel.css y pone el cristal encima de lo que ya hay, sin tocar cada sección. */
+
+:root{
+  --panel:rgba(255,255,255,.06);--panel-2:rgba(255,255,255,.1);
+  --glass:rgba(255,255,255,.06);--glass-2:rgba(255,255,255,.1);--glass-line:rgba(255,255,255,.13);--glass-hi:rgba(255,255,255,.22);
+  --glass-blur:blur(22px) saturate(1.5);
+  --glass-sombra:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -1px 0 rgba(255,255,255,.03),0 24px 60px -28px rgba(0,0,0,.65);
+  --r:22px;
+}
+:root[data-theme=light]{
+  --panel:rgba(255,255,255,.55);--panel-2:rgba(255,255,255,.75);
+  --glass:rgba(255,255,255,.55);--glass-2:rgba(255,255,255,.75);--glass-line:rgba(255,255,255,.7);--glass-hi:rgba(255,255,255,.9);
+  --glass-sombra:inset 0 1px 0 rgba(255,255,255,.9),0 20px 50px -26px rgba(30,30,60,.35);
+}
+
+/* ---------- fondo: luces de marca muy difuminadas que se mueven despacio ---------- */
+.pb-bg{background:radial-gradient(120% 90% at 50% -10%,#10142a 0,var(--ink) 55%)}
+.pb-bg i{filter:blur(110px);will-change:transform;animation:pbg-deriva 26s ease-in-out infinite alternate}
+.pb-bg i:nth-child(1){width:62vmax;height:62vmax;left:-18vmax;top:-26vmax;background:radial-gradient(circle,rgba(106,92,255,.7),transparent 65%);opacity:1}
+.pb-bg i:nth-child(2){width:46vmax;height:46vmax;right:-14vmax;top:8vmax;background:radial-gradient(circle,rgba(183,255,60,.4),transparent 65%);opacity:.9;animation-duration:31s;animation-direction:alternate-reverse}
+.pb-bg i:nth-child(3){width:56vmax;height:56vmax;left:24vmax;bottom:-34vmax;background:radial-gradient(circle,rgba(63,213,255,.28),transparent 65%);opacity:.75;animation-duration:37s}
+.pb-bg:after{opacity:.22}
+@keyframes pbg-deriva{0%{transform:translate(0,0) scale(1)}50%{transform:translate(4vmax,3vmax) scale(1.08)}100%{transform:translate(-3vmax,5vmax) scale(.96)}}
+:root[data-theme=light] .pb-bg{background:radial-gradient(120% 90% at 50% -10%,#f6f4ee 0,var(--ink) 60%)}
+
+/* ---------- cristal en todas las tarjetas ---------- */
+.pb-card,.pb-row,.pb-chip,.pc-kpi,.pb-plz,.pb-msgs summary,.pb-pend,.rd-kpi,.pb-fsec,.pb-form,.pb-orig .fila,.pb-histbox,.pb-subnav,.pb-seg,.pb-filters select,.pb-filters input,
+.pb-filters .grow input,#pb-q,.pc-search input,.pc-row,.pb-agenda>*{
+  background:var(--glass);border-color:var(--glass-line);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-sombra)}
+.pb-card{border-radius:var(--r)}
+.pb-row:hover,.pc-row:hover{background:var(--glass-2);border-color:var(--glass-hi)}
+.pb-btn{backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur)}
+.pb-btn:not(.primary):not(.wa):not(.danger){background:var(--glass);border-color:var(--glass-line)}
+.pb-drawer,.pc-drawer{background:color-mix(in srgb,var(--ink-2) 72%,transparent);backdrop-filter:blur(30px) saturate(1.6);-webkit-backdrop-filter:blur(30px) saturate(1.6);border-left-color:var(--glass-hi)}
+.pb-drawer .top{background:transparent;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+
+/* ---------- escritorio: dock de iconos a la izquierda, como en el vídeo ---------- */
+@media (min-width:961px){
+  .pb-app{grid-template-columns:92px minmax(0,1fr)}
+  .pb-side{top:14px;height:calc(100vh - 28px);margin:14px 0 14px 14px;width:68px;padding:14px 0 12px;gap:10px;align-items:center;border:1px solid var(--glass-line);border-radius:30px;
+    background:var(--glass);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-sombra)}
+  .pb-side>.pb-brand{margin:0;padding:0 0 6px}
+  .pb-side>.pb-brand .pb-word{display:none}
+  .pb-side>.pb-brand .pb-mark{height:30px}
+  .pb-nav{gap:6px;align-items:center;overflow:visible;width:100%}
+  .pb-nav .grp{gap:4px;align-items:center;position:relative;padding-top:6px}
+  .pb-nav .grp+.grp:before{content:"";width:22px;height:1px;background:var(--glass-line);margin:0 auto 4px}
+  .pb-nav small{display:none}
+  .pb-nav button{width:44px;height:44px;padding:0;justify-content:center;border-radius:50%;border:0;background:transparent;color:var(--muted)}
+  .pb-nav button:before{display:none}
+  .pb-nav button .pb-i{width:20px;height:20px}
+  .pb-nav button:hover{background:var(--glass-2);color:var(--fg-strong)}
+  .pb-nav button.on{background:var(--fg-strong);color:var(--ink);box-shadow:0 6px 20px rgba(0,0,0,.35),0 0 0 4px rgba(255,255,255,.06)}
+  .pb-nav button.on .pb-i{color:var(--ink)}
+  /* el nombre sale al pasar por encima, en una pastilla de cristal */
+  .pb-nav button span{position:absolute;left:calc(100% + 14px);top:50%;transform:translate(-6px,-50%);white-space:nowrap;pointer-events:none;opacity:0;flex:none;
+    padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--fg-strong);background:color-mix(in srgb,var(--panel-solid) 80%,transparent);
+    border:1px solid var(--glass-hi);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.4);transition:opacity .2s,transform .25s var(--ease);z-index:50}
+  .pb-nav button:hover span,.pb-nav button:focus-visible span{opacity:1;transform:translate(0,-50%)}
+  .pb-nav button em{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;font-size:10px;line-height:15px;text-align:center;background:var(--lime);color:var(--lime-ink);border-color:var(--lime)}
+  .pb-nav button em:is(:empty,[data-cero]){display:none}
+  .pb-nav .pb-live{position:absolute;top:6px;right:6px;width:8px;height:8px}
+  .pb-nav .pb-dot{position:absolute;top:6px;left:auto;right:6px}
+  .pb-side-foot{flex-direction:column;gap:6px;border:0;padding:8px 0 0;margin-top:auto}
+  .pb-side-foot .pb-btn.icon{width:40px;height:40px;border-radius:50%}
+  .pb-side-foot a.ghost{padding:6px 10px;font-size:11.5px;border-radius:999px}
+  .pb-main{padding-bottom:110px}
+  /* pantallas bajas: el dock se aprieta para que quepa todo */
+  @media (max-height:760px){
+    .pb-side{gap:6px;padding:10px 0}
+    .pb-nav{gap:2px}.pb-nav .grp{gap:2px;padding-top:3px}
+    .pb-nav button{width:38px;height:38px}
+    .pb-side-foot{gap:4px;padding-top:4px}.pb-side-foot .pb-btn.icon{width:34px;height:34px}
+  }
+  /* barra de arriba: una tira de cristal */
+  .pb-main .pb-top{position:sticky;top:14px;margin:14px 0 20px;padding:10px 12px 10px 20px;min-height:0;border-radius:22px;border:1px solid var(--glass-line);
+    background:color-mix(in srgb,var(--ink) 45%,transparent);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-sombra)}
+}
+
+/* ---------- pastilla de avisos (arriba, en el centro) ---------- */
+.pb-aviso{display:none}
+@media (min-width:961px){
+  .pb-aviso{display:inline-flex;align-items:center;gap:9px;max-width:min(440px,38vw);margin:0 auto;padding:7px 14px 7px 10px;border-radius:999px;border:1px solid var(--glass-line);
+    background:var(--glass);font-size:12.5px;color:var(--fg);cursor:pointer;transition:background .25s,border-color .25s;animation:pbg-asoma .6s var(--ease) both}
+  .pb-aviso:hover{background:var(--glass-2);border-color:var(--glass-hi)}
+  .pb-aviso i{flex:none;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#b9b2ff,var(--violet) 60%);box-shadow:0 0 12px var(--violet-glow)}
+  .pb-aviso i.lime{background:radial-gradient(circle at 35% 30%,#efffcf,var(--lime) 60%);box-shadow:0 0 12px var(--lime-glow)}
+  .pb-aviso b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pb-aviso small{color:var(--muted-2);white-space:nowrap}
+  .pb-aviso em{font-style:italic;font-family:var(--serif);font-size:15px;color:var(--fg-strong)}
+  .pb-top .pb-crumb{margin-right:0}
+}
+@keyframes pbg-asoma{from{opacity:0;transform:translateY(-6px) scale(.97);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+
+/* ---------- pastilla de secciones abajo (las del grupo en el que estás) ---------- */
+.pb-pastilla{display:none}
+@media (min-width:961px){
+  .pb-pastilla{position:fixed;left:calc(50% + 46px);bottom:18px;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:2px;padding:5px;border-radius:999px;
+    border:1px solid var(--glass-line);background:color-mix(in srgb,var(--ink) 50%,transparent);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-sombra),0 18px 40px rgba(0,0,0,.4);
+    transition:opacity .3s,transform .4s var(--ease)}
+  .pb-pastilla[hidden]{display:flex;opacity:0;pointer-events:none;transform:translate(-50%,16px)}
+  .pb-pastilla button{border:0;background:none;color:var(--muted);font:650 13px var(--sans);padding:8px 16px;border-radius:999px;cursor:pointer;transition:color .2s,background .3s var(--ease)}
+  .pb-pastilla button:hover{color:var(--fg-strong)}
+  .pb-pastilla button.on{background:var(--fg-strong);color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+  .pb-pastilla small{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--muted-2);padding:0 10px 0 12px}
+  body.pb-locked .pb-pastilla{opacity:0;pointer-events:none}
+}
+
+/* ---------- entrada de cada sección: desenfoque → cristal → contenido en cascada ---------- */
+.pb-page.on{animation:none}
+.pb-page.pbg-entra{animation:pbg-enfoca .55s var(--ease) both}
+.pbg-pieza{animation:pbg-pieza .7s var(--ease) both;animation-delay:calc(var(--n,0) * 55ms + 120ms)}
+@keyframes pbg-enfoca{from{filter:blur(14px);opacity:.35}to{filter:none;opacity:1}}
+@keyframes pbg-pieza{0%{opacity:0;transform:translateY(16px) scale(.985);filter:blur(10px)}55%{opacity:1;filter:blur(2px)}100%{opacity:1;transform:none;filter:none}}
+/* barras que crecen desde abajo y líneas que se dibujan */
+.pbg-crece rect{transform-box:fill-box;transform-origin:50% 100%;animation:pbg-barra .9s var(--ease) both;animation-delay:calc(var(--n,0) * 35ms + 250ms)}
+@keyframes pbg-barra{from{transform:scaleY(0)}to{transform:none}}
+/* números que ruedan como un cuentakilómetros */
+.pbg-odo{display:inline-flex;align-items:baseline}
+.pbg-odo .c{display:inline-block;height:1.1em;overflow:hidden;line-height:1.1em;vertical-align:baseline}
+.pbg-odo .c>span{display:flex;flex-direction:column;transition:transform 1.1s cubic-bezier(.2,.9,.25,1)}
+.pbg-odo .c>span>i{font-style:normal;height:1.1em;line-height:1.1em}
+@media (prefers-reduced-motion:reduce){.pb-page.pbg-entra,.pbg-pieza,.pbg-crece rect{animation:none}.pb-bg i{animation:none}}
+
+/* ---------- móvil: el cristal, más ligero (menos desenfoque = más fluido) ---------- */
+@media (max-width:960px){
+  :root{--glass-blur:blur(14px) saturate(1.4)}
+  .pb-tabbar,.pb-nav{background:color-mix(in srgb,var(--ink) 62%,transparent)!important;border-color:var(--glass-line)!important}
+  .pb-tabbar button.on .pb-i{filter:drop-shadow(0 0 8px var(--lime-glow))}
+}
