@@ -134,7 +134,12 @@
 
 /* ---------- Agentes · la oficina, también de cristal (01/11) ---------- */
 @media (min-width:961px){
-  .pb-of-wrap{border-radius:28px;border:1px solid var(--glass-line);box-shadow:var(--glass-sombra),0 30px 80px -30px rgba(0,0,0,.6);height:calc(100vh - 130px)!important;min-height:560px}
+  /* la escena ocupa todo el alto y se funde con el fondo por los bordes: sin rectángulo negro */
+  body[data-page=agentes] .pb-main .pb-top{display:none}
+  .pb-of-wrap{height:calc(100vh - 28px)!important;min-height:560px;margin-top:14px;border-radius:30px;background:transparent;border:0;box-shadow:none}
+  .pb-of-wrap>canvas{-webkit-mask-image:radial-gradient(ellipse 72% 70% at 50% 46%,#000 55%,transparent 100%);mask-image:radial-gradient(ellipse 72% 70% at 50% 46%,#000 55%,transparent 100%)}
+  body[data-page=agentes] .pb-pastilla{display:none!important}
+  body[data-page=agentes] .pb-main{padding-bottom:14px}
 }
 /* fichas flotantes sobre la escena: cristal esmerilado */
 .pb-of-todo,.pb-of-vista,.pb-of-box,.pb-of-ayuda .b,.pb-of-ayuda .c{background:rgba(14,17,32,.42)!important;border-color:var(--glass-hi)!important;
@@ -172,3 +177,6 @@
     mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/%3E%3Cpath d='m16 17 5-5-5-5M21 12H9'/%3E%3C/svg%3E") center/contain no-repeat}
   .pb-side-foot a.ghost:hover{color:#FF8A95}
 }
+
+/* en el dock, el número de prospectos (miles) no es un aviso: fuera */
+@media (min-width:961px){.pb-nav button[data-page=prospectos] em{display:none}}

@@ -304,3 +304,8 @@
 .rd-row.p1 .rd-pos b{background:linear-gradient(135deg,#FFE27A,#E8B23A)}
 .rd-row.p2 .rd-pos b{background:linear-gradient(135deg,#F1F3F7,#B7BCC8)}
 .rd-row.p3 .rd-pos b{background:linear-gradient(135deg,#F2B98B,#C47B45)}
+
+.rd-comp{display:inline-flex;gap:2px;padding:4px;border-radius:999px;border:1px solid var(--line);background:var(--panel);flex:none}
+.rd-comp button{border:0;background:none;color:var(--muted);font:700 12px var(--sans);padding:6px 12px;border-radius:999px;cursor:pointer}
+.rd-comp button.on{background:var(--fg-strong);color:var(--ink)}
+.rd-mov{font-size:12px;padding:3px 7px}

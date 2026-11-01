@@ -316,8 +316,8 @@ function redes_sync(): array
 
 /**
  * Clasificación «como la de la liga» (Daniel, 01/11): cada día se guarda una foto de las vistas totales de cada vídeo
- * (private/redes_historial.json, 60 días) y a cada vídeo se le pone su puesto de hace una semana (o de la foto más vieja que haya,
- * si aún no hay una semana). Así el panel enseña cuántos puestos ha subido o bajado. Metricool solo da las cifras de hoy.
+ * (private/redes_historial.json, 60 días) y a cada vídeo se le pone su puesto de ayer, de hace 7 días y de hace 30 (o de la foto
+ * más vieja que haya, si aún no hay tantos días). Así el panel enseña cuántos puestos ha subido o bajado. Metricool solo da las cifras de hoy.
  */
 function redes_ranking(array $periodos): array
 {
@@ -343,31 +343,36 @@ function redes_ranking(array $periodos): array
         $h = array_slice($h, -60, null, true);
         @file_put_contents($f, json_encode($h), LOCK_EX);
     }
-    // la foto con la que se compara: la más cercana a hace 7 días (y nunca la de hoy)
-    $objetivo = date('Y-m-d', strtotime('-7 days'));
-    $ref = null;
-    foreach (array_keys($h) as $d) {
-        if ($d < $hoy && ($ref === null || abs(strtotime($d) - strtotime($objetivo)) < abs(strtotime($ref) - strtotime($objetivo)))) {
-            $ref = $d;
-        }
+    // Con qué foto se compara cada plazo (ayer, 7 y 30 días): la más reciente que tenga al menos esos días;
+    // si aún no hay tantas, la más vieja que haya (y el panel dice de qué fecha es)
+    $fechas = array_values(array_filter(array_keys($h), static fn($d) => $d < $hoy));
+    $refs = [];
+    foreach ([1, 7, 30] as $n) {
+        $lim = date('Y-m-d', strtotime("-$n days"));
+        $ok = array_values(array_filter($fechas, static fn($d) => $d <= $lim));
+        $refs[$n] = $ok ? end($ok) : ($fechas[0] ?? null);
     }
     foreach ($periodos as &$per) {
         if (empty($per['videos'])) {
             continue;
         }
-        $antes = [];
-        if ($ref) {
-            $ids = array_filter(array_map(static fn($v) => md5($v['f'] . '|' . $v['titulo']), $per['videos']), static fn($id) => isset($h[$ref][$id]));
-            $vals = array_intersect_key($h[$ref], array_flip($ids));
-            arsort($vals);
-            $antes = array_flip(array_keys($vals));   // id => puesto (0 = primero)
+        $puestos = [];
+        foreach ($refs as $n => $ref) {
+            $puestos[$n] = [];
+            if ($ref) {
+                $ids = array_filter(array_map(static fn($v) => md5($v['f'] . '|' . $v['titulo']), $per['videos']), static fn($id) => isset($h[$ref][$id]));
+                $vals = array_intersect_key($h[$ref], array_flip($ids));
+                arsort($vals);
+                $puestos[$n] = array_flip(array_keys($vals));   // id => puesto (0 = primero)
+            }
         }
         foreach ($per['videos'] as &$v) {
             $id = md5($v['f'] . '|' . $v['titulo']);
-            $v['antes'] = isset($antes[$id]) ? $antes[$id] + 1 : null;   // puesto de entonces (null = aún no estaba)
+            // puesto de entonces en cada plazo (null = aún no estaba)
+            $v['antes'] = array_map(static fn($p) => isset($p[$id]) ? $p[$id] + 1 : null, $puestos);
         }
         unset($v);
-        $per['ranking_desde'] = $ref;
+        $per['ranking_desde'] = $refs;
     }
     unset($per);
     return $periodos;

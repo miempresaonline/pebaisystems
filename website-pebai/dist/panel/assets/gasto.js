@@ -55,7 +55,10 @@ try { Object.assign(P, JSON.parse(sessionStorage.getItem('pb-gasto-periodo') || 
 
 function barrasDiarias(d) {
   // Día a día del periodo, apilado por agente; altura según el día de más gasto
-  const dias = []; for (let t = new Date(d.desde + 'T12:00:00'), fin = new Date(d.hasta + 'T12:00:00'); t <= fin && dias.length < 120; t.setDate(t.getDate() + 1)) dias.push(iso(t));
+  // este mes: el mes entero (los días que faltan, vacíos); y nunca menos de 7 columnas, para que una sola barra no ocupe todo
+  const hastaVer = d.este_mes ? finDeMes(d.desde.slice(0, 7)) : d.hasta;
+  const dias = []; for (let t = new Date(d.desde + 'T12:00:00'), fin = new Date(hastaVer + 'T12:00:00'); t <= fin && dias.length < 120; t.setDate(t.getDate() + 1)) dias.push(iso(t));
+  for (let t = new Date(dias[dias.length - 1] + 'T12:00:00'); dias.length < 7;) { t.setDate(t.getDate() + 1); dias.push(iso(t)); }
   const nD = dias.length, hoyIso = iso(new Date());
   const por = {}; d.diario.forEach((r) => { (por[r.dia] = por[r.dia] || []).push(r); });
   const tot = (dia) => (por[dia] || []).reduce((s, r) => s + (+r.usd || 0), 0);
@@ -67,7 +70,7 @@ function barrasDiarias(d) {
     }).join('');
     const llam = (por[dia] || []).reduce((s, r) => s + (+r.n || 0), 0);
     const pista = `${+dia.slice(8)}/${+dia.slice(5, 7)} · ${USD(tot(dia))} · ${llam} llamadas` + (por[dia] || []).map((r) => `\n${ag(r.agente)[0]}: ${USD(+r.usd)}`).join('');
-    return `<g class="dia${dia === hoyIso ? ' hoy' : ''}"><title>${esc(pista)}</title><rect x="${i * bw}" y="0" width="${bw}" height="${H}" class="zona"/>${segs || `<rect x="${i * bw + 3}" y="${H - 2}" width="${bw - 6}" height="2" rx="1" class="cero"/>`}</g>`;
+    return `<g class="dia${dia === hoyIso ? ' hoy' : ''}"><title>${esc(pista)}</title><rect x="${i * bw}" y="0" width="${bw}" height="${H}" class="zona"/>${segs || (dia > hoyIso ? '' : `<rect x="${i * bw + 3}" y="${H - 2}" width="${bw - 6}" height="2" rx="1" class="cero"/>`)}</g>`;
   }).join('');
   const paso = Math.max(1, Math.ceil(nD / 7));
   const lbl = dias.map((dia, i) => (i % paso === 0 || i === nD - 1) ? `<text x="${i * bw + bw / 2}" y="${H + 16}">${dia === hoyIso ? 'hoy' : +dia.slice(8) + '/' + +dia.slice(5, 7)}</text>` : '').join('');

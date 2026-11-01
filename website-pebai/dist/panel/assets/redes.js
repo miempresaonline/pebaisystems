@@ -38,7 +38,7 @@ function marca(k, tam) {
   return `<span class="rd-marca ${tam || ''}" style="background:${fondo}">${dib}</span>`;
 }
 const ico = (path, cls) => `<svg class="pb-i ${cls || ''}" viewBox="0 0 24 24">${path}</svg>`;
-const S = { cargado: false, cargando: false, data: null, t: -1, orden: 'total', abierto: -1, ocultas: new Set() };
+const S = { cargado: false, cargando: false, data: null, t: -1, orden: 'total', abierto: -1, ocultas: new Set(), comp: 7 };
 const hace = (ts) => {
   const m = Math.round((Date.now() - new Date(String(ts).replace(' ', 'T'))) / 60000);
   return m < 1 ? 'ahora mismo' : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${Math.round(m / 60)} h` : `hace ${Math.round(m / 1440)} días`;
@@ -84,7 +84,8 @@ function calcula(T) {
   const total = sum(Object.values(red).map((x) => x.vistas));
   const seg = T.seguidores || {};
   const ganados = sum(Object.values(seg).map(([a, b]) => b - a));
-  return { V, red, total, ganados, com: sum(V.map((v) => v.com)), inter: sum(V.map((v) => v.inter)), durMedia: avg(V.map((v) => v.dur)), desde: T.ranking_desde || '' };
+  const rd = T.ranking_desde, desde = rd && typeof rd === 'object' ? (rd[S.comp] || '') : (rd || '');
+  return { V, red, total, ganados, com: sum(V.map((v) => v.com)), inter: sum(V.map((v) => v.inter)), durMedia: avg(V.map((v) => v.dur)), desde };
 }
 
 /* ============ piezas ============ */
@@ -213,8 +214,9 @@ function tabla(C) {
     // Movimiento en la clasificación (solo ordenando por total): ▲ sube, ▼ baja, = igual, «nuevo» si no estaba en la foto de entonces
     let mov = '';
     if (S.orden === 'total') {
-      if (v.antes == null) mov = C.desde ? '<span class="rd-mov nuevo" title="No estaba en la clasificación de entonces">nuevo</span>' : '';
-      else { const d = v.antes - (pos + 1); mov = d > 0 ? `<span class="rd-mov sube" title="Sube ${d} ${d === 1 ? 'puesto' : 'puestos'}"><i></i>${d}</span>` : d < 0 ? `<span class="rd-mov baja" title="Baja ${-d} ${d === -1 ? 'puesto' : 'puestos'}"><i></i>${-d}</span>` : '<span class="rd-mov igual" title="Mismo puesto">=</span>'; }
+      const antes = v.antes && typeof v.antes === 'object' ? v.antes[S.comp] : null;
+      if (antes == null) mov = C.desde ? '<span class="rd-mov nuevo" title="No estaba en la clasificación de entonces">nuevo</span>' : '';
+      else { const d = antes - (pos + 1); mov = d > 0 ? `<span class="rd-mov sube" title="Era el ${antes}.º"><i></i>${d}</span>` : d < 0 ? `<span class="rd-mov baja" title="Era el ${antes}.º"><i></i>${-d}</span>` : `<span class="rd-mov igual" title="Era el ${antes}.º">=</span>`; }
     }
     return `<tr class="rd-row ${S.abierto === v.i ? 'open' : ''}${pos < 3 && S.orden === 'total' ? ' podio p' + (pos + 1) : ''}" data-v="${v.i}"><td class="rd-pos"><b>${pos + 1}</b>${mov}</td>
       <td class="rd-tit"><b>${esc(v.titulo)}</b><span>${fecha(v.f)}</span><div class="rd-tags">${tags}</div></td>${celdas}
@@ -224,7 +226,8 @@ function tabla(C) {
   return `<div class="rd-tabla-w"><table class="rd-tabla"><thead><tr><th>#</th>${th('fecha', 'Vídeo')}${REDES.map((r) => th(r.k, r.n.replace(' Shorts', ''))).join('')}${th('total', 'Total')}</tr></thead><tbody>${filas}</tbody></table></div>`;
 }
 const tablaCard = (C) => `<section class="pb-card rd-card rd-rev">
-    <div class="rd-card-h"><div><h2>Clasificación de vídeos</h2><p>Por vistas totales, como una liga: la flecha dice cuántos puestos ha subido o bajado ${C.desde ? `desde el ${fecha(C.desde)}` : '(empieza a contar mañana)'}. El color dice lo fuerte que fue cada vídeo en su red. Pulsa una fila para ver el detalle.</p></div></div>
+    <div class="rd-card-h"><div><h2>Clasificación de vídeos</h2><p>Por vistas totales, como una liga: al lado del puesto, cuántos ha subido ▲ o bajado ▼ ${C.desde ? `desde el ${fecha(C.desde)}` : '(la primera foto es del 1 nov: las flechas salen a partir de mañana)'}. Pulsa una fila para ver el detalle.</p></div>
+      <div class="rd-comp" role="group" aria-label="Comparar con">${[[1, 'Desde ayer'], [7, '7 días'], [30, '30 días']].map(([n, t]) => `<button type="button" data-comp="${n}" class="${S.comp === n ? 'on' : ''}">${t}</button>`).join('')}</div></div>
     ${tabla(C)}</section>`;
 
 function detalle(v) {
@@ -377,6 +380,8 @@ raiz.addEventListener('click', (e) => {
   if (tb && !tb.disabled) { S.t = +tb.dataset.tanda; S.abierto = -1; pintar(); return; }
   const ch = e.target.closest('[data-red]');
   if (ch) { const k = ch.dataset.red; if (S.ocultas.has(k)) S.ocultas.delete(k); else if (S.ocultas.size < 3) S.ocultas.add(k); cambia('.rd-curva', curva(S.C)); return; }
+  const cp = e.target.closest('[data-comp]');
+  if (cp) { S.comp = +cp.dataset.comp; pintar(); return; }   // comparar con ayer, 7 o 30 días (recalcula la fecha de comparación)
   const or = e.target.closest('[data-orden]');
   if (or) { S.orden = or.dataset.orden; cambia('.rd-tabla-w', tabla(S.C)); return; }
   const fila = e.target.closest('.rd-row');
