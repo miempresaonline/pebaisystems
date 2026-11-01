@@ -2273,13 +2273,26 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
 <!-- Metricool: medición de audiencia sin cookies (exenta de consentimiento, ver /politica-de-cookies/) -->
 <script>function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"1f93f597864f09fbd98fe7aaf3444936"})});</script>
 <style>
-/* ===== corriente de luz por toda la web + logo que la monta + cristal (vista previa 01/11/2026, 2.ª vuelta) ===== */
-.rl-bg{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none}
-.rl-logo{position:fixed;left:0;top:0;z-index:0;width:92px;pointer-events:none;will-change:transform;filter:drop-shadow(0 0 22px rgba(183,255,60,.45)) drop-shadow(0 0 40px rgba(106,92,255,.35))}
-.rl-logo img{display:block;width:100%;height:auto}
+/* ===== corriente de luz por los márgenes + logo de PEBAI que la monta + cristal (vista previa 01/11/2026, 3.ª vuelta) ===== */
+.rl-bg{position:absolute;left:0;top:0;width:100%;height:100vh;z-index:0;pointer-events:none;will-change:transform}
+.rl-logo{position:fixed;left:0;top:0;z-index:0;width:76px;height:81px;pointer-events:none;will-change:transform;transform-origin:50% 53%;
+  filter:drop-shadow(0 0 18px rgba(183,255,60,.35)) drop-shadow(0 0 34px rgba(106,92,255,.3))}
+.rl-logo.sm{width:40px;height:43px}
+.rl-logo img{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .35s ease;will-change:transform}
+.rl-logo.on img{opacity:1}
+.rl-logo::before{content:"";position:absolute;left:50%;top:53%;width:150%;aspect-ratio:1;border-radius:50%;
+  border:1.5px solid rgba(183,255,60,.7);box-shadow:0 0 24px rgba(183,255,60,.45);transform:translate(-50%,-50%) scale(.3);opacity:0}
+.rl-logo.lit::before,.rl-logo.home::before{animation:rl-ping 1.1s cubic-bezier(.2,.7,.2,1)}
+@keyframes rl-ping{0%{transform:translate(-50%,-50%) scale(.3);opacity:1}100%{transform:translate(-50%,-50%) scale(1.5);opacity:0}}
 .page{position:relative;z-index:1;background:transparent!important}
+.footer.f4{background:transparent!important}
 .hero10 .h10-glow{display:none}
 .aurora{opacity:.4}
+
+/* el pie guarda el sitio donde aterriza el logo */
+.f4-a{position:relative;padding-left:50px;min-height:42px;justify-content:center}
+.f4-a b{transition:color .6s ease,text-shadow .6s ease}
+.f4-a.home b{color:#B7FF3C;text-shadow:0 0 18px rgba(183,255,60,.45)}
 
 /* cristal en las tarjetas (como el vídeo del dashboard glassy) */
 .final-card,.team,.c6-m,.tl-card,.sx-cap,.an-row,.sx-m{
@@ -2295,17 +2308,15 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
 .mega{background:#100F1C!important}
 :root[data-theme="light"] .mega{background:#FFFFFF!important}
 
-/* carga: anillo lima que cuenta y se pliega en el logo */
-.rl-load{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#0A0912;transition:background .5s ease .25s}
-.rl-load .rl-box{position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center;transition:transform .7s cubic-bezier(.65,0,.35,1),opacity .7s ease}
+/* carga: anillo lima que cuenta y se cierra donde aparece el logo */
+.rl-load{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#0A0912;transition:background .5s ease .2s}
+.rl-load .rl-box{position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center;transition:transform .6s cubic-bezier(.65,0,.35,1),opacity .5s ease .15s}
 .rl-ring{position:absolute;inset:0;transform:rotate(-90deg)}
 .rl-ring circle{fill:none;stroke:#B7FF3C;stroke-width:3;stroke-linecap:round;stroke-dasharray:302;stroke-dashoffset:302;filter:drop-shadow(0 0 8px rgba(183,255,60,.7))}
 .rl-load b{font:500 15px ui-monospace,Menlo,Consolas,monospace;color:#EFEDE7}
 .rl-load b::after{content:"%";color:rgba(239,237,231,.45)}
 .rl-load.out{background:transparent;pointer-events:none}
-.rl-load.out .rl-box{transform:translate(var(--tx),var(--ty)) scale(.6);opacity:0}
-
-@media (max-width:820px){.rl-logo{width:60px}}
+.rl-load.out .rl-box{transform:translate(var(--tx),var(--ty)) scale(.55);opacity:0}
 
 </style>
 </head>
@@ -2362,7 +2373,7 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
 
 <div class="rl-load" aria-hidden="true"><div class="rl-box"><svg class="rl-ring" viewBox="0 0 110 110"><circle cx="55" cy="55" r="48"/></svg><b>0</b></div></div>
 <canvas class="rl-bg" aria-hidden="true"></canvas>
-<div class="rl-logo" aria-hidden="true"><img src="/brand/pebai-marca.webp" alt="" width="300" height="320"></div>
+<div class="rl-logo" aria-hidden="true"><img class="rl-a" src="/brand/pebai-marca-a.webp" alt="" width="300" height="320"><img class="rl-b" src="/brand/pebai-marca-b.webp" alt="" width="300" height="320"></div>
 <div class="page">
 <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <main id="contenido">
@@ -3056,66 +3067,134 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
 </script>
 <script>
 (function(){
-  /* Corriente de luz que recorre toda la web (código propio, 01/11/2026):
-     un haz de hebras finas que baja en curva a lo largo de la página, sin cortes entre secciones,
-     y el logo de PEBAI montado sobre la corriente, que te acompaña al bajar. */
+  /* Corriente de luz + logo de PEBAI (vista previa, 3.ª vuelta, 01/11/2026, código propio).
+     La corriente va por los márgenes sin tapar la información: nace del logo en el hero, cambia de lado entre secciones
+     y termina en el pie, donde el logo aterriza junto a «PEBAI Systems».
+     El lienzo va dentro de la página (no fijo): el navegador lo desplaza junto al contenido, así que no hay tirones al bajar. */
   var cv=document.querySelector('.rl-bg'),logo=document.querySelector('.rl-logo');
   if(!cv||!logo)return;
-  var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var LOGO_Y=.42;          /* altura fija del logo en la pantalla */
-  /* centro de la corriente (en px de pantalla) para una altura del documento; misma fórmula que en el shader */
-  function cx(docY,t){var W=innerWidth;return W*(.5+.3*Math.sin(docY/1100-.65)+.06*Math.sin(docY/420+t*.12));}
+  var de=document.documentElement,pa=logo.querySelector('.rl-a'),pb=logo.querySelector('.rl-b'),foot=document.querySelector('.f4-a');
+  var calm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var LOGO_Y=.44,SIZE=76,DOCK=34;
+  var SIDE={servicios:'R',casos:'R',proceso:'L',porque:'L',redes:'R',equipo:'L'};
+  var K=[],W=0,VH=0,docH=0,dock={x:0,y:0},narrow=false;
 
-  var gl=cv.getContext('webgl',{premultipliedAlpha:true,antialias:false,alpha:true}),draw=function(){},sc=.6;
+  function ss(e){e=e<0?0:e>1?1:e;return e*e*(3-2*e);}
+  /* x y anchura de la corriente a una altura del documento (la misma cuenta que hace el shader) */
+  function at(y,t){
+    var n=K.length,x=K[0][1],s=K[0][2];
+    for(var i=0;i<n-1;i++){if(y>=K[i][0]&&y<K[i+1][0]){var e=ss((y-K[i][0])/(K[i+1][0]-K[i][0]));x=K[i][1]+(K[i+1][1]-K[i][1])*e;s=K[i][2]+(K[i+1][2]-K[i][2])*e;}}
+    if(y>=K[n-1][0]){x=K[n-1][1];s=K[n-1][2];}
+    return [x+9*Math.sin(y/380+t*.35)*Math.min(1,s/80),s];
+  }
+
+  function build(){
+    W=de.clientWidth;VH=innerHeight;narrow=W<820;
+    var sy=window.scrollY,col=document.querySelector('#servicios .wrap')||document.querySelector('.wrap'),cr=col.getBoundingClientRect();
+    var gL=cr.left,gR=W-cr.right;
+    var xL=narrow?18:Math.max(gL/2,24),xR=narrow?W-18:W-Math.max(gR/2,24);
+    var sG=narrow?24:Math.max(34,Math.min(130,Math.min(gL,gR)*.75));
+    var hero=document.getElementById('inicio'),cp=hero&&hero.querySelector('.h6-copy'),md=cp&&cp.nextElementSibling,hx=xR,sH=sG;
+    if(!narrow&&md){var a=cp.getBoundingClientRect(),b=md.getBoundingClientRect();if(b.left-a.right>60){hx=(a.right+b.left)/2;sH=Math.max(30,Math.min(110,(b.left-a.right)*.75));}}
+    var hb=hero?hero.getBoundingClientRect().bottom+sy:VH;
+    K=[[0,hx,sH],[Math.max(VH*LOGO_Y+200,hb-380),hx,sH]];
+    [].forEach.call(document.querySelectorAll('main > section:not(#inicio)'),function(s){
+      var r=s.getBoundingClientRect(),t=r.top+sy,bm=r.bottom+sy,x=SIDE[s.id]==='L'?xL:xR,m=Math.min(380,(bm-t)/3);
+      if(t+m>K[K.length-1][0]+40){K.push([t+m,x,sG]);K.push([bm-m,x,sG]);}
+    });
+    if(foot){var f=foot.getBoundingClientRect();dock={x:f.left+19,y:f.top+sy+f.height/2};}
+    else dock={x:K[K.length-1][1],y:K[K.length-1][0]+300};
+    K.push([dock.y,dock.x,4]);
+    K=K.slice(0,24);
+    logo.classList.toggle('sm',narrow);SIZE=narrow?40:76;
+    docH=de.scrollHeight;size();
+  }
+
+  /* ---- WebGL: haz de hebras de luz (código propio) ---- */
+  var gl=cv.getContext('webgl',{premultipliedAlpha:true,antialias:false,alpha:true}),U,sc=.5,CH=0,top=0;
   if(gl){
     var vs='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
-    var fs='precision highp float;uniform vec2 r;uniform float t,s,sc,W;'+
-      'float hash(float n){return fract(sin(n)*43758.5453);}'+
-      'void main(){float px=gl_FragCoord.x/sc;float py=(r.y-gl_FragCoord.y)/sc+s;'+
-      'float c0=W*(.5+.3*sin(py/1100.-.65)+.06*sin(py/420.+t*.12));'+
-      'float dx=px-c0;vec3 col=vec3(0.);'+
-      'for(int k=0;k<34;k++){float f=float(k)/33.;float o=(f-.5)*(70.+46.*sin(py/520.+f*2.3+t*.05));'+
-      'float d=abs(dx-o);float pulse=.55+.45*sin(py*.012-t*1.6+f*9.);'+
-      'vec3 hue=mix(vec3(.16,.75,.72),vec3(.72,1.,.24),smoothstep(.1,.9,f+.15*sin(py/700.)));'+
-      'col+=hue*(.55/(d+.9))*pulse*.32;}'+
-      'col+=mix(vec3(.2,.6,.55),vec3(.72,1.,.24),.6)*exp(-dx*dx/(2.*150.*150.))*.20;'+
-      'col=col/(1.+col);float a=clamp(max(col.r,max(col.g,col.b))*1.15,0.,1.);gl_FragColor=vec4(col,a);}';
-    function sh(type,src){var o=gl.createShader(type);gl.shaderSource(o,src);gl.compileShader(o);return o;}
-    var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);gl.useProgram(pr);
-    var b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
-    var loc=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-    var U={r:gl.getUniformLocation(pr,'r'),t:gl.getUniformLocation(pr,'t'),s:gl.getUniformLocation(pr,'s'),sc:gl.getUniformLocation(pr,'sc'),W:gl.getUniformLocation(pr,'W')};
-    function size(){cv.width=Math.max(1,innerWidth*sc|0);cv.height=Math.max(1,innerHeight*sc|0);gl.viewport(0,0,cv.width,cv.height);}
-    size();window.addEventListener('resize',size);
-    draw=function(t){gl.uniform2f(U.r,cv.width,cv.height);gl.uniform1f(U.t,t);gl.uniform1f(U.s,window.scrollY);gl.uniform1f(U.sc,sc);gl.uniform1f(U.W,innerWidth);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);};
-  }
-
-  var lx=null,ly=0,last=0;
-  function frame(now){
-    var t=calm?0:now/1000,y=window.scrollY+innerHeight*LOGO_Y,X=cx(y,t),size=logo.offsetWidth;
-    lx=lx===null?X:lx+(X-lx)*.18;
-    logo.style.transform='translate3d('+(lx-size/2).toFixed(1)+'px,'+(innerHeight*LOGO_Y-size/2).toFixed(1)+'px,0)';
-    if(now-last>30||calm){draw(t);last=now;}
-    if(!document.hidden&&!calm)requestAnimationFrame(frame);
-  }
-  if(calm){window.addEventListener('scroll',function(){requestAnimationFrame(frame);},{passive:true});}
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)requestAnimationFrame(frame);});
-  requestAnimationFrame(frame);
-
-  /* carga: un anillo lima cuenta la página y se pliega en el logo (una vez por visita) */
-  var ld=document.querySelector('.rl-load');
-  if(ld){
-    var seen=false;try{seen=sessionStorage.getItem('pebai-load')==='1';sessionStorage.setItem('pebai-load','1');}catch(e){}
-    if(seen||calm){ld.remove();}
+    var fs='precision highp float;uniform vec2 r;uniform float sc,o,t,n,rv,ry,en,dk;uniform vec3 K[24];'+
+      'float ss(float e){e=clamp(e,0.,1.);return e*e*(3.-2.*e);}'+
+      'void main(){float py=(r.y-gl_FragCoord.y)/sc+o,px=gl_FragCoord.x/sc;float x=K[0].y,s=K[0].z;'+
+      'for(int i=0;i<23;i++){if(float(i)>=n-1.)break;if(py>=K[i].x&&py<K[i+1].x){float e=ss((py-K[i].x)/(K[i+1].x-K[i].x));x=mix(K[i].y,K[i+1].y,e);s=mix(K[i].z,K[i+1].z,e);}}'+
+      'x+=9.*sin(py/380.+t*.35)*min(1.,s/80.);float dx=px-x;vec3 c=vec3(0.);'+
+      'float m=ss((dk+6.-py)/40.)*ss(1.-(abs(py-ry)-rv)/220.);'+
+      'if(m>.001){if(abs(dx)<s*.8+40.){for(int k=0;k<22;k++){float f=float(k)/21.;'+
+      'float q=(f-.5)*s*(.8+.2*sin(py/260.+f*5.+t*.4));float d=abs(dx-q);'+
+      'float p=.5+.5*sin(py*.011-t*(2.+en*3.)+f*12.);p=.3+.7*p*p*p*p;'+
+      'vec3 h=mix(vec3(.18,.78,.74),vec3(.72,1.,.24),smoothstep(.15,.85,f+.2*sin(py/650.)));'+
+      'c+=h*(.45/(d+.8))*p*(.2+.12*en);}}'+
+      'float g=s*.7+30.;c+=vec3(.5,.85,.4)*exp(-dx*dx/(2.*g*g))*(.11+.08*en);c*=m;}'+
+      'c=c/(1.+c);float al=clamp(max(c.r,max(c.g,c.b))*1.15,0.,1.);gl_FragColor=vec4(c,al);}';
+    var sh=function(ty,src){var o=gl.createShader(ty);gl.shaderSource(o,src);gl.compileShader(o);return o;};
+    var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);
+    if(!gl.getProgramParameter(pr,gl.LINK_STATUS)){gl=null;}
     else{
-      var num=ld.querySelector('b'),ring=ld.querySelector('.rl-ring circle'),T0=performance.now(),D=1100;
-      (function step(now){var k=Math.min(1,(now-T0)/D),e=1-Math.pow(1-k,3);num.textContent=Math.round(e*100);ring.style.strokeDashoffset=(1-e)*302;
-        if(k<1)requestAnimationFrame(step);
-        else{var r=logo.getBoundingClientRect(),c=ld.querySelector('.rl-ring').getBoundingClientRect();
-          ld.style.setProperty('--tx',(r.left+r.width/2-(c.left+c.width/2))+'px');ld.style.setProperty('--ty',(r.top+r.height/2-(c.top+c.height/2))+'px');
-          ld.classList.add('out');setTimeout(function(){ld.remove();},900);}})(T0);
+      gl.useProgram(pr);
+      var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+      var loc=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+      U={};['r','sc','o','t','n','rv','ry','en','dk','K'].forEach(function(k){U[k]=gl.getUniformLocation(pr,k);});
     }
   }
+  function size(){
+    CH=Math.ceil(VH*1.7);cv.style.height=CH+'px';
+    if(gl){cv.width=Math.max(1,W*sc|0);cv.height=Math.max(1,CH*sc|0);gl.viewport(0,0,cv.width,cv.height);
+      var a=new Float32Array(72);K.forEach(function(k,i){a[i*3]=k[0];a[i*3+1]=k[1];a[i*3+2]=k[2];});gl.uniform3fv(U.K,a);}
+  }
+
+  /* ---- entrada: las dos piezas del logo llegan, encajan y de ahí nace la corriente ---- */
+  var T0=-1,rv=calm?1e5:-300,ry=0,vel=0,lastY=window.scrollY,home=false;
+  function intro(){T0=performance.now();ry=window.scrollY+VH*LOGO_Y;logo.classList.add('on');}
+  function outBack(e){var c=1.4;return 1+(c+1)*Math.pow(e-1,3)+c*Math.pow(e-1,2);}
+
+  var last=0,lastS=-1;
+  function frame(now){
+    var t=calm?0:now/1000,sy=window.scrollY;
+    vel+=((sy-lastY)-vel)*.15;lastY=sy;var en=Math.min(1,Math.abs(vel)/30);
+    /* intro */
+    var I=1;
+    if(!calm){if(T0<0)I=0;else{I=Math.min(1,(now-T0)/750);var R=Math.max(0,(now-T0-550)/1600);rv=R>=1?1e5:-220+Math.pow(R,1.6)*4200;}}
+    /* aterrizaje en el pie */
+    var maxS=Math.max(1,docH-VH),D=Math.min(VH*.6,maxS),k=ss((sy-(maxS-D))/D);
+    var yS=VH*LOGO_Y+((dock.y-sy)-VH*LOGO_Y)*k,p=at(sy+yS,t),z=(SIZE+(DOCK-SIZE)*k)/SIZE;
+    logo.style.transform='translate3d('+(p[0]-SIZE/2).toFixed(1)+'px,'+(yS-SIZE*.533).toFixed(1)+'px,0) scale('+z.toFixed(3)+')';
+    /* las piezas: entrada con rebote y, al bajar rápido, se separan un pelo y vuelven */
+    var e=outBack(I),off=(1-e)*90,sep=Math.max(-5,Math.min(5,vel*.12));
+    pa.style.transform='translate3d('+(-off*1.3-sep*.6).toFixed(1)+'px,'+(-off-sep*.8).toFixed(1)+'px,0)';
+    pb.style.transform='translate3d('+(off*1.3+sep*.6).toFixed(1)+'px,'+(off+sep*.8).toFixed(1)+'px,0)';
+    if(I>=1&&!logo.classList.contains('lit')&&T0>=0)logo.classList.add('lit');
+    var h=k>.97;if(h!==home){home=h;logo.classList.toggle('home',h);if(foot)foot.classList.toggle('home',h);}
+    /* lienzo: se recoloca y se pinta; entre pintadas el navegador lo mueve con la página */
+    if(gl&&(sy!==lastS||now-last>33||calm)){
+      var B=VH*.35;top=Math.max(0,Math.min(sy-B,docH-CH));
+      cv.style.transform='translate3d(0,'+top.toFixed(0)+'px,0)';
+      gl.uniform2f(U.r,cv.width,cv.height);gl.uniform1f(U.sc,sc);gl.uniform1f(U.o,top);gl.uniform1f(U.t,t);gl.uniform1f(U.n,K.length);
+      gl.uniform1f(U.rv,rv);gl.uniform1f(U.ry,ry);gl.uniform1f(U.en,en);gl.uniform1f(U.dk,dock.y);
+      gl.drawArrays(gl.TRIANGLE_STRIP,0,4);last=now;lastS=sy;
+    }
+    if(!document.hidden&&!calm)requestAnimationFrame(frame);
+  }
+
+  build();
+  var rb=0;function rebuild(){clearTimeout(rb);rb=setTimeout(function(){build();lastS=-1;if(calm)requestAnimationFrame(frame);},120);}
+  addEventListener('resize',rebuild);addEventListener('load',rebuild);
+  if(window.ResizeObserver)new ResizeObserver(rebuild).observe(document.body);
+  if(calm){logo.classList.add('on','lit');addEventListener('scroll',function(){requestAnimationFrame(frame);},{passive:true});}
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&!calm)requestAnimationFrame(frame);});
+  requestAnimationFrame(frame);
+
+  /* carga (una vez por visita): anillo lima que cuenta y se cierra donde aparece el logo */
+  var ld=document.querySelector('.rl-load');
+  if(!ld){if(!calm)setTimeout(intro,250);return;}
+  var seen=false;try{seen=sessionStorage.getItem('pebai-load')==='1';sessionStorage.setItem('pebai-load','1');}catch(x){}
+  if(seen||calm){ld.remove();if(!calm)setTimeout(intro,250);return;}
+  var num=ld.querySelector('b'),ring=ld.querySelector('.rl-ring circle'),L0=performance.now(),LD=1100;
+  (function step(now){var q=Math.min(1,(now-L0)/LD),e=1-Math.pow(1-q,3);num.textContent=Math.round(e*100);ring.style.strokeDashoffset=(1-e)*302;
+    if(q<1)return requestAnimationFrame(step);
+    var r=logo.getBoundingClientRect(),c=ld.querySelector('.rl-ring').getBoundingClientRect();
+    ld.style.setProperty('--tx',(r.left+r.width/2-(c.left+c.width/2))+'px');ld.style.setProperty('--ty',(r.top+r.height/2-(c.top+c.height/2))+'px');
+    ld.classList.add('out');setTimeout(intro,380);setTimeout(function(){ld.remove();},900);})(L0);
 })();
 
 </script>
