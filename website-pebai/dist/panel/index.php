@@ -60,6 +60,69 @@ try {
     $dbError = 'No se puede abrir la base de datos: ' . $e->getMessage();
 }
 
+/* ------------------------------------------------------------ Recordarme --- */
+/* Daniel, 01/11: «nunca se me guarda el inicio de sesión». La sesión de PHP se pierde al cerrar el navegador y el servidor la borra
+   a los ~24 min sin uso; por eso, al entrar se guarda también una llave aleatoria en una cookie de 60 días (solo su huella sha256 en la
+   base de datos, con su csrf para que las pestañas abiertas sigan valiendo). Si la sesión se ha perdido y llega esa llave, se entra solo.
+   Cada uso alarga los 60 días; «Salir» la borra. */
+const PEBAI_RECUERDA = 'pebai_recuerda';
+const PEBAI_RECUERDA_DIAS = 60;
+function pebai_recuerda_db(?PDO $db): ?PDO
+{
+    if (!$db) {
+        return null;
+    }
+    $db->exec('CREATE TABLE IF NOT EXISTS sesiones_recuerdo (hash TEXT PRIMARY KEY, csrf TEXT NOT NULL, creada TEXT NOT NULL, caduca INTEGER NOT NULL,
+               ua TEXT NOT NULL DEFAULT "", usada TEXT NOT NULL DEFAULT "")');
+    return $db;
+}
+function pebai_recuerda_cookie(string $valor, int $hasta): void
+{
+    setcookie(PEBAI_RECUERDA, $valor, ['expires' => $hasta, 'path' => BASE, 'secure' => true, 'httponly' => true, 'samesite' => 'Lax']);
+}
+function pebai_recuerda_poner(?PDO $db): void
+{
+    if (!($db = pebai_recuerda_db($db))) {
+        return;
+    }
+    $t = bin2hex(random_bytes(32));
+    $hasta = time() + PEBAI_RECUERDA_DIAS * 86400;
+    $db->prepare('DELETE FROM sesiones_recuerdo WHERE caduca < ?')->execute([time()]);
+    $db->prepare('INSERT INTO sesiones_recuerdo (hash, csrf, creada, caduca, ua, usada) VALUES (?, ?, ?, ?, ?, ?)')
+       ->execute([hash('sha256', $t), csrf(), date('Y-m-d H:i:s'), $hasta, mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 200), date('Y-m-d H:i:s')]);
+    pebai_recuerda_cookie($t, $hasta);
+}
+function pebai_recuerda_entrar(?PDO $db): bool
+{
+    $t = (string)($_COOKIE[PEBAI_RECUERDA] ?? '');
+    if (!preg_match('/^[0-9a-f]{64}$/', $t) || !($db = pebai_recuerda_db($db))) {
+        return false;
+    }
+    $q = $db->prepare('SELECT csrf, caduca FROM sesiones_recuerdo WHERE hash = ? AND caduca > ?');
+    $q->execute([hash('sha256', $t), time()]);
+    $r = $q->fetch(PDO::FETCH_ASSOC);
+    $q->closeCursor();
+    if (!$r) {
+        pebai_recuerda_cookie('', time() - 3600);   // llave caducada o borrada: fuera
+        return false;
+    }
+    session_regenerate_id(true);
+    $_SESSION['auth'] = true;
+    $_SESSION['csrf'] = $r['csrf'];   // el mismo csrf de antes: las pestañas abiertas siguen funcionando
+    $hasta = time() + PEBAI_RECUERDA_DIAS * 86400;
+    $db->prepare('UPDATE sesiones_recuerdo SET caduca = ?, usada = ? WHERE hash = ?')->execute([$hasta, date('Y-m-d H:i:s'), hash('sha256', $t)]);
+    pebai_recuerda_cookie($t, $hasta);
+    return true;
+}
+function pebai_recuerda_quitar(?PDO $db): void
+{
+    $t = (string)($_COOKIE[PEBAI_RECUERDA] ?? '');
+    if ($t !== '' && ($db = pebai_recuerda_db($db))) {
+        $db->prepare('DELETE FROM sesiones_recuerdo WHERE hash = ?')->execute([hash('sha256', $t)]);
+    }
+    pebai_recuerda_cookie('', time() - 3600);
+}
+
 /* ------------------------------------------------------------ Login --- */
 /** Contraseña normal, o la clave rápida si viene de la casilla del atajo (Ctrl + 5 × Espacio). */
 function pebai_login_ok(): bool
@@ -87,6 +150,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     } elseif (pebai_login_ok()) {
         session_regenerate_id(true);
         $_SESSION['auth'] = true;
+        pebai_recuerda_poner($db);
         $next = (string)($_POST['next'] ?? '');
         header('Location: ' . BASE . ($next !== '' && $next[0] === '?' && strlen($next) < 200 ? $next : ''));
         exit;
@@ -99,13 +163,14 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
 }
 
 if (isset($_GET['salir'])) {
+    pebai_recuerda_quitar($db);
     $_SESSION = [];
     session_destroy();
     header('Location: ' . BASE);
     exit;
 }
 
-$auth = !empty($_SESSION['auth']);
+$auth = !empty($_SESSION['auth']) || pebai_recuerda_entrar($db);
 if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || isset($_GET['oficina']) || isset($_GET['oficina_resumen']) || isset($_GET['oficina_explica']) || isset($_GET['oficina_parte']) || isset($_GET['qr']) || isset($_GET['mapa']) || isset($_GET['redes']) || isset($_GET['web']) || isset($_GET['gasto']) || isset($_GET['demo_encargo']) || isset($_GET['buscar']) || isset($_GET['push_clave']) || isset($_GET['avisos_ultimos']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
     json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 401);
 }
