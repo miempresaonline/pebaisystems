@@ -19,3 +19,5 @@ Una línea por post: `fecha · layout · tema · seed · titular`. El agente de 
 2026-11-20 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-12-16.png (Lo que no se automatiza)
 2026-11-23 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-11-04.png (Consultoría de IA desde Valencia)
 2026-11-26 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-11-11.png (De WhatsApp a una app)
+2026-11-27 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-12-23.png (Conectado a lo que ya usas)
+2026-12-01 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-12-30.png (¿Te recomienda ChatGPT?)

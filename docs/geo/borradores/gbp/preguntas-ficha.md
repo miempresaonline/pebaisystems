@@ -97,3 +97,23 @@ Casos reales de `casos.md`, sin cifras ni nombres de contacto.
 
 24. **¿Qué pasa si el agente de voz no entiende a quien llama?**
     Lo intenta dos veces y, si sigue sin entender, pasa la llamada a una persona con un resumen de lo que ha entendido; si no hay nadie, toma nota y deja el aviso para el equipo. Con acentos muy marcados o mucho ruido puede fallar, por eso se prueba con llamadas reales antes de activarlo.
+
+## Automatización de procesos (1/11/2026; respuestas solo con lo que dice `/automatizacion-de-procesos/` a 26/10/2026, sin precios)
+
+25. **¿Qué procesos de una empresa se pueden automatizar con IA?**
+    Los que se repiten con los mismos pasos y trabajan con datos digitales: pasar pedidos al programa de gestión, registrar facturas de proveedores, preparar borradores de presupuesto, recoger partes de trabajo y montar informes. La IA se usa donde hay que leer correos, PDF o fotos; el resto va con reglas fijas. Más en pebaisystems.es/automatizacion-de-procesos/.
+
+26. **¿Qué diferencia hay entre automatizar con reglas y automatizar con IA?**
+    Las reglas fijas sirven cuando los datos llegan siempre igual. La IA sirve cuando llegan de cualquier forma: un pedido en un correo, un PDF de proveedor o la foto de un albarán. Lo que mejor funciona es combinarlas: reglas para lo estable e IA solo donde hay que leer o clasificar.
+
+27. **¿Tengo que cambiar de programa de gestión para automatizar?**
+    Casi nunca. La mayoría de programas se conectan por su API, por exportaciones o, en los antiguos, por su base de datos. Solo conviene cambiar si el programa no deja sacar ni meter datos. Qué se puede conectar en vuestro caso se confirma en la consultoría de 25 minutos, con la versión que tenéis.
+
+28. **¿La automatización va a sustituir a mi equipo?**
+    No es el objetivo. Quita las tareas de copiar y pegar para que el equipo dedique su tiempo a lo que necesita criterio: atender clientes, decidir, resolver problemas. Las decisiones que afectan a clientes, trabajadores o pagos las sigue aprobando una persona.
+
+29. **¿Cuánto cuesta automatizar un proceso?**
+    Depende de la empresa: del proceso, de los programas que hay que conectar y de si hace falta una herramienta nueva. Se presupuesta después de la consultoría. Pide siempre que separen el proyecto de los costes de uso y del mantenimiento.
+
+30. **¿Qué cambia con la factura electrónica obligatoria y VeriFactu?**
+    La factura electrónica entre empresas será obligatoria desde el 6 de octubre de 2027 para quien facture más de 8 millones al año y desde el 6 de octubre de 2028 para el resto. VeriFactu está previsto para 2027, con un aplazamiento anunciado a octubre de 2028 que, a 26/10/2026, no estaba publicado en el BOE. Es buen momento para ordenar la facturación.
