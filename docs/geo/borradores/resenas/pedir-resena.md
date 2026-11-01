@@ -38,3 +38,20 @@ Hola [nombre], soy Daniel, de PEBAI Systems. Ya llevas un tiempo trabajando con 
 Hola [nombre], soy Daniel, de PEBAI Systems. El equipo ya está empezando a usar la aplicación nueva de almacén y pedidos. Cuando tengáis un momento, nos ayudaría mucho una reseña sincera en Google sobre cómo está yendo el trabajo. Gracias por la confianza. pebaisystems.es/r/w
 
 Si alguno da una frase, pedir permiso para usarla como testimonio en la web y en LinkedIn. Residencia El Amparo: no pedir hasta que Daniel decida (salió de los directorios el 28/10).
+
+## Recordatorio único a los 7 días (1/11/2026; solo si no ha respondido, una vez, sin insistir)
+### WhatsApp
+Hola [nombre], te escribo solo una vez más por si se te pasó el mensaje de la reseña. Si prefieres no hacerlo, sin problema. Si te apetece, son dos minutos y cuentas lo que quieras: pebaisystems.es/r/w. Gracias de nuevo.
+
+### Email
+Asunto: Una última cosa sobre la reseña
+
+Hola [nombre]:
+
+Te lo recuerdo una sola vez: si te ha servido el trabajo y tienes dos minutos, nos ayuda una reseña sincera en Google (pebaisystems.es/r/w). Si no te viene bien, no pasa nada.
+
+Un saludo,
+Daniel, PEBAI Systems
+
+## Si el cliente dice que le ha ido regular
+No pedir que cambie nada ni que no publique. Agradecer, preguntar qué mejorar y, si quiere, dejarle el mismo enlace: Google prohíbe filtrar quién puede opinar. La respuesta pública a una reseña negativa está en `responder.md`.
