@@ -2273,34 +2273,39 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
 <!-- Metricool: medición de audiencia sin cookies (exenta de consentimiento, ver /politica-de-cookies/) -->
 <script>function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"1f93f597864f09fbd98fe7aaf3444936"})});</script>
 <style>
-/* ===== estela + logo que acompaña + cristal (vista previa 01/11/2026) ===== */
+/* ===== corriente de luz por toda la web + logo que la monta + cristal (vista previa 01/11/2026, 2.ª vuelta) ===== */
 .rl-bg{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none}
-.rl-logo{position:fixed;left:0;top:0;z-index:0;width:120px;height:auto;pointer-events:none;will-change:transform;filter:drop-shadow(0 0 30px rgba(183,255,60,.55)) drop-shadow(0 0 60px rgba(106,92,255,.4))}
-.rl-logo svg{display:block;width:100%;height:auto;position:relative}
-.rl-halo{position:absolute;left:50%;top:50%;width:340%;height:340%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(183,255,60,.16),rgba(106,92,255,.08) 40%,transparent 70%)}
+.rl-logo{position:fixed;left:0;top:0;z-index:0;width:92px;pointer-events:none;will-change:transform;filter:drop-shadow(0 0 22px rgba(183,255,60,.45)) drop-shadow(0 0 40px rgba(106,92,255,.35))}
+.rl-logo img{display:block;width:100%;height:auto}
 .page{position:relative;z-index:1;background:transparent!important}
-/* las secciones dejan ver la estela; el hero ya no lleva su propia luz */
 .hero10 .h10-glow{display:none}
-.aurora{opacity:.55}
+.aurora{opacity:.4}
 
-/* cristal */
-.c6-m,.tl-card,.final-card,.team,.sx-cap,.sx-cons,.sx-ask,.rl-v,.dif,.why li,.porque li,.gr,.h10-l,.an-row,.player,.sx-m,.topnav,.hdr-right .round,.logo{
+/* cristal en las tarjetas (como el vídeo del dashboard glassy) */
+.final-card,.team,.c6-m,.tl-card,.sx-cap,.an-row,.sx-m{
   -webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}
 .final-card,.team,.c6-m,.tl-card,.sx-cap,.an-row{
-  background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02)) ,rgba(18,16,34,.42)!important;
+  background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02)),rgba(16,15,30,.5)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(255,255,255,.08),0 30px 70px -36px rgba(0,0,0,.7)!important}
 :root[data-theme="light"] .final-card,:root[data-theme="light"] .team,:root[data-theme="light"] .c6-m,:root[data-theme="light"] .tl-card,:root[data-theme="light"] .sx-cap,:root[data-theme="light"] .an-row{
-  background:linear-gradient(160deg,rgba(255,255,255,.75),rgba(255,255,255,.45))!important;box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px rgba(18,18,26,.08),0 30px 70px -36px rgba(60,48,140,.25)!important}
+  background:linear-gradient(160deg,rgba(255,255,255,.8),rgba(255,255,255,.5))!important;box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px rgba(18,18,26,.08),0 30px 70px -36px rgba(60,48,140,.25)!important}
 
-/* menú hamburguesa y mega menú de cristal */
-.menu.mm,.mega{background:rgba(12,11,22,.62)!important;-webkit-backdrop-filter:blur(26px) saturate(150%);backdrop-filter:blur(26px) saturate(150%)}
+/* menú y mega menú: fondo sólido para que siempre se lea */
+.menu.mm{background:var(--bg)!important}
+.mega{background:#100F1C!important}
+:root[data-theme="light"] .mega{background:#FFFFFF!important}
 
-/* de borroso a nítido al entrar cada sección (como el vídeo glassy) */
-html.js .reveal{filter:blur(14px);transition:opacity .9s ease,transform .9s var(--ease),filter 1s ease}
-html.js .reveal.in{filter:none}
+/* carga: anillo lima que cuenta y se pliega en el logo */
+.rl-load{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#0A0912;transition:background .5s ease .25s}
+.rl-load .rl-box{position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center;transition:transform .7s cubic-bezier(.65,0,.35,1),opacity .7s ease}
+.rl-ring{position:absolute;inset:0;transform:rotate(-90deg)}
+.rl-ring circle{fill:none;stroke:#B7FF3C;stroke-width:3;stroke-linecap:round;stroke-dasharray:302;stroke-dashoffset:302;filter:drop-shadow(0 0 8px rgba(183,255,60,.7))}
+.rl-load b{font:500 15px ui-monospace,Menlo,Consolas,monospace;color:#EFEDE7}
+.rl-load b::after{content:"%";color:rgba(239,237,231,.45)}
+.rl-load.out{background:transparent;pointer-events:none}
+.rl-load.out .rl-box{transform:translate(var(--tx),var(--ty)) scale(.6);opacity:0}
 
-@media (max-width:820px){.rl-logo{width:56px;opacity:.8}}
-@media (prefers-reduced-motion:reduce){html.js .reveal{filter:none}}
+@media (max-width:820px){.rl-logo{width:60px}}
 
 </style>
 </head>
@@ -2355,9 +2360,9 @@ html.js .reveal.in{filter:none}
   <button class="dock-x" type="button" id="dock-x" aria-label="Ocultar la tarjeta de consultoría"><svg aria-hidden="true" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
 </aside>
 
+<div class="rl-load" aria-hidden="true"><div class="rl-box"><svg class="rl-ring" viewBox="0 0 110 110"><circle cx="55" cy="55" r="48"/></svg><b>0</b></div></div>
 <canvas class="rl-bg" aria-hidden="true"></canvas>
-<div class="rl-logo" aria-hidden="true"><span class="rl-halo"></span><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 500"><defs><linearGradient id="a" x1="84" y1="87" x2="558" y2="338" gradientUnits="userSpaceOnUse"><stop stop-color="#B7FF3C"/><stop offset="1" stop-color="#99ED24"/></linearGradient><linearGradient id="b" x1="252" y1="418" x2="600" y2="204" gradientUnits="userSpaceOnUse"><stop stop-color="#6A5CFF"/><stop offset="1" stop-color="#594AF7"/></linearGradient></defs><path fill="url(#a)" d="M64 338C52 299 78 237 130 183C211 98 350 42 569 13L666 0 558 84C468 153 397 208 348 250 305 287 275 320 261 351L219 401C214 370 200 349 172 336 115 309 82 321 64 338Z"/><path fill="url(#b)" d="M202 500 317 401C373 353 430 304 489 249 532 209 561 177 574 153 621 183 637 226 626 274 608 355 498 418 321 468L202 500Z"/><path fill="#12121A" d="M251 351C276 314 310 283 353 246 405 202 472 147 558 84L541 101C487 151 440 185 399 208 365 227 351 242 354 258 357 276 385 287 419 301 373 332 339 357 317 385L219 464 251 351Z"/></svg>
-</div>
+<div class="rl-logo" aria-hidden="true"><img src="/brand/pebai-marca.webp" alt="" width="300" height="320"></div>
 <div class="page">
 <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <main id="contenido">
@@ -3051,66 +3056,66 @@ html.js .reveal.in{filter:none}
 </script>
 <script>
 (function(){
+  /* Corriente de luz que recorre toda la web (código propio, 01/11/2026):
+     un haz de hebras finas que baja en curva a lo largo de la página, sin cortes entre secciones,
+     y el logo de PEBAI montado sobre la corriente, que te acompaña al bajar. */
   var cv=document.querySelector('.rl-bg'),logo=document.querySelector('.rl-logo');
   if(!cv||!logo)return;
   var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var narrow=window.matchMedia('(max-width:820px)');
+  var LOGO_Y=.42;          /* altura fija del logo en la pantalla */
+  /* centro de la corriente (en px de pantalla) para una altura del documento; misma fórmula que en el shader */
+  function cx(docY,t){var W=innerWidth;return W*(.5+.3*Math.sin(docY/1100-.65)+.06*Math.sin(docY/420+t*.12));}
 
-  /* recorrido del logo: en cada sección se coloca a un lado (derecha, izquierda…) y entre una y otra viaja suave */
-  var secs=[].slice.call(document.querySelectorAll('main > section, .final'));
-  var side=secs.map(function(){return 0.93;});
-  side[0]=0.5; /* en el hero, centrado entre el texto y el vídeo */
-  var LX=.5,LY=.5,lx=.5,ly=.42,rot=0,lastY=window.scrollY,vel=0;
-  function target(){
-    var vh=window.innerHeight,mid=window.scrollY+vh*.5,i=0;
-    for(var k=0;k<secs.length;k++){var r=secs[k].getBoundingClientRect(),top=r.top+window.scrollY;if(mid>=top)i=k;}
-    var s=secs[i],r2=s.getBoundingClientRect(),top2=r2.top+window.scrollY,p=Math.min(1,Math.max(0,(mid-top2)/Math.max(1,s.offsetHeight)));
-    var a=side[i],b=side[Math.min(i+1,secs.length-1)];
-    var e=p<.7?0:(p-.7)/.3;e=e*e*(3-2*e);
-    LX=a+(b-a)*e;
-    if(narrow.matches&&LX!==.5)LX=LX<.5?.06:.94;
-    LY=i===0?.48:.5+.06*Math.sin(p*Math.PI*2);
-  }
-
-  /* estela de luz en WebGL (código propio): todas las líneas convergen en el logo y se mueven con el scroll */
-  var gl=cv.getContext('webgl',{premultipliedAlpha:true,antialias:false,alpha:true});
-  var draw=function(){};
+  var gl=cv.getContext('webgl',{premultipliedAlpha:true,antialias:false,alpha:true}),draw=function(){},sc=.6;
   if(gl){
     var vs='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
-    var fs='precision mediump float;uniform vec2 r;uniform float t;uniform float s;uniform vec2 l;'+
-      'vec3 col(float k){return mix(vec3(.42,.36,1.),vec3(.72,1.,.24),smoothstep(.2,.9,k));}'+
-      'void main(){vec2 uv=gl_FragCoord.xy/r;float asp=r.x/r.y;vec2 p=vec2((uv.x-l.x)*asp,uv.y-(1.-l.y));vec3 c=vec3(0.);'+
-      'for(int i=0;i<18;i++){float f=float(i)/18.;'+
-      'float dx=p.x;float sp=abs(dx);'+
-      'float y=dx*(-.35+f*.7)*.55+sin(dx*2.2+t*.35+s*2.2+f*4.)*.22*sp+sin(dx*5.-t*.25+f*7.)*.04*sp;'+
-      'float d=abs(p.y-y);float w=.0016+.012*f*f;'+
-      'float fade=exp(-sp*.55);'+
-      'c+=col(f)*(w/(d+.003))*.11*fade;}'+
-      'c+=vec3(.72,1.,.24)*.06/(length(p)+.08);'+
-      'c=c/(1.+c);float al=clamp(max(c.r,max(c.g,c.b))*1.25,0.,1.);gl_FragColor=vec4(c,al);}';
+    var fs='precision highp float;uniform vec2 r;uniform float t,s,sc,W;'+
+      'float hash(float n){return fract(sin(n)*43758.5453);}'+
+      'void main(){float px=gl_FragCoord.x/sc;float py=(r.y-gl_FragCoord.y)/sc+s;'+
+      'float c0=W*(.5+.3*sin(py/1100.-.65)+.06*sin(py/420.+t*.12));'+
+      'float dx=px-c0;vec3 col=vec3(0.);'+
+      'for(int k=0;k<34;k++){float f=float(k)/33.;float o=(f-.5)*(70.+46.*sin(py/520.+f*2.3+t*.05));'+
+      'float d=abs(dx-o);float pulse=.55+.45*sin(py*.012-t*1.6+f*9.);'+
+      'vec3 hue=mix(vec3(.16,.75,.72),vec3(.72,1.,.24),smoothstep(.1,.9,f+.15*sin(py/700.)));'+
+      'col+=hue*(.55/(d+.9))*pulse*.32;}'+
+      'col+=mix(vec3(.2,.6,.55),vec3(.72,1.,.24),.6)*exp(-dx*dx/(2.*150.*150.))*.20;'+
+      'col=col/(1.+col);float a=clamp(max(col.r,max(col.g,col.b))*1.15,0.,1.);gl_FragColor=vec4(col,a);}';
     function sh(type,src){var o=gl.createShader(type);gl.shaderSource(o,src);gl.compileShader(o);return o;}
     var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);gl.useProgram(pr);
     var b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
     var loc=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-    var ur=gl.getUniformLocation(pr,'r'),ut=gl.getUniformLocation(pr,'t'),us=gl.getUniformLocation(pr,'s'),ul=gl.getUniformLocation(pr,'l');
-    var sc=.5;
+    var U={r:gl.getUniformLocation(pr,'r'),t:gl.getUniformLocation(pr,'t'),s:gl.getUniformLocation(pr,'s'),sc:gl.getUniformLocation(pr,'sc'),W:gl.getUniformLocation(pr,'W')};
     function size(){cv.width=Math.max(1,innerWidth*sc|0);cv.height=Math.max(1,innerHeight*sc|0);gl.viewport(0,0,cv.width,cv.height);}
     size();window.addEventListener('resize',size);
-    draw=function(now){gl.uniform2f(ur,cv.width,cv.height);gl.uniform1f(ut,calm?6:now/1000);gl.uniform1f(us,window.scrollY/Math.max(1,innerHeight));gl.uniform2f(ul,lx,ly);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);};
+    draw=function(t){gl.uniform2f(U.r,cv.width,cv.height);gl.uniform1f(U.t,t);gl.uniform1f(U.s,window.scrollY);gl.uniform1f(U.sc,sc);gl.uniform1f(U.W,innerWidth);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);};
   }
 
-  var t0=performance.now(),last=0;
+  var lx=null,ly=0,last=0;
   function frame(now){
-    target();
-    var k=calm?1:.07;lx+=(LX-lx)*k;ly+=(LY-ly)*k;
-    var dy=window.scrollY-lastY;lastY=window.scrollY;vel+=(dy-vel)*.1;rot+=((vel*.25)-rot)*.08;
-    var size=logo.offsetWidth,x=lx*innerWidth-size/2,y=ly*innerHeight-size*.37;
-    logo.style.transform='translate3d('+x.toFixed(1)+'px,'+y.toFixed(1)+'px,0) rotate('+Math.max(-25,Math.min(25,rot)).toFixed(2)+'deg)';
-    if(now-last>32){draw(now);last=now;}   /* ~30 fps para la estela */
-    if(!document.hidden)requestAnimationFrame(frame);
+    var t=calm?0:now/1000,y=window.scrollY+innerHeight*LOGO_Y,X=cx(y,t),size=logo.offsetWidth;
+    lx=lx===null?X:lx+(X-lx)*.18;
+    logo.style.transform='translate3d('+(lx-size/2).toFixed(1)+'px,'+(innerHeight*LOGO_Y-size/2).toFixed(1)+'px,0)';
+    if(now-last>30||calm){draw(t);last=now;}
+    if(!document.hidden&&!calm)requestAnimationFrame(frame);
   }
+  if(calm){window.addEventListener('scroll',function(){requestAnimationFrame(frame);},{passive:true});}
   document.addEventListener('visibilitychange',function(){if(!document.hidden)requestAnimationFrame(frame);});
   requestAnimationFrame(frame);
+
+  /* carga: un anillo lima cuenta la página y se pliega en el logo (una vez por visita) */
+  var ld=document.querySelector('.rl-load');
+  if(ld){
+    var seen=false;try{seen=sessionStorage.getItem('pebai-load')==='1';sessionStorage.setItem('pebai-load','1');}catch(e){}
+    if(seen||calm){ld.remove();}
+    else{
+      var num=ld.querySelector('b'),ring=ld.querySelector('.rl-ring circle'),T0=performance.now(),D=1100;
+      (function step(now){var k=Math.min(1,(now-T0)/D),e=1-Math.pow(1-k,3);num.textContent=Math.round(e*100);ring.style.strokeDashoffset=(1-e)*302;
+        if(k<1)requestAnimationFrame(step);
+        else{var r=logo.getBoundingClientRect(),c=ld.querySelector('.rl-ring').getBoundingClientRect();
+          ld.style.setProperty('--tx',(r.left+r.width/2-(c.left+c.width/2))+'px');ld.style.setProperty('--ty',(r.top+r.height/2-(c.top+c.height/2))+'px');
+          ld.classList.add('out');setTimeout(function(){ld.remove();},900);}})(T0);
+    }
+  }
 })();
 
 </script>
