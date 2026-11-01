@@ -77,3 +77,23 @@ Casos reales de `casos.md`, sin cifras ni nombres de contacto.
 
 18. **¿Qué debo preguntar a una consultora de IA antes de firmar?**
     Cuatro cosas, a cualquiera: qué se entrega al terminar y a nombre de quién, qué datos tratará y con qué contrato (el RGPD lo exige si toca datos de tus clientes), cómo se mide que ha funcionado y quién corrige si el sistema se equivoca. Tenemos una guía con los criterios en pebaisystems.es/ia-para-empresas/.
+
+## WhatsApp y voz (1/11/2026; respuestas solo con lo que dicen `/agentes-ia/whatsapp/` y `/agentes-ia/voz/`, sin precios)
+
+19. **¿Qué diferencia hay entre WhatsApp Business y la API oficial para poner un agente de IA?**
+    La app WhatsApp Business es gratuita y la contesta una persona desde el móvil. La API oficial es la que permite conectar un agente de IA, que atienda todo el equipo desde un panel y enlazar vuestros programas. Os explicamos cuál os conviene en la consultoría de 25 minutos: pebaisystems.es/agentes-ia/whatsapp/.
+
+20. **¿Perderé mis chats de WhatsApp si paso el número a un agente de IA?**
+    Con la conexión que Meta llama coexistencia, no: si la empresa lo autoriza, se traen los chats individuales y los contactos de los últimos seis meses y se puede seguir contestando desde la app. Los grupos no se sincronizan. Lo revisamos con vuestro caso antes de tocar nada: pebaisystems.es/agentes-ia/whatsapp/.
+
+21. **¿Cómo sé si el agente de WhatsApp está funcionando?**
+    Con cuatro cifras que se revisan cada semana: tiempo de primera respuesta, conversaciones resueltas sin persona, citas o solicitudes que salen del agente y conversaciones que acaban en queja o pidiendo una persona. Si no mejoran, se corrige antes de ampliar nada.
+
+22. **¿Puede un agente de voz atender las llamadas de mi negocio sin cambiar de número?**
+    Sí. No hace falta cambiar de número: se activa un desvío desde el que ya tenéis y puede atender siempre, solo fuera de horario o cuando comunica o nadie contesta. Puede conectarse a la agenda para dar citas, según lo que permita vuestro programa. Más en pebaisystems.es/agentes-ia/voz/.
+
+23. **¿Tengo que avisar de que quien llama habla con una IA?**
+    Sí. Desde el 2 de agosto de 2026 el Reglamento europeo de IA obliga a que la persona sepa que habla con una IA, y si se graba la llamada hay que informar al empezar de quién la trata y para qué (RGPD). Lo dejamos configurado en el agente: pebaisystems.es/agentes-ia/voz/.
+
+24. **¿Qué pasa si el agente de voz no entiende a quien llama?**
+    Lo intenta dos veces y, si sigue sin entender, pasa la llamada a una persona con un resumen de lo que ha entendido; si no hay nadie, toma nota y deja el aviso para el equipo. Con acentos muy marcados o mucho ruido puede fallar, por eso se prueba con llamadas reales antes de activarlo.
