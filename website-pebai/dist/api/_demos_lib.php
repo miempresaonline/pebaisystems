@@ -176,7 +176,7 @@ function pebai_demo_logo(string $html, string $base, string $slug): string
 }
 
 /** Radiografía en IA: Claude hace DOS búsquedas web reales (dos formas de preguntar) y dice en cuáles sale la empresa y quién sale. */
-function pebai_demo_radiografia(string $empresa, string $sector, string $ciudad, string $web, string $servicio = ''): ?array
+function pebai_demo_radiografia(string $empresa, string $sector, string $ciudad, string $web, string $servicio = '', string $agente = 'demos'): ?array
 {
     // 100 % real (Daniel, 30/10): todo sale de los resultados que devolvió la búsqueda (su dirección, su título y su orden).
     // El modelo solo pone nombre a cada resultado de verdad; si cita algo que no salió en la búsqueda, se descarta.
@@ -184,7 +184,7 @@ function pebai_demo_radiografia(string $empresa, string $sector, string $ciudad,
                   ($servicio !== '' ? mb_strtolower($servicio) : 'empresa de confianza de ' . mb_strtolower($sector)) . ' en ' . $ciudad . ' recomendaciones'];
     $host = static fn($u) => strtolower(preg_replace('~^www\.~i', '', (string)parse_url((string)$u, PHP_URL_HOST)));
     $dominio = $host($web);
-    $t = pebai_claude('demos', 'claude-haiku-5-5',
+    $t = pebai_claude($agente, 'claude-haiku-5-5',   // quien la pide paga: Demos o Cerebro (sus primeros mensajes)
         'Eres un analista de visibilidad en buscadores con IA. Haces búsquedas web reales y describes SOLO los resultados que te devuelve la búsqueda, sin añadir nada que no salga en ellos. Responde SOLO JSON.',
         [['role' => 'user', 'content' => "Haz estas DOS búsquedas en internet, una cada vez:\n1. «{$consultas[0]}»\n2. «{$consultas[1]}»\n"
             . 'Después, para CADA resultado que te haya devuelto la búsqueda (con su URL exacta), di quién es. JSON: {"resultados": [{"url": "URL exacta del resultado", '

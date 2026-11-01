@@ -84,7 +84,7 @@ function calcula(T) {
   const total = sum(Object.values(red).map((x) => x.vistas));
   const seg = T.seguidores || {};
   const ganados = sum(Object.values(seg).map(([a, b]) => b - a));
-  return { V, red, total, ganados, com: sum(V.map((v) => v.com)), inter: sum(V.map((v) => v.inter)), durMedia: avg(V.map((v) => v.dur)) };
+  return { V, red, total, ganados, com: sum(V.map((v) => v.com)), inter: sum(V.map((v) => v.inter)), durMedia: avg(V.map((v) => v.dur)), desde: T.ranking_desde || '' };
 }
 
 /* ============ piezas ============ */
@@ -210,7 +210,13 @@ function tabla(C) {
     const tags = `<em class="rd-st ${v.estilo}">${v.estilo === 'gancho' ? 'Gancho' : 'Sobrio'}</em>${v.palabra ? `<em class="rd-kw">${esc(v.palabra)}</em>` : ''}<em class="rd-du">${v.dur} s</em>`;
     const pila = REDES.map((r) => v[r.k] ? `<i class="rd-c-${r.k}" style="width:${(v[r.k].v / maxT * 100).toFixed(2)}%"></i>` : '').join('');
     const det = S.abierto === v.i ? `<tr class="rd-det"><td colspan="8">${detalle(v)}</td></tr>` : '';
-    return `<tr class="rd-row ${S.abierto === v.i ? 'open' : ''}" data-v="${v.i}"><td class="rd-pos">${pos + 1}</td>
+    // Movimiento en la clasificación (solo ordenando por total): ▲ sube, ▼ baja, = igual, «nuevo» si no estaba en la foto de entonces
+    let mov = '';
+    if (S.orden === 'total') {
+      if (v.antes == null) mov = C.desde ? '<span class="rd-mov nuevo" title="No estaba en la clasificación de entonces">nuevo</span>' : '';
+      else { const d = v.antes - (pos + 1); mov = d > 0 ? `<span class="rd-mov sube" title="Sube ${d} ${d === 1 ? 'puesto' : 'puestos'}"><i></i>${d}</span>` : d < 0 ? `<span class="rd-mov baja" title="Baja ${-d} ${d === -1 ? 'puesto' : 'puestos'}"><i></i>${-d}</span>` : '<span class="rd-mov igual" title="Mismo puesto">=</span>'; }
+    }
+    return `<tr class="rd-row ${S.abierto === v.i ? 'open' : ''}${pos < 3 && S.orden === 'total' ? ' podio p' + (pos + 1) : ''}" data-v="${v.i}"><td class="rd-pos"><b>${pos + 1}</b>${mov}</td>
       <td class="rd-tit"><b>${esc(v.titulo)}</b><span>${fecha(v.f)}</span><div class="rd-tags">${tags}</div></td>${celdas}
       <td class="rd-tot"><b>${N(v.tot)}</b><div class="rd-pila">${pila}</div></td></tr>${det}`;
   }).join('');
@@ -218,7 +224,7 @@ function tabla(C) {
   return `<div class="rd-tabla-w"><table class="rd-tabla"><thead><tr><th>#</th>${th('fecha', 'Vídeo')}${REDES.map((r) => th(r.k, r.n.replace(' Shorts', ''))).join('')}${th('total', 'Total')}</tr></thead><tbody>${filas}</tbody></table></div>`;
 }
 const tablaCard = (C) => `<section class="pb-card rd-card rd-rev">
-    <div class="rd-card-h"><div><h2>Vídeo a vídeo</h2><p>El color dice lo fuerte que fue cada vídeo dentro de su red. Pulsa una cabecera para ordenar y una fila para ver el detalle.</p></div></div>
+    <div class="rd-card-h"><div><h2>Clasificación de vídeos</h2><p>Por vistas totales, como una liga: la flecha dice cuántos puestos ha subido o bajado ${C.desde ? `desde el ${fecha(C.desde)}` : '(empieza a contar mañana)'}. El color dice lo fuerte que fue cada vídeo en su red. Pulsa una fila para ver el detalle.</p></div></div>
     ${tabla(C)}</section>`;
 
 function detalle(v) {

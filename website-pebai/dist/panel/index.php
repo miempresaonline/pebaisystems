@@ -613,7 +613,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '133';
+$v = '134';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -744,7 +744,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
   </div>
 
   <section class="pb-page" id="page-resumen" data-page="resumen">
-    <h1 class="pb-h1">PEBAI, <i>de un vistazo</i></h1>
+    <h1 class="pb-h1"><span id="pb-saludo">Hola</span>, <i>equipo</i></h1>
     <div class="pb-plazas" id="pb-plazas-resumen"></div>
     <div id="pb-global" class="pg"></div>
   </section>

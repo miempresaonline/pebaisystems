@@ -141,3 +141,63 @@ body[data-page=resumen] .pb-only-embudo{display:none}
 .pb-analisis[open]>summary::before{transform:rotate(90deg)}
 .pb-analisis>summary span{font-size:12.5px;color:var(--muted,#8C8FA3)}
 .pb-analisis[open]{padding-bottom:16px}
+
+/* ================= Resumen «Glassy Dashboard» (01/11) ================= */
+.pgx{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr) minmax(0,1.15fr);gap:14px;margin:4px 0 18px}
+.pgx>*{border-radius:24px;border:1px solid var(--glass-line,var(--line));background:var(--glass,var(--panel));backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-sombra)}
+.pgx button{font:inherit;color:inherit;text-align:left;cursor:pointer}
+.pgx .h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pgx .h span{font-size:12.5px;font-weight:700;color:var(--muted)}
+.pgx .h em{font-style:normal;font-size:11px;font-weight:700;color:var(--muted);padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--glass-line,var(--line))}
+/* tarjeta principal */
+.pgx-hero{padding:20px;display:flex;flex-direction:column;gap:12px}
+.pgx-hero .v{font-size:52px;line-height:1;font-weight:800;letter-spacing:-.02em;color:var(--fg-strong)}
+.pgx-hero .bt{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pgx-hero .bt button{border:0;border-radius:999px;padding:11px 14px;font-weight:750;font-size:13.5px;text-align:center;transition:transform .2s,filter .2s}
+.pgx-hero .bt button:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.pgx-hero .osc{background:#0B0E19;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.pgx-hero .cla{background:var(--fg-strong);color:var(--ink)}
+.pgx-hero .sub{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--glass-line,var(--line))}
+.pgx-hero .sub small{display:block;font-size:11px;color:var(--muted)}
+.pgx-hero .sub b{display:block;font-size:15px;color:var(--fg-strong);margin-top:2px}
+/* cuatro cifras */
+.pgx-cuatro{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+.pgx-cifra{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:20px;border:1px solid var(--glass-line,var(--line));background:var(--glass,var(--panel));backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-sombra);transition:transform .25s,border-color .25s}
+.pgx-cifra:hover{transform:translateY(-2px);border-color:var(--glass-hi,var(--line-2))}
+.pgx-cifra .h span{font-size:12px}
+.pgx-cifra .h i{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);flex:none}
+.pgx-cifra .h i svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--fg)}
+.pgx-cifra .v{font-size:32px;line-height:1;font-weight:800;color:var(--fg-strong)}
+.pgx-cifra em{align-self:flex-start;font-style:normal;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.07);color:var(--muted)}
+.pgx-cifra.aviso em{background:rgba(255,181,71,.16);color:#FFB547}
+/* la destacada, como la tarjeta verde del vídeo */
+.pgx-cifra.destacada{background:linear-gradient(150deg,#B7FF3C 0%,#7FD61C 100%);border-color:transparent;color:#0B0F14;box-shadow:0 18px 40px -12px rgba(183,255,60,.45),inset 0 1px 0 rgba(255,255,255,.5)}
+.pgx-cifra.destacada .h span,.pgx-cifra.destacada .v{color:#0B0F14}
+.pgx-cifra.destacada .h i{background:rgba(11,15,20,.14)}
+.pgx-cifra.destacada .h i svg{color:#0B0F14}
+.pgx-cifra.destacada em{background:rgba(11,15,20,.14);color:#0B0F14}
+/* gráfico grande */
+.pgx-graf{padding:18px 18px 12px;display:flex;flex-direction:column;gap:10px}
+.pgx-barras{width:100%;height:190px;display:block}
+.pgx-barras .pista{fill:rgba(255,255,255,.05)}
+.pgx-barras .eje{font-size:9px;fill:var(--muted-2);text-anchor:middle;font-family:var(--sans)}
+/* columna de abajo y actividad */
+.pgx-col{display:flex;flex-direction:column;gap:10px;padding:0;background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+.pgx-mini{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:20px;border:1px solid var(--glass-line,var(--line));background:var(--glass,var(--panel));backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-sombra)}
+.pgx-mini>span{font-size:12px;font-weight:700;color:var(--muted)}
+.pgx-mini>b{font-size:28px;line-height:1;font-weight:800;color:var(--fg-strong)}
+.pgx-mini>small{font-size:11.5px;color:var(--muted)}
+.pgx-mini.mal>b{color:#FF8A95}
+.pgx-mini .dots{display:flex;gap:5px;flex-wrap:wrap}
+.pgx-mini .dots i{width:10px;height:10px;border-radius:50%}
+.pgx-act{grid-column:span 2;padding:18px;display:flex;flex-direction:column;gap:10px}
+.pgx-act .filas{display:flex;flex-direction:column;gap:6px}
+.pgx-act .fila{display:grid;grid-template-columns:110px minmax(0,1fr) minmax(0,1.2fr) 82px;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1px solid transparent;background:rgba(255,255,255,.035);transition:background .2s,border-color .2s}
+.pgx-act .fila:hover{background:rgba(255,255,255,.07);border-color:var(--glass-line,var(--line))}
+.pgx-act .tipo{justify-self:start;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.pgx-act .fila b{font-size:13px;color:var(--fg-strong);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgx-act .fila small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgx-act .fila time{font-size:11.5px;color:var(--muted-2);text-align:right}
+.pgx-act .vacio{margin:6px 0;color:var(--muted);font-size:13px}
+@media (max-width:1100px){.pgx{grid-template-columns:1fr 1fr}.pgx-graf{grid-column:span 2}.pgx-act{grid-column:span 2}}
+@media (max-width:640px){.pgx{grid-template-columns:1fr}.pgx-graf,.pgx-act{grid-column:auto}.pgx-hero .v{font-size:44px}.pgx-act .fila{grid-template-columns:auto minmax(0,1fr) auto}.pgx-act .fila small{display:none}}

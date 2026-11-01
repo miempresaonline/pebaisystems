@@ -1,4 +1,4 @@
-/* PEBAI · Panel — Resumen: toda la app de un vistazo, una tarjeta por cada sección del menú (una cifra y un gráfico pequeño).
+/* PEBAI · Panel — Resumen al estilo «Glassy Dashboard»: tarjeta principal, cuatro cifras, gráfico grande, agentes y caja, y la actividad reciente.
    Datos en index.php?global=1. Pulsar una tarjeta lleva a su sección. Textos con textContent: nunca innerHTML con datos. */
 (() => {
 'use strict';
@@ -28,111 +28,124 @@ async function load() {
   if (j.ok) G = j;
 }
 
-/* ============ gráficos pequeños ============ */
-// Barras de 14 días; la de hoy, más viva
-function barras(serie, color) {
-  const W = 140, H = 40, n = serie.length || 1, bw = W / n, max = Math.max(1, ...serie);
-  const s = sv('svg', { viewBox: `0 0 ${W} ${H}`, class: 'pg-mini', 'aria-hidden': 'true', preserveAspectRatio: 'none' });
+/* ============ Resumen al estilo del «Glassy Dashboard» (01/11): tarjeta principal, cifras en cuadrícula (una destacada),
+   gráfico grande, y abajo agentes, caja y mapa junto a la actividad reciente ============ */
+const icoDe = (pagina) => { const s = document.querySelector(`#pb-tabs button[data-page="${pagina}"]:not(#pb-nav-control) svg`); return s ? s.cloneNode(true) : null; };
+// Cifra pequeña: etiqueta arriba, icono en círculo a la derecha, número grande y una pastilla con el detalle
+function cifra({ etiqueta, pagina, valor, pastilla, tono, destacada }) {
+  const b = el('button', 'pgx-cifra' + (destacada ? ' destacada' : '') + (tono ? ' ' + tono : '')); b.type = 'button'; b.onclick = () => ir(pagina);
+  const h = el('div', 'h'); const i = el('i'); const ic = icoDe(pagina); if (ic) i.append(ic);
+  h.append(el('span', null, etiqueta), i);
+  b.append(h, el('b', 'v', valor));
+  if (pastilla) b.append(el('em', null, pastilla));
+  return b;
+}
+// Barras grandes de 14 días, a dos tonos como las del vídeo (fondo oscuro + parte viva)
+function barrasGrandes(serie, color) {
+  const W = 360, H = 150, n = serie.length || 1, bw = W / n, max = Math.max(1, ...serie);
+  const s = sv('svg', { viewBox: `0 0 ${W} ${H + 18}`, class: 'pgx-barras', 'aria-hidden': 'true', preserveAspectRatio: 'none' });
+  const hoy = new Date();
   serie.forEach((v, i) => {
-    const h = v ? Math.max(3, (H - 2) * v / max) : 2;
-    s.append(sv('rect', { x: i * bw + bw * .18, y: H - h, width: bw * .64, height: h, rx: 1.5, fill: color, opacity: v ? (i === n - 1 ? 1 : .55) : .15 }));
+    const x = i * bw + bw * .2, w = bw * .6;
+    s.append(sv('rect', { x, y: 4, width: w, height: H - 4, rx: w / 2, class: 'pista' }));
+    const h = v ? Math.max(8, (H - 4) * v / max) : 0;
+    if (h) s.append(sv('rect', { x, y: H - h, width: w, height: h, rx: w / 2, fill: color, opacity: i === n - 1 ? 1 : .78 }));
+    if (i % 2 === (n - 1) % 2) { const d = new Date(hoy); d.setDate(hoy.getDate() - (n - 1 - i)); const t = sv('text', { x: x + w / 2, y: H + 15, class: 'eje' }); t.textContent = i === n - 1 ? 'hoy' : String(d.getDate()); s.append(t); }
   });
   return s;
 }
-// Barra partida en tramos, con su leyenda
-function tramos(partes) {
-  const w = el('div', 'pg-tramos'); const tot = partes.reduce((a, p) => a + p[0], 0);
-  const b = el('div', 'pg-tramos-b');
-  partes.filter((p) => p[0]).forEach(([n, col, l]) => { const i = el('i'); i.style.flex = String(n); i.style.background = col; i.title = `${l}: ${N(n)}`; b.append(i); });
-  if (!tot) b.append(el('i', 'vacio'));
-  const leg = el('div', 'pg-tramos-l');
-  partes.filter((p) => p[0]).slice(0, 3).forEach(([n, col, l]) => { const s = el('span'); const d = el('i'); d.style.background = col; s.append(d, document.createTextNode(`${l} ${N(n)}`)); leg.append(s); });
-  w.append(b, leg); return w;
-}
-function progreso(pct, color) {
-  const w = el('div', 'pg-prog'); const i = el('i'); i.style.background = color; w.append(i);
-  requestAnimationFrame(() => requestAnimationFrame(() => { i.style.width = Math.max(1, Math.min(100, pct)) + '%'; }));
-  return w;
-}
-// Los próximos 7 días: un punto por cita
-function semana(lista) {
-  const w = el('div', 'pg-semana'); const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
-  for (let k = 0; k < 7; k++) {
-    const d = new Date(hoy); d.setDate(hoy.getDate() + k);
-    const n = lista.filter((x) => { const c = utc(x); return c >= d && c < new Date(d.getTime() + 864e5); }).length;
-    const c = el('div', 'pg-semana-d' + (n ? ' on' : '')); const p = el('span', 'p');
-    for (let j = 0; j < Math.min(n, 3); j++) p.append(el('i'));
-    c.append(p, el('small', null, k ? DIA[d.getDay()] : 'hoy')); w.append(c);
-  }
-  return w;
-}
-
-/* ============ tarjeta de una sección ============ */
-function tarjeta({ grupo, nombre, pagina, cifra, etiqueta, viz, nota, tono }) {
-  const b = el('button', 'pg-sec' + (tono ? ' ' + tono : '')); b.type = 'button'; b.onclick = () => ir(pagina);
-  const h = el('div', 'pg-sec-h');
-  const ico = document.querySelector(`#pb-tabs button[data-page="${pagina}"]:not(#pb-nav-control) svg`);
-  const i = el('i'); if (ico) i.append(ico.cloneNode(true));
-  const t = el('span'); t.append(document.createTextNode(grupo + ' · '), el('b', null, nombre));
-  const go = sv('svg', { viewBox: '0 0 24 24', class: 'go' }); go.append(sv('path', { d: 'm9 6 6 6-6 6' }));
-  h.append(i, t, go);
-  const n = el('div', 'pg-sec-n'); n.append(el('b', null, cifra), el('span', null, etiqueta));
-  b.append(h, n);
-  if (viz) { const v = el('div', 'pg-sec-v'); v.append(viz); b.append(v); }
-  if (nota) b.append(el('p', 'pg-sec-p', nota));
-  return b;
-}
+let avisosRes = [];
+const haceTxt = (ts) => { const m = Math.round((Date.now() - new Date(String(ts).replace(' ', 'T'))) / 60000); return m < 60 ? `hace ${Math.max(1, m)} min` : m < 1440 ? `hace ${Math.round(m / 60)} h` : `hace ${Math.round(m / 1440)} d`; };
+const TIPO = { solicitud: ['Solicitud', '#B7FF3C'], cita: ['Cita', '#25D366'], interesado: ['Interesado', '#B7FF3C'], respuesta: ['Respuesta', '#3FD5FF'], demo: ['Demo abierta', '#FB923C'], ia: ['Claude', '#FF5E6C'] };
 
 function draw() {
   if (!G || document.body.dataset.page !== 'resumen') return;
   box.textContent = '';
+  const hr = new Date().getHours(), sal = document.getElementById('pb-saludo');
+  if (sal) sal.textContent = hr < 6 ? 'Buenas noches' : hr < 14 ? 'Buenos días' : hr < 21 ? 'Buenas tardes' : 'Buenas noches';
   const Sx = G.secciones || {}, S = G.salida || {}, C = G.caja, A = (G.agentes || []).filter((a) => a.dept !== 'embudo');
-  const tarjetas = [];
-  const sol = Sx.solicitudes;
-  if (sol) tarjetas.push(tarjeta({ grupo: 'Embudo', nombre: 'Solicitudes', pagina: 'solicitudes', cifra: N(sol.mes), etiqueta: 'en los últimos 30 días',
-    viz: barras(sol.serie, '#7E73FF'), nota: sol.sin_revisar ? `${N(sol.sin_revisar)} sin revisar` : 'Todas revisadas', tono: sol.sin_revisar ? 'aviso' : '' }));
-  const ci = Sx.citas;
-  if (ci) {
-    const sig = ci.siguiente ? utc(ci.siguiente) : null;
-    tarjetas.push(tarjeta({ grupo: 'Embudo', nombre: 'Citas', pagina: 'citas', cifra: N(ci.proximas), etiqueta: ci.proximas === 1 ? 'cita reservada' : 'citas reservadas',
-      viz: semana(ci.lista || []), nota: sig ? `La próxima: ${DIA[sig.getDay()]} ${sig.getDate()} a las ${pad(sig.getHours())}:${pad(sig.getMinutes())}` : 'Ninguna reservada' }));
-  }
-  if (G.salida) {
-    const E = S.estados || {};
-    tarjetas.push(tarjeta({ grupo: 'Captación', nombre: 'Conversaciones', pagina: 'conversaciones', cifra: N(S.te_toca), etiqueta: S.te_toca === 1 ? 'te toca responder' : 'te toca responder',
-      viz: tramos(ESTADOS.map(([k, l, col]) => [Number(E[k] || 0), col, l])), nota: `${N(S.escritas)} empresas escritas · ${N(S.interesados)} interesadas`, tono: S.te_toca ? 'aviso' : '' }));
-  }
-  const pr = Sx.prospectos;
-  if (pr) tarjetas.push(tarjeta({ grupo: 'Captación', nombre: 'Prospectos', pagina: 'prospectos', cifra: N(pr.cola), etiqueta: 'en cola para escribir',
-    viz: tramos([[pr.cola, '#B7FF3C', 'En cola'], [pr.escritas, '#7E73FF', 'Escritas'], [pr.revisar, '#FFB547', 'Por revisar']]),
-    nota: pr.revisar ? `${N(pr.revisar)} esperan que las reviséis` : 'Nada por revisar', tono: pr.revisar ? 'aviso' : '' }));
-  const mp = Sx.mapa;
-  if (mp) tarjetas.push(tarjeta({ grupo: 'Captación', nombre: 'Mapa', pagina: 'mapa', cifra: mp.cobertura + '%', etiqueta: 'de España recorrido',
-    viz: progreso(mp.cobertura, '#3FD5FF'), nota: mp.ahora ? `Buscando en ${mp.ahora}` : `${N(mp.prov_completas)} provincias completas` }));
-  const qr = Sx.qr;
-  if (qr) tarjetas.push(tarjeta({ grupo: 'Captación', nombre: 'QRs', pagina: 'qr', cifra: N(qr.mes), etiqueta: 'escaneos en 30 días',
-    viz: barras(qr.serie, '#3FD5FF'), nota: qr.serie[qr.serie.length - 1] ? `${N(qr.serie[qr.serie.length - 1])} hoy` : 'Ninguno hoy' }));
-  if (C) {
-    const res = C.ingresos - C.gastos, mx = Math.max(1, C.ingresos, C.gastos);
-    const v = el('div', 'pg-caja2');
-    [['Ingresos', C.ingresos, '#B7FF3C'], ['Gastos', C.gastos, '#FF6B7A']].forEach(([l, x, col]) => {
-      const r = el('div'); const bar = el('i'); bar.style.width = Math.max(2, x / mx * 100) + '%'; bar.style.background = col;
-      r.append(el('span', null, l), bar, el('b', null, euros(x))); v.append(r);
-    });
-    tarjetas.push(tarjeta({ grupo: 'Empresa', nombre: 'Caja', pagina: 'caja', cifra: (res > 0 ? '+' : '') + euros(res), etiqueta: 'resultado de ' + MES[C.mes - 1], viz: v, tono: res < 0 ? 'mal' : '' }));
-  }
+  const sol = Sx.solicitudes, ci = Sx.citas, pr = Sx.prospectos, qr = Sx.qr, mp = Sx.mapa;
+  const bento = el('div', 'pgx');
+
+  // 1) Tarjeta principal: solicitudes de 30 días, con dos botones como los del vídeo
+  const hero = el('div', 'pgx-hero');
+  const hh = el('div', 'h'); hh.append(el('span', null, 'Solicitudes · 30 días'), el('em', null, sol && sol.sin_revisar ? `${N(sol.sin_revisar)} sin revisar` : 'Al día'));
+  const big = el('b', 'v', N(sol ? sol.mes : 0));
+  const btns = el('div', 'bt');
+  const b1 = el('button', 'osc', 'Ver solicitudes'); b1.type = 'button'; b1.onclick = () => ir('solicitudes');
+  const b2 = el('button', 'cla', 'Citas'); b2.type = 'button'; b2.onclick = () => ir('citas');
+  btns.append(b1, b2);
+  const sub = el('div', 'sub');
+  const sig = ci && ci.siguiente ? utc(ci.siguiente) : null;
+  [['Citas reservadas', N(ci ? ci.proximas : 0)], ['Próxima', sig ? `${DIA[sig.getDay()]} ${sig.getDate()} · ${pad(sig.getHours())}:${pad(sig.getMinutes())}` : '—'], ['Interesadas', N(S.interesados || 0)]]
+    .forEach(([l, x]) => { const d = el('div'); d.append(el('small', null, l), el('b', null, x)); sub.append(d); });
+  hero.append(hh, big, btns, sub);
+  bento.append(hero);
+
+  // 2) Cuatro cifras; la que más importa ahora, destacada en lima (como la verde del vídeo)
+  const cuatro = el('div', 'pgx-cuatro');
+  const teToca = S.te_toca || 0;
+  cuatro.append(
+    cifra({ etiqueta: 'Te toca responder', pagina: 'conversaciones', valor: N(teToca), pastilla: `${N(S.escritas || 0)} escritas`, destacada: teToca > 0 }),
+    cifra({ etiqueta: 'En cola para escribir', pagina: 'prospectos', valor: N(pr ? pr.cola : 0), pastilla: pr && pr.revisar ? `${N(pr.revisar)} por revisar` : 'Nada por revisar', tono: pr && pr.revisar ? 'aviso' : '' }),
+    cifra({ etiqueta: 'Escaneos de QR', pagina: 'qr', valor: N(qr ? qr.mes : 0), pastilla: '30 días' }),
+    cifra({ etiqueta: 'España recorrida', pagina: 'mapa', valor: (mp ? mp.cobertura : 0) + '%', pastilla: mp && mp.ahora ? 'Buscando en ' + mp.ahora : `${N(mp ? mp.prov_completas : 0)} provincias` }),
+  );
+  bento.append(cuatro);
+
+  // 3) Gráfico grande
+  const graf = el('button', 'pgx-graf'); graf.type = 'button'; graf.onclick = () => ir('solicitudes');
+  const gh = el('div', 'h'); gh.append(el('span', null, 'Solicitudes por día'), el('em', null, '14 días'));
+  graf.append(gh, barrasGrandes(sol ? sol.serie : [], '#B7FF3C'));
+  bento.append(graf);
+
+  // 4) Columna: agentes, caja y mapa
+  const col = el('div', 'pgx-col');
   if (A.length) {
     const tr = A.filter((a) => a.st === 'trabajando').length, err = A.filter((a) => a.st === 'error');
-    const v = el('div', 'pg-bots');
-    A.forEach((a) => { const d = el('i'); const [col, l] = ST[a.st] || ST.dormido; d.style.background = col; d.title = `${a.nombre}: ${l}`; v.append(d); });
-    tarjetas.push(tarjeta({ grupo: 'Automático', nombre: 'Agentes', pagina: 'agentes', cifra: `${tr}/${A.length}`, etiqueta: 'trabajando ahora',
-      viz: v, nota: err.length ? `${err.map((a) => a.nombre).join(', ')}: con error` : 'Ninguno con error', tono: err.length ? 'mal' : '' }));
+    const c = el('button', 'pgx-mini' + (err.length ? ' mal' : '')); c.type = 'button'; c.onclick = () => ir('agentes');
+    const dots = el('div', 'dots'); A.forEach((a) => { const d = el('i'); const [colr, l] = ST[a.st] || ST.dormido; d.style.background = colr; d.title = `${a.nombre}: ${l}`; dots.append(d); });
+    c.append(el('span', null, 'Agentes trabajando'), el('b', null, `${tr}/${A.length}`), dots, el('small', null, err.length ? `${err.map((a) => a.nombre).join(', ')}: con error` : 'Ninguno con error'));
+    col.append(c);
   }
-  const g = el('div', 'pg-secs'); tarjetas.forEach((t, i) => { t.style.setProperty('--i', i); g.append(t); });
-  box.append(g);
+  if (C) {
+    const res = C.ingresos - C.gastos, mx = Math.max(1, C.ingresos, C.gastos);
+    const c = el('button', 'pgx-mini' + (res < 0 ? ' mal' : '')); c.type = 'button'; c.onclick = () => ir('caja');
+    const v = el('div', 'pg-caja2');
+    [['Ingresos', C.ingresos, '#B7FF3C'], ['Gastos', C.gastos, '#FF6B7A']].forEach(([l, x, colr]) => {
+      const r = el('div'); const bar = el('i'); bar.style.width = Math.max(2, x / mx * 100) + '%'; bar.style.background = colr;
+      r.append(el('span', null, l), bar, el('b', null, euros(x))); v.append(r);
+    });
+    c.append(el('span', null, 'Caja de ' + MES[C.mes - 1]), el('b', null, (res > 0 ? '+' : '') + euros(res)), v);
+    col.append(c);
+  }
+  bento.append(col);
+
+  // 5) Actividad reciente (los avisos: solicitudes, citas, respuestas, demos abiertas)
+  const act = el('div', 'pgx-act');
+  const ah = el('div', 'h'); ah.append(el('span', null, 'Actividad reciente'), el('em', null, 'últimos 3 días'));
+  act.append(ah);
+  const tabla = el('div', 'filas');
+  if (!avisosRes.length) tabla.append(el('p', 'vacio', 'Sin novedades en los últimos 3 días.'));
+  avisosRes.slice(0, 6).forEach((a) => {
+    const [tl, tc] = TIPO[a.tipo] || [a.tipo, '#8C8FA3'];
+    const f = el('button', 'fila'); f.type = 'button';
+    f.onclick = () => { const [t, x, y] = String(a.ir || '').split(':'); if (t === 'lead') document.dispatchEvent(new CustomEvent('pb:abrir-lead', { detail: Number(x) })); else if (t === 'conv') { ir('conversaciones'); setTimeout(() => document.dispatchEvent(new CustomEvent('pb:abrir-conv', { detail: x + ':' + y })), 150); } else if (t === 'pagina') ir(x); };
+    const tag = el('span', 'tipo', tl); tag.style.setProperty('--c', tc);
+    f.append(tag, el('b', null, a.titulo), el('small', null, a.texto || ''), el('time', null, haceTxt(a.ts)));
+    tabla.append(f);
+  });
+  act.append(tabla);
+  bento.append(act);
+
+  box.append(bento);
 }
 
-const refrescar = () => load().then(draw).catch(() => {});
+async function cargaAvisosRes() {
+  try { const r = await fetch(BASE + '?avisos_ultimos=1', { credentials: 'same-origin', cache: 'no-store' }); const j = await r.json(); if (j.ok) avisosRes = j.avisos || []; } catch (e) { /* sin avisos */ }
+}
+
+const refrescar = () => Promise.all([load(), cargaAvisosRes()]).then(draw).catch(() => {});
 document.addEventListener('pb:page', (e) => { if (e.detail === 'resumen') refrescar(); });
 setInterval(() => { if (!document.hidden && document.body.dataset.page === 'resumen') refrescar(); }, 60000);
 refrescar();

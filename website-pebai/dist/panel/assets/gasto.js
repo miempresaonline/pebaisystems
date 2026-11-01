@@ -15,7 +15,7 @@ const ico = (p) => `<svg class="pb-i" viewBox="0 0 24 24">${p}</svg>`;
 
 // Quién es quién: nombre, color y qué hace con la IA
 const AG = {
-  cerebro: ['Cerebro', '#9C93FF', 'Lee tus chats, los clasifica y te escribe borradores'],
+  cerebro: ['Cerebro', '#9C93FF', 'Lee tus chats, te escribe borradores y prepara primeros mensajes (con búsqueda real en IA)'],
   conversaciones: ['Conversaciones', '#3FD5FF', 'Clasifica respuestas de empresas y prepara la contestación'],
   pebai: ['Pregunta a PEBAI', '#B7FF3C', 'Responde lo que le preguntas sobre la oficina'],
   servidor: ['Resúmenes de sala', '#FFB547', 'Resume el día de cada departamento'],
@@ -45,22 +45,32 @@ function anillo(gastado, total, freno) {
   </svg>`;
 }
 
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const iso = (t) => `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+const finDeMes = (ym) => { const [y, m] = ym.split('-').map(Number); return iso(new Date(y, m, 0)); };
+const fechaC = (f) => `${+f.slice(8)} ${MESES[+f.slice(5, 7) - 1].slice(0, 3)}`;
+// Periodo elegido: por defecto, este mes (se recuerda mientras dura la sesión)
+const P = { desde: '', hasta: '' };
+try { Object.assign(P, JSON.parse(sessionStorage.getItem('pb-gasto-periodo') || '{}')); } catch (e) { /* nada */ }
+
 function barrasDiarias(d) {
-  // 30 días, apilado por agente; altura según el día de más gasto
-  const dias = []; for (let i = 29; i >= 0; i--) { const t = new Date(); t.setDate(t.getDate() - i); dias.push(t.toISOString().slice(0, 10)); }
+  // Día a día del periodo, apilado por agente; altura según el día de más gasto
+  const dias = []; for (let t = new Date(d.desde + 'T12:00:00'), fin = new Date(d.hasta + 'T12:00:00'); t <= fin && dias.length < 120; t.setDate(t.getDate() + 1)) dias.push(iso(t));
+  const nD = dias.length, hoyIso = iso(new Date());
   const por = {}; d.diario.forEach((r) => { (por[r.dia] = por[r.dia] || []).push(r); });
   const tot = (dia) => (por[dia] || []).reduce((s, r) => s + (+r.usd || 0), 0);
   const max = Math.max(.01, ...dias.map(tot));
-  const W = 720, H = 190, bw = W / 30;
+  const W = 720, H = 190, bw = W / nD;
   const bars = dias.map((dia, i) => {
     let y = H; const segs = (por[dia] || []).filter((r) => +r.usd > 0).sort((a, b) => b.usd - a.usd).map((r) => {
       const h = Math.max(1.5, (+r.usd / max) * (H - 24)); y -= h; return `<rect x="${i * bw + 3}" y="${y.toFixed(1)}" width="${bw - 6}" height="${h.toFixed(1)}" rx="3" fill="${ag(r.agente)[1]}"/>`;
     }).join('');
     const llam = (por[dia] || []).reduce((s, r) => s + (+r.n || 0), 0);
     const pista = `${+dia.slice(8)}/${+dia.slice(5, 7)} · ${USD(tot(dia))} · ${llam} llamadas` + (por[dia] || []).map((r) => `\n${ag(r.agente)[0]}: ${USD(+r.usd)}`).join('');
-    return `<g class="dia${dia === dias[29] ? ' hoy' : ''}"><title>${esc(pista)}</title><rect x="${i * bw}" y="0" width="${bw}" height="${H}" class="zona"/>${segs || `<rect x="${i * bw + 3}" y="${H - 2}" width="${bw - 6}" height="2" rx="1" class="cero"/>`}</g>`;
+    return `<g class="dia${dia === hoyIso ? ' hoy' : ''}"><title>${esc(pista)}</title><rect x="${i * bw}" y="0" width="${bw}" height="${H}" class="zona"/>${segs || `<rect x="${i * bw + 3}" y="${H - 2}" width="${bw - 6}" height="2" rx="1" class="cero"/>`}</g>`;
   }).join('');
-  const lbl = dias.map((dia, i) => (i % 5 === 4 || i === 29) ? `<text x="${i * bw + bw / 2}" y="${H + 16}">${i === 29 ? 'hoy' : +dia.slice(8) + '/' + +dia.slice(5, 7)}</text>` : '').join('');
+  const paso = Math.max(1, Math.ceil(nD / 7));
+  const lbl = dias.map((dia, i) => (i % paso === 0 || i === nD - 1) ? `<text x="${i * bw + bw / 2}" y="${H + 16}">${dia === hoyIso ? 'hoy' : +dia.slice(8) + '/' + +dia.slice(5, 7)}</text>` : '').join('');
   return `<svg viewBox="0 0 ${W} ${H + 22}" class="ga-barras" preserveAspectRatio="none">${bars}${lbl}<text x="0" y="12" class="max">${USD(max)}</text></svg>`;
 }
 
@@ -82,30 +92,36 @@ function pintar(d) {
   const totAg = d.agentes.reduce((s, a) => s + (+a.usd || 0), 0) || 1;
   raiz.innerHTML = `
   <header class="ga-cab">
-    <div><h2>Gasto IA</h2><p>Lo que gasta cada agente en Claude este mes. Si un día Claude no responde o se acaba el crédito, tiran de Gemini (gratis) y no se pierde nada.</p></div>
-    <span class="ga-estado ${d.conectado ? 'ok' : 'off'}"><i></i>${d.conectado ? 'Claude conectado' : 'Claude sin conectar: todo va por Gemini'}</span>
+    <div><h2>Gasto IA</h2><p>Lo que gasta cada agente en Claude. Si un día Claude no responde o se acaba el crédito, tiran de Gemini (gratis) y no se pierde nada.</p></div>
+    <div class="ga-periodo">
+      ${(d.meses.length ? d.meses : [{ m: d.desde.slice(0, 7) }]).map((x) => { const sel = d.desde === x.m + '-01' && (d.hasta === finDeMes(x.m) || (d.este_mes && x.m === iso(new Date()).slice(0, 7))); return `<button type="button" data-m="${esc(x.m)}" class="${sel ? 'on' : ''}">${esc(MESES[+x.m.slice(5) - 1])}${x.usd != null ? `<small>${USD(+x.usd || 0)}</small>` : ''}</button>`; }).join('')}
+      <details class="ga-fechas"><summary>Fechas…</summary><div><label>Desde<input type="date" id="ga-desde" value="${esc(d.desde)}"></label><label>Hasta<input type="date" id="ga-hasta" value="${esc(d.hasta)}"></label><button type="button" id="ga-ver">Ver</button></div></details>
+    </div>
   </header>
+  ${d.caido ? `<div class="ga-caido">${ico('<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>')}<b>Claude no responde.</b> ${esc(d.caido)}</div>` : ''}
+  <p class="ga-rango">${esc(fechaC(d.desde))} – ${esc(fechaC(d.hasta))}${d.este_mes ? ' · este mes' : ''}</p>
 
   <section class="ga-hero">
     <div class="ga-ring">${anillo(gastado, d.presupuesto, d.freno)}
-      <div class="ga-ring-tx"><b>${USD(gastado)}</b><span>de ${N(d.presupuesto)} $ este mes</span><em>Quedan ${USD(quedan)} · se renueva el día 1</em></div>
+      <div class="ga-ring-tx"><b>${USD(gastado)}</b><span>de ${N(d.presupuesto)} $ ${d.este_mes ? 'este mes' : 'al mes'}</span><em>${d.este_mes ? `Quedan ${USD(quedan)} · se renueva el día 1` : `Gastado del ${esc(fechaC(d.desde))} al ${esc(fechaC(d.hasta))}`}</em></div>
     </div>
     <div class="ga-kpis">
-      <div class="ga-kpi"><small>Hoy</small><b>${USD(+d.hoy.usd || 0)}</b><span>${N(d.hoy.claude)} llamadas a Claude</span></div>
-      <div class="ga-kpi ${prev > d.presupuesto * d.freno ? 'mal' : 'bien'}"><small>Previsión fin de mes</small><b>${USD(prev)}</b><span>${prev > d.presupuesto * d.freno ? 'A este ritmo se acaba antes: pasará a Gemini' : 'Al ritmo de ahora, sobra crédito'}</span></div>
-      <div class="ga-kpi"><small>Llamadas del mes</small><b>${N(m.claude)}</b><span>Claude · ${N(m.gemini)} de reserva con Gemini${m.fallos ? ` · ${N(m.fallos)} fallidas` : ''}</span></div>
+      ${d.este_mes ? `<div class="ga-kpi"><small>Hoy</small><b>${USD(+d.hoy.usd || 0)}</b><span>${N(d.hoy.claude)} llamadas a Claude</span></div>
+      <div class="ga-kpi ${prev > d.presupuesto * d.freno ? 'mal' : 'bien'}"><small>Previsión fin de mes</small><b>${USD(prev)}</b><span>${prev > d.presupuesto * d.freno ? 'A este ritmo se acaba antes: pasará a Gemini' : 'Al ritmo de ahora, sobra crédito'}</span></div>`
+      : `<div class="ga-kpi"><small>Media por día</small><b>${USD(gastado / Math.max(1, Math.round((new Date(d.hasta) - new Date(d.desde)) / 864e5) + 1))}</b><span>en el periodo elegido</span></div>`}
+      <div class="ga-kpi"><small>Llamadas del periodo</small><b>${N(m.claude)}</b><span>Claude · ${N(m.gemini)} de reserva con Gemini${m.fallos ? ` · ${N(m.fallos)} fallidas` : ''}</span></div>
       <div class="ga-kpi"><small>Ahorro de la caché</small><b>${USD(+d.ahorro_cache || 0)}</b><span>${K(m.ent)} tokens leídos · ${K(m.sal)} escritos</span></div>
     </div>
   </section>
 
   <section class="ga-card">
-    <div class="ga-card-h"><h3>Día a día</h3><span>Últimos 30 días · cada color es un agente · pasa el ratón por una barra</span></div>
+    <div class="ga-card-h"><h3>Día a día</h3><span>Cada color es un agente · pasa el ratón por una barra</span></div>
     ${d.diario.length ? barrasDiarias(d) + `<div class="ga-leyd">${[...new Set(d.diario.map((r) => r.agente))].map((k) => `<span style="--c:${ag(k)[1]}"><i></i>${esc(ag(k)[0])}</span>`).join('')}</div>` : '<p class="ga-vacio">Aún no hay llamadas. En cuanto un agente use Claude, aparece aquí.</p>'}
   </section>
 
   <div class="ga-dos">
     <section class="ga-card">
-      <div class="ga-card-h"><h3>Por agente</h3><span>Este mes</span></div>
+      <div class="ga-card-h"><h3>Por agente</h3><span>En el periodo</span></div>
       ${d.agentes.length ? d.agentes.map((a) => { const [n, c, que] = ag(a.agente); return `
         <div class="ga-ag" style="--c:${c}">
           <div class="ga-ag-t"><i></i><b>${esc(n)}</b><span>${USD(+a.usd || 0)}</span></div>
@@ -122,7 +138,7 @@ function pintar(d) {
   </div>
 
   <section class="ga-card">
-    <div class="ga-card-h"><h3>Últimas llamadas</h3><span>Las 25 más recientes</span></div>
+    <div class="ga-card-h"><h3>Últimas llamadas</h3><span>Las 25 más recientes del periodo</span></div>
     ${d.ultimas.length ? `<div class="ga-tabla">${d.ultimas.map((u) => { const [n, c] = ag(u.agente), [mn, mc] = mod(u.modelo, u.proveedor); return `
       <div class="ga-fila${+u.ok ? '' : ' mal'}" title="${esc(u.nota || '')}">
         <time>${esc(String(u.ts).slice(11, 16))}<small>${esc(+String(u.ts).slice(8, 10) + '/' + +String(u.ts).slice(5, 7))}</small></time>
@@ -143,10 +159,16 @@ function pintar(d) {
 async function cargar() {
   if (!raiz.firstChild) raiz.innerHTML = '<div class="ga-cargando"><i></i><i></i><i></i></div>';
   try {
-    const r = await fetch(BASE + '?gasto=1', { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+    const q = P.desde ? `&desde=${encodeURIComponent(P.desde)}&hasta=${encodeURIComponent(P.hasta || P.desde)}` : '';
+    const r = await fetch(BASE + '?gasto=1' + q, { credentials: 'same-origin', headers: { Accept: 'application/json' } });
     if (r.status === 401) { location.reload(); return; }
     const j = await r.json(); if (!j.ok) throw new Error('sin datos');
     pintar(j);
+    // elegir mes o fechas
+    const fija = (desde, hasta) => { Object.assign(P, { desde, hasta }); try { sessionStorage.setItem('pb-gasto-periodo', JSON.stringify(P)); } catch (e) { /* nada */ } cargar(); };
+    raiz.querySelectorAll('.ga-periodo button[data-m]').forEach((b) => { b.onclick = () => { const m = b.dataset.m; fija(m + '-01', m === iso(new Date()).slice(0, 7) ? '' : finDeMes(m)); }; });
+    const ver = raiz.querySelector('#ga-ver');
+    if (ver) ver.onclick = () => { const de = raiz.querySelector('#ga-desde').value, ha = raiz.querySelector('#ga-hasta').value; if (de) fija(de, ha || de); };
   } catch (e) { raiz.innerHTML = '<p class="ga-vacio">No se ha podido leer el gasto ahora. Prueba otra vez en un momento.</p>'; }
 }
 const abre = (p) => { if (p === 'gasto') cargar(); };

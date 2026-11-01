@@ -303,7 +303,7 @@ function pebai_lab_preparar(int $max = 1): int
         $ciudad = trim((string)$p['ciudad']) ?: 'su zona';
         $dato = '';
         if ($variante === 'geo') {
-            $r = pebai_demo_radiografia((string)$p['empresa'], $N['sector'], $ciudad, $web);
+            $r = pebai_demo_radiografia((string)$p['empresa'], $N['sector'], $ciudad, $web, '', 'cerebro');
             $otros = $r ? array_slice(array_column($r['competidores'] ?? [], 'nombre'), 0, 3) : [];   // solo empresas que salieron de verdad en la búsqueda
             if (!$r || $r['aparece'] || count($otros) < 2) {
                 $variante = 'app';   // si ya salen (o la búsqueda no dice nada claro), el gancho de la IA no vale: va a la app

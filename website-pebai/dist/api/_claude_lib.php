@@ -123,6 +123,12 @@ function pebai_claude(string $agente, string $modelo, string $system, array $men
         $err = (string)($j['error']['message'] ?? 'HTTP ' . $code);
         pebai_ia_apunta($agente, 'claude', $modelo, [], 0, false, 'HTTP ' . $code . ': ' . $err);
         pebai_log('CLAUDE ' . $agente . ': HTTP ' . $code . ' ' . mb_substr($err, 0, 200));
+        // Claude desconectado (clave rechazada o sin crédito): aviso al panel y al móvil, una vez al día; mientras, todo va por Gemini
+        if (in_array($code, [401, 403], true) || preg_match('/credit|billing|balance/i', $err)) {
+            require_once __DIR__ . '/_avisos_lib.php';
+            pebai_aviso('ia', 'Claude se ha desconectado', ($code === 401 || $code === 403 ? 'La clave no vale' : 'Sin crédito') . ': los agentes siguen con Gemini. Míralo en Gasto IA.',
+                        'pagina:gasto', 'claude-caido:' . date('Y-m-d'));
+        }
         return null;
     }
     $u = (array)($j['usage'] ?? []);

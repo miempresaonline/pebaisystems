@@ -311,7 +311,66 @@ function redes_sync(): array
         }
         $periodos[] = $p + ['hasta_real' => min($hasta, $hoy), 'videos' => $vs, 'seguidores' => $sp];
     }
-    return ['actualizado' => date('Y-m-d H:i:s'), 'periodos' => $periodos];
+    return ['actualizado' => date('Y-m-d H:i:s'), 'periodos' => redes_ranking($periodos)];
+}
+
+/**
+ * Clasificación «como la de la liga» (Daniel, 01/11): cada día se guarda una foto de las vistas totales de cada vídeo
+ * (private/redes_historial.json, 60 días) y a cada vídeo se le pone su puesto de hace una semana (o de la foto más vieja que haya,
+ * si aún no hay una semana). Así el panel enseña cuántos puestos ha subido o bajado. Metricool solo da las cifras de hoy.
+ */
+function redes_ranking(array $periodos): array
+{
+    $f = pebai_private_dir() . '/redes_historial.json';
+    $h = is_file($f) ? (json_decode((string)file_get_contents($f), true) ?: []) : [];
+    $hoy = date('Y-m-d');
+    $tot = static function (array $v): int {
+        $t = 0;
+        foreach (['tt', 'ig', 'yt', 'fb'] as $k) {
+            $t += (int)($v[$k]['v'] ?? 0);
+        }
+        return $t;
+    };
+    $foto = [];
+    foreach ($periodos as $per) {
+        foreach ($per['videos'] ?? [] as $v) {
+            $foto[md5($v['f'] . '|' . $v['titulo'])] = $tot($v);
+        }
+    }
+    if ($foto) {
+        $h[$hoy] = $foto;
+        ksort($h);
+        $h = array_slice($h, -60, null, true);
+        @file_put_contents($f, json_encode($h), LOCK_EX);
+    }
+    // la foto con la que se compara: la más cercana a hace 7 días (y nunca la de hoy)
+    $objetivo = date('Y-m-d', strtotime('-7 days'));
+    $ref = null;
+    foreach (array_keys($h) as $d) {
+        if ($d < $hoy && ($ref === null || abs(strtotime($d) - strtotime($objetivo)) < abs(strtotime($ref) - strtotime($objetivo)))) {
+            $ref = $d;
+        }
+    }
+    foreach ($periodos as &$per) {
+        if (empty($per['videos'])) {
+            continue;
+        }
+        $antes = [];
+        if ($ref) {
+            $ids = array_filter(array_map(static fn($v) => md5($v['f'] . '|' . $v['titulo']), $per['videos']), static fn($id) => isset($h[$ref][$id]));
+            $vals = array_intersect_key($h[$ref], array_flip($ids));
+            arsort($vals);
+            $antes = array_flip(array_keys($vals));   // id => puesto (0 = primero)
+        }
+        foreach ($per['videos'] as &$v) {
+            $id = md5($v['f'] . '|' . $v['titulo']);
+            $v['antes'] = isset($antes[$id]) ? $antes[$id] + 1 : null;   // puesto de entonces (null = aún no estaba)
+        }
+        unset($v);
+        $per['ranking_desde'] = $ref;
+    }
+    unset($per);
+    return $periodos;
 }
 
 /** Solicitudes del formulario que llegaron desde redes en las fechas del periodo (solo recuentos, nada personal). */
