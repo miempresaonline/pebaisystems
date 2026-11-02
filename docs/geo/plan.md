@@ -137,6 +137,8 @@ Lunes 2/11 mañana (Jefe). Cifra clave: 0 de 4 preguntas con PEBAI (Medición 2/
 4. Medir lo que hay: analítica de los 4 posts de LinkedIn (0 visitas con utm de LinkedIn en GA4) y Metricool en el informe. (geo_redes, geo_medicion)
 5. Daniel: «Solicitar indexación» de las 4 URLs, nombre y categoría de la ficha (5 min), oferta de noviembre y OK a la estrategia por nichos.
 
+Lunes 2/11 tarde (Jefe): hecho 1 (sitemap de 18 URLs en producción y en Google, leído a las 9:13 UTC; generador arreglado por Técnico) y 2 en parte (presupuestos publicada, 200; instaladoras lista para el 3/11). Calidad de lo publicado hoy (presupuestos, Valencia, /ia-para-empresas/, WhatsApp, voz): 0 palabras prohibidas, 0 rayas, 0 exclamaciones, 6 FAQ = JSON-LD, autor Daniel, title ≤ 60 y description ≤ 155. Lo flojo: una fuente de 2011 como única prueba en presupuestos, prensa en vez de la fuente original en Valencia, dos LinkedIn el 5/11 a la misma hora, presupuestos repetido el 1/12 y el 15/12 en LinkedIn y 6 fotos de la ficha que adelantan el titular de un post. Todo con encargo de corrección. Search Console: el pilar 4 recibe consultas de «aparecer en ChatGPT» por encima de la posición 80; Contenido y Preguntas deciden si toca subpilar.
+
 ## Propuestas del Vigía
 
 (El Vigía añade aquí lo que cambie el plan; el Jefe las resuelve.)
