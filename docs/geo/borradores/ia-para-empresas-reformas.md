@@ -1,6 +1,6 @@
 # Esquema · /ia-para-empresas/reformas/
 
-Estado: **esquema el 30/10/2026 (Contenido), sin texto final ni maquetar. No se publica: espera el OK de Daniel a la estrategia por nichos (`docs/geo/estrategia-nichos.md`, nicho 1).** Encargos del Jefe del 29/10 tarde (esquema de 6 H2 y 8 preguntas con URL) y del 30/10 mañana (H2 de deducciones de 2026 con lo [V] del BOE). Base: ficha del Vigía `docs/geo/sectores/reformas-construccion.md` (30/10) y `preguntas.md`, «Reformas y construcción» (28/10). Responde a P9 del set: «¿Cómo puede una empresa de reformas o construcción usar IA para ahorrar tiempo?».
+Estado: **esquema el 30/10/2026 (Contenido); 2/11 (15:00): texto de la entradilla del H2 1 (falta de manos, portales, reseñas) y tabla «qué preguntar según la obra» del H2 2. Sin texto final del resto ni maquetar. No se publica: espera el OK de Daniel a la estrategia por nichos (`docs/geo/estrategia-nichos.md`, nicho 1).** Encargos del Jefe del 29/10 tarde (esquema de 6 H2 y 8 preguntas con URL) y del 30/10 mañana (H2 de deducciones de 2026 con lo [V] del BOE). Base: ficha del Vigía `docs/geo/sectores/reformas-construccion.md` (30/10) y `preguntas.md`, «Reformas y construcción» (28/10). Responde a P9 del set: «¿Cómo puede una empresa de reformas o construcción usar IA para ahorrar tiempo?».
 
 ## Ficha
 
@@ -45,6 +45,36 @@ Contexto del sector, para la entradilla (solo [V] de la ficha): 1,9 millones de 
 6. **Por dónde empezar si sois cinco** `#empezar` · P8. Un solo proceso (contestar y filtrar, o partes), una persona responsable, medir cuatro semanas. Cuándo no conviene (pocas peticiones, todo por recomendación, nadie que revise). Enlace a /ia-para-empresas/cuanto-cuesta/.
 
 FAQ (6, borrador de preguntas): ¿Puede la IA hacer el presupuesto de una reforma? · ¿Qué tiene que llevar el presupuesto y se puede cobrar? · ¿Qué datos pido por WhatsApp antes de ir a ver la obra? · ¿Un chatbot puede atender a los clientes durante la obra? (P6: plazos, documentos y estado; incidencias y decisiones a una persona; aviso de IA del art. 50) · ¿Qué obras entran en las deducciones de 2026? · ¿Cuánto cuesta? (depende de la empresa, se presupuesta tras la consultoría).
+
+### H2 1 · Entradilla (texto, 2/11/2026) {#tiempo}
+
+Preguntas reales 2, 3 y 6 de `preguntas.md` («Turno 30/10», Reformas): falta de manos, portales de leads y reseñas al cerrar la obra. Fuente [V], reabierta el 2/11: Andimac, Radar Reforma, vía Interempresas, 31/03/2026 (enlace arriba): 1,9 millones de reformas en 2025 y «la falta de mano de obra es el principal freno del sector de la construcción». Habitissimo y Billin [S] solo como origen de la pregunta; no se nombran en la página.
+
+Texto:
+
+Si os faltan manos para hacer las obras que ya tenéis, conseguir más contactos no es lo primero. La falta de mano de obra es el principal freno del sector, según Andimac (Radar Reforma, marzo de 2026), que cuenta 1,9 millones de reformas en 2025. Lo que sí cuesta caro es gastar una mañana en ir a ver una obra que no encaja, o perder la que sí encajaba porque nadie contestó el WhatsApp de las nueve de la noche.
+
+Por eso la Inteligencia Artificial (IA) sirve aquí para dos cosas: contestar a tiempo y filtrar antes de la visita.
+
+- **Si los clientes os llegan por un portal donde compiten varias empresas por el mismo trabajo**, la IA no sustituye al portal. Lo que cambia es que contestáis en minutos con lo que el cliente necesita oír y le pedís lo que falta (fotos, metros, plazo) antes de ir. Quien contesta antes y con criterio suele ser el que consigue la visita.
+- **Si os llegan por recomendación**, cuidad la última impresión. Al cerrar la obra, un mensaje de agradecimiento con el enlace para dejar una reseña, enviado a quien ha aceptado recibirlo y sin condicionar nada a que la deje. Es la recomendación de mañana.
+
+El asistente contesta con la información de vuestra empresa y pide lo que falta; quién va a ver la obra y qué precio se da lo decide una persona. Cómo se monta: [agente de IA para WhatsApp](/agentes-ia/whatsapp/) y, si os llaman más que os escriben, [agente de voz](/agentes-ia/voz/).
+
+### H2 2 · Tabla «qué preguntar por WhatsApp según la obra» (texto, 2/11/2026) {#filtrar}
+
+Pregunta real 4 de `preguntas.md` («Turno 30/10»). Sin precios ni cifras: son datos que se piden, no afirmaciones. Antes de publicar, que Daniel o un cliente reformista la repase (orden y nombres de las obras).
+
+Texto de entrada: Con cuatro o cinco datos y unas fotos sabéis si merece la pena ir, qué llevar y cuánto tiempo reservar. El asistente los pide en el primer mensaje, según la obra que diga el cliente:
+
+| Obra | Qué pedir en el primer mensaje | Fotos que ayudan | Pasa a una persona si… |
+|---|---|---|---|
+| Baño | Medidas aproximadas, si se cambia la bañera por plato de ducha, si se mueven tomas de agua o desagües, planta y si hay ascensor | Del baño entero, del suelo y de la zona de la ducha o bañera | Hay una fuga o humedad que no espera, o pide precio cerrado sin visita |
+| Cocina | Medidas aproximadas y forma, si se mueven agua, gas o enchufes, si incluye muebles y electrodomésticos | De la cocina entera y de las paredes donde irían los muebles | Quiere tirar un tabique o cambiar la cocina de sitio |
+| Reforma integral | Metros aproximados y estancias, si la vivienda está habitada durante la obra, plazo deseado y si quiere acogerse a la deducción de eficiencia energética ([H2 5](#deducciones)) | De cada estancia y del cuadro eléctrico | Siempre, tras recoger los datos: una integral se valora en visita |
+| Fachada o cubierta | Si es casa o comunidad de propietarios, número de plantas, qué problema hay (humedades, grietas, tejas) y, en comunidades, si la junta ya lo ha aprobado | De la fachada o el tejado y del daño de cerca | Hay riesgo de caída de material o es una comunidad sin acuerdo de la junta |
+
+Después de la tabla: con esos datos el asistente propone dos o tres huecos para la visita y avisa a quien la hará con el resumen. Lo que no cuadra con lo que hacéis (zona, tipo de obra) se contesta con educación y se cierra, sin gastar visita.
 
 ### H2 5 · Deducciones de 2026: por qué manda el plazo {#deducciones}
 
