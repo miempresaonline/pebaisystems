@@ -18,7 +18,7 @@
 
 /* ---------- fondo: luces de marca muy difuminadas que se mueven despacio ---------- */
 .pb-bg{background:radial-gradient(120% 90% at 50% -10%,#10142a 0,var(--ink) 55%)}
-.pb-bg i{filter:blur(110px);will-change:transform;animation:pbg-deriva 26s ease-in-out infinite alternate}
+.pb-bg i{filter:blur(110px)}
 .pb-bg i:nth-child(1){width:62vmax;height:62vmax;left:-18vmax;top:-26vmax;background:radial-gradient(circle,rgba(106,92,255,.7),transparent 65%);opacity:1}
 .pb-bg i:nth-child(2){width:46vmax;height:46vmax;right:-14vmax;top:8vmax;background:radial-gradient(circle,rgba(183,255,60,.4),transparent 65%);opacity:.9;animation-duration:31s;animation-direction:alternate-reverse}
 .pb-bg i:nth-child(3){width:56vmax;height:56vmax;left:24vmax;bottom:-34vmax;background:radial-gradient(circle,rgba(63,213,255,.28),transparent 65%);opacity:.75;animation-duration:37s}
@@ -29,10 +29,10 @@
 /* ---------- cristal en todas las tarjetas ---------- */
 .pb-card,.pb-row,.pb-chip,.pc-kpi,.pb-plz,.pb-msgs summary,.pb-pend,.rd-kpi,.pb-fsec,.pb-form,.pb-orig .fila,.pb-histbox,.pb-subnav,.pb-seg,.pb-filters select,.pb-filters input,
 .pb-filters .grow input,#pb-q,.pc-search input,.pc-row,.pb-agenda>*{
-  background:var(--glass);border-color:var(--glass-line);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-sombra)}
+  background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.035));border-color:var(--glass-line);backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:var(--glass-sombra)}
 .pb-card{border-radius:var(--r)}
 .pb-row:hover,.pc-row:hover{background:var(--glass-2);border-color:var(--glass-hi)}
-.pb-btn{backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur)}
+.pb-btn{backdrop-filter:none}
 .pb-btn:not(.primary):not(.wa):not(.danger){background:var(--glass);border-color:var(--glass-line)}
 .pb-drawer,.pc-drawer{background:color-mix(in srgb,var(--ink-2) 72%,transparent);backdrop-filter:blur(30px) saturate(1.6);-webkit-backdrop-filter:blur(30px) saturate(1.6);border-left-color:var(--glass-hi)}
 .pb-drawer .top{background:transparent;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
@@ -93,7 +93,7 @@
   .pb-aviso em{font-style:italic;font-family:var(--serif);font-size:15px;color:var(--fg-strong)}
   .pb-top .pb-crumb{margin-right:0}
 }
-@keyframes pbg-asoma{from{opacity:0;transform:translateY(-6px) scale(.97);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes pbg-asoma{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 
 /* ---------- pastilla de secciones abajo (las del grupo en el que estás) ---------- */
 .pb-pastilla{display:none}
@@ -111,10 +111,10 @@
 
 /* ---------- entrada de cada sección: desenfoque → cristal → contenido en cascada ---------- */
 .pb-page.on{animation:none}
-.pbg-entra{animation:pbg-enfoca .55s var(--ease) both}
-.pbg-pieza{animation:pbg-pieza .7s var(--ease) both;animation-delay:calc(var(--n,0) * 55ms + 120ms)}
-@keyframes pbg-enfoca{from{filter:blur(14px);opacity:.35}to{filter:none;opacity:1}}
-@keyframes pbg-pieza{0%{opacity:0;transform:translateY(16px) scale(.985);filter:blur(10px)}55%{opacity:1;filter:blur(2px)}100%{opacity:1;transform:none;filter:none}}
+.pbg-entra{animation:pbg-enfoca .35s ease-out both}
+.pbg-pieza{animation:pbg-pieza .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--n,0) * 35ms + 40ms)}
+@keyframes pbg-enfoca{from{opacity:.4}to{opacity:1}}
+@keyframes pbg-pieza{from{opacity:0;transform:translate3d(0,10px,0)}to{opacity:1;transform:none}}
 /* barras que crecen desde abajo y líneas que se dibujan */
 .pbg-crece rect{transform-box:fill-box;transform-origin:50% 100%;animation:pbg-barra .9s var(--ease) both;animation-delay:calc(var(--n,0) * 35ms + 250ms)}
 @keyframes pbg-barra{from{transform:scaleY(0)}to{transform:none}}
@@ -166,7 +166,7 @@
 .pb-of-btn.primary{background:var(--lime);border-color:var(--lime)}
 /* vista de lista: filas de cristal sobre las luces del fondo */
 .pb-of-lista{background:radial-gradient(90% 70% at 20% 0,rgba(106,92,255,.18),transparent 60%),radial-gradient(70% 60% at 90% 30%,rgba(183,255,60,.08),transparent 60%),#080914}
-.pb-of-lista .fila{border-radius:18px;background:rgba(255,255,255,.045);border-color:var(--glass-line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+.pb-of-lista .fila{border-radius:18px;background:rgba(255,255,255,.045);border-color:var(--glass-line);box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
 .pb-of-lista .fila:hover{background:rgba(255,255,255,.08);border-color:var(--glass-hi)}
 .pb-of-lista .fila .t{border-radius:50%}
 /* «Salir» en el dock: un botón redondo con flecha (el texto queda para lectores de pantalla) */
@@ -180,3 +180,7 @@
 
 /* en el dock, el número de prospectos (miles) no es un aviso: fuera */
 @media (min-width:961px){.pb-nav button[data-page=prospectos] em{display:none}}
+
+/* Al actualizarse los datos (cada minuto), las tarjetas NO repiten su animación de entrada: solo se anima al entrar en la sección */
+body.pbg-quieto .pb-anim,body.pbg-quieto .pc-kpi,body.pbg-quieto .rd-rev,body.pbg-quieto .pb-pend,body.pbg-quieto .pgx *,
+body.pbg-quieto .pb-chip,body.pbg-quieto .pc-row,body.pbg-quieto .pb-row{animation:none!important}

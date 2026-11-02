@@ -58,8 +58,13 @@ let avisosRes = [];
 const haceTxt = (ts) => { const m = Math.round((Date.now() - new Date(String(ts).replace(' ', 'T'))) / 60000); return m < 60 ? `hace ${Math.max(1, m)} min` : m < 1440 ? `hace ${Math.round(m / 60)} h` : `hace ${Math.round(m / 1440)} d`; };
 const TIPO = { solicitud: ['Solicitud', '#B7FF3C'], cita: ['Cita', '#25D366'], interesado: ['Interesado', '#B7FF3C'], respuesta: ['Respuesta', '#3FD5FF'], demo: ['Demo abierta', '#FB923C'], ia: ['Claude', '#FF5E6C'] };
 
+let firmaRes = '';
 function draw() {
   if (!G || document.body.dataset.page !== 'resumen') return;
+  // si nada ha cambiado desde la última vez, no se toca (así no parpadea cada minuto)
+  const firma = JSON.stringify([G.secciones, G.salida, G.caja, (G.agentes || []).map((a) => a.st), avisosRes.map((a) => a.id)]);
+  if (firma === firmaRes && box.firstChild) return;
+  firmaRes = firma;
   box.textContent = '';
   const hr = new Date().getHours(), sal = document.getElementById('pb-saludo');
   if (sal) sal.textContent = hr < 6 ? 'Buenas noches' : hr < 14 ? 'Buenos días' : hr < 21 ? 'Buenas tardes' : 'Buenas noches';

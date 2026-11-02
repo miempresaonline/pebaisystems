@@ -89,17 +89,20 @@ function odometro(el) {
   // al acabar, vuelve a ser texto normal (las secciones lo siguen actualizando como siempre)
   setTimeout(() => { if (el.firstChild === box) el.textContent = txt; }, 1700);
 }
+let tQuieto = 0;
 function entra(page) {
   if (!page || quieto) return;
+  // mientras entra, se permiten las animaciones; luego, «quieto»: las actualizaciones de datos ya no repiten la entrada
+  document.body.classList.remove('pbg-quieto'); clearTimeout(tQuieto); tQuieto = setTimeout(() => document.body.classList.add('pbg-quieto'), 1100);
   page.classList.remove('pbg-entra'); void page.offsetWidth; page.classList.add('pbg-entra');
   // espera un poco: muchas secciones pintan sus datos al entrar
   setTimeout(() => {
     let n = 0;
     page.querySelectorAll(PIEZAS).forEach((p) => {
-      if (n > 18 || p.closest('.pbg-pieza') || p.offsetParent === null) return;
-      const r = p.getBoundingClientRect(); if (r.top > innerHeight * 1.2) return;
+      if (n > 12 || p.closest('.pbg-pieza') || p.offsetParent === null) return;
+      const r = p.getBoundingClientRect(); if (r.top > innerHeight || r.bottom < 0) return;   // solo lo que se ve
       p.style.setProperty('--n', n++); p.classList.remove('pbg-pieza'); void p.offsetWidth; p.classList.add('pbg-pieza');
-      setTimeout(() => p.classList.remove('pbg-pieza'), 1600);
+      setTimeout(() => p.classList.remove('pbg-pieza'), 1000);
     });
     // cifras grandes
     page.querySelectorAll('b,strong,.v,.num,.big,[class*="num"],[class*="big"],[class*="cifra"]').forEach((e) => {
@@ -119,7 +122,7 @@ function entra(page) {
         setTimeout(() => { p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; p.style.transition = ''; }, 2000);
       });
     });
-  }, 90);
+  }, 40);
 }
 document.addEventListener('pb:page', (e) => { pintaPastilla(e.detail); entra(document.getElementById('page-' + e.detail)); });
 window.pbAnima = entra;   // para volver a animar un bloque que se repinta (p. ej. Gasto IA al cambiar de mes)
