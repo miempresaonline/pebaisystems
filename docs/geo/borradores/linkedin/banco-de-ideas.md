@@ -10,8 +10,8 @@ Preguntas reales de dueños de empresa sacadas de `docs/geo/preguntas.md`, lista
 | 4 | ¿Cómo es el pago y el alcance: cerrado o por horas? | Alcance cerrado por fases y precio que se presupuesta tras la consultoría; desconfiar de horas sin tope. | `/ia-para-empresas/cuanto-cuesta/` | Libre (sin cifras salvo 1.500 €) |
 | 5 | ¿Qué hago con las llamadas que pierdo mientras atiendo en el sillón? | Agente de voz con salida a una persona y resumen; no sirve si casi todo son urgencias. | `/agentes-ia/voz/` | Esperar a enero (ya hay post de voz) |
 | 6 | ¿Cómo evito que los pacientes no se presenten a la cita? | Recordatorio por WhatsApp con confirmar o reprogramar. Sin cifras de reducción. | pack clínicas (cuando exista) | Esperar a la página |
-| 7 | ¿Qué métricas debo pedir a quien me venda posicionamiento en IA? | Preguntas medidas, porcentaje con cita a tu web, visitas desde IA e informe repetible. | `/posicionamiento-en-ia/` | Libre |
-| 8 | ¿Puede una pyme local salir en ChatGPT sin ser conocida? | Sí si Google la tiene indexada y hay páginas que responden la pregunta; sin base, no. | `/posicionamiento-en-ia/` | Libre |
+| 7 | ¿Qué métricas debo pedir a quien me venda posicionamiento en IA? | Preguntas medidas, porcentaje con cita a tu web, visitas desde IA e informe repetible. | `/posicionamiento-en-ia/` | Borrador listo `borrador-metricas-posicionamiento-ia.md` (2/11) |
+| 8 | ¿Puede una pyme local salir en ChatGPT sin ser conocida? | Sí si Google la tiene indexada y hay páginas que responden la pregunta; sin base, no. | `/posicionamiento-en-ia/` | Borrador listo `borrador-pyme-local-en-chatgpt.md` (2/11) |
 | 9 | ¿Quién paga el hosting y las licencias de IA: la consultora o yo? | Las licencias y el alojamiento van a tu nombre; así no dependes de nadie. Confirmar con la página antes. | `/sobre-pebai/` | Verificar |
 | 10 | ¿Hay ayudas para pymes valencianas que quieran usar IA? | Solo con fuente oficial verificada el día de publicar; no citar importes de directorios. | `/ia-para-empresas/valencia/` | Verificar fuente |
 
