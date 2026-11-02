@@ -111,7 +111,7 @@
 
 /* ---------- entrada de cada sección: desenfoque → cristal → contenido en cascada ---------- */
 .pb-page.on{animation:none}
-.pb-page.pbg-entra{animation:pbg-enfoca .55s var(--ease) both}
+.pbg-entra{animation:pbg-enfoca .55s var(--ease) both}
 .pbg-pieza{animation:pbg-pieza .7s var(--ease) both;animation-delay:calc(var(--n,0) * 55ms + 120ms)}
 @keyframes pbg-enfoca{from{filter:blur(14px);opacity:.35}to{filter:none;opacity:1}}
 @keyframes pbg-pieza{0%{opacity:0;transform:translateY(16px) scale(.985);filter:blur(10px)}55%{opacity:1;filter:blur(2px)}100%{opacity:1;transform:none;filter:none}}

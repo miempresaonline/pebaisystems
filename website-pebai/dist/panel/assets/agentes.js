@@ -71,7 +71,7 @@ const toast = (msg, err) => { const t = $('#pb-toast'); $('span', t).textContent
 /* ============ datos ============ */
 async function load() {
   const r = await fetch(BASE + '?agentes=1', { credentials: 'same-origin', cache: 'no-store' });
-  if (r.status === 401 || r.redirected) { location.reload(); return; }
+  if (r.status === 401 || r.redirected) { pbCaduca(); return; }
   const j = await r.json();
   if (!j.ok) throw new Error(j.error || 'Error al cargar');
   Object.assign(S, j, { ahora: parse(j.ahora), loaded: true });
@@ -89,7 +89,7 @@ async function post(action, fields, btnEl) {
   if (btnEl) btnEl.disabled = true;
   try {
     const r = await fetch(BASE, { method: 'POST', body, credentials: 'same-origin', headers: { Accept: 'application/json' } });
-    if (r.status === 401) { location.reload(); return {}; }
+    if (r.status === 401) { pbCaduca(); return {}; }
     let j = {}; try { j = await r.json(); } catch (e) { j = { ok: false, error: 'Respuesta inesperada del servidor.' }; }
     if (!j.ok) throw new Error(j.error || 'No se ha podido guardar.');
     await load(); draw();

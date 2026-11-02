@@ -40,7 +40,7 @@ function libreria() {
 }
 async function cargar() {
   const r = await fetch(BASE + '?mapa=1', { credentials: 'same-origin', cache: 'no-store' });
-  if (r.status === 401) { location.reload(); return; }
+  if (r.status === 401) { pbCaduca(); return; }
   let j; try { j = await r.json(); } catch (e) { throw new Error('El mapa no ha respondido bien.'); }
   if (!j.ok) throw new Error(j.error || 'No se ha podido cargar el mapa.');
   S.puntos = j.puntos; S.sinUbicar = j.sin_ubicar; S.buscaMas = j.busca_mas; S.cargado = true;

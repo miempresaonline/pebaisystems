@@ -57,7 +57,7 @@ const enPagina = () => document.body.dataset.page === PAGE && !document.body.cla
 /* ============ datos ============ */
 async function cargar() {
   const r = await fetch(BASE + '?oficina=1', { credentials: 'same-origin', cache: 'no-store' });
-  if (r.status === 401) { location.reload(); return false; }
+  if (r.status === 401) { pbCaduca(); return false; }
   let j; try { j = await r.json(); } catch (e) { throw new Error('La oficina no ha respondido bien.'); }
   if (!j.ok) throw new Error(j.error || 'No se ha podido cargar la oficina.');
   /* en la oficina solo salen los bots de verdad (los de los departamentos con agentes) */
@@ -68,7 +68,7 @@ async function accion(action, fields, ok, btn) {
   if (btn) btn.disabled = true;
   try {
     const r = await fetch(BASE, { method: 'POST', credentials: 'same-origin', headers: { 'Accept': 'application/json' }, body: new URLSearchParams({ action, csrf: S.csrf, ...fields }) });
-    if (r.status === 401) { location.reload(); return; }
+    if (r.status === 401) { pbCaduca(); return; }
     const j = await r.json().catch(() => ({ ok: false }));
     if (!j.ok) throw new Error(j.error || 'No se ha podido hacer.');
     toast(ok); await refrescar();
@@ -494,7 +494,7 @@ function cajaCrearDemo() {
     btn.disabled = true;
     try {
       const r = await fetch(BASE, { method: 'POST', credentials: 'same-origin', headers: { 'Accept': 'application/json' }, body: new URLSearchParams({ action: 'demo_manual', csrf: S.csrf, web, autor }) });
-      if (r.status === 401) { location.reload(); return; }
+      if (r.status === 401) { pbCaduca(); return; }
       const j = await r.json().catch(() => ({ ok: false }));
       if (!j.ok) throw new Error(j.error || 'No se ha podido empezar.');
       S.demoJob = { ...j, t0: Date.now() - (j.segundos || 0) * 1000 }; S.demoUrl = ''; inp.value = '';
@@ -671,7 +671,7 @@ async function abrirServidor(id, fresco) {
   sideIn.innerHTML = cab + `<div class="pb-of-state" style="--c:${d.color}"><i></i><div><b>Un momento</b><span>La IA está leyendo lo que ha pasado hoy…</span></div></div>`; mostrar();
   try {
     const r = await fetch(BASE + '?oficina_resumen=' + encodeURIComponent(id) + (fresco ? '&fresco=1' : ''), { credentials: 'same-origin', cache: 'no-store' });
-    if (r.status === 401) { location.reload(); return; }
+    if (r.status === 401) { pbCaduca(); return; }
     j = await r.json().catch(() => ({ ok: false }));
     if (!j.ok) throw new Error(j.error || 'No se ha podido leer la actividad de hoy.');
   } catch (e) { j = { ok: false, error: e.message }; }
@@ -786,7 +786,7 @@ async function preguntar(t) {
   const minimo = new Promise((r) => setTimeout(r, 900));
   try {
     const r = await fetch(BASE, { method: 'POST', credentials: 'same-origin', headers: { 'Accept': 'application/json' }, body: new URLSearchParams({ action: 'oficina_preguntar', csrf: S.csrf, q: t, h: JSON.stringify(S.hist.slice(-4)) }) });
-    if (r.status === 401) { location.reload(); return; }
+    if (r.status === 401) { pbCaduca(); return; }
     const j = await r.json().catch(() => ({ ok: false, error: 'Respuesta inesperada.' }));
     await minimo; clearInterval(rota);
     if (j.ok) { S.hist.push({ q: t, a: j.respuesta }); await escribir(body, j.respuesta); }

@@ -159,16 +159,18 @@ function pintar(d) {
   </section>`;
 }
 
-async function cargar() {
+async function cargar(anima) {
   if (!raiz.firstChild) raiz.innerHTML = '<div class="ga-cargando"><i></i><i></i><i></i></div>';
   try {
-    const q = P.desde ? `&desde=${encodeURIComponent(P.desde)}&hasta=${encodeURIComponent(P.hasta || P.desde)}` : '';
+    // sin «hasta» = hasta hoy (el mes en curso); antes se mandaba el mismo día de «desde» y hoy quedaba fuera
+    const q = P.desde ? `&desde=${encodeURIComponent(P.desde)}${P.hasta ? `&hasta=${encodeURIComponent(P.hasta)}` : ''}` : '';
     const r = await fetch(BASE + '?gasto=1' + q, { credentials: 'same-origin', headers: { Accept: 'application/json' } });
-    if (r.status === 401) { location.reload(); return; }
+    if (r.status === 401) { pbCaduca(); return; }
     const j = await r.json(); if (!j.ok) throw new Error('sin datos');
     pintar(j);
+    if (anima && window.pbAnima) window.pbAnima(raiz);   // al cambiar de mes o de fechas, entra animado como una sección
     // elegir mes o fechas
-    const fija = (desde, hasta) => { Object.assign(P, { desde, hasta }); try { sessionStorage.setItem('pb-gasto-periodo', JSON.stringify(P)); } catch (e) { /* nada */ } cargar(); };
+    const fija = (desde, hasta) => { Object.assign(P, { desde, hasta }); try { sessionStorage.setItem('pb-gasto-periodo', JSON.stringify(P)); } catch (e) { /* nada */ } cargar(true); };
     raiz.querySelectorAll('.ga-periodo button[data-m]').forEach((b) => { b.onclick = () => { const m = b.dataset.m; fija(m + '-01', m === iso(new Date()).slice(0, 7) ? '' : finDeMes(m)); }; });
     const ver = raiz.querySelector('#ga-ver');
     if (ver) ver.onclick = () => { const de = raiz.querySelector('#ga-desde').value, ha = raiz.querySelector('#ga-hasta').value; if (de) fija(de, ha || de); };

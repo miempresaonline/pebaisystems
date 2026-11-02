@@ -394,7 +394,7 @@ async function accesos() {
   let j;
   try {
     const r = await fetch(BASE + '?redes_accesos=1', { credentials: 'same-origin', cache: 'no-store' });
-    if (r.status === 401) { location.reload(); return; }
+    if (r.status === 401) { pbCaduca(); return; }
     j = await r.json();
   } catch (e) { j = { ok: false }; }
   const R = j.redes || [];

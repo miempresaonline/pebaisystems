@@ -80,7 +80,7 @@ inp.addEventListener('input', () => {
   inp.h = setTimeout(async () => {
     try {
       const r = await fetch(BASE + '?buscar=' + encodeURIComponent(q), { credentials: 'same-origin', cache: 'no-store' });
-      if (r.status === 401) { location.reload(); return; }
+      if (r.status === 401) { pbCaduca(); return; }
       const j = await r.json();
       if (n === pide) pinta(secs.concat(j.r || []));
     } catch (e) { if (n === pide) pinta(secs); }

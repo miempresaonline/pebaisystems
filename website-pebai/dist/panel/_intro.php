@@ -51,6 +51,12 @@ body.pb-enfoca .pb-app,body.pb-enfoca .pb-tabbar{transition:filter 1.3s cubic-be
 <script>
 (() => {
   const c = document.getElementById('pb-intro'); if (!c) return;
+  // Solo al abrir el panel: si se vio hace menos de 20 minutos (una recarga, volver a la pestaña), no se repite
+  try {
+    const ult = +localStorage.getItem('pb-intro-ts') || 0;
+    if (Date.now() - ult < 20 * 60 * 1000) { c.remove(); localStorage.setItem('pb-intro-ts', Date.now()); return; }
+    localStorage.setItem('pb-intro-ts', Date.now());
+  } catch (e) { /* sin almacenamiento: se enseña */ }
   const b = document.body, t0 = performance.now(), MIN = 3400, MAX = 6500;
   const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
   b.classList.add('pb-despierta');

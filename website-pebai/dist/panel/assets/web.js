@@ -156,7 +156,7 @@ async function cargar() {
   if (!S.cargado) raiz.innerHTML = '<div class="wb-cargando"><i></i><i></i><i></i></div>';
   try {
     const r = await fetch(BASE + '?web=1', { credentials: 'same-origin', headers: { Accept: 'application/json' } });
-    if (r.status === 401) { location.reload(); return; }
+    if (r.status === 401) { pbCaduca(); return; }
     const j = await r.json();
     if (!j.ok) throw new Error('sin datos');
     S.datos = j; S.cargado = true; pintar();

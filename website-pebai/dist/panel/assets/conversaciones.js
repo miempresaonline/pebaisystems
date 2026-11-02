@@ -77,7 +77,7 @@ const pill = (e) => { const [l, c] = EST[e] || EST.pregunta; const p = el('span'
 /* ============ datos ============ */
 async function load() {
   const r = await fetch(BASE + '?conv=1', { credentials: 'same-origin', cache: 'no-store' });
-  if (r.status === 401) { location.reload(); return; }
+  if (r.status === 401) { pbCaduca(); return; }
   const j = await r.json();
   if (!j.ok) throw new Error(j.error || 'Error al cargar');
   S.filas = j.filas; S.csrf = j.csrf || S.csrf; S.loaded = true;
@@ -86,7 +86,7 @@ async function load() {
 async function post(action, fields) {
   const body = new URLSearchParams({ action, csrf: S.csrf, ...fields });
   const r = await fetch(BASE, { method: 'POST', body, credentials: 'same-origin', headers: { Accept: 'application/json' } });
-  if (r.status === 401) { location.reload(); return {}; }
+  if (r.status === 401) { pbCaduca(); return {}; }
   const j = await r.json().catch(() => ({ ok: false, error: 'Respuesta inesperada del servidor.' }));
   if (!j.ok) throw new Error(j.error || 'No se ha podido guardar.');
   return j;

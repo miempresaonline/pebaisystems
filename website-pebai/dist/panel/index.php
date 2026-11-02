@@ -171,6 +171,10 @@ if (isset($_GET['salir'])) {
 }
 
 $auth = !empty($_SESSION['auth']) || pebai_recuerda_entrar($db);
+// ¿Sigue valiendo la sesión? (la llave de 60 días la recupera si el servidor la ha tirado). Lo pide pbCaduca() antes de recargar.
+if (isset($_GET['ping'])) {
+    json_out(['ok' => $auth]);
+}
 if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || isset($_GET['oficina']) || isset($_GET['oficina_resumen']) || isset($_GET['oficina_explica']) || isset($_GET['oficina_parte']) || isset($_GET['qr']) || isset($_GET['mapa']) || isset($_GET['redes']) || isset($_GET['web']) || isset($_GET['gasto']) || isset($_GET['demo_encargo']) || isset($_GET['buscar']) || isset($_GET['push_clave']) || isset($_GET['avisos_ultimos']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
     json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 401);
 }
@@ -678,7 +682,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '135';
+$v = '136';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -717,6 +721,17 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="stylesheet" href="<?= BASE ?>assets/email.css?v=<?= $v ?>">
 <script>try{var t=localStorage.getItem('pebai-panel-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>
+/* Si una petición dice «sesión caducada», antes de recargar (y ver otra vez la animación de entrada) se pregunta al servidor:
+   casi siempre la llave de 60 días ya la ha recuperado y basta con seguir. Solo si de verdad hay que entrar, se recarga. */
+window.pbCaduca = (function () { var enCurso = null; return function () {
+  if (enCurso) return enCurso;
+  enCurso = fetch('<?= BASE ?>?ping=1', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.json(); })
+    .then(function (j) { if (!j.ok) location.reload(); }).catch(function () {})
+    .finally(function () { setTimeout(function () { enCurso = null; }, 5000); });
+  return enCurso;
+}; })();
+</script>
 </head>
 <body>
 <div class="pb-bg"><i></i><i></i><i></i></div>

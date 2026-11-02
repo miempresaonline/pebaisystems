@@ -55,7 +55,7 @@ function montar() {
 /* ============ datos ============ */
 async function load() {
   const r = await fetch(BASE + '?email=1', { credentials: 'same-origin', cache: 'no-store' });
-  if (r.status === 401) { location.reload(); return; }
+  if (r.status === 401) { pbCaduca(); return; }
   // Nunca recargar si la respuesta no es JSON: si falta _email_panel.php o PHP falla, recargar crearía un bucle infinito.
   let j; try { j = await r.json(); } catch (e) { S.caido = true; throw new Error('No se han podido cargar los datos del email. Si la sesión ha caducado, recarga la página.'); }
   if (!j.ok) throw new Error(j.error || 'Error al cargar');
@@ -68,7 +68,7 @@ async function post(action, fields, b) {
   if (b) b.disabled = true;
   try {
     const r = await fetch(BASE, { method: 'POST', body, credentials: 'same-origin', headers: { Accept: 'application/json' } });
-    if (r.status === 401) { location.reload(); return {}; }
+    if (r.status === 401) { pbCaduca(); return {}; }
     let j = {}; try { j = await r.json(); } catch (e) { j = { ok: false, error: 'Respuesta inesperada del servidor.' }; }
     if (!j.ok) throw new Error(j.error || 'No se ha podido guardar.');
     if (action !== 'email_vista') { await load(); draw(); }

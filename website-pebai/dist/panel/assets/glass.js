@@ -122,6 +122,7 @@ function entra(page) {
   }, 90);
 }
 document.addEventListener('pb:page', (e) => { pintaPastilla(e.detail); entra(document.getElementById('page-' + e.detail)); });
+window.pbAnima = entra;   // para volver a animar un bloque que se repinta (p. ej. Gasto IA al cambiar de mes)
 // la primera vez, cuando termina la animación de entrada del panel
 const primera = () => { const p = document.body.dataset.page || 'resumen'; pintaPastilla(p); entra(document.getElementById('page-' + p)); };
 const intro = document.getElementById('pb-intro');

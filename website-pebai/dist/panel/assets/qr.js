@@ -52,14 +52,14 @@ const activos = () => S.codigos.filter((c) => c.activo);
 /* ============ datos ============ */
 async function cargar() {
   const r = await fetch(BASE + '?qr=1', { credentials: 'same-origin', cache: 'no-store' });
-  if (r.status === 401) { location.reload(); return; }
+  if (r.status === 401) { pbCaduca(); return; }
   let j; try { j = await r.json(); } catch (e) { throw new Error('No se han podido cargar los QRs.'); }
   if (!j.ok) throw new Error(j.error || 'No se han podido cargar los QRs.');
   Object.assign(S, j, { cargado: true });
 }
 async function accion(action, campos, ok) {
   const r = await fetch(BASE, { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json' }, body: new URLSearchParams({ action, csrf: S.csrf, ...campos }) });
-  if (r.status === 401) { location.reload(); return null; }
+  if (r.status === 401) { pbCaduca(); return null; }
   const j = await r.json().catch(() => ({ ok: false, error: 'Respuesta inesperada del servidor.' }));
   if (!j.ok) throw new Error(j.error || 'No se ha podido guardar.');
   if (ok) toast(ok);
