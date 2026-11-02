@@ -15,3 +15,8 @@ Pendiente de Local: comprobar con WebFetch los perfiles públicos de Crunchbase,
 
 ## Trustpilot, comprobado 02/11/2026 (WebFetch es.trustpilot.com/review/pebaisystems.es)
 Nombre «PEBAI Systems», web pebaisystems.es, teléfono +34 624 84 27 99 (igual que la portada), solo «València, España» sin calle, 0 reseñas. El enlace a la web no consta con utm. Paso para Daniel (Trustpilot › Información de la empresa › Sitio web): `https://pebaisystems.es/?utm_source=trustpilot&utm_medium=perfil`. Sin reseñas todavía.
+
+## 2/11/2026 (13:30, Local) · Directorios públicos
+- **Sortlist** ya es pública: WebSearch «PEBAI Systems Valencia consultoría inteligencia artificial» la devuelve como única fuente directa de PEBAI. Resumen visible: consultora de procesos e IA con sede en Valencia, trabaja en toda España, dos personas, **fundada en 2026**, 1 reseña 5/5 de un cliente de automoción. Sede en Valencia sin calle en el resumen (coherente con Google). La página da 403 a WebFetch: no se verifica el enlace a la web ni el utm; paso para Daniel (ya en su lista: verificar teléfono por SMS) y comprobar en Chrome que el enlace a la web sea `https://pebaisystems.es/?utm_source=sortlist&utm_medium=perfil`.
+- GoodFirms, TechBehemoths, DesignRush y agentes.ai: siguen sin salir en WebSearch (la búsqueda mezcla PEBAI con Pebble Beach Systems); no son públicas todavía.
+- Ficha de Google y Bing Places: Maps no se ve desde la nube; el nombre sigue sin verificarse.
