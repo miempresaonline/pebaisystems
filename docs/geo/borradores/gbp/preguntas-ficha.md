@@ -120,3 +120,12 @@ Casos reales de `casos.md`, sin cifras ni nombres de contacto.
 
 31. **¿Cómo elijo una consultora de IA si todos los rankings dicen cosas distintas?**
     Pide tres cosas a cualquiera: casos reales con nombre y fecha, qué hacen en el primer paso y cuánto dura, y quién firma el trabajo. Los rankings de portales no siempre explican cómo puntúan. En PEBAI el primer paso es una consultoría de 25 minutos por videollamada, gratuita para cinco empresas al mes; cuando se completan, es de pago. Pedís plaza en pebaisystems.es/consultoria-gratuita/.
+
+32. **¿Puede un agente de voz con IA atender las llamadas de mi empresa?**
+    Sí, las que casi siempre son lo mismo: pedir o cambiar una cita, preguntar un horario o el estado de un encargo. Si no entiende a quien llama, lo intenta dos veces y pasa la llamada a una persona con un resumen. Más en pebaisystems.es/agentes-ia/voz/
+
+33. **¿Hay que avisar de que habla una IA y de que se graba la llamada?**
+    Sí. Desde el 2 de agosto de 2026 el Reglamento europeo de IA obliga a que la persona sepa que habla con una IA, y si se graba o transcribe la llamada, el RGPD obliga a informar de quién la trata y para qué. Conviene confirmar tu caso con tu asesor.
+
+34. **¿Tengo que cambiar de número para usar un agente de voz?**
+    No. Se activa un desvío desde el número que ya tenéis, y puede atender siempre, solo fuera de horario o solo cuando comunica o nadie contesta. Se conecta con la agenda y los programas que uséis, según el caso.
