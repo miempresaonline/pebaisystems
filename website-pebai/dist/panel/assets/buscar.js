@@ -116,7 +116,7 @@ async function suscripcion() {
 const pintaBell = (on) => {
   if (!bell) return;
   bell.classList.toggle('on', !!on);
-  bell.title = on ? 'Avisos activados en este dispositivo (pulsa para probar o quitarlos)' : 'Activar avisos: solicitudes, citas, respuestas y demos abiertas';
+  bell.title = on ? 'Avisos activados en este dispositivo (pulsa para probar o quitarlos)' : 'Activar avisos: solicitudes nuevas y citas reservadas';
   try { localStorage.setItem('pebai-push', on ? '1' : '0'); } catch (e) { /* nada */ }
 };
 // Menú pequeño cuando ya están activos: probar o quitar

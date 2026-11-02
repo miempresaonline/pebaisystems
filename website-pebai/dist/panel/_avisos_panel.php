@@ -41,7 +41,7 @@ if ($auth && in_array($_POST['action'] ?? '', ['push_alta', 'push_baja', 'push_p
     $db = pebai_avisos_db();
     $ep = substr((string)($_POST['endpoint'] ?? ''), 0, 1000);
     if ($_POST['action'] === 'push_prueba') {
-        pebai_aviso('prueba', 'Avisos de PEBAI activados', 'Así te llegarán las solicitudes, citas, respuestas y demos abiertas.', 'pagina:resumen');
+        pebai_aviso('prueba', 'Avisos de PEBAI activados', 'Así te llegarán las solicitudes nuevas y las citas reservadas.', 'pagina:resumen');
         json_out(['ok' => true, 'dispositivos' => (int)$db->query('SELECT COUNT(*) FROM subs')->fetchColumn()]);
     }
     if (!preg_match('~^https://[a-z0-9.-]+/~i', $ep)) {

@@ -14,6 +14,9 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
 }
 require_once __DIR__ . '/_pebai_lib.php';
 
+/** Avisos que sí suenan en el móvil y el ordenador: solicitud nueva, cita reservada y Claude desconectado (y el de prueba). */
+const PEBAI_AVISOS_SUENAN = ['solicitud', 'cita', 'ia', 'prueba'];
+
 function pebai_avisos_db(): PDO
 {
     static $db = null;
@@ -125,7 +128,9 @@ function pebai_aviso(string $tipo, string $titulo, string $texto, string $ir = '
         $db = pebai_avisos_db();
         $q = $db->prepare('INSERT OR IGNORE INTO avisos (ts, clave, tipo, titulo, texto, ir) VALUES (?, ?, ?, ?, ?, ?)');
         $q->execute([date('Y-m-d H:i:s'), $clave !== '' ? $clave : $tipo . ':' . microtime(true), $tipo, mb_substr($titulo, 0, 80), mb_substr($texto, 0, 180), $ir]);
-        if ($q->rowCount()) {
+        // Al móvil y al ordenador solo llega lo importante (Daniel, 02/11: «que cuando vea una notificación diga: ostras, es importante»).
+        // Lo demás (respuestas de clientes, que ya llegan por WhatsApp, o demos abiertas) se queda en la actividad del panel, sin sonar.
+        if ($q->rowCount() && in_array($tipo, PEBAI_AVISOS_SUENAN, true)) {
             pebai_push_todos();
         }
     } catch (Throwable $e) {
@@ -144,7 +149,7 @@ function pebai_avisos_para(string $endpoint): ?array
     if ($visto === false) {
         return null;
     }
-    $q = $db->prepare('SELECT id, tipo, titulo, texto, ir FROM avisos WHERE id > ? AND ts >= ? ORDER BY id DESC LIMIT 3');
+    $q = $db->prepare("SELECT id, tipo, titulo, texto, ir FROM avisos WHERE id > ? AND ts >= ? AND tipo IN ('" . implode("','", PEBAI_AVISOS_SUENAN) . "') ORDER BY id DESC LIMIT 3");
     $q->execute([(int)$visto, date('Y-m-d H:i:s', time() - 3600)]);
     $l = $q->fetchAll();
     $max = (int)$db->query('SELECT MAX(id) FROM avisos')->fetchColumn();
