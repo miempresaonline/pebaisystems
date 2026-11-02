@@ -103,10 +103,18 @@ try {
                     $datos['lead_id'] = (int)$old['lead_id'];
                 }
             }
-            pebai_cita_save($uid, $datos + ['estado' => 'reservada']);
+            $nueva = pebai_cita_save($uid, $datos + ['estado' => 'reservada']);
+            require_once __DIR__ . '/_avisos_lib.php';
+            $cuando = strtotime((string)($nueva['inicio'] ?? $datos['inicio'] ?? ''));
+            pebai_aviso('cita', 'Cita cambiada: ' . ($datos['nombre'] ?? $nueva['nombre'] ?? 'una reserva'), $cuando ? 'Ahora es el ' . date('d/m', $cuando) . ' a las ' . date('H:i', $cuando) : 'Mira la agenda en Citas',
+                        (int)($nueva['lead_id'] ?? 0) > 0 ? 'lead:' . (int)$nueva['lead_id'] : 'pagina:citas', 'cita-cambio:' . $uid);
             break;
         case 'BOOKING_CANCELLED':
-            pebai_cita_save($uid, ['estado' => 'cancelada']);
+            $cc = pebai_cita_save($uid, ['estado' => 'cancelada']);
+            require_once __DIR__ . '/_avisos_lib.php';
+            $cuando = strtotime((string)($cc['inicio'] ?? ''));
+            pebai_aviso('cita', 'Cita cancelada: ' . ($cc['nombre'] ?? 'una reserva'), $cuando ? 'Era el ' . date('d/m', $cuando) . ' a las ' . date('H:i', $cuando) : 'Mira la agenda en Citas',
+                        (int)($cc['lead_id'] ?? 0) > 0 ? 'lead:' . (int)$cc['lead_id'] : 'pagina:citas', 'cita-cancel:' . $uid);
             break;
         default:
             done(200, ['status' => 'ignored', 'trigger' => $trigger]);

@@ -105,6 +105,10 @@ try {
             if ($tipo === '1') {
                 // Si llega tarde a la ventana de 24 h, no se manda después del de 1 h
                 $db->prepare('UPDATE citas SET rec24 = 1 WHERE uid = ?')->execute([$c['uid']]);
+                // y nos avisa a nosotros: la sesión empieza en 1 hora
+                require_once __DIR__ . '/_avisos_lib.php';
+                pebai_aviso('cita', 'Tu cita con ' . ($c['nombre'] ?: 'un cliente') . ' empieza en 1 h', 'A las ' . date('H:i', $start) . ($c['meet_url'] ? ' · con Google Meet' : ''),
+                            (int)$c['lead_id'] > 0 ? 'lead:' . (int)$c['lead_id'] : 'pagina:citas', 'cita-1h:' . $c['uid']);
             }
             $enviados[$tipo]++;
         } catch (Throwable $e) {
@@ -115,6 +119,33 @@ try {
 } catch (Throwable $e) {
     pebai_log('RECORDATORIOS: ' . $e->getMessage());
     $errores++;
+}
+
+// Avisos importantes que se comprueban cada 15 minutos (Daniel, 02/11)
+try {
+    require_once __DIR__ . '/_avisos_lib.php';
+    // La web no carga (se comprueba por fuera, como la ve un cliente): un aviso por hora como mucho
+    $ch = curl_init('https://pebaisystems.es/');
+    curl_setopt_array($ch, [CURLOPT_NOBODY => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 20, CURLOPT_FOLLOWLOCATION => true, CURLOPT_USERAGENT => 'PEBAI-vigia/1.0']);
+    curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($code < 200 || $code >= 400) {
+        pebai_aviso('sistema', 'La web no carga', 'pebaisystems.es responde ' . ($code ?: 'sin conexión') . '. Se pueden perder solicitudes.', '', 'web-caida:' . date('Y-m-d H'));
+    }
+    // Solicitudes a punto de pasar las 24 h sin enlace ni respuesta (prometemos WhatsApp en 24 h)
+    $q = $db->prepare("SELECT id, empresa, nombre FROM leads WHERE tipo <> 'cliente' AND estado IN ('nuevo','contactado') AND enlace_at = '' AND created_at <= ? AND created_at >= ?");
+    $q->execute([date('Y-m-d H:i:s', time() - 20 * 3600), date('Y-m-d H:i:s', time() - 24 * 3600)]);
+    foreach ($q->fetchAll() as $l) {
+        pebai_aviso('plazo', 'Quedan 4 h para contestar a ' . ($l['empresa'] ?: $l['nombre']), 'Lleva 20 h sin respuesta: prometemos escribir por WhatsApp en 24 h.', 'lead:' . $l['id'], 'plazo20:' . $l['id']);
+    }
+    // Gasto de IA al 80 % del crédito del mes
+    require_once __DIR__ . '/_claude_lib.php';
+    if (pebai_claude_gasto_mes() >= .8 * PEBAI_CLAUDE_PRESUPUESTO) {
+        pebai_aviso('ia', 'Gasto de IA al 80 % del mes', 'Quedan menos de ' . round(.2 * PEBAI_CLAUDE_PRESUPUESTO) . ' $; al llegar al límite todo pasa a Gemini hasta el día 1.', 'pagina:gasto', 'gasto80:' . date('Y-m'));
+    }
+} catch (Throwable $e) {
+    pebai_log('AVISOS CRON: ' . $e->getMessage());
 }
 
 // De paso, vigila que el agente de WhatsApp siga vivo (avisa por email si lleva 30 min sin latido)

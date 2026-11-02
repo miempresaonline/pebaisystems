@@ -14,8 +14,9 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
 }
 require_once __DIR__ . '/_pebai_lib.php';
 
-/** Avisos que sí suenan en el móvil y el ordenador: solicitud nueva, cita reservada y Claude desconectado (y el de prueba). */
-const PEBAI_AVISOS_SUENAN = ['solicitud', 'cita', 'ia', 'prueba'];
+/** Avisos que sí suenan en el móvil y el ordenador (Daniel, 02/11): solicitud nueva; cita reservada, cancelada, cambiada o a 1 h;
+ *  Claude desconectado o al 80 % del gasto; WhatsApp o web caídos; solicitud a punto de pasar las 24 h sin contestar. */
+const PEBAI_AVISOS_SUENAN = ['solicitud', 'cita', 'ia', 'sistema', 'plazo', 'prueba'];
 
 function pebai_avisos_db(): PDO
 {

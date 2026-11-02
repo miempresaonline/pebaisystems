@@ -479,6 +479,8 @@ function pebai_agente_alerta(string $agente, string $titulo, string $texto): voi
         return;
     }
     $db->prepare('UPDATE agente_estado SET alerta_at = ? WHERE agente = ?')->execute([date('Y-m-d H:i:s'), $agente]);
+    require_once __DIR__ . '/_avisos_lib.php';
+    pebai_aviso('sistema', $titulo, strtok($texto, "\n"), 'pagina:agentes', 'alerta:' . $agente . ':' . date('Y-m-d H:i'));
     try {
         $html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#12121A"><h2 style="margin:0 0 8px">' . h($titulo) . '</h2><p>' . nl2br(h($texto))
               . '</p><p><a href="https://panel.pebaisystems.es/?tab=agentes" style="color:#493AC4;font-weight:bold">Abrir el panel de agentes →</a></p></div>';
