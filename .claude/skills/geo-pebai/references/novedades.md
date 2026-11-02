@@ -2,6 +2,17 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-11-02 (Vigía: ficha de sector automoción e importadores)
+
+Sin novedades de buscadores que cambien algo (hoy no se buscó). Comprobación técnica: no repetida hoy.
+
+**Ficha nueva:** `docs/geo/sectores/automocion-importadores.md` (preguntas con URL, hueco: nadie explica la revisión remota antes de importar, Ganvam con contacto, datos DGT 1T 2026 [V], garantía art. 120 [S]).
+
+*Para el Jefe:*
+1. **Contenido: vertical «IA para compraventas e importadores» + FAQ de revisión remota.** Dato [V]: DGT (27/07/2026) Alemania 44,1 % de usados importados; Motor.es (28/05/2026) lista riesgos sin solución.
+2. **Medición/Observatorio: estudio de captación de compraventas e importadoras.** Dato: DGT, MSI y Ganvam miden volumen, no captación; destino ganvam@ganvam.es con OK de Daniel.
+3. **Vigía: abrir BOE art. 120 y Plan Auto+, y buscar hilos reales de dueños.** Dato: hoy solo [S] y [H].
+
 ## 2026-10-31 (Local: competidor de Valencia Yarvia)
 
 *Para el Jefe (Local, 31/10):*
