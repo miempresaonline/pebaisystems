@@ -130,6 +130,13 @@ Viernes 30/10 mañana (Jefe). Cifra clave: 0 de 3 preguntas locales de Valencia 
 
 Viernes 30/10 tarde (Jefe). Cifra clave: 8 de 17 URLs del sitemap indexadas en Google (formación y Valencia entran hoy) y 9 que Google aún no conoce, entre ellas /agentes-ia/whatsapp/ desde el 27/10; Bing lee 7. La web vuelve a estar estable (0 de 60 peticiones con error en tres chequeos). Revisión de calidad de las 9 guías y 7 borradores: 0 prohibidas, 0 rayas, FAQ = JSON-LD, autor Daniel; fallan la cita del «borrador del 8 de mayo» en /agentes-ia/, fuentes del 15/10 en /posicionamiento-en-ia/, un post de LinkedIn que promete la guía y enlaza a la consultoría, y encargos de Preguntas que no llegaban al tablón. Decidido: /sobre-pebai/ no se publica, su bloque de preguntas va a /quienes-somos/. Semana que viene: presupuestos (lun 2/11), instaladoras (mar 3/11), cómo elegir consultora (mié 4/11), preguntas de quiénes somos (jue 5/11) e integración con ERP (vie 6/11); Técnico, que Google y Bing descubran las 9 URLs nuevas.
 
+Lunes 2/11 mañana (Jefe). Cifra clave: 0 de 4 preguntas con PEBAI (Medición 2/11, solo WebSearch), 0 visitas desde IA y 14 clics en 28 días; el sitemap publicado tenía 8 de 17 URLs desde el 1/11 (lo pisó `generate_sitemap.py`) y Google pasó a contar 8. Vuelto a subir hoy. Esta semana: que Google conozca las 9 URLs que faltan y publicar 2 páginas con el diseño nuevo.
+1. Indexación: sitemap de 17 URLs vigilado en cada turno, generador arreglado, reenvío a Google y Bing e inspección de las 9 URLs. (geo_tecnico, geo_medicion)
+2. Contenido: presupuestos hoy e instaladoras el mar 3/11, cómo elegir consultora el mié 4/11, todas pasadas por `portar_diseno_nuevo.py` con el menú del 1/11. (geo_contenido, geo_tecnico)
+3. Valencia frente a upliora: su ficha de Google, sus páginas citadas y preguntas reales de Valencia para /ia-para-empresas/valencia/. (geo_local, geo_vigia, geo_preguntas, geo_refresco)
+4. Medir lo que hay: analítica de los 4 posts de LinkedIn (0 visitas con utm de LinkedIn en GA4) y Metricool en el informe. (geo_redes, geo_medicion)
+5. Daniel: «Solicitar indexación» de las 4 URLs, nombre y categoría de la ficha (5 min), oferta de noviembre y OK a la estrategia por nichos.
+
 ## Propuestas del Vigía
 
 (El Vigía añade aquí lo que cambie el plan; el Jefe las resuelve.)
