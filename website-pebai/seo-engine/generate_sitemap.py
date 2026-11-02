@@ -2,16 +2,16 @@
 # -*- coding: utf-8 -*-
 """
 Generador Maestro de Sitemap XML para PEBAI Systems.
-Escanea todas las páginas activas en 'dist/' y genera el sitemap completo.
-Sube automáticamente el sitemap actualizado a Hostinger vía SFTP.
+Recorre dist/ entero (subcarpetas incluidas), salta las páginas noindex y escribe dist/sitemap.xml.
+lastmod = fecha del último commit del archivo (git log -1 --format=%cs).
+NO sube nada por SFTP: el auto-despliegue (deploy/autodeploy.sh) publica lo que llega a main.
 """
 
-import json
 import os
 import re
+import subprocess
 import sys
 from datetime import date
-import paramiko
 
 if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
     try:
@@ -23,7 +23,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
 LOCAL_DIST = os.path.join(PROJECT_DIR, 'dist')
 SITEMAP_PATH = os.path.join(LOCAL_DIST, "sitemap.xml")
-PROJECT_CONFIGS_PATH = "C:/programacion/APIs/project_configs.json"
+BASE = "https://pebaisystems.es"
+IGNORE_DIRS = {'api', 'brand', 'clients', 'team', 'vendor', 'private', '.git', 'node_modules'}
+
 
 def is_noindex(path):
     """Las páginas con <meta name="robots" content="noindex..."> no van al sitemap."""
@@ -32,70 +34,64 @@ def is_noindex(path):
     return bool(re.search(r"<meta[^>]+name=[\"']robots[\"'][^>]+content=[\"'][^\"']*noindex", head))
 
 
+def last_modified(path):
+    """Fecha (AAAA-MM-DD) del último commit que tocó el archivo; hoy si git no sabe."""
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%cs", "--", path],
+            capture_output=True, text=True, cwd=PROJECT_DIR, timeout=20,
+        ).stdout.strip()
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", out):
+            return out
+    except Exception:
+        pass
+    return date.today().isoformat()
+
+
+def find_pages():
+    """Devuelve [(ruta_url, ruta_archivo)] de todas las index.html indexables de dist/."""
+    pages = []
+    for root, dirs, files in os.walk(LOCAL_DIST):
+        dirs[:] = sorted(d for d in dirs if d not in IGNORE_DIRS)
+        if "index.html" not in files:
+            continue
+        rel = os.path.relpath(root, LOCAL_DIST).replace(os.sep, "/")
+        index = os.path.join(root, "index.html")
+        if is_noindex(index):
+            continue
+        pages.append(("/" if rel == "." else f"/{rel}/", index))
+    # portada primero, el resto en el orden del sitemap anterior no es necesario: alfabético
+    pages.sort(key=lambda p: (p[0] != "/", p[0]))
+    return pages
+
+
 def generate_sitemap():
-    today = date.today().isoformat()
-    ignore_dirs = {'api', 'brand', 'clients', 'team', 'vendor', '.git'}
-
-    # 1. Home
-    xml_lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-        '  <url>',
-        '    <loc>https://pebaisystems.es/</loc>',
-        f'    <lastmod>{today}</lastmod>',
-        '    <changefreq>daily</changefreq>',
-        '    <priority>1.0</priority>',
-        '  </url>'
-    ]
-
-    # 2. Landings
-    slugs = sorted([
-        d for d in os.listdir(LOCAL_DIST)
-        if os.path.isdir(os.path.join(LOCAL_DIST, d))
-        and d not in ignore_dirs
-        and os.path.exists(os.path.join(LOCAL_DIST, d, "index.html"))
-        and not is_noindex(os.path.join(LOCAL_DIST, d, "index.html"))
-    ])
-
-    for slug in slugs:
-        priority = "0.9" if slug == "diagnostico" else "0.8"
-        freq = "weekly" if slug == "diagnostico" else "monthly"
+    xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    pages = find_pages()
+    for url, index in pages:
+        depth = url.strip("/").count("/") + 1 if url != "/" else 0
+        if url == "/":
+            priority, freq = "1.0", "daily"
+        elif url == "/diagnostico/":
+            priority, freq = "0.9", "weekly"
+        else:
+            priority, freq = ("0.8" if depth == 1 else "0.7"), "monthly"
         xml_lines.extend([
             '  <url>',
-            f'    <loc>https://pebaisystems.es/{slug}/</loc>',
-            f'    <lastmod>{today}</lastmod>',
+            f'    <loc>{BASE}{url}</loc>',
+            f'    <lastmod>{last_modified(index)}</lastmod>',
             f'    <changefreq>{freq}</changefreq>',
             f'    <priority>{priority}</priority>',
             '  </url>'
         ])
-
     xml_lines.append('</urlset>')
 
     with open(SITEMAP_PATH, "w", encoding="utf-8") as f:
         f.write("\n".join(xml_lines) + "\n")
 
-    total_urls = len(slugs) + 1
-    print(f"🗺️ Sitemap XML generado con éxito en: {SITEMAP_PATH} ({total_urls} URLs)")
-
-    # 3. Subir a Hostinger por SFTP
-    if os.path.exists(PROJECT_CONFIGS_PATH):
-        try:
-            with open(PROJECT_CONFIGS_PATH, "r", encoding="utf-8") as f:
-                cfg = json.load(f)["pebai-systems"]
-
-            client = paramiko.SSHClient()
-            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            client.connect(cfg["sftp_host"], port=int(cfg["sftp_port"]), username=cfg["sftp_username"], password=cfg["sftp_password"], timeout=12)
-            sftp = client.open_sftp()
-            remote_sitemap = f"{cfg.get('sftp_remote_dir', 'domains/pebaisystems.es/public_html')}/sitemap.xml"
-            sftp.put(SITEMAP_PATH, remote_sitemap)
-            sftp.close()
-            client.close()
-            print(f"📡 Sitemap subido y sincronizado en Hostinger: {remote_sitemap}")
-        except Exception as e:
-            print(f"Aviso subiendo sitemap por SFTP: {e}")
-
-    return total_urls
+    print(f"Sitemap XML generado en {SITEMAP_PATH} ({len(pages)} URLs). Se publica con el auto-despliegue al hacer push a main.")
+    return len(pages)
 
 if __name__ == "__main__":
     generate_sitemap()
