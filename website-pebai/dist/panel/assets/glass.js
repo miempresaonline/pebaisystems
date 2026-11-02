@@ -69,15 +69,44 @@ function pintaPastilla(p) {
 }
 
 /* ---------- entrada de cada sección ---------- */
-// Cambio de sección: UNA sola transición, corta y suave (solo opacidad y un desplazamiento mínimo, que van por la tarjeta gráfica).
-// Antes había varias a la vez (la cascada de tarjetas, los números que ruedan, las del panel antiguo) y además los datos llegaban
-// a mitad y repintaban: eso es lo que se veía «rayado» (Daniel, 02/11).
+// Cada sección entra UNA vez y con sus datos ya puestos (Daniel, 02/11: «rayado» y luego «soso»):
+//  1) al cambiar, la sección queda invisible un instante mientras sus módulos la pintan (se espera a que deje de cambiar:
+//     120 ms sin cambios, 650 ms como mucho);
+//  2) entonces aparece y sus tarjetas suben en cascada, y las barras crecen. Solo opacidad y movimiento: va por la tarjeta gráfica.
+const PIEZAS = '.pgx>*,.pgx-cuatro>*,.pgx-col>*,.pb-card,.pb-row,.pc-kpi,.pc-row,.rd-kpi,.rd-card,.ga-kpi,.ga-card,.ga-hero,.pb-chip,.pb-plz,.pb-sol-cab,.pb-subnav,.pb-h1,.pb-pagehead,[class*="-card"]';
+let espera = null;
 function entra(page) {
   if (!page || quieto) return;
-  page.classList.remove('pbg-entra'); void page.offsetWidth; page.classList.add('pbg-entra');
+  if (espera) espera();
+  page.classList.remove('pbg-cascada'); page.classList.add('pbg-espera');
+  let t = 0, fin = 0, hecho = false;
+  const obs = new MutationObserver(() => { clearTimeout(t); t = setTimeout(mostrar, 120); });
+  function mostrar() {
+    if (hecho) return; hecho = true; obs.disconnect(); clearTimeout(t); clearTimeout(fin); espera = null;
+    try { prepara(); } catch (e) { /* si algo falla, la sección se enseña igual */ }
+    page.classList.remove('pbg-espera'); void page.offsetWidth; page.classList.add('pbg-cascada');
+    setTimeout(() => { page.classList.remove('pbg-cascada'); page.querySelectorAll('.pbg-n').forEach((x) => x.classList.remove('pbg-n')); page.querySelectorAll('.pbg-crece').forEach((x) => x.classList.remove('pbg-crece')); }, 1600);
+  }
+  function prepara() {
+    let n = 0;
+    page.querySelectorAll(PIEZAS).forEach((x) => {
+      if (x.parentElement && x.parentElement.closest('.pbg-n')) return;   // solo la tarjeta de fuera, no lo de dentro
+      const r = x.getBoundingClientRect(); if (!r.height || r.top > innerHeight || r.bottom < 0 || n > 16) return;
+      x.style.setProperty('--n', n++); x.classList.add('pbg-n');
+    });
+    page.querySelectorAll('svg').forEach((sv) => {
+      if (sv.closest('.pb-of-wrap') || sv.getBoundingClientRect().height < 40) return;
+      const rects = [...sv.querySelectorAll('rect')].filter((x) => { const b = x.getBBox ? x.getBBox() : null; return b && b.height > 3 && b.height < sv.getBBox().height * .98; });
+      if (rects.length > 2) { rects.forEach((x, k) => x.style.setProperty('--n', Math.min(k, 30))); sv.classList.add('pbg-crece'); }
+    });
+  }
+  espera = mostrar;
+  obs.observe(page, { childList: true, subtree: true });
+  t = setTimeout(mostrar, 120);
+  fin = setTimeout(mostrar, 650);
 }
 document.addEventListener('pb:page', (e) => { pintaPastilla(e.detail); entra(document.getElementById('page-' + e.detail)); });
-window.pbAnima = entra;   // para volver a animar un bloque que se repinta (p. ej. Gasto IA al cambiar de mes)
+window.pbAnima = (el) => entra(el && el.closest ? el.closest('.pb-page') || el : el);   // para volver a animar un bloque que se repinta (p. ej. Gasto IA al cambiar de mes)
 // la primera vez, cuando termina la animación de entrada del panel
 const primera = () => { const p = document.body.dataset.page || 'resumen'; pintaPastilla(p); entra(document.getElementById('page-' + p)); };
 const intro = document.getElementById('pb-intro');
