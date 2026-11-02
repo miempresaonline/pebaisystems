@@ -70,7 +70,8 @@ PEBAI Systems (home: marca + consultoría de procesos e IA)
 - **Cómo lo busca el decisor:** "automatizacion de procesos" 🟢 240 (kd 35), "automatizacion de procesos con ia" 🟢 260 (kd 47), "automatizacion con ia" 🟢 260, "automatizacion de procesos empresariales" 🟢 70 (kd 9), "empresas de automatizacion" 🟢 140 (kd 10), "automatizar procesos con ia" 🟢 90, "automatizacion de tareas" 🟢 170. Conversacional (🟡): "¿qué tareas de mi empresa puedo automatizar?", "¿cómo dejo de copiar datos a mano entre programas?".
 - **Por qué es pilar:** es literalmente el nombre del servicio troncal ("consultoría de procesos e IA") y el área "Operativa" de la web.
 - **Subpilares:**
-  1. `/automatizacion-de-procesos/presupuestos-facturas-y-pedidos/` — intención: el proceso administrativo concreto. "programa para hacer presupuestos" 🟢 170, "automatizar facturas" 🟢 40, "automatizar presupuestos" 🟡 sin volumen. Comercial alto. Absorbe `automatizacion-facturas-pedidos-ia`, `automatizacion-factusol-pedidos-ia`. Puente del clúster VeriFactu.
+  1. `/automatizacion-de-procesos/presupuestos/` (**publicada 2/11/2026**) — intención: responder antes a cada petición de presupuesto. "programa para hacer presupuestos" 🟢 170, "automatizar presupuestos" 🟡 sin volumen. Comercial alto. Pregunta P13.
+  1b. `/automatizacion-de-procesos/facturas-y-pedidos/` (más adelante) — intención: el proceso de facturas y pedidos. "automatizar facturas" 🟢 40. Absorberá `automatizacion-facturas-pedidos-ia` y `automatizacion-factusol-pedidos-ia` (siguen donde están hasta que exista). Puente del clúster VeriFactu.
   2. `/automatizacion-de-procesos/integracion-erp-crm/` — intención: conectar la IA a lo que ya tienen (Holded, Sage, Odoo, SAP Business One). Marcas con mucho volumen pero navegacional ("holded" 🟢 135.000, "odoo" 🟢 47.500, "sage 50" 🟢 2.400): **no se atacan esos términos**, se usa la cola "odoo ia" 🟢 90 (kd 8), "integracion holded"/"holded ia" 🟡 sin volumen. Absorbe 4 landings ERP retiradas.
   3. Satélite (no pasa el filtro de intención propia frente a la madre): `/automatizacion-de-procesos/n8n-vs-zapier/` — "n8n" 🟢 60.500 es navegacional y técnico; "n8n español" 🟢 90 (kd 7). Atrae más técnicos que decisores (conversión baja) → satélite, no subpilar.
 - **Palabras fuertes:**
@@ -130,7 +131,7 @@ Ninguno condiciona la estructura: viven como satélites bajo `/guias/` (o bajo e
 
 ### VeriFactu y factura electrónica (temporal: hasta 2027-2028)
 - **URL:** `/guias/verifactu/` (satélite de P2).
-- **Puente hacia el pilar:** "Cumplir VeriFactu sin cambiar de programa y aprovechar para automatizar facturas y pedidos" → `/automatizacion-de-procesos/presupuestos-facturas-y-pedidos/` e integración ERP. PEBAI **no es un software de facturación**: no se compite con los SIF, se ayuda a encajar el proceso.
+- **Puente hacia el pilar:** "Cumplir VeriFactu sin cambiar de programa y aprovechar para automatizar facturas y pedidos" → `/automatizacion-de-procesos/facturas-y-pedidos/` (cuando exista) e integración ERP. PEBAI **no es un software de facturación**: no se compite con los SIF, se ayuda a encajar el proceso.
 - **Palabras de oportunidad:** "software verifactu" 🟢 590 (**kd 5**), "verifactu api" 🟢 480 (kd 8), "kit digital verifactu" 🟢 480 (kd 13), "que es verifactu" 🟢 810 (kd 36), "verifactu obligatorio" 🟢 320, "verifactu odoo" 🟢 390 (kd 7), "factura electrónica obligatoria" 🟢 590-720. "verifactu" a secas (12.100, kd 86) no se ataca.
 - **Fechas:** 🟡 hasta verificar en BOE (1/1/2027 sociedades, 1/7/2027 resto según fuentes secundarias). Factura electrónica B2B: reglamento y fechas 🟡, solo con fuente oficial.
 
@@ -171,7 +172,7 @@ Regla general: la carpeta nueva desactiva sola el 302 si se reutiliza el slug, p
 | `formacion-inteligencia-artificial-empresas`, `formacion-inteligencia-artificial-para-empresas-espana`, `curso-inteligencia-artificial-para-empresas-espana` | `/ia-para-empresas/formacion/` |
 | `cumplimiento-rgpd-ai-act-inteligencia-artificial` | `/guias/ai-act-empresas/` |
 | `empresas-automatizacion-procesos-espana`, `empresas-de-automatizacion-de-procesos-espana`, `optimizacion-procesos-empresariales`, `optimizacion-procesos-industriales` | `/automatizacion-de-procesos/` |
-| `automatizacion-facturas-pedidos-ia`, `automatizacion-factusol-pedidos-ia` | `/automatizacion-de-procesos/presupuestos-facturas-y-pedidos/` |
+| `automatizacion-facturas-pedidos-ia`, `automatizacion-factusol-pedidos-ia` | `/automatizacion-de-procesos/facturas-y-pedidos/` (cuando exista) |
 | `integracion-ia-erp-crm-pymes`, `integracion-ia-holded-erp-espana`, `integracion-ia-sage-50-200-espana`, `agente-ia-sap-business-one-espana` | `/automatizacion-de-procesos/integracion-erp-crm/` |
 | `automatizacion-procesos-n8n-empresas`, `zapier-vs-n8n-empresas-espana` | `/automatizacion-de-procesos/n8n-vs-zapier/` |
 | `agente-de-ia-espana`, `agente-de-inteligencia-artificial-espana`, `agentes-inteligencia-artificial-empresas`, `sistema-multiagente-ia-para-empresas`, `agente-ia-cualificacion-leads-b2b`, `agente-ia-soporte-tecnico-nivel-1`, `agente-ia-recursos-humanos-seleccion-personal`, `agente-ia-ecommerce-recomendacion-atencion`, `agente-ia-logistica-optimizacion-rutas-stock` | `/agentes-ia/` |
