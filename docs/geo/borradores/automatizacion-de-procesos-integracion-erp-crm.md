@@ -1,6 +1,6 @@
 # Borrador · /automatizacion-de-procesos/integracion-erp-crm/
 
-Estado: **texto completo el 30/10/2026 (Contenido, turno de las 10:00), sin maquetar.** Encargo del Jefe del 29/10 tarde (`pilares.md`, subpilar 2 de automatización). La FAQ de integración de la madre se queda corta y enlazará aquí. Cola: después de presupuestos (lun 2/11) y de cómo elegir consultora; decide el Jefe el día.
+Estado: **2/11 (10:00): H2 «WhatsApp y tu ERP» añadido con las preguntas 1, 3 y 4 de `preguntas.md` (Odoo 19 y Meta leídos hoy).** Antes: **texto completo el 30/10/2026 (Contenido, turno de las 10:00), sin maquetar.** Encargo del Jefe del 29/10 tarde (`pilares.md`, subpilar 2 de automatización). La FAQ de integración de la madre se queda corta y enlazará aquí. Cola: después de presupuestos (lun 2/11) y de cómo elegir consultora; decide el Jefe el día.
 
 ## Ficha
 
@@ -28,6 +28,8 @@ Estado: **texto completo el 30/10/2026 (Contenido, turno de las 10:00), sin maqu
 | TeamSystem Delsol (Factusol, Contasol, Nominasol, Delsol): «API DELSOL» para acceder a los datos de sus soluciones, «pensada básicamente para empresas desarrolladoras que quieran o necesiten integrar sus aplicaciones con nuestras soluciones NUBE»; requiere inscribirse | Software del Sol, https://www.sdelsol.com/api/ | Leído 30/10 |
 | a3ERP: sin API REST o SOAP pública; integración por acceso a la base de datos o SDK del fabricante y un conector instalado donde corre el programa | Conectores de terceros (Chift, https://chift.eu/blog/a3erp-api-integration-how-to-connect-set-up-and-follow-best-practices), **[S]**: la web de Wolters Kluwer da 403 desde nuestra comprobación | No es fuente oficial: en la página, «no hemos encontrado documentación pública del fabricante» |
 | Sage (50, 200): developer.sage.com y sage.com/es-es dan 403 desde la nube | Intento del 30/10 | No se afirma nada de su API; mismo criterio que la madre |
+| Odoo: «WhatsApp is an Odoo Enterprise-only application that does not work in Odoo Community edition»; solo cuentas de WhatsApp Business Platform (no personales ni app Business); configuración en Meta: cuenta de empresa, app con producto WhatsApp, número, token permanente y webhooks; conversaciones en Discuss con usuarios avisados por canal; varias cuentas de WhatsApp Business, recomienda una por departamento; plantillas aprobadas por Meta | Odoo, «WhatsApp», documentación 19.0, https://www.odoo.com/documentation/19.0/applications/productivity/whatsapp.html | Leído 2/11 |
+| Meta: «Newly created business portfolios have a messaging limit of 250»; se sube a 2.000 por varias rutas, una de ellas «Verify your business» (también verificación hecha por un partner) | Meta, límites de mensajería, https://developers.facebook.com/docs/whatsapp/messaging-limits/ | Leído 2/11 (la página de ayuda de verificación de Business Suite no deja leer el texto desde la nube: no se afirma plazo ni documentos) |
 | Datos del INE (60,9 % de empresas de 10 o más con internet usa ERP; 33,9 % CRM, 1T 2026) | Ya publicados en la madre (INE, 22/10/2026) | Se enlazan, no se repiten |
 | Contrato de encargado (art. 28 RGPD) | PDF del DOUE leído el 30/10 (borrador de cómo elegir consultora) | Se cita en una línea |
 | Casos: Santacruz (app nueva conectada a sus herramientas y base de datos migrada de la antigua); Fran García Cars (app de revisiones unida al asistente de WhatsApp) | `casos.md` | Sin cifras |
@@ -70,6 +72,17 @@ Una regla sencilla: **la IA prepara, una persona confirma.** Un pedido mal leíd
 | **CRM** (HubSpot, Pipedrive y similares) | La mayoría tiene API oficial | Qué plan la incluye y cuántas peticiones permite |
 
 Lo que tiene API hoy puede cambiar mañana: comprobadlo con la versión que tenéis antes de contratar nada.
+
+### H2 · WhatsApp y tu ERP: qué se puede conectar {#whatsapp-erp}
+
+Es la pregunta que más se repite en los foros de usuarios de Odoo: el cliente escribe por WhatsApp y el pedido o el presupuesto acaban en el programa de gestión. Se puede, con matices que conviene saber antes.
+
+- **WhatsApp se conecta por la API oficial de Meta, no por la app del móvil.** Odoo, por ejemplo, solo admite cuentas de WhatsApp Business Platform: ni cuentas personales ni la app WhatsApp Business. Hace falta una cuenta de empresa en Meta, una app con el producto WhatsApp, el número de teléfono, una clave permanente y los avisos (webhooks) configurados. Lo que pide Meta y lo que cobra por mensaje está en [la guía del agente de WhatsApp](/agentes-ia/whatsapp/#app-o-api).
+- **En Odoo, el módulo propio de WhatsApp es solo de la edición Enterprise.** La documentación de Odoo lo dice así: no funciona en Community. Con Community hace falta un proveedor intermedio o un desarrollo que use la API de Meta y la de Odoo; y el acceso a la API de Odoo, además, depende del plan (fila de Odoo en la tabla de arriba).
+- **Una conversación, un sitio.** Con la API, los mensajes llegan a un número de la empresa y se reparten entre las personas del equipo dentro del programa (en Odoo, en la aplicación Conversaciones, con quién recibe aviso de cada canal). Si cada comercial atiende desde su WhatsApp personal, esas conversaciones no llegan al programa y el historial del cliente queda partido entre móviles.
+- **¿Un número por comercial?** Odoo permite configurar varias cuentas de WhatsApp Business y recomienda separar por departamento. Si conviene uno por comercial o un número común repartido depende del volumen y de cómo atendéis; se decide en la consultoría.
+- **La verificación de la empresa la revisa Meta, no quien implanta.** Es un trámite con su propio plazo que se hace desde la cuenta de empresa en Meta. Sin él, una cuenta nueva empieza pudiendo escribir primero a 250 personas distintas al día; verificar la empresa es una de las formas de subir a 2.000. Lo preparamos con vosotros, pero no podemos prometer la fecha.
+- **Con Holded, Sage o a3ERP** no hemos encontrado una conexión con WhatsApp documentada por el fabricante. Se hace por la API del programa cuando la tiene (Holded, con su API y sus webhooks) y la de Meta, con una pieza en medio que las une. Solo afirmamos lo que dice la documentación oficial de cada programa.
 
 ### H2 · Cómo se conecta sin dar más acceso del necesario {#permisos}
 
@@ -141,10 +154,13 @@ KPIs de siempre (25 minutos · gratuita para 5 empresas al mes; después, de pag
 4. Software del Sol (TeamSystem Delsol), API DELSOL. sdelsol.com/api
 5. INE, Encuesta de uso de TIC y comercio electrónico en las empresas, 1T 2026 (el enlace de la madre).
 6. Reglamento (UE) 2016/679 (RGPD), art. 28 (PDF del DOUE en boe.es).
+7. Odoo, «WhatsApp», documentación 19.0. odoo.com (consultada el 2/11/2026)
+8. Meta, límites de mensajería de WhatsApp Business Platform. developers.facebook.com (consultada el 2/11/2026)
 
 ### Checklist antes de publicar
 
 - [ ] Reverificar Holded, Odoo y Delsol el día de publicar (cambian).
+- [x] Ancla `/agentes-ia/whatsapp/#app-o-api` (h3 «Qué pide Meta», comprobada el 2/11).
 - [ ] Probar otra vez Wolters Kluwer y Sage (dan 403 desde la nube); si se leen, sustituir las filas de a3ERP y Sage por lo que diga el fabricante.
 - [ ] Anclas de la madre: `/automatizacion-de-procesos/#factura-electronica` y `#casos` (comprobar el id exacto al maquetar).
 - [ ] Enlace a `/ia-para-empresas/como-elegir-consultora/#propiedad` solo si ya está publicada; si no, quitar la frase.
