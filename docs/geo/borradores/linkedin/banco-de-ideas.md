@@ -19,3 +19,22 @@ Preguntas reales de dueños de empresa sacadas de `docs/geo/preguntas.md`, lista
 - Casos solo con `casos.md`; ninguna cifra que no conste. Sin Residencia El Amparo hasta que Daniel conteste.
 - Martes y jueves 17:00, sin coincidir con un Reel de Daniel.
 - Pasar el grep de palabras prohibidas y comprobar 0 rayas largas, emojis y exclamaciones antes de programar.
+
+## Analítica de LinkedIn de la página (Metricool, 22/10-2/11/2026)
+Fuente: Metricool `getAnalyticsDataByMetrics` (LinkedIn, posts), consultado el 2/11/2026. Muestra muy pequeña: orienta, no demuestra.
+
+| Publicación | Fecha | Impresiones | Clics | Reacciones | Engagement |
+|---|---|---|---|---|---|
+| Primera publicación (sin pregunta) | 22/10 | 37 | 0 | 0 | 0 % |
+| Pregunta: ¿por qué una empresa pierde clientes aunque su servicio sea mejor? | 23/10 | 33 | 5 | 2 | 24,2 % |
+| Pregunta: ¿es seguro gestionar los pedidos en Excel? | 26/10 | 5 | 1 | 0 | 20,0 % |
+| Pregunta: preguntas frecuentes automáticas | 27/10 | 17 | 2 | 1 | 17,6 % |
+| Caso Fran García Cars (captura) | 27/10 | 24 | 5 | 0 | 20,8 % |
+| Pregunta: tiempo de respuesta por WhatsApp | 28/10 | 8 | 0 | 1 | 25,0 % |
+| Pregunta: ¿la IA sustituirá a los trabajadores? | 29/10 | 7 | 1 | 1 | 28,6 % |
+| Caso Gargom (captura) | 29/10 | 2 | 0 | 0 | 0 % |
+
+Conclusiones:
+1. Los casos con captura no ganan siempre: Fran García (24 impresiones, 5 clics) funciona, pero Gargom (2 impresiones, 0 clics en 4 días) no. Lo que separa un caso de otro es el alcance de ese día, no el formato; repetir Santacruz (3/11) y comparar.
+2. Las preguntas sin imagen rinden igual que los casos (la del 23/10 saca 5 clics con 33 impresiones, el mejor dato de la página). El formato pregunta y respuesta se mantiene para diciembre.
+3. Los alcances de 2 a 37 impresiones dicen que el problema es la audiencia, no el texto. Siguiente paso: que cada caso lo comparta Daniel desde su perfil y medir la misma pieza con ese empuje.

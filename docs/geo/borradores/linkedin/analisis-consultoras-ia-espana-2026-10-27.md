@@ -33,3 +33,6 @@ Conclusión:
 1. El caso con cifras reales es el que más se ve y más clics saca (5 de 22 impresiones, el mejor ratio con diferencia). Repetir el formato con Santacruz el 3/11 y mantener las cifras verificadas en el cuerpo del texto.
 2. Los alcances son de 5 a 22 impresiones: la página tiene muy poca audiencia, así que ninguna conclusión de formato es firme. Lo que más mueve es ampliar seguidores, no cambiar el texto.
 3. Siguiente paso: pedir a Daniel que comparta cada caso desde su perfil personal y comparar el alcance de la misma pieza con y sin ese empuje.
+
+## Rendimiento del caso Gargom (Metricool, 2/11/2026)
+Publicado el 29/10: 2 impresiones y 0 clics a los 4 días (Fran García: 24 y 5). Con este dato el caso con captura no supera a la pregunta sin imagen; lo decide el alcance del día. En diciembre se repite el formato pregunta y respuesta y los casos solo si Daniel los comparte desde su perfil. Detalle en `banco-de-ideas.md`.
