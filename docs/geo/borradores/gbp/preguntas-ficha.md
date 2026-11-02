@@ -117,3 +117,6 @@ Casos reales de `casos.md`, sin cifras ni nombres de contacto.
 
 30. **¿Qué cambia con la factura electrónica obligatoria y VeriFactu?**
     La factura electrónica entre empresas será obligatoria desde el 6 de octubre de 2027 para quien facture más de 8 millones al año y desde el 6 de octubre de 2028 para el resto. VeriFactu está previsto para 2027, con un aplazamiento anunciado a octubre de 2028 que, a 26/10/2026, no estaba publicado en el BOE. Es buen momento para ordenar la facturación.
+
+31. **¿Cómo elijo una consultora de IA si todos los rankings dicen cosas distintas?**
+    Pide tres cosas a cualquiera: casos reales con nombre y fecha, qué hacen en el primer paso y cuánto dura, y quién firma el trabajo. Los rankings de portales no siempre explican cómo puntúan. En PEBAI el primer paso es una consultoría de 25 minutos por videollamada, gratuita para cinco empresas al mes; cuando se completan, es de pago. Pedís plaza en pebaisystems.es/consultoria-gratuita/.

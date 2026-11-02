@@ -12,3 +12,6 @@ Qué se ha podido comprobar: la ayuda pública de GoodFirms y TechBehemoths no e
 
 Datos correctos para pegar: nombre `PEBAI Systems`, web `https://pebaisystems.es`, teléfono `+34 624 84 27 99`, email `equipo@pebaisystems.es`.
 Pendiente de Local: comprobar con WebFetch los perfiles públicos de Crunchbase, Sortlist, Trustpilot, agentes.ai y DesignRush en el próximo turno.
+
+## Trustpilot, comprobado 02/11/2026 (WebFetch es.trustpilot.com/review/pebaisystems.es)
+Nombre «PEBAI Systems», web pebaisystems.es, teléfono +34 624 84 27 99 (igual que la portada), solo «València, España» sin calle, 0 reseñas. El enlace a la web no consta con utm. Paso para Daniel (Trustpilot › Información de la empresa › Sitio web): `https://pebaisystems.es/?utm_source=trustpilot&utm_medium=perfil`. Sin reseñas todavía.

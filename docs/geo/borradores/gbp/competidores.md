@@ -222,3 +222,9 @@ Fuente: ficha en aiagentsdirectory.com (abierta 2/11). Sede en Medellín (Colomb
 - Conclusión: no compite en el mapa de Valencia; sí en «chatbot whatsapp empresas» y «agente de voz para empresas» en búsquedas generales. Nada que copiar.
 - Dónde PEBAI ya gana: sede y casos verificables en España, primer paso con duración y plazas.
 - Ya vistos en la misma búsqueda (Javadex, Upliora, everyWAN): sin cambios nuevos. Pendiente para el Vigía: ninguna cifra de Kit Digital/Kit Consulting de Upliora (50-100 %) está verificada en fuente oficial, no usarla.
+
+## 02/11/2026 · Upliora (upliora.es): no es una consultora con ficha, es un portal de rankings
+Fuente: WebSearch 2/11 (páginas `upliora.es/expertos/<servicio>/valencia` y `/comparativas/mejores-agencias-consultoras-automatizacion-ia-espana-ranking-2026`). No es una empresa local con ficha de Google: es un portal de comparativas que genera una página por servicio y ciudad. Domina «consultora de IA en Valencia» por volumen de páginas, no por ficha. Su ranking destaca a otra empresa con auditoría gratuita de 30 min; los beneficios que anuncia (p. ej. ahorro de costes) no traen dato. Metodología de puntuación no detallada.
+- Ficha de Google, reseñas, fotos y posts: no aplica / no verificable desde la nube.
+- Qué hacer: no es competidor de mapa. La vía es aparecer en su ranking (decisión de Daniel, no escribimos a terceros) y reforzar en nuestra ficha lo que ellos no tienen: casos con captura y primer paso de 25 minutos con plazas.
+- Mejora preparada para nuestra ficha (sin Daniel): pregunta nº 31 de `preguntas-ficha.md`.
