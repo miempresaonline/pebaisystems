@@ -184,3 +184,8 @@
 /* Al actualizarse los datos (cada minuto), las tarjetas NO repiten su animación de entrada: solo se anima al entrar en la sección */
 body.pbg-quieto .pb-anim,body.pbg-quieto .pc-kpi,body.pbg-quieto .rd-rev,body.pbg-quieto .pb-pend,body.pbg-quieto .pgx *,
 body.pbg-quieto .pb-chip,body.pbg-quieto .pc-row,body.pbg-quieto .pb-row{animation:none!important}
+
+/* Transición de sección única y suave (02/11): fuera las animaciones de entrada del panel antiguo y la cascada */
+.pbg-entra{animation:pbg-aparece .24s cubic-bezier(.2,.8,.2,1) both!important}
+@keyframes pbg-aparece{from{opacity:0;transform:translate3d(0,6px,0)}to{opacity:1;transform:none}}
+.pb-in .pb-anim,.pb-anim,.pc-kpi,.rd-rev,.pb-pend,.pgx *,.pb-chip,.pc-row,.pb-row,.pbg-pieza,.pbg-crece rect{animation:none!important}

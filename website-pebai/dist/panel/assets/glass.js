@@ -69,60 +69,12 @@ function pintaPastilla(p) {
 }
 
 /* ---------- entrada de cada sección ---------- */
-// Tarjetas que entran en cascada (lo que haya en la sección: tarjetas, filas, cifras)
-const PIEZAS = '.pb-card,.pb-row,.pc-kpi,.pc-row,.rd-kpi,.pb-chip,.pb-plz,.pb-fsec,[class*="-card"],[class*="kpi"]:not(.pb-grid),.pg>*';
-// Números que ruedan: solo cifras grandes que no anima ya su propia sección
-const esNumero = (t) => /^\s*[+−-]?[\d][\d.,\s]*\s*(%|€|\$|k|h)?\s*$/.test(t);
-function odometro(el) {
-  const txt = el.textContent; if (!esNumero(txt) || el.dataset.cuenta || el.closest('[data-cuenta]')) return;
-  const box = document.createElement('span'); box.className = 'pbg-odo'; box.setAttribute('aria-label', txt.trim());
-  const cols = [];
-  for (const ch of txt) {
-    if (/\d/.test(ch)) {
-      const c = document.createElement('span'); c.className = 'c'; c.setAttribute('aria-hidden', 'true');
-      const tira = document.createElement('span'); tira.innerHTML = '<i>0</i><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i><i>8</i><i>9</i>';
-      c.append(tira); box.append(c); cols.push([tira, +ch]);
-    } else box.append(document.createTextNode(ch));
-  }
-  el.replaceChildren(box);
-  requestAnimationFrame(() => requestAnimationFrame(() => cols.forEach(([t, d], i) => { t.style.transitionDelay = (i * 60 + 200) + 'ms'; t.style.transform = `translateY(-${d * 1.1}em)`; })));
-  // al acabar, vuelve a ser texto normal (las secciones lo siguen actualizando como siempre)
-  setTimeout(() => { if (el.firstChild === box) el.textContent = txt; }, 1700);
-}
-let tQuieto = 0;
+// Cambio de sección: UNA sola transición, corta y suave (solo opacidad y un desplazamiento mínimo, que van por la tarjeta gráfica).
+// Antes había varias a la vez (la cascada de tarjetas, los números que ruedan, las del panel antiguo) y además los datos llegaban
+// a mitad y repintaban: eso es lo que se veía «rayado» (Daniel, 02/11).
 function entra(page) {
   if (!page || quieto) return;
-  // mientras entra, se permiten las animaciones; luego, «quieto»: las actualizaciones de datos ya no repiten la entrada
-  document.body.classList.remove('pbg-quieto'); clearTimeout(tQuieto); tQuieto = setTimeout(() => document.body.classList.add('pbg-quieto'), 1100);
   page.classList.remove('pbg-entra'); void page.offsetWidth; page.classList.add('pbg-entra');
-  // espera un poco: muchas secciones pintan sus datos al entrar
-  setTimeout(() => {
-    let n = 0;
-    page.querySelectorAll(PIEZAS).forEach((p) => {
-      if (n > 12 || p.closest('.pbg-pieza') || p.offsetParent === null) return;
-      const r = p.getBoundingClientRect(); if (r.top > innerHeight || r.bottom < 0) return;   // solo lo que se ve
-      p.style.setProperty('--n', n++); p.classList.remove('pbg-pieza'); void p.offsetWidth; p.classList.add('pbg-pieza');
-      setTimeout(() => p.classList.remove('pbg-pieza'), 1000);
-    });
-    // cifras grandes
-    page.querySelectorAll('b,strong,.v,.num,.big,[class*="num"],[class*="big"],[class*="cifra"]').forEach((e) => {
-      if (e.children.length || e.closest('svg,.pb-of-wrap,.pb-kpi')) return;   // las cifras de .pb-kpi ya cuentan solas
-      const fs = parseFloat(getComputedStyle(e).fontSize); if (fs >= 22) odometro(e);
-    });
-    // barras que crecen y líneas que se dibujan
-    page.querySelectorAll('svg').forEach((s) => {
-      if (s.closest('.pb-of-wrap') || s.getBoundingClientRect().height < 40) return;
-      const rects = [...s.querySelectorAll('rect')].filter((x) => x.getBBox && x.getBBox().height > 3);
-      if (rects.length > 2) { rects.forEach((x, i) => x.style.setProperty('--n', Math.min(i, 24))); s.classList.add('pbg-crece'); setTimeout(() => s.classList.remove('pbg-crece'), 2200); }
-      s.querySelectorAll('path').forEach((p) => {
-        const cs = getComputedStyle(p); if (cs.fill !== 'none' || cs.stroke === 'none' || !p.getTotalLength) return;
-        const L = p.getTotalLength(); if (L < 60) return;
-        p.style.transition = 'none'; p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
-        requestAnimationFrame(() => requestAnimationFrame(() => { p.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(.3,.8,.25,1) .3s'; p.style.strokeDashoffset = '0'; }));
-        setTimeout(() => { p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; p.style.transition = ''; }, 2000);
-      });
-    });
-  }, 40);
 }
 document.addEventListener('pb:page', (e) => { pintaPastilla(e.detail); entra(document.getElementById('page-' + e.detail)); });
 window.pbAnima = entra;   // para volver a animar un bloque que se repinta (p. ej. Gasto IA al cambiar de mes)
