@@ -14,10 +14,13 @@ Una línea por post: `fecha · layout · tema · seed · titular`. El agente de 
 2026-12-16 · mosaico · light · 11 · Lo que no se automatiza
 2026-12-23 · orbita · dark · 12 · Conectado a lo que ya usas
 2026-12-30 · foco · dark · 13 · ¿Te recomienda ChatGPT?
-2026-11-10 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-12-02.png (¿Qué proceso automatizar primero?)
-2026-11-19 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-12-09.png (¿Chatbot o agente de IA?)
-2026-11-20 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-12-16.png (Lo que no se automatiza)
+2026-12-03 · foto de la ficha (Metricool gmb photo, movida desde el 10/11): imagen gbp/2026-12-02.png (¿Qué proceso automatizar primero?)
+2026-12-10 · foto de la ficha (Metricool gmb photo, movida desde el 19/11): imagen gbp/2026-12-09.png (¿Chatbot o agente de IA?)
+2026-12-17 · foto de la ficha (Metricool gmb photo, movida desde el 20/11): imagen gbp/2026-12-16.png (Lo que no se automatiza)
 2026-11-23 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-11-04.png (Consultoría de IA desde Valencia)
 2026-11-26 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-11-11.png (De WhatsApp a una app)
-2026-11-27 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-12-23.png (Conectado a lo que ya usas)
-2026-12-01 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-12-30.png (¿Te recomienda ChatGPT?)
+2026-12-24 · foto de la ficha (Metricool gmb photo, movida desde el 27/11): imagen gbp/2026-12-23.png (Conectado a lo que ya usas)
+2026-12-31 · foto de la ficha (Metricool gmb photo, movida desde el 1/12): imagen gbp/2026-12-30.png (¿Te recomienda ChatGPT?)
+2026-11-19 · foto de la ficha (Metricool gmb photo, movida desde el 9/11): imagen del post «Del programa antiguo a tu medida» (post del 18/11)
+2026-11-27 · foto de la ficha (Metricool gmb photo, movida desde el 12/11): imagen del post «¿Quién contesta a tus clientes?» (post del 25/11)
+2027-01-07 · foto de la ficha (Metricool gmb photo, movida desde el 6/11): imagen del post «IA que trabaja contigo» (post del 6/1)
