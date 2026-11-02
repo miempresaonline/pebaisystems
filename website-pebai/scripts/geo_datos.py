@@ -134,8 +134,23 @@ def seranking():
     t = secreto('PEBAI_SE_RANKING_TOKEN', 'se_ranking_token')
     h = {'Authorization': 'Token ' + t}
     hoy = dt.date.today()
-    return {'keywords': http(f'https://api4.seranking.com/sites/{SE_RANKING_SITE}/keywords', headers=h)[1],
-            'posiciones': http(f'https://api4.seranking.com/sites/{SE_RANKING_SITE}/positions?date_from={(hoy - dt.timedelta(days=14)).isoformat()}&date_to={hoy.isoformat()}', headers=h)[1]}
+    kws = {k['id']: k for k in http(f'https://api4.seranking.com/sites/{SE_RANKING_SITE}/keywords', headers=h)[1]}
+    pos = http(f'https://api4.seranking.com/sites/{SE_RANKING_SITE}/positions?date_from={(hoy - dt.timedelta(days=14)).isoformat()}&date_to={hoy.isoformat()}', headers=h)[1]
+    # Salida compacta (la completa pasaba de 60.000 caracteres y perdía palabras): una fila por palabra y buscador
+    # con su última posición (pos 0 = fuera del top 100), la fecha y la de hace ~7 días para ver el cambio.
+    filas = []
+    for motor in pos:
+        for k in motor.get('keywords', []):
+            serie = sorted(k.get('positions', []), key=lambda x: x['date'])
+            if not serie:
+                continue
+            ult = serie[-1]
+            ref = next((x for x in reversed(serie) if x['date'] <= (dt.date.fromisoformat(ult['date']) - dt.timedelta(days=7)).isoformat()), serie[0])
+            info = kws.get(k['id'], {})
+            filas.append({'palabra': info.get('name', k['id']), 'url': info.get('link'), 'buscador': motor.get('site_engine_id'),
+                          'pos': ult['pos'], 'fecha': ult['date'], 'pos_hace_7d': ref['pos'], 'fecha_ref': ref['date']})
+    filas.sort(key=lambda f: (f['palabra'], f['buscador']))
+    return {'total_palabras': len(kws), 'filas': filas}
 
 
 def localo(query, variables=None, mutation=False):
