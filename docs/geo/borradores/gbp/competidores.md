@@ -216,3 +216,9 @@ Sale al buscar consultoras de automatización e IA en Valencia; no estaba en la 
 ### Dónde PEBAI ya gana
 - Casos con captura y datos fechados frente a ejemplos anónimos.
 - Primer paso con duración y plazas (menos vago que «diagnóstico gratuito»).
+
+## 02/11/2026 · Pymes.ai (pymes-ai.com), descartado como competidor local
+Fuente: ficha en aiagentsdirectory.com (abierta 2/11). Sede en Medellín (Colombia), fundada en 2024; agentes de voz, chatbots WhatsApp/web, hiperautomatización y apps a medida. No publica primer paso gratuito, casos ni precios (el directorio cita 10-50 USD/hora sin confirmar por la empresa).
+- Conclusión: no compite en el mapa de Valencia; sí en «chatbot whatsapp empresas» y «agente de voz para empresas» en búsquedas generales. Nada que copiar.
+- Dónde PEBAI ya gana: sede y casos verificables en España, primer paso con duración y plazas.
+- Ya vistos en la misma búsqueda (Javadex, Upliora, everyWAN): sin cambios nuevos. Pendiente para el Vigía: ninguna cifra de Kit Digital/Kit Consulting de Upliora (50-100 %) está verificada en fuente oficial, no usarla.
