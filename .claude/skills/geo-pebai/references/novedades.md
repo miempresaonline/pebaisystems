@@ -2,6 +2,17 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-11-03 (Vigía: ficha de sector distribución B2B y suministros industriales)
+
+Sin novedades de buscadores que cambien algo. Novedad legal que sí cambia algo: Orden HAC/1028/2026 (BOE 5/10/2026, en vigor 6/10) fija la factura electrónica B2B en **6/10/2027** (más de 8 M€) y **6/10/2028** (resto) [V: AEAT y BOE]; muchas guías antiguas dan 2027 para pymes. Comprobación técnica 3/11: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
+**Ficha nueva:** `docs/geo/sectores/distribucion-b2b-suministros.md` (preguntas con URL, hueco: ningún caso español con nombre ni estudio de captación, medios Interempresas y Alimarket, calendario de factura electrónica verificado).
+
+*Para el Jefe:*
+1. **Contenido: vertical «IA para distribuidoras y suministros industriales» con el caso Santacruz y un H2 «Factura electrónica: 2027 o 2028».** Dato [V]: AEAT, 6/10/2027 para más de 8 M€ y 6/10/2028 el resto; Weber (Saint-Gobain) ya recibe pedidos por WhatsApp en todos sus centros (Construible, 28/02/2024), así que el canal es normal en B2B. Solo cifras de `casos.md`.
+2. **Medición/Observatorio: estudio propio de captación en distribuidoras (WhatsApp, catálogo con precio, formulario, portal por provincia).** Dato: no hay ningún estudio español gratuito; Alimarket vende el de material eléctrico (30/06/2026) y Mercasa es de 2018. Destino con OK de Daniel: Interempresas (colaboraciones).
+3. **Refresco: en cualquier página que hable de factura electrónica o Verifactu, usar las fechas de la Orden HAC/1028/2026.** Dato: BOE-A-2026-20587 y AEAT. Grep de «2027» y «factura electrónica» en `dist/`.
+
 ## 2026-11-02 (Vigía: ficha de sector automoción e importadores)
 
 Sin novedades de buscadores que cambien algo (hoy no se buscó). Comprobación técnica: no repetida hoy.
