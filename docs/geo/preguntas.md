@@ -342,3 +342,8 @@ Search Console 28 días: la URL vieja de voz con 301 y `/agentes-ia/voz/` suman 
 2026-11-03 · ¿Qué le puedo pedir a una recepcionista con IA y qué no? · Webex https://help.webex.com/es-co/article/4chov0 y CloudTalk (horarios, ubicación, servicios, citas y transferir) [S] · voz · sí (H2 `#que-resuelve`) · sin acción
 2026-11-03 · ¿Cuánto cuesta frente a una recepcionista de verdad? · Retell https://www.retellai.com/es/blog/what-is-a-virtual-receptionist y guías con precios en dólares y cifras de «llamadas perdidas» de proveedor [S] · voz · sí (H2 `#cuanto-cuesta`, sin cifras) · no usar cifras de proveedor
 Conclusión: lo único que falta es la frase centralita frente a recepcionista; encargo a Refresco como frase en un H2, no como FAQ (tope de 6).
+
+### Retorno y «contratar inteligencia artificial» (Turno 3/11; GSC 28 días: «roi retorno inversion inteligencia artificial» 2 impr. pos. 88, «contratar inteligencia artificial» 2 pos. 29)
+2026-11-03 · ¿Cómo calculo el retorno de la IA si no sé cuánto cuesta el tiempo de mi equipo? · guías de proveedores: línea base antes de empezar y coste completo con horas internas (kom.pe https://kom.pe/roi-inteligencia-artificial-medir/, Ecosire https://ecosire.com/es/blog/ai-roi-measurement-framework) [S] · coste · sí (H2 `#retorno` y FAQ «¿Cuánto se tarda en recuperar la inversión?») · sin acción
+2026-11-03 · ¿Por qué las calculadoras de ROI de IA salen siempre tan bien? · avisos de que omiten mantenimiento e integración (Techsy https://techsy.io/es/blog/como-medir-roi-integracion-ia) [S] · coste · sí (H2 `#costes-olvidados`) · sin acción
+Conclusión: las dos consultas llegan a páginas viejas con 301; `/ia-para-empresas/cuanto-cuesta/` ya las responde. Sin encargo a Refresco (no hay hueco).
