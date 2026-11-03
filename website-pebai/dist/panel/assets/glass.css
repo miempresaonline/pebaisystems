@@ -209,3 +209,8 @@
 .pb-analisis summary,.pb-histbox summary{transition:color .2s}
 .pb-analisis summary:hover,.pb-histbox summary:hover{color:var(--fg-strong)}
 @media (prefers-reduced-motion:reduce){.pb-page.pbg-espera{opacity:1}.pb-page.pbg-cascada .pbg-n,.pb-page.pbg-cascada .pbg-crece rect,.pb-page.pbg-fade{animation:none!important}}
+/* móvil: la lista de agentes empieza debajo de sus botones (antes tapaban el primer título) y sin el número de prospectos en el menú */
+@media (max-width:960px){
+  .pb-of-lista{padding-top:118px!important}
+  .pb-nav button[data-page=prospectos] em{display:none}
+}
