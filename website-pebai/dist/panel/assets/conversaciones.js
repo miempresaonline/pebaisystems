@@ -80,6 +80,7 @@ async function load() {
   if (r.status === 401) { pbCaduca(); return; }
   const j = await r.json();
   if (!j.ok) throw new Error(j.error || 'Error al cargar');
+  const firma = JSON.stringify(j.filas); S.cambio = firma !== S.firma; S.firma = firma;
   S.filas = j.filas; S.csrf = j.csrf || S.csrf; S.loaded = true;
   const n = $('#pb-conv-n'); if (n) n.textContent = N(S.filas.filter((f) => ['interesado', 'pregunta', 'pendiente_ia'].includes(f.estado)).length);
 }
@@ -295,8 +296,8 @@ function responder(f) {
 $('#pc-canal').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { ui.canal = b.dataset.c; guarda(); draw(); } });
 $('#pc-periodo').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { ui.periodo = b.dataset.p; guarda(); draw(); } });
 let qt; $('#pc-q').addEventListener('input', (e) => { clearTimeout(qt); qt = setTimeout(() => { ui.q = e.target.value.trim(); draw(); }, 140); });
-const refrescar = () => load().then(draw).catch((e) => { if (document.body.dataset.page === 'conversaciones') toast(e.message, true); });
-document.addEventListener('pb:page', (e) => { if (e.detail === 'conversaciones') refrescar(); else cerrar(); });
+const refrescar = () => load().then(() => { if (S.cambio) draw(); }).catch((e) => { if (document.body.dataset.page === 'conversaciones') toast(e.message, true); });
+document.addEventListener('pb:page', (e) => { if (e.detail === 'conversaciones') { if (S.loaded) draw(); refrescar(); } else cerrar(); });
 // Desde el Resumen: abrir directamente una conversación
 document.addEventListener('pb:abrir-conv', (e) => { load().then(() => { draw(); abrir(e.detail); }).catch((er) => toast(er.message, true)); });
 setInterval(() => { if (!document.hidden && document.body.dataset.page === 'conversaciones' && !ui.abierta) refrescar(); }, 60000);

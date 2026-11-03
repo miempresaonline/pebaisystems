@@ -356,8 +356,9 @@ function draw() {
 }
 const refrescar = () => load().then(draw).catch((e) => { if (pagina() === 'email') toast(e.message || 'No se ha podido cargar el email.', true); });
 montar();
-document.addEventListener('pb:page', () => { crumb(); draw(); });
-document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescar(); });
+const suya = () => ['email', 'agentes', 'prospectos'].includes(pagina());
+document.addEventListener('pb:page', () => { crumb(); if (suya()) draw(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && suya()) refrescar(); });
 setInterval(() => { if (!document.hidden && ['email', 'agentes'].includes(pagina())) refrescar(); }, 60000);
 // Enlace directo ?tab=email (panel.js aún no conoce esta pestaña: se abre desde aquí)
 if ((window.PB_TAB || new URLSearchParams(location.search).get('tab')) === 'email') { const b = $('#pb-tabs button[data-page="email"]'); if (b) setTimeout(() => b.click(), 0); }

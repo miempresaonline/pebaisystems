@@ -56,6 +56,7 @@ setInterval(() => { if (avisos.length > 1 && !document.hidden) { iAviso++; pinta
 const pastilla = document.createElement('nav'); pastilla.className = 'pb-pastilla'; pastilla.setAttribute('aria-label', 'Secciones de este grupo'); pastilla.hidden = true;
 document.body.append(pastilla);
 function pintaPastilla(p) {
+  if (p === 'conversaciones' || p === 'mapa') p = 'prospectos';   // viven dentro de Prospectos
   const btn = nav.querySelector(`button[data-page="${p}"]:not(#pb-nav-control)`);
   const grp = btn && btn.closest('.grp');
   const hermanos = grp ? [...grp.querySelectorAll('button[data-page]')].filter((b) => !b.hidden && b.id !== 'pb-nav-control') : [];
@@ -69,47 +70,63 @@ function pintaPastilla(p) {
 }
 
 /* ---------- entrada de cada sección ---------- */
-// Cada sección entra UNA vez y con sus datos ya puestos (Daniel, 02/11: «rayado» y luego «soso»):
-//  1) al cambiar, la sección queda invisible un instante mientras sus módulos la pintan (se espera a que deje de cambiar:
-//     120 ms sin cambios, 650 ms como mucho);
-//  2) entonces aparece y sus tarjetas suben en cascada, y las barras crecen. Solo opacidad y movimiento: va por la tarjeta gráfica.
-const PIEZAS = '.pgx>*,.pgx-cuatro>*,.pgx-col>*,.pb-card,.pb-row,.pc-kpi,.pc-row,.rd-kpi,.rd-card,.ga-kpi,.ga-card,.ga-hero,.pb-chip,.pb-plz,.pb-sol-cab,.pb-subnav,.pb-h1,.pb-pagehead,[class*="-card"]';
-let espera = null;
-function entra(page) {
-  if (!page || quieto) return;
-  if (espera) espera();
-  page.classList.remove('pbg-cascada'); page.classList.add('pbg-espera');
-  let t = 0, fin = 0, hecho = false;
-  const obs = new MutationObserver(() => { clearTimeout(t); t = setTimeout(mostrar, 120); });
-  function mostrar() {
-    if (hecho) return; hecho = true; obs.disconnect(); clearTimeout(t); clearTimeout(fin); espera = null;
-    try { prepara(); } catch (e) { /* si algo falla, la sección se enseña igual */ }
-    page.classList.remove('pbg-espera'); void page.offsetWidth; page.classList.add('pbg-cascada');
-    setTimeout(() => { page.classList.remove('pbg-cascada'); page.querySelectorAll('.pbg-n').forEach((x) => x.classList.remove('pbg-n')); page.querySelectorAll('.pbg-crece').forEach((x) => x.classList.remove('pbg-crece')); }, 1600);
+// Repaso del 03/11 (medido en el panel real):
+//  · la PRIMERA vez que abres una sección en la sesión, espera muy poco (90 ms sin cambios, 450 ms como mucho) a que se pinte
+//    con sus datos y sus tarjetas suben en cascada;
+//  · las siguientes veces aparece al momento con un fundido corto (sus datos ya están): nada de esperas ni de cascadas repetidas;
+//  · todo con opacidad y movimiento, leyendo medidas antes de escribir (sin forzar el navegador a recalcular en bucle).
+const PIEZAS = '.pgx>*,.pgx-cuatro>*,.pgx-col>*,.pb-card,.pb-row,.pc-kpi,.pc-row,.rd-kpi,.rd-card,.ga-kpi,.ga-card,.ga-hero,.pb-chip,.pb-plz,.pb-sol-cab,.pb-subnav,.pb-h1,.pb-pagehead,.pb-caja,.pb-hub-c';
+const vistos = new Set();
+const relojes = new Map();
+function limpia(page) {
+  const r = relojes.get(page); if (r) r.forEach(clearTimeout);
+  relojes.set(page, []);
+  page.classList.remove('pbg-espera', 'pbg-cascada', 'pbg-fade');
+  page.querySelectorAll('.pbg-n').forEach((x) => x.classList.remove('pbg-n'));
+  page.querySelectorAll('.pbg-crece').forEach((x) => x.classList.remove('pbg-crece'));
+}
+const reloj = (page, fn, ms) => { const t = setTimeout(fn, ms); relojes.get(page).push(t); return t; };
+// Cascada sobre lo que se ve ahora mismo
+function cascada(page) {
+  // 1) leer (todas las medidas de golpe)
+  const cand = [];
+  for (const x of page.querySelectorAll(PIEZAS)) {
+    if (cand.length >= 16) break;
+    if (cand.some((c) => c.contains(x))) continue;   // solo la tarjeta de fuera
+    const r = x.getBoundingClientRect();
+    if (r.height && r.top < innerHeight && r.bottom > 0) cand.push(x);
   }
-  function prepara() {
-    let n = 0;
-    page.querySelectorAll(PIEZAS).forEach((x) => {
-      if (x.parentElement && x.parentElement.closest('.pbg-n')) return;   // solo la tarjeta de fuera, no lo de dentro
-      const r = x.getBoundingClientRect(); if (!r.height || r.top > innerHeight || r.bottom < 0 || n > 16) return;
-      x.style.setProperty('--n', n++); x.classList.add('pbg-n');
-    });
-    page.querySelectorAll('svg').forEach((sv) => {
-      if (sv.closest('.pb-of-wrap') || sv.getBoundingClientRect().height < 40) return;
-      const rects = [...sv.querySelectorAll('rect')].filter((x) => { const b = x.getBBox ? x.getBBox() : null; return b && b.height > 3 && b.height < sv.getBBox().height * .98; });
-      if (rects.length > 2) { rects.forEach((x, k) => x.style.setProperty('--n', Math.min(k, 30))); sv.classList.add('pbg-crece'); }
-    });
+  const graficas = [...page.querySelectorAll('svg.pgx-barras,svg.ga-barras')];
+  // 2) escribir
+  cand.forEach((x, n) => { x.style.setProperty('--n', n); x.classList.add('pbg-n'); });
+  graficas.forEach((sv) => { [...sv.querySelectorAll('rect')].forEach((x, k) => x.style.setProperty('--n', Math.min(k, 30))); sv.classList.add('pbg-crece'); });
+  page.classList.remove('pbg-espera'); void page.offsetWidth; page.classList.add('pbg-cascada');
+  reloj(page, () => limpia(page), 1500);
+}
+function entra(page, forzar) {
+  if (!page) return;
+  limpia(page);
+  if (quieto) return;
+  if (vistos.has(page.id) && !forzar) {
+    page.classList.add('pbg-fade');
+    reloj(page, () => page.classList.remove('pbg-fade'), 320);
+    return;
   }
-  espera = mostrar;
+  vistos.add(page.id);
+  if (forzar) { requestAnimationFrame(() => cascada(page)); return; }   // ya está pintada (p. ej. Gasto al cambiar de mes)
+  page.classList.add('pbg-espera');
+  let t = 0, hecho = false;
+  const obs = new MutationObserver(() => { clearTimeout(t); t = reloj(page, ir, 90); });
+  function ir() { if (hecho) return; hecho = true; obs.disconnect(); try { cascada(page); } catch (e) { page.classList.remove('pbg-espera'); } }
   obs.observe(page, { childList: true, subtree: true });
-  t = setTimeout(mostrar, 120);
-  fin = setTimeout(mostrar, 650);
+  t = reloj(page, ir, 90);
+  reloj(page, ir, 450);
 }
 document.addEventListener('pb:page', (e) => { pintaPastilla(e.detail); entra(document.getElementById('page-' + e.detail)); });
-window.pbAnima = (el) => entra(el && el.closest ? el.closest('.pb-page') || el : el);   // para volver a animar un bloque que se repinta (p. ej. Gasto IA al cambiar de mes)
-// la primera vez, cuando termina la animación de entrada del panel
-const primera = () => { const p = document.body.dataset.page || 'resumen'; pintaPastilla(p); entra(document.getElementById('page-' + p)); };
+window.pbAnima = (el) => entra(el && el.closest ? el.closest('.pb-page') || el : el, true);   // para volver a animar un bloque que se repinta (Gasto IA al cambiar de mes)
+// la primera vez: la sección de entrada se anima cuando termina la animación del panel (sin esconderla otra vez)
+const primera = () => { const p = document.body.dataset.page || 'resumen'; pintaPastilla(p); const pg = document.getElementById('page-' + p); if (pg) { vistos.add(pg.id); relojes.set(pg, []); try { cascada(pg); } catch (e) { /* nada */ } } };
 const intro = document.getElementById('pb-intro');
-if (intro) new MutationObserver((m, o) => { if (!document.getElementById('pb-intro')) { o.disconnect(); setTimeout(primera, 250); } }).observe(document.body, { childList: true });
-else window.addEventListener('load', () => setTimeout(primera, 200));
+if (intro) new MutationObserver((m, o) => { if (!document.getElementById('pb-intro')) { o.disconnect(); requestAnimationFrame(primera); } }).observe(document.body, { childList: true });
+else window.addEventListener('load', () => requestAnimationFrame(primera));
 })();

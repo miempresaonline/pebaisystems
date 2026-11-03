@@ -251,7 +251,13 @@ function ping() {
 // La campana (avisos al navegador y al móvil, también con el panel cerrado) vive en buscar.js.
 // Abrir una solicitud desde el buscador o desde un aviso
 document.addEventListener('pb:abrir-lead', (e) => { showPage('solicitudes'); openDetail(Number(e.detail)); });
-setInterval(() => { if (!document.hidden && S.loaded && ui.sel == null) load().then(draw).catch(() => {}); }, 60000);
+// En Embudo, cada minuto; en el resto de secciones basta cada 2 min (para el número de solicitudes del menú)
+let ultimaCarga = Date.now();
+setInterval(() => {
+  const embudo = ['resumen', 'solicitudes', 'citas'].includes(document.body.dataset.page);
+  if (!document.hidden && S.loaded && ui.sel == null && Date.now() - ultimaCarga >= (embudo ? 60000 : 120000)) { ultimaCarga = Date.now(); load().then(draw).catch(() => {}); }
+}, 30000);
+document.addEventListener('pb:page', (e) => { if (ui.sel != null && !['solicitudes', 'citas', 'resumen'].includes(e.detail)) closeDetail(); });
 
 function drawSpark(rows) {
   const svg = d3.select('.pb-kpi .spark svg'); svg.selectAll('*').remove();
@@ -710,7 +716,7 @@ function draw() {
   if (!S.drawn) { S.drawn = true; document.body.classList.add('pb-in'); }
 }
 let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 120); });
-document.addEventListener('visibilitychange', () => { if (!document.hidden && S.loaded) load().then(draw).catch(() => {}); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.loaded && Date.now() - ultimaCarga > 30000) { ultimaCarga = Date.now(); load().then(draw).catch(() => {}); } });
 
 /* ============ arranque ============ */
 readUrl();

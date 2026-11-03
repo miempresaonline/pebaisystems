@@ -145,7 +145,8 @@ function lineas() {
     return `<path d="M${x0} ${y0} C${x0} ${ym} ${x1} ${ym} ${x1} ${y1}" stroke="${c}" style="animation-delay:${i * 80}ms"/>`;
   }).join('');
 }
-window.addEventListener('resize', () => { if (S.cargado && document.body.dataset.page === 'web') lineas(); });
+let rLineas = 0;
+window.addEventListener('resize', () => { if (rLineas || !S.cargado || document.body.dataset.page !== 'web') return; rLineas = requestAnimationFrame(() => { rLineas = 0; lineas(); }); });
 
 raiz.addEventListener('click', async (e) => {
   const b = e.target.closest('[data-copiar]'); if (!b) return;

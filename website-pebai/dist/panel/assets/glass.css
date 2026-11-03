@@ -1,6 +1,7 @@
 /* PEBAI · Panel — estilo «cristal» (Daniel, 01/11/2026), sacado del vídeo «Glassy Dashboard» con la marca de PEBAI:
    cristal oscuro esmerilado sobre luces lima y violeta difuminadas, dock de iconos a la izquierda, pastilla de secciones abajo,
-   pastilla de avisos arriba y entradas de sección en tres tiempos (desenfoque → tarjetas de cristal → contenido en cascada).
+   pastilla de avisos arriba y entrada de sección en cascada. Repaso del 03/11: el desenfoque real solo en lo fijo y pequeño
+   (dock y pastilla); todo lo que se desplaza o se anima lleva cristal «pintado», que se ve igual y no tironea.
    Va el último: cambia los tokens de color de panel.css y pone el cristal encima de lo que ya hay, sin tocar cada sección. */
 
 :root{
@@ -16,14 +17,12 @@
   --glass-sombra:inset 0 1px 0 rgba(255,255,255,.9),0 20px 50px -26px rgba(30,30,60,.35);
 }
 
-/* ---------- fondo: luces de marca muy difuminadas que se mueven despacio ---------- */
+/* ---------- fondo: luces de marca difuminadas (quietas: así el cristal no se recalcula en cada fotograma) ---------- */
 .pb-bg{background:radial-gradient(120% 90% at 50% -10%,#10142a 0,var(--ink) 55%)}
-.pb-bg i{filter:blur(110px)}
 .pb-bg i:nth-child(1){width:62vmax;height:62vmax;left:-18vmax;top:-26vmax;background:radial-gradient(circle,rgba(106,92,255,.7),transparent 65%);opacity:1}
-.pb-bg i:nth-child(2){width:46vmax;height:46vmax;right:-14vmax;top:8vmax;background:radial-gradient(circle,rgba(183,255,60,.4),transparent 65%);opacity:.9;animation-duration:31s;animation-direction:alternate-reverse}
-.pb-bg i:nth-child(3){width:56vmax;height:56vmax;left:24vmax;bottom:-34vmax;background:radial-gradient(circle,rgba(63,213,255,.28),transparent 65%);opacity:.75;animation-duration:37s}
+.pb-bg i:nth-child(2){width:46vmax;height:46vmax;right:-14vmax;top:8vmax;background:radial-gradient(circle,rgba(183,255,60,.4),transparent 65%);opacity:.9}
+.pb-bg i:nth-child(3){width:56vmax;height:56vmax;left:24vmax;bottom:-34vmax;background:radial-gradient(circle,rgba(63,213,255,.28),transparent 65%);opacity:.75}
 .pb-bg:after{opacity:.22}
-@keyframes pbg-deriva{0%{transform:translate(0,0) scale(1)}50%{transform:translate(4vmax,3vmax) scale(1.08)}100%{transform:translate(-3vmax,5vmax) scale(.96)}}
 :root[data-theme=light] .pb-bg{background:radial-gradient(120% 90% at 50% -10%,#f6f4ee 0,var(--ink) 60%)}
 
 /* ---------- cristal en todas las tarjetas ---------- */
@@ -34,8 +33,9 @@
 .pb-row:hover,.pc-row:hover{background:var(--glass-2);border-color:var(--glass-hi)}
 .pb-btn{backdrop-filter:none}
 .pb-btn:not(.primary):not(.wa):not(.danger){background:var(--glass);border-color:var(--glass-line)}
-.pb-drawer,.pc-drawer{background:color-mix(in srgb,var(--ink-2) 72%,transparent);backdrop-filter:blur(30px) saturate(1.6);-webkit-backdrop-filter:blur(30px) saturate(1.6);border-left-color:var(--glass-hi)}
-.pb-drawer .top{background:transparent;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.pb-drawer,.pc-drawer{background:linear-gradient(180deg,color-mix(in srgb,var(--ink-2) 97%,#6A5CFF),var(--ink-2));backdrop-filter:none;-webkit-backdrop-filter:none;border-left-color:var(--glass-hi)}
+.pb-veil{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(3,5,12,.55)}
+.pb-drawer .top{background:var(--ink-2);backdrop-filter:none}
 
 /* ---------- escritorio: dock de iconos a la izquierda, como en el vídeo ---------- */
 @media (min-width:961px){
@@ -57,8 +57,8 @@
   .pb-nav button.on .pb-i{color:var(--ink)}
   /* el nombre sale al pasar por encima, en una pastilla de cristal */
   .pb-nav button span{position:absolute;left:calc(100% + 14px);top:50%;transform:translate(-6px,-50%);white-space:nowrap;pointer-events:none;opacity:0;flex:none;
-    padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--fg-strong);background:color-mix(in srgb,var(--panel-solid) 80%,transparent);
-    border:1px solid var(--glass-hi);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.4);transition:opacity .2s,transform .25s var(--ease);z-index:50}
+    padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--fg-strong);background:color-mix(in srgb,var(--panel-solid) 96%,transparent);
+    border:1px solid var(--glass-hi);box-shadow:0 10px 30px rgba(0,0,0,.4);transition:opacity .2s,transform .25s var(--ease);z-index:50}
   .pb-nav button:hover span,.pb-nav button:focus-visible span{opacity:1;transform:translate(0,-50%)}
   .pb-nav button em{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;font-size:10px;line-height:15px;text-align:center;background:var(--lime);color:var(--lime-ink);border-color:var(--lime)}
   .pb-nav button em:is(:empty,[data-cero]){display:none}
@@ -77,7 +77,13 @@
   }
   /* barra de arriba: una tira de cristal */
   .pb-main .pb-top{position:sticky;top:14px;margin:14px 0 20px;padding:10px 12px 10px 20px;min-height:0;border-radius:22px;border:1px solid var(--glass-line);
-    background:color-mix(in srgb,var(--ink) 45%,transparent);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-sombra)}
+    background:color-mix(in srgb,var(--ink-2) 90%,transparent);backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:var(--glass-sombra)}
+  /* sin salto a dos líneas: el CSV queda en icono y la pastilla de avisos cede sitio */
+  .pb-main .pb-top{flex-wrap:nowrap}
+  .pb-top .pb-aviso{min-width:0;flex:0 1 auto}
+  .pb-top a[href$="csv=1"]{font-size:0;gap:0;padding:9px 10px}
+  .pb-top a[href$="csv=1"] svg{width:16px;height:16px}
+  .pc-bar{top:92px;background:color-mix(in srgb,var(--ink) 92%,transparent)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 }
 
 /* ---------- pastilla de avisos (arriba, en el centro) ---------- */
@@ -109,26 +115,16 @@
   body.pb-locked .pb-pastilla{opacity:0;pointer-events:none}
 }
 
-/* ---------- entrada de cada sección: desenfoque → cristal → contenido en cascada ---------- */
-.pb-page.on{animation:none}
-.pbg-entra{animation:pbg-enfoca .35s ease-out both}
-.pbg-pieza{animation:pbg-pieza .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--n,0) * 35ms + 40ms)}
-@keyframes pbg-enfoca{from{opacity:.4}to{opacity:1}}
-@keyframes pbg-pieza{from{opacity:0;transform:translate3d(0,10px,0)}to{opacity:1;transform:none}}
-/* barras que crecen desde abajo y líneas que se dibujan */
-.pbg-crece rect{transform-box:fill-box;transform-origin:50% 100%;animation:pbg-barra .9s var(--ease) both;animation-delay:calc(var(--n,0) * 35ms + 250ms)}
-@keyframes pbg-barra{from{transform:scaleY(0)}to{transform:none}}
-/* números que ruedan como un cuentakilómetros */
-.pbg-odo{display:inline-flex;align-items:baseline}
-.pbg-odo .c{display:inline-block;height:1.1em;overflow:hidden;line-height:1.1em;vertical-align:baseline}
-.pbg-odo .c>span{display:flex;flex-direction:column;transition:transform 1.1s cubic-bezier(.2,.9,.25,1)}
-.pbg-odo .c>span>i{font-style:normal;height:1.1em;line-height:1.1em}
-@media (prefers-reduced-motion:reduce){.pb-page.pbg-entra,.pbg-pieza,.pbg-crece rect{animation:none}.pb-bg i{animation:none}}
-
 /* ---------- móvil: el cristal, más ligero (menos desenfoque = más fluido) ---------- */
 @media (max-width:960px){
-  :root{--glass-blur:blur(14px) saturate(1.4)}
-  .pb-tabbar,.pb-nav{background:color-mix(in srgb,var(--ink) 62%,transparent)!important;border-color:var(--glass-line)!important}
+  .pb-side:before,.pb-tabbar,.pb-nav,.pb-drawer,.pc-drawer,.pb-menu-velo{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .pb-side:before{background:color-mix(in srgb,var(--ink) 96%,transparent)!important}
+  .pb-tabbar,.pb-nav{background:color-mix(in srgb,var(--panel-solid) 97%,transparent)!important;border-color:var(--glass-line)!important}
+  body.pb-locked .pb-tabbar{transform:translateY(110%);pointer-events:none}
+  .pb-tabbar{transition:transform .3s cubic-bezier(.16,1,.3,1)}
+  .pb-side-foot .pb-btn.icon{width:40px!important;height:40px!important}
+  .pb-subnav button,.pb-seg button{min-height:40px}
+  .pgx-cuatro{padding:0!important}
   .pb-tabbar button.on .pb-i{filter:drop-shadow(0 0 8px var(--lime-glow))}
 }
 
@@ -142,8 +138,8 @@
   body[data-page=agentes] .pb-main{padding-bottom:14px}
 }
 /* fichas flotantes sobre la escena: cristal esmerilado */
-.pb-of-todo,.pb-of-vista,.pb-of-box,.pb-of-ayuda .b,.pb-of-ayuda .c{background:rgba(14,17,32,.42)!important;border-color:var(--glass-hi)!important;
-  backdrop-filter:blur(22px) saturate(1.6);-webkit-backdrop-filter:blur(22px) saturate(1.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 18px 44px rgba(0,0,0,.4)!important}
+.pb-of-todo,.pb-of-vista,.pb-of-box,.pb-of-ayuda .b,.pb-of-ayuda .c{background:rgba(14,17,32,.84)!important;border-color:var(--glass-hi)!important;
+  backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 18px 44px rgba(0,0,0,.4)!important}
 .pb-of-todo,.pb-of-vista{border-radius:999px}
 .pb-of-todo.abierto{border-radius:22px}
 .pb-of-vista button{border-radius:999px}
@@ -151,8 +147,8 @@
 .pb-of-box{border-radius:999px;padding-left:16px}
 .pb-of-box button{border-radius:999px}
 /* el panel lateral de cada agente: una hoja de cristal con sus bloques como tarjetas */
-.pb-of-side{background:rgba(12,14,28,.5)!important;border-color:var(--glass-hi)!important;border-radius:28px;
-  backdrop-filter:blur(30px) saturate(1.7);-webkit-backdrop-filter:blur(30px) saturate(1.7);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 30px 80px rgba(0,0,0,.5)!important}
+.pb-of-side{background:linear-gradient(180deg,rgba(20,22,42,.97),rgba(12,14,28,.97))!important;border-color:var(--glass-hi)!important;border-radius:28px;
+  backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 30px 80px rgba(0,0,0,.5)!important}
 .pb-of-side .x{border-radius:50%;background:rgba(255,255,255,.06)}
 .pb-of-tabs{border-radius:999px;background:rgba(255,255,255,.05);border-color:var(--glass-line)}
 .pb-of-tabs button{border-radius:999px}
@@ -181,18 +177,29 @@
 /* en el dock, el número de prospectos (miles) no es un aviso: fuera */
 @media (min-width:961px){.pb-nav button[data-page=prospectos] em{display:none}}
 
-/* Al actualizarse los datos (cada minuto), las tarjetas NO repiten su animación de entrada: solo se anima al entrar en la sección */
-body.pbg-quieto .pb-anim,body.pbg-quieto .pc-kpi,body.pbg-quieto .rd-rev,body.pbg-quieto .pb-pend,body.pbg-quieto .pgx *,
-body.pbg-quieto .pb-chip,body.pbg-quieto .pc-row,body.pbg-quieto .pb-row{animation:none!important}
-
-/* Transición de sección única y suave (02/11): fuera las animaciones de entrada del panel antiguo y la cascada */
-/* Entrada de sección (02/11): espera invisible a tener los datos y luego una sola cascada fluida (opacidad + movimiento) */
-.pb-in .pb-anim,.pb-anim,.pc-kpi,.rd-rev,.pb-pend,.pgx *,.pb-chip,.pc-row,.pb-row,.pbg-pieza{animation:none}
+/* ---------- entrada de cada sección (03/11): la primera vez, cascada; luego, fundido corto ---------- */
+/* fuera TODAS las animaciones de entrada antiguas de cada módulo (se pisaban con la cascada) */
+.pb-page.on{animation:none}
+.pb-in .pb-anim,.pb-anim,.pc-kpi,.pb-pend,.pgx *,.pb-chip,.pc-row,.pb-row,.pb-caja,.pb-cprov,.pb-hub-c,.pb-entra,.pg-sec,.wb-rama{animation:none}
+.rd-rev{opacity:1!important;transform:none!important;transition:none!important}
 .pb-page.pbg-espera{opacity:0}
-.pb-page.pbg-cascada .pbg-n{animation:pbg-sube .6s cubic-bezier(.16,1,.3,1) both!important;animation-delay:calc(var(--n,0) * 45ms)!important}
-.pb-page.pbg-cascada .pbg-crece rect{transform-box:fill-box;transform-origin:50% 100%;animation:pbg-barra .8s cubic-bezier(.16,1,.3,1) both!important;animation-delay:calc(var(--n,0) * 25ms + 200ms)!important}
-@keyframes pbg-sube{from{opacity:0;transform:translate3d(0,18px,0) scale(.985)}to{opacity:1;transform:none}}
+.pb-page.pbg-cascada .pbg-n{animation:pbg-sube .55s cubic-bezier(.16,1,.3,1) both!important;animation-delay:calc(var(--n,0) * 40ms)!important}
+.pb-page.pbg-cascada .pbg-crece rect{transform-box:fill-box;transform-origin:50% 100%;animation:pbg-barra .75s cubic-bezier(.16,1,.3,1) both!important;animation-delay:calc(var(--n,0) * 22ms + 160ms)!important}
+.pb-page.pbg-fade{animation:pbg-fade .22s ease-out both}
+@keyframes pbg-sube{from{opacity:0;transform:translate3d(0,16px,0)}to{opacity:1;transform:none}}
 @keyframes pbg-barra{from{transform:scaleY(0)}to{transform:none}}
+@keyframes pbg-fade{from{opacity:.35;transform:translate3d(0,4px,0)}to{opacity:1;transform:none}}
+/* el Resumen: tarjetas de cristal pintado, sin desenfocar lo de detrás (eran 9 desenfoques recalculados al desplazar) */
+.pgx>*,.pgx-cifra,.pgx-mini{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.pgx-hero .bt .cla{background:#fff;background-image:none}
+/* los puntos «en vivo» laten con la opacidad (antes con sombras que repintaban el dock entero sin parar) */
+.pb-live[data-s=ok],.pb-live[data-s=bad]{animation:pbg-late 2.2s ease-in-out infinite!important;box-shadow:none!important}
+@keyframes pbg-late{0%,100%{opacity:1}50%{opacity:.35}}
+/* cabeceras de sección: la ruta de arriba ya dice dónde estás; el texto de ayuda, en dos líneas como mucho */
+@media (min-width:961px){
+  .pb-page .pb-eyebrow{display:none}
+  .pb-page .pb-lead{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:80ch}
+}
 
 /* Lo que se despliega (Análisis de las solicitudes, Historial…) se abre deslizándose en vez de saltar */
 :root{interpolate-size:allow-keywords}
@@ -201,4 +208,4 @@ body.pbg-quieto .pb-chip,body.pbg-quieto .pc-row,body.pbg-quieto .pb-row{animati
 .pb-analisis[open]>:not(summary),.pb-histbox[open]>:not(summary){animation:pbg-sube .55s cubic-bezier(.16,1,.3,1) both}
 .pb-analisis summary,.pb-histbox summary{transition:color .2s}
 .pb-analisis summary:hover,.pb-histbox summary:hover{color:var(--fg-strong)}
-@media (prefers-reduced-motion:reduce){.pb-page.pbg-espera{opacity:1}.pb-page.pbg-cascada .pbg-n,.pb-page.pbg-cascada .pbg-crece rect{animation:none!important}}
+@media (prefers-reduced-motion:reduce){.pb-page.pbg-espera{opacity:1}.pb-page.pbg-cascada .pbg-n,.pb-page.pbg-cascada .pbg-crece rect,.pb-page.pbg-fade{animation:none!important}}

@@ -810,12 +810,13 @@ function draw() {
 }
 const refrescar = () => load().then(draw).catch((e) => { if (['prospectos', 'agentes'].includes(pagina())) toast(e.message || 'No se han podido cargar los agentes.', true); });
 document.addEventListener('pb:page', (e) => { crumb(e.detail); $$('.pb-quiet').forEach((x) => x.classList.remove('pb-quiet')); draw(); });
-document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescar(); });
+const suya = () => ['prospectos', 'agentes', 'conversaciones', 'mapa'].includes(pagina());
+document.addEventListener('visibilitychange', () => { if (!document.hidden && suya()) refrescar(); });
 // Cada minuto; cada 8 s mientras espera la vinculación, para que el código nuevo aparezca enseguida
 let ultimo = 0;
 setInterval(() => {
   const rapido = S.whatsapp && S.whatsapp.estado === 'esperando_vinculo' && pagina() === 'agentes';
-  if (!document.hidden && Date.now() - ultimo >= (rapido ? 4000 : 60000)) { ultimo = Date.now(); refrescar(); }
+  if (!document.hidden && suya() && Date.now() - ultimo >= (rapido ? 4000 : 60000)) { ultimo = Date.now(); refrescar(); }
 }, 4000);
 crumb(pagina());
 refrescar();

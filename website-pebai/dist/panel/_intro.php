@@ -57,7 +57,7 @@ body.pb-enfoca .pb-app,body.pb-enfoca .pb-tabbar{transition:filter 1.3s cubic-be
     if (Date.now() - ult < 20 * 60 * 1000) { c.remove(); localStorage.setItem('pb-intro-ts', Date.now()); return; }
     localStorage.setItem('pb-intro-ts', Date.now());
   } catch (e) { /* sin almacenamiento: se enseña */ }
-  const b = document.body, t0 = performance.now(), MIN = 3400, MAX = 6500;
+  const b = document.body, t0 = performance.now(), MIN = 2400, MAX = 5500;
   const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
   b.classList.add('pb-despierta');
   const fin = () => { b.classList.remove('pb-despierta', 'pb-enfoca'); c.remove(); };

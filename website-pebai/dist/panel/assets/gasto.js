@@ -167,6 +167,8 @@ async function cargar(anima) {
     const r = await fetch(BASE + '?gasto=1' + q, { credentials: 'same-origin', headers: { Accept: 'application/json' } });
     if (r.status === 401) { pbCaduca(); return; }
     const j = await r.json(); if (!j.ok) throw new Error('sin datos');
+    const firma = JSON.stringify(j); if (firma === cargar.firma && raiz.querySelector('.ga-cab') && !anima) return;   // nada nuevo: no se toca
+    cargar.firma = firma;
     pintar(j);
     if (anima && window.pbAnima) window.pbAnima(raiz);   // al cambiar de mes o de fechas, entra animado como una sección
     // elegir mes o fechas

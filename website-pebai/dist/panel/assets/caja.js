@@ -51,6 +51,7 @@ async function load() {
   if (r.status === 401 || r.redirected) { pbCaduca(); return; }
   const j = await r.json();
   if (!j.ok) throw new Error(j.error || 'No se ha podido cargar la caja.');
+  const firma = JSON.stringify(j); S.cambio = firma !== S.firma; S.firma = firma;   // ¿ha cambiado algo desde la última vez?
   Object.assign(S, j, { loaded: true });
   if (!ui.mes) ui.mes = mesDe(S.hoy);
 }
@@ -409,7 +410,7 @@ $('#pb-cj-prev').addEventListener('click', () => { ui.mes = sumaMes(ui.mes, -1);
 $('#pb-cj-next').addEventListener('click', () => { if (ui.mes < mesDe(S.hoy)) { ui.mes = sumaMes(ui.mes, 1); draw(); } });
 $('#pb-cj-hoy').addEventListener('click', () => { ui.mes = mesDe(S.hoy); draw(); });
 function pagina() { return document.body.dataset.page || 'resumen'; }
-const refrescar = () => load().then(draw).catch((e) => { if (pagina() === 'caja') toast(e.message, true); });
+const refrescar = () => load().then(() => { if (S.cambio) draw(); }).catch((e) => { if (pagina() === 'caja') toast(e.message, true); });
 document.addEventListener('pb:page', (e) => { if (e.detail === 'caja') { draw(); refrescar(); } });
 document.addEventListener('visibilitychange', () => { if (!document.hidden && pagina() === 'caja' && !$('.pb-cj-veil')) refrescar(); });
 let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (pagina() === 'caja' && !$('.pb-cj-veil')) draw(); }, 150); });
