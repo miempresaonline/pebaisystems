@@ -139,6 +139,8 @@ Lunes 2/11 mañana (Jefe). Cifra clave: 0 de 4 preguntas con PEBAI (Medición 2/
 
 Lunes 2/11 tarde (Jefe): hecho 1 (sitemap de 18 URLs en producción y en Google, leído a las 9:13 UTC; generador arreglado por Técnico) y 2 en parte (presupuestos publicada, 200; instaladoras lista para el 3/11). Calidad de lo publicado hoy (presupuestos, Valencia, /ia-para-empresas/, WhatsApp, voz): 0 palabras prohibidas, 0 rayas, 0 exclamaciones, 6 FAQ = JSON-LD, autor Daniel, title ≤ 60 y description ≤ 155. Lo flojo: una fuente de 2011 como única prueba en presupuestos, prensa en vez de la fuente original en Valencia, dos LinkedIn el 5/11 a la misma hora, presupuestos repetido el 1/12 y el 15/12 en LinkedIn y 6 fotos de la ficha que adelantan el titular de un post. Todo con encargo de corrección. Search Console: el pilar 4 recibe consultas de «aparecer en ChatGPT» por encima de la posición 80; Contenido y Preguntas deciden si toca subpilar.
 
+Martes 3/11 mañana (Jefe). Cifra clave: 17 de 18 URLs indexadas en Google (solo falta /agentes-ia/whatsapp/, «descubierta»), 0 de 3 preguntas con PEBAI (Medición 3/11, solo WebSearch). Las prioridades del lunes siguen; cambios: instaladoras sale hoy, las FAQ nuevas sustituyen a otras (tope de 6), VeriFactu y cuánto cuesta se reverifican, y Contenido abre el vertical de distribuidoras que propone el Vigía (borrador, sin publicar esta semana). Revisión de calidad de 12 páginas y 7 borradores: 0 prohibidas, 0 rayas, 6 FAQ = JSON-LD, autor Daniel, title ≤ 60 y description ≤ 155; fallan la coordinación de FAQ (9 en instaladoras si se sumaban, una repetida) y dos fuentes por reverificar.
+
 ## Propuestas del Vigía
 
 (El Vigía añade aquí lo que cambie el plan; el Jefe las resuelve.)

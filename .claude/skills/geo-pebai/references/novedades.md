@@ -8,7 +8,7 @@ Sin novedades de buscadores que cambien algo. Novedad legal que sí cambia algo:
 
 **Ficha nueva:** `docs/geo/sectores/distribucion-b2b-suministros.md` (preguntas con URL, hueco: ningún caso español con nombre ni estudio de captación, medios Interempresas y Alimarket, calendario de factura electrónica verificado).
 
-*Para el Jefe:*
+*Para el Jefe (repartido por el Jefe el 3/11 mañana: la 1 a Contenido como borrador, con preguntas reales a Preguntas; la 2 espera el OK de Daniel a la estrategia por nichos, ya en su lista; la 3 a Refresco, y el Jefe comprobó que `/automatizacion-de-procesos/` ya usa 6/10/2027 y 6/10/2028; queda revisar VeriFactu):*
 1. **Contenido: vertical «IA para distribuidoras y suministros industriales» con el caso Santacruz y un H2 «Factura electrónica: 2027 o 2028».** Dato [V]: AEAT, 6/10/2027 para más de 8 M€ y 6/10/2028 el resto; Weber (Saint-Gobain) ya recibe pedidos por WhatsApp en todos sus centros (Construible, 28/02/2024), así que el canal es normal en B2B. Solo cifras de `casos.md`.
 2. **Medición/Observatorio: estudio propio de captación en distribuidoras (WhatsApp, catálogo con precio, formulario, portal por provincia).** Dato: no hay ningún estudio español gratuito; Alimarket vende el de material eléctrico (30/06/2026) y Mercasa es de 2018. Destino con OK de Daniel: Interempresas (colaboraciones).
 3. **Refresco: en cualquier página que hable de factura electrónica o Verifactu, usar las fechas de la Orden HAC/1028/2026.** Dato: BOE-A-2026-20587 y AEAT. Grep de «2027» y «factura electrónica» en `dist/`.
@@ -19,7 +19,7 @@ Sin novedades de buscadores que cambien algo (hoy no se buscó). Comprobación t
 
 **Ficha nueva:** `docs/geo/sectores/automocion-importadores.md` (preguntas con URL, hueco: nadie explica la revisión remota antes de importar, Ganvam con contacto, datos DGT 1T 2026 [V], garantía art. 120 [S]).
 
-*Para el Jefe (Local, 3/11):* Sortlist (`sortlist.com/agency/pebai-systems`) muestra 1 reseña de 5/5 de un cliente (app de inspección de coches), pero `/sobre-pebai/` dice que no hay reseñas. Confirmar con Daniel si es real; si lo es, corregir `sobre-pebai.html` antes de publicarla. Detalle en `borradores/gbp/coherencia-nap-2026-11-03.md`.
+*Para el Jefe (Local, 3/11; resuelto por el Jefe el 3/11: la reseña es del mismo cliente que la reseña real de Google que ya enseña la portada (Álvaro Lázaro, Fran García Cars); `/sobre-pebai/` no se publica; encargos a Local (respuestas) y a Contenido (que el bloque de `/quienes-somos/` no diga que no hay reseñas)):* Sortlist (`sortlist.com/agency/pebai-systems`) muestra 1 reseña de 5/5 de un cliente (app de inspección de coches), pero `/sobre-pebai/` dice que no hay reseñas. Confirmar con Daniel si es real; si lo es, corregir `sobre-pebai.html` antes de publicarla. Detalle en `borradores/gbp/coherencia-nap-2026-11-03.md`.
 
 *Para el Jefe:*
 1. **Contenido: vertical «IA para compraventas e importadores» + FAQ de revisión remota.** Dato [V]: DGT (27/07/2026) Alemania 44,1 % de usados importados; Motor.es (28/05/2026) lista riesgos sin solución.
