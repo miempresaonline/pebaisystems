@@ -47,7 +47,9 @@ const PEBAI_EMAIL_SENALES = [
 // si no, la alternativa sin vídeo de la ficha (nunca se promete un vídeo que no está grabado).
 const PEBAI_EMAIL_OFERTA_VIDEO = 'He grabado un vídeo de un minuto sobre [momento]. ¿{Te lo mando|Te lo paso}?';
 const PEBAI_EMAIL_PLANTILLA = "Hola[nombre]:\n\n[motivo]\n\n[pregunta]\n\n[oferta]\n\nTu email lo saqué de vuestra página de contacto. Si no te interesa, dímelo y no vuelvo a escribirte.\n\nDaniel\nPEBAI Systems";
-const PEBAI_EMAIL_RECORDATORIO = "Hola[nombre]:\n\n¿Te lo mando o lo dejo aquí?\n\nDaniel";
+// Recordatorio único (3/11, Daniel): no vende nada; cualquier respuesta, rebote o contestador lo cancela
+const PEBAI_EMAIL_RECORDATORIO = "Hola de nuevo:\n\nCon que me digas una sola cosa que os quite tiempo, te cuento cómo la resolveríamos. Si no es buen momento, no pasa nada.\n\nDaniel";
+const PEBAI_EMAIL_RECORDATORIO_CA = "Hola de nou:\n\nAmb que em diguis una sola cosa que us faci perdre temps, t'explico com la resoldríem. Si no és bon moment, no passa res.\n\nDaniel";
 const PEBAI_EMAIL_ASUNTOS = ['[empresa_corta]', 'pregunta sobre [empresa_corta]'];
 
 const PEBAI_EMAIL_CONFIG = [
@@ -80,7 +82,8 @@ const PEBAI_EMAIL_CONFIG = [
 
 // Nunca en los dos primeros emails (§2.4). Se comprueba antes de cada envío.
 const PEBAI_EMAIL_PROHIBIDAS = ['http', 'www.', '.com', 'gratis', 'gratuit', 'consultoría', 'consultoria', 'plazas', 'nuestro precio', 'nuestros precios', '€', 'descuento', 'promoci',
-    'inteligencia artificial', ' ia ', ' ia,', ' ia.', 'automatiz', 'chatbot', 'ahorra', 'ahorro', 'garantiz', 'resultados', 'clientes nuestros', 're:'];
+    // «IA» ya se permite (3/11): el email nuevo dice «consultora de procesos e IA» y no hace saltar los filtros
+    'automatiz', 'chatbot', 'ahorra', 'ahorro', 'garantiz', 'resultados', 'clientes nuestros', 're:'];
 const PEBAI_EMAIL_ROLES_NO = ['noreply', 'no-reply', 'no_reply', 'donotreply', 'webmaster', 'postmaster', 'abuse', 'mailer-daemon', 'hostmaster', 'privacy', 'privacidad', 'rgpd', 'dpo', 'lopd', 'facturacion', 'factura', 'admin@'];
 const PEBAI_EMAIL_GRATUITOS = ['gmail.com', 'googlemail.com', 'hotmail.com', 'hotmail.es', 'outlook.com', 'outlook.es', 'live.com', 'yahoo.com', 'yahoo.es', 'icloud.com', 'me.com', 'msn.com', 'aol.com', 'gmx.es', 'gmx.com', 'proton.me', 'protonmail.com', 'telefonica.net', 'ono.com'];
 
@@ -337,7 +340,8 @@ function pebai_email_firmar(string $cuerpo, bool $conSalida = true): string
     if ($conSalida && !preg_match('/no (te |os |le )?(vuelvo|volver[eé]|molest|escrib)|dar(te|os)? de baja|responde «?baja|si no te interesa/iu', $t)) {
         $t .= "\n\nSi no te interesa, dímelo y no vuelvo a escribirte.";
     }
-    if (!preg_match('/\n\s*Daniel\b[^\n]*(\n\s*PEBAI Systems)?\s*$/u', $t)) {
+    // Firmado al final o antes de una P.D. (email nuevo del 3/11: la P.D. va después de la firma)
+    if (!preg_match('/\n\s*Daniel\b[^\n]*(\n\s*PEBAI Systems)?\s*(\n\s*P\.\s?D\.[^\n]*)?\s*$/u', $t)) {
         $t .= "\n\nDaniel\nPEBAI Systems";
     }
     return $t;
@@ -1037,7 +1041,7 @@ function pebai_email_procesar(array $m, bool $avisar = true): string
         'rebote' => 'Rebote: el email de ' . $quien . ' no existe (no se le vuelve a escribir)',
         'rebote_temporal' => 'Rebote temporal de ' . $quien . ' (buzón lleno o servidor ocupado)',
         'queja' => 'Queja de spam de ' . $quien,
-        'autorespuesta' => 'Respuesta automática de ' . $quien . ' (no cuenta; el recordatorio se aplaza)',
+        'autorespuesta' => 'Respuesta automática de ' . $quien . ' (no cuenta; ya no se le manda el recordatorio)',
         'baja' => $quien . ' pidió la baja (para siempre, todos los canales)',
         'positivo' => $quien . ' quiere el vídeo',
         'otro' => $quien . ' ha contestado',
@@ -1050,15 +1054,16 @@ function pebai_email_procesar(array $m, bool $avisar = true): string
             pebai_email_revisar_rebotes();
             return 'rebote';
         case 'rebote_temporal':
-            $db->prepare("UPDATE email_prospectos SET error = 'Rebote temporal (buzón lleno o servidor ocupado)', updated_at = ? WHERE id = ?")->execute([$now, $p['id']]);
+            // 3/11 (Daniel): con cualquier respuesta, también un rebote, ya no sale el recordatorio (paso 2 = recordatorio hecho o cancelado)
+            $db->prepare("UPDATE email_prospectos SET paso = MAX(paso, 2), error = 'Rebote temporal: sin recordatorio', updated_at = ? WHERE id = ?")->execute([$now, $p['id']]);
             return 'rebote temporal';
         case 'queja':
             pebai_email_baja($p, 'queja de spam');
             pebai_email_frenar('Queja de spam de ' . $p['email'] . '. Con una sola queja el agente se para: revisa el texto y la lista antes de seguir.');
             return 'queja';
         case 'autorespuesta':
-            // No cuenta como respuesta. Si había recordatorio pendiente, se aplaza una semana.
-            $db->prepare("UPDATE email_prospectos SET no_antes = ?, updated_at = ? WHERE id = ? AND paso = 1")->execute([date('Y-m-d H:i:s', time() + 7 * 86400), $now, $p['id']]);
+            // 3/11 (Daniel): cualquier respuesta, también un contestador, cancela el recordatorio
+            $db->prepare("UPDATE email_prospectos SET paso = 2, error = 'Contestador automático: sin recordatorio', updated_at = ? WHERE id = ? AND paso = 1")->execute([$now, $p['id']]);
             return 'autorespuesta';
     }
     $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto) VALUES (?, 'email', ?, ?, 'entra', ?)")

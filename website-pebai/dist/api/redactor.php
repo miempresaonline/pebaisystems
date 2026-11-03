@@ -203,8 +203,11 @@ if (!$r['encaja']) {
     exit;
 }
 if ($canal === 'email') {
-    $c['db']->prepare("UPDATE email_prospectos SET asunto_personal = ?, cuerpo_personal = ?, error = '', updated_at = ? WHERE id = ?")->execute([$r['asunto'], $r['cuerpo'], $now, $id]);
-    pebai_actividad('redactor', 'hito', 'Email escrito para ' . $quien . ' (basado en: «' . $r['dato'] . '»)', $r['asunto'] . "\n\n" . $r['cuerpo'], $c['ref'] . $id);
+    // 3/11: email con la plantilla de Daniel (gancho, P.D. con la reseña) y su único recordatorio, que no vende nada
+    $e = pebai_email_texto_nuevo($r, (string)$empresa);
+    $c['db']->prepare("UPDATE email_prospectos SET asunto_personal = ?, cuerpo_personal = ?, asunto_recordatorio = '', cuerpo_recordatorio = ?, error = '', updated_at = ? WHERE id = ?")
+            ->execute([$e['asunto'], $e['cuerpo'], $e['recordatorio'], $now, $id]);
+    pebai_actividad('redactor', 'hito', 'Email escrito para ' . $quien . ($r['dato'] !== '' ? ' (basado en: «' . $r['dato'] . '»)' : ' (sin gancho)'), $e['asunto'] . "\n\n" . $e['cuerpo'], $c['ref'] . $id);
 } else {
     $c['db']->prepare("UPDATE prospectos SET mensaje = ?, error = '', updated_at = ? WHERE id = ?")->execute([$r['mensaje'], $now, $id]);
     pebai_actividad('redactor', 'hito', 'WhatsApp escrito para ' . $quien . ' (basado en: «' . $r['dato'] . '»)', $r['mensaje'], $c['ref'] . $id);

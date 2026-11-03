@@ -31,33 +31,46 @@ const PEBAI_IA_BAJA_EMAIL = 'Si no te interesa, dímelo y no vuelvo a escribirte
 // Webs solo en catalán/valenciano (orden de Daniel, 21/10): ahí se escribe en su idioma; si hay algo en castellano, en castellano
 const PEBAI_IA_CA = ['presenta' => 'Hola, sóc el Daniel, de PEBAI Systems.', 'baja_wa' => "Si no t'interessa, digues-m'ho i no t'escric més.",
                      'baja_email' => "Si no t'interessa, digues-m'ho i no et tornaré a escriure."];
-// Primer WhatsApp (Daniel, 3/11/2026): una sola plantilla para todos los nichos; la IA solo pone el gancho, sacado de un dato real de su web.
-// Sin gancho seguro, la frase «He visto que…» no va. {gancho} completa «He visto que …» (sin punto final).
+// Primer contacto (Daniel, 3/11/2026): una sola plantilla para todos los nichos; la IA solo pone el gancho (sacado de un dato real
+// de su web) y, si la web lo dice, el nombre de quien la dirige. Sin gancho seguro, la frase «He visto que…» no va.
 const PEBAI_WA_PLANTILLA = [
-    'es' => ['Hola, soy Daniel, de PEBAI Systems 👋', ' He visto que {gancho}.',
+    'es' => ['Hola{nombre}, soy Daniel, de PEBAI Systems 👋', ' He visto que {gancho}.',
              "\n\nSomos una consultora de procesos e IA y montamos en cada empresa lo que más le hace ganar, como hicimos con Fran García Cars o Construcciones Gargom."
              . "\n\nPor curiosidad, si pudierais quitaros de encima algo que os hace perder tiempo o clientes, ¿qué sería? Os cuento cómo lo resolveríamos en vuestro caso."
              . "\n\n" . PEBAI_IA_BAJA_WA],
-    'ca' => ['Hola, sóc el Daniel, de PEBAI Systems 👋', ' He vist que {gancho}.',
+    'ca' => ['Hola{nombre}, sóc el Daniel, de PEBAI Systems 👋', ' He vist que {gancho}.',
              "\n\nSom una consultora de processos i IA i muntem a cada empresa el que més la fa guanyar, com vam fer amb Fran García Cars o Construcciones Gargom."
              . "\n\nPer curiositat, si us poguéssiu treure de sobre alguna cosa que us fa perdre temps o clients, què seria? Us explico com ho resoldríem en el vostre cas."
              . "\n\nSi no t'interessa, digues-m'ho i no t'escric més."],
+];
+// Email (3/11): lo mismo con asunto humano y una P.D. con la reseña real de Fran García Cars (la prueba más fuerte que tenemos)
+const PEBAI_EMAIL_NUEVO = [
+    'es' => ['asunto' => 'pregunta para {empresa}', 'hola' => 'Hola{nombre}:', 'gancho' => "\n\nHe visto que {gancho} y me ha surgido una pregunta.",
+             'resto' => "\n\nSoy Daniel, de PEBAI Systems, una consultora de procesos e IA. Vemos cómo trabaja cada empresa y montamos lo que más le hace ganar, como hicimos con Fran García Cars o Construcciones Gargom."
+                      . "\n\nSi pudierais quitaros de encima algo que os hace perder tiempo o clientes, ¿qué sería? Os contesto con cómo lo resolveríamos en vuestro caso, sin compromiso."
+                      . "\n\n" . PEBAI_IA_BAJA_EMAIL . "\n\nDaniel\nPEBAI Systems"
+                      . "\n\nP.D.: Álvaro, de Fran García Cars, nos dejó esta reseña en Google: «Nos crearon una app de IA de revisión de coches literalmente desde 0»."],
+    'ca' => ['asunto' => 'pregunta per a {empresa}', 'hola' => 'Hola{nombre}:', 'gancho' => "\n\nHe vist que {gancho} i m'ha sorgit una pregunta.",
+             'resto' => "\n\nSóc el Daniel, de PEBAI Systems, una consultora de processos i IA. Mirem com treballa cada empresa i muntem el que més la fa guanyar, com vam fer amb Fran García Cars o Construcciones Gargom."
+                      . "\n\nSi us poguéssiu treure de sobre alguna cosa que us fa perdre temps o clients, què seria? Us responc amb com ho resoldríem en el vostre cas, sense compromís."
+                      . "\n\nSi no t'interessa, digues-m'ho i no et tornaré a escriure.\n\nDaniel\nPEBAI Systems"
+                      . "\n\nP.D.: L'Álvaro, de Fran García Cars, ens va deixar aquesta ressenya a Google: «Nos crearon una app de IA de revisión de coches literalmente desde 0»."],
 ];
 const PEBAI_WA_GANCHO_REGLAS = '"gancho": frase corta (de 5 a 16 palabras) que completa «He visto que …», basada SOLO en ese dato y en segunda persona del plural '
     . '(lleváis, hacéis, ofrecéis, tenéis, trabajáis…). Elige algo concreto y propio de esa empresa sobre cómo trabajan o atienden a sus clientes '
     . '(años de experiencia, zonas, una especialidad, rapidez, servicio después de la venta, sus reseñas…). Neutra o positiva, sin halagos («me encanta», «increíble»), '
     . 'sin cifras que no estén en el dato, sin comillas, sin preguntas ni exclamaciones y sin punto final. '
     . 'Nunca sobre subvenciones, ayudas, deducciones, impuestos, IRPF, precios, descuentos, financiación, «gratis» ni porcentajes. Ejemplos: «lleváis más de 15 años instalando en la Vega de Granada», '
-    . '«hacéis la instalación en un solo día», «ofrecéis 3 meses de asistencia técnica después de instalar». Si no hay ningún dato bueno y seguro, "gancho": "" (el mensaje va sin esa frase).';
+    . '«hacéis la instalación en un solo día», «ofrecéis 3 meses de asistencia técnica después de instalar». Si no hay ningún dato bueno y seguro, "gancho": "" (el mensaje va sin esa frase). '
+    . '"nombre": nombre de pila de quien dirige la empresa SOLO si la web lo dice claramente (p. ej. «Soy Marcos, gerente» o «Fundada por Laura Pérez»); si no, "".';
 
-/** Arma el primer WhatsApp con la plantilla. Devuelve '' si el gancho no pasa el control (se puede reintentar o mandar sin gancho). */
-function pebai_wa_componer(string $gancho, bool $ca, string $dato = ''): ?string
+/** Gancho limpio y comprobado. '' = sin gancho; null = no vale (cifras inventadas, preguntas, temas prohibidos, longitud). */
+function pebai_ia_gancho(string $gancho, string $dato): ?string
 {
-    [$hola, $frase, $resto] = PEBAI_WA_PLANTILLA[$ca ? 'ca' : 'es'];
     $g = trim(preg_replace('/\s+/u', ' ', $gancho), " \t\n.«»\"'");
     $g = preg_replace('/^(he (visto|vist) que|que)\s+/iu', '', $g);
     if ($g === '') {
-        return $hola . $resto;
+        return '';
     }
     $n = count(preg_split('/\s+/u', $g, -1, PREG_SPLIT_NO_EMPTY));
     // Cifras solo si están en el dato real; nada de preguntas, exclamaciones, enlaces ni temas prohibidos
@@ -70,7 +83,47 @@ function pebai_wa_componer(string $gancho, bool $ca, string $dato = ''): ?string
     if ($n < 4 || $n > 18 || preg_match('/[?¿!¡]|https?:|www\./u', $g) || preg_match(PEBAI_IA_PROHIBIDO, $g)) {
         return null;
     }
-    return $hola . str_replace('{gancho}', mb_strtolower(mb_substr($g, 0, 1)) . mb_substr($g, 1), $frase) . $resto;
+    return mb_strtolower(mb_substr($g, 0, 1)) . mb_substr($g, 1);
+}
+
+/** Nombre de pila solo si es un nombre de verdad y sale en su web; si no, ''. */
+function pebai_ia_nombre(string $nombre, string $web): string
+{
+    $n = trim($nombre);
+    return preg_match('/^\p{Lu}\p{Ll}{1,14}$/u', $n) && str_contains($web, $n) ? $n : '';
+}
+
+/** Primer WhatsApp con la plantilla. null si el gancho no pasa el control (se reintenta o se manda sin gancho). */
+function pebai_wa_componer(string $gancho, bool $ca, string $dato = '', string $nombre = ''): ?string
+{
+    [$hola, $frase, $resto] = PEBAI_WA_PLANTILLA[$ca ? 'ca' : 'es'];
+    $g = pebai_ia_gancho($gancho, $dato);
+    if ($g === null) {
+        return null;
+    }
+    return str_replace('{nombre}', $nombre !== '' ? ', ' . $nombre : '', $hola) . ($g !== '' ? str_replace('{gancho}', $g, $frase) : '') . $resto;
+}
+
+/** Primer email con la plantilla: ['asunto', 'cuerpo'], o null si el gancho no pasa el control. */
+function pebai_email_componer_nuevo(string $gancho, bool $ca, string $dato, string $nombre, string $empresaCorta): ?array
+{
+    $t = PEBAI_EMAIL_NUEVO[$ca ? 'ca' : 'es'];
+    $g = pebai_ia_gancho($gancho, $dato);
+    if ($g === null) {
+        return null;
+    }
+    $cuerpo = str_replace('{nombre}', $nombre !== '' ? ' ' . $nombre : '', $t['hola']) . ($g !== '' ? str_replace('{gancho}', $g, $t['gancho']) : '') . $t['resto'];
+    return ['asunto' => str_replace('{empresa}', mb_strtolower(trim($empresaCorta)) ?: 'vosotros', $t['asunto']), 'cuerpo' => $cuerpo];
+}
+
+/** Texto del primer email y de su recordatorio a partir de lo que devuelve pebai_ia_control (gancho, nombre, idioma). */
+function pebai_email_texto_nuevo(array $r, string $empresa): array
+{
+    require_once __DIR__ . '/_email_lib.php';
+    $corta = pebai_email_empresa_corta($empresa);
+    $e = pebai_email_componer_nuevo((string)$r['gancho'], (bool)$r['ca'], (string)$r['dato'], (string)$r['nombre'], $corta)
+        ?? pebai_email_componer_nuevo('', (bool)$r['ca'], '', (string)$r['nombre'], $corta);
+    return $e + ['recordatorio' => $r['ca'] ? PEBAI_EMAIL_RECORDATORIO_CA : PEBAI_EMAIL_RECORDATORIO];
 }
 
 /** ¿La web está solo en catalán/valenciano? Cuenta palabras muy frecuentes de cada idioma (las que no comparten). */
@@ -210,11 +263,8 @@ function pebai_ia_reglas(string $canal, bool $ca): string
     $presenta = $ca ? PEBAI_IA_CA['presenta'] : PEBAI_IA_PRESENTA;
     $bajaWa = $ca ? PEBAI_IA_CA['baja_wa'] : PEBAI_IA_BAJA_WA;
     $bajaEmail = $ca ? PEBAI_IA_CA['baja_email'] : PEBAI_IA_BAJA_EMAIL;
-    $formato = $email
-        ? '"asunto": asunto corto en minúsculas con el nombre corto de la empresa y el tema (máximo 7 palabras, sin signos raros), '
-          . '"cuerpo": email de 60 a 90 palabras que empiece por "Hola:" en una línea, luego el detalle real de su web, una frase de por qué importa para no perder clientes, '
-          . 'qué hacemos en una frase ("En PEBAI montamos asistentes que contestan en minutos, también fuera de horario."), UNA pregunta, y termine exactamente con "' . $bajaEmail . '". Sin firma.'
-        : PEBAI_WA_GANCHO_REGLAS . ' No escribas el mensaje: lo arma el servidor con la plantilla de Daniel.';
+    // 3/11: WhatsApp y email salen de la plantilla de Daniel; la IA solo da el dato, el gancho y, si lo hay, el nombre
+    $formato = PEBAI_WA_GANCHO_REGLAS . ' No escribas el mensaje: lo arma el servidor con la plantilla de Daniel.';
     return "Eres Daniel, comercial de PEBAI Systems. PEBAI monta asistentes que contestan al momento por WhatsApp y web, hacen las preguntas clave y agendan la visita, "
         . "para que las instaladoras de placas solares no pierdan peticiones de presupuesto.\n"
         . "Te paso el texto de la portada de la web de una empresa. Responde SOLO con JSON.\n"
@@ -228,7 +278,7 @@ function pebai_ia_reglas(string $canal, bool $ca): string
                : "IDIOMA: escribe TODO en español de España, aunque la web tenga partes en catalán, valenciano, euskera, gallego o inglés; el «dato» cópialo de una parte en español. Tuteo, natural y cercano.")
         . " Prohibido: enlaces, precios, porcentajes, cifras que no estén en la web, leyes, impuestos, ayudas, decir que son lentos o malos, "
         . "prometer resultados, hablar de otros clientes nuestros.\n"
-        . ($email ? '' : 'Responde SOLO {"encaja", "motivo", "dato", "gancho"}.');
+        . 'Responde SOLO {"encaja", "motivo", "dato", "gancho", "nombre"}.';
 }
 
 /**
@@ -250,26 +300,22 @@ function pebai_ia_control(?array $r, string $texto, string $canal): array
     }
     // Control de calidad: nada inventado, se presenta, ofrece la baja, sin temas prohibidos, longitud correcta
     $dato = trim((string)($r['dato'] ?? ''));
-    // En WhatsApp sin gancho (no había un dato seguro) no hace falta dato: el mensaje va sin «He visto que…»
-    $sinGancho = !$email && trim((string)($r['gancho'] ?? '')) === '';
+    // Sin gancho (no había un dato seguro) no hace falta dato: el mensaje va sin «He visto que…»
+    $sinGancho = trim((string)($r['gancho'] ?? '')) === '';
     if (!$sinGancho && ($dato === '' || !str_contains(pebai_ia_norm($texto), trim(pebai_ia_norm($dato))))) {
         return ['error' => 'El dato del mensaje no aparece en su web'];
     }
-    if ($email) {
-        $asunto = trim((string)($r['asunto'] ?? ''));
-        $cuerpo = trim(str_replace("\r", '', (string)($r['cuerpo'] ?? '')));
-        $n = str_word_count(preg_replace('/[^\p{L}\s]/u', ' ', $cuerpo));
-        if ($asunto === '' || mb_strlen($asunto) > 70 || !str_starts_with($cuerpo, 'Hola') || !str_ends_with($cuerpo, $bajaEmail)
-            || preg_match(PEBAI_IA_PROHIBIDO, $asunto . ' ' . $cuerpo) || $n < 45 || $n > 110 || substr_count($cuerpo, '?') !== 1) {
-            return ['error' => 'El email no pasa el control de calidad'];
-        }
-        return ['encaja' => true, 'motivo' => (string)($r['motivo'] ?? ''), 'asunto' => $asunto, 'cuerpo' => $cuerpo, 'dato' => $dato];
-    }
-    // WhatsApp (3/11): plantilla fija de Daniel + el gancho de la IA, que tiene que salir del dato real de su web
-    $m = pebai_wa_componer((string)($r['gancho'] ?? ''), $ca, $dato);
-    if ($m === null) {
+    $nombre = pebai_ia_nombre((string)($r['nombre'] ?? ''), $texto);
+    $g = pebai_ia_gancho((string)($r['gancho'] ?? ''), $dato);
+    if ($g === null) {
         return ['error' => 'El gancho no pasa el control de calidad'];
     }
+    if ($email) {
+        // El asunto lleva el nombre corto de la empresa: lo arma quien guarda el texto (redactor.php) con pebai_email_componer_nuevo
+        return ['encaja' => true, 'motivo' => (string)($r['motivo'] ?? ''), 'gancho' => $g, 'nombre' => $nombre, 'ca' => $ca, 'dato' => $dato];
+    }
+    // WhatsApp (3/11): plantilla fija de Daniel + el gancho de la IA, que tiene que salir del dato real de su web
+    $m = pebai_wa_componer($g, $ca, $dato, $nombre);
     return ['encaja' => true, 'motivo' => (string)($r['motivo'] ?? ''), 'mensaje' => $m, 'dato' => $dato];
 }
 
@@ -343,8 +389,10 @@ function pebai_preparar_email(int $max = 3, int $colchon = 20): array
             pebai_actividad('email', 'bloqueo', 'Fuera de la lista ' . $quien . ': ' . $r['motivo'], '', 'em:' . $p['id']);
             $hecho['fuera']++;
         } else {
-            $db->prepare("UPDATE email_prospectos SET asunto_personal = ?, cuerpo_personal = ?, error = '', updated_at = ? WHERE id = ?")->execute([$r['asunto'], $r['cuerpo'], $now, $p['id']]);
-            pebai_actividad('email', 'cambio', 'Email escrito para ' . $quien . ' (basado en: «' . $r['dato'] . '»)', $r['asunto'] . "\n\n" . $r['cuerpo'], 'em:' . $p['id']);
+            $e = pebai_email_texto_nuevo($r, (string)$p['empresa']);
+            $db->prepare("UPDATE email_prospectos SET asunto_personal = ?, cuerpo_personal = ?, asunto_recordatorio = '', cuerpo_recordatorio = ?, error = '', updated_at = ? WHERE id = ?")
+               ->execute([$e['asunto'], $e['cuerpo'], $e['recordatorio'], $now, $p['id']]);
+            pebai_actividad('email', 'cambio', 'Email escrito para ' . $quien . ' (basado en: «' . $r['dato'] . '»)', $e['asunto'] . "\n\n" . $e['cuerpo'], 'em:' . $p['id']);
             $hecho['escritos']++;
         }
     }

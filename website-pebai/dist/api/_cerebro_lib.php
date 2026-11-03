@@ -315,7 +315,7 @@ function pebai_lab_preparar(int $max = 1): int
                 if ($gancho === '' || $dato === '' || !str_contains(pebai_ia_norm($w['texto']), trim(pebai_ia_norm($dato)))) {
                     continue;   // el dato no está en su web: no vale
                 }
-                if (($t = pebai_wa_componer($gancho, $ca, $dato)) !== null) {
+                if (($t = pebai_wa_componer($gancho, $ca, $dato, pebai_ia_nombre((string)($op['nombre'] ?? ''), $w['texto']))) !== null) {
                     break;
                 }
             }
