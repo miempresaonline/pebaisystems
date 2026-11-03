@@ -365,25 +365,10 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
         case 'agente_config':
             $cfg = pebai_wa_config();
             $cfg['limite_dia'] = max(0, min(200, (int)($_POST['limite_dia'] ?? $cfg['limite_dia'])));
-            $ventanas = [];
-            foreach (preg_split('/[,\n]+/', (string)($_POST['ventanas'] ?? '')) as $tramo) {
-                if (preg_match('/^\s*(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s*$/', $tramo, $m) && strtotime($m[1]) < strtotime($m[2])) {
-                    $ventanas[] = [$m[1], $m[2]];
-                }
-            }
-            if (!$ventanas) {
-                json_out(['ok' => false, 'error' => 'Horario no válido. Ejemplo: 08:30-13:00, 17:00-20:00'], 400);
-            }
-            $cfg['ventanas'] = $ventanas;
+            // Días y horario son fijos (PEBAI_WA_HORARIO, 3/11): desde el panel solo se cambian el cupo y las esperas
             if (isset($_POST['pausa_min'], $_POST['pausa_max'])) {
                 $cfg['pausa_min'] = max(2, min(120, (int)$_POST['pausa_min'])) * 60;
                 $cfg['pausa_max'] = max($cfg['pausa_min'] / 60, min(180, (int)$_POST['pausa_max'])) * 60;
-            }
-            if (isset($_POST['dias'])) {
-                $cfg['dias'] = array_values(array_intersect([1, 2, 3, 4, 5, 6, 7], array_map('intval', (array)$_POST['dias'])));
-                if (!$cfg['dias']) {
-                    json_out(['ok' => false, 'error' => 'Elige al menos un día.'], 400);
-                }
             }
             // Plantillas por nicho: un cuadro por nicho, variantes separadas por una línea "---" y con su letra delante ("A: …").
             $nichos = [];
@@ -409,11 +394,9 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 }
             }
             pebai_agentes_db()->prepare("UPDATE agente_estado SET config = ? WHERE agente = 'whatsapp'")
-                ->execute([json_encode(['limite_dia' => $cfg['limite_dia'], 'ventanas' => $cfg['ventanas'], 'pausa_min' => $cfg['pausa_min'], 'pausa_max' => $cfg['pausa_max'],
-                                        'dias' => $cfg['dias'], 'nichos' => $nichos ?: (json_decode(pebai_agente('whatsapp')['config'] ?: '{}', true)['nichos'] ?? [])], JSON_UNESCAPED_UNICODE)]);
-            $nd = ['', 'L', 'M', 'X', 'J', 'V', 'S', 'D'];
-            pebai_actividad('whatsapp', 'cambio', 'Ajustes cambiados: ' . $cfg['limite_dia'] . ' al día, ' . implode('', array_map(fn($d) => $nd[$d], $cfg['dias'])) . ', '
-                . implode(', ', array_map(fn($v) => implode('–', $v), $ventanas)) . ', entre ' . ($cfg['pausa_min'] / 60) . ' y ' . ($cfg['pausa_max'] / 60) . ' min entre mensajes');
+                ->execute([json_encode(['limite_dia' => $cfg['limite_dia'], 'pausa_min' => $cfg['pausa_min'], 'pausa_max' => $cfg['pausa_max'],
+                                        'nichos' => $nichos ?: (json_decode(pebai_agente('whatsapp')['config'] ?: '{}', true)['nichos'] ?? [])], JSON_UNESCAPED_UNICODE)]);
+            pebai_actividad('whatsapp', 'cambio', 'Ajustes cambiados: ' . $cfg['limite_dia'] . ' al día, entre ' . ($cfg['pausa_min'] / 60) . ' y ' . ($cfg['pausa_max'] / 60) . ' min entre mensajes');
             json_out(['ok' => true, 'caben' => pebai_wa_caben($cfg)]);
         /* ---- Empresa › Caja ---- */
         case 'caja_guardar':
@@ -682,12 +665,12 @@ if ($auth && isset($_GET['agentes'])) {
               'bajas' => (int)$adb->query('SELECT COUNT(*) FROM bajas')->fetchColumn(),
               'nichos' => $nichosOut, 'stats' => pebai_wa_stats(), 'actividad' => pebai_actividad_ultimas('whatsapp', 150),
               'whatsapp' => ['estado' => $wa['estado'], 'latido_at' => $wa['latido_at'], 'detalle' => $wa['detalle'], 'codigo' => $wa['codigo'], 'pausado' => (int)$wa['pausado'],
-                             'enviados_hoy' => pebai_wa_enviados_hoy(), 'limite_dia' => $cfg['limite_dia'], 'ventanas' => $cfg['ventanas'],
+                             'enviados_hoy' => pebai_wa_enviados_hoy(), 'limite_dia' => $cfg['limite_dia'], 'ventanas' => $cfg['ventanas'], 'horario' => $cfg['horario'],
                              'dias' => $cfg['dias'], 'pausa_min' => $cfg['pausa_min'], 'pausa_max' => $cfg['pausa_max'], 'caben' => pebai_wa_caben($cfg),
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '142';
+$v = '143';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">

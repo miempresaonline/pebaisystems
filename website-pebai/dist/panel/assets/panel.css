@@ -782,6 +782,12 @@ body[data-page=clientes] .pb-only-embudo{display:none}
 .pw-ctl-row input[type=range]{flex:1;accent-color:var(--violet-2);min-width:120px}
 .pw-ctl-row input[type=number]{width:72px;text-align:center}
 .pw-ctl-row small{color:var(--muted);font-weight:700}
+/* Horario fijo por día (solo lectura) */
+.pw-ctl-horario{display:grid;gap:4px;border:1px solid var(--line-2);border-radius:12px;padding:8px 12px}
+.pw-ctl-horario div{display:flex;gap:12px;align-items:baseline;font-variant-numeric:tabular-nums}
+.pw-ctl-horario b{width:34px;text-transform:capitalize;color:var(--violet)}
+.pw-ctl-horario div.off{color:var(--muted)}
+.pw-ctl-horario div.off b{color:var(--muted)}
 .pw-ctl-dias{display:flex;gap:5px}
 .pw-ctl-dias button{width:34px;height:36px;border-radius:10px;border:1px solid var(--line-2);background:transparent;color:var(--muted);font:inherit;font-weight:800;cursor:pointer;transition:all .2s}
 .pw-ctl-dias button.on{background:var(--violet);border-color:var(--violet);color:#fff}

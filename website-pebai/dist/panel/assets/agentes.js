@@ -468,9 +468,8 @@ function drawAgentes() {
 const NOMDIA = ['', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
 const diasTxt = (d) => { const a = (d || []).map(Number).sort(); return !a.length ? 'ningún día' : a.join() === '1,2,3,4,5' ? 'de lunes a viernes' : a.join() === '1,2,3,4,5,6,7' ? 'todos los días' : a.map((x) => NOMDIA[x]).join(', '); };
 function queHace(w) {
-  const v = (w.ventanas || []).map((x) => x.join('–')).join(' y ');
   const dt = diasTxt(w.dias);
-  return el('p', 'pw-que', `${dt[0].toUpperCase() + dt.slice(1)} (${v}) escribe a un máximo de ${w.limite_dia} empresas nuevas, una a una, como Daniel, `
+  return el('p', 'pw-que', `${dt[0].toUpperCase() + dt.slice(1)}, en el horario fijo de cada día, escribe a un máximo de ${w.limite_dia} empresas nuevas, una a una, como Daniel, `
     + `con un mensaje propio para cada una que la IA escribe después de leer su web, y espera entre ${Math.round((w.pausa_min || 240) / 60)} y ${Math.round((w.pausa_max || 1800) / 60)} minutos al azar entre un mensaje y otro. `
     + 'Si contestan, la IA te deja la respuesta preparada en Conversaciones y sale cuando tú la apruebas. A quien no contesta no le vuelve a escribir.');
 }
@@ -478,8 +477,8 @@ function queHace(w) {
 /* ============ control del agente: cupo, días, horario y espera al azar ============ */
 function controlCard(w, alCambiar) {
   const c = el('div', 'pb-card pw-ctl');
-  c.append(el('h2', null, 'Control del agente'), el('p', 'note', 'Cuántas empresas nuevas al día, qué días, en qué horario y cuánto espera entre un mensaje y otro. El momento exacto se elige al azar dentro de ese margen, repartido para llegar al cupo. Las respuestas que apruebas no cuentan.'));
-  const d = ui.ctl || (ui.ctl = { limite: w.limite_dia, dias: (w.dias || [1, 2, 3, 4, 5]).map(Number), ventanas: (w.ventanas || []).map((v) => v.join('-')).join(', '),
+  c.append(el('h2', null, 'Control del agente'), el('p', 'note', 'Cuántas empresas nuevas al día y cuánto espera entre un mensaje y otro. El momento exacto se elige al azar dentro de ese margen, repartido para llegar al cupo. Las respuestas que apruebas no cuentan.'));
+  const d = ui.ctl || (ui.ctl = { limite: w.limite_dia,
     min: Math.round((w.pausa_min || 240) / 60), max: Math.round((w.pausa_max || 1800) / 60), cambiado: false });
   const f = el('form', 'pw-ctl-f');
   // Cupo: deslizador + número
@@ -487,18 +486,15 @@ function controlCard(w, alCambiar) {
   const fila = el('div', 'pw-ctl-row'); const rg = el('input'); rg.type = 'range'; rg.min = 0; rg.max = 60; rg.value = Math.min(60, d.limite);
   const nm = el('input'); nm.type = 'number'; nm.min = 0; nm.max = 200; nm.value = d.limite;
   fila.append(rg, nm); cl.append(fila);
-  // Días
-  const dl = el('div', 'pb-field'); dl.append(el('span', null, 'Días'));
-  const chips = el('div', 'pw-ctl-dias');
-  ['L', 'M', 'X', 'J', 'V', 'S', 'D'].forEach((t, i) => {
-    const b = el('button', d.dias.includes(i + 1) ? 'on' : '', t); b.type = 'button'; b.title = NOMDIA[i + 1];
-    b.onclick = () => { d.dias = d.dias.includes(i + 1) ? d.dias.filter((x) => x !== i + 1) : [...d.dias, i + 1].sort(); b.classList.toggle('on'); cambia(); };
-    chips.append(b);
+  // Días y horario: fijos (los decidió Daniel el 3/11); se ven, no se cambian desde aquí
+  const hl = el('div', 'pb-field'); hl.append(el('span', null, 'Días y horario (fijos)'));
+  const tabla = el('div', 'pw-ctl-horario');
+  [1, 2, 3, 4, 5, 6, 7].forEach((n) => {
+    const vs = (w.horario || {})[n]; const f2 = el('div', vs ? '' : 'off');
+    f2.append(el('b', null, NOMDIA[n]), el('span', null, vs ? vs.map((x) => x.join('–')).join('  ·  ') : 'no escribe'));
+    tabla.append(f2);
   });
-  dl.append(chips);
-  // Horario
-  const hl = el('label', 'pb-field'); hl.append(el('span', null, 'Horario'));
-  const hi = el('input'); hi.value = d.ventanas; hi.placeholder = '08:30-13:00, 17:00-20:00'; hl.append(hi);
+  hl.append(tabla);
   // Espera entre mensajes
   const el2 = el('div', 'pb-field'); el2.append(el('span', null, 'Espera entre mensajes, al azar'));
   const pr = el('div', 'pw-ctl-row');
@@ -511,37 +507,32 @@ function controlCard(w, alCambiar) {
   const save = btn('primary', null, 'Guardar'); save.type = 'submit';
   const deshacer = btn('ghost', null, 'Descartar', () => { ui.ctl = null; (alCambiar || drawAgentes)(); });
   const pie = el('div', 'pw-ctl-pie'); pie.append(sim, deshacer, save);
-  const minutosVentana = () => d.ventanas.split(/[,\n]+/).reduce((a, t) => {
-    const m = t.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
-    return m ? a + Math.max(0, (m[3] * 60 + Number(m[4])) - (m[1] * 60 + Number(m[2]))) : a;
-  }, 0);
+  // Minutos del día con menos horario (el viernes): ahí tiene que caber el cupo
+  const aMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  const minutosVentana = () => Math.min(...Object.values(w.horario || { 1: w.ventanas || [] }).map((vs) => vs.reduce((a, [x, y]) => a + Math.max(0, aMin(y) - aMin(x)), 0)));
   function pinta() {
     const mins = minutosVentana(); const caben = d.min > 0 ? Math.floor(mins / (d.min + 1.5)) + 1 : 0;
     const media = d.limite > 1 ? mins / d.limite : mins;
     sim.textContent = ''; sim.classList.remove('mal');
     const mal = (b, x) => { sim.classList.add('mal'); sim.append(el('b', null, b)); if (x) sim.append(el('span', null, ' ' + x)); };
-    if (!mins) mal('Horario no válido.', 'Ejemplo: 08:30-13:00, 17:00-20:00');
-    else if (d.min < 2 || d.max < 2) mal('La espera mínima es de 2 minutos.');
+    if (d.min < 2 || d.max < 2) mal('La espera mínima es de 2 minutos.');
     else if (d.min > d.max) mal('El mínimo es mayor que el máximo.');
-    else if (!d.dias.length) mal('Elige al menos un día.');
-    else if (caben < d.limite) mal(`No caben ${d.limite}: con ${d.min} min de espera mínima, en ${Math.round(mins / 6) / 10} h caben unos ${caben}.`, 'Baja la espera mínima, amplía el horario o baja el cupo.');
+    else if (caben < d.limite) mal(`No caben ${d.limite}: con ${d.min} min de espera mínima, en ${Math.round(mins / 6) / 10} h (el día más corto) caben unos ${caben}.`, 'Baja la espera mínima o baja el cupo.');
     else {
       const tope = Math.min(d.max, Math.max(d.min, Math.round(2 * media - d.min)));
-      sim.append(el('b', null, `${d.limite} al día · uno cada ~${Math.round((d.min + tope) / 2)} min de media`), el('span', null, ` (al azar entre ${d.min} y ${tope} min) · ${diasTxt(d.dias)}`));
+      sim.append(el('b', null, `${d.limite} al día · uno cada ~${Math.round((d.min + tope) / 2)} min de media`), el('span', null, ` (al azar entre ${d.min} y ${tope} min)`));
     }
     save.disabled = sim.classList.contains('mal') || !d.cambiado; deshacer.hidden = !d.cambiado;
   }
   function cambia() { d.cambiado = true; pinta(); }
   rg.oninput = () => { d.limite = Number(rg.value); nm.value = rg.value; cambia(); };
   nm.oninput = () => { d.limite = Math.max(0, Number(nm.value) || 0); rg.value = Math.min(60, d.limite); cambia(); };
-  hi.oninput = () => { d.ventanas = hi.value; cambia(); };
   mi.oninput = () => { d.min = Number(mi.value) || 0; cambia(); };
   ma.oninput = () => { d.max = Number(ma.value) || 0; cambia(); };
-  f.append(cl, dl, hl, el2, pie);
+  f.append(cl, hl, el2, pie);
   f.addEventListener('submit', (e) => {
     e.preventDefault();
-    const fd = new URLSearchParams(); fd.set('limite_dia', d.limite); fd.set('ventanas', d.ventanas); fd.set('pausa_min', d.min); fd.set('pausa_max', d.max);
-    d.dias.forEach((x) => fd.append('dias[]', x));
+    const fd = new URLSearchParams(); fd.set('limite_dia', d.limite); fd.set('pausa_min', d.min); fd.set('pausa_max', d.max);
     post('agente_config', fd, save).then(() => { ui.ctl = null; toast('Guardado. El agente lo usa desde el siguiente mensaje.'); return refrescar(); }).then(() => { if (alCambiar) alCambiar(); }).catch((er) => toast(er.message, true));
   });
   c.append(f); pinta();

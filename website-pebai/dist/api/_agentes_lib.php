@@ -42,6 +42,15 @@ const PEBAI_WA_NICHOS = [
     ],
 ];
 
+// Horario fijo por día (Daniel, 3/11/2026). Solo se cambia aquí: el panel lo enseña pero no deja tocarlo.
+const PEBAI_WA_HORARIO = [
+    1 => [['08:30', '12:45'], ['17:00', '19:30']],
+    2 => [['08:00', '12:45'], ['17:00', '19:30']],
+    3 => [['08:00', '12:45'], ['17:00', '19:00']],
+    4 => [['08:00', '12:45'], ['17:00', '19:00']],
+    5 => [['08:00', '12:45']],              // viernes por la tarde no se escribe a nadie
+];
+
 const PEBAI_WA_CONFIG = [
     'limite_dia' => 30,
     'ventanas' => [['08:30', '13:00'], ['17:00', '20:00']],
@@ -150,7 +159,10 @@ function pebai_wa_config(): array
     $cfg['limite_dia'] = max(0, min(200, (int)$cfg['limite_dia']));
     $cfg['pausa_min'] = max(120, min(7200, (int)$cfg['pausa_min']));
     $cfg['pausa_max'] = max($cfg['pausa_min'], min(10800, (int)$cfg['pausa_max']));
-    $cfg['dias'] = array_values(array_intersect([1, 2, 3, 4, 5, 6, 7], array_map('intval', (array)$cfg['dias']))) ?: [1, 2, 3, 4, 5];
+    // Días y horario: los fijos de Daniel (lo guardado antes en el panel ya no cuenta). «ventanas» = las de hoy.
+    $cfg['horario'] = PEBAI_WA_HORARIO;
+    $cfg['dias'] = array_keys(PEBAI_WA_HORARIO);
+    $cfg['ventanas'] = PEBAI_WA_HORARIO[(int)date('N')] ?? [];
     // Nichos guardados desde el panel; los que falten (o sin plantillas) vuelven a los de serie
     $nichos = PEBAI_WA_NICHOS;
     foreach ((array)($saved['nichos'] ?? []) as $k => $n) {
@@ -170,7 +182,7 @@ function pebai_wa_tramos(int $dia, array $cfg): array
     }
     $base = date('Y-m-d', $dia);
     $out = [];
-    foreach ($cfg['ventanas'] as [$a, $b]) {
+    foreach ($cfg['horario'][(int)date('N', $dia)] ?? [] as [$a, $b]) {
         $out[] = [strtotime("$base $a"), strtotime("$base $b")];
     }
     return $out;
@@ -311,9 +323,14 @@ function pebai_wa_pausa(): int
 /** Cuántos mensajes caben en un día con ese horario y esas esperas (para avisar en el panel si el cupo no cabe). */
 function pebai_wa_caben(array $cfg): int
 {
-    $seg = 0;
-    foreach ($cfg['ventanas'] as [$a, $b]) {
-        $seg += max(0, strtotime($b) - strtotime($a));
+    // El día con menos horas manda (el viernes, solo por la mañana)
+    $seg = PHP_INT_MAX;
+    foreach ($cfg['horario'] ?? [$cfg['ventanas']] as $ventanas) {
+        $s = 0;
+        foreach ($ventanas as [$a, $b]) {
+            $s += max(0, strtotime($b) - strtotime($a));
+        }
+        $seg = min($seg, $s);
     }
     return (int)floor($seg / ($cfg['pausa_min'] + 90)) + 1;
 }
