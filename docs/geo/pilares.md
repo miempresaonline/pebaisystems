@@ -149,7 +149,7 @@ Cuelgan de P1 como `/ia-para-empresas/[sector]/` y enlazan a los subpilares de s
 
 | Prioridad | URL | Demanda (SE Ranking) | Por qué | Absorbe (retiradas) |
 |---|---|---|---|---|
-| 1 | `/ia-para-empresas/instaladoras/` (solar, climatización, electricidad) | "software para instaladores" 🟢 20, "software fotovoltaica" 🟢 20; resto 🟡 | 🔵 nicho comercial actual (WhatsApp/email); hueco en IA salvo NORTEN (🟢 medición). Prompt 12 | — |
+| 1 | `/ia-para-empresas/instaladoras/` (solar, climatización, electricidad; **publicada 3/11/2026**) | "software para instaladores" 🟢 20, "software fotovoltaica" 🟢 20; resto 🟡 | 🔵 nicho comercial actual (WhatsApp/email); hueco en IA salvo NORTEN (🟢 medición). Prompt 12 | — |
 | 2 | `/ia-para-empresas/despachos-y-asesorias/` | "ia para abogados" 🟢 390, "inteligencia artificial abogados" 🟢 70, "ia para asesorias" 🟢 40, "ia para despachos de abogados" 🟢 20 (kd 4) | Mayor volumen vertical medido. 🟡 riesgo: parte busca herramientas jurídicas (no consultoría) | `agente-ia-despachos-abogados-gestion-expedientes` |
 | 3 | `/ia-para-empresas/reformas-y-construccion/` | "ia construccion" 🟢 40, "inteligencia artificial en la construcción" 🟢 10 | Prompt 9; dato citable: adopción de IA del 4 % en construcción (Observatorio Industrial de la Construcción vía Heraldo, 🟢 secundaria, verificar) | `agente-ia-empresas-construccion-reformas` |
 | 4 | `/ia-para-empresas/inmobiliarias/` | "ia para inmobiliarias" 🟢 90, "inteligencia artificial inmobiliaria" 🟢 20 | Volumen medio, kd 39 | `agente-ia-inmobiliarias-captacion-propiedades` |
