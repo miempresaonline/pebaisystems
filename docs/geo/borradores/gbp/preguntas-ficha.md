@@ -138,3 +138,12 @@ Casos reales de `casos.md`, sin cifras ni nombres de contacto.
 
 37. **¿Puedo hablar con un cliente anterior antes de contratar una consultora de IA?**
     Es una petición razonable y conviene hacerla a cualquier proveedor. En PEBAI hay casos reales con captura y datos fechados en pebaisystems.es/casos-de-exito/. Si quieres hablar con alguien que ya lo usa, plantéalo en la consultoría de 25 minutos y se consulta con el cliente.
+
+38. **¿Es obligatorio formar a mis empleados en inteligencia artificial?**
+    Sí, si en la empresa se usa IA, aunque sea ChatGPT para escribir correos. El artículo 4 del Reglamento europeo de IA obliga a tomar medidas para que el equipo sepa usarla. No exige certificado ni un nivel concreto por persona, pero sí formación adaptada a cada puesto, y conviene dejar por escrito qué herramientas se usan y quién se ha formado. Más en pebaisystems.es/ia-para-empresas/formacion/
+
+39. **¿Qué debe incluir un presupuesto de IA para empresas?**
+    Debe separar lo que se paga una vez (diagnóstico, desarrollo, puesta en marcha, formación) de lo que se paga cada mes (cuota, consumo del modelo de IA, mensajes, licencias), e indicar quién arregla el sistema cuando cambian vuestros programas. El precio exacto se da tras ver el caso. Guía en pebaisystems.es/ia-para-empresas/cuanto-cuesta/
+
+40. **¿Qué pasa si ya tengo programas de gestión y no quiero cambiarlos?**
+    No hace falta cambiarlos. La automatización se conecta a lo que ya usáis y se empieza por un proceso concreto. Antes de pagar algo nuevo, se revisa la IA que ya traen vuestros programas. En la consultoría de 25 minutos se ve qué proceso compensa primero.

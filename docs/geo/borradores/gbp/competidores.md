@@ -241,3 +241,11 @@ Fuente: tyris.tech y tyris.tech/contacto/ (abiertas 3/11). Corrige lo anterior: 
 - Ficha de Google, reseñas, posts y fotos: no verificable desde la nube. Valoración 2,7 con 3 reseñas en GoWork (es de empleados, no de clientes; no cuenta).
 - Hueco: tienen dirección física en Valencia (nosotros no la publicamos) y proyectos europeos; no enseñan casos ni dicen cuánto dura su primer paso.
 - Mejora para nuestra ficha (sin Daniel): que la respuesta nº 37 de `preguntas-ficha.md` y el servicio «agente de WhatsApp» recalquen lo que ellos no muestran: casos con nombre y captura, y consultoría de 25 minutos con 5 plazas.
+
+## 03/11/2026 (tarde) · Aunoa (aunoa.ai), Valencia [V parcial]
+Fuente: aunoa.ai/?p=4742 (abierta 3/11) y WebSearch (G2 y proveedores.com la sitúan en Valencia [S]). Agentes de IA por WhatsApp y voz, chatbots internos, ticketing, live chat, dashboards, gestión de citas y captación de leads. Orientada a empresas grandes (único caso con nombre: GLS).
+- La página no publica sede, teléfono ni precios. Primera reunión «sin compromiso», sin duración. Cifras generales («-75 % coste del call center», «+32 % ventas») sin cliente atribuido: no las usamos ni las comparamos.
+- Ficha de Google, reseñas, posts y fotos: no verificable desde la nube.
+- Hueco para PEBAI: pyme pequeña, casos con captura y datos fechados, primer paso de 25 minutos con 5 plazas al mes, sede y contacto visibles.
+- Mejora para nuestra ficha (sin Daniel): ya cubierta con la respuesta nº 37 (hablar con un cliente anterior) y los servicios de WhatsApp y voz de `servicios.md`; no hace falta texto nuevo.
+- Otros vistos en la misma búsqueda, sin análisis: Agencia IA Solutions (Valencia, Sortlist), AizuaLabs (Kit Digital), Kuatrinova Studio IA (n8n + API WhatsApp). Pendientes para próximos turnos.
