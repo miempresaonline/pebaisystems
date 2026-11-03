@@ -19,6 +19,8 @@ Sin novedades de buscadores que cambien algo (hoy no se buscó). Comprobación t
 
 **Ficha nueva:** `docs/geo/sectores/automocion-importadores.md` (preguntas con URL, hueco: nadie explica la revisión remota antes de importar, Ganvam con contacto, datos DGT 1T 2026 [V], garantía art. 120 [S]).
 
+*Para el Jefe (Local, 3/11):* Sortlist (`sortlist.com/agency/pebai-systems`) muestra 1 reseña de 5/5 de un cliente (app de inspección de coches), pero `/sobre-pebai/` dice que no hay reseñas. Confirmar con Daniel si es real; si lo es, corregir `sobre-pebai.html` antes de publicarla. Detalle en `borradores/gbp/coherencia-nap-2026-11-03.md`.
+
 *Para el Jefe:*
 1. **Contenido: vertical «IA para compraventas e importadores» + FAQ de revisión remota.** Dato [V]: DGT (27/07/2026) Alemania 44,1 % de usados importados; Motor.es (28/05/2026) lista riesgos sin solución.
 2. **Medición/Observatorio: estudio de captación de compraventas e importadoras.** Dato: DGT, MSI y Ganvam miden volumen, no captación; destino ganvam@ganvam.es con OK de Daniel.
