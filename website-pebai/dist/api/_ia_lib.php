@@ -46,7 +46,8 @@ const PEBAI_WA_PLANTILLA = [
 const PEBAI_WA_GANCHO_REGLAS = '"gancho": frase corta (de 5 a 16 palabras) que completa «He visto que …», basada SOLO en ese dato y en segunda persona del plural '
     . '(lleváis, hacéis, ofrecéis, tenéis, trabajáis…). Elige algo concreto y propio de esa empresa sobre cómo trabajan o atienden a sus clientes '
     . '(años de experiencia, zonas, una especialidad, rapidez, servicio después de la venta, sus reseñas…). Neutra o positiva, sin halagos («me encanta», «increíble»), '
-    . 'sin cifras que no estén en el dato, sin comillas, sin preguntas ni exclamaciones y sin punto final. Ejemplos: «lleváis más de 15 años instalando en la Vega de Granada», '
+    . 'sin cifras que no estén en el dato, sin comillas, sin preguntas ni exclamaciones y sin punto final. '
+    . 'Nunca sobre subvenciones, ayudas, deducciones, impuestos, IRPF, precios, descuentos, financiación, «gratis» ni porcentajes. Ejemplos: «lleváis más de 15 años instalando en la Vega de Granada», '
     . '«hacéis la instalación en un solo día», «ofrecéis 3 meses de asistencia técnica después de instalar». Si no hay ningún dato bueno y seguro, "gancho": "" (el mensaje va sin esa frase).';
 
 /** Arma el primer WhatsApp con la plantilla. Devuelve '' si el gancho no pasa el control (se puede reintentar o mandar sin gancho). */

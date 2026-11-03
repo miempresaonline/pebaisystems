@@ -303,18 +303,21 @@ function pebai_lab_preparar(int $max = 1): int
         $t = null;
         $dato = '';
         if ($w) {
-            for ($i = 0; $i < 2 && $t === null; $i++) {
-                $g = pebai_claude_json('cerebro', 'claude-sonnet-5-5',
-                    'Lees la portada de la web de ' . $N['quien'] . ' española y sacas UN dato real para empezar un WhatsApp en frío de Daniel, de PEBAI Systems (consultora de procesos e IA). '
-                    . 'Responde SOLO JSON {"dato": copia LITERAL (exacta, de 2 a 12 palabras) del fragmento de su web en que te basas, ' . PEBAI_WA_GANCHO_REGLAS . '}'
-                    . ($ca ? ' Su web está en catalán: el gancho, en catalán («He vist que …»).' : ' El gancho, en español de España.'),
-                    'EMPRESA: ' . $p['empresa'] . " ({$ciudad})\nWEB:\n" . mb_substr($w['texto'], 0, 3000), ['effort' => 'low', 'max_tokens' => 1200]);
-                $dato = trim((string)($g['dato'] ?? ''));
-                $gancho = trim((string)($g['gancho'] ?? ''));
-                if ($gancho !== '' && ($dato === '' || !str_contains(pebai_ia_norm($w['texto']), trim(pebai_ia_norm($dato))))) {
+            // Tres ganchos distintos, del mejor al peor: vale el primero cuyo dato está en su web y pasa el control
+            $g = pebai_claude_json('cerebro', 'claude-sonnet-5-5',
+                'Lees la portada de la web de ' . $N['quien'] . ' española y sacas datos reales para empezar un WhatsApp en frío de Daniel, de PEBAI Systems (consultora de procesos e IA). '
+                . 'Responde SOLO JSON {"opciones": [hasta 3 objetos distintos, del mejor al peor, cada uno {"dato": copia LITERAL (exacta, de 2 a 12 palabras) del fragmento de su web en que te basas, '
+                . PEBAI_WA_GANCHO_REGLAS . '}]}' . ($ca ? ' Su web está en catalán: el gancho, en catalán («He vist que …»).' : ' El gancho, en español de España.'),
+                'EMPRESA: ' . $p['empresa'] . " ({$ciudad})\nWEB:\n" . mb_substr($w['texto'], 0, 3000), ['effort' => 'low', 'max_tokens' => 1800]);
+            foreach (is_array($g['opciones'] ?? null) ? $g['opciones'] : [] as $op) {
+                $dato = trim((string)($op['dato'] ?? ''));
+                $gancho = trim((string)($op['gancho'] ?? ''));
+                if ($gancho === '' || $dato === '' || !str_contains(pebai_ia_norm($w['texto']), trim(pebai_ia_norm($dato)))) {
                     continue;   // el dato no está en su web: no vale
                 }
-                $t = pebai_wa_componer($gancho, $ca, $dato);
+                if (($t = pebai_wa_componer($gancho, $ca, $dato)) !== null) {
+                    break;
+                }
             }
         }
         $t = $t ?? pebai_wa_componer('', $ca);
