@@ -42,13 +42,14 @@ const PEBAI_WA_NICHOS = [
     ],
 ];
 
-// Horario fijo por día (Daniel, 3/11/2026). Solo se cambia aquí: el panel lo enseña pero no deja tocarlo.
+// Horario fijo por día (Daniel, 3/11/2026, con nuestros datos: de 8 a 10 contesta el 29 %, de 10 a 12 solo el 14 % y de 12 a 14 el 28 %).
+// Solo se cambia aquí: el panel lo enseña pero no deja tocarlo.
 const PEBAI_WA_HORARIO = [
-    1 => [['08:30', '12:45'], ['17:00', '19:30']],
-    2 => [['08:00', '12:45'], ['17:00', '19:30']],
-    3 => [['08:00', '12:45'], ['17:00', '19:00']],
-    4 => [['08:00', '12:45'], ['17:00', '19:00']],
-    5 => [['08:00', '12:45']],              // viernes por la tarde no se escribe a nadie
+    1 => [['08:30', '10:00'], ['12:00', '13:30'], ['17:00', '19:00']],
+    2 => [['08:00', '10:00'], ['12:00', '13:30'], ['17:00', '19:30']],
+    3 => [['08:00', '10:00'], ['12:00', '13:30'], ['17:00', '19:30']],
+    4 => [['08:00', '10:00'], ['12:00', '13:30'], ['17:00', '19:30']],
+    5 => [['08:00', '10:00'], ['12:00', '13:30']],     // viernes por la tarde no se escribe a nadie
 ];
 
 const PEBAI_WA_CONFIG = [

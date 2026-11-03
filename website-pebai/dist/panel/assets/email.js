@@ -257,10 +257,27 @@ function tarjetaAgente() {
   const stats = el('div', 'pe-stats');
   [['Enviados 7 días', N(s7.enviados)], ['Respuestas', N(s7.respuestas)], ['Quieren vídeo', N(s7.interesados)], ['Rebotes', s7.rebotes_pct + ' %'], ['Quejas', N(s7.quejas)]]
     .forEach(([l, v]) => { const x = el('div'); x.append(el('small', null, l), el('b', null, v)); stats.append(x); });
-  card.append(top, queHace(), stats, volumen(), registro()); box.append(card);
+  card.append(top, queHace(), horarioGrande(S.cfg.horario, '✉️ Horario del email'), stats, volumen(), registro()); box.append(card);
 }
 
 /* Qué hace el agente, en una frase que se lee de un vistazo. */
+/* Horario fijo de un agente, a la vista: una columna por día, hoy resaltado (3/11: «bien claro y visible en su agente») */
+function horarioGrande(h, titulo) {
+  const NOM = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  const c = el('div', 'pb-card pb-horario');
+  c.append(el('h2', null, titulo), el('p', 'note', 'Horario fijo: solo escribe en estas franjas. No se cambia desde el panel.'));
+  const g = el('div', 'pb-horario-g'); const hoy = ((new Date().getDay() + 6) % 7) + 1;
+  [1, 2, 3, 4, 5, 6, 7].forEach((n) => {
+    const vs = (h || {})[n]; const d = el('div', (vs ? '' : 'off') + (n === hoy ? ' hoy' : ''));
+    d.append(el('b', null, NOM[n] + (n === hoy ? ' · hoy' : '')));
+    (vs || []).forEach((x) => d.append(el('span', null, x.join(' – '))));
+    if (!vs) d.append(el('span', null, 'No escribe'));
+    g.append(d);
+  });
+  c.append(g);
+  return c;
+}
+
 function queHace() {
   const c = S.cfg, v = 'en su horario fijo de cada día';
   const listos = Object.entries(c.nichos || {}).filter(([, f]) => f.video).map(([k]) => k);

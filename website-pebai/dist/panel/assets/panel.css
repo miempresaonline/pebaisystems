@@ -782,6 +782,15 @@ body[data-page=clientes] .pb-only-embudo{display:none}
 .pw-ctl-row input[type=range]{flex:1;accent-color:var(--violet-2);min-width:120px}
 .pw-ctl-row input[type=number]{width:72px;text-align:center}
 .pw-ctl-row small{color:var(--muted);font-weight:700}
+/* Horario fijo de cada agente, grande y a la vista */
+.pb-horario-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.pb-horario-g>div{display:flex;flex-direction:column;gap:6px;padding:12px 10px;border:1px solid var(--line-2);border-radius:14px;min-width:0}
+.pb-horario-g b{font-size:.82rem;color:var(--muted);font-weight:800}
+.pb-horario-g span{font-size:1rem;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pb-horario-g>div.hoy{border-color:var(--violet);box-shadow:0 0 0 1px var(--violet) inset}
+.pb-horario-g>div.hoy b{color:var(--violet)}
+.pb-horario-g>div.off span{color:var(--muted);font-weight:600}
+@media (max-width:900px){.pb-horario-g{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* Horario fijo por día (solo lectura) */
 .pw-ctl-horario{display:grid;gap:4px;border:1px solid var(--line-2);border-radius:12px;padding:8px 12px}
 .pw-ctl-horario div{display:flex;gap:12px;align-items:baseline;font-variant-numeric:tabular-nums}

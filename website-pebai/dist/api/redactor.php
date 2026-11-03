@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $cola[$canal . '_por_revisar'] = (int)$q->fetchColumn();
     }
     // Primero los mensajes de placas solares (WhatsApp y email); el resto del lote, revisar los nichos nuevos
-    foreach (['whatsapp' => (int)ceil($n * 0.4), 'email' => (int)ceil($n * 0.7), 'revision_wa' => $n, 'revision_em' => $n] as $canal => $tope) {
+    foreach (['whatsapp' => (int)ceil($n * 0.4), 'email' => 0, 'revision_wa' => $n, 'revision_em' => $n] as $canal => $tope) {
         if (str_starts_with($canal, 'revision')) {
             $c = red_canal($canal);
             $q = $c['db']->prepare("SELECT id, empresa, ciudad, web, nicho FROM {$c['tabla']} WHERE estado = 'pendiente' AND nicho IN ($in) AND web <> ''

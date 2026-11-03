@@ -460,8 +460,27 @@ function drawAgentes() {
   feedC.append(feed);
   const body = el('div', 'pb-agent-body');
   body.append(feedC, seguro(registroCard, 'el registro'));
-  box.prepend(seguro(() => queHace(w), 'el resumen'));
+  const resumen = seguro(() => queHace(w), 'el resumen');
+  box.prepend(resumen);
+  resumen.after(seguro(() => horarioGrande(w.horario, '📱 Horario de WhatsApp'), 'el horario'));
   box.append(body);
+}
+
+/* Horario fijo de un agente, a la vista: una columna por día, hoy resaltado (3/11: «bien claro y visible en su agente») */
+function horarioGrande(h, titulo) {
+  const NOM = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  const c = el('div', 'pb-card pb-horario');
+  c.append(el('h2', null, titulo), el('p', 'note', 'Horario fijo: solo escribe en estas franjas. No se cambia desde el panel.'));
+  const g = el('div', 'pb-horario-g'); const hoy = ((new Date().getDay() + 6) % 7) + 1;
+  [1, 2, 3, 4, 5, 6, 7].forEach((n) => {
+    const vs = (h || {})[n]; const d = el('div', (vs ? '' : 'off') + (n === hoy ? ' hoy' : ''));
+    d.append(el('b', null, NOM[n] + (n === hoy ? ' · hoy' : '')));
+    (vs || []).forEach((x) => d.append(el('span', null, x.join(' – '))));
+    if (!vs) d.append(el('span', null, 'No escribe'));
+    g.append(d);
+  });
+  c.append(g);
+  return c;
 }
 
 /* Qué hace el agente, en una frase. */

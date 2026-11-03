@@ -300,30 +300,91 @@ function pebai_lab_preparar(int $max = 1): int
         // de Daniel con un gancho sacado de un dato real de su web; sin gancho seguro, va sin esa frase.
         $ca = $w && pebai_ia_solo_catalan($w['texto']);
         $ciudad = trim((string)$p['ciudad']) ?: 'su zona';
-        $t = null;
-        $dato = '';
-        if ($w) {
-            // Tres ganchos distintos, del mejor al peor: vale el primero cuyo dato está en su web y pasa el control
-            $g = pebai_claude_json('cerebro', 'claude-sonnet-5-5',
-                'Lees la portada de la web de ' . $N['quien'] . ' española y sacas datos reales para empezar un WhatsApp en frío de Daniel, de PEBAI Systems (consultora de procesos e IA). '
-                . 'Responde SOLO JSON {"opciones": [hasta 3 objetos distintos, del mejor al peor, cada uno {"dato": copia LITERAL (exacta, de 2 a 12 palabras) del fragmento de su web en que te basas, '
-                . PEBAI_WA_GANCHO_REGLAS . '}]}' . ($ca ? ' Su web está en catalán: el gancho, en catalán («He vist que …»).' : ' El gancho, en español de España.'),
-                'EMPRESA: ' . $p['empresa'] . " ({$ciudad})\nWEB:\n" . mb_substr($w['texto'], 0, 3000), ['effort' => 'low', 'max_tokens' => 1800]);
-            foreach (is_array($g['opciones'] ?? null) ? $g['opciones'] : [] as $op) {
-                $dato = trim((string)($op['dato'] ?? ''));
-                $gancho = trim((string)($op['gancho'] ?? ''));
-                if ($gancho === '' || $dato === '' || !str_contains(pebai_ia_norm($w['texto']), trim(pebai_ia_norm($dato)))) {
-                    continue;   // el dato no está en su web: no vale
-                }
-                if (($t = pebai_wa_componer($gancho, $ca, $dato, pebai_ia_nombre((string)($op['nombre'] ?? ''), $w['texto']))) !== null) {
-                    break;
-                }
-            }
-        }
-        $t = $t ?? pebai_wa_componer('', $ca);
+        $g = $w ? pebai_lab_gancho($w, $N, (string)$p['empresa'], $ciudad, $ca, 'WhatsApp') : ['gancho' => '', 'dato' => '', 'nombre' => ''];
+        $t = pebai_wa_componer($g['gancho'], $ca, $g['dato'], $g['nombre']) ?? pebai_wa_componer('', $ca);
         $db->prepare("UPDATE prospectos SET mensaje = ?, plantilla = 'lab-gancho', updated_at = ? WHERE id = ? AND mensaje = '' AND estado = 'pendiente'")
            ->execute([$t, date('Y-m-d H:i:s'), $p['id']]);
         pebai_actividad('cerebro', 'hito', 'Primer mensaje para ' . $p['empresa'] . ' (' . $p['nicho'] . ')' . (str_contains($t, 'He vist') || str_contains($t, 'He visto') ? '' : ', sin gancho'), $t, 'wa:' . $p['id']);
+        $hechos++;
+    }
+    return $hechos;
+}
+
+/**
+ * Gancho para el primer contacto: la IA propone tres (del mejor al peor) y vale el primero cuyo dato está literal en su web
+ * y pasa el control (sin cifras inventadas, sin preguntas, sin temas prohibidos). Devuelve gancho '' si ninguno vale.
+ */
+function pebai_lab_gancho(array $w, array $N, string $empresa, string $ciudad, bool $ca, string $canal): array
+{
+    $g = pebai_claude_json('cerebro', 'claude-sonnet-5-5',
+        'Lees la portada de la web de ' . $N['quien'] . ' española y sacas datos reales para empezar un ' . $canal . ' en frío de Daniel, de PEBAI Systems (consultora de procesos e IA). '
+        . 'Responde SOLO JSON {"opciones": [hasta 3 objetos distintos, del mejor al peor, cada uno {"dato": copia LITERAL (exacta, de 2 a 12 palabras) del fragmento de su web en que te basas, '
+        . PEBAI_WA_GANCHO_REGLAS . '}]}' . ($ca ? ' Su web está en catalán: el gancho, en catalán («He vist que …»).' : ' El gancho, en español de España.'),
+        'EMPRESA: ' . $empresa . " ({$ciudad})\nWEB:\n" . mb_substr($w['texto'], 0, 3000), ['effort' => 'low', 'max_tokens' => 1800]);
+    foreach (is_array($g['opciones'] ?? null) ? $g['opciones'] : [] as $op) {
+        $dato = trim((string)($op['dato'] ?? ''));
+        $gancho = trim((string)($op['gancho'] ?? ''));
+        if ($gancho === '' || $dato === '' || !str_contains(pebai_ia_norm($w['texto']), trim(pebai_ia_norm($dato)))) {
+            continue;   // el dato no está en su web: no vale
+        }
+        $limpio = pebai_ia_gancho($gancho, $dato);
+        if ($limpio !== null && $limpio !== '') {
+            return ['gancho' => $limpio, 'dato' => $dato, 'nombre' => pebai_ia_nombre((string)($op['nombre'] ?? ''), $w['texto'])];
+        }
+    }
+    return ['gancho' => '', 'dato' => '', 'nombre' => ''];
+}
+
+// Email a todos los nichos menos instaladoras (Daniel, 3/11: las instaladoras van por WhatsApp) y menos luz (no se quiere)
+const PEBAI_EMAIL_NICHOS_FUERA = ['energia', 'solar', 'luz', 'luz_coop'];
+const PEBAI_EMAIL_ESCRITOS_DIA = 40;   // primeros emails que se preparan al día como mucho (cada uno ~1-2 céntimos)
+
+/**
+ * Prepara primeros emails para la cola: mira que la empresa encaje (si el Redactor no la ha revisado ya), saca el gancho
+ * de su web y deja el texto con la plantilla de Daniel y su recordatorio. Las que no encajan salen de la cola. Nunca envía.
+ */
+function pebai_lab_preparar_email(int $max = 1): int
+{
+    require_once __DIR__ . '/_email_lib.php';
+    require_once __DIR__ . '/_ia_lib.php';
+    require_once __DIR__ . '/_claude_lib.php';
+    $db = pebai_email_db();
+    $hoy =(int)$db->query("SELECT COUNT(*) FROM email_prospectos WHERE asunto_personal LIKE 'pregunta p%' AND updated_at >= '" . date('Y-m-d') . "'")->fetchColumn();
+    if ($hoy >= PEBAI_EMAIL_ESCRITOS_DIA) {
+        return 0;
+    }
+    $fuera = implode(',', array_map(static fn($n) => $db->quote($n), PEBAI_EMAIL_NICHOS_FUERA));
+    $cola = $db->query("SELECT * FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 AND cuerpo_personal = '' AND web <> '' AND nicho NOT IN ($fuera)
+                        AND error NOT LIKE '[ia_error]%' AND error NOT LIKE '[redactor]%' ORDER BY (error LIKE '[revisado]%') DESC, prioridad DESC, RANDOM() LIMIT " . (int)$max)->fetchAll();
+    $hechos = 0;
+    foreach ($cola as $p) {
+        $now = date('Y-m-d H:i:s');
+        $web = preg_match('~^https?://~', (string)$p['web']) ? (string)$p['web'] : 'https://' . ltrim((string)$p['web'], '/');
+        $w = pebai_web_texto($web);
+        if (!$w) {
+            $db->prepare("UPDATE email_prospectos SET error = ?, updated_at = ? WHERE id = ?")->execute(['[ia_error] La web no responde o está vacía', $now, $p['id']]);
+            continue;
+        }
+        $N = PEBAI_LAB_NICHOS[$p['nicho']] ?? ['sector' => (string)$p['sector'] ?: 'empresas', 'quien' => 'una empresa (' . ((string)$p['sector'] ?: $p['nicho']) . ')'];
+        if (!str_starts_with((string)$p['error'], '[revisado]')) {
+            $enc = pebai_claude_json('cerebro', 'claude-haiku-5-5', 'Decides si una empresa española encaja como cliente de PEBAI Systems (consultora de procesos e IA para pymes: asistentes, apps a medida, automatizar tareas). Responde SOLO JSON {"encaja": true/false, "motivo": "una frase"}.',
+                'Encaja si es ' . $N['quien'] . ' independiente (no franquicia, cadena ni gran empresa), activa, con equipo y que recibe consultas de clientes. No encaja si es un autónomo solo, una web abandonada, una tienda online o un distribuidor, o de otro país. Ante la duda, no encaja.'
+                . "\nEMPRESA: {$p['empresa']}\nWEB:\n" . mb_substr($w['texto'], 0, 2500), ['effort' => 'low', 'max_tokens' => 800]);
+            if (!is_array($enc)) {
+                continue;   // la IA no ha contestado: se reintenta en otra vuelta
+            }
+            if (empty($enc['encaja'])) {
+                $db->prepare("UPDATE email_prospectos SET estado = 'descartado', error = ?, updated_at = ? WHERE id = ?")->execute(['[no encaja] ' . mb_substr((string)($enc['motivo'] ?? ''), 0, 200), $now, $p['id']]);
+                pebai_actividad('email', 'bloqueo', 'Fuera ' . $p['empresa'] . ' (no encaja): ' . mb_substr((string)($enc['motivo'] ?? ''), 0, 200), '', 'email:' . $p['id']);
+                continue;
+            }
+        }
+        $ca = pebai_ia_solo_catalan($w['texto']);
+        $g = pebai_lab_gancho($w, $N, (string)$p['empresa'], trim((string)$p['ciudad']) ?: 'su zona', $ca, 'email');
+        $e = pebai_email_texto_nuevo($g + ['ca' => $ca], (string)$p['empresa']);
+        $db->prepare("UPDATE email_prospectos SET asunto_personal = ?, cuerpo_personal = ?, asunto_recordatorio = '', cuerpo_recordatorio = ?, error = '', updated_at = ? WHERE id = ? AND cuerpo_personal = ''")
+           ->execute([$e['asunto'], $e['cuerpo'], $e['recordatorio'], $now, $p['id']]);
+        pebai_actividad('email', 'cambio', 'Email escrito para ' . $p['empresa'] . ' (' . $p['nicho'] . ')' . ($g['gancho'] === '' ? ', sin gancho' : ''), $e['asunto'] . "\n\n" . $e['cuerpo'], 'email:' . $p['id']);
         $hechos++;
     }
     return $hechos;
