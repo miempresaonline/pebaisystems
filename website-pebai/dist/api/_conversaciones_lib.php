@@ -192,8 +192,14 @@ function pebai_conv_cortesia(string $canal, array $p, array $msgs, bool $esAuto 
     $env = (string)(($p['enviado_at'] ?? '') ?: ($p['enviando_at'] ?? ''));
     // Todo lo que han escrito tiene que sonar a contestador (si ya ha escrito una persona, no se manda la cortesía)
     $entran = array_filter($msgs, static fn($m) => $m['sentido'] === 'entra');
-    // Vale lo que diga la IA (Haiku la ha clasificado como contestador) o, si no, que todo suene a contestador
-    $soloContestador = $entran && ($esAuto || !array_filter($entran, static fn($m) => !pebai_es_contestador((string)$m['texto'])));
+    // 3/11 (Daniel): si no es un contestador de verdad, nunca un segundo mensaje. Hace falta texto escrito que suene a contestador:
+    // un «[mensaje]» o «[sticker]» sin texto no cuenta, y una nota de voz es siempre una persona.
+    $vacio = static fn($m) => (bool)preg_match('/^\[(mensaje|imagen|sticker|documento)\]$/u', trim((string)$m['texto']));
+    $persona = array_filter($entran, static fn($m) => preg_match('/^(\[nota de voz|🎤)/u', trim((string)$m['texto'])));
+    $conTexto = array_filter($entran, static fn($m) => !$vacio($m));
+    // Cada texto suena a contestador por las frases típicas o, si lo dice la IA, es un texto largo de bienvenida (no un «hola»)
+    $soloContestador = $conTexto && !$persona && !array_filter($conTexto, static fn($m) => !pebai_es_contestador((string)$m['texto'])
+        && !($esAuto && mb_strlen(trim((string)$m['texto'])) >= 60));
     if ($canal !== 'whatsapp' || !$soloContestador || count($salen) > 1 || $env === '' || strtotime($env) < time() - 24 * 3600 || pebai_conv_es_baja($canal, $p)) {
         return;
     }

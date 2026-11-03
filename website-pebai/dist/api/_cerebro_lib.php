@@ -259,7 +259,7 @@ function pebai_lab_preparar(int $max = 1): int
 {
     require_once __DIR__ . '/_demos_lib.php';
     $db = pebai_agentes_db();
-    $hoy = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE plantilla IN ('lab-geo','lab-app','lab-asistente') AND updated_at >= '" . date('Y-m-d') . "' AND mensaje <> ''")->fetchColumn();
+    $hoy = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE plantilla IN ('lab-geo','lab-app','lab-asistente','lab-gancho') AND updated_at >= '" . date('Y-m-d') . "' AND mensaje <> ''")->fetchColumn();
     if ($hoy >= PEBAI_LAB_DIA) {
         return 0;
     }
@@ -296,45 +296,31 @@ function pebai_lab_preparar(int $max = 1): int
                 continue;
             }
         }
-        $variante = ['asistente', 'geo', 'app'][(int)$p['id'] % 3];
-        if ($p['nicho'] === 'solar' && $variante === 'asistente') {
-            $variante = 'app';   // en solar el asistente lo sigue escribiendo el Redactor
-        }
+        // 3/11 (Daniel): se acabaron las variantes de un solo servicio (asistente, visibilidad en IA, app). Todos llevan la plantilla
+        // de Daniel con un gancho sacado de un dato real de su web; sin gancho seguro, va sin esa frase.
+        $ca = $w && pebai_ia_solo_catalan($w['texto']);
         $ciudad = trim((string)$p['ciudad']) ?: 'su zona';
+        $t = null;
         $dato = '';
-        if ($variante === 'geo') {
-            $r = pebai_demo_radiografia((string)$p['empresa'], $N['sector'], $ciudad, $web, '', 'cerebro');
-            $otros = $r ? array_slice(array_column($r['competidores'] ?? [], 'nombre'), 0, 3) : [];   // solo empresas que salieron de verdad en la búsqueda
-            if (!$r || $r['aparece'] || count($otros) < 2) {
-                $variante = 'app';   // si ya salen (o la búsqueda no dice nada claro), el gancho de la IA no vale: va a la app
-            } else {
-                $dato = 'Has buscado en internet con una IA «' . $r['busquedas'][0]['consulta'] . '» y salen ' . implode(', ', $otros) . '; ' . $p['empresa'] . ' no sale.';
+        if ($w) {
+            for ($i = 0; $i < 2 && $t === null; $i++) {
+                $g = pebai_claude_json('cerebro', 'claude-sonnet-5-5',
+                    'Lees la portada de la web de ' . $N['quien'] . ' española y sacas UN dato real para empezar un WhatsApp en frío de Daniel, de PEBAI Systems (consultora de procesos e IA). '
+                    . 'Responde SOLO JSON {"dato": copia LITERAL (exacta, de 2 a 12 palabras) del fragmento de su web en que te basas, ' . PEBAI_WA_GANCHO_REGLAS . '}'
+                    . ($ca ? ' Su web está en catalán: el gancho, en catalán («He vist que …»).' : ' El gancho, en español de España.'),
+                    'EMPRESA: ' . $p['empresa'] . " ({$ciudad})\nWEB:\n" . mb_substr($w['texto'], 0, 3000), ['effort' => 'low', 'max_tokens' => 1200]);
+                $dato = trim((string)($g['dato'] ?? ''));
+                $gancho = trim((string)($g['gancho'] ?? ''));
+                if ($gancho !== '' && ($dato === '' || !str_contains(pebai_ia_norm($w['texto']), trim(pebai_ia_norm($dato))))) {
+                    continue;   // el dato no está en su web: no vale
+                }
+                $t = pebai_wa_componer($gancho, $ca, $dato);
             }
         }
-        $sistema = 'Escribes el PRIMER WhatsApp en frío de Daniel, de PEBAI Systems (consultora española de procesos e Inteligencia Artificial), a ' . $N['quien'] . '. '
-            . 'Español de España, tuteo en plural (os), natural, como lo escribiría una persona: 2 o 3 párrafos cortos separados por una línea en blanco, 35-60 palabras en total. '
-            . 'Empieza exactamente por «Hola, soy Daniel, de PEBAI Systems.». Una sola pregunta, al final, fácil de contestar. Termina con una frase corta para darse de baja (p. ej. «Si no os interesa, me lo decís y no os escribo más.»). '
-            . 'Prohibido: enlaces, precios, porcentajes, cifras de ahorro, «gratis», leyes, subvenciones, prometer resultados, hablar de su web o venderles una web. Nada inventado. Devuelve SOLO el mensaje.';
-        $tema = $variante === 'geo'
-            ? "TEMA: visibilidad en Inteligencia Artificial. DATO REAL (úsalo tal cual, sin exagerar): {$dato} Cuéntalo en una frase, di que en PEBAI ayudamos a que la IA recomiende a empresas como la suya cuando un cliente pregunta, y pregunta si quieren que les enseñes lo que salió."
-            : ($variante === 'app'
-            ? 'TEMA: una app propia para sus clientes (' . $N['app'] . '). Usa UN detalle concreto de su web para que se note que la has mirado, '
-              . 'di que en PEBAI hacemos apps a medida para empresas como la suya y pregunta si les interesaría ver cómo sería la suya.'
-            : 'TEMA: un asistente de Inteligencia Artificial que conoce toda la información de su empresa y contesta como ellos (no el típico chatbot), para ' . $N['asistente'] . '. '
-              . 'Usa UN detalle concreto de su web para que se note que la has mirado y pregunta quién lleva esos mensajes o si les vendría bien.');
-        $t = '';
-        for ($i = 0; $i < 2 && !pebai_lab_ok($t); $i++) {
-            $t = trim((string)pebai_claude('cerebro', 'claude-sonnet-5-5', $sistema,
-                [['role' => 'user', 'content' => 'EMPRESA: ' . $p['empresa'] . " ({$ciudad})\n" . $tema . ($w ? "\nSU WEB (extracto):\n" . mb_substr($w['texto'], 0, 2500) : '')]],
-                ['effort' => 'low', 'max_tokens' => 2000]) ?? '');
-        }
-        if (!pebai_lab_ok($t)) {
-            $db->prepare("UPDATE prospectos SET plantilla = 'lab-no' WHERE id = ? AND mensaje = ''")->execute([$p['id']]);   // que lo escriba el Redactor
-            continue;
-        }
-        $db->prepare("UPDATE prospectos SET mensaje = ?, plantilla = ?, updated_at = ? WHERE id = ? AND mensaje = '' AND estado = 'pendiente'")
-           ->execute([$t, 'lab-' . $variante, date('Y-m-d H:i:s'), $p['id']]);
-        pebai_actividad('cerebro', 'hito', 'Laboratorio: primer mensaje de ' . ['geo' => 'visibilidad en IA', 'app' => 'app', 'asistente' => 'asistente'][$variante] . ' para ' . $p['empresa'] . ' (' . $p['nicho'] . ')', $t, 'wa:' . $p['id']);
+        $t = $t ?? pebai_wa_componer('', $ca);
+        $db->prepare("UPDATE prospectos SET mensaje = ?, plantilla = 'lab-gancho', updated_at = ? WHERE id = ? AND mensaje = '' AND estado = 'pendiente'")
+           ->execute([$t, date('Y-m-d H:i:s'), $p['id']]);
+        pebai_actividad('cerebro', 'hito', 'Primer mensaje para ' . $p['empresa'] . ' (' . $p['nicho'] . ')' . (str_contains($t, 'He vist') || str_contains($t, 'He visto') ? '' : ', sin gancho'), $t, 'wa:' . $p['id']);
         $hechos++;
     }
     return $hechos;

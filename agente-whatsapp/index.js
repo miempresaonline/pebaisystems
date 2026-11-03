@@ -165,6 +165,9 @@ async function conectar() {
       if (!tel && m.key.fromMe) { log('Mensaje de Daniel sin número de chat (' + String(m.key.remoteJid || '').split('@')[1] + ', ' + type + '): no se puede guardar'); continue; }
       if (!tel || !contactados.has(tel)) continue;
       apuntaUltimo(tel, m);
+      // Avisos internos de WhatsApp (ajustes del chat, claves, reacciones…): no los escribe nadie, no son respuesta (2/11: uno así se tomó por contestador)
+      const sinEnvoltorio = m.message.deviceSentMessage?.message || m.message.ephemeralMessage?.message || m.message;
+      if (Object.keys(sinEnvoltorio).every((k) => SIN_TEXTO.includes(k))) continue;
       const texto = textoDe(m.message);
       if (m.key.fromMe) {
         // Lo que escribe Daniel desde el móvil a una empresa contactada también se guarda, para ver la conversación completa en el panel
@@ -231,8 +234,12 @@ async function telDelChat(key) {
   return jid.split('@')[0].split(':')[0];
 }
 function textoDe(msg) {
-  msg = msg.deviceSentMessage?.message || msg.ephemeralMessage?.message || msg;
+  msg = msg.deviceSentMessage?.message || msg.ephemeralMessage?.message || msg.viewOnceMessage?.message || msg.viewOnceMessageV2?.message || msg;
+  // Los mensajes de bienvenida de WhatsApp Business con botones o listas también traen texto
   return msg.conversation || msg.extendedTextMessage?.text || msg.imageMessage?.caption || msg.videoMessage?.caption
+    || msg.buttonsMessage?.contentText || msg.templateMessage?.hydratedTemplate?.hydratedContentText || msg.interactiveMessage?.body?.text
+    || msg.listMessage?.description || msg.buttonsResponseMessage?.selectedDisplayText || msg.templateButtonReplyMessage?.selectedDisplayText
+    || msg.listResponseMessage?.title || msg.editedMessage?.message?.protocolMessage?.editedMessage?.conversation
     || (msg.audioMessage ? '[nota de voz]' : msg.imageMessage ? '[imagen]' : msg.stickerMessage ? '[sticker]' : msg.documentMessage ? '[documento]' : '[mensaje]');
 }
 // Último mensaje de cada chat contactado: el móvil solo manda historial «anterior a» un mensaje que conozca

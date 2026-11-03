@@ -31,6 +31,46 @@ const PEBAI_IA_BAJA_EMAIL = 'Si no te interesa, dímelo y no vuelvo a escribirte
 // Webs solo en catalán/valenciano (orden de Daniel, 21/10): ahí se escribe en su idioma; si hay algo en castellano, en castellano
 const PEBAI_IA_CA = ['presenta' => 'Hola, sóc el Daniel, de PEBAI Systems.', 'baja_wa' => "Si no t'interessa, digues-m'ho i no t'escric més.",
                      'baja_email' => "Si no t'interessa, digues-m'ho i no et tornaré a escriure."];
+// Primer WhatsApp (Daniel, 3/11/2026): una sola plantilla para todos los nichos; la IA solo pone el gancho, sacado de un dato real de su web.
+// Sin gancho seguro, la frase «He visto que…» no va. {gancho} completa «He visto que …» (sin punto final).
+const PEBAI_WA_PLANTILLA = [
+    'es' => ['Hola, soy Daniel, de PEBAI Systems 👋', ' He visto que {gancho}.',
+             "\n\nSomos una consultora de procesos e IA y montamos en cada empresa lo que más le hace ganar, como hicimos con Fran García Cars o Construcciones Gargom."
+             . "\n\nPor curiosidad, si pudierais quitaros de encima algo que os hace perder tiempo o clientes, ¿qué sería? Os cuento cómo lo resolveríamos en vuestro caso."
+             . "\n\n" . PEBAI_IA_BAJA_WA],
+    'ca' => ['Hola, sóc el Daniel, de PEBAI Systems 👋', ' He vist que {gancho}.',
+             "\n\nSom una consultora de processos i IA i muntem a cada empresa el que més la fa guanyar, com vam fer amb Fran García Cars o Construcciones Gargom."
+             . "\n\nPer curiositat, si us poguéssiu treure de sobre alguna cosa que us fa perdre temps o clients, què seria? Us explico com ho resoldríem en el vostre cas."
+             . "\n\nSi no t'interessa, digues-m'ho i no t'escric més."],
+];
+const PEBAI_WA_GANCHO_REGLAS = '"gancho": frase corta (de 5 a 16 palabras) que completa «He visto que …», basada SOLO en ese dato y en segunda persona del plural '
+    . '(lleváis, hacéis, ofrecéis, tenéis, trabajáis…). Elige algo concreto y propio de esa empresa sobre cómo trabajan o atienden a sus clientes '
+    . '(años de experiencia, zonas, una especialidad, rapidez, servicio después de la venta, sus reseñas…). Neutra o positiva, sin halagos («me encanta», «increíble»), '
+    . 'sin cifras que no estén en el dato, sin comillas, sin preguntas ni exclamaciones y sin punto final. Ejemplos: «lleváis más de 15 años instalando en la Vega de Granada», '
+    . '«hacéis la instalación en un solo día», «ofrecéis 3 meses de asistencia técnica después de instalar». Si no hay ningún dato bueno y seguro, "gancho": "" (el mensaje va sin esa frase).';
+
+/** Arma el primer WhatsApp con la plantilla. Devuelve '' si el gancho no pasa el control (se puede reintentar o mandar sin gancho). */
+function pebai_wa_componer(string $gancho, bool $ca, string $dato = ''): ?string
+{
+    [$hola, $frase, $resto] = PEBAI_WA_PLANTILLA[$ca ? 'ca' : 'es'];
+    $g = trim(preg_replace('/\s+/u', ' ', $gancho), " \t\n.«»\"'");
+    $g = preg_replace('/^(he (visto|vist) que|que)\s+/iu', '', $g);
+    if ($g === '') {
+        return $hola . $resto;
+    }
+    $n = count(preg_split('/\s+/u', $g, -1, PREG_SPLIT_NO_EMPTY));
+    // Cifras solo si están en el dato real; nada de preguntas, exclamaciones, enlaces ni temas prohibidos
+    preg_match_all('/\d+/', $g, $cifras);
+    foreach ($cifras[0] as $c) {
+        if (!str_contains($dato, $c)) {
+            return null;
+        }
+    }
+    if ($n < 4 || $n > 18 || preg_match('/[?¿!¡]|https?:|www\./u', $g) || preg_match(PEBAI_IA_PROHIBIDO, $g)) {
+        return null;
+    }
+    return $hola . str_replace('{gancho}', mb_strtolower(mb_substr($g, 0, 1)) . mb_substr($g, 1), $frase) . $resto;
+}
 
 /** ¿La web está solo en catalán/valenciano? Cuenta palabras muy frecuentes de cada idioma (las que no comparten). */
 function pebai_ia_solo_catalan(string $texto): bool
@@ -173,10 +213,7 @@ function pebai_ia_reglas(string $canal, bool $ca): string
         ? '"asunto": asunto corto en minúsculas con el nombre corto de la empresa y el tema (máximo 7 palabras, sin signos raros), '
           . '"cuerpo": email de 60 a 90 palabras que empiece por "Hola:" en una línea, luego el detalle real de su web, una frase de por qué importa para no perder clientes, '
           . 'qué hacemos en una frase ("En PEBAI montamos asistentes que contestan en minutos, también fuera de horario."), UNA pregunta, y termine exactamente con "' . $bajaEmail . '". Sin firma.'
-        : '"mensaje": WhatsApp de 45 a 70 palabras que empiece exactamente por "' . $presenta . '", y justo después diga en una frase sencilla qué hacemos '
-          . '(p. ej. "Ayudamos a instaladoras solares a contestar al momento a quien pide presupuesto, también fuera de horario."), para que quede claro que no somos un cliente pidiendo presupuesto; '
-          . 'luego mencione el detalle real de su web y por qué importa en una frase, y haga UNA sola pregunta corta, concreta y fácil de contestar sobre cómo atienden hoy a quien les escribe pidiendo presupuesto '
-          . '(quién contesta o cuánto tardan; nada de plazos de reuniones ni procesos internos), y termine exactamente con "' . $bajaWa . '".';
+        : PEBAI_WA_GANCHO_REGLAS . ' No escribas el mensaje: lo arma el servidor con la plantilla de Daniel.';
     return "Eres Daniel, comercial de PEBAI Systems. PEBAI monta asistentes que contestan al momento por WhatsApp y web, hacen las preguntas clave y agendan la visita, "
         . "para que las instaladoras de placas solares no pierdan peticiones de presupuesto.\n"
         . "Te paso el texto de la portada de la web de una empresa. Responde SOLO con JSON.\n"
@@ -190,10 +227,7 @@ function pebai_ia_reglas(string $canal, bool $ca): string
                : "IDIOMA: escribe TODO en español de España, aunque la web tenga partes en catalán, valenciano, euskera, gallego o inglés; el «dato» cópialo de una parte en español. Tuteo, natural y cercano.")
         . " Prohibido: enlaces, precios, porcentajes, cifras que no estén en la web, leyes, impuestos, ayudas, decir que son lentos o malos, "
         . "prometer resultados, hablar de otros clientes nuestros.\n"
-        . "Ejemplos de buen WhatsApp:\n- \"Hola, soy Daniel, de PEBAI Systems. He visto que la web de EcoNítida está en español, inglés y alemán. En la costa de Granada os escribirán muchos extranjeros. "
-        . "Cuando alguien os escribe en inglés o alemán, ¿quién le contesta y cuánto tarda? Si no te interesa, dímelo y no te escribo más.\"\n"
-        . "- \"Hola, soy Daniel, de PEBAI Systems. Montamos asistentes que contestan al momento a quien os pide presupuesto. Me gustó una frase de vuestra web: «No buscamos hacer muchas instalaciones. Buscamos hacerlas bien». Para eso hay que dedicar el tiempo a quien va en serio. "
-        . "¿Cómo filtráis hoy las peticiones de la calculadora? Si no te interesa, dímelo y no te escribo más.\"";
+        . ($email ? '' : 'Responde SOLO {"encaja", "motivo", "dato", "gancho"}.');
 }
 
 /**
@@ -215,7 +249,9 @@ function pebai_ia_control(?array $r, string $texto, string $canal): array
     }
     // Control de calidad: nada inventado, se presenta, ofrece la baja, sin temas prohibidos, longitud correcta
     $dato = trim((string)($r['dato'] ?? ''));
-    if ($dato === '' || !str_contains(pebai_ia_norm($texto), trim(pebai_ia_norm($dato)))) {
+    // En WhatsApp sin gancho (no había un dato seguro) no hace falta dato: el mensaje va sin «He visto que…»
+    $sinGancho = !$email && trim((string)($r['gancho'] ?? '')) === '';
+    if (!$sinGancho && ($dato === '' || !str_contains(pebai_ia_norm($texto), trim(pebai_ia_norm($dato))))) {
         return ['error' => 'El dato del mensaje no aparece en su web'];
     }
     if ($email) {
@@ -228,11 +264,10 @@ function pebai_ia_control(?array $r, string $texto, string $canal): array
         }
         return ['encaja' => true, 'motivo' => (string)($r['motivo'] ?? ''), 'asunto' => $asunto, 'cuerpo' => $cuerpo, 'dato' => $dato];
     }
-    $m = trim(preg_replace('/\s+/u', ' ', (string)($r['mensaje'] ?? '')));
-    $n = count(preg_split('/\s+/u', $m));
-    if (!str_starts_with($m, $presenta) || !str_ends_with($m, $bajaWa) || preg_match(PEBAI_IA_PROHIBIDO, $m)
-        || $n < 35 || $n > 85 || substr_count($m, '?') !== 1) {
-        return ['error' => 'El mensaje no pasa el control de calidad'];
+    // WhatsApp (3/11): plantilla fija de Daniel + el gancho de la IA, que tiene que salir del dato real de su web
+    $m = pebai_wa_componer((string)($r['gancho'] ?? ''), $ca, $dato);
+    if ($m === null) {
+        return ['error' => 'El gancho no pasa el control de calidad'];
     }
     return ['encaja' => true, 'motivo' => (string)($r['motivo'] ?? ''), 'mensaje' => $m, 'dato' => $dato];
 }
