@@ -171,6 +171,11 @@ if (isset($_GET['salir'])) {
 }
 
 $auth = !empty($_SESSION['auth']) || pebai_recuerda_entrar($db);
+// Las lecturas de datos (GET con parámetro, no la página) sueltan la sesión al momento: así varias peticiones a la vez no hacen
+// cola esperando el bloqueo de la sesión. El csrf ya existe desde que se cargó la página.
+if ($auth && $_SERVER['REQUEST_METHOD'] === 'GET' && $_GET && !isset($_GET['salir']) && !isset($_GET['tab']) && !empty($_SESSION['csrf'])) {
+    session_write_close();
+}
 // ¿Sigue valiendo la sesión? (la llave de 60 días la recupera si el servidor la ha tirado). Lo pide pbCaduca() antes de recargar.
 if (isset($_GET['ping'])) {
     json_out(['ok' => $auth]);
@@ -682,7 +687,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '140';
+$v = '141';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">

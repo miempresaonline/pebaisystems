@@ -60,7 +60,8 @@ function avatar(f, big) {
   a.append(el('b', null, iniciales(f.empresa)));
   if (f.foto) {
     // Foto de perfil de WhatsApp de la empresa
-    const img = new Image(); img.alt = ''; img.src = BASE + '?foto=' + encodeURIComponent(f.foto); img.className = 'foto';
+    // solo cuando la fila se ve en pantalla (antes se pedían las ~190 fotos de golpe y Hostinger llegaba a bloquear)
+    const img = new Image(); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; img.className = 'foto'; img.src = BASE + '?foto=' + encodeURIComponent(f.foto);
     img.onload = () => a.classList.add('img'); img.onerror = () => img.remove(); a.append(img);
   } else if (dom) {
     const img = new Image(); img.alt = ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';

@@ -18,6 +18,7 @@ require_once dirname(__DIR__) . '/api/_conversaciones_lib.php';
 
 // Foto de perfil de WhatsApp guardada por el agente (solo con sesión iniciada)
 if ($auth && isset($_GET['foto'])) {
+    session_write_close();   // no retiene la sesión: las fotos no hacen esperar a las peticiones de datos
     $f = pebai_private_dir() . '/fotos/' . preg_replace('/\D/', '', (string)$_GET['foto']) . '.jpg';
     if (!is_file($f)) {
         http_response_code(404);
@@ -25,7 +26,7 @@ if ($auth && isset($_GET['foto'])) {
     }
     $info = @getimagesize($f);
     header('Content-Type: ' . ($info['mime'] ?? 'image/jpeg'));
-    header('Cache-Control: private, max-age=86400');
+    header('Cache-Control: private, max-age=604800, immutable');   // una semana: la foto de perfil casi nunca cambia
     readfile($f);
     exit;
 }
