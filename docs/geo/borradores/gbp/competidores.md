@@ -228,3 +228,10 @@ Fuente: WebSearch 2/11 (páginas `upliora.es/expertos/<servicio>/valencia` y `/c
 - Ficha de Google, reseñas, fotos y posts: no aplica / no verificable desde la nube.
 - Qué hacer: no es competidor de mapa. La vía es aparecer en su ranking (decisión de Daniel, no escribimos a terceros) y reforzar en nuestra ficha lo que ellos no tienen: casos con captura y primer paso de 25 minutos con plazas.
 - Mejora preparada para nuestra ficha (sin Daniel): pregunta nº 31 de `preguntas-ficha.md`.
+
+## 03/11/2026 · Tyris Software / Tyris AI (Valencia)
+Fuente: WebSearch 3/11 (revenuebase.ai, vds.tech, elreferente.es). Software a medida, IA, BI y Big Data; sede en Valencia; Tyris Tech se presenta con más de 10 años y más de 100 profesionales, sobre todo para grandes corporaciones [S, datos de su propia web]. No hay agentes de atención al cliente ni a pymes en lo encontrado.
+- Ficha de Google, reseñas, posts y fotos: no verificable desde la nube.
+- Hueco: no compite por la pyme que quiere un agente de WhatsApp; su público es corporativo. No es competidor de mapa para PEBAI.
+- Mejora para nuestra ficha (sin Daniel): insistir en los servicios para pymes ya redactados en `servicios.md` (agente de WhatsApp, presupuestos, voz), que ellos no mencionan.
+- Metrio: WebSearch 3/11 no devuelve ninguna empresa con ese nombre; descartado hasta tener web.
