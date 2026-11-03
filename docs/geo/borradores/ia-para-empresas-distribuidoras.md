@@ -156,5 +156,5 @@ En una videollamada de 25 minutos miramos cómo os entran los pedidos, qué prog
 ### Checklist antes de publicar
 - [ ] `integracion-erp-crm` publicada (si no, quitar ese enlace o esperar).
 - [ ] Reabrir AEAT, BOE e INE; cambiar fechas de consulta.
-- [ ] Maquetar con `portar_diseno_nuevo.py` (vídeo de automatización), 6 FAQ = JSON-LD, title ≤ 60, description ≤ 155, 0 prohibidas, 390 px sin scroll.
+- [x] Maquetada el 3/11 (15:00) en `borradores/html/ia-para-empresas-distribuidoras.html` con la plantilla publicada de presupuestos (vídeo de automatización); fecha provisional 9/11 (la fija el Jefe; cambiar `2026-11-09` y «9 de noviembre» en todo el archivo). 3 tablas con `caption` y `scope`, captura de Santacruz, 6 FAQ = JSON-LD (la 6.ª con el enlace a cuánto cuesta solo en el HTML), title 57, description 140, respuesta 58 palabras, 0 prohibidas, 390 px sin scroll. Añadida una frase de RGPD (arts. 5, 6.1.b y 13) en `#fuera-de-horario` para que la fuente 6 tenga su sitio. BOE e Interempresas dan 200 el 3/11; la AEAT no carga desde el proxy de la nube (leída esta mañana): reabrir el día de publicar.
 - [ ] Sitemap a mano, los 4 `llms`, enlace desde `/ia-para-empresas/#guias` y desde `/automatizacion-de-procesos/#factura-electronica` («si tienes una distribuidora»).
