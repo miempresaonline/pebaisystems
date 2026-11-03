@@ -249,3 +249,17 @@ Fuente: aunoa.ai/?p=4742 (abierta 3/11) y WebSearch (G2 y proveedores.com la sit
 - Hueco para PEBAI: pyme pequeña, casos con captura y datos fechados, primer paso de 25 minutos con 5 plazas al mes, sede y contacto visibles.
 - Mejora para nuestra ficha (sin Daniel): ya cubierta con la respuesta nº 37 (hablar con un cliente anterior) y los servicios de WhatsApp y voz de `servicios.md`; no hace falta texto nuevo.
 - Otros vistos en la misma búsqueda, sin análisis: Agencia IA Solutions (Valencia, Sortlist), AizuaLabs (Kit Digital), Kuatrinova Studio IA (n8n + API WhatsApp). Pendientes para próximos turnos.
+
+## 3/11/2026 · Javadex, segunda pasada (sale en las preguntas 4, 7, 20 y 21 de Medición)
+Fuentes [V] abiertas hoy: búsqueda web (perfiles de Malt de Javier Santos Criado y páginas de Upliora). La ficha de Google (categorías, nº de reseñas, posts, fotos) sigue **no verificable** desde la nube: WebSearch no devuelve Maps.
+
+| Dato | Lo que consta |
+|---|---|
+| Quién es | Profesional independiente en Vigo, con perfil en Malt (disponible presencial en un radio de 50 km) |
+| Dónde le citan | Las páginas de Upliora lo colocan primero en sus rankings de consultores de IA; son páginas propias del medio, no opiniones de clientes independientes |
+| Clientes | No publica nombres de clientes (según esas páginas) |
+| Reseñas de clientes | Ninguna independiente encontrada |
+| Oferta de entrada | Auditoría gratuita de 30 minutos (según Upliora) |
+
+### 1 mejora para la nuestra que no depende de Daniel
+Su fuerza no es la ficha: es que terceros (Upliora) lo recomiendan en listas. Lo nuestro que él no tiene: casos con nombre y captura y una reseña real. Mejora concreta: en cada pregunta de la ficha que mencione la consultoría (31 y 37), enlazar `pebaisystems.es/casos-de-exito/` como prueba verificable. Ya está en la 37; falta en la 31 (Local lo añade en el siguiente repaso).

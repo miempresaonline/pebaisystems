@@ -147,3 +147,12 @@ Casos reales de `casos.md`, sin cifras ni nombres de contacto.
 
 40. **¿Qué pasa si ya tengo programas de gestión y no quiero cambiarlos?**
     No hace falta cambiarlos. La automatización se conecta a lo que ya usáis y se empieza por un proceso concreto. Antes de pagar algo nuevo, se revisa la IA que ya traen vuestros programas. En la consultoría de 25 minutos se ve qué proceso compensa primero.
+
+41. **¿Cómo hago seguimiento de los presupuestos de instalación que el cliente no contesta?**
+    Con un recordatorio automático por WhatsApp o correo a los pocos días, con vuestro texto, que pregunta si tiene dudas y ofrece una llamada. Si el cliente responde, el caso pasa a una persona del equipo. No se insiste sin límite. Más en pebaisystems.es/ia-para-empresas/instaladoras/#seguimiento
+
+42. **¿Puedo avisar al cliente del estado de su obra sin llamarle uno por uno?**
+    Sí. Se envían avisos por hitos: visita hecha, material pedido, fecha de instalación y legalización. El cliente sabe en qué punto está sin llamar, y cualquier duda o cambio lo atiende una persona de vuestro equipo. Detalle en pebaisystems.es/ia-para-empresas/instaladoras/#seguimiento
+
+43. **¿Quién contesta si un cliente escribe con la cuadrilla en obra o fuera de horario?**
+    Un asistente de WhatsApp, avisando de que es una IA, recoge el motivo, la dirección y la urgencia, y lo deja listo para el equipo. Las urgencias se pasan a una persona; el asistente no promete visitas ni precios por su cuenta. Más en pebaisystems.es/ia-para-empresas/instaladoras/#fuera-de-horario

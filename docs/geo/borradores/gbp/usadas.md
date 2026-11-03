@@ -24,3 +24,4 @@ Una línea por post: `fecha · layout · tema · seed · titular`. El agente de 
 2026-11-19 · foto de la ficha (Metricool gmb photo, movida desde el 9/11): imagen del post «Del programa antiguo a tu medida» (post del 18/11)
 2026-11-27 · foto de la ficha (Metricool gmb photo, movida desde el 12/11): imagen del post «¿Quién contesta a tus clientes?» (post del 25/11)
 2027-01-07 · foto de la ficha (Metricool gmb photo, movida desde el 6/11): imagen del post «IA que trabaja contigo» (post del 6/1)
+2026-11-06 · foto de la ficha (Metricool gmb photo): captura difuminada Santacruz (casos/img/santacruz-app.jpg)
