@@ -1,6 +1,6 @@
 # Borrador · /automatizacion-de-procesos/integracion-erp-crm/
 
-Estado: **2/11 (10:00): H2 «WhatsApp y tu ERP» añadido con las preguntas 1, 3 y 4 de `preguntas.md` (Odoo 19 y Meta leídos hoy).** Antes: **texto completo el 30/10/2026 (Contenido, turno de las 10:00), sin maquetar.** Encargo del Jefe del 29/10 tarde (`pilares.md`, subpilar 2 de automatización). La FAQ de integración de la madre se queda corta y enlazará aquí. Cola: después de presupuestos (lun 2/11) y de cómo elegir consultora; decide el Jefe el día.
+Estado: **3/11 (10:00): FAQ 1 y 4 sustituidas (tope de 6) por «aviso por WhatsApp frente a asistente conectado» y «a3ERP o Factusol» (preguntas ERP 2 y 4 de `preguntas.md`, «Turno 2/11 tarde»). Fuera la 1 porque repetía la FAQ «¿Tengo que cambiar de programa de gestión para automatizar?» de la madre (canibalización) y la 4 porque repetía el H2 `#sin-api`. Holded (MCP, webhooks) y API DELSOL (soluciones NUBE) reabiertas hoy; Sage y a3ERP siguen dando 403: no se afirma nada de ellos.** **2/11 (10:00): H2 «WhatsApp y tu ERP» añadido con las preguntas 1, 3 y 4 de `preguntas.md` (Odoo 19 y Meta leídos hoy).** Antes: **texto completo el 30/10/2026 (Contenido, turno de las 10:00), sin maquetar.** Encargo del Jefe del 29/10 tarde (`pilares.md`, subpilar 2 de automatización). La FAQ de integración de la madre se queda corta y enlazará aquí. Cola: después de presupuestos (lun 2/11) y de cómo elegir consultora; decide el Jefe el día.
 
 ## Ficha
 
@@ -122,8 +122,8 @@ Por eso, antes de empezar, que quede claro quién vigila la integración, cómo 
 
 ### FAQ (6, idénticas en el JSON-LD)
 
-1. **¿Hay que cambiar de programa de gestión para usar IA?**
-   Casi nunca. Si el programa tiene API oficial, la IA se conecta a él; si no, por exportaciones de ficheros o por su base de datos, con más mantenimiento. Solo conviene cambiar si no deja sacar ni meter datos o ya se queda corto en lo básico.
+1. **¿Qué diferencia hay entre un aviso por WhatsApp y un asistente conectado a mi ERP?**
+   El aviso va en un solo sentido: cuando pasa algo en el programa (un pedido sale, una factura vence), se manda un mensaje. El asistente conversa: el cliente pregunta, consulta en el programa su pedido, su precio o el stock, y deja un borrador para que una persona lo apruebe. Lo primero se monta con conectores; lo segundo, con la API del programa.
 
 2. **¿Se puede conectar ChatGPT o Claude a Holded?**
    Sí. Holded tiene API oficial con clave y webhooks, y desde junio de 2026 un servidor MCP para conectar asistentes de IA. Lo importante es dar a la conexión solo los permisos necesarios y que lo que escriba quede en borrador hasta que una persona lo apruebe.
@@ -131,8 +131,8 @@ Por eso, antes de empezar, que quede claro quién vigila la integración, cómo 
 3. **¿Odoo tiene API en todos los planes?**
    No. Según la documentación de Odoo, el acceso a los datos por la API externa solo está disponible en los planes Custom; en One App Free y Standard no. Además, sus API XML-RPC y JSON-RPC se retiran en Odoo Online 21.1 (invierno de 2027) y en Odoo 22 (otoño de 2028).
 
-4. **¿Qué hago si mi programa no tiene API?**
-   Se puede automatizar el intercambio de ficheros que el programa exporta e importa, o leer su base de datos si está instalado en vuestro equipo. Para escribir datos por fuera hay que tener más cuidado: copia de seguridad y pruebas antes. Si no deja hacer nada, toca valorar otro programa.
+4. **Uso a3ERP o Factusol: ¿se puede conectar la IA o tengo que cambiar de programa?**
+   Depende de la versión. Factusol en la nube tiene la API DELSOL de su fabricante, pensada para integrar aplicaciones; de a3ERP no hemos encontrado documentación pública de una API del fabricante. Sin API se trabaja con exportaciones de ficheros o con su base de datos. Lo miramos en la consultoría con vuestra versión delante, sin prometer nada antes.
 
 5. **¿Puede la IA crear facturas en mi programa?**
    Puede preparar el borrador o dejar la factura de proveedor leída para revisar. La factura a un cliente la emite vuestro programa de facturación, que es el que tiene que cumplir VeriFactu, y conviene que una persona la confirme antes.
@@ -148,10 +148,10 @@ KPIs de siempre (25 minutos · gratuita para 5 empresas al mes; después, de pag
 
 ### Fuentes (bloque visible, consultadas el 30/10/2026; reverificar al publicar)
 
-1. Holded, portal de desarrolladores. holded.com/es/desarrolladores
+1. Holded, portal de desarrolladores. holded.com/es/desarrolladores (reabierta el 3/11/2026)
 2. Odoo, «External JSON-2 API», documentación 19.0. odoo.com
 3. Odoo, «External API», documentación 18.0 (planes con acceso). odoo.com
-4. Software del Sol (TeamSystem Delsol), API DELSOL. sdelsol.com/api
+4. Software del Sol (TeamSystem Delsol), API DELSOL. sdelsol.com/api (reabierta el 3/11/2026)
 5. INE, Encuesta de uso de TIC y comercio electrónico en las empresas, 1T 2026 (el enlace de la madre).
 6. Reglamento (UE) 2016/679 (RGPD), art. 28 (PDF del DOUE en boe.es).
 7. Odoo, «WhatsApp», documentación 19.0. odoo.com (consultada el 2/11/2026)
