@@ -1,4 +1,4 @@
-# LinkedIn · Pregunta: responder primero a los presupuestos (programado mar 15/12/2026 17:00)
+# LinkedIn · Pregunta: responder primero a los presupuestos (BORRADOR para enero 2027; movido el 3/11 desde el 15/12 por repetir tema con el 1/12)
 
 Página de LinkedIn de PEBAI. Sin imagen. Apoya: `/automatizacion-de-procesos/presupuestos/` (200 el 2/11). Caso Gargom solo con `casos.md`.
 

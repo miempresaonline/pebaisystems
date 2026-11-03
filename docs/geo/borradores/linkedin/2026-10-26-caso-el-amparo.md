@@ -1,4 +1,4 @@
-# LinkedIn · Caso Residencia El Amparo (borrador, para jueves 5/11 17:00)
+# LinkedIn · Caso Residencia El Amparo (borrador en Metricool, movido el 3/11 al mar 8/12 17:00 hasta que Daniel conteste la pregunta de casos)
 
 Página de LinkedIn de PEBAI. Datos: `docs/geo/borradores/casos.md` §4. Es un caso recién entregado: decirlo, sin cifras de uso ni nombres de personas.
 **Programado el 27/10 en Metricool para el jue 5/11 17:00** (imagen difuminada ya subida a Metricool). Nota antigua: la imagen `el-amparo-panel.jpg` no está en `website-pebai/dist/casos/img/` (el original está solo en local en `assets/clients/casos/`). Cuando exista el JPG difuminado, programar en Metricool (red `linkedin`, 5/11 17:00; el Reel de ese día es a las 20:00, no coincide).
