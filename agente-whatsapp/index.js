@@ -260,9 +260,12 @@ function apuntaUltimo(tel, m) {
   try { fs.writeFileSync(ULTIMOS_FILE, JSON.stringify(ultimos)); } catch { /* nada */ }
 }
 // Pide al móvil los últimos mensajes de un chat para recuperar lo que Daniel escribió y no se guardó. Una vez por chat y arranque.
+// APAGADO (3/11): cada petición despierta al iPhone de Daniel y, si WhatsApp está dormido, le salta «Se detuvo la sincronización
+// con WhatsApp Business en Google Chrome (Mac OS)». Lo que se escribe en directo llega igual. Para volver a usarlo: true.
+const PEDIR_HISTORIAL = false;
 const historialPedido = new Set();
 async function recuperaHistorial(tel, m) {
-  if (historialPedido.has(tel)) return;
+  if (!PEDIR_HISTORIAL || historialPedido.has(tel)) return;
   historialPedido.add(tel);
   const u = m ? { key: m.key, ts: Number(m.messageTimestamp) } : ultimos[tel];
   // Sin ancla conocida se prueba con «ahora»: el móvil devuelve los mensajes anteriores a ese momento
