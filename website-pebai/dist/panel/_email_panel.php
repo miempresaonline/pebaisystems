@@ -90,21 +90,12 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
             }
             json_out(['ok' => true]);
         case 'email_ajustes':
-            $ventanas = [];
-            foreach (preg_split('/[,\n]+/', (string)($_POST['ventanas'] ?? '')) as $tramo) {
-                if (preg_match('/^\s*(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s*$/', $tramo, $m) && strtotime($m[1]) < strtotime($m[2])) {
-                    $ventanas[] = [$m[1], $m[2]];
-                }
-            }
-            if (!$ventanas) {
-                json_out(['ok' => false, 'error' => 'Horario no válido. Ejemplo: 09:00-13:30, 16:00-18:30'], 400);
-            }
+            // El horario es fijo (PEBAI_EMAIL_HORARIO, 3/11): aquí solo el tope y los formularios web
             $tope = max(0, min(50, (int)($_POST['limite_max'] ?? 50)));
             $form = !empty($_POST['formularios']) ? 1 : 0;
             $pct = max(0, min(100, (int)($_POST['form_pct'] ?? 60)));
-            pebai_email_cfg_guardar(['limite_max' => $tope, 'ventanas' => $ventanas, 'formularios' => $form, 'form_pct' => $pct]);
-            pebai_actividad('email', 'cambio', "Ajustes: tope {$tope} al día, horario " . implode(', ', array_map(static fn($v) => implode('-', $v), $ventanas))
-                . ($form ? ", formularios web activados ({$pct} %)" : ', formularios web apagados'));
+            pebai_email_cfg_guardar(['limite_max' => $tope, 'formularios' => $form, 'form_pct' => $pct]);
+            pebai_actividad('email', 'cambio', "Ajustes: tope {$tope} al día" . ($form ? ", formularios web activados ({$pct} %)" : ', formularios web apagados'));
             json_out(['ok' => true]);
         case 'email_nicho':
             $slug = preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($_POST['slug'] ?? '')));
@@ -195,5 +186,5 @@ if ($auth && $db && isset($_GET['email'])) {
         'agente' => ['estado' => $a['estado'], 'latido_at' => $a['latido_at'], 'detalle' => $a['detalle'], 'pausado' => (int)$a['pausado'],
                      'buzon' => $b ? $b['user'] : '', 'avisar_a' => $b ? (string)$b['avisar_a'] : '', 'enviados_hoy' => pebai_email_enviados_hoy(), 'limite' => pebai_email_limite($cfg),
                      'abierta' => $v['abierta'], 'proxima' => $v['proxima'] ? date('Y-m-d H:i:s', $v['proxima']) : ''],
-        'cfg' => array_intersect_key($cfg, array_flip(['limite_max', 'escalon', 'escalon_desde', 'ventanas', 'nichos', 'plantilla', 'recordatorio', 'asuntos', 'preguntas_senal', 'recordatorio_dias', 'formularios', 'form_pct']))]);
+        'cfg' => array_intersect_key($cfg, array_flip(['limite_max', 'escalon', 'escalon_desde', 'ventanas', 'horario', 'nichos', 'plantilla', 'recordatorio', 'asuntos', 'preguntas_senal', 'recordatorio_dias', 'formularios', 'form_pct']))]);
 }

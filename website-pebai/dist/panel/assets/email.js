@@ -205,7 +205,17 @@ function tarjetaAjustes() {
   d.append(el('summary', null, `Ajustes · tope ${c.limite_max}/día · escalón ${c.escalon + 1} de ${S.escalones.length} (${S.escalones[c.escalon]}/día)`));
   const f1 = el('form', 'pe-form');
   f1.append(field('Tope de emails al día (máx. 50)', input('limite_max', c.limite_max, { type: 'number', min: 0, max: 50 })),
-    field('Horario (lun–vie)', input('ventanas', (c.ventanas || []).map((v) => v.join('-')).join(', '))),
+    // Días y horario fijos (Daniel, 3/11): se ven, no se cambian desde aquí
+    (() => {
+      const l = el('div', 'pb-field'); l.append(el('span', null, 'Días y horario (fijos)'));
+      const t = el('div', 'pw-ctl-horario'); const NOM = ['', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+      [1, 2, 3, 4, 5, 6, 7].forEach((n) => {
+        const vs = (c.horario || {})[n]; const fila = el('div', vs ? '' : 'off');
+        fila.append(el('b', null, NOM[n]), el('span', null, vs ? vs.map((x) => x.join('–')).join('  ·  ') : 'no escribe'));
+        t.append(fila);
+      });
+      l.append(t); return l;
+    })(),
     field('Formulario de su web (empresas sin móvil)', input('formularios', '1', { type: 'checkbox', checked: !!c.formularios })),
     field('% por formulario (el resto por email)', input('form_pct', c.form_pct ?? 60, { type: 'number', min: 0, max: 100 })),
     el('p', 'note', `La subida es automática: ${S.escalones.join(' → ')} al día, un escalón por semana si la anterior salió limpia (rebotes < 2 %, sin quejas). Nada en agosto, del 20/12 al 7/1, Semana Santa ni festivos.`));
@@ -252,7 +262,7 @@ function tarjetaAgente() {
 
 /* Qué hace el agente, en una frase que se lee de un vistazo. */
 function queHace() {
-  const c = S.cfg, v = (c.ventanas || []).map((x) => x.join('–')).join(' y ');
+  const c = S.cfg, v = 'en su horario fijo de cada día';
   const listos = Object.entries(c.nichos || {}).filter(([, f]) => f.video).map(([k]) => k);
   const p = el('p', 'pe-que');
   p.textContent = `Cada día laborable (${v}) escribe a un máximo de ${S.agente.limite} empresas, una a una y con pausas. `

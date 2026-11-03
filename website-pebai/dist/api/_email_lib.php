@@ -52,6 +52,16 @@ const PEBAI_EMAIL_RECORDATORIO = "Hola de nuevo:\n\nCon que me digas una sola co
 const PEBAI_EMAIL_RECORDATORIO_CA = "Hola de nou:\n\nAmb que em diguis una sola cosa que us faci perdre temps, t'explico com la resoldríem. Si no és bon moment, no passa res.\n\nDaniel";
 const PEBAI_EMAIL_ASUNTOS = ['[empresa_corta]', 'pregunta sobre [empresa_corta]'];
 
+// Horario fijo por día (Daniel, 3/11/2026): el email se lee al llegar a la oficina y al volver de comer. Solo se cambia aquí;
+// el panel lo enseña pero no deja tocarlo. Lunes más tarde (la bandeja llega llena del fin de semana) y sin tarde; viernes, solo mañana.
+const PEBAI_EMAIL_HORARIO = [
+    1 => [['09:30', '12:00']],
+    2 => [['08:00', '10:30'], ['16:00', '17:30']],
+    3 => [['08:00', '10:30'], ['16:00', '17:30']],
+    4 => [['08:00', '10:30'], ['16:00', '17:30']],
+    5 => [['08:00', '10:30']],
+];
+
 const PEBAI_EMAIL_CONFIG = [
     'limite_max' => 50,
     'tope_total' => 0,          // tope de primeros emails en total (prueba: 200). 0 = sin tope. Al llegar, deja de escribir a nuevos.
@@ -160,6 +170,10 @@ function pebai_email_cfg(): array
     pebai_email_db();
     $saved = json_decode(pebai_agente('email')['config'] ?: '{}', true) ?: [];
     $cfg = array_merge(PEBAI_EMAIL_CONFIG, array_intersect_key($saved, PEBAI_EMAIL_CONFIG));
+    // Días y horario fijos (Daniel, 3/11); «ventanas» = las de hoy. pebai_wa_tramos los lee de aquí.
+    $cfg['horario'] = PEBAI_EMAIL_HORARIO;
+    $cfg['dias'] = array_keys(PEBAI_EMAIL_HORARIO);
+    $cfg['ventanas'] = PEBAI_EMAIL_HORARIO[(int)date('N')] ?? [];
     $cfg['limite_max'] = max(0, min(50, (int)$cfg['limite_max']));     // 50 al día es el techo desde este dominio
     $cfg['escalon'] = max(0, min(count(PEBAI_EMAIL_ESCALONES) - 1, (int)$cfg['escalon']));
     return $cfg;
