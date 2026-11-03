@@ -41,6 +41,7 @@ assets/clients/
 agente-whatsapp/sesion/
 agente-whatsapp/contactados.json
 agente-whatsapp/ultimos.json
+agente-whatsapp/historial_ultimo.txt
 agente-whatsapp/agente.pid
 # Prospección: binarios descargados (scraper de gosom) y caché local
 prospeccion/bin/

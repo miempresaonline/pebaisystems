@@ -131,7 +131,15 @@ async function conectar() {
       log('Conectado a WhatsApp');
       await latido();
       setTimeout(() => fotosPendientes().catch(() => {}), 60e3);
-      setTimeout(() => historialTodos().catch((e) => log('Historial: error', e.message)), 90e3);
+      // Pedir al móvil el historial de todos los chats le hace avisar a Daniel de la sincronización: como mucho una vez al día,
+      // no en cada reconexión (3/11; WhatsApp corta la conexión 6-9 veces al día). Lo que escribe en directo llega igual.
+      const marca = path.join(DIR, 'historial_ultimo.txt');
+      let ultimo = 0;
+      try { ultimo = Number(fs.readFileSync(marca, 'utf8')) || 0; } catch { /* primera vez */ }
+      if (Date.now() - ultimo > 20 * 3600e3) {
+        try { fs.writeFileSync(marca, String(Date.now())); } catch { /* nada */ }
+        setTimeout(() => historialTodos().catch((e) => log('Historial: error', e.message)), 90e3);
+      }
     }
     if (connection === 'close') {
       const code = lastDisconnect?.error?.output?.statusCode;
