@@ -11,6 +11,7 @@ Reglas para estas páginas:
 
 ## 1. Fran García Cars (fran-garcia-cars)
 - Sector: importación y revisión de vehículos (revisiones técnicas de coches para clientes).
+- Ciudad del negocio (comprobado 3/11/2026): **no consta en fuente pública** [V]. `frangarciacars.com/aviso-legal/` da como titular a AUTOBAHN LLC, domicilio social en Albuquerque (Nuevo México, EE. UU.), sin sede en España; la prensa (El Español, 25 y 28/10/2025) cita Valencia solo como destino de un coche importado, no como sede. No usar «Valencia» como ciudad de Fran García Cars en ninguna página. Se queda en la pregunta de casos de Daniel.
 - Problema: hacían las revisiones a mano y mandaban las fotos por WhatsApp, desordenadas. Había líos con los clientes y se perdía mucho tiempo.
 - Qué hicimos:
   1. **App de gestión de revisiones**: todo el flujo en una aplicación (expedientes, fotos, revisores, aprobación técnica, licitaciones y pujas). El cliente ve su revisión con un diseño cuidado, no un carrusel de fotos sueltas. Hay lecturas automáticas con IA en parte del proceso. Se le siguen añadiendo funciones.

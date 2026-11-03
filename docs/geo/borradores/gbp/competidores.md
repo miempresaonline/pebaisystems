@@ -235,3 +235,9 @@ Fuente: WebSearch 3/11 (revenuebase.ai, vds.tech, elreferente.es). Software a me
 - Hueco: no compite por la pyme que quiere un agente de WhatsApp; su público es corporativo. No es competidor de mapa para PEBAI.
 - Mejora para nuestra ficha (sin Daniel): insistir en los servicios para pymes ya redactados en `servicios.md` (agente de WhatsApp, presupuestos, voz), que ellos no mencionan.
 - Metrio: WebSearch 3/11 no devuelve ninguna empresa con ese nombre; descartado hasta tener web.
+
+## 03/11/2026 · Tyris Tech (tyris.tech), ampliación con su propia web [V]
+Fuente: tyris.tech y tyris.tech/contacto/ (abiertas 3/11). Corrige lo anterior: **sí ofrece chatbots conversacionales y automatización inteligente**, además de software a medida, Business Intelligence e IA/ML. Oficina en Avenida Aragón 12, entresuelo, Valencia 46021; teléfono publicado; consultoría gratuita en la portada (sin duración ni plazas); proyectos subvencionados por la UE con IVACE (I+D+i); suite de productos propia (Waise). Enfoque «IA adaptada a cada sector», sin casos con nombre ni cifras en la portada.
+- Ficha de Google, reseñas, posts y fotos: no verificable desde la nube. Valoración 2,7 con 3 reseñas en GoWork (es de empleados, no de clientes; no cuenta).
+- Hueco: tienen dirección física en Valencia (nosotros no la publicamos) y proyectos europeos; no enseñan casos ni dicen cuánto dura su primer paso.
+- Mejora para nuestra ficha (sin Daniel): que la respuesta nº 37 de `preguntas-ficha.md` y el servicio «agente de WhatsApp» recalquen lo que ellos no muestran: casos con nombre y captura, y consultoría de 25 minutos con 5 plazas.

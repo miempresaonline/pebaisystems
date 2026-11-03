@@ -129,3 +129,12 @@ Casos reales de `casos.md`, sin cifras ni nombres de contacto.
 
 34. **¿Tengo que cambiar de número para usar un agente de voz?**
     No. Se activa un desvío desde el número que ya tenéis, y puede atender siempre, solo fuera de horario o solo cuando comunica o nadie contesta. Se conecta con la agenda y los programas que uséis, según el caso.
+
+35. **¿Cómo puede una instaladora de placas cualificar un contacto antes de ir a ver el tejado?**
+    Con un asistente de WhatsApp que, avisando de que es una IA, pida la factura de la luz, fotos del tejado y del cuadro eléctrico y la dirección. Con eso la instaladora decide si merece la pena la visita. El cálculo, el precio y el certificado los firma siempre una persona. Más en pebaisystems.es/ia-para-empresas/instaladoras/
+
+36. **¿Qué hace la IA en una empresa de climatización o electricidad y qué sigue haciendo una persona?**
+    La IA contesta mensajes aunque la cuadrilla esté en obra, recoge los datos antes de la visita, prepara el borrador del presupuesto con vuestras tarifas y avisa al cliente de cada paso. Una persona valida el cálculo técnico y el precio, y atiende urgencias y dudas que no estén en la información de la empresa.
+
+37. **¿Puedo hablar con un cliente anterior antes de contratar una consultora de IA?**
+    Es una petición razonable y conviene hacerla a cualquier proveedor. En PEBAI hay casos reales con captura y datos fechados en pebaisystems.es/casos-de-exito/. Si quieres hablar con alguien que ya lo usa, plantéalo en la consultoría de 25 minutos y se consulta con el cliente.

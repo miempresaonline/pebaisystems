@@ -30,3 +30,17 @@ Daniel, PEBAI Systems
 - Si la reseña es falsa o de alguien que no es cliente, no acusar: «No encontramos esta experiencia entre nuestros clientes, escríbenos para revisarla», y marcarla como inapropiada en la ficha.
 - Si la reseña llega de `pebaisystems.es/r` con 1-3 estrellas, el cliente ya habrá tenido la opción de contactar por WhatsApp; responde igual.
 - No ofrecer descuentos ni regalos a cambio de cambiar la reseña (Google lo prohíbe).
+
+## Reseñas ya existentes de Fran García Cars (preparadas 3/11/2026)
+Cliente: Fran García Cars (caso real de `casos.md`). Reseña de Google (sale en la portada, 5,0) y reseña de Sortlist (5/5). Antes de pegar, mira en la ficha o en el perfil de Sortlist si ya tienen respuesta; si la tienen, no repetir. Solo el nombre del negocio, ningún dato del proyecto.
+
+**Google**
+Gracias por tu valoración, Fran García Cars. Nos alegra que la aplicación y el asistente os estén ahorrando trabajo en las revisiones. Seguimos añadiendo funciones con lo que nos vais pidiendo.
+
+Un saludo,
+Daniel, PEBAI Systems
+
+**Sortlist**
+Gracias por la valoración y por la confianza. Trabajar con vosotros en la app de revisiones y en el asistente de WhatsApp nos ha enseñado mucho. Seguimos a vuestra disposición para lo que vaya surgiendo.
+
+Daniel, PEBAI Systems
