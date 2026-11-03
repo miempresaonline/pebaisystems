@@ -38,3 +38,20 @@ Conclusiones:
 1. Los casos con captura no ganan siempre: Fran García (24 impresiones, 5 clics) funciona, pero Gargom (2 impresiones, 0 clics en 4 días) no. Lo que separa un caso de otro es el alcance de ese día, no el formato; repetir Santacruz (3/11) y comparar.
 2. Las preguntas sin imagen rinden igual que los casos (la del 23/10 saca 5 clics con 33 impresiones, el mejor dato de la página). El formato pregunta y respuesta se mantiene para diciembre.
 3. Los alcances de 2 a 37 impresiones dicen que el problema es la audiencia, no el texto. Siguiente paso: que cada caso lo comparta Daniel desde su perfil y medir la misma pieza con ese empuje.
+
+## Qué ha funcionado (consulta Metricool 3/11/2026, 20/10-3/11)
+Fuente: Metricool `getAnalyticsDataByMetrics` (LinkedIn, posts, marca PEBAI Systems), consultado el 3/11/2026. Corrige la tabla del 2/11: Metricool marca como `VIDEO` las piezas con título de pregunta (son los Reels de Daniel) y como `IMAGE` las publicaciones de la página. Muestra muy pequeña: orienta, no demuestra.
+
+| Pieza | Fecha | Tipo | Impresiones | Clics | Reacciones | Engagement |
+|---|---|---|---|---|---|---|
+| Primera publicación de la página | 22/10 | imagen | 37 | 0 | 0 | 0 % |
+| Reel: pierde clientes aunque su servicio sea mejor | 23/10 | vídeo | 33 | 5 | 2 | 24,2 % |
+| Reel: pedidos en Excel | 26/10 | vídeo | 5 | 1 | 0 | 20,0 % |
+| Reel: preguntas frecuentes automáticas | 27/10 | vídeo | 17 | 2 | 1 | 17,6 % |
+| Caso Fran García Cars (captura) | 27/10 | imagen | 25 | 5 | 0 | 20,0 % |
+| Reel: respuesta por WhatsApp | 28/10 | vídeo | 8 | 0 | 1 | 25,0 % |
+| Reel: ¿la IA sustituirá a los trabajadores? | 29/10 | vídeo | 7 | 1 | 1 | 28,6 % |
+| Caso Gargom (captura) | 29/10 | imagen | 4 | 0 | 0 | 0 % |
+| Reel: qué debe incluir una consultoría de IA | 30/10 | vídeo | 1 | 0 | 0 | 0 % |
+
+Conclusión (2 líneas): hasta hoy la página solo ha publicado casos con captura (3 piezas, 66 impresiones, 5 clics, los 5 del caso Fran García) y no hay ninguna pregunta de la página publicada todavía: las «preguntas» de la tabla anterior eran Reels. La primera pregunta sin imagen de la página sale el 5/11; en diciembre se mantiene la mezcla y se compara esa pieza con el caso Santacruz del 3/11 antes de cambiar nada.
