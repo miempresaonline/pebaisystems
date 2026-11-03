@@ -63,12 +63,14 @@ Un suministro industrial o una distribuidora B2B vive del pedido repetido: el mi
 
 En el XII Congreso ExpoCadena, los propios distribuidores lo resumían así: el cliente es cada vez más exigente con el plazo de entrega y la ventaja del suministro de proximidad es conocer al cliente ([Interempresas, 3/03/2023](https://www.interempresas.net/Ferreteria/468787-El-suministro-y-la-ferreteria-industrial-a-debate-en-el-XII-Congreso-ExpoCadena-2023.html)). Contestar rápido y bien a ese cliente es justo lo que se puede automatizar sin perder el trato.
 
+¿Portal B2B o WhatsApp ordenado? Un portal compensa cuando casi todos los pedidos son recurrentes, el catálogo es amplio y está bien cargado y vuestros clientes lo usan. Si siguen escribiendo por WhatsApp aunque tengáis portal, suele funcionar mejor ordenar ese WhatsApp con un asistente que deja el pedido en el mismo programa, y dejar el portal para quien ya lo usa: las dos vías pueden convivir.
+
 ### H2 · Pedidos por WhatsApp y correo sin teclearlos dos veces {#pedidos}
 
 El flujo que proponemos, en cuatro pasos:
 
 1. **Entrada.** El cliente escribe como siempre: un audio, una lista, una foto de la etiqueta o un PDF de su sistema de compras. El asistente responde que lo ha recibido y que es un sistema automático (lo exige el art. 50 del Reglamento europeo de IA).
-2. **Lectura y cruce.** Saca cada línea (referencia, descripción, cantidad) y la cruza con vuestro catálogo y con las referencias que ese cliente ha pedido antes. Si una línea no cuadra, no la adivina: pregunta al cliente («¿es la M8 de 40 o de 50?») o la marca para vuestro equipo.
+2. **Lectura y cruce.** Saca cada línea (referencia, descripción, cantidad) y la cruza con vuestro catálogo y con las referencias que ese cliente ha pedido antes. Si una línea no cuadra, no la adivina: pregunta al cliente («¿es la M8 de 40 o de 50?») o la marca para vuestro equipo. Si el cliente escribe «lo mismo que la última vez», el asistente prepara ese pedido a partir del anterior y una persona lo confirma.
 3. **Borrador en el programa.** Con la tarifa del cliente y el stock por almacén, deja el pedido en borrador en vuestro ERP. Nunca lo confirma solo.
 4. **Confirmación.** Una persona revisa y confirma. Entonces el asistente manda al cliente el resumen y, si el ERP lo tiene, el aviso de salida.
 
@@ -118,13 +120,13 @@ Para la mayoría de distribuidoras, el orden es:
 
 Según el INE, el 33,6 % de las empresas españolas de 10 o más empleados ya usaba alguna tecnología de IA en el primer trimestre de 2026, y el 29,0 % vendió por comercio electrónico en 2025 ([INE, 22/10/2026](https://www.ine.es/dyngs/Prensa/ETICCE20251T2026.htm)). La diferencia no la marca tener IA, sino aplicarla al pedido, que es donde una distribuidora gana o pierde al cliente.
 
-### FAQ (6, idénticas en el JSON-LD)
+### FAQ (6, idénticas en el JSON-LD; 3/11 tarde: entran «precios por cliente» y «fuera de catálogo» de `preguntas.md` «Turno 3/11», salen «la pieza con su nombre» (ya en el paso 2 de #pedidos) y «factura electrónica» (ya en su H2 y en la madre))
 
 **¿Puede la IA pasar al ERP los pedidos que llegan por WhatsApp?**
 Sí, en borrador. Lee el mensaje, el audio o el PDF, cruza cada línea con vuestro catálogo y la tarifa del cliente y deja el pedido preparado en vuestro programa de gestión. Una persona lo revisa y lo confirma; el asistente nunca confirma un pedido solo.
 
-**¿Y si el cliente pide la pieza con su nombre y no con nuestra referencia?**
-El asistente busca en el catálogo y en lo que ese cliente ha pedido antes. Si encuentra una coincidencia clara, la propone; si hay dos posibles, pregunta al cliente o la marca para vuestro equipo. No inventa referencias que no existen en vuestro catálogo.
+**¿Cada cliente puede ver solo sus precios?**
+Sí. El asistente identifica primero al cliente por el teléfono o el correo que tenéis dado de alta y solo le da los precios de su tarifa. La tarifa no se publica en ningún sitio; si el número no está dado de alta o pide algo fuera de su tarifa, la consulta pasa a un comercial.
 
 **¿Puede contestar precio y stock a las 7 de la mañana?**
 Sí, a clientes que ya tenéis dados de alta y con productos de tarifa: dice el precio de su tarifa y lo que hay en cada almacén según el programa. Precios cerrados, condiciones especiales, clientes nuevos y plazos que no estén puestos pasan a una persona.
@@ -132,8 +134,8 @@ Sí, a clientes que ya tenéis dados de alta y con productos de tarifa: dice el 
 **Tenemos varias sedes y clientes en otros países: ¿sirve igual?**
 Sí, si el stock y los pedidos de cada sede están en un mismo sistema. Es lo que hicimos con Suministros Industriales Santacruz: una aplicación a medida en 4 idiomas con almacén y pedidos por sede, que ya tiene cargados 343 pedidos de 2026 de sus 4 sedes.
 
-**¿Cuándo es obligatoria la factura electrónica para una distribuidora?**
-Si el volumen de operaciones del año anterior superó los 8 millones de euros, desde el 6 de octubre de 2027; si no, desde el 6 de octubre de 2028, según la Agencia Tributaria y la Orden HAC/1028/2026. Confirma tu caso con tu asesoría.
+**Me piden material que no está en catálogo: ¿cómo evito que se pierda?**
+El asistente no da precio ni plazo de lo que no está en catálogo. Apunta lo que pide el cliente (descripción, cantidad y foto si la manda), le dice que lo revisa una persona y lo deja en un listado con fecha y responsable. Así cada petición tiene a alguien que la contesta y se ve cuáles siguen abiertas.
 
 **¿Cuánto cuesta un sistema así para una distribuidora?**
 Depende de cuántos canales y sedes entren y de cómo se conecte vuestro programa de gestión. Se presupuesta después de la consultoría, cuando sabemos qué hay que conectar. Qué partidas pedir en un presupuesto: [cuánto cuesta implantar IA en una pyme](/ia-para-empresas/cuanto-cuesta/). *(El enlace solo en el HTML, no en el JSON-LD, como en instaladoras.)*
