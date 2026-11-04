@@ -55,3 +55,4 @@ La lleva el agente Técnico SEO. Una línea por página revisada: `fecha · URL 
 3. Revisa también «Bloquear bots de IA» / «Gestionar robots.txt» en esa misma pantalla: debe estar en Permitir para GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
 4. Comprobación (Técnico la repite cada turno): `curl -s -o /dev/null -w '%{http_code}' -A GPTBot/1.2 'https://pebaisystems.es/agentes-ia/whatsapp/?nc=$RANDOM'` debe dar 200.
 2026-11-04 (noche) · /agentes-ia/voz/: href de la AEPD (texto y JSON-LD) cambiado al destino final /infografias/ (200 directo) · pie de la portada: añadidos «Cómo elegir consultora de IA» y «Presupuestos con IA» (eran las únicas guías del sitemap que faltaban)
+2026-11-04 (noche) · Publicado 7cb4deb: portada con el enlace y /agentes-ia/voz/ con el href nuevo, ambos en producción · Bots con ?nc=: GPTBot 429; OAI-SearchBot, ClaudeBot y PerplexityBot 200
