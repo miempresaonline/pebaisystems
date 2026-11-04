@@ -156,3 +156,12 @@ Casos reales de `casos.md`, sin cifras ni nombres de contacto.
 
 43. **¿Quién contesta si un cliente escribe con la cuadrilla en obra o fuera de horario?**
     Un asistente de WhatsApp, avisando de que es una IA, recoge el motivo, la dirección y la urgencia, y lo deja listo para el equipo. Las urgencias se pasan a una persona; el asistente no promete visitas ni precios por su cuenta. Más en pebaisystems.es/ia-para-empresas/instaladoras/#fuera-de-horario
+
+44. **¿Tengo que formar a mi equipo si solo usa ChatGPT o Copilot?**
+    Sí. Usar ChatGPT o Copilot en tareas de la empresa ya es usar IA en el trabajo, y el artículo 4 del Reglamento europeo de IA pide medidas para que el personal sepa usarla según su puesto. No hace falta un certificado: bastan normas de uso, sesiones prácticas por puesto y un registro. Detalle en pebaisystems.es/ia-para-empresas/formacion/
+
+45. **¿Qué debe incluir un presupuesto de IA?**
+    Por un lado los pagos únicos (diagnóstico, desarrollo y conexiones, puesta en marcha y formación) y por otro los mensuales (mantenimiento, consumo del modelo, mensajes y licencias). Por escrito también debe constar qué queda fuera, de quién es lo construido y quién responde si falla. Más en pebaisystems.es/ia-para-empresas/cuanto-cuesta/
+
+46. **¿Hay que pagar algo todos los meses por un asistente de IA?**
+    Casi siempre hay costes mensuales: el consumo del modelo, los mensajes o llamadas y, si se contrata, una cuota de mantenimiento. Pide por escrito qué incluye la cuota (cambios, soporte, tiempo de respuesta) y qué se cobra aparte. Más en pebaisystems.es/ia-para-empresas/cuanto-cuesta/
