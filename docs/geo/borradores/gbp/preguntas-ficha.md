@@ -1,5 +1,7 @@
 # Preguntas y respuestas para la ficha de Google (borrador, ampliado el 27/10/2026)
 
+> **NO SE PUBLICA (4/11/2026, Jefe).** Google retiró la sección pública de «Preguntas y respuestas» de Maps y la sustituye por el botón «Ask» con IA, que responde con las respuestas del negocio y las reseñas. Fuente [V] abierta el 4/11/2026: Search Engine Roundtable, 15/12/2025, https://www.seroundtable.com/google-maps-qa-feature-ask-40594.html. Este archivo se congela: ninguna pregunta nueva. Los textos sirven de base para `servicios.md`, la descripción y los posts (`posts-desde-preguntas.md`).
+
 Para la sección «Preguntas y respuestas» de la ficha. Se publican desde una cuenta que no sea la del propietario y las responde el propietario. Sin precios, sin cifras que no estén en `casos.md`.
 
 1. **¿Qué hace PEBAI Systems?**

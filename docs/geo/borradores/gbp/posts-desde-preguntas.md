@@ -42,3 +42,11 @@ Sugerencia de imagen: foco · dark · titular «¿Te recomienda ChatGPT?»
 
 ## Estado (30/10/2026)
 A (9/12), B (16/12), C (23/12) y D (30/12) programados en Metricool a las 10:30, imágenes en `pebaisystems.es/gbp/` (200), enlaces con `?cta=gbp_post`.
+
+## Temas de post extra (para después del 15/12; no programar todavía) · 4/11/2026
+Sacados de `preguntas-ficha.md` (congelada). Solo temas, sin redactar hasta diciembre:
+1. **¿Qué pasa si el asistente no sabe responder?** (pregunta 7): deriva a una persona; botón a `/agentes-ia/`.
+2. **¿Qué proceso automatizar primero?** (pregunta 9): el que más se repite y tiene pasos claros; botón a `/automatizacion-de-procesos/`.
+3. **¿La automatización sustituye a mi equipo?** (pregunta 28): quita el copiar y pegar; decide una persona; botón a `/ia-para-empresas/`.
+4. **¿Trabajáis con empresas pequeñas?** (pregunta 4): pymes de cualquier sector; botón a `/consultoria-gratuita/`.
+5. **¿Atendéis fuera de vuestra ciudad?** (preguntas 6 y 17): base en Valencia, trabajo en remoto con toda España; botón a `/ia-para-empresas/valencia/`.
