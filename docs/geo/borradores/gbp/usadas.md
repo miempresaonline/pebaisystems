@@ -26,3 +26,5 @@ Una línea por post: `fecha · layout · tema · seed · titular`. El agente de 
 2027-01-07 · foto de la ficha (Metricool gmb photo, movida desde el 6/11): imagen del post «IA que trabaja contigo» (post del 6/1)
 2026-11-06 · foto de la ficha (Metricool gmb photo): captura difuminada Santacruz (casos/img/santacruz-app.jpg)
 2026-11-12 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-10-28.png (¿Te recomienda la IA?)
+2026-11-09 · foto de la ficha (Metricool gmb photo, id 416695218): banner de marca brand/pebai-automation-pipeline.jpg
+2026-11-13 · foto de la ficha (Metricool gmb photo, id 416695247): banner de marca brand/pebai-geo-ai-search-engines.png
