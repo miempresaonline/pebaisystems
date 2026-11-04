@@ -15,7 +15,7 @@ Motor: solo WebSearch (vista de Claude), 4/11/2026. Sin Perplexity ni AI Mode de
 - [V] **upliora.es + javadex.es dominan P5, P8 y P14** (en P14 la respuesta lo avisa: directorio que promociona a Javadex). Ya está propuesto desmontarlo al Vigía (3/11).
 - [V] **P8:** el motor da cifras de blogs de proveedores. `/ia-para-empresas/cuanto-cuesta/` (indexada, rastreada el 3/11) no sale aún. [H] Falta de autoridad más que de contenido; no pone cifras por regla de la casa.
 - [V] **P1:** la marca no tiene entidad: el buscador confunde con otras empresas. Las fichas de Crunchbase, Sortlist y Trustpilot (28/10) siguen sin salir (como el 2/11).
-- Acumulado de la semana (2/11-4/11): 0 de 12 consultas de pregunta con PEBAI (4 el 2/11, 3 el 3/11 más 4 de sectores, 5 hoy; motor único WebSearch).
+- Acumulado de la semana (2/11-4/11): 0 de 16 preguntas pasadas con PEBAI (4 el 2/11, 3 y 4 de sectores el 3/11, 5 hoy; motor único WebSearch).
 
 ## Propuestas
 1. Técnico/Refresco: empujar la indexación de `/ia-para-empresas/instaladoras/` (enlaces internos desde /ia-para-empresas/ y la portada), porque es la única respuesta a P12.
