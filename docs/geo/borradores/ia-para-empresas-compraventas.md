@@ -1,6 +1,6 @@
 # Borrador · /ia-para-empresas/compraventas/
 
-Estado: **texto completo el 2/11/2026 (turno de las 15:00, geo_contenido). No se publica esta semana** (encargo del Vigía 2/11, propuesta 1, y Preguntas 2/11). Falta: maquetar con `portar_diseno_nuevo.py` cuando el Jefe le dé fecha y el OK de Daniel a los nichos. Sin las líneas «Pregunta real» (son notas internas).
+Estado: **texto completo el 2/11/2026 (turno de las 15:00, geo_contenido). No se publica esta semana** (encargo del Vigía 2/11, propuesta 1, y Preguntas 2/11). **Maquetada el 4/11 (10:00)** en `borradores/html/ia-para-empresas-compraventas.html` con la plantilla de distribuidoras (menú del 1/11, 2 `web_desarrollo_3d`) y el vídeo de WhatsApp; fecha provisional 16/11 (cambiar `2026-11-16`, «16 de noviembre» y la próxima revisión cuando el Jefe fije el día). Falta solo el OK de Daniel a los nichos. DGT y BOE (arts. 120.1 y 121.1) releídos el 4/11. Sin las líneas «Pregunta real» (son notas internas).
 
 ## Ficha
 
@@ -40,9 +40,9 @@ Estado: **texto completo el 2/11/2026 (turno de las 15:00, geo_contenido). No se
 
 ## Texto
 
-**Respuesta corta.** En una compraventa o importadora, la Inteligencia Artificial (IA) trabaja alrededor de cada coche: contesta al momento por WhatsApp si sigue disponible y sus kilómetros, agenda la visita o la prueba en vuestra agenda, ordena las fotos y el expediente de la revisión y explica la garantía con un texto que habéis aprobado. El precio final lo negocia una persona.
+**Respuesta corta.** Una compraventa de coches de segunda mano puede atender el WhatsApp a las 22:00 con un asistente de Inteligencia Artificial (IA) conectado a la API oficial de WhatsApp Business: contesta al momento si el coche sigue disponible, sus kilómetros y el horario, y deja agendada la visita. El precio, la tasación y las reclamaciones pasan a una persona.
 
-(58 palabras; primera mención de IA escrita completa)
+(58 palabras; primera mención de IA escrita completa; responde la pregunta 23 de `prompts.md` con «compraventa» y «segunda mano», 4/11)
 
 **En cinco puntos:**
 - La venta se pierde antes de enseñar el coche: quien pregunta por un anuncio y no recibe respuesta pregunta por otro.
