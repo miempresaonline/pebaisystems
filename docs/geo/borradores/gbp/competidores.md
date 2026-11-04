@@ -263,3 +263,8 @@ Fuentes [V] abiertas hoy: búsqueda web (perfiles de Malt de Javier Santos Criad
 
 ### 1 mejora para la nuestra que no depende de Daniel
 Su fuerza no es la ficha: es que terceros (Upliora) lo recomiendan en listas. Lo nuestro que él no tiene: casos con nombre y captura y una reseña real. Mejora concreta: en cada pregunta de la ficha que mencione la consultoría (31 y 37), enlazar `pebaisystems.es/casos-de-exito/` como prueba verificable. Ya está en la 37; falta en la 31 (Local lo añade en el siguiente repaso).
+
+## 4/11/2026 · Metrio (no localizada) y Agencia IA Solutions (Valencia) [S]
+- **Metrio:** WebSearch no devuelve ninguna empresa con ese nombre en Valencia; se descarta de la lista (no repetir).
+- **Agencia IA Solutions:** perfil en Sortlist (sortlist.co.uk/agency/agencia-ia-solutions), Valencia, fundada en 2023, dice ofrecer implantación de IA, automatización de procesos y estrategia digital. Solo [S]: no se ha abierto su web ni su ficha de Maps (no se ve desde la nube).
+- **Mejora para la nuestra:** su perfil de Sortlist ya sale en búsquedas de «consultoría IA Valencia»; el nuestro de Sortlist es público, así que la acción es conseguir la primera reseña real de un cliente (mensajes listos en `resenas/pedir-resena.md`).
