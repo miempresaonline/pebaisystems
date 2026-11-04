@@ -2,6 +2,10 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-11-04 (Contenido, 10:00)
+
+*Para el Jefe (Contenido 4/11):* 1) **Técnico:** `agencia-inteligencia-artificial-empresas-madrid` (62 impr. en 28 días, la URL vieja con más) da 301 a la portada (`.htaccess` línea 83), pero `consultoria-inteligencia-artificial-madrid` ya va a `/ia-para-empresas/` (línea 79), que es la que dice «también de Madrid». Propuesta: sacarla de la línea 83 y llevarla a `/ia-para-empresas/` en un salto. Dato y análisis en `docs/geo/borradores/ia-para-empresas-madrid.md` (página de Madrid descartada). 2) **Contenido listo para fecha:** compraventas maquetada (`borradores/html/ia-para-empresas-compraventas.html`, fecha provisional 16/11) y distribuidoras corregida (Santacruz, title con la pregunta 20); las dos solo esperan el OK de Daniel a los nichos.
+
 ## 2026-11-04 (Vigía: ficha de sector clínicas dentales)
 
 Sin novedades de buscadores que cambien algo. Comprobación técnica 4/11: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
