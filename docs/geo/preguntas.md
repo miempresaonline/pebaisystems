@@ -392,3 +392,24 @@ Conclusión: el borrador cubre 3 de 4; falta el ángulo asesorías con a3ERP (la
 2026-11-03 · ¿Necesito proveedor (BSP) o puedo conectarme directo a la API en la nube? · ezcontact https://ezcontact.ai/es/blog/2026-05-24-whatsapp-business-api-2026-cloud-vs-bsp-costos-setup-guia-tecnica/ [S] · whatsapp · sí (FAQ 1) · sin acción
 2026-11-03 · ¿Puedo seguir usando el móvil con la app si paso a la API? · [H] · whatsapp · sí (FAQ «¿Pierdo mis chats…?») · sin acción
 Conclusión: 5 preguntas, 2 sin respuesta fuerte, ambas de coste. Encargo a Refresco: una frase en la FAQ de coste (no FAQ nueva).
+
+### Local 4/11 (de la ficha congelada): lo que el cliente teme del asistente
+2026-11-04 · ¿Qué pasa si el asistente no sabe responder a un cliente? · SleekFlow https://sleekflow.io/es/blog/everything-you-need-to-know-about-a-whatsapp-ai-chatbot y Aunoa https://aunoa.ai/blog/errores-comunes-al-usar-chatbots-con-ia-en-whatsapp/ (el fallo típico es la frase vaga «no entiendo») [S] · agentes-ia · sí (`/agentes-ia/`: «Dice "no lo sé" y pasa a una persona», FAQ «¿Qué pasa si el agente se equivoca?») · sin acción; si Refresco toca la FAQ, añadir «y deja la consulta apuntada para mejorar sus respuestas»
+2026-11-04 · ¿La automatización va a sustituir a mi equipo? · Local 4/11 · automatización · sí (FAQ propia en `/automatizacion-de-procesos/` y párrafo en `/agentes-ia/`) · sin acción
+2026-11-04 · ¿Quién revisa lo que contesta el asistente y cómo se corrige? · Leadsales https://leadsales.io/blog/entrenar-ia-clientes-por-whatsapp/ (revisar conversaciones reales y ajustar) [S] · agentes-ia · parcial («lanzarlo con alguien de guardia») · FAQ o frase: revisión semanal de conversaciones los primeros meses
+Conclusión: 3 preguntas, 2 ya cubiertas; la tercera, frase en el encargo a Refresco de abajo.
+
+### Hostelería: reservas por WhatsApp y teléfono (sin página: nicho no previsto; para `sectores/`)
+2026-11-04 · ¿Puedo coger reservas por WhatsApp sin pagar comisión por cubierto a TheFork? · Gurusup https://gurusup.com/es/chatbot-restaurantes [S, cifra de proveedor sin contrastar, no usar] · hostelería · no · solo tema
+2026-11-04 · ¿Se conecta el asistente con CoverManager, TheFork o mi TPV (Revo, Last.app, Agora)? · Gurusup / Qamarero https://qamarero.com/recepcionista-ia-restaurantes/ [S] · hostelería · parcial (FAQ ERP/CRM habla de programas de gestión) · frase en la guía de integración: reservas y TPV, «comprobar si hay API pública»
+2026-11-04 · ¿Contesta a las llamadas en hora punta con la sala llena? · Qamarero [S] · hostelería / voz · parcial (FAQ de voz: llamadas perdidas) · sin acción
+2026-11-04 · ¿Responde a las reseñas de Google por mí? · Gurusup [S] · hostelería · no · fuera de alcance de PEBAI hoy; no proponer
+Conclusión: 4 preguntas, sin encargo (nicho no aprobado por Daniel); queda como señal para el Vigía.
+
+### Autónomos y pymes que empiezan con IA
+2026-11-04 · ¿Por dónde empiezo con la IA si soy autónomo y no tengo tiempo? · Diari de Tarragona https://www.diaridetarragona.com/economia/267497/agentes-inteligentes-ia-tambien-son-pymes.html [S] («empieza por las tareas repetitivas») · /ia-para-empresas/ · parcial (por dónde empezar en la madre) · sin acción
+2026-11-04 · ¿Me basta con ChatGPT de pago o necesito un agente? · mismo artículo (suscripción Pro o GPT personalizado) [S] · /agentes-ia/ · sí (FAQ chatbot frente a agente) · sin acción
+2026-11-04 · ¿Qué preguntas me hago antes de implantar nada (problema, ahorro, riesgo, quién revisa, datos)? · Sage https://www.sage.com/es-es/blog/inteligencia-artificial-estan-preparadas-las-pymes-espanolas/ [S] · /ia-para-empresas/ · parcial · lista de 5 preguntas en la consultoría; propuesta a Contenido: caja «5 preguntas antes de empezar» en la madre
+2026-11-04 · ¿Cuántas pymes usan ya IA? (las cifras no coinciden: 2,13 %, 7 %, 35 %) · Holded https://www.holded.com/es/blog/ia-autonomos (35 %), Sage (7 %) [S] · /ia-para-empresas/ · no · no citar cifra sin abrir la fuente primaria (INE); encargo a Refresco: comprobar el dato del INE ya citado
+2026-11-04 · ¿Puedo bonificar la formación en IA de mis empleados con Fundae? · Finantres https://finantresnoticias.com/negocios-y-autonomos/73-por-ciento-trabajadores-espanoles-quiere-formacion-en-ia-dentro-empresa/ [S] · /ia-para-empresas/formacion/ · por comprobar · encargo a Refresco: verificar en fundae.es antes de afirmar
+Conclusión: 5 preguntas, 3 sin cubrir del todo; 2 encargos.
