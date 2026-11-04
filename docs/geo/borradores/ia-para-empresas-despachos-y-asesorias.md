@@ -1,6 +1,6 @@
 # Borrador · /ia-para-empresas/despachos-y-asesorias/
 
-Estado: **análisis, fuentes y texto de 4 de los 6 H2 el 4/11/2026 (turno 15:00, geo_contenido)**, adelantado del encargo del jue 5/11 (tablón, Jefe 3/11 tarde y Preguntas 3/11 tarde). **Conclusión: sí se hace**, con la intención del dueño del despacho o la asesoría que quiere implantar, no la del profesional que busca una herramienta para redactar escritos. Falta: H2 5 y 6, FAQ completa, maquetar en `borradores/html/` y reverificar fuentes el día que salga. No tiene día de publicación: va después de ERP (6/11) y de distribuidoras, cuando el Jefe lo ponga.
+Estado: **análisis, fuentes y texto completo (6 H2 y 6 FAQ) el 4/11/2026 (turno 15:00, geo_contenido)**, adelantado del encargo del jue 5/11 (tablón, Jefe 3/11 tarde y Preguntas 3/11 tarde). **Conclusión: sí se hace**, con la intención del dueño del despacho o la asesoría que quiere implantar, no la del profesional que busca una herramienta para redactar escritos. Falta: maquetar en `borradores/html/` y reverificar fuentes el día que salga. No tiene día de publicación: va después de ERP (6/11) y de distribuidoras, cuando el Jefe lo ponga.
 
 ## Análisis con `seo-clean-architecture` (4/11)
 
@@ -49,8 +49,8 @@ Estado: **análisis, fuentes y texto de 4 de los 6 H2 el 4/11/2026 (turno 15:00,
    2. ¿Rompo el secreto profesional si uso IA? {#secreto} · hecho
    3. Contestar a los clientes por WhatsApp con IA: qué sí y qué pasa a una persona {#whatsapp} · hecho
    4. Los documentos del trimestre sin perseguir a cada cliente {#documentos} · hecho
-   5. Citas y llamadas sin perder el trato personal {#citas} · pendiente (enlazar `/agentes-ia/voz/`, FAQ «clínica o despacho» ya publicada allí: no repetirla)
-   6. Por dónde empezar y cuándo no conviene {#empezar} · pendiente
+   5. Citas y llamadas sin perder el trato personal {#citas} · hecho (enlaza `/agentes-ia/voz/` para lo técnico, sin repetir sus FAQ)
+   6. Por dónde empezar y cuándo no conviene {#empezar} · hecho
 4. FAQ (6, idénticas en el JSON-LD), puente, fuentes con fecha y próxima revisión.
 
 ---
@@ -114,19 +114,45 @@ La revisión, el criterio y la presentación siguen siendo del asesor. Si queré
 
 ### H2 · Citas y llamadas sin perder el trato personal {#citas}
 
-_Pendiente (turno siguiente):_ el cliente que llama para pedir cita o preguntar por su trámite; el asistente coge la llamada que hoy se pierde, toma el recado y da cita en la agenda del profesional. Sin repetir la FAQ «clínica o despacho» de `/agentes-ia/voz/`; enlace allí. Mensaje clave: el trato personal está en la reunión y en la llamada de fondo, no en contestar «está reunido, le llama luego».
+En un despacho, el teléfono suena cuando el profesional está con otro cliente o en un juzgado. La llamada que no se coge es un cliente que llama a otro despacho, o uno de los vuestros que se queda sin saber si ha llegado su notificación. Un asistente de voz coge esa llamada y hace lo que haría quien está en recepción:
+- **Da cita** en la agenda del profesional que toque, con los huecos que el despacho haya marcado.
+- **Toma el recado** con el motivo, lo resume y lo deja al profesional, que llama él con el asunto ya leído.
+- **Contesta lo general:** horario, dirección, qué hay que traer a la primera reunión.
+- **Pasa la llamada** a una persona si quien llama lo pide, si es urgente o si es un asunto de fondo.
+
+El trato personal no está en decir «está reunido, le llama luego». Está en la reunión y en la llamada en la que se habla del asunto, y esas siguen siendo vuestras. Lo técnico (número, horario en que atiende, conexión con la agenda, aviso de grabación) está en [asistente telefónico con IA](/agentes-ia/voz/).
 
 ### H2 · Por dónde empezar y cuándo no conviene {#empezar}
 
-_Pendiente:_ empezar por un proceso sin datos de clientes (horarios y documentación genérica) o por el recordatorio de documentos; cuándo no conviene (despacho de una persona con pocos clientes, o si no hay herramienta con contrato de encargado). Puente a la consultoría.
+Empezad por lo que no lleva datos de clientes o los lleva poco, para que el equipo se acostumbre sin riesgo:
+1. **Normas y herramienta.** Una herramienta de IA contratada por el despacho, con contrato de encargado, y las normas de uso por escrito. Sin esto, lo demás no.
+2. **Un proceso repetido.** El recordatorio de documentos del trimestre o el WhatsApp de consultas generales. Uno, con fecha de inicio y una medida de antes (cuántos recordatorios se mandan a mano, cuántos mensajes se contestan al día).
+3. **Revisión a las cuatro semanas.** Si ahorra tiempo y nadie se ha quejado, se amplía. Si no, se cambia o se para.
 
-### FAQ (6; borrador, se cierran con los H2 5 y 6)
-1. ¿Puedo usar ChatGPT en mi despacho? · Sí, con cuenta de empresa, contrato de encargado y sin datos que identifiquen a clientes donde no toca.
-2. ¿Qué es el contrato de encargado del tratamiento y por qué lo necesito? · art. 28 RGPD; instrucciones por escrito, no entrenar.
-3. ¿El asistente de WhatsApp puede dar asesoramiento? · No: recoge la pregunta y avisa a una persona.
-4. ¿Tengo que avisar a mis clientes de que hablan con una IA? · Sí, art. 50 RIA.
-5. ¿Mis empleados tienen que formarse? · Sí, art. 4; enlace a formación.
-6. ¿Se puede automatizar el envío de documentos del trimestre? · El recordatorio y la clasificación sí; la revisión no.
+Cuándo no conviene, todavía:
+- Un despacho de una persona con pocos clientes, que ya contesta todo en el día: os basta con unas normas para usar bien ChatGPT con cuenta de empresa.
+- Si no encontráis una herramienta que firme el contrato de encargado y os deje desactivar el uso de los datos para entrenar. Mejor esperar que meter datos de clientes donde no se controlan.
+- Si la idea es que la IA dé el asesoramiento. Eso no se automatiza: se prepara, se ordena y lo firma un profesional.
+
+### FAQ (6, idénticas en el JSON-LD)
+
+**¿Puedo usar ChatGPT en mi despacho o asesoría?**
+Sí, con tres condiciones: una cuenta contratada por el despacho y no personal, un contrato de encargado del tratamiento con el proveedor que le prohíba usar los datos para entrenar, y no pegar datos que identifiquen a clientes cuando no hace falta. Lo que prepare la IA lo revisa un profesional antes de enviarlo.
+
+**¿Qué es el contrato de encargado del tratamiento y por qué lo necesito?**
+Es el contrato que exige el artículo 28 del RGPD cuando otra empresa trata datos personales por cuenta tuya. Obliga al proveedor a tratarlos solo siguiendo tus instrucciones por escrito. En un despacho, la instrucción clave es que no use los datos de tus clientes para entrenar su modelo ni para ningún fin propio.
+
+**¿Rompe el secreto profesional usar IA con datos de un cliente?**
+No por sí solo. El secreto prohíbe divulgar lo que el cliente te ha confiado. Usar un servicio técnico con contrato de encargado, igual que el programa de gestión o el correo, no es divulgar. Sí lo sería usar una herramienta que pueda usar esos datos para sus propios fines. Ante un caso concreto, consulta a tu colegio profesional.
+
+**¿Puede el asistente de WhatsApp dar asesoramiento a mis clientes?**
+No. Contesta horarios, qué documentos faltan y en qué estado está un trámite si el despacho lo tiene apuntado. Cualquier consulta fiscal o jurídica de fondo, o con un plazo legal o una cifra, la recoge y avisa a una persona. Y el cliente sabe desde el primer mensaje que habla con un asistente de IA.
+
+**¿Se puede automatizar la petición de documentos del trimestre?**
+Sí, la parte repetitiva: saber qué le falta a cada cliente, recordárselo solo a él por su canal y clasificar lo que llega en su carpeta. La revisión de los documentos y la presentación siguen siendo del asesor.
+
+**¿Mis empleados tienen que formarse para usar IA en el despacho?**
+Sí. El artículo 4 del Reglamento europeo de IA obliga a cualquier empresa que la use a tomar medidas para que su personal sepa hacerlo según su puesto. En un despacho, lo primero es qué datos de clientes no se pegan y quién revisa. Lo explicamos en [formación en IA para empresas](/ia-para-empresas/formacion/).
 
 ### Puente final
 «¿Tu despacho pierde horas contestando lo mismo y persiguiendo documentos?» En la consultoría vemos qué consultas y qué tareas se repiten y qué herramientas se pueden usar con datos de clientes. Si con unas normas y una herramienta contratada os basta, te lo decimos claro. 25 minutos, gratuita para 5 empresas al mes; después, de pago. Nos vemos en la sesión.
