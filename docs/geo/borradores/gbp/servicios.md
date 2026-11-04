@@ -1,23 +1,21 @@
-# Servicios de la ficha de Google (borrador, 27/10/2026)
+# Servicios de la ficha de Google (reescrito el 4/11/2026)
 
-Para Información > Servicios (o Editar servicios) en Google Business. Cada descripción tiene como máximo 300 caracteres, sin precios y con las palabras que propone Localo y que buscan los clientes. Nombre del servicio: máximo 140 caracteres (aquí, cortos).
+Para Información > Servicios en Google Business. Ask Maps (Gemini) responde con el contenido de la ficha: cada descripción contesta una pregunta real de `preguntas.md`. Máximo 300 caracteres, sin precios ni cifras fuera de `casos.md`.
 
 | # | Servicio | Descripción (pegar tal cual) | Caracteres |
 |---|---|---|---|
-| 1 | Consultoría de procesos e Inteligencia Artificial | Analizamos cómo trabaja tu empresa para ver dónde se pierden tiempo y dinero, y te decimos qué conviene automatizar y qué no. La consultoría inicial dura 25 minutos por videollamada y es gratuita para cinco empresas al mes; después, de pago. | 241 |
-| 2 | Agentes de IA para WhatsApp | Un asistente con Inteligencia Artificial que responde a tus clientes por WhatsApp con la información de tu empresa, agenda citas y pasa la conversación a una persona del equipo cuando no sabe la respuesta. Con panel para gestionar los chats. | 241 |
-| 3 | Chatbots con Inteligencia Artificial | Asistentes conectados a tus manuales, tarifas y documentos que resuelven dudas de clientes en la web y avisan al equipo cuando hace falta una persona. | 150 |
-| 4 | Agentes de voz | Atienden llamadas, responden consultas frecuentes y agendan citas con voz natural, también fuera de horario, y derivan a una persona cuando la llamada lo requiere. | 163 |
-| 5 | Automatización de procesos | Quitamos tareas manuales como pedidos, presupuestos, partes de trabajo y facturas, conectando los programas que ya usas para que los datos no se copien a mano. | 159 |
-| 6 | Software y aplicaciones a medida | Aplicaciones hechas a la manera de trabajar de tu empresa: gestión de obras, almacén y pedidos, revisiones o portales de gestión. Sin las limitaciones de un programa genérico. | 175 |
-| 7 | Integración con CRM, ERP y otras herramientas | Conectamos la Inteligencia Artificial a los programas que tu empresa ya usa: CRM, ERP, agenda, tienda online u hojas de cálculo, y migramos datos de aplicaciones antiguas. | 171 |
-| 8 | Posicionamiento en ChatGPT y buscadores de IA (GEO) | Trabajamos tu web para que ChatGPT, Gemini, Perplexity y la IA de Google entiendan tu empresa y puedan recomendarla cuando un cliente pregunta qué contratar. | 157 |
-| 9 | Formación para equipos | Sesiones prácticas y manuales claros para que tu equipo use la Inteligencia Artificial en su trabajo diario con autonomía. | 122 |
+| 1 | Consultoría de procesos e Inteligencia Artificial | ¿Por dónde empezar con la IA? Analizamos cómo trabaja tu empresa, vemos dónde se pierde tiempo y te decimos qué conviene automatizar y qué no. 25 minutos por videollamada; gratuita para cinco empresas al mes, después de pago. | 225 |
+| 2 | Agentes de IA para WhatsApp | Un asistente con IA contesta por WhatsApp con la información de tu empresa, agenda citas y pasa la conversación a una persona del equipo cuando no sabe responder. Pensado para pymes que pierden mensajes fuera de horario. Con panel para ver los chats. | 250 |
+| 3 | Chatbots con Inteligencia Artificial | Resuelven dudas de clientes en tu web con tus manuales, tarifas y documentos. Si la pregunta no está documentada, avisan a una persona del equipo en lugar de inventar la respuesta. | 180 |
+| 4 | Agentes de voz | Atienden las llamadas de tu negocio, también fuera de horario: responden consultas frecuentes, agendan citas y pasan la llamada a una persona cuando no entienden. Se avisa a quien llama de que habla con una IA. | 210 |
+| 5 | Automatización de procesos | Quitamos el copiar y pegar de pedidos, presupuestos, partes de trabajo y facturas conectando los programas que ya usas. No hace falta cambiar de programa. Las decisiones que afectan a clientes o pagos las sigue aprobando una persona. | 233 |
+| 6 | Software y aplicaciones a medida | Para empresas cuyo programa genérico se les queda corto: gestión de obras, almacén y pedidos, revisiones o portales de gestión, hechos a la manera de trabajar de tu equipo y con tus datos. | 188 |
+| 7 | Integración con CRM, ERP y otras herramientas | ¿Se conecta con lo que ya uso? Sí: conectamos la IA a tu CRM, ERP, agenda, tienda online u hojas de cálculo, y migramos los datos de una aplicación antigua a una nueva sin perderlos. | 182 |
+| 8 | Posicionamiento en ChatGPT y buscadores de IA (GEO) | ¿Te recomienda ChatGPT? Trabajamos tu web para que ChatGPT, Gemini, Perplexity y la IA de Google entiendan tu empresa y puedan citarla. Nadie puede prometer el primer puesto; sí hacerla fácil de entender. | 204 |
+| 9 | Formación para equipos | Sesiones prácticas y manuales claros para que tu equipo use la IA en su trabajo diario con autonomía, sobre sus propias tareas: presupuestos, correos, pedidos. No sustituye a nadie: quita tareas repetitivas. | 207 |
 
 ## Pasos exactos para Daniel (3 minutos, solo con su cuenta de Google)
-1. Entra en business.google.com con la cuenta propietaria de la ficha de PEBAI Systems.
+1. business.google.com con la cuenta propietaria de PEBAI Systems.
 2. Información > Servicios (o «Editar servicios»).
-3. Añade los 9 servicios de la tabla: nombre en una caja, descripción en la otra (copiar de la columna «Descripción»).
-4. Guardar. Avisa y se cierra la tarea.
-
-Origen de los nombres: términos de los servicios de `perfiles/google-business-profile.md` y del análisis de `competidores.md`.
+3. Pega nombre y descripción de cada fila.
+4. Guardar y avisar; se cierra la tarea.
