@@ -180,7 +180,7 @@ switch ($in['accion'] ?? '') {
         // (22/10, Ecoquinto: contestó una persona a los 2 minutos y aun así salió «lo dejo por aquí para cuando estéis»)
         if (!pebai_es_contestador($texto)) {
             require_once __DIR__ . '/_conversaciones_lib.php';
-            pebai_conv_db()->prepare("UPDATE wa_salida SET estado = 'cancelado', error = 'Contestó una persona antes de enviarla' WHERE prospecto_id = ? AND plantilla = 'cortesia' AND estado = 'pendiente'")
+            pebai_conv_db()->prepare("UPDATE wa_salida SET estado = 'cancelado', error = 'Contestó una persona antes de enviarla' WHERE prospecto_id = ? AND plantilla = 'cortesia' AND estado IN ('pendiente', 'enviando')")
                 ->execute([$p['id']]);
         }
         $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto) VALUES (?, 'whatsapp', ?, ?, 'entra', ?)")
@@ -305,12 +305,42 @@ switch ($in['accion'] ?? '') {
             $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla) VALUES (?, 'whatsapp', ?, ?, 'sale', ?, ?)")
                ->execute([$now, $w['prospecto_id'], $w['telefono'], $w['texto'], $w['plantilla'] ?: 'respuesta']);
             pebai_actividad('whatsapp', 'envio', 'Respuesta enviada a ' . $quien, $w['texto'], 'wa:' . $w['prospecto_id']);
+        } elseif (!empty($in['cancelado'])) {
+            $db->prepare("UPDATE wa_salida SET estado = 'cancelado', error = ? WHERE id = ?")->execute([mb_substr((string)($in['error'] ?? ''), 0, 250), $w['id']]);
+            pebai_actividad('whatsapp', 'bloqueo', 'No se manda la respuesta a ' . $quien . ': contestó o pidió la baja mientras se escribía', $w['texto'], 'wa:' . $w['prospecto_id']);
         } else {
             $err = mb_substr((string)($in['error'] ?? 'error'), 0, 250);
             $db->prepare("UPDATE wa_salida SET estado = 'error', error = ? WHERE id = ?")->execute([$err, $w['id']]);
             pebai_actividad('whatsapp', 'error', 'No se pudo enviar la respuesta a ' . $quien, $err, 'wa:' . $w['prospecto_id']);
         }
         out(['ok' => true]);
+
+    case 'salida_vigente':
+        // Justo antes de mandar (4/11): no sale si la han cancelado, si pidió la baja o, en la de su contestador,
+        // si ha escrito una persona después de ponerla en cola
+        require_once __DIR__ . '/_conversaciones_lib.php';
+        $db = pebai_conv_db();
+        $q = $db->prepare('SELECT * FROM wa_salida WHERE id = ?');
+        $q->execute([(int)($in['id'] ?? 0)]);
+        $w = pebai_fila($q);
+        if (!$w || $w['estado'] === 'cancelado') {
+            out(['ok' => true, 'vigente' => false]);
+        }
+        $q = $db->prepare('SELECT COUNT(*) FROM bajas WHERE telefono = ?');
+        $q->execute([$w['telefono']]);
+        if ((int)pebai_uno($q)) {
+            out(['ok' => true, 'vigente' => false]);
+        }
+        if ($w['plantilla'] === 'cortesia') {
+            $q = $db->prepare("SELECT texto FROM agente_mensajes WHERE agente = 'whatsapp' AND sentido = 'entra' AND prospecto_id = ? AND ts > ?");
+            $q->execute([$w['prospecto_id'], $w['ts']]);
+            foreach ($q->fetchAll() as $m) {
+                if (!pebai_es_contestador((string)$m['texto'])) {
+                    out(['ok' => true, 'vigente' => false]);
+                }
+            }
+        }
+        out(['ok' => true, 'vigente' => true]);
 }
 
 out(['ok' => false, 'error' => 'acción desconocida'], 400);

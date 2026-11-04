@@ -336,7 +336,9 @@ function escribirComoPersona(jid, texto) {
   turno = t.catch(() => {});
   return t;
 }
-async function escribirAhora(jid, texto, seguido = false, quedanMas = false) {
+// antesDeEnviar (opcional): se pregunta justo antes de mandar; si dice que no, no sale (4/11: Hazte Solar contestó «no me interesa»
+// mientras el bot «escribía» la respuesta a su contestador, y salió igual)
+async function escribirAhora(jid, texto, seguido = false, quedanMas = false, antesDeEnviar = null) {
   if (!seguido) {
     await sock.sendPresenceUpdate('available');
     await sleep(rand(4e3, 14e3));                    // abre WhatsApp y busca el chat
@@ -359,6 +361,10 @@ async function escribirAhora(jid, texto, seguido = false, quedanMas = false) {
   }
   await sock.sendPresenceUpdate('paused', jid);
   await sleep(rand(400, 1200));
+  if (antesDeEnviar && !(await antesDeEnviar().catch(() => true))) {
+    await sock.sendPresenceUpdate('unavailable').catch(() => {});
+    throw new Error('CANCELADO');
+  }
   const enviado = await sock.sendMessage(jid, { text: texto });
   if (enviado?.key?.id) enviadosAgente.add(enviado.key.id);
   if (quedanMas) return;                             // quedan más mensajes: no cierra la app
@@ -370,11 +376,11 @@ async function escribirAhora(jid, texto, seguido = false, quedanMas = false) {
 function enTrozos(texto) {
   return String(texto).split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
 }
-function escribirEnVarios(jid, texto) {
+function escribirEnVarios(jid, texto, antesDeEnviar = null) {
   const partes = enTrozos(texto);
   const t = turno.then(async () => {
     for (let i = 0; i < partes.length; i++) {
-      await escribirAhora(jid, partes[i], i > 0, i < partes.length - 1);
+      await escribirAhora(jid, partes[i], i > 0, i < partes.length - 1, antesDeEnviar);
     }
   });
   turno = t.catch(() => {});
@@ -459,10 +465,15 @@ async function bucleRespuestas() {
       if (!res?.exists) throw new Error('El número no tiene WhatsApp');
       contactados.add(tel);
       guardaContactados();
-      await escribirEnVarios(res.jid, w.texto);
+      await escribirEnVarios(res.jid, w.texto, () => api('salida_vigente', { id: w.id }).then((v) => v?.vigente !== false));
       log('Respuesta aprobada enviada a', tel);
       await api('salida_resultado', { id: w.id, ok: true });
     } catch (e) {
+      if (e.message === 'CANCELADO') {
+        log('Respuesta a', tel, 'cancelada: ha contestado o pedido la baja mientras se escribía');
+        await api('salida_resultado', { id: w.id, ok: false, cancelado: true, error: 'Cancelada: contestó una persona o pidió la baja mientras se escribía' });
+        continue;
+      }
       log('Error enviando respuesta a', tel, e.message);
       await api('salida_resultado', { id: w.id, ok: false, error: String(e.message).slice(0, 250) });
     }

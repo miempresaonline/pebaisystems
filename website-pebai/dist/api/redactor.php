@@ -209,6 +209,21 @@ if ($canal === 'email') {
             ->execute([$e['asunto'], $e['cuerpo'], $e['recordatorio'], $now, $id]);
     pebai_actividad('redactor', 'hito', 'Email escrito para ' . $quien . ($r['dato'] !== '' ? ' (basado en: «' . $r['dato'] . '»)' : ' (sin gancho)'), $e['asunto'] . "\n\n" . $e['cuerpo'], $c['ref'] . $id);
 } else {
+    // 4/11: la rutina del Redactor a veces manda el dato pero no la frase del gancho (21 de 21 salieron sin él).
+    // Si falta, Cerebro saca el gancho de la misma web antes de guardar el mensaje.
+    if (!preg_match('/He vist[oa]? que/u', (string)$r['mensaje'])) {
+        try {
+            require_once __DIR__ . '/_cerebro_lib.php';
+            $ca = pebai_ia_solo_catalan((string)$cache['texto']);
+            $g = pebai_lab_gancho(['texto' => (string)$cache['texto']], PEBAI_LAB_NICHOS['solar'], (string)$empresa, '', $ca, 'WhatsApp');
+            if ($g['gancho'] !== '' && ($m2 = pebai_wa_componer($g['gancho'], $ca, $g['dato'], $g['nombre'])) !== null) {
+                $r['mensaje'] = $m2;
+                $r['dato'] = $g['dato'];
+            }
+        } catch (Throwable $e) {
+            pebai_log('REDACTOR gancho: ' . $e->getMessage());
+        }
+    }
     $c['db']->prepare("UPDATE prospectos SET mensaje = ?, error = '', updated_at = ? WHERE id = ?")->execute([$r['mensaje'], $now, $id]);
     pebai_actividad('redactor', 'hito', 'WhatsApp escrito para ' . $quien . ' (basado en: «' . $r['dato'] . '»)', $r['mensaje'], $c['ref'] . $id);
 }

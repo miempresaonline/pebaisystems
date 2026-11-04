@@ -171,14 +171,19 @@ function pebai_conv_cortesia_texto(array $p, array $msgs): string
             'Eres Daniel, de PEBAI Systems (consultora de procesos e Inteligencia Artificial). Escribiste en frío por WhatsApp a una empresa y te ha saltado su contestador automático. '
             . 'Escribe la respuesta que mandaría una persona a ese contestador para no quedarse en el aire: responde a lo que pregunta el contestador (si pregunta en qué pueden ayudar, dilo) '
             . 'resumiendo en UNA frase por qué les escribiste, sacado de tu primer mensaje, y termina con UNA pregunta fácil para llegar a la persona que lleva las solicitudes o los presupuestos. '
-            . 'Español de España, tuteo en plural (os), natural, como un WhatsApp de verdad. Máximo 35 palabras. Sin saludo largo, sin firma, sin enlaces, sin precios, sin porcentajes, sin leyes, sin ofrecer nada gratis, sin emojis o como mucho uno. '
+            . 'Ya te presentaste en el primer mensaje: NO saludes («Hola», «Buenas») ni te vuelvas a presentar («soy Daniel», «de PEBAI»); empieza directamente, p. ej. «Os escribía para…». '
+            . 'Español de España, tuteo en plural (os), natural, como un WhatsApp de verdad. Máximo 35 palabras. Sin firma, sin enlaces, sin precios, sin porcentajes, sin leyes, sin ofrecer nada gratis, sin emojis o como mucho uno. '
             . 'No repitas el primer mensaje entero ni pidas perdón. Devuelve SOLO el texto.',
             [['role' => 'user', 'content' => 'Empresa: ' . ($p['empresa'] ?: 'sin nombre') . "\nTU PRIMER MENSAJE:\n{$nuestro}\n\nSU CONTESTADOR:\n{$suyo}"]],
             ['effort' => 'low', 'max_tokens' => 1500]) ?? '');
         $t = trim($t, " \n\r\t\"«»");
         $n = count(preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY));
         // «gratis» solo vale si cita algo suyo entre comillas («Estudio gratis por WhatsApp»); nunca como oferta nuestra
-        if ($t !== '' && $n <= 45 && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t) && !preg_match('/gratis|gratuit/iu', preg_replace('/«[^»]*»/u', '', $t))) {
+        // Sin volver a saludar ni presentarse (4/11): si lo hace, se quita el saludo; si se presenta, se descarta
+        $t = preg_replace('/^(¡?hola|buenas( tardes| días)?|buenos días)[,!.\s]*/iu', '', $t);
+        $t = mb_strtoupper(mb_substr($t, 0, 1)) . mb_substr($t, 1);
+        if ($t !== '' && $n <= 45 && !preg_match('/soy daniel|de pebai|pebai systems/iu', $t)
+            && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t) && !preg_match('/gratis|gratuit/iu', preg_replace('/«[^»]*»/u', '', $t))) {
             return $t;
         }
     }
@@ -225,6 +230,13 @@ function pebai_conv_info_por_email(array $p, string $texto): bool
 {
     if (!preg_match('/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i', $texto, $m)
         || !preg_match('/correo|e-?mail|\bmail\b|informaci|info\b|env[ií]a|manda|p[aá]sa|escrib/iu', $texto)) {
+        return false;
+    }
+    // 4/11 (La Dentista): un contestador que dice «escriba a consulta@…» no es pedir información. Hace falta una persona
+    // que nos lo pida («mándame…», «envíanos…», «a mi correo», «mi email es…») y nada de mensajes de bienvenida u horario.
+    if (pebai_es_contestador($texto)
+        || preg_match('/gracias por (contactar|escribir|tu mensaje|su mensaje|comunicarte)|pronto nos pondremos|nuestro horario|horario de atenci|ll[aá]menos|en breve (le|te|os) (contest|respond|atend)/iu', $texto)
+        || !preg_match('/\b(m[aá]nd|env[ií]|p[aá]s)a(me|nos|lo|la|melo|noslo|mela|nosla)\b|\bm[aá]ndame|\benv[ií]ame|\bp[aá]same|a (mi|este|nuestro) (correo|e-?mail|mail)|mi (correo|e-?mail|mail) es|(correo|e-?mail|mail):?\s*[a-z0-9._%+-]+@|me (lo |la )?(mandas|env[ií]as|pasas)|nos (lo |la )?(mandas|env[ií]as|pasas)|(env[ií]a|manda|p[aá]sa)\w*\s+(un |el |la |esa |toda )?(correo|e-?mail|mail|info|informaci)|(correo|e-?mail|mail)\s+(a|al)\s+[a-z0-9._%+-]+@/iu', $texto)) {
         return false;
     }
     $to = strtolower($m[0]);
