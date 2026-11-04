@@ -2,6 +2,17 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-11-04 (Vigía: ficha de sector clínicas dentales)
+
+Sin novedades de buscadores que cambien algo. Comprobación técnica 4/11: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
+**Ficha nueva:** `docs/geo/sectores/clinicas-dentales.md` (preguntas con URL, hueco: nadie explica en español el marco RGPD de WhatsApp y llamadas en clínicas ni hay caso español con nombre; Consejo General de Dentistas con contacto; INE 2025: 43.672 colegiados; Dentista Moderno ya no existe como web).
+
+*Para el Jefe:*
+1. **Medición/Observatorio: estudio propio de captación de clínicas dentales (WhatsApp, reserva online, formulario, reseñas, por provincia).** Dato [V]: el Consejo y el INE solo miden profesionales (43.672 colegiados, +1,9 %, INE 2025 vía Redacción Médica 27/05/2026) y 25.000 clínicas (dosier Expodental 2026); ninguno mide cómo atienden. Destino con OK de Daniel: Consejo General de Dentistas (info@consejodentistas.es).
+2. **Contenido: cuando se abra el pack, H2 «Qué puede ir en un recordatorio de WhatsApp de una clínica y qué no» y FAQ de grabación de llamadas.** Dato [S]: Legiscope (10/07/2026) cita RGPD 9.2.h, 28 y 35.3.b; los proveedores citan HIPAA, que no aplica. Antes, Vigía/Refresco abre BOE y AEPD para pasar a [V].
+3. **Estrategia: no abrir el pack de clínicas sin caso o estudio.** Dato: `casos.md` no tiene ninguna clínica y la regla de prueba mínima de `estrategia-nichos.md` lo exige; Adrián lleva ese nicho en captación (`captacion-50-nichos.md`).
+
 ## 2026-11-03 (Vigía: ficha de sector distribución B2B y suministros industriales)
 
 Sin novedades de buscadores que cambien algo. Novedad legal que sí cambia algo: Orden HAC/1028/2026 (BOE 5/10/2026, en vigor 6/10) fija la factura electrónica B2B en **6/10/2027** (más de 8 M€) y **6/10/2028** (resto) [V: AEAT y BOE]; muchas guías antiguas dan 2027 para pymes. Comprobación técnica 3/11: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
