@@ -6,7 +6,7 @@ Preguntas reales de dueños de empresa sacadas de `docs/geo/preguntas.md`, lista
 |---|---|---|---|---|
 | 1 | ¿Qué le pregunto por WhatsApp a quien pide presupuesto para no ir a ciegas a la visita? | Cualificar antes: zona, tipo de trabajo, medidas, plazo y foto; la visita se reserva solo con eso. | `/automatizacion-de-procesos/presupuestos/` (cuando dé 200) | Candidata 15/12 |
 | 2 | ¿Puedo ver algo funcionando antes de contratar? | Sí: casos con fecha de sus datos y una consultoría de 25 minutos antes de comprometerte. | `/sobre-pebai/` | Libre |
-| 3 | ¿Qué pasa si la consultora desaparece o me quiero ir? | Lo que se construye debe poder traspasarse: documentación y acceso a lo desarrollado. | `/sobre-pebai/` | Libre (revisar redacción exacta de la página) |
+| 3 | ¿Qué pasa si la consultora desaparece o me quiero ir? | Lo que se construye debe poder traspasarse: documentación y acceso a lo desarrollado. | `/sobre-pebai/` | Libre (revisar redacción exacta de la página) | Borrador `2026-01-pregunta-si-la-consultora-desaparece.md` (4/11)
 | 4 | ¿Cómo es el pago y el alcance: cerrado o por horas? | Alcance cerrado por fases y precio que se presupuesta tras la consultoría; desconfiar de horas sin tope. | `/ia-para-empresas/cuanto-cuesta/` | Libre (sin cifras salvo 1.500 €) |
 | 5 | ¿Qué hago con las llamadas que pierdo mientras atiendo en el sillón? | Agente de voz con salida a una persona y resumen; no sirve si casi todo son urgencias. | `/agentes-ia/voz/` | Esperar a enero (ya hay post de voz) |
 | 6 | ¿Cómo evito que los pacientes no se presenten a la cita? | Recordatorio por WhatsApp con confirmar o reprogramar. Sin cifras de reducción. | pack clínicas (cuando exista) | Esperar a la página |
