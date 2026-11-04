@@ -1,6 +1,6 @@
 # Hoja de la ficha de Google para Daniel · 5 minutos (30/10/2026)
 
-Todo lo que solo puedes tocar tú en la ficha, en el orden de la pantalla de Google. Entra en Google, busca «PEBAI Systems» con la cuenta propietaria y pulsa **Editar perfil**. Lo que no está aquí lo hacen los agentes (posts, fotos, palabras clave).
+Todo lo que solo puedes tocar tú en la ficha (descripción en el punto 7), en el orden de la pantalla de Google. Entra en Google, busca «PEBAI Systems» con la cuenta propietaria y pulsa **Editar perfil**. Lo que no está aquí lo hacen los agentes (posts, fotos, palabras clave).
 
 ## 1. Nombre de la empresa (30 s)
 Editar perfil › Información de la empresa › Nombre. Debe poner solo:
@@ -39,3 +39,10 @@ Fotos › Portada (tarea ADD_COVER_PHOTO; Metricool no puede fijarla). Elige `pe
 Añadir actualización › Oferta. Texto, fechas y enlace listos en `docs/geo/borradores/gbp/oferta-noviembre.md` (título «Consultoría gratuita de IA para tu empresa (25 min)», del 1 al 30/11, enlace `https://pebaisystems.es/g/oferta`).
 
 Cuando lo hagas, dilo y el agente Local cierra las tareas en Localo y comprueba Bing Places.
+
+## 7. Descripción de la empresa (1 min, 4/11/2026)
+Editar perfil › Información de la empresa › Descripción. Sustituye la actual por esta (644 caracteres de 750). Empieza con la frase de entidad que usan los demás perfiles, responde qué hace PEBAI, para qué empresas y cómo empezar, y no lleva enlaces, precios ni ofertas (Google los prohíbe en la descripción). Es la misma que va en Bing Places (se sincroniza con Google):
+
+```
+PEBAI Systems es una consultoría de inteligencia artificial y procesos de Valencia que trabaja en remoto con empresas de toda España. Hacemos automatización de procesos, chatbots para empresas en WhatsApp y en la web, agentes de voz para empresas que atienden llamadas y agendan citas, y automatización de presupuestos, pedidos y partes de trabajo, conectados a vuestro CRM. Trabajamos con pymes de servicios, instaladoras, reformas, clínicas y comercio. Se empieza con una consultoría de 25 minutos por videollamada: vemos dónde se pierde el tiempo y qué conviene automatizar. Si algo se resuelve sin inteligencia artificial, lo decimos claro.
+```
