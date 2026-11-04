@@ -11,3 +11,6 @@ Fuente: WebSearch «PEBAI Systems» Valencia consultoría (la página dirige a 4
 | Ficha de Maps / Bing Places | No devuelve la ficha el buscador | sin dato | Sin verificar |
 
 Conclusión: la calle «Plaza del Ayuntamiento» sigue en GoodFirms y Sortlist; rompe el NAP y solo se cambia desde la cuenta de PEBAI en cada directorio (2 minutos cada uno).
+
+## Comprobación 4/11 tarde (turno Local, 17:00)
+WebSearch «PEBAI Systems» + Google Maps/Bing Places: solo salen GoodFirms y Sortlist (ambos con sede «Plaza del Ayuntamiento», pendiente de Daniel); Maps y Bing Places siguen sin verse desde la nube, el nombre público de la ficha sigue sin verificarse. Localo: sin tareas nuevas (`localo-mas-tareas` devuelve vacío); abiertas solo REMOVE_ADDITIONAL_CATEGORY y REPLY_TO_REVIEW, que exigen la cuenta de Daniel (ya avisadas).
