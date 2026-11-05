@@ -265,7 +265,7 @@ function pebai_lab_preparar(int $max = 1, string $grupo = ''): int
     }
     $hechos = 0;
     // Mismo reparto que el envío: escribe para el grupo que tiene menos mensajes listos en proporción a su parte.
-    // Nichos nuevos: solo empresas revisadas por el Redactor ([revisado]) o, en los que él no revisa, Cerebro comprueba que encajan.
+    // Dentales e inmobiliarias: solo empresas revisadas por el Redactor ([revisado]), que es gratis. Solar y reformas van directas.
     $listos = [];
     foreach (PEBAI_REPARTO as $g => [$parte, $nichos]) {
         $ns = implode(',', array_map(static fn($n) => $db->quote($n), $nichos));
@@ -285,18 +285,7 @@ function pebai_lab_preparar(int $max = 1, string $grupo = ''): int
     foreach ($cola as $p) {
         $web = preg_match('~^https?://~', (string)$p['web']) ? (string)$p['web'] : 'https://' . ltrim((string)$p['web'], '/');
         $w = pebai_web_texto($web);
-        $N = PEBAI_LAB_NICHOS[$p['nicho']] ?? PEBAI_LAB_NICHOS['solar'];
-        // Nichos sin revisión del Redactor: Cerebro mira su web y solo sigue si es una empresa independiente, activa y con equipo
-        if ($p['nicho'] === 'reformas' && !str_starts_with((string)$p['error'], '[revisado]')) {
-            $enc = $w ? pebai_claude_json('cerebro', 'claude-haiku-5-5', 'Decides si una empresa española encaja como cliente de PEBAI Systems (asistentes de IA, visibilidad en IA y apps para pymes). Responde SOLO JSON {"encaja": true/false, "motivo": "una frase"}.',
-                "Encaja si es " . $N['quien'] . " independiente (no franquicia ni cadena), activa, con equipo y que recibe consultas de clientes. No encaja si es un autónomo solo, una web abandonada, una tienda o un distribuidor, o de otro país.\nEMPRESA: {$p['empresa']}\nWEB:\n" . mb_substr($w['texto'], 0, 2500),
-                ['effort' => 'low', 'max_tokens' => 800]) : null;
-            if (!is_array($enc) || empty($enc['encaja'])) {
-                $db->prepare("UPDATE prospectos SET plantilla = 'lab-no', error = ? WHERE id = ? AND mensaje = ''")->execute(['[no encaja] ' . mb_substr((string)($enc['motivo'] ?? 'sin web legible'), 0, 200), $p['id']]);
-                continue;
-            }
-        }
-        // 5/11 (Daniel): mensaje fijo, sin gancho de la IA; solo cambia el nombre de la empresa
+        // 5/11 (Daniel): sin revisión de pago con IA; mensaje fijo, sin gancho de la IA; solo cambia el nombre de la empresa
         $ca = $w && pebai_ia_solo_catalan($w['texto']);
         $t = pebai_wa_fijo((string)$p['empresa'], $ca, (string)$p['ciudad']);
         $db->prepare("UPDATE prospectos SET mensaje = ?, plantilla = 'lab-fijo', updated_at = ? WHERE id = ? AND mensaje = '' AND estado = 'pendiente'")
@@ -339,8 +328,8 @@ const PEBAI_EMAIL_NICHOS = ['dentales', 'inmobiliarias', 'reformas'];
 const PEBAI_EMAIL_ESCRITOS_DIA = 40;   // primeros emails que se preparan al día como mucho (cada uno ~1-2 céntimos)
 
 /**
- * Prepara primeros emails para la cola: mira que la empresa encaje (si el Redactor no la ha revisado ya), saca el gancho
- * de su web y deja el texto con la plantilla de Daniel y su recordatorio. Las que no encajan salen de la cola. Nunca envía.
+ * Prepara primeros emails: comprueba que su web responde y deja el texto con la plantilla de Daniel y su recordatorio.
+ * Las revisadas por el Redactor van primero. Sin coste de IA. Nunca envía.
  */
 function pebai_lab_preparar_email(int $max = 1): int
 {
@@ -378,22 +367,8 @@ function pebai_lab_preparar_email(int $max = 1): int
             $db->prepare("UPDATE email_prospectos SET error = ?, updated_at = ? WHERE id = ?")->execute(['[ia_error] La web no responde o está vacía', $now, $p['id']]);
             continue;
         }
-        $N = PEBAI_LAB_NICHOS[$p['nicho']] ?? ['sector' => (string)$p['sector'] ?: 'empresas', 'quien' => 'una empresa (' . ((string)$p['sector'] ?: $p['nicho']) . ')'];
-        if (!str_starts_with((string)$p['error'], '[revisado]')) {
-            $enc = pebai_claude_json('cerebro', 'claude-haiku-5-5', 'Decides si una empresa española encaja como cliente de PEBAI Systems (consultora de procesos e IA para pymes: asistentes, apps a medida, automatizar tareas). Responde SOLO JSON {"encaja": true/false, "motivo": "una frase"}.',
-                'Encaja si es ' . $N['quien'] . ' independiente (no franquicia, cadena ni gran empresa), activa, con equipo y que recibe consultas de clientes. No encaja si es un autónomo solo, una web abandonada, una tienda online o un distribuidor, o de otro país. Ante la duda, no encaja.'
-                . "\nEMPRESA: {$p['empresa']}\nWEB:\n" . mb_substr($w['texto'], 0, 2500), ['effort' => 'low', 'max_tokens' => 800]);
-            if (!is_array($enc)) {
-                continue;   // la IA no ha contestado: se reintenta en otra vuelta
-            }
-            if (empty($enc['encaja'])) {
-                $db->prepare("UPDATE email_prospectos SET estado = 'descartado', error = ?, updated_at = ? WHERE id = ?")->execute(['[no encaja] ' . mb_substr((string)($enc['motivo'] ?? ''), 0, 200), $now, $p['id']]);
-                pebai_actividad('email', 'bloqueo', 'Fuera ' . $p['empresa'] . ' (no encaja): ' . mb_substr((string)($enc['motivo'] ?? ''), 0, 200), '', 'email:' . $p['id']);
-                continue;
-            }
-        }
         $ca = pebai_ia_solo_catalan($w['texto']);
-        // 5/11 (Daniel): email sin gancho de la IA, igual que el WhatsApp
+        // 5/11 (Daniel): email sin revisión de pago y sin gancho de la IA, igual que el WhatsApp
         $g = ['gancho' => '', 'dato' => '', 'nombre' => ''];
         $e = pebai_email_texto_nuevo($g + ['ca' => $ca], (string)$p['empresa'], (string)$p['ciudad']);
         $db->prepare("UPDATE email_prospectos SET asunto_personal = ?, cuerpo_personal = ?, asunto_recordatorio = '', cuerpo_recordatorio = ?, error = '', updated_at = ? WHERE id = ? AND cuerpo_personal = ''")
