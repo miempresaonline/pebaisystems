@@ -9,10 +9,12 @@ Fuente: preguntas.md (26/10). Sin cifras. Sin imagen.
 Tres cosas a revisar en tu empresa:
 
 1. Cuenta de empresa o cuenta personal. Las condiciones sobre el uso de tus datos para entrenar el modelo no son las mismas, así que lee las del plan que uses.
-2. Qué se pega. Datos personales de clientes, contratos y datos de salud no deberían ir a una herramienta que no has revisado.
+2. Qué se pega. Nunca datos personales de clientes o empleados (nombre completo, DNI, teléfono, salud, nóminas), contratos ni presupuestos sin enviar. Para pedir ayuda con un caso real, se describe uno ficticio o se quitan los datos que identifican a la persona.
 3. Quién lo hace. Si cada persona del equipo usa su cuenta, nadie sabe qué se ha compartido.
 
 Una norma escrita de una página (qué herramientas, con qué cuenta y qué datos no se pegan) resuelve la mayor parte del riesgo. El Reglamento General de Protección de Datos sigue aplicando igual aunque la herramienta sea nueva.
+
+Los cuatro apartados de esa política de uso, con el decálogo de la AEPD de enero de 2026 como referencia: https://pebaisystems.es/ia-para-empresas/formacion/?utm_source=linkedin&utm_medium=empresa#politica-de-uso
 
 Si quieres ordenar el uso de IA en tu equipo, la consultoría de 25 minutos es un buen punto de partida. Gratuita para cinco empresas al mes; después, de pago.
 
