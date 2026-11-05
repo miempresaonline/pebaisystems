@@ -100,7 +100,7 @@ const PEBAI_WA_FIJO = [
 ];
 
 /** Nombre de la empresa tal como lo diría una persona: sin coletillas de Google Maps, sin S.L. y sin todo en mayúsculas. */
-function pebai_wa_nombre(string $empresa): string
+function pebai_wa_nombre(string $empresa, string $ciudad = ''): string
 {
     // Corta en « - », « | », «(», «: » y en «. » (salvo Dr., Dra., Sr., Sra. e iniciales): lo que viene detrás son coletillas de Google Maps
     $e = preg_split('/\s+[-–—|·]\s+|\s*[|(]\s*|:\s+|(?<!\bDr)(?<!\bDra)(?<!\bSr)(?<!\bSra)(?<!\b\p{Lu})\.\s+/u', trim($empresa))[0] ?? '';
@@ -116,12 +116,52 @@ function pebai_wa_nombre(string $empresa): string
             return mb_strlen($w) <= 2 ? $w : mb_convert_case($l, MB_CASE_TITLE);
         }, preg_split('/\s+/u', $e)));
     }
-    return $e !== '' ? $e : 'vuestra empresa';
+    return $e !== '' ? pebai_nombre_corto($e, $ciudad) : 'vuestra empresa';
 }
 
-function pebai_wa_fijo(string $empresa, bool $ca = false): string
+/**
+ * Como la llamaría una persona (5/11, Daniel: «a mí me llaman PEBAI, no PEBAI Systems»): sin lo genérico del sector ni la ciudad,
+ * dos palabras como mucho. «Clínica Dental Serra Fortuny Sant Cugat» → «Serra Fortuny». Sin IA: no se inventa nada.
+ */
+function pebai_nombre_corto(string $e, string $ciudad = ''): string
 {
-    return str_replace('{empresa}', pebai_wa_nombre($empresa), PEBAI_WA_FIJO[$ca ? 'ca' : 'es']);
+    $generico = '/^(cl[ií]nicas?|clinics?|dentales|dental|dentistas?|centro|centre|m[eé]dico|odontolog[ií]a|inmobiliarias?|inmo|fincas|finques|gesti[oó]n|real|estate|propiedades|'
+        . 'reformas?|integrales|construcciones|construcci[oó]n|obras|interiorismo|instalaciones|instal·lacions|instaladoras?|instaladores?|placas|paneles|solares?|'
+        . 'energ[ií]as?|energy|renovables?|autoconsumo|fotovoltaica|actividades|el[eé]ctricas?|electricidad|servicios|grupo|empresa)$/iu';
+    $enlace = '/^(de|del|y|e|i|d[\'´’]?|&|dr\.?|dra\.?|sr\.?|sra\.?|\p{Lu}\.)$/iu';
+    $palabras = preg_split('/\s+/u', trim(explode(',', $e)[0]), -1, PREG_SPLIT_NO_EMPTY);
+    $deCiudad = array_map('mb_strtolower', preg_split('/\s+/u', trim($ciudad), -1, PREG_SPLIT_NO_EMPTY));
+    $marca = [];
+    $llenas = 0;
+    foreach ($palabras as $p) {
+        $esGenerica = (bool)preg_match($generico, $p);
+        if (!$marca && ($esGenerica || preg_match('/^(de|del|y|e|i|&)$/iu', $p))) {
+            continue;   // lo genérico del principio: «Clínica Dental…»
+        }
+        if ($marca && ($esGenerica || in_array(mb_strtolower($p), $deCiudad, true))) {
+            break;      // lo genérico o la ciudad detrás de la marca: «Josol Energías…», «Serra Fortuny Sant Cugat»
+        }
+        // Palabra entera en mayúsculas dentro de un nombre normal: ESPADAS → Espadas
+        $marca[] = mb_strlen($p) > 4 && $p === mb_strtoupper($p) ? mb_convert_case($p, MB_CASE_TITLE) : $p;
+        if (!preg_match($enlace, $p) && ++$llenas >= 2) {
+            break;
+        }
+    }
+    while ($marca && preg_match('/^(de|del|y|e|i|&)$/iu', end($marca))) {
+        array_pop($marca);
+    }
+    $corto = implode(' ', $marca);
+    $soloCiudad = !array_diff(array_map('mb_strtolower', $marca), $deCiudad);
+    // Si no queda marca (todo era genérico o es solo la ciudad), o es muy corta, va el nombre tal cual, tres palabras como mucho
+    if ($corto === '' || $soloCiudad || mb_strlen(preg_replace('/[^\p{L}]/u', '', $corto)) < 4) {
+        return implode(' ', array_slice($palabras, 0, 3));
+    }
+    return $corto;
+}
+
+function pebai_wa_fijo(string $empresa, bool $ca = false, string $ciudad = ''): string
+{
+    return str_replace('{empresa}', pebai_wa_nombre($empresa, $ciudad), PEBAI_WA_FIJO[$ca ? 'ca' : 'es']);
 }
 
 /** Primer WhatsApp con la plantilla. null si el gancho no pasa el control (se reintenta o se manda sin gancho). */
@@ -148,10 +188,10 @@ function pebai_email_componer_nuevo(string $gancho, bool $ca, string $dato, stri
 }
 
 /** Texto del primer email y de su recordatorio a partir de lo que devuelve pebai_ia_control (gancho, nombre, idioma). */
-function pebai_email_texto_nuevo(array $r, string $empresa): array
+function pebai_email_texto_nuevo(array $r, string $empresa, string $ciudad = ''): array
 {
     require_once __DIR__ . '/_email_lib.php';
-    $corta = pebai_wa_nombre($empresa);
+    $corta = pebai_wa_nombre($empresa, $ciudad);
     $e = pebai_email_componer_nuevo((string)$r['gancho'], (bool)$r['ca'], (string)$r['dato'], (string)$r['nombre'], $corta)
         ?? pebai_email_componer_nuevo('', (bool)$r['ca'], '', (string)$r['nombre'], $corta);
     return $e + ['recordatorio' => $r['ca'] ? PEBAI_EMAIL_RECORDATORIO_CA : PEBAI_EMAIL_RECORDATORIO];

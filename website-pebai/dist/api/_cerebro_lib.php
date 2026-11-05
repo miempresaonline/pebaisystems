@@ -255,7 +255,7 @@ function pebai_lab_ok(string $t): bool
 }
 
 /** Prepara hasta $max primeros mensajes del laboratorio. Devuelve cuántos ha escrito. */
-function pebai_lab_preparar(int $max = 1): int
+function pebai_lab_preparar(int $max = 1, string $grupo = ''): int
 {
     require_once __DIR__ . '/_demos_lib.php';
     $db = pebai_agentes_db();
@@ -273,10 +273,10 @@ function pebai_lab_preparar(int $max = 1): int
     }
     asort($listos);
     $cola = [];
-    foreach (array_keys($listos) as $g) {
+    foreach ($grupo !== '' ? [$grupo] : array_keys($listos) as $g) {
         $ns = implode(',', array_map(static fn($n) => $db->quote($n), PEBAI_REPARTO[$g][1]));
         $cola = $db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND mensaje = '' AND web <> '' AND plantilla = '' AND nicho IN ($ns)
-                            AND ((nicho = 'solar' AND id % 3 <> 0) OR nicho = 'reformas' OR error LIKE '[revisado]%')
+                            AND (nicho IN ('solar', 'reformas') OR error LIKE '[revisado]%')
                             AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY RANDOM() LIMIT " . (int)$max)->fetchAll();
         if ($cola) {
             break;
@@ -298,7 +298,7 @@ function pebai_lab_preparar(int $max = 1): int
         }
         // 5/11 (Daniel): mensaje fijo, sin gancho de la IA; solo cambia el nombre de la empresa
         $ca = $w && pebai_ia_solo_catalan($w['texto']);
-        $t = pebai_wa_fijo((string)$p['empresa'], $ca);
+        $t = pebai_wa_fijo((string)$p['empresa'], $ca, (string)$p['ciudad']);
         $db->prepare("UPDATE prospectos SET mensaje = ?, plantilla = 'lab-fijo', updated_at = ? WHERE id = ? AND mensaje = '' AND estado = 'pendiente'")
            ->execute([$t, date('Y-m-d H:i:s'), $p['id']]);
         pebai_actividad('cerebro', 'hito', 'Primer mensaje para ' . $p['empresa'] . ' (' . $p['nicho'] . ')', $t, 'wa:' . $p['id']);
@@ -395,7 +395,7 @@ function pebai_lab_preparar_email(int $max = 1): int
         $ca = pebai_ia_solo_catalan($w['texto']);
         // 5/11 (Daniel): email sin gancho de la IA, igual que el WhatsApp
         $g = ['gancho' => '', 'dato' => '', 'nombre' => ''];
-        $e = pebai_email_texto_nuevo($g + ['ca' => $ca], (string)$p['empresa']);
+        $e = pebai_email_texto_nuevo($g + ['ca' => $ca], (string)$p['empresa'], (string)$p['ciudad']);
         $db->prepare("UPDATE email_prospectos SET asunto_personal = ?, cuerpo_personal = ?, asunto_recordatorio = '', cuerpo_recordatorio = ?, error = '', updated_at = ? WHERE id = ? AND cuerpo_personal = ''")
            ->execute([$e['asunto'], $e['cuerpo'], $e['recordatorio'], $now, $p['id']]);
         pebai_actividad('email', 'cambio', 'Email escrito para ' . $p['empresa'] . ' (' . $p['nicho'] . ')', $e['asunto'] . "\n\n" . $e['cuerpo'], 'email:' . $p['id']);

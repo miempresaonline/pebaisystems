@@ -699,6 +699,17 @@ function pebai_email_enviar_uno(bool $forzarRitmo = false, bool $comprobarDns = 
     }
     for ($intento = 0; $intento < 5; $intento++) {
         $sig = pebai_email_siguiente($cfg);
+        // 5/11 (Daniel): sin cola. Si no hay ninguno listo, se prepara ahora mismo, justo antes de enviarlo
+        for ($i = 0; !$sig && $i < 3 && !((int)($cfg['tope_total'] ?? 0) > 0 && pebai_email_primeros_total() >= (int)$cfg['tope_total']); $i++) {
+            try {
+                require_once __DIR__ . '/_cerebro_lib.php';
+                pebai_lab_preparar_email(1);
+            } catch (Throwable $e) {
+                pebai_log('EMAIL preparar: ' . $e->getMessage());
+                break;
+            }
+            $sig = pebai_email_siguiente($cfg);
+        }
         if (!$sig) {
             if ((int)($cfg['tope_total'] ?? 0) > 0 && pebai_email_primeros_total() >= (int)$cfg['tope_total']) {
                 return pebai_email_espera('tope de la prueba alcanzado', 'Prueba completada: ' . (int)$cfg['tope_total'] . ' primeros emails enviados. Ya no escribe a nadie nuevo (los recordatorios siguen)');
@@ -1273,16 +1284,6 @@ function pebai_email_tick(bool $comprobarDns = true): array
         pebai_actividad_unica('email', 'error', 'Error leyendo respuestas', $e->getMessage());
     }
     pebai_email_revisar_escalon();
-    // Colchón de primeros emails escritos (3/11): si quedan menos de 8 listos, Cerebro prepara dos más con la plantilla de Daniel
-    try {
-        $listos = (int)$db->query("SELECT COUNT(*) FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 AND cuerpo_personal <> '' AND nicho IN ('dentales', 'inmobiliarias', 'reformas')")->fetchColumn();
-        if ($listos < 8 && !(int)pebai_agente('email')['pausado']) {
-            require_once __DIR__ . '/_cerebro_lib.php';
-            $out['preparados'] = pebai_lab_preparar_email(2);
-        }
-    } catch (Throwable $e) {
-        pebai_log('EMAIL preparar: ' . $e->getMessage());
-    }
     try {
         $out['envio'] = pebai_email_enviar_uno(false, $comprobarDns);
     } catch (Throwable $e) {

@@ -76,9 +76,6 @@ switch ($in['accion'] ?? '') {
         try {
             require_once __DIR__ . '/_cerebro_lib.php';
             pebai_cerebro_procesar(3);
-            if ((int)date('G') >= 7 && (int)date('G') < 20) {
-                pebai_lab_preparar(1);
-            }
         } catch (Throwable $e) {
             pebai_log('CEREBRO: ' . $e->getMessage());
         }
@@ -114,7 +111,19 @@ switch ($in['accion'] ?? '') {
         $cands = [];
         foreach (pebai_reparto_orden(pebai_reparto_hoy()) as $g) {
             $ns = implode(',', array_map(static fn($n) => $db->quote($n), PEBAI_REPARTO[$g][1]));
-            $cands = $db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND mensaje <> '' AND nicho IN ($ns) AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY prioridad DESC, RANDOM() LIMIT 50")->fetchAll();
+            $sql = "SELECT * FROM prospectos WHERE estado = 'pendiente' AND mensaje <> '' AND nicho IN ($ns) AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY prioridad DESC, RANDOM() LIMIT 50";
+            $cands = $db->query($sql)->fetchAll();
+            // 5/11 (Daniel): sin cola. Si a este grupo no le queda ninguna lista, se prepara una ahora mismo, al ir a enviar
+            for ($i = 0; !$cands && $i < 3; $i++) {
+                try {
+                    require_once __DIR__ . '/_cerebro_lib.php';
+                    pebai_lab_preparar(1, $g);
+                } catch (Throwable $e) {
+                    pebai_log('PREPARAR AL ENVIAR: ' . $e->getMessage());
+                    break;
+                }
+                $cands = $db->query($sql)->fetchAll();
+            }
             if ($cands) {
                 break;
             }
@@ -132,9 +141,10 @@ switch ($in['accion'] ?? '') {
             pebai_actividad_espera('whatsapp', 'Sin mensajes escritos en cola: no hay a quién escribir');
             out(['ok' => true, 'esperar' => 1800, 'motivo' => 'sin_prospectos']);
         }
-        // El mensaje es el escrito para esta empresa, tal cual
+        // El texto se arma ahora, al enviar: siempre sale el mensaje vigente de Daniel y con el nombre corto (5/11)
         $plantilla = str_starts_with((string)$p['plantilla'], 'lab-') ? (string)$p['plantilla'] : 'personal';   // laboratorio de Cerebro: se mide aparte
-        $texto = trim((string)$p['mensaje']);
+        require_once __DIR__ . '/_ia_lib.php';
+        $texto = pebai_wa_fijo((string)$p['empresa'], str_contains((string)$p['mensaje'], 'Hola, equip de') || str_contains((string)$p['mensaje'], 'Hola, sóc'), (string)$p['ciudad']);
         $db->prepare("UPDATE prospectos SET estado = 'enviando', enviando_at = ?, plantilla = ?, updated_at = ? WHERE id = ? AND estado = 'pendiente'")->execute([$now, $plantilla, $now, $p['id']]);
         out(['ok' => true, 'prospecto' => ['id' => (int)$p['id'], 'telefono' => $p['telefono'], 'empresa' => $p['empresa']], 'texto' => $texto]);
 
