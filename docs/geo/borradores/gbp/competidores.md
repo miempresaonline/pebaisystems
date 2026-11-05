@@ -268,3 +268,11 @@ Su fuerza no es la ficha: es que terceros (Upliora) lo recomiendan en listas. Lo
 - **Metrio:** WebSearch no devuelve ninguna empresa con ese nombre en Valencia; se descarta de la lista (no repetir).
 - **Agencia IA Solutions:** perfil en Sortlist (sortlist.co.uk/agency/agencia-ia-solutions), Valencia, fundada en 2023, dice ofrecer implantación de IA, automatización de procesos y estrategia digital. Solo [S]: no se ha abierto su web ni su ficha de Maps (no se ve desde la nube).
 - **Mejora para la nuestra:** su perfil de Sortlist ya sale en búsquedas de «consultoría IA Valencia»; el nuestro de Sortlist es público, así que la acción es conseguir la primera reseña real de un cliente (mensajes listos en `resenas/pedir-resena.md`).
+
+## 5/11/2026 · AizuaLabs (aizualabs.com), Málaga [V, web abierta 5/11]
+- Sede en Málaga, trabaja en remoto para toda España. Agentes de IA gestionados (SaaS), consultoría y automatización, e-commerce, webs y SEO, formación y Kit Digital. Sectores: clínicas, inmobiliarias y talleres.
+- Prueba que enseña: 6 clientes con nombre (sin resultados) y 5 reseñas de Google (5,0) copiadas en su web [reseñas autorreportadas].
+- Primer paso: auditoría gratuita de 30-60 minutos, sin compromiso. Publica precios de su SaaS (no los comparamos ni los usamos).
+- Ficha de Google (categorías, posts, fotos): no verificable desde la nube.
+- Hueco para PEBAI: ellos ofrecen de todo; PEBAI es un solo servicio claro, con casos con captura y datos fechados, y un primer paso de 25 minutos con 5 plazas al mes. Descartada: Kuatrinova Studio (WebSearch 5/11 no devuelve nada; no repetir).
+- Mejora para la nuestra (sin Daniel): ya tienen 5 reseñas visibles en su web; la nuestra es la reseña por responder y las 3 de `resenas/pedir-resena.md`. Prioridad: que Daniel responda la reseña nueva y que los 3 clientes dejen la suya.
