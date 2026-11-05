@@ -125,38 +125,51 @@ function pebai_wa_nombre(string $empresa, string $ciudad = ''): string
  */
 function pebai_nombre_corto(string $e, string $ciudad = ''): string
 {
-    $generico = '/^(cl[ií]nicas?|clinics?|dentales|dental|dentistas?|centro|centre|m[eé]dico|odontolog[ií]a|inmobiliarias?|inmo|fincas|finques|gesti[oó]n|real|estate|propiedades|'
-        . 'reformas?|integrales|construcciones|construcci[oó]n|obras|interiorismo|instalaciones|instal·lacions|instaladoras?|instaladores?|placas|paneles|solares?|'
-        . 'energ[ií]as?|energy|renovables?|autoconsumo|fotovoltaica|actividades|el[eé]ctricas?|electricidad|servicios|grupo|empresa)$/iu';
-    $enlace = '/^(de|del|y|e|i|d[\'´’]?|&|dr\.?|dra\.?|sr\.?|sra\.?|\p{Lu}\.)$/iu';
-    $palabras = preg_split('/\s+/u', trim(explode(',', $e)[0]), -1, PREG_SPLIT_NO_EMPTY);
+    $generico = '/^(cl[ií]nicas?|clinics?|dentales|dental|dentistas?|centro|centre|m[eé]dico|odontolog[ií]a|inmobiliarias?|immobili[aà]ria|inmo|fincas|finques|gesti[oó]n|real|estate|propiedades|asesor[ií]a|asesores|'
+        . 'reformas?|integrales|construcciones|construcci[oó]n?|construcci[oó]|obras|interiorismo|instalaciones|instal·lacions|instaladoras?|instaladores?|placas|paneles|solar(es)?|'
+        . 'energ[ií]as?|energy|renovables?|soluciones|autoconsumo|fotovoltaica|actividades|el[eé]ctricas?|electricidad|servicios|serveis|proyectos|mantenimientos?|grupo|empresa)$/iu';
+    $union = '/^(de|del|en|by|y|e|i|d[\'´’]?|&)$/iu';
+    $sinValor = '/^(de|del|en|by|y|e|i|d[\'´’]?|&|dr\.?|dra\.?|sr\.?|sra\.?|\p{Lu}\.)$/iu';
+    // Fuera emojis y símbolos, que cantan a envío masivo
+    $limpio = trim(preg_replace('/[^\p{L}\p{N}\s.&\'´’\-·]/u', '', explode(',', $e)[0]));
+    $palabras = preg_split('/\s+/u', $limpio, -1, PREG_SPLIT_NO_EMPTY);
     $deCiudad = array_map('mb_strtolower', preg_split('/\s+/u', trim($ciudad), -1, PREG_SPLIT_NO_EMPTY));
     $marca = [];
     $llenas = 0;
+    $previas = [];
     foreach ($palabras as $p) {
         $esGenerica = (bool)preg_match($generico, $p);
-        if (!$marca && ($esGenerica || preg_match('/^(de|del|y|e|i|&)$/iu', $p))) {
+        if (!$marca && ($esGenerica || preg_match($union, $p))) {
+            $previas[] = $p;
             continue;   // lo genérico del principio: «Clínica Dental…»
         }
         if ($marca && ($esGenerica || in_array(mb_strtolower($p), $deCiudad, true))) {
             break;      // lo genérico o la ciudad detrás de la marca: «Josol Energías…», «Serra Fortuny Sant Cugat»
         }
+        // «Odontología del Norte»: el «del» une, no se puede quedar en «Norte»
+        if (!$marca && count($previas) >= 2 && preg_match('/^(de|del)$/iu', end($previas))) {
+            $marca = array_slice($previas, -2);
+        }
         // Palabra entera en mayúsculas dentro de un nombre normal: ESPADAS → Espadas
         $marca[] = mb_strlen($p) > 4 && $p === mb_strtoupper($p) ? mb_convert_case($p, MB_CASE_TITLE) : $p;
-        if (!preg_match($enlace, $p) && ++$llenas >= 2) {
+        if (!preg_match($sinValor, $p) && ++$llenas >= 2) {
             break;
         }
     }
-    while ($marca && preg_match('/^(de|del|y|e|i|&)$/iu', end($marca))) {
+    while ($marca && preg_match($union, end($marca))) {
         array_pop($marca);
     }
     $corto = implode(' ', $marca);
     $soloCiudad = !array_diff(array_map('mb_strtolower', $marca), $deCiudad);
     // Si no queda marca (todo era genérico o es solo la ciudad), o es muy corta, va el nombre tal cual, tres palabras como mucho
     if ($corto === '' || $soloCiudad || mb_strlen(preg_replace('/[^\p{L}]/u', '', $corto)) < 4) {
-        return implode(' ', array_slice($palabras, 0, 3));
+        $tal = array_slice($palabras, 0, 3);
+        while ($tal && preg_match($union, end($tal))) {
+            array_pop($tal);
+        }
+        $corto = implode(' ', $tal);
     }
-    return $corto;
+    return mb_strtoupper(mb_substr($corto, 0, 1)) . mb_substr($corto, 1);
 }
 
 function pebai_wa_fijo(string $empresa, bool $ca = false, string $ciudad = ''): string
