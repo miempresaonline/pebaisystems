@@ -28,3 +28,4 @@ Una línea por post: `fecha · layout · tema · seed · titular`. El agente de 
 2026-11-12 · foto de la ficha (Metricool gmb photo): imagen gbp/2026-10-28.png (¿Te recomienda la IA?)
 2026-11-09 · foto de la ficha (Metricool gmb photo, id 416695218): banner de marca brand/pebai-automation-pipeline.jpg
 2026-11-13 · foto de la ficha (Metricool gmb photo, id 416695247): banner de marca brand/pebai-geo-ai-search-engines.png
+2026-11-17 · foto de la ficha (Metricool gmb photo, id 417534636): banner de marca brand/pebai-ai-agents-infrastructure.jpg
