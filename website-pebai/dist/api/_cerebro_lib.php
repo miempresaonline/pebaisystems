@@ -393,11 +393,12 @@ function pebai_lab_preparar_email(int $max = 1): int
             }
         }
         $ca = pebai_ia_solo_catalan($w['texto']);
-        $g = pebai_lab_gancho($w, $N, (string)$p['empresa'], trim((string)$p['ciudad']) ?: 'su zona', $ca, 'email');
+        // 5/11 (Daniel): email sin gancho de la IA, igual que el WhatsApp
+        $g = ['gancho' => '', 'dato' => '', 'nombre' => ''];
         $e = pebai_email_texto_nuevo($g + ['ca' => $ca], (string)$p['empresa']);
         $db->prepare("UPDATE email_prospectos SET asunto_personal = ?, cuerpo_personal = ?, asunto_recordatorio = '', cuerpo_recordatorio = ?, error = '', updated_at = ? WHERE id = ? AND cuerpo_personal = ''")
            ->execute([$e['asunto'], $e['cuerpo'], $e['recordatorio'], $now, $p['id']]);
-        pebai_actividad('email', 'cambio', 'Email escrito para ' . $p['empresa'] . ' (' . $p['nicho'] . ')' . ($g['gancho'] === '' ? ', sin gancho' : ''), $e['asunto'] . "\n\n" . $e['cuerpo'], 'email:' . $p['id']);
+        pebai_actividad('email', 'cambio', 'Email escrito para ' . $p['empresa'] . ' (' . $p['nicho'] . ')', $e['asunto'] . "\n\n" . $e['cuerpo'], 'email:' . $p['id']);
         $hechos++;
     }
     return $hechos;
