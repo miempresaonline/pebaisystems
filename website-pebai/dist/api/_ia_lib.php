@@ -93,6 +93,36 @@ function pebai_ia_nombre(string $nombre, string $web): string
     return preg_match('/^\p{Lu}\p{Ll}{1,14}$/u', $n) && str_contains($web, $n) ? $n : '';
 }
 
+// Primer WhatsApp (Daniel, 5/11/2026): texto fijo, sin gancho de la IA; solo cambia el nombre de la empresa. Las barras bajas son la cursiva de WhatsApp.
+const PEBAI_WA_FIJO = [
+    'es' => "Hola, equipo de {empresa}. Soy Daniel, de PEBAI Systems.\n\nPor curiosidad, si pudierais quitaros de encima algo que os hace perder tiempo o clientes, ¿qué sería? Os cuento cómo lo resolveríamos en vuestro caso como hicimos con Fran García Cars o Construcciones Gargom.\n\n_Si prefieres que no te cuente cómo ahorrar tiempo y ganar clientes, escribe «baja»_",
+    'ca' => "Hola, equip de {empresa}. Sóc el Daniel, de PEBAI Systems.\n\nPer curiositat, si us poguéssiu treure de sobre alguna cosa que us fa perdre temps o clients, què seria? Us explico com ho resoldríem en el vostre cas com vam fer amb Fran García Cars o Construcciones Gargom.\n\n_Si prefereixes que no t'expliqui com estalviar temps i guanyar clients, escriu «baixa»_",
+];
+
+/** Nombre de la empresa tal como lo diría una persona: sin coletillas de Google Maps, sin S.L. y sin todo en mayúsculas. */
+function pebai_wa_nombre(string $empresa): string
+{
+    $e = preg_split('/\s+[-–—|·:]\s+|\s*[|(]\s*/u', trim($empresa))[0] ?? '';
+    $e = trim(str_replace(['®', '™'], '', $e), " .,");
+    $e = trim(preg_replace('/[,\s]+(s\.?\s?l\.?\s?u?\.?|s\.?\s?a\.?\s?u?\.?|s\.?\s?l\.?\s?p\.?|s\.?\s?c\.?|s\.?\s?coop\.?(\s?\w+\.?)?)$/iu', '', $e), " .,");
+    if ($e !== '' && $e === mb_strtoupper($e)) {
+        // TODO EN MAYÚSCULAS → Normal; las siglas cortas (GS, ISS) se quedan y «de/del/la» van en minúscula
+        $e = implode(' ', array_map(static function ($w) {
+            $l = mb_strtolower($w);
+            if (in_array($l, ['de', 'del', 'la', 'las', 'los', 'el', 'y', 'e'], true)) {
+                return $l;
+            }
+            return mb_strlen($w) <= 3 ? $w : mb_convert_case($l, MB_CASE_TITLE);
+        }, preg_split('/\s+/u', $e)));
+    }
+    return $e !== '' ? $e : 'vuestra empresa';
+}
+
+function pebai_wa_fijo(string $empresa, bool $ca = false): string
+{
+    return str_replace('{empresa}', pebai_wa_nombre($empresa), PEBAI_WA_FIJO[$ca ? 'ca' : 'es']);
+}
+
 /** Primer WhatsApp con la plantilla. null si el gancho no pasa el control (se reintenta o se manda sin gancho). */
 function pebai_wa_componer(string $gancho, bool $ca, string $dato = '', string $nombre = ''): ?string
 {
@@ -298,6 +328,10 @@ function pebai_ia_control(?array $r, string $texto, string $canal): array
     if (!$r['encaja']) {
         return ['encaja' => false, 'motivo' => mb_substr((string)($r['motivo'] ?? 'No encaja'), 0, 200)];
     }
+    // WhatsApp (5/11, Daniel): mensaje fijo, sin gancho de la IA. La IA solo decide si la empresa encaja; el texto lo arma pebai_wa_fijo
+    if (!$email) {
+        return ['encaja' => true, 'motivo' => (string)($r['motivo'] ?? ''), 'ca' => $ca, 'dato' => ''];
+    }
     // Control de calidad: nada inventado, se presenta, ofrece la baja, sin temas prohibidos, longitud correcta
     $dato = trim((string)($r['dato'] ?? ''));
     // Sin gancho (no había un dato seguro) no hace falta dato: el mensaje va sin «He visto que…»
@@ -310,13 +344,8 @@ function pebai_ia_control(?array $r, string $texto, string $canal): array
     if ($g === null) {
         return ['error' => 'El gancho no pasa el control de calidad'];
     }
-    if ($email) {
-        // El asunto lleva el nombre corto de la empresa: lo arma quien guarda el texto (redactor.php) con pebai_email_componer_nuevo
-        return ['encaja' => true, 'motivo' => (string)($r['motivo'] ?? ''), 'gancho' => $g, 'nombre' => $nombre, 'ca' => $ca, 'dato' => $dato];
-    }
-    // WhatsApp (3/11): plantilla fija de Daniel + el gancho de la IA, que tiene que salir del dato real de su web
-    $m = pebai_wa_componer($g, $ca, $dato, $nombre);
-    return ['encaja' => true, 'motivo' => (string)($r['motivo'] ?? ''), 'mensaje' => $m, 'dato' => $dato];
+    // El asunto lleva el nombre corto de la empresa: lo arma quien guarda el texto (redactor.php) con pebai_email_componer_nuevo
+    return ['encaja' => true, 'motivo' => (string)($r['motivo'] ?? ''), 'gancho' => $g, 'nombre' => $nombre, 'ca' => $ca, 'dato' => $dato];
 }
 
 /**
@@ -352,8 +381,9 @@ function pebai_preparar_whatsapp(int $max = 3, int $colchon = 30): array
             pebai_actividad('whatsapp', 'bloqueo', 'Fuera de la cola ' . $quien . ': ' . $r['motivo'], '', 'wa:' . $p['id']);
             $hecho['fuera']++;
         } else {
+            $r['mensaje'] = pebai_wa_fijo((string)$p['empresa'], (bool)$r['ca']);
             $db->prepare("UPDATE prospectos SET mensaje = ?, error = '', updated_at = ? WHERE id = ?")->execute([$r['mensaje'], $now, $p['id']]);
-            pebai_actividad('whatsapp', 'cambio', 'Mensaje escrito para ' . $quien . ' (basado en: «' . $r['dato'] . '»)', $r['mensaje'], 'wa:' . $p['id']);
+            pebai_actividad('whatsapp', 'cambio', 'Mensaje listo para ' . $quien, $r['mensaje'], 'wa:' . $p['id']);
             $hecho['escritos']++;
         }
     }

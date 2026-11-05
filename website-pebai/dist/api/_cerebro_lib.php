@@ -259,7 +259,7 @@ function pebai_lab_preparar(int $max = 1): int
 {
     require_once __DIR__ . '/_demos_lib.php';
     $db = pebai_agentes_db();
-    $hoy = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE plantilla IN ('lab-geo','lab-app','lab-asistente','lab-gancho') AND updated_at >= '" . date('Y-m-d') . "' AND mensaje <> ''")->fetchColumn();
+    $hoy = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE plantilla IN ('lab-geo','lab-app','lab-asistente','lab-gancho','lab-fijo') AND updated_at >= '" . date('Y-m-d') . "' AND mensaje <> ''")->fetchColumn();
     if ($hoy >= PEBAI_LAB_DIA) {
         return 0;
     }
@@ -296,15 +296,12 @@ function pebai_lab_preparar(int $max = 1): int
                 continue;
             }
         }
-        // 3/11 (Daniel): se acabaron las variantes de un solo servicio (asistente, visibilidad en IA, app). Todos llevan la plantilla
-        // de Daniel con un gancho sacado de un dato real de su web; sin gancho seguro, va sin esa frase.
+        // 5/11 (Daniel): mensaje fijo, sin gancho de la IA; solo cambia el nombre de la empresa
         $ca = $w && pebai_ia_solo_catalan($w['texto']);
-        $ciudad = trim((string)$p['ciudad']) ?: 'su zona';
-        $g = $w ? pebai_lab_gancho($w, $N, (string)$p['empresa'], $ciudad, $ca, 'WhatsApp') : ['gancho' => '', 'dato' => '', 'nombre' => ''];
-        $t = pebai_wa_componer($g['gancho'], $ca, $g['dato'], $g['nombre']) ?? pebai_wa_componer('', $ca);
-        $db->prepare("UPDATE prospectos SET mensaje = ?, plantilla = 'lab-gancho', updated_at = ? WHERE id = ? AND mensaje = '' AND estado = 'pendiente'")
+        $t = pebai_wa_fijo((string)$p['empresa'], $ca);
+        $db->prepare("UPDATE prospectos SET mensaje = ?, plantilla = 'lab-fijo', updated_at = ? WHERE id = ? AND mensaje = '' AND estado = 'pendiente'")
            ->execute([$t, date('Y-m-d H:i:s'), $p['id']]);
-        pebai_actividad('cerebro', 'hito', 'Primer mensaje para ' . $p['empresa'] . ' (' . $p['nicho'] . ')' . (str_contains($t, 'He vist') || str_contains($t, 'He visto') ? '' : ', sin gancho'), $t, 'wa:' . $p['id']);
+        pebai_actividad('cerebro', 'hito', 'Primer mensaje para ' . $p['empresa'] . ' (' . $p['nicho'] . ')', $t, 'wa:' . $p['id']);
         $hechos++;
     }
     return $hechos;

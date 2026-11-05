@@ -65,7 +65,7 @@ const PEBAI_WA_CONFIG = [
 const PEBAI_FESTIVOS = ['01-01', '01-06', '05-01', '08-15', '10-12', '11-01', '12-06', '12-08', '12-25'];
 
 // Palabras que convierten una respuesta en baja automática (además de marcarla a mano en el panel).
-const PEBAI_BAJA_RE = '/\b(baja|no me interesa|no nos interesa|no interesa|no (me |nos )?escrib|no (me |nos )?molest|stop|borr(a|ad|en)|elimin(a|ad|en)|spam|denunci|d[ée]jal[oa]|d[ée]jame|d[ée]janos|no gracias|no,? gracias|no estamos interesad|no me hace falta|no necesit|no m\x27interessa|no ens interessa|deixa\x27?ns|deixa\x27?m|no (m\x27|ens )?escrigu)/iu';
+const PEBAI_BAJA_RE = '/\b(baja|baixa|no me interesa|no nos interesa|no interesa|no (me |nos )?escrib|no (me |nos )?molest|stop|borr(a|ad|en)|elimin(a|ad|en)|spam|denunci|d[ée]jal[oa]|d[ée]jame|d[ée]janos|no gracias|no,? gracias|no estamos interesad|no me hace falta|no necesit|no m\x27interessa|no ens interessa|deixa\x27?ns|deixa\x27?m|no (m\x27|ens )?escrigu)/iu';
 
 function pebai_agentes_db(): PDO
 {
