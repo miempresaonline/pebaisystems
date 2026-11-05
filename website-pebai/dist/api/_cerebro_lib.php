@@ -259,10 +259,7 @@ function pebai_lab_preparar(int $max = 1, string $grupo = ''): int
 {
     require_once __DIR__ . '/_demos_lib.php';
     $db = pebai_agentes_db();
-    $hoy = (int)$db->query("SELECT COUNT(*) FROM prospectos WHERE plantilla IN ('lab-geo','lab-app','lab-asistente','lab-gancho','lab-fijo') AND updated_at >= '" . date('Y-m-d') . "' AND mensaje <> ''")->fetchColumn();
-    if ($hoy >= PEBAI_LAB_DIA) {
-        return 0;
-    }
+    // Sin tope diario (5/11): preparar ya no cuesta IA y el cupo de envíos del día ya limita, el tope dejaba a un nicho sin mensajes
     $hechos = 0;
     // Mismo reparto que el envío: escribe para el grupo que tiene menos mensajes listos en proporción a su parte.
     // Dentales e inmobiliarias: solo empresas revisadas por el Redactor ([revisado]), que es gratis. Solar y reformas van directas.
