@@ -1824,6 +1824,17 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
 .sx-ask p{font-family:var(--serif);font-size:26px;line-height:1.15;color:var(--fg)}
 .sx-ask p em{font-style:italic;color:var(--accent)}
 .sx-ask .btn{height:48px}
+.qs-faq{max-width:820px;margin-top:36px}
+.qs-faq .answer{margin:0 0 22px;padding:22px 24px;border-radius:22px;background:var(--s1);border-left:3px solid var(--accent);font-size:18px;line-height:1.55;color:var(--fg)}
+.qs-faq .answer strong{font-weight:700}
+.qs-faq .faq details{border-radius:16px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--fg-10);margin:0 0 10px;padding:0 20px}
+.qs-faq .faq summary{cursor:pointer;list-style:none;padding:18px 28px 18px 0;position:relative;font-size:17px;font-weight:600;line-height:1.35;color:var(--fg)}
+.qs-faq .faq summary::-webkit-details-marker{display:none}
+.qs-faq .faq summary::after{content:"+";position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:22px;font-weight:400;color:var(--accent);transition:transform .25s ease}
+.qs-faq .faq details[open] summary::after{transform:translateY(-50%) rotate(45deg)}
+.qs-faq .faq details>p{padding:0 0 18px;margin:0;font-size:16px;line-height:1.65;color:var(--fg-65)}
+.qs-faq .faq a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+@media (max-width:640px){.qs-faq .answer{font-size:16px;padding:18px}}
 
 </style>
 <!-- Metricool: medición de audiencia sin cookies (exenta de consentimiento, ver /politica-de-cookies/) -->
@@ -1848,7 +1859,7 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
       "breadcrumb": {
         "@id": "https://pebaisystems.es/quienes-somos/#breadcrumb"
       },
-      "dateModified": "2026-10-30",
+      "dateModified": "2026-11-05",
       "mainEntity": {
         "@id": "https://pebaisystems.es/#organization"
       }
@@ -1896,6 +1907,63 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
       "worksFor": {
         "@id": "https://pebaisystems.es/#organization"
       }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://pebaisystems.es/quienes-somos/#faq",
+      "isPartOf": {
+        "@id": "https://pebaisystems.es/quienes-somos/#webpage"
+      },
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "¿PEBAI Systems tiene relación con otras empresas de nombre parecido?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. PEBAI Systems es la consultora de procesos e Inteligencia Artificial de València que está en pebaisystems.es, fundada en 2026 por Daniel Peñuela Ruiz. Las organizaciones de otros países o sectores con siglas parecidas son entidades distintas, sin ninguna relación con ella."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Quién está detrás de PEBAI Systems?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Daniel Peñuela Ruiz, fundador, que diseña y construye cada sistema y lleva tres años formándose en Inteligencia Artificial, y Adrián Ballesteros Moscardó, responsable comercial. Quien hace la consultoría es quien después construye y acompaña el proyecto."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué casos reales tiene PEBAI Systems?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Fran García Cars (aplicación de revisiones y asistente de IA para WhatsApp), Construcciones Gargom (aplicación de gestión de obras) y Suministros Industriales Santacruz (plataforma de pedidos en cuatro idiomas). Todos con nombre y autorización, y con su detalle en casos de éxito. La opinión de Fran García Cars está publicada en la ficha de Google de PEBAI Systems y en Sortlist."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Con qué empresas trabaja PEBAI Systems?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Con empresas en marcha de toda España, a partir de 3-5 empleados, que pierden tiempo en atender mensajes y llamadas o en tareas que se copian a mano. Se trabaja por videollamada y la primera consultoría es gratuita para cinco empresas al mes; después, de pago."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Quién mantiene el sistema después y quién responde si falla?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "PEBAI, si contratas el acompañamiento mensual: soporte, mejoras y formación del equipo. El sistema se entrega funcionando y documentado para que tu equipo lo use sin depender de nosotros."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Cuánto cuesta trabajar con PEBAI Systems?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Depende de la empresa y de lo que haya que construir y conectar. Se presupuesta después de la consultoría, que dura 25 minutos y es gratuita para cinco empresas al mes; después, de pago."
+          }
+        }
+      ]
     }
   ]
 }
@@ -1988,6 +2056,9 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
     <ul class="qs-nums reveal"><li><b>3 años</b><span>de Daniel formándose en Inteligencia Artificial</span></li><li><b>659</b><span>usuarios registrados en una sola de nuestras aplicaciones (a 22/10/2026)</span></li><li><b>4</b><span>países con empresas usando nuestros sistemas</span></li><li><b>&lt;24 h</b><span>en responder a cada solicitud</span></li></ul>
     <h2 class="serif qs-h reveal">Por qué trabajar <em>con nosotros.</em></h2>
     <ul class="qs-dif reveal"><li><b>Hablas con quien lo construye</b><p>Daniel diseña y programa cada sistema. Lo que cuentas en la primera llamada llega intacto a quien lo construye.</p></li><li><b>Al día de verdad</b><p>Probamos cada novedad antes de recomendarla. Solo te ofrecemos lo que ya hemos visto funcionar.</p></li><li><b>Rápidos</b><p>Respondemos a cada solicitud en menos de 24 horas y ves avances cada semana, no al final.</p></li><li><b>Lo contamos en abierto</b><p>Cada semana explicamos en Instagram, TikTok y YouTube cómo trabajamos. Antes de llamarnos ya nos conoces.</p></li></ul>
+    <h2 class="serif qs-h reveal" id="preguntas">Preguntas sobre <em>PEBAI Systems.</em></h2>
+    <div class="qs-faq"><p class="answer"><strong>Respuesta corta.</strong> PEBAI Systems es una consultoría de procesos e Inteligencia Artificial para empresas en España, con base en València, fundada en 2026 por Daniel Peñuela Ruiz y con Adrián Ballesteros Moscardó como responsable comercial: sistemas que atienden a los clientes, eliminan tareas manuales y se conectan a los programas que ya se usan. Sus sistemas trabajan por WhatsApp, teléfono y web, y antes de construir nada entiende la operativa de cada empresa.</p>
+    <div class="faq"><details><summary>¿PEBAI Systems tiene relación con otras empresas de nombre parecido?</summary><p>No. PEBAI Systems es la consultora de procesos e Inteligencia Artificial de València que está en pebaisystems.es, fundada en 2026 por Daniel Peñuela Ruiz. Las organizaciones de otros países o sectores con siglas parecidas son entidades distintas, sin ninguna relación con ella.</p></details><details><summary>¿Quién está detrás de PEBAI Systems?</summary><p>Daniel Peñuela Ruiz, fundador, que diseña y construye cada sistema y lleva tres años formándose en Inteligencia Artificial, y Adrián Ballesteros Moscardó, responsable comercial. Quien hace la consultoría es quien después construye y acompaña el proyecto.</p></details><details><summary>¿Qué casos reales tiene PEBAI Systems?</summary><p>Fran García Cars (aplicación de revisiones y asistente de IA para WhatsApp), Construcciones Gargom (aplicación de gestión de obras) y Suministros Industriales Santacruz (plataforma de pedidos en cuatro idiomas). Todos con nombre y autorización, y con su detalle en <a href="/casos-de-exito/">casos de éxito</a>. La opinión de Fran García Cars está publicada en la <a href="https://www.google.com/maps/place/?q=place_id:ChIJ8b91KHLXPIMRWRqoQZfLHhQ">ficha de Google</a> de PEBAI Systems y en <a href="https://www.sortlist.es/agency/pebai-systems">Sortlist</a>.</p></details><details><summary>¿Con qué empresas trabaja PEBAI Systems?</summary><p>Con empresas en marcha de toda España, a partir de 3-5 empleados, que pierden tiempo en atender mensajes y llamadas o en tareas que se copian a mano. Se trabaja por videollamada y la primera consultoría es gratuita para cinco empresas al mes; después, de pago.</p></details><details><summary>¿Quién mantiene el sistema después y quién responde si falla?</summary><p>PEBAI, si contratas el acompañamiento mensual: soporte, mejoras y formación del equipo. El sistema se entrega funcionando y documentado para que tu equipo lo use sin depender de nosotros.</p></details><details><summary>¿Cuánto cuesta trabajar con PEBAI Systems?</summary><p>Depende de la empresa y de lo que haya que construir y conectar. Se presupuesta después de la consultoría, que dura 25 minutos y es gratuita para cinco empresas al mes; después, de pago.</p></details></div></div>
   </div>
 </section>
 <!-- CIERRE Y EQUIPO -->
