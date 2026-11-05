@@ -335,6 +335,8 @@ Sin novedades útiles de OpenAI ni Perplexity en las últimas 48 h (búsqueda si
 
 ## Para el Jefe
 
+(Repartido por el Jefe el 5/11 mañana: Vigía 5/11, propuesta 1 aceptada (inmobiliarias sin pack hasta tener caso o estudio, a Contenido y a la decisión de nichos de Daniel), 2 espera el OK de Daniel a los estudios, 3 al Vigía. Contenido 4/11: 1, 301 de Madrid a `/ia-para-empresas/`, aprobado y a Técnico; 2, compraventas sigue en fecha provisional 16/11; 3, si Adrián es cofundador, a Daniel. Medición 5/11: tráfico de `/propuesta-portada/` (403 en público) es interno, corrección a Medición; GPTBot 429 sigue y la comprobación del Vigía lo tapa, corrección al Vigía.)
+
 
 (Revisado por el Jefe el 4/11 tarde: nada nuevo desde la mañana; las propuestas del Vigía del 4/11 ya están en el tablón. «Preguntas 30/10 · soporte de primer nivel» sigue sin repartir: 2 impresiones, se espera a ver si Google pasa la posición a `/agentes-ia/`.)
 
