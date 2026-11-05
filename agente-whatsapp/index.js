@@ -194,7 +194,16 @@ async function conectar() {
           if (buf && buf.length < 3e6) audio = { audio: buf.toString('base64'), mime: String(audioMsg.mimetype || 'audio/ogg').split(';')[0] };
         } catch (e) { log('No se pudo descargar la nota de voz de', tel, e.message); }
       }
-      await api('entrante', { telefono: tel, texto, ...(audio || {}) });
+      const entrada = await api('entrante', { telefono: tel, texto, ...(audio || {}) });
+      // Baja (5/11, Daniel): se reacciona a su mensaje con 👍, sin escribir nada, pasados unos segundos como haría una persona
+      if (entrada && entrada.baja) {
+        const { remoteJid, fromMe, id, participant } = m.key;
+        setTimeout(() => {
+          sock.sendMessage(remoteJid, { react: { text: '👍', key: { remoteJid, fromMe, id, participant } } })
+            .then((r) => { if (r?.key?.id) enviadosAgente.add(r.key.id); log('Reacción 👍 a la baja de', tel); })
+            .catch((e) => log('No se pudo reaccionar a la baja de', tel, e.message));
+        }, rand(4e3, 15e3));
+      }
       recuperaHistorial(tel, m).catch(() => {});
     }
   });

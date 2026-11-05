@@ -28,7 +28,7 @@ Escribir en frío por WhatsApp en España roza la LSSI (art. 21), el RGPD y la L
 1. **Solo empresas** con el número **publicado por ellas como contacto comercial** (ficha de Google, su web). Nada de particulares ni de listas compradas. El panel obliga a indicar de dónde sale cada lista (`origen_dato`).
 2. **El primer mensaje se identifica** (Daniel, PEBAI Systems) y **ofrece no volver a escribir**. El panel no deja guardar una plantilla que no cumpla las dos cosas.
 3. **Un solo mensaje sin respuesta.** No hay secuencias automáticas de seguimiento.
-4. **Las bajas son para siempre** (tabla `bajas`): sobreviven a borrar o reimportar prospectos. Si alguien responde "no me interesa", "baja", "no me escribas"… pasa a baja solo.
+4. **Las bajas son para siempre** (tabla `bajas`): sobreviven a borrar o reimportar prospectos. Si alguien responde "no me interesa", "baja", "no me escribas"… pasa a baja solo y el bot reacciona a su mensaje con 👍, sin escribir ningún texto (5/11/2026).
 5. **Nunca se escribe a quien ya está en el embudo** (solicitudes del formulario).
 6. **Sin enlaces en el primer mensaje.** Suben el riesgo de bloqueo y bajan la respuesta. El vídeo (VSL `/consultoria-gratuita/`) se manda cuando el lead contesta.
 
