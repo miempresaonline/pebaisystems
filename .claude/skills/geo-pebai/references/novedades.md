@@ -2,6 +2,17 @@
 
 Etiquetas: [V] verificado en la fuente · [S] secundario · [H] hipótesis.
 
+## 2026-11-05 (Vigía: ficha de sector inmobiliarias)
+
+Sin novedades de buscadores que cambien algo. Comprobación técnica 5/11: robots.txt y portada dan 200 a GPTBot, OAI-SearchBot, ClaudeBot y PerplexityBot.
+
+**Ficha nueva:** `docs/geo/sectores/inmobiliarias.md` (nicho 6). Hueco: Upliora gana con FAQ y calculadora de ROI pero sus casos son anónimos y sus fuentes (NAR, Forrester, AEDIVE) sin enlace al estudio; nadie explica el RGPD del lead de portal ni conecta IA con el registro autonómico de agentes. PEBAI no tiene caso inmobiliario.
+
+*Para el Jefe:*
+1. **Estrategia/Daniel: mantener inmobiliarias como pack 6 solo con estudio propio.** Dato: `captacion-50-nichos.md` lo puntúa 4,5 (saturado) y `casos.md` no tiene ningún caso; Upliora ya tiene la guía y los casos anónimos no se pueden comprobar.
+2. **Medición/Observatorio: estudio de captación de inmobiliarias (WhatsApp, formulario, chat, reseñas por provincia).** Dato [V]: el INE mide operaciones (59.288 compraventas en junio 2026, nota 7/08/2026) y no la atención; no hay cifra fiable de agencias (eInforma da 35.870 y 53.654 para el mismo CNAE). Destino con OK de Daniel: redaccion@elinmobiliariomesames.com.
+3. **Vigía (mi próximo turno): leer el DOGV del Decreto 98/2022 y buscar el resultado del recurso de la CNMC**, y una consulta a la AEPD sobre respuesta automática a leads. Dato: solo tengo FAQ de la Generalitat y prensa de 2023 [V]; sin eso no puede ir ninguna frase jurídica a una página.
+
 ## 2026-11-04 (Contenido, 10:00)
 
 *Para el Jefe (Contenido 4/11):* 1) **Técnico:** `agencia-inteligencia-artificial-empresas-madrid` (62 impr. en 28 días, la URL vieja con más) da 301 a la portada (`.htaccess` línea 83), pero `consultoria-inteligencia-artificial-madrid` ya va a `/ia-para-empresas/` (línea 79), que es la que dice «también de Madrid». Propuesta: sacarla de la línea 83 y llevarla a `/ia-para-empresas/` en un salto. Dato y análisis en `docs/geo/borradores/ia-para-empresas-madrid.md` (página de Madrid descartada). 2) **Contenido listo para fecha:** compraventas maquetada (`borradores/html/ia-para-empresas-compraventas.html`, fecha provisional 16/11) y distribuidoras corregida (Santacruz, title con la pregunta 20); las dos solo esperan el OK de Daniel a los nichos. 3) **Dato a confirmar con Daniel:** el encargo de `/quienes-somos/` pedía «fundada por Daniel y Adrián», pero el JSON-LD publicado dice fundador solo Daniel y Adrián «Responsable comercial». He dejado lo publicado; si Adrián es cofundador, cambiarlo en la portada, `/quienes-somos/` y el bloque a la vez.
