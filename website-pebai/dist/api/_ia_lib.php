@@ -102,8 +102,8 @@ const PEBAI_WA_FIJO = [
 /** Nombre de la empresa tal como lo diría una persona: sin coletillas de Google Maps, sin S.L. y sin todo en mayúsculas. */
 function pebai_wa_nombre(string $empresa): string
 {
-    // Corta en « - », « | », «(», «: » y en «. » (salvo Dr., Dra., Sr., Sra.): lo que viene detrás son coletillas de Google Maps
-    $e = preg_split('/\s+[-–—|·]\s+|\s*[|(]\s*|:\s+|(?<!\bDr)(?<!\bDra)(?<!\bSr)(?<!\bSra)\.\s+/u', trim($empresa))[0] ?? '';
+    // Corta en « - », « | », «(», «: » y en «. » (salvo Dr., Dra., Sr., Sra. e iniciales): lo que viene detrás son coletillas de Google Maps
+    $e = preg_split('/\s+[-–—|·]\s+|\s*[|(]\s*|:\s+|(?<!\bDr)(?<!\bDra)(?<!\bSr)(?<!\bSra)(?<!\b\p{Lu})\.\s+/u', trim($empresa))[0] ?? '';
     $e = trim(str_replace(['®', '™'], '', $e), " .,");
     $e = trim(preg_replace('/[,\s]+(s\.?\s?l\.?\s?u?\.?|s\.?\s?a\.?\s?u?\.?|s\.?\s?l\.?\s?p\.?|s\.?\s?c\.?|s\.?\s?coop\.?(\s?\w+\.?)?)$/iu', '', $e), " .,");
     if ($e !== '' && $e === mb_strtoupper($e)) {
