@@ -43,18 +43,18 @@ const PEBAI_WA_PLANTILLA = [
              . "\n\nPer curiositat, si us poguéssiu treure de sobre alguna cosa que us fa perdre temps o clients, què seria? Us explico com ho resoldríem en el vostre cas."
              . "\n\nSi no t'interessa, digues-m'ho i no t'escric més."],
 ];
-// Email (3/11): lo mismo con asunto humano y una P.D. con la reseña real de Fran García Cars (la prueba más fuerte que tenemos)
+// Email (3/11): lo mismo con asunto humano y una P.D. con la reseña real de IntoTrans (5/11)
 const PEBAI_EMAIL_NUEVO = [
     'es' => ['asunto' => 'pregunta para {empresa}', 'hola' => 'Hola, equipo de {empresa}:', 'gancho' => "\n\nHe visto que {gancho} y me ha surgido una pregunta.",
              'resto' => "\n\nSoy Daniel, de PEBAI Systems, una consultora de procesos e IA. Vemos cómo trabaja cada empresa y montamos lo que más le hace ganar, como hicimos con Fran García Cars o Construcciones Gargom."
                       . "\n\nSi pudierais quitaros de encima algo que os hace perder tiempo o clientes, ¿qué sería? Os contesto con cómo lo resolveríamos en vuestro caso, sin compromiso."
                       . "\n\n" . PEBAI_IA_BAJA_EMAIL . "\n\nDaniel\nPEBAI Systems"
-                      . "\n\nP.D.: Álvaro, de Fran García Cars, nos dejó esta reseña en Google: «Nos crearon una app de IA de revisión de coches literalmente desde 0»."],
+                      . "\n\nP.D.: Adela, de IntoTrans, nos dejó esta reseña en Google por su panel de gestión: «Entendieron a la primera lo que necesitaba, sin tener que dar muchas vueltas»."],
     'ca' => ['asunto' => 'pregunta per a {empresa}', 'hola' => 'Hola, equip de {empresa}:', 'gancho' => "\n\nHe vist que {gancho} i m'ha sorgit una pregunta.",
              'resto' => "\n\nSóc el Daniel, de PEBAI Systems, una consultora de processos i IA. Mirem com treballa cada empresa i muntem el que més la fa guanyar, com vam fer amb Fran García Cars o Construcciones Gargom."
                       . "\n\nSi us poguéssiu treure de sobre alguna cosa que us fa perdre temps o clients, què seria? Us responc amb com ho resoldríem en el vostre cas, sense compromís."
                       . "\n\n" . PEBAI_IA_CA['baja_email'] . "\n\nDaniel\nPEBAI Systems"
-                      . "\n\nP.D.: L'Álvaro, de Fran García Cars, ens va deixar aquesta ressenya a Google: «Nos crearon una app de IA de revisión de coches literalmente desde 0»."],
+                      . "\n\nP.D.: L'Adela, d'IntoTrans, ens va deixar aquesta ressenya a Google pel seu panell de gestió: «Entendieron a la primera lo que necesitaba, sin tener que dar muchas vueltas»."],
 ];
 const PEBAI_WA_GANCHO_REGLAS = '"gancho": frase corta (de 5 a 16 palabras) que completa «He visto que …», basada SOLO en ese dato y en segunda persona del plural '
     . '(lleváis, hacéis, ofrecéis, tenéis, trabajáis…). Elige algo concreto y propio de esa empresa sobre cómo trabajan o atienden a sus clientes '
