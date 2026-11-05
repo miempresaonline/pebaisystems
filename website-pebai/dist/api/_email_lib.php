@@ -93,14 +93,15 @@ const PEBAI_EMAIL_CONFIG = [
 // Nunca en los dos primeros emails (§2.4). Se comprueba antes de cada envío.
 const PEBAI_EMAIL_PROHIBIDAS = ['http', 'www.', '.com', 'gratis', 'gratuit', 'consultoría', 'consultoria', 'plazas', 'nuestro precio', 'nuestros precios', '€', 'descuento', 'promoci',
     // «IA» ya se permite (3/11): el email nuevo dice «consultora de procesos e IA» y no hace saltar los filtros
-    'automatiz', 'chatbot', 'ahorra', 'ahorro', 'garantiz', 'resultados', 'clientes nuestros', 're:'];
+    // «ahorrar» también (5/11): el cierre del email dice «cómo ahorrar tiempo y ganar clientes»
+    'automatiz', 'chatbot', 'garantiz', 'resultados', 'clientes nuestros', 're:'];
 const PEBAI_EMAIL_ROLES_NO = ['noreply', 'no-reply', 'no_reply', 'donotreply', 'webmaster', 'postmaster', 'abuse', 'mailer-daemon', 'hostmaster', 'privacy', 'privacidad', 'rgpd', 'dpo', 'lopd', 'facturacion', 'factura', 'admin@'];
 const PEBAI_EMAIL_GRATUITOS = ['gmail.com', 'googlemail.com', 'hotmail.com', 'hotmail.es', 'outlook.com', 'outlook.es', 'live.com', 'yahoo.com', 'yahoo.es', 'icloud.com', 'me.com', 'msn.com', 'aol.com', 'gmx.es', 'gmx.com', 'proton.me', 'protonmail.com', 'telefonica.net', 'ono.com'];
 
 // Clasificación de respuestas.
 const PEBAI_EMAIL_AUTO_RE = '/(fuera de (la )?oficina|respuesta autom|out of (the )?office|automatic reply|auto.?reply|autoreply|vacaciones|estar[eé] ausente|no estar[eé] disponible|ausencia|abwesend|absence)/iu';
 const PEBAI_EMAIL_SI_RE = '/^\W*(s[ií]|vale|ok|okey|claro|adelante|venga|perfecto|por favor|m[aá]ndamelo|m[aá]ndalo|env[ií]a(lo|melo)|p[aá]sa(lo|melo)|enviadlo|mandadlo|me interesa|interesante|de acuerdo|genial)\b/iu';
-const PEBAI_EMAIL_NO_RE = '/(\bno,? gracias|no me interesa|no nos interesa|no estamos interesad|no interesa|no necesit|baja\b|darme de baja|dadme de baja|no (me |nos )?(volv[aá]is a )?escrib|no (me |nos )?molest|no quiero|no queremos|stop\b|unsubscribe|borr(a|ad|en)|elimin(a|ad|en)|spam|denunci|lopd|rgpd|protecci[oó]n de datos)/iu';
+const PEBAI_EMAIL_NO_RE = '/(\bno,? gracias|no me interesa|no nos interesa|no estamos interesad|no interesa|no necesit|baja\b|baixa\b|darme de baja|dadme de baja|no (me |nos )?(volv[aá]is a )?escrib|no (me |nos )?molest|no quiero|no queremos|stop\b|unsubscribe|borr(a|ad|en)|elimin(a|ad|en)|spam|denunci|lopd|rgpd|protecci[oó]n de datos)/iu';
 
 /* ------------------------------------------------------------------ datos --- */
 
@@ -351,7 +352,7 @@ function pebai_email_palabras(string $t): int
 function pebai_email_firmar(string $cuerpo, bool $conSalida = true): string
 {
     $t = trim(str_replace("\r", '', $cuerpo));
-    if ($conSalida && !preg_match('/no (te |os |le )?(vuelvo|volver[eé]|molest|escrib)|dar(te|os)? de baja|responde «?baja|si no te interesa/iu', $t)) {
+    if ($conSalida && !preg_match('/no (te |os |le )?(vuelvo|volver[eé]|molest|escrib)|dar(te|os)? de baja|responde «?baja|escribe «?baja|escriu «?baixa|si no te interesa/iu', $t)) {
         $t .= "\n\nSi no te interesa, dímelo y no vuelvo a escribirte.";
     }
     // Firmado al final o antes de una P.D. (email nuevo del 3/11: la P.D. va después de la firma)
@@ -972,6 +973,8 @@ function pebai_email_analizar(string $raw): array
     $from = preg_match('/<([^>]+)>/', $h['from'] ?? '', $m) ? $m[1] : trim($h['from'] ?? '');
     $asunto = pebai_mail_cabecera($h['subject'] ?? '');
     $propio = pebai_mail_sin_citas($texto);
+    // Si al contestar se cuela nuestro cierre citado («…escribe "baja"»), no cuenta como que pidan la baja (5/11)
+    $propio = preg_replace('/Si prefier\w+ que no te cuente[^\n]*baja[^\n]*|Si prefereix\w+ que no t.expliqui[^\n]*baixa[^\n]*/iu', '', $propio);
     $fromN = pebai_email_norm($from);
     $tipo = 'otro';
     $fallido = '';

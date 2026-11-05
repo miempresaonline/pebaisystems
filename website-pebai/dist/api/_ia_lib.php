@@ -27,10 +27,10 @@ const PEBAI_IA_REDACTOR = true;   // true: los primeros mensajes los escribe el 
 const PEBAI_IA_MODELOS = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];
 const PEBAI_IA_PRESENTA = 'Hola, soy Daniel, de PEBAI Systems.';
 const PEBAI_IA_BAJA_WA = 'Si no te interesa, dímelo y no te escribo más.';
-const PEBAI_IA_BAJA_EMAIL = 'Si no te interesa, dímelo y no vuelvo a escribirte.';
+const PEBAI_IA_BAJA_EMAIL = 'Si prefieres que no te cuente cómo ahorrar tiempo y ganar clientes, escribe «baja».';
 // Webs solo en catalán/valenciano (orden de Daniel, 21/10): ahí se escribe en su idioma; si hay algo en castellano, en castellano
 const PEBAI_IA_CA = ['presenta' => 'Hola, sóc el Daniel, de PEBAI Systems.', 'baja_wa' => "Si no t'interessa, digues-m'ho i no t'escric més.",
-                     'baja_email' => "Si no t'interessa, digues-m'ho i no et tornaré a escriure."];
+                     'baja_email' => "Si prefereixes que no t'expliqui com estalviar temps i guanyar clients, escriu «baixa»."];
 // Primer contacto (Daniel, 3/11/2026): una sola plantilla para todos los nichos; la IA solo pone el gancho (sacado de un dato real
 // de su web) y, si la web lo dice, el nombre de quien la dirige. Sin gancho seguro, la frase «He visto que…» no va.
 const PEBAI_WA_PLANTILLA = [
@@ -53,7 +53,7 @@ const PEBAI_EMAIL_NUEVO = [
     'ca' => ['asunto' => 'pregunta per a {empresa}', 'hola' => 'Hola, equip de {empresa}:', 'gancho' => "\n\nHe vist que {gancho} i m'ha sorgit una pregunta.",
              'resto' => "\n\nSóc el Daniel, de PEBAI Systems, una consultora de processos i IA. Mirem com treballa cada empresa i muntem el que més la fa guanyar, com vam fer amb Fran García Cars o Construcciones Gargom."
                       . "\n\nSi us poguéssiu treure de sobre alguna cosa que us fa perdre temps o clients, què seria? Us responc amb com ho resoldríem en el vostre cas, sense compromís."
-                      . "\n\nSi no t'interessa, digues-m'ho i no et tornaré a escriure.\n\nDaniel\nPEBAI Systems"
+                      . "\n\n" . PEBAI_IA_CA['baja_email'] . "\n\nDaniel\nPEBAI Systems"
                       . "\n\nP.D.: L'Álvaro, de Fran García Cars, ens va deixar aquesta ressenya a Google: «Nos crearon una app de IA de revisión de coches literalmente desde 0»."],
 ];
 const PEBAI_WA_GANCHO_REGLAS = '"gancho": frase corta (de 5 a 16 palabras) que completa «He visto que …», basada SOLO en ese dato y en segunda persona del plural '
