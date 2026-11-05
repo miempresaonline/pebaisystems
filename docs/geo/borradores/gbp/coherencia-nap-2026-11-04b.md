@@ -14,3 +14,8 @@ Conclusión: la calle «Plaza del Ayuntamiento» sigue en GoodFirms y Sortlist; 
 
 ## Comprobación 4/11 tarde (turno Local, 17:00)
 WebSearch «PEBAI Systems» + Google Maps/Bing Places: solo salen GoodFirms y Sortlist (ambos con sede «Plaza del Ayuntamiento», pendiente de Daniel); Maps y Bing Places siguen sin verse desde la nube, el nombre público de la ficha sigue sin verificarse. Localo: sin tareas nuevas (`localo-mas-tareas` devuelve vacío); abiertas solo REMOVE_ADDITIONAL_CATEGORY y REPLY_TO_REVIEW, que exigen la cuenta de Daniel (ya avisadas).
+
+## Comprobación 5/11 (turno Local)
+- Trustpilot (WebFetch, [V]): nombre «PEBAI Systems», pebaisystems.es, teléfono +34 624 84 27 99, ubicación «València, España» sin calle, 0 reseñas; descripción alineada con la portada (incluye «proyectos desde 1.500 €», dato público ya aprobado). Cuadra.
+- WebSearch 5/11 [S]: Sortlist sigue con «Plaça de l'Ajuntament» en el extracto; GoodFirms ahora solo muestra «España» como sede en el extracto (puede que Daniel ya quitara la calle; confirmar cuando se pueda abrir la ficha). Sin ficha de Maps ni Bing Places en el buscador.
+- Metricool (getScheduledPosts 5/11-18/11): posts de Google del 11/11 y 18/11 programados con imagen y `?cta=gbp_post`; fotos 6, 9, 12, 13 y 16/11 en cola; LinkedIn 5, 10, 12, 17/11. Imagen `gbp/2026-11-11.png` y `r/w` dan 200.
