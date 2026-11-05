@@ -529,9 +529,11 @@ function pebai_agentes_vigilar(): void
 /** ¿Es un mensaje de contestador automático (bienvenida, ausencia, fuera de horario)? Por sus frases típicas. */
 /** Reparto de los primeros mensajes por nicho (Daniel, 28/10): grupo => [parte del día, nichos]. */
 const PEBAI_REPARTO = [
-    'solar' => [0.40, ['solar']],
-    'reformas' => [0.30, ['reformas']],
-    'resto' => [0.30, ['dentales', 'inmobiliarias', 'climatizacion', 'formacion', 'oposiciones', 'idiomas']],
+    // Daniel, 5/11: solo estos cuatro y a partes iguales. Climatización, formación, oposiciones e idiomas ya no reciben mensajes.
+    'solar' => [0.25, ['solar']],
+    'reformas' => [0.25, ['reformas']],
+    'dentales' => [0.25, ['dentales']],
+    'inmobiliarias' => [0.25, ['inmobiliarias']],
 ];
 
 /**

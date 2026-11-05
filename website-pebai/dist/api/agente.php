@@ -110,7 +110,7 @@ switch ($in['accion'] ?? '') {
         $embudo = pebai_telefonos_embudo();
         $p = null;
         // Solo empresas con su mensaje personal ya escrito: nunca se envía una plantilla genérica
-        // Reparto por nichos (40 % placas, 30 % reformas, 30 % el resto): primero el grupo que va más por debajo hoy
+        // Reparto por nichos (placas, reformas, dentales e inmobiliarias, 25 % cada uno): primero el grupo que va más por debajo hoy
         $cands = [];
         foreach (pebai_reparto_orden(pebai_reparto_hoy()) as $g) {
             $ns = implode(',', array_map(static fn($n) => $db->quote($n), PEBAI_REPARTO[$g][1]));

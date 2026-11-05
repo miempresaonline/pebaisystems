@@ -276,7 +276,7 @@ function pebai_lab_preparar(int $max = 1): int
     foreach (array_keys($listos) as $g) {
         $ns = implode(',', array_map(static fn($n) => $db->quote($n), PEBAI_REPARTO[$g][1]));
         $cola = $db->query("SELECT * FROM prospectos WHERE estado = 'pendiente' AND mensaje = '' AND web <> '' AND plantilla = '' AND nicho IN ($ns)
-                            AND ((nicho = 'solar' AND id % 3 <> 0) OR nicho IN ('climatizacion','formacion','oposiciones','idiomas') OR error LIKE '[revisado]%')
+                            AND ((nicho = 'solar' AND id % 3 <> 0) OR nicho = 'reformas' OR error LIKE '[revisado]%')
                             AND telefono NOT IN (SELECT telefono FROM bajas) ORDER BY RANDOM() LIMIT " . (int)$max)->fetchAll();
         if ($cola) {
             break;
@@ -287,7 +287,7 @@ function pebai_lab_preparar(int $max = 1): int
         $w = pebai_web_texto($web);
         $N = PEBAI_LAB_NICHOS[$p['nicho']] ?? PEBAI_LAB_NICHOS['solar'];
         // Nichos sin revisión del Redactor: Cerebro mira su web y solo sigue si es una empresa independiente, activa y con equipo
-        if (in_array($p['nicho'], ['climatizacion', 'formacion', 'oposiciones', 'idiomas'], true)) {
+        if ($p['nicho'] === 'reformas' && !str_starts_with((string)$p['error'], '[revisado]')) {
             $enc = $w ? pebai_claude_json('cerebro', 'claude-haiku-5-5', 'Decides si una empresa española encaja como cliente de PEBAI Systems (asistentes de IA, visibilidad en IA y apps para pymes). Responde SOLO JSON {"encaja": true/false, "motivo": "una frase"}.',
                 "Encaja si es " . $N['quien'] . " independiente (no franquicia ni cadena), activa, con equipo y que recibe consultas de clientes. No encaja si es un autónomo solo, una web abandonada, una tienda o un distribuidor, o de otro país.\nEMPRESA: {$p['empresa']}\nWEB:\n" . mb_substr($w['texto'], 0, 2500),
                 ['effort' => 'low', 'max_tokens' => 800]) : null;
@@ -316,6 +316,8 @@ function pebai_lab_preparar(int $max = 1): int
  */
 function pebai_lab_gancho(array $w, array $N, string $empresa, string $ciudad, bool $ca, string $canal): array
 {
+    require_once __DIR__ . '/_claude_lib.php';
+    require_once __DIR__ . '/_ia_lib.php';
     $g = pebai_claude_json('cerebro', 'claude-sonnet-5-5',
         'Lees la portada de la web de ' . $N['quien'] . ' española y sacas datos reales para empezar un ' . $canal . ' en frío de Daniel, de PEBAI Systems (consultora de procesos e IA). '
         . 'Responde SOLO JSON {"opciones": [hasta 3 objetos distintos, del mejor al peor, cada uno {"dato": copia LITERAL (exacta, de 2 a 12 palabras) del fragmento de su web en que te basas, '
@@ -335,8 +337,8 @@ function pebai_lab_gancho(array $w, array $N, string $empresa, string $ciudad, b
     return ['gancho' => '', 'dato' => '', 'nombre' => ''];
 }
 
-// Email a todos los nichos menos instaladoras (Daniel, 3/11: las instaladoras van por WhatsApp) y menos luz (no se quiere)
-const PEBAI_EMAIL_NICHOS_FUERA = ['energia', 'solar', 'luz', 'luz_coop'];
+// Email (Daniel, 5/11): solo inmobiliarias, clínicas dentales y reformas, por igual. Las instaladoras van por WhatsApp
+const PEBAI_EMAIL_NICHOS = ['dentales', 'inmobiliarias', 'reformas'];
 const PEBAI_EMAIL_ESCRITOS_DIA = 40;   // primeros emails que se preparan al día como mucho (cada uno ~1-2 céntimos)
 
 /**
@@ -353,9 +355,23 @@ function pebai_lab_preparar_email(int $max = 1): int
     if ($hoy >= PEBAI_EMAIL_ESCRITOS_DIA) {
         return 0;
     }
-    $fuera = implode(',', array_map(static fn($n) => $db->quote($n), PEBAI_EMAIL_NICHOS_FUERA));
-    $cola = $db->query("SELECT * FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 AND cuerpo_personal = '' AND web <> '' AND nicho NOT IN ($fuera)
-                        AND error NOT LIKE '[ia_error]%' AND error NOT LIKE '[redactor]%' ORDER BY (error LIKE '[revisado]%') DESC, prioridad DESC, RANDOM() LIMIT " . (int)$max)->fetchAll();
+    // Por igual: primero el nicho con menos emails escritos hasta ahora; si no le quedan empresas, el siguiente
+    $escritos = [];
+    foreach (PEBAI_EMAIL_NICHOS as $n) {
+        $q = $db->prepare("SELECT COUNT(*) FROM email_prospectos WHERE nicho = ? AND cuerpo_personal <> ''");
+        $q->execute([$n]);
+        $escritos[$n] = (int)$q->fetchColumn();
+    }
+    asort($escritos);
+    $cola = [];
+    foreach (array_keys($escritos) as $n) {
+        $q = $db->prepare("SELECT * FROM email_prospectos WHERE estado = 'pendiente' AND paso = 0 AND cuerpo_personal = '' AND web <> '' AND nicho = ?
+                           AND error NOT LIKE '[ia_error]%' AND error NOT LIKE '[redactor]%' ORDER BY (error LIKE '[revisado]%') DESC, prioridad DESC, RANDOM() LIMIT " . (int)$max);
+        $q->execute([$n]);
+        if ($cola = $q->fetchAll()) {
+            break;
+        }
+    }
     $hechos = 0;
     foreach ($cola as $p) {
         $now = date('Y-m-d H:i:s');
