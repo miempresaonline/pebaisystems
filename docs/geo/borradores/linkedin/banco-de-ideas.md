@@ -55,3 +55,15 @@ Fuente: Metricool `getAnalyticsDataByMetrics` (LinkedIn, posts, marca PEBAI Syst
 | Reel: qué debe incluir una consultoría de IA | 30/10 | vídeo | 1 | 0 | 0 | 0 % |
 
 Conclusión (2 líneas): hasta hoy la página solo ha publicado casos con captura (3 piezas, 66 impresiones, 5 clics, los 5 del caso Fran García) y no hay ninguna pregunta de la página publicada todavía: las «preguntas» de la tabla anterior eran Reels. La primera pregunta sin imagen de la página sale el 5/11; en diciembre se mantiene la mezcla y se compara esa pieza con el caso Santacruz del 3/11 antes de cambiar nada.
+
+## Para enero (preguntas de la semana del 26/10 al 4/11; no se programan, el calendario está lleno hasta el 15/12)
+Fuente: `docs/geo/preguntas.md`, consultado el 5/11/2026. Página destino comprobada con curl el 5/11 (200). Enlace con utm de LinkedIn al programar. Sin cifras; casos solo con `casos.md`.
+
+| # | Pregunta del dueño | Respuesta en una línea | Fuente (en `preguntas.md`) | Página destino |
+|---|---|---|---|---|
+| 11 | ¿Cómo hago seguimiento de los presupuestos de instalación que el cliente no contesta? | Un recordatorio automático a los días y, si el cliente responde, pasa a una persona. | Turno 28/10 tarde, instaladoras (Clientify https://www.clientify.com/ [S]) | `/ia-para-empresas/instaladoras/` |
+| 12 | Si soy abogado o asesor, ¿rompo el secreto profesional si una IA atiende la llamada? | El agente solo recoge datos de contacto y un motivo genérico, sin el contenido del asunto; la norma deontológica la confirma el colegio. | Turno 29/10 tarde, voz (artículo de opinión [S], sin postura de colegios) | `/agentes-ia/voz/` |
+| 13 | ¿Hay mantenimiento mensual y qué incluye? ¿Cuota fija o por horas? | Pide por escrito qué incluye la cuota y qué queda fuera (consumo de modelos y licencias). | Turno 26/10, búsqueda web (P8) | `/ia-para-empresas/cuanto-cuesta/` |
+| 14 | ¿Usa el proveedor los datos de mi empresa para entrenar su modelo? | Depende del plan: la cuenta de empresa y el contrato lo dicen; pregunta antes de contratar. | Turno 4/11 tarde, datos (ASEST https://asest.es/story/noticias-pymes-espanolas-nivel-tecnologico/ [S]) | `/agentes-ia/` |
+
+Nota de calidad: la 14 no repite el post del 26/11 (qué datos se pegan); aquí el enfoque es el proveedor. La 12 solo con la frase prudente de `preguntas.md`, sin afirmar más hasta verificar con un colegio.

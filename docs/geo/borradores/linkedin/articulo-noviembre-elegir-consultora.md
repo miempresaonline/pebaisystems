@@ -1,6 +1,6 @@
 # Artículo de LinkedIn · noviembre 2026: ¿Cómo elijo una consultora de IA sin equivocarme?
 
-Base: `docs/geo/borradores/ia-para-empresas-como-elegir-consultora.md` (página que sale el 4/11, fuentes leídas el 30/10) y el caso Santacruz de `casos.md`. Sin cifras inventadas ni nombres de competidores. Lo publica Daniel (pasos al final). Texto debajo de la línea `---`.
+Base: `/ia-para-empresas/como-elegir-consultora/` publicada el 4/11 (alineado con ella el 5/11: arts. 43, 45, 96 y 97.4 de la LPI, art. 28 del RGPD, art. 10 de la LSSI y la FAQ del cliente anterior) y el caso Santacruz de `casos.md`. Sin cifras inventadas ni nombres de competidores. Lo publica Daniel (pasos al final). Texto debajo de la línea `---`.
 
 Título: `¿Cómo elijo una consultora de Inteligencia Artificial sin equivocarme?`
 
@@ -34,9 +34,15 @@ Manda la misma hoja a todas. Una consultora que la lee y te hace preguntas va bi
 
 Señal de alerta común a todas: solo logotipos o demostraciones preparadas, horas sin tope, o que salir signifique empezar de cero.
 
+Comprueba también lo básico: quien vende por internet tiene que publicar su nombre o razón social, domicilio, email y NIF (art. 10 de la LSSI). Si el aviso legal de su web no los tiene, pregunta por qué.
+
+## Habla con un cliente anterior
+
+Pide una o dos referencias de proyectos parecidos al tuyo y una llamada de 15 minutos con quien usa el sistema a diario: qué se entregó, qué falló y cómo respondió la consultora. Si no puede darte ningún cliente anterior con quien hablar, tenlo en cuenta al decidir.
+
 ## De quién es el código
 
-Es lo que más se olvida. Si el contrato no lo dice, el código no pasa a tu empresa por haberlo pagado. Según la Ley de Propiedad Intelectual, la cesión de derechos tiene que constar por escrito (art. 45) y queda limitada a los usos, el tiempo y el territorio que se pacten. Si no fija plazo, se entiende por cinco años; si no fija territorio, el país donde se firma (art. 43). Pide que la propuesta diga qué se cede, para qué usos y por cuánto tiempo. Con un contrato de por medio, la última palabra la tiene tu asesoría jurídica.
+Es lo que más se olvida. Un programa de ordenador está protegido por la Ley de Propiedad Intelectual (art. 96). Cuando lo crea alguien de tu plantilla, los derechos son de tu empresa salvo pacto (art. 97.4); cuando lo crea una consultora, no: si el contrato no lo dice, el código no pasa a tu empresa por haberlo pagado. La cesión de derechos tiene que constar por escrito (art. 45) y queda limitada a los usos, el tiempo y el territorio que se pacten. Si no fija plazo, se entiende por cinco años; si no fija territorio, el país donde se firma (art. 43). Pide que la propuesta diga qué se cede, para qué usos y por cuánto tiempo. Con un contrato de por medio, la última palabra la tiene tu asesoría jurídica.
 
 Con los datos pasa algo parecido. Si la consultora trata datos personales de tus clientes por encargo tuyo, el RGPD (art. 28) exige un contrato que diga qué datos, para qué y durante cuánto, que solo los trate con tus instrucciones por escrito y que, al terminar, los borre o te los devuelva, a tu elección.
 
