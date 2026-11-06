@@ -195,7 +195,7 @@ async function conectar() {
         } catch (e) { log('No se pudo descargar la nota de voz de', tel, e.message); }
       }
       const entrada = await api('entrante', { telefono: tel, texto, ...(audio || {}) });
-      // Baja (5/11, Daniel): se reacciona a su mensaje con 👍, sin escribir nada, pasados unos segundos como haría una persona
+      // Pide la baja con esa palabra (lo decide agente.php): se reacciona a su mensaje con 👍, sin escribir nada, pasados unos segundos
       if (entrada && entrada.baja) {
         const { remoteJid, fromMe, id, participant } = m.key;
         setTimeout(() => {

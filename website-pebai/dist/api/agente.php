@@ -201,7 +201,9 @@ switch ($in['accion'] ?? '') {
         if (preg_match(PEBAI_BAJA_RE, $texto)) {
             pebai_wa_baja($tel, 'Lo pidió por WhatsApp: «' . mb_substr($texto, 0, 200) . '»');
             pebai_actividad('whatsapp', 'respuesta', 'Baja: ' . ($p['empresa'] ?: $tel) . ' pidió no recibir más mensajes', $texto, 'wa:' . $p['id']);
-            out(['ok' => true, 'baja' => true]);   // el bot reacciona a su mensaje con 👍 (5/11, Daniel): sin texto
+            // 👍 solo a quien pide la baja con esa palabra (6/11, Daniel), no a «no me interesa»; tampoco a «está de baja» ni a un contestador
+            $pideBaja = preg_match('/\b(baja|baixa)\b/iu', $texto) && !preg_match('/\b(est[aá]n?|estoy|estamos)\s+de\s+(baja|baixa)\b/iu', $texto) && !pebai_es_contestador($texto);
+            out(['ok' => true, 'baja' => (bool)$pideBaja]);
         } else {
             pebai_actividad('whatsapp', 'respuesta', 'Respondió ' . ($p['empresa'] ?: $tel), $texto, 'wa:' . $p['id']);
             // En el momento: la IA lee la respuesta, la clasifica, prepara su demo y contesta. Al bot se le responde ya

@@ -216,8 +216,14 @@ function pebai_conv_cortesia(string $canal, array $p, array $msgs, bool $esAuto 
     }
     $texto = pebai_conv_cortesia_texto($p, $msgs);
     $cuando = date('Y-m-d H:i:s', time() + random_int(180, 300));
-    $db->prepare("INSERT INTO wa_salida (ts, prospecto_id, telefono, texto, no_antes, plantilla) VALUES (?, ?, ?, ?, ?, 'cortesia')")
-       ->execute([date('Y-m-d H:i:s'), $p['id'], $p['telefono'], $texto, $cuando]);
+    // Una sola respuesta por empresa (6/11, Daniel): hay contestadores que mandan dos mensajes a la vez y cada uno llega aquí por su lado.
+    // Comprobar y guardar van en la misma orden para que el segundo no pueda colarse mientras la IA redacta.
+    $ins = $db->prepare("INSERT INTO wa_salida (ts, prospecto_id, telefono, texto, no_antes, plantilla)
+                         SELECT ?, ?, ?, ?, ?, 'cortesia' WHERE NOT EXISTS (SELECT 1 FROM wa_salida WHERE prospecto_id = ?)");
+    $ins->execute([date('Y-m-d H:i:s'), $p['id'], $p['telefono'], $texto, $cuando, $p['id']]);
+    if ($ins->rowCount() === 0) {
+        return;
+    }
     pebai_actividad('whatsapp', 'respuesta', 'Contestador de ' . ($p['empresa'] ?: $p['telefono']) . ': le contesta en unos minutos con «' . $texto . '»', '', 'wa:' . $p['id']);
 }
 
