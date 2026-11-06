@@ -141,11 +141,8 @@ function pebai_conv_clasificar(int $max = 10): int
  * Una sola vez, solo por WhatsApp y solo si es la respuesta a nuestro primer mensaje (en las 24 horas siguientes: siempre se contesta, Daniel 28/10).
  */
 const PEBAI_CORTESIA = [
-    '¡Gracias! Os lo dejo aquí arriba para cuando lo veáis.',
-    'Perfecto, gracias. Cuando tengáis un momento lo veis arriba.',
-    'Gracias, sin prisa. Lo tenéis justo arriba cuando podáis.',
-    '¡Genial, gracias! Cuando lo leáis me decís.',
-    'Gracias. Lo dejo por aquí para cuando estéis.',
+    'Sin prisa, ya imagino cómo son los días. Cuando podáis, ¿sería mala idea llamaros 2 minutos?',
+    'Sin prisa. Cuando tengáis un hueco, ¿sería mala idea llamaros 2 minutos?',
 ];
 
 /**
@@ -168,12 +165,22 @@ function pebai_conv_cortesia_texto(array $p, array $msgs): string
     require_once __DIR__ . '/_claude_lib.php';
     for ($i = 0; $i < 2; $i++) {
         $t = trim((string)pebai_claude('conversaciones', 'claude-sonnet-5-5',
-            'Eres Daniel, de PEBAI Systems (consultora de procesos e Inteligencia Artificial). Escribiste en frío por WhatsApp a una empresa y te ha saltado su contestador automático. '
-            . 'Escribe la respuesta que mandaría una persona a ese contestador para no quedarse en el aire: responde a lo que pregunta el contestador (si pregunta en qué pueden ayudar, dilo) '
-            . 'resumiendo en UNA frase por qué les escribiste, sacado de tu primer mensaje, y termina con UNA pregunta fácil para llegar a la persona que lleva las solicitudes o los presupuestos. '
-            . 'Ya te presentaste en el primer mensaje: NO saludes («Hola», «Buenas») ni te vuelvas a presentar («soy Daniel», «de PEBAI»); empieza directamente, p. ej. «Os escribía para…». '
-            . 'Español de España, tuteo en plural (os), natural, como un WhatsApp de verdad. Máximo 35 palabras. Sin firma, sin enlaces, sin precios, sin porcentajes, sin leyes, sin ofrecer nada gratis, sin emojis o como mucho uno. '
-            . 'No repitas el primer mensaje entero ni pidas perdón. Devuelve SOLO el texto.',
+            // 6/11 (Daniel): un solo objetivo, permiso para llamar 2 minutos; reacciona a su contestador sin sonar a sistema
+            'Eres Daniel, de PEBAI Systems. Has escrito por WhatsApp a una empresa que no te conoce (tu primer mensaje ya pedía permiso para llamar) y te ha saltado su contestador automático. Lo leerá más tarde una persona que va hasta arriba de trabajo. '
+            . 'Escribe lo que le contestarías tú, a mano y sin pensarlo mucho: una o dos frases cortas, cálidas y tranquilas, sin presión. '
+            . 'Objetivo único: que acepten que les llames 2 minutos. Termina siempre con una pregunta de permiso que incluya «2 minutos». '
+            . "Cómo reaccionar a su contestador, tocando solo UNA idea:\n"
+            . "- Si pregunta cómo pueden ayudarte: dile con naturalidad que esta vez vienes tú a ayudarles a ellos.\n"
+            . "- Si dice que responderá pronto o da su horario: dile que sin prisa, y pide permiso para cuando les venga bien. Nunca comentes días ni horas concretos.\n"
+            . "- Si habla de citas o urgencias: aclara que no es para una cita ni urgencia.\n"
+            . "- Si menciona a un comercial o responsable: pregunta si puedes llamarle a él o ella.\n"
+            . "Ejemplos del tono (no los copies literalmente):\n"
+            . "«Gracias, aunque esta vez vengo yo a ayudaros a vosotros. ¿Sería mala idea llamaros 2 minutos cuando tengáis un hueco?»\n"
+            . "«Sin prisa, ya imagino cómo son los días. Cuando podáis, ¿sería mala idea llamaros 2 minutos?»\n"
+            . "«No es para ninguna cita, tranquilos, no quiero liaros la agenda. ¿Sería mala idea llamaros 2 minutos cuando acabéis?»\n"
+            . 'Reglas: máximo 28 palabras; español de España, plural (os). Sin saludo, sin tu nombre ni el de tu empresa ni el suyo. Sin emojis, enlaces, precios, cifras (salvo los 2 minutos), clientes ni reseñas. '
+            . 'No hables de ningún servicio ni tarea concreta. No comentes ni repitas lo que dice su contestador como si lo analizaras («veo que», «gracias por el horario», «justo lo de»). '
+            . 'No uses «en persona», «esta semana» ni «de viva voz». No repitas frases de tu primer mensaje («devolver», «hasta arriba», «otro mensaje»). No inventes nada ni prometas nada. Devuelve SOLO el texto.',
             [['role' => 'user', 'content' => 'Empresa: ' . ($p['empresa'] ?: 'sin nombre') . "\nTU PRIMER MENSAJE:\n{$nuestro}\n\nSU CONTESTADOR:\n{$suyo}"]],
             ['effort' => 'low', 'max_tokens' => 1500]) ?? '');
         $t = trim($t, " \n\r\t\"«»");
@@ -182,8 +189,11 @@ function pebai_conv_cortesia_texto(array $p, array $msgs): string
         // Sin volver a saludar ni presentarse (4/11): si lo hace, se quita el saludo; si se presenta, se descarta
         $t = preg_replace('/^(¡?hola|buenas( tardes| días)?|buenos días)[,!.\s]*/iu', '', $t);
         $t = mb_strtoupper(mb_substr($t, 0, 1)) . mb_substr($t, 1);
-        if ($t !== '' && $n <= 45 && !preg_match('/soy daniel|de pebai|pebai systems/iu', $t)
-            && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci/iu', $t) && !preg_match('/gratis|gratuit/iu', preg_replace('/«[^»]*»/u', '', $t))) {
+        // Lo que incumpla las reglas no sale: se reintenta y, si no, va la frase fija
+        if ($t !== '' && $n <= 32 && str_contains($t, '2 minutos') && !preg_match('/soy daniel|pebai/iu', $t)
+            && !preg_match('/[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]/u', $t)
+            && !preg_match('/https?:|www\.|€|\d+ ?%|\birpf\b|subvenci|gratis|gratuit|presupuesto|chatbot|\bapps?\b|\bwebs?\b|asistente|fran garc|gargom|adela|intotrans/iu', $t)
+            && !preg_match('/devolv|hasta arriba|otro mensaje|veo que|gracias por el horario|en persona|esta semana|de viva voz/iu', $t)) {
             return $t;
         }
     }
@@ -206,6 +216,10 @@ function pebai_conv_cortesia(string $canal, array $p, array $msgs, bool $esAuto 
     $soloContestador = $conTexto && !$persona && !array_filter($conTexto, static fn($m) => !pebai_es_contestador((string)$m['texto'])
         && !($esAuto && mb_strlen(trim((string)$m['texto'])) >= 60));
     if ($canal !== 'whatsapp' || !$soloContestador || count($salen) > 1 || $env === '' || strtotime($env) < time() - 24 * 3600 || pebai_conv_es_baja($canal, $p)) {
+        return;
+    }
+    // Un número que avisa de que ya no está operativo no se contesta (6/11)
+    if (array_filter($conTexto, static fn($m) => preg_match('/no est[aá] operativ|ya no (usamos|utilizamos|atendemos)|n[uú]mero (ha cambiado|inactivo)/iu', (string)$m['texto']))) {
         return;
     }
     $db = pebai_conv_db();
