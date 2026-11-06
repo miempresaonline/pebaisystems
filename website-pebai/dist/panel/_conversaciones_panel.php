@@ -3,11 +3,8 @@
  * PEBAI · Panel — Captación › Conversaciones (CRM de lo enviado por WhatsApp y email).
  * Lo incluye panel/index.php después de comprobar la sesión: usa $auth, csrf() y json_out() de allí.
  *   GET  ?conv=1                       → todas las conversaciones con su hilo y su estado.
- *   POST action=conv_notas             → notas del equipo.
- *   POST action=conv_reserva           → crea (si no existe) su ficha de cliente y devuelve el enlace de reserva.
- *   POST action=conv_borrador          → la IA prepara otra respuesta (con una indicación opcional de Daniel).
  *   POST action=conv_mio               → Daniel pega un mensaje suyo que no se guardó (con su fecha y hora); conv_mio_quitar lo borra.
- *   POST action=conv_enviar            → Daniel aprueba la respuesta: WhatsApp a la cola del bot, email sale ya.
+ *   POST action=conv_enviar            → Daniel responde: WhatsApp a la cola del bot, email sale ya.
  *   POST action=conv_contestado        → «Ya le he contestado» por mi cuenta: deja de salir «Te toca» hasta que la empresa escriba otra vez.
  */
 if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
@@ -40,7 +37,7 @@ if ($auth && isset($_GET['conv'])) {
     }
 }
 
-if ($auth && in_array($_POST['action'] ?? '', ['conv_notas', 'conv_reserva', 'conv_borrador', 'conv_enviar', 'conv_mio', 'conv_mio_quitar', 'conv_contestado'], true)) {
+if ($auth && in_array($_POST['action'] ?? '', ['conv_enviar', 'conv_mio', 'conv_mio_quitar', 'conv_contestado'], true)) {
     if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
         json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 400);
     }
@@ -55,11 +52,6 @@ if ($auth && in_array($_POST['action'] ?? '', ['conv_notas', 'conv_reserva', 'co
         json_out(['ok' => false, 'error' => 'No existe esa conversación.'], 404);
     }
     switch ($_POST['action']) {
-        case 'conv_notas':
-            $db->prepare('INSERT INTO conversaciones (canal, prospecto_id, notas) VALUES (?, ?, ?)
-                          ON CONFLICT(canal, prospecto_id) DO UPDATE SET notas = excluded.notas')
-               ->execute([$canal, $id, mb_substr(trim((string)($_POST['notas'] ?? '')), 0, 3000)]);
-            json_out(['ok' => true]);
         case 'conv_mio':
             // Mensaje que Daniel escribió desde el móvil o su correo y no se guardó: entra en el hilo en su sitio, como «enviado por ti»
             $texto = mb_substr(trim(str_replace("
@@ -94,12 +86,6 @@ if ($auth && in_array($_POST['action'] ?? '', ['conv_notas', 'conv_reserva', 'co
                           ON CONFLICT(canal, prospecto_id) DO UPDATE SET contestado_hasta = excluded.contestado_hasta, borrador = CASE WHEN excluded.contestado_hasta > 0 THEN '' ELSE borrador END")
                ->execute([$canal, $id, $hasta]);
             json_out(['ok' => true]);
-        case 'conv_reserva':
-            $leadId = pebai_conv_lead_crear($canal, $p);
-            json_out(['ok' => true, 'url' => pebai_booking_url($leadId), 'lead_id' => $leadId]);
-        case 'conv_borrador':
-            $r = pebai_conv_borrador($canal, $id, (string)($_POST['instruccion'] ?? ''));
-            json_out(isset($r['texto']) ? ['ok' => true, 'texto' => $r['texto']] : ['ok' => false, 'error' => $r['error']], isset($r['texto']) ? 200 : 422);
         case 'conv_enviar':
             $r = pebai_conv_enviar($canal, $id, (string)($_POST['texto'] ?? ''));
             json_out(isset($r['ok']) ? $r : ['ok' => false, 'error' => $r['error']], isset($r['ok']) ? 200 : 422);

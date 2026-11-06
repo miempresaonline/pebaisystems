@@ -6,7 +6,7 @@
  * - La IA lee las respuestas y las clasifica: contestador automático, interesado, no interesado, pregunta o neutra,
  *   con un resumen de una línea. Se reclasifica sola cuando llega un mensaje nuevo (cron cada 15 min).
  * - Desde aquí se crea el enlace de reserva de un interesado (Clientes de trato directo, leads.tipo = 'cliente').
- * - Cuando le toca contestar a Daniel, la IA deja preparada una respuesta (borrador). Nada sale sin que él la apruebe en el panel:
+ * - Cuando le toca contestar a Daniel, escribe él (06/11: la IA ya no deja respuestas escritas). Nada sale sin que él lo envíe desde el panel:
  *   por WhatsApp va a la cola wa_salida (la envía el bot escribiendo como una persona) y por email sale en el mismo hilo.
  *   Cada respuesta aprobada se guarda con el borrador original (conv_ejemplos) y la IA imita sus correcciones.
  */
@@ -330,7 +330,7 @@ PEBAI Systems";
     return true;
 }
 
-/** Clasifica una conversación ya (al llegar una respuesta) y, si toca contestar, prepara el borrador. */
+/** Clasifica una conversación ya (al llegar una respuesta) y, si contesta una persona, le prepara su demo. */
 function pebai_conv_al_momento(string $canal, int $id): void
 {
     $db = pebai_conv_db();
@@ -365,7 +365,7 @@ function pebai_conv_al_momento(string $canal, int $id): void
         return;
     }
     if (!in_array($res['estado'], ['auto', 'no_interesado'], true) && !pebai_conv_es_baja($canal, $p) && end($msgs)['sentido'] === 'entra' && !pebai_conv_cerrada($msgs)) {
-        // Contesta una persona: Demos le prepara su página (si tiene web) antes de redactar, para poder ofrecérsela
+        // Contesta una persona: Demos le prepara su página (si tiene web), para que Daniel pueda ofrecérsela
         if (in_array($canal, ['whatsapp', 'email'], true)) {
             try {
                 require_once __DIR__ . '/_demos_lib.php';
@@ -373,12 +373,6 @@ function pebai_conv_al_momento(string $canal, int $id): void
             } catch (Throwable $e) {
                 pebai_log('DEMOS: ' . $e->getMessage());
             }
-        }
-        $b = pebai_conv_borrador($canal, $id);
-        // A las personas NUNCA se les contesta solo (Daniel, 29-30/10: «de eso ya nos encargamos nosotros»): solo queda el borrador
-        // para aprobarlo en Conversaciones. Lo único que sale solo son las respuestas a contestadores (pebai_conv_cortesia, arriba).
-        if (isset($b['texto'])) {
-            pebai_actividad($canal, 'respuesta', 'Respuesta preparada para ' . ($p['empresa'] ?: '#' . $id) . ': espera tu aprobación en Conversaciones', $b['texto'], ($canal === 'email' ? 'em:' : 'wa:') . $id);
         }
     }
 }
@@ -783,7 +777,7 @@ function pebai_conv_datos(): array
                 'respuestas' => count($entra), 'estado' => $estado, 'manual' => $c ? (int)$c['manual'] : 0, 'resumen' => $c['resumen'] ?? '', 'notas' => $c['notas'] ?? '',
                 'lead_id' => $lead ? (int)$lead['id'] : 0, 'reserva' => $lead ? pebai_booking_url((int)$lead['id']) : '', 'cita' => $lead ? (string)$lead['cita_inicio'] : '',
                 'foto' => $canal === 'whatsapp' && is_file(pebai_private_dir() . '/fotos/' . preg_replace('/\D/', '', (string)$p['telefono']) . '.jpg') ? preg_replace('/\D/', '', (string)$p['telefono']) : '',
-                'mensajes' => $hilo, 'cola' => $cola[$k] ?? [], 'borrador' => $c['borrador'] ?? '',
+                'mensajes' => $hilo, 'cola' => $cola[$k] ?? [],
                 // Le toca contestar a Daniel: lo último lo escribió la empresa, no es un contestador ni alguien que no quiere,
                 // y Daniel no ha marcado que ya le contestó por su cuenta (un mensaje nuevo de la empresa lo vuelve a activar)
                 'te_toca' => empty($cola[$k]) && (!$hilo || (int)($c['contestado_hasta'] ?? 0) < end($hilo)['id'])

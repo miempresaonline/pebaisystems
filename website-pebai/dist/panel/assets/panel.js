@@ -159,7 +159,22 @@ $('#pb-tabs').addEventListener('click', (e) => { const b = e.target.closest('but
 $$('[data-go]').forEach((b) => b.addEventListener('click', () => showPage(b.dataset.go)));
 $('#pb-periodo').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) set({ periodo: b.dataset.p }); });
 $('#pb-dim').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; $$('#pb-dim button').forEach((x) => x.classList.toggle('on', x === b)); set({ dim: b.dataset.d }); });
-$('#pb-theme').addEventListener('click', () => { const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; document.documentElement.dataset.theme = t; try { localStorage.setItem('pebai-panel-theme', t); } catch (e) {} draw(); });
+$('#pb-theme').addEventListener('click', (e) => {
+  const root = document.documentElement, t = root.dataset.theme === 'light' ? 'dark' : 'light';
+  const aplica = () => {
+    root.dataset.theme = t;
+    try { localStorage.setItem('pebai-panel-theme', t); } catch (er) { /* sin almacenamiento */ }
+    draw();
+    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = getComputedStyle(root).getPropertyValue('--ink').trim() || m.content;
+  };
+  if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) { aplica(); return; }
+  // El tema nuevo se abre en círculo desde el botón (en móvil, el botón real está oculto: desde el centro de arriba)
+  const rc = e.currentTarget.getBoundingClientRect();
+  const x = rc.width ? rc.left + rc.width / 2 : innerWidth / 2, y = rc.height ? rc.top + rc.height / 2 : 0;
+  const radio = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  const vt = document.startViewTransition(aplica);
+  vt.ready.then(() => root.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radio}px at ${x}px ${y}px)`] }, { duration: 620, easing: 'cubic-bezier(.22,1,.36,1)', pseudoElement: '::view-transition-new(root)' })).catch(() => {});
+});
 
 const fEstado = $('#pb-f-estado'), fFuente = $('#pb-f-fuente'), fOpcion = $('#pb-f-opcion'), fCanal = $('#pb-f-canal'), fQ = $('#pb-q');
 fCanal.addEventListener('change', () => set({ canal: fCanal.value || null, limit: 120 }));

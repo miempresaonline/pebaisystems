@@ -13,12 +13,13 @@
 /* barra de filtros */
 .pc-bar{position:sticky;top:66px;z-index:15;display:flex;flex-direction:column;gap:10px;padding:12px;margin:0 -12px 12px;border-radius:20px;background:color-mix(in srgb,var(--ink) 82%,transparent);backdrop-filter:blur(14px)}
 @media (max-width:960px){.pc-bar{position:static}}
-.pc-estados{display:flex;gap:6px;flex-wrap:wrap}
-.pc-f{--c:var(--fg);display:inline-flex;align-items:center;gap:8px;padding:8px 12px 8px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .25s var(--ease)}
+.pc-estados{display:flex;gap:2px;flex-wrap:nowrap;padding:4px;border-radius:999px;background:var(--panel);border:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.pc-estados::-webkit-scrollbar{display:none}
+.pc-f{--c:var(--fg);flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:7px 12px;border-radius:999px;border:0;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;transition:color .25s}
 .pc-f i{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 20%,transparent)}
-.pc-f em{font-style:normal;font-size:11.5px;padding:1px 8px;border-radius:999px;background:var(--panel-2);color:var(--fg)}
-.pc-f:hover{color:var(--fg);border-color:var(--line-2);transform:translateY(-1px)}
-.pc-f.on{color:var(--fg-strong);border-color:color-mix(in srgb,var(--c) 60%,transparent);background:color-mix(in srgb,var(--c) 13%,var(--panel))}
+.pc-f em{font-style:normal;font-variant-numeric:tabular-nums;font-size:11.5px;padding:1px 8px;border-radius:999px;background:var(--panel-2);color:var(--fg)}
+.pc-f:hover{color:var(--fg)}
+.pc-f.on{color:var(--fg-strong)}
 .pc-f.on em{background:var(--c);color:#0B0F14}
 .pc-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .pc-search{flex:1;min-width:200px;position:relative}
@@ -87,13 +88,7 @@
 .pc-x{width:36px;height:36px;border-radius:10px;border:1px solid var(--line-2);background:transparent;color:var(--fg);cursor:pointer;display:grid;place-items:center}
 .pc-x svg{width:16px;height:16px}
 .pc-links{display:flex;gap:6px;flex-wrap:wrap;padding:0 20px 12px}
-.pc-dest{padding:12px 20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.pc-dest small{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);margin-bottom:8px}
-.pc-seg{display:flex;gap:6px;flex-wrap:wrap}
-.pc-seg button{--c:var(--muted);padding:6px 11px;border-radius:999px;border:1px solid var(--line-2);background:transparent;color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .2s}
-.pc-seg button.on{color:#0B0F14;background:var(--c);border-color:var(--c)}
-.pc-seg button.ia{border-style:dashed}
-.pc-cita{margin:10px 0 0;font-weight:800;color:var(--green)}
+.pc-cita{margin:0;padding:0 20px 12px;font-size:13px;font-weight:800;color:var(--green)}
 .pc-chat{flex:1;overflow:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px;background:radial-gradient(600px 300px at 100% 0,var(--violet-glow),transparent 70%)}
 .pc-day{align-self:center;font-size:11px;font-weight:800;color:var(--muted);padding:3px 10px;border-radius:999px;background:var(--panel-2);margin:6px 0}
 .pc-b{max-width:84%;padding:9px 12px 6px;border-radius:14px;font-size:13.5px;line-height:1.5;animation:pb-pop .3s var(--ease) both}
@@ -103,9 +98,6 @@
 .pc-b.ellos{align-self:flex-start;background:var(--panel-2);border:1px solid var(--line);border-bottom-left-radius:4px}
 .pc-chat.whatsapp .pc-b.ellos{background:color-mix(in srgb,var(--green) 12%,var(--panel-2));border-color:color-mix(in srgb,var(--green) 25%,transparent)}
 .pc-wait{align-self:center;font-size:12.5px;color:var(--muted-2);margin-top:8px}
-.pc-notas{padding:12px 20px 18px;border-top:1px solid var(--line)}
-.pc-notas small{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px}
-.pc-notas textarea{min-height:64px;background:var(--panel-2)}
 body[data-page=conversaciones] .pb-only-embudo{display:none}
 .pc-av img.foto{padding:0;object-fit:cover}
 .pc-toca{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,#FFB547 18%,transparent);color:#FFB547;font-weight:800}
@@ -126,11 +118,7 @@ body[data-page=conversaciones] .pb-only-embudo{display:none}
 .pc-drawer .pc-chat{flex:1 0 220px}
 .pc-conv{width:100%;justify-content:center}
 .pc-conv em{font-style:normal;min-width:22px;height:20px;padding:0 6px;border-radius:999px;display:inline-grid;place-items:center;background:rgba(255,255,255,.2);font-size:11.5px}
-.pc-seg{align-items:center}
-.pc-resumen{font-size:12.5px;color:var(--muted)}
 @media (max-width:1100px){.pc-conv{width:170px}}
-.pc-enlace{align-self:center;font-size:12px;color:var(--cyan);text-decoration:none;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pc-enlace:hover{text-decoration:underline}
 .pc-b{position:relative}
 .pc-quitar{position:absolute;top:-7px;left:-7px;width:20px;height:20px;border-radius:50%;border:1px solid var(--line-2);background:var(--panel-solid);color:var(--muted);font:inherit;font-size:13px;line-height:1;cursor:pointer;opacity:0;transition:opacity .2s}
 .pc-b:hover .pc-quitar,.pc-quitar:focus-visible{opacity:1}
@@ -154,7 +142,6 @@ body[data-page=conversaciones] .pb-only-embudo{display:none}
 .pc-ya.hecho{background:rgba(61,220,132,.07);border-color:rgba(61,220,132,.25)}
 /* Barra de escribir tipo WhatsApp (22/10) */
 .pc-resp{position:sticky;bottom:0;z-index:2;padding:10px 14px 14px;gap:6px;background:var(--ink-2);border-top:1px solid var(--line)}
-.pc-ia{font-size:11.5px!important;font-weight:700!important;letter-spacing:0!important;text-transform:none!important;color:#FFB547!important;padding-left:6px}
 .pc-barra{display:flex;align-items:flex-end;gap:8px}
 .pc-barra textarea{flex:1;min-height:42px;max-height:220px;resize:none;overflow-y:auto;padding:10px 16px;border-radius:22px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--fg);font:inherit;font-size:14px;line-height:1.45}
 .pc-barra textarea:focus{outline:none;border-color:#25D366}
@@ -164,9 +151,3 @@ body[data-page=conversaciones] .pb-only-embudo{display:none}
 .pc-enviar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
 .pc-ya{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);padding:0 4px}
 .pc-ya .pc-btn{padding:4px 10px;font-size:11.5px}
-.pc-notas{padding:8px 20px}
-.pc-notas summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);list-style:none}
-.pc-notas summary::-webkit-details-marker{display:none}
-.pc-notas summary:hover{color:var(--fg)}
-.pc-notas[open] summary{margin-bottom:6px}
-.pc-notas textarea{min-height:56px}

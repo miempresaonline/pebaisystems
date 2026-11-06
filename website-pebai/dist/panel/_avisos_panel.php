@@ -26,6 +26,28 @@ if ($auth && isset($_GET['avisos_ultimos'])) {
     json_out(['ok' => true, 'avisos' => $q->fetchAll()]);
 }
 
+// La actividad del Resumen: todo el historial, por páginas y con filtro por tipo
+if ($auth && isset($_GET['avisos_hist'])) {
+    $grupos = ['demo' => ['demo'], 'resp' => ['respuesta', 'interesado'], 'sol' => ['solicitud'], 'cita' => ['cita']];
+    $g = (string)($_GET['tipo'] ?? '');
+    $antes = (int)($_GET['antes'] ?? 0);
+    $n = min(50, max(1, (int)($_GET['n'] ?? 20)));
+    $w = "tipo <> 'prueba'";
+    $a = [];
+    if (isset($grupos[$g])) {
+        $w .= ' AND tipo IN (' . implode(',', array_fill(0, count($grupos[$g]), '?')) . ')';
+        $a = $grupos[$g];
+    }
+    if ($antes > 0) {
+        $w .= ' AND id < ?';
+        $a[] = $antes;
+    }
+    $q = pebai_avisos_db()->prepare("SELECT id, ts, tipo, titulo, texto, ir FROM avisos WHERE $w ORDER BY id DESC LIMIT " . ($n + 1));
+    $q->execute($a);
+    $filas = $q->fetchAll();
+    json_out(['ok' => true, 'avisos' => array_slice($filas, 0, $n), 'mas' => count($filas) > $n]);
+}
+
 if ($auth && isset($_GET['push_clave'])) {
     try {
         json_out(['ok' => true, 'clave' => pebai_vapid()['pub']]);

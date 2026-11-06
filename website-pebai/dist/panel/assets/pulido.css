@@ -1,0 +1,39 @@
+/* PEBAI · Panel — pulido común (06/11): cambio de tema con revelado circular, indicador que viaja y respuesta al pulsar */
+
+/* Día y noche: el tema nuevo se abre en círculo desde el botón (el círculo lo anima panel.js) */
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+::view-transition-old(root){z-index:1}
+::view-transition-new(root){z-index:2}
+#pb-theme svg{transition:transform .6s cubic-bezier(.22,1,.36,1)}
+:root[data-theme=light] #pb-theme svg{transform:rotate(360deg)}
+
+/* Indicador que viaja entre opciones */
+.pb-con-ind{position:relative}
+.pb-con-ind>button{position:relative;z-index:1}
+.pb-con-ind>button.on{background:none!important;box-shadow:none!important}
+.pb-ind{position:absolute;z-index:0;display:block;border-radius:999px;pointer-events:none;background:var(--violet);box-shadow:0 6px 18px var(--violet-glow);
+  transition:left var(--dl,.45s) cubic-bezier(.3,1,.4,1),right var(--dr,.45s) cubic-bezier(.3,1,.4,1),top .3s,height .3s,opacity .2s}
+.pb-pastilla>.pb-ind{background:var(--fg-strong);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.pgx-tipos>.pb-ind{background:var(--fg-strong);box-shadow:none}
+.pc-estados>.pb-ind{--c:var(--fg);background:color-mix(in srgb,var(--c) 16%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,transparent)}
+
+.pc-f[data-k=""].on em{color:var(--ink)}
+
+/* Conversaciones: un solo color de acción. El botón de cada fila se enciende solo en la fila que señalas */
+.pc-row .pc-conv{background:color-mix(in srgb,var(--fg) 7%,transparent);color:var(--fg);box-shadow:none;border-color:transparent;transition:background .2s,color .2s,transform .18s var(--ease)}
+.pc-row .pc-conv svg{color:inherit}
+.pc-row:hover .pc-conv,.pc-row .pc-conv:focus-visible{background:var(--violet);color:#fff}
+
+/* El panel de la conversación cerrado no deja sombra en el borde de la pantalla */
+.pc-drawer{visibility:hidden;box-shadow:none;transition:transform .5s var(--ease),visibility 0s .5s,box-shadow .3s}
+.pc-drawer.on{visibility:visible;box-shadow:-30px 0 80px rgba(0,0,0,.5);transition:transform .5s var(--ease),visibility 0s,box-shadow .3s}
+
+/* Al pulsar, el botón cede un poco. Y las cifras no bailan */
+.pb-btn:active,.pc-btn:active,.pb-seg button:active,.pb-pastilla button:active,.pc-f:active,.pgx button:active{transform:scale(.975)}
+.pb-btn,.pc-btn{transition:transform .18s var(--ease),background .2s,border-color .2s,color .2s}
+.pc-kpi b,.pb-row b,.rd-kpi b,.ga-kpi b{font-variant-numeric:tabular-nums}
+
+@media (prefers-reduced-motion:reduce){
+  .pb-ind,#pb-theme svg{transition:none}
+  .pb-btn:active,.pc-btn:active,.pb-seg button:active,.pb-pastilla button:active,.pc-f:active,.pgx button:active{transform:none}
+}

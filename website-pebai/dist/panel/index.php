@@ -670,7 +670,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '145';
+$v = '146';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -706,6 +706,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <link rel="stylesheet" href="<?= BASE ?>assets/movil.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/solicitudes.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/glass.css?v=<?= $v ?>">
+<link rel="stylesheet" href="<?= BASE ?>assets/pulido.css?v=<?= $v ?>">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="stylesheet" href="<?= BASE ?>assets/email.css?v=<?= $v ?>">
 <script>try{var t=localStorage.getItem('pebai-panel-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -894,7 +895,7 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
     <div class="pb-pagehead"><div>
       <div class="pb-eyebrow">Captación · CRM</div>
       <h1 class="pb-h1">Conversaciones, <i>una a una</i></h1>
-      <p class="pb-lead">Todo lo que han enviado los agentes por WhatsApp y email, y lo que ha contestado cada empresa. La IA lee cada respuesta, la clasifica sola y te deja preparada la contestación: tú solo la apruebas.</p>
+      <p class="pb-lead">Todo lo que han enviado los agentes por WhatsApp y email, y lo que ha contestado cada empresa. La IA lee cada respuesta y la clasifica sola.</p>
     </div></div>
     <div class="pc-kpis" id="pc-kpis"></div>
     <div class="pc-bar">
@@ -1024,6 +1025,7 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
 <script src="<?= BASE ?>assets/panel.js?v=<?= $v ?>" defer></script>
 <script>window.PB_TAB = new URLSearchParams(location.search).get('tab');</script>
 <script src="<?= BASE ?>assets/agentes.js?v=<?= $v ?>" defer></script>
+<script src="<?= BASE ?>assets/pulido.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/conversaciones.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/global.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/caja.js?v=<?= $v ?>" defer></script>

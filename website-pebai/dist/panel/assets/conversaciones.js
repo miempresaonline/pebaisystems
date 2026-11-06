@@ -16,10 +16,11 @@ const guarda = () => { try { localStorage.setItem('pebai-conv-ui', JSON.stringif
 const EST = {
   sin_respuesta: ['Sin respuesta', '#6F7189'], auto: ['Contestador', '#9A9CB0'], pregunta: ['Contestó', '#3FD5FF'], pendiente_ia: ['Contestó', '#3FD5FF'],
   interesado: ['Interesado', '#B7FF3C'], no_interesado: ['No interesado', '#FF6B7A'], cita: ['Cita reservada', '#25D366'],
-  te_toca: ['Te toca responder', '#FFB547'], info_enviada: ['Info enviada', '#7E73FF'],
+  te_toca: ['Te toca', '#FFB547'], info_enviada: ['Contestó', '#3FD5FF'],
 };
-const ORDEN = ['', 'te_toca', 'interesado', 'cita', 'info_enviada', 'pregunta', 'sin_respuesta', 'auto', 'no_interesado'];
-const grupo = (e) => (e === 'pendiente_ia' ? 'pregunta' : e);
+// Los filtros son siempre estos y caben en una línea: «Info enviada» cuenta como Contestó y las citas, como Interesado
+const ORDEN = ['', 'te_toca', 'interesado', 'pregunta', 'sin_respuesta', 'auto', 'no_interesado'];
+const grupo = (e) => (e === 'pendiente_ia' || e === 'info_enviada' ? 'pregunta' : e === 'cita' ? 'interesado' : e);
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 const pad = (n) => String(n).padStart(2, '0');
@@ -48,7 +49,6 @@ const ICO = {
   mail: () => svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>'),
   chat: () => svg('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>'),
   eye: () => svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
-  cal: () => svg('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>'),
   search: () => svg('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
   x: () => svg('<path d="M18 6 6 18M6 6l12 12"/>'),
   ext: () => svg('<path d="M14 4h6v6M10 14 20 4M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/>'),
@@ -100,7 +100,7 @@ function base() { const d0 = desde(); return S.filas.filter((f) => (!ui.canal ||
 function visibles() {
   const q = ui.q.toLowerCase();
   return base().filter((f) => (!ui.estado || (ui.estado === 'te_toca' ? f.te_toca : grupo(f.estado) === ui.estado))
-    && (!q || [f.empresa, f.ciudad, f.contacto, f.resumen, f.notas, ...f.mensajes.map((m) => m.texto)].join(' ').toLowerCase().includes(q)));
+    && (!q || [f.empresa, f.ciudad, f.contacto, f.resumen, ...f.mensajes.map((m) => m.texto)].join(' ').toLowerCase().includes(q)));
 }
 
 /* ============ dibujo ============ */
@@ -116,17 +116,26 @@ function drawKpis(B) {
     ['Citas', N(citas), citas ? 'reservadas' : 'aún ninguna', 'green']]
     .forEach(([l, v, d, c], i) => { const k = el('div', 'pc-kpi ' + c); k.style.setProperty('--i', i); k.append(el('small', null, l), el('b', null, v), el('span', null, d)); box.append(k); });
 }
+// Los botones no se rehacen: se actualizan, y así el indicador viaja de uno a otro
 function drawFiltros(B) {
-  const box = $('#pc-estados'); box.textContent = '';
-  ORDEN.forEach((k) => {
-    const n = k ? B.filter((f) => (k === 'te_toca' ? f.te_toca : grupo(f.estado) === k)).length : B.length;
-    if (k && !n && ui.estado !== k) return;
-    const [l, c] = k ? EST[k] : ['Todas', '#EFEDE7'];
-    const b = el('button', 'pc-f' + (ui.estado === k ? ' on' : '')); b.type = 'button'; b.style.setProperty('--c', c);
-    b.append(el('i'), el('span', null, l), el('em', null, N(n)));
-    b.onclick = () => { ui.estado = ui.estado === k ? '' : k; guarda(); draw(); };
-    box.append(b);
+  const box = $('#pc-estados');
+  if (!box.children.length || !box.querySelector('.pc-f')) {
+    ORDEN.forEach((k) => {
+      const [l, c] = k ? EST[k] : ['Todas', 'var(--fg)'];
+      const b = el('button', 'pc-f'); b.type = 'button'; b.style.setProperty('--c', c); b.dataset.k = k;
+      b.append(el('i'), el('span', null, l), el('em'));
+      b.onclick = () => { ui.estado = ui.estado === k ? '' : k; guarda(); draw(); };
+      box.append(b);
+    });
+  }
+  // Si quedó guardado un filtro que ya no existe, vuelve a Todas
+  if (!ORDEN.includes(ui.estado)) ui.estado = '';
+  $$('.pc-f', box).forEach((b) => {
+    const k = b.dataset.k;
+    $('em', b).textContent = N(k ? B.filter((f) => (k === 'te_toca' ? f.te_toca : grupo(f.estado) === k)).length : B.length);
+    b.classList.toggle('on', ui.estado === k);
   });
+  if (window.pbSeg) window.pbSeg(box);
   $$('#pc-canal button').forEach((b) => b.classList.toggle('on', b.dataset.c === ui.canal));
   $$('#pc-periodo button').forEach((b) => b.classList.toggle('on', b.dataset.p === ui.periodo));
 }
@@ -141,7 +150,7 @@ function drawTabla(rows) {
     const d = parse(f.enviado_at);
     const env = el('div', 'pc-env'); env.append(el('b', null, dia(d)), el('span', null, hora(d)));
     const est = el('div', 'pc-est'); est.append(pill(f.estado));
-    if (f.te_toca) est.append(el('small', 'pc-toca', f.contestador ? (f.borrador ? 'Mensaje corto listo' : 'Contestador: un mensaje') : f.borrador ? 'Respuesta lista' : 'Te toca'));
+    if (f.te_toca) est.append(el('small', 'pc-toca', 'Te toca'));
     else if (f.cola.length) est.append(el('small', 'pc-toca cola', 'Enviando…'));
     const ult = el('div', 'pc-ult');
     const ultima = [...f.mensajes].reverse().find((m) => m.de === 'entra');
@@ -186,19 +195,7 @@ function drawChat() {
   if (f.web) { const a = el('a', 'pc-btn'); a.href = f.web; a.target = '_blank'; a.rel = 'noopener'; a.append(ICO.ext(), el('span', null, 'Web')); links.append(a); }
   if (f.canal === 'whatsapp') { const a = el('a', 'pc-btn wa'); a.href = 'https://wa.me/' + String(f.contacto).replace(/\D/g, ''); a.target = '_blank'; a.rel = 'noopener'; a.append(ICO.wa(), el('span', null, 'Abrir en WhatsApp')); links.append(a); }
   else { const a = el('a', 'pc-btn'); a.href = 'mailto:' + f.contacto; a.append(ICO.mail(), el('span', null, 'Escribir email')); links.append(a); }
-  // Enlace de reserva de esta empresa: se ve aquí y va metido en la respuesta (no hay que copiarlo a mano)
-  const rb = el('button', 'pc-btn', null); rb.type = 'button'; rb.title = 'Copiar el enlace';
-  rb.append(ICO.cal(), el('span', null, f.reserva ? 'Copiar enlace' : 'Crear enlace de reserva'));
-  rb.onclick = async () => {
-    try { const url = await enlace(f); await navigator.clipboard.writeText(url).catch(() => {}); toast('Enlace copiado.'); drawChat(); } catch (e) { toast(e.message, true); }
-  };
-  links.append(rb);
-  if (f.reserva) { const a = el('a', 'pc-enlace', f.reserva.replace(/^https?:\/\//, '')); a.href = f.reserva; a.target = '_blank'; a.rel = 'noopener'; a.title = 'Su enlace para reservar la llamada'; links.append(a); }
-  // Estado: lo pone solo la IA al leer cada respuesta (orden de Daniel, 22/10: no se cambia a mano)
-  const est = el('div', 'pc-dest'); est.append(el('small', null, 'Estado (lo pone la IA al leer cada respuesta)'));
-  const seg = el('div', 'pc-seg'); seg.append(pill(f.estado)); if (f.resumen) seg.append(el('span', 'pc-resumen', f.resumen));
-  est.append(seg);
-  if (f.estado === 'cita' && f.cita) est.append(el('p', 'pc-cita', 'Cita reservada: ' + dia(new Date(f.cita)) + ' a las ' + hora(new Date(f.cita))));
+  const cita = f.estado === 'cita' && f.cita ? el('p', 'pc-cita', 'Cita reservada: ' + dia(new Date(f.cita)) + ' a las ' + hora(new Date(f.cita))) : null;
   // Hilo
   const chat = el('div', 'pc-chat ' + f.canal);
   let ultimoDia = '';
@@ -212,7 +209,7 @@ function drawChat() {
       m = { ...m, texto: trozos[trozos.length - 1] || m.texto };
     }
     const b = el('div', 'pc-b ' + (m.de === 'sale' ? 'yo' : 'ellos'));
-    b.append(el('p', null, m.texto), el('time', null, hora(d) + (m.de === 'sale' ? (m.manual ? ' · enviado por ti' : m.respuesta ? ' · aprobada por ti' : ' · enviado por el agente') : '')));
+    b.append(el('p', null, m.texto), el('time', null, hora(d) + (m.de === 'sale' ? (m.manual || m.respuesta ? ' · enviado por ti' : ' · enviado por el agente') : '')));
     if (m.manual) {
       // Por si se pegó mal: solo los «enviados por ti» se pueden quitar
       const q = el('button', 'pc-quitar', '×'); q.type = 'button'; q.title = 'Quitar este mensaje de la conversación';
@@ -228,26 +225,13 @@ function drawChat() {
     chat.append(b);
   });
   if (!f.mensajes.some((m) => m.de === 'entra')) chat.append(el('div', 'pc-wait', 'Aún no ha contestado.'));
-  // Notas internas: apuntes del equipo sobre esta empresa (el cliente no las ve)
-  const nt = el('details', 'pc-notas'); if (f.notas) nt.open = true;
-  nt.append(el('summary', null, '🔒 Notas internas · solo las veis vosotros, el cliente no las ve'));
-  const ta = el('textarea'); ta.value = f.notas || ''; ta.placeholder = 'Apuntes para el equipo. Ej.: «llamar el jueves por la tarde», «tienen 3 naves», «decide el gerente».';
-  let tm; ta.oninput = () => { clearTimeout(tm); tm = setTimeout(async () => { try { await post('conv_notas', { canal: f.canal, id: f.id, notas: ta.value }); f.notas = ta.value; } catch (e) { toast(e.message, true); } }, 700); };
-  nt.append(ta);
-  drawer.append(hd, links, est, nt, chat, responder(f));
+  drawer.append(hd, links);
+  if (cita) drawer.append(cita);
+  drawer.append(chat, responder(f));
   requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; });
 }
 
-/* ============ responder (la IA propone, Daniel aprueba) ============ */
-const ENLACE = '[ENLACE_RESERVA]';
-// Vídeo de la consultoría (primer paso del embudo): enlace fijo, se ve ya escrito en el borrador
-const VIDEO = '[ENLACE_VIDEO]', VIDEO_URL = 'https://pebaisystems.es/consultoria-gratuita/?origen=daniel';
-const FORM = '[ENLACE_FORMULARIO]', FORM_URL = 'https://pebaisystems.es/diagnostico/?origen=daniel';
-const conVideo = (t) => String(t || '').split(VIDEO).join(VIDEO_URL).split(FORM).join(FORM_URL);
-async function enlace(f) {
-  if (!f.reserva) { const r = await post('conv_reserva', { canal: f.canal, id: f.id }); f.reserva = r.url; f.lead_id = r.lead_id; }
-  return f.reserva;
-}
+/* ============ responder (escribe Daniel: la IA no deja respuestas escritas) ============ */
 function responder(f) {
   const box = el('div', 'pc-resp');
   if (f.estado === 'no_interesado') { box.append(el('p', 'pc-resp-no', 'No quiere más mensajes: aquí no se le contesta.')); return box; }
@@ -265,16 +249,12 @@ function responder(f) {
     ya.append(b); box.append(ya);
     if (f.contestado) return box;
   }
-  if (f.borrador) box.append(el('small', 'pc-ia', '✨ La IA te ha dejado la respuesta escrita: revísala y envía'));
   const barra = el('div', 'pc-barra');
   const ta = el('textarea'); ta.rows = 1;
-  ta.value = conVideo(f.borrador).split(ENLACE).join(f.reserva || ENLACE);
-  ta.placeholder = f.te_toca && !f.borrador ? 'La IA está preparando la respuesta… o escríbela tú' : 'Escribe un mensaje';
+  ta.placeholder = 'Escribe un mensaje';
   ta.title = f.canal === 'email' ? 'La firma y la opción de no recibir más se añaden solas' : 'Cada bloque separado por una línea en blanco sale como un WhatsApp aparte · Ctrl+Enter para enviar';
   const crece = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 220) + 'px'; };
   ta.oninput = crece; requestAnimationFrame(crece);
-  // Si la respuesta lleva la reserva, su enlace real va ya escrito
-  if (ta.value.includes(ENLACE)) enlace(f).then((u) => { ta.value = ta.value.split(ENLACE).join(u); crece(); }).catch(() => {});
   const env = el('button', 'pc-enviar'); env.type = 'button'; env.title = 'Enviar';
   env.append(svg('<path d="M4 12 20 4l-6 16-3-7z"/><path d="m11 13 9-9"/>'));
   const enviar = async () => {

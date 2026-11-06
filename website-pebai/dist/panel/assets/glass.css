@@ -124,7 +124,6 @@
   .pb-tabbar{transition:transform .3s cubic-bezier(.16,1,.3,1)}
   .pb-side-foot .pb-btn.icon{width:40px!important;height:40px!important}
   .pb-subnav button,.pb-seg button{min-height:40px}
-  .pgx-cuatro{padding:0!important}
   .pb-tabbar button.on .pb-i{filter:drop-shadow(0 0 8px var(--lime-glow))}
 }
 
@@ -190,8 +189,6 @@
 @keyframes pbg-barra{from{transform:scaleY(0)}to{transform:none}}
 @keyframes pbg-fade{from{opacity:.35;transform:translate3d(0,4px,0)}to{opacity:1;transform:none}}
 /* el Resumen: tarjetas de cristal pintado, sin desenfocar lo de detrás (eran 9 desenfoques recalculados al desplazar) */
-.pgx>*,.pgx-cifra,.pgx-mini{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-.pgx-hero .bt .cla{background:#fff;background-image:none}
 /* los puntos «en vivo» laten con la opacidad (antes con sombras que repintaban el dock entero sin parar) */
 .pb-live[data-s=ok],.pb-live[data-s=bad]{animation:pbg-late 2.2s ease-in-out infinite!important;box-shadow:none!important}
 @keyframes pbg-late{0%,100%{opacity:1}50%{opacity:.35}}

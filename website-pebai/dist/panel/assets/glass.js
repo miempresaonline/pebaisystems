@@ -75,7 +75,7 @@ function pintaPastilla(p) {
 //    con sus datos y sus tarjetas suben en cascada;
 //  · las siguientes veces aparece al momento con un fundido corto (sus datos ya están): nada de esperas ni de cascadas repetidas;
 //  · todo con opacidad y movimiento, leyendo medidas antes de escribir (sin forzar el navegador a recalcular en bucle).
-const PIEZAS = '.pgx>*,.pgx-cuatro>*,.pgx-col>*,.pb-card,.pb-row,.pc-kpi,.pc-row,.rd-kpi,.rd-card,.ga-kpi,.ga-card,.ga-hero,.pb-chip,.pb-plz,.pb-sol-cab,.pb-subnav,.pb-h1,.pb-pagehead,.pb-caja,.pb-hub-c';
+const PIEZAS = '.pgx-sol,.pgx-toca,.pgx-col>*,.pgx-act,.pb-card,.pb-row,.pc-kpi,.pc-row,.rd-kpi,.rd-card,.ga-kpi,.ga-card,.ga-hero,.pb-chip,.pb-plz,.pb-sol-cab,.pb-subnav,.pb-h1,.pb-pagehead,.pb-caja,.pb-hub-c';
 const vistos = new Set();
 const relojes = new Map();
 function limpia(page) {
