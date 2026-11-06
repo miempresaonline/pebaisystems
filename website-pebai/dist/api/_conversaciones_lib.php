@@ -173,7 +173,7 @@ function pebai_conv_cortesia_texto(array $p, array $msgs): string
             . "- Si pregunta cómo pueden ayudarte: dile con naturalidad que esta vez vienes tú a ayudarles a ellos.\n"
             . "- Si dice que responderá pronto o da su horario: dile que sin prisa, y pide permiso para cuando les venga bien. Nunca comentes días ni horas concretos.\n"
             . "- Si habla de citas o urgencias: aclara que no es para una cita ni urgencia.\n"
-            . "- Si menciona a un comercial o responsable: pregunta si puedes llamarle a él o ella.\n"
+            . "- Si dice que te responderá un comercial o responsable: dile que sin prisa, y pide permiso para llamaros cuando tenga un hueco. Nunca escribas «él o ella».\n"
             . "Ejemplos del tono (no los copies literalmente):\n"
             . "«Gracias, aunque esta vez vengo yo a ayudaros a vosotros. ¿Sería mala idea llamaros 2 minutos cuando tengáis un hueco?»\n"
             . "«Sin prisa, ya imagino cómo son los días. Cuando podáis, ¿sería mala idea llamaros 2 minutos?»\n"
