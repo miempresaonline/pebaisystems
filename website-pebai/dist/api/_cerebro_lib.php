@@ -284,7 +284,7 @@ function pebai_lab_preparar(int $max = 1, string $grupo = ''): int
         $w = pebai_web_texto($web);
         // 5/11 (Daniel): sin revisión de pago con IA; mensaje fijo, sin gancho de la IA; solo cambia el nombre de la empresa
         $ca = $w && pebai_ia_solo_catalan($w['texto']);
-        $t = pebai_wa_fijo((string)$p['empresa'], $ca, (string)$p['ciudad']);
+        $t = pebai_wa_fijo((string)$p['empresa'], $ca, (string)$p['ciudad'], (string)$p['nicho']);
         $db->prepare("UPDATE prospectos SET mensaje = ?, plantilla = 'lab-fijo', updated_at = ? WHERE id = ? AND mensaje = '' AND estado = 'pendiente'")
            ->execute([$t, date('Y-m-d H:i:s'), $p['id']]);
         pebai_actividad('cerebro', 'hito', 'Primer mensaje para ' . $p['empresa'] . ' (' . $p['nicho'] . ')', $t, 'wa:' . $p['id']);

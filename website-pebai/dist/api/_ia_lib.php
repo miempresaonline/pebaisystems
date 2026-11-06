@@ -95,8 +95,14 @@ function pebai_ia_nombre(string $nombre, string $web): string
 
 // Primer WhatsApp (Daniel, 5/11/2026): texto fijo, sin gancho de la IA; solo cambia el nombre de la empresa. Las barras bajas son la cursiva de WhatsApp.
 const PEBAI_WA_FIJO = [
-    'es' => "Hola, equipo de {empresa}. Soy Daniel, de PEBAI Systems.\n\nPor curiosidad, si pudierais quitaros de encima algo que os hace perder tiempo o clientes, ¿qué sería? Os cuento cómo lo resolveríamos en vuestro caso como hicimos con Fran García Cars o Construcciones Gargom.\n\n_Si prefieres que no te cuente cómo ahorrar tiempo y ganar clientes, escribe «baja»_",
-    'ca' => "Hola, equip de {empresa}. Sóc el Daniel, de PEBAI Systems.\n\nPer curiositat, si us poguéssiu treure de sobre alguna cosa que us fa perdre temps o clients, què seria? Us explico com ho resoldríem en el vostre cas com vam fer amb Fran García Cars o Construcciones Gargom.\n\n_Si prefereixes que no t'expliqui com estalviar temps i guanyar clients, escriu «baixa»_",
+    // Texto de Daniel (6/11/2026): objetivo único, permiso para llamar 2 minutos
+    'es' => "Hola, equipo de {empresa}. Soy Daniel, de PEBAI Systems.\n\nImagino que vais hasta arriba y esto os suena a otro mensaje más. Pero no os escribo para quitaros tiempo, sino para devolvéroslo: con IA, ayudamos a {nicho} a quitarse de encima lo que les come el día o les hace perder clientes.\n\nAdela, de IntoTrans, en Google: «Entendieron a la primera lo que necesitaba».\n\n¿Sería mala idea llamaros 2 minutos?\n\n_Si prefieres que no te cuente cómo ahorrar tiempo y ganar clientes, escribe «baja»_",
+    'ca' => "Hola, equip de {empresa}. Sóc el Daniel, de PEBAI Systems.\n\nImagino que aneu de bòlit i això us sona a un missatge més. Però no us escric per treure-us temps, sinó per tornar-vos-el: amb IA, ajudem {nicho} a treure's de sobre el que els menja el dia o els fa perdre clients.\n\nL'Adela, d'IntoTrans, a Google: «Entendieron a la primera lo que necesitaba».\n\nSeria mala idea trucar-vos 2 minuts?\n\n_Si prefereixes que no t'expliqui com estalviar temps i guanyar clients, escriu «baixa»_",
+];
+// Cómo se nombra cada nicho dentro del mensaje
+const PEBAI_WA_NICHO_TXT = [
+    'es' => ['solar' => 'instaladoras de placas solares', 'reformas' => 'empresas de reformas', 'dentales' => 'clínicas dentales', 'inmobiliarias' => 'inmobiliarias', '' => 'empresas como la vuestra'],
+    'ca' => ['solar' => 'instal·ladores de plaques solars', 'reformas' => 'empreses de reformes', 'dentales' => 'clíniques dentals', 'inmobiliarias' => 'immobiliàries', '' => 'empreses com la vostra'],
 ];
 
 /** Nombre de la empresa tal como lo diría una persona: sin coletillas de Google Maps, sin S.L. y sin todo en mayúsculas. */
@@ -172,9 +178,11 @@ function pebai_nombre_corto(string $e, string $ciudad = ''): string
     return mb_strtoupper(mb_substr($corto, 0, 1)) . mb_substr($corto, 1);
 }
 
-function pebai_wa_fijo(string $empresa, bool $ca = false, string $ciudad = ''): string
+function pebai_wa_fijo(string $empresa, bool $ca = false, string $ciudad = '', string $nicho = ''): string
 {
-    return str_replace('{empresa}', pebai_wa_nombre($empresa, $ciudad), PEBAI_WA_FIJO[$ca ? 'ca' : 'es']);
+    $idioma = $ca ? 'ca' : 'es';
+    $sector = PEBAI_WA_NICHO_TXT[$idioma][$nicho] ?? PEBAI_WA_NICHO_TXT[$idioma][''];
+    return str_replace(['{empresa}', '{nicho}'], [pebai_wa_nombre($empresa, $ciudad), $sector], PEBAI_WA_FIJO[$idioma]);
 }
 
 /** Primer WhatsApp con la plantilla. null si el gancho no pasa el control (se reintenta o se manda sin gancho). */

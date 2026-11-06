@@ -142,9 +142,9 @@ switch ($in['accion'] ?? '') {
             out(['ok' => true, 'esperar' => 1800, 'motivo' => 'sin_prospectos']);
         }
         // El texto se arma ahora, al enviar: siempre sale el mensaje vigente de Daniel y con el nombre corto (5/11)
-        $plantilla = str_starts_with((string)$p['plantilla'], 'lab-') ? (string)$p['plantilla'] : 'personal';   // laboratorio de Cerebro: se mide aparte
+        $plantilla = 'lab-llamada';   // mensaje de Daniel del 6/11: lleva su marca para medirlo aparte de las versiones anteriores
         require_once __DIR__ . '/_ia_lib.php';
-        $texto = pebai_wa_fijo((string)$p['empresa'], str_contains((string)$p['mensaje'], 'Hola, equip de') || str_contains((string)$p['mensaje'], 'Hola, sóc'), (string)$p['ciudad']);
+        $texto = pebai_wa_fijo((string)$p['empresa'], str_contains((string)$p['mensaje'], 'Hola, equip de') || str_contains((string)$p['mensaje'], 'Hola, sóc'), (string)$p['ciudad'], (string)$p['nicho']);
         $db->prepare("UPDATE prospectos SET estado = 'enviando', enviando_at = ?, plantilla = ?, updated_at = ? WHERE id = ? AND estado = 'pendiente'")->execute([$now, $plantilla, $now, $p['id']]);
         out(['ok' => true, 'prospecto' => ['id' => (int)$p['id'], 'telefono' => $p['telefono'], 'empresa' => $p['empresa']], 'texto' => $texto]);
 
