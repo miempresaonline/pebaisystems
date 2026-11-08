@@ -376,7 +376,7 @@ function of_cerebro(): array
         ['Escritos por ti', number_format($c['mios'], 0, ',', '.')],
         ['Desde', $c['desde'] ? date('d/m/Y', $c['desde']) : '—'],
     ];
-    // Lo que ha sacado con Claude: chats por tipo, y en «Su trabajo» los borradores y a quién te toca contestar (nunca lo personal)
+    // Lo que ha sacado con Claude: chats por tipo, y en «Su trabajo» a quién te toca contestar (nunca lo personal)
     $db = pebai_cerebro_db();
     $clases = $db->query("SELECT clase, COUNT(*) FROM contactos WHERE clase <> '' GROUP BY clase")->fetchAll(PDO::FETCH_KEY_PAIR);
     if ($clases) {
@@ -394,12 +394,12 @@ function of_cerebro(): array
         pebai_log('LAB: ' . $e->getMessage());
     }
     $a['entregas'] = [];
-    foreach ($db->query("SELECT tel, nombre, clase, resumen, borrador, te_toca, interes, analizado FROM contactos
-                         WHERE clase IN ('cliente','negocio','prospecto','otro') AND (borrador <> '' OR te_toca = 1 OR interes = 1) ORDER BY analizado DESC LIMIT 30") as $r) {
+    foreach ($db->query("SELECT tel, nombre, clase, resumen, te_toca, interes, analizado FROM contactos
+                         WHERE clase IN ('cliente','negocio','prospecto','otro') AND (te_toca = 1 OR interes = 1) ORDER BY analizado DESC LIMIT 30") as $r) {
         $quien = pebai_cerebro_prospecto($r['tel']) ?? ((string)$r['nombre'] ?: '+' . $r['tel']);
-        $a['entregas'][] = ['ts' => $r['analizado'], 'clase' => $r['borrador'] !== '' ? 'propuesta' : ($r['te_toca'] ? 'tetoca' : 'interes'),
-                            'titulo' => $quien . ' · ' . $r['clase'], 'texto' => $r['borrador'] !== '' ? $r['borrador'] : $r['resumen'],
-                            'url' => 'https://wa.me/' . $r['tel'], 'img' => '', 'foto' => '', 'burbuja' => $r['borrador'] !== ''];
+        $a['entregas'][] = ['ts' => $r['analizado'], 'clase' => $r['te_toca'] ? 'tetoca' : 'interes',
+                            'titulo' => $quien . ' · ' . $r['clase'], 'texto' => $r['resumen'],
+                            'url' => 'https://wa.me/' . $r['tel'], 'img' => '', 'foto' => '', 'burbuja' => false];
     }
     return $a;
 }

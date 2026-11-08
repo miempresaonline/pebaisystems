@@ -214,7 +214,7 @@ const plazasAhora = () => {
   const sig = m === 11 ? [y + 1, 0] : [y, m + 1];
   return { mes: m, usadas: plazasDe(y, m), sigMes: sig[1], sigUsadas: plazasDe(sig[0], sig[1]) };
 };
-function pintaPlazas(box) {
+function pintaPlazas(box, soloActual) {
   if (!box) return;
   const p = plazasAhora(); box.replaceChildren();
   const fila = (mes, usadas, actual) => {
@@ -224,7 +224,8 @@ function pintaPlazas(box) {
     r.append(el('b', null, 'Plazas gratis de ' + MESES_L[mes]), dots, el('span', 't', usadas >= PLAZAS_MES ? 'Completo' : libres + (libres === 1 ? ' libre' : ' libres')));
     return r;
   };
-  box.append(fila(p.mes, p.usadas, true), fila(p.sigMes, p.sigUsadas, false));
+  box.append(fila(p.mes, p.usadas, true));
+  if (!soloActual) box.append(fila(p.sigMes, p.sigUsadas, false));
 }
 const MESES_L = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
@@ -724,7 +725,7 @@ function draw() {
   if (!S.loaded) return;
   // El resumen de toda la app lo pinta global.js; el análisis del formulario vive en Solicitudes
   if (ui.page === 'solicitudes') { drawResumen(ui.periodo); drawSolicitudes(); }
-  if (ui.page === 'resumen') pintaPlazas($('#pb-plazas-resumen'));   // plazas gratis del mes, en el Resumen (30/10)
+  if (ui.page === 'resumen') pintaPlazas($('#pb-plazas-resumen'), true);   // plazas gratis del mes, en el Resumen (30/10)
   if (ui.page === 'clientes') drawClientes();
   if (ui.page === 'citas') { pintaPlazas($('#pb-plazas-citas')); drawAgenda($('#pb-proximas'), 'proximas'); drawAgenda($('#pb-pasadas'), 'pasadas'); drawAgenda($('#pb-sinvincular'), 'sin_vincular'); }
   drawDetalle();

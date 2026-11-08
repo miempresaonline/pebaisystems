@@ -153,8 +153,7 @@ function pebai_cerebro_estilo(int $n = 25): string
 
 /**
  * Mira los chats con mensajes nuevos (como mucho $max): Claude Haiku los clasifica (personal, cliente, negocio, prospecto…),
- * resume de qué va y dice si te toca contestar; si es de trabajo y te toca, Claude Sonnet escribe un borrador con tu estilo.
- * Nunca envía nada. Los prospectos los lleva Conversaciones (allí ya se preparan sus respuestas).
+ * resume de qué va y dice si te toca contestar. Nunca envía nada ni escribe respuestas (Daniel, 08/11: la IA no deja respuestas escritas).
  */
 function pebai_cerebro_procesar(int $max = 4): int
 {
@@ -188,19 +187,10 @@ function pebai_cerebro_procesar(int $max = 4): int
             $clase = 'prospecto';
         }
         $tetoca = !empty($j['te_toca']) && !end($msgs)['de_mi'];
-        $borrador = '';
-        if ($tetoca && in_array($clase, ['cliente', 'negocio'], true)) {
-            $borrador = (string)(pebai_claude('cerebro', 'claude-sonnet-5-5',
-                'Escribes como Daniel, cofundador de PEBAI Systems, la respuesta de WhatsApp que él mandaría ahora. Español de España, tuteo, cercano y profesional, breve como un WhatsApp de verdad (2-3 frases). '
-                . 'Imita su forma de escribir (saludos, largo, emojis, cómo cierra) con los ejemplos. No inventes precios, plazos, datos ni compromisos: si hace falta un dato que no está en el chat, pregúntalo o di que lo miras. '
-                . "Devuelve SOLO el texto del mensaje.\n\nASÍ ESCRIBE DANIEL:\n" . pebai_cerebro_estilo(),
-                [['role' => 'user', 'content' => "Chat con {$nombre} (lo último abajo):\n{$hilo}\n\nEscribe la respuesta de Daniel."]],
-                ['effort' => 'medium', 'max_tokens' => 2000, 'cache' => true]) ?? '');
-        }
-        $db->prepare('UPDATE contactos SET clase = ?, resumen = ?, interes = ?, te_toca = ?, borrador = ?, analizado = ? WHERE tel = ?')
-           ->execute([$clase, mb_substr((string)($j['resumen'] ?? ''), 0, 400), !empty($j['interes']) ? 1 : 0, $tetoca ? 1 : 0, mb_substr($borrador, 0, 1500), date('Y-m-d H:i:s'), $c['tel']]);
+        $db->prepare("UPDATE contactos SET clase = ?, resumen = ?, interes = ?, te_toca = ?, borrador = '', analizado = ? WHERE tel = ?")
+           ->execute([$clase, mb_substr((string)($j['resumen'] ?? ''), 0, 400), !empty($j['interes']) ? 1 : 0, $tetoca ? 1 : 0, date('Y-m-d H:i:s'), $c['tel']]);
         if ($clase !== 'personal' && $clase !== 'spam') {
-            pebai_actividad('cerebro', 'hito', ($borrador !== '' ? 'Borrador listo para ' : ($tetoca ? 'Te toca contestar a ' : 'Leído: ')) . $nombre
+            pebai_actividad('cerebro', 'hito', ($tetoca ? 'Te toca contestar a ' : 'Leído: ') . $nombre
                 . ' (' . $clase . (!empty($j['interes']) ? ', interesado' : '') . ')', (string)($j['resumen'] ?? ''));
         }
         $hechos++;
