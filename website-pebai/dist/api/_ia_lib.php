@@ -49,12 +49,12 @@ const PEBAI_EMAIL_NUEVO = [
              'resto' => "\n\nSoy Daniel, de PEBAI Systems, una consultora de procesos e IA. Vemos cómo trabaja cada empresa y montamos lo que más le hace ganar, como hicimos con Fran García Cars o Construcciones Gargom."
                       . "\n\nSi pudierais quitaros de encima algo que os hace perder tiempo o clientes, ¿qué sería? Os contesto con cómo lo resolveríamos en vuestro caso, sin compromiso."
                       . "\n\n" . PEBAI_IA_BAJA_EMAIL . "\n\nDaniel\nPEBAI Systems"
-                      . "\n\nP.D.: Adela, de IntoTrans, nos dejó esta reseña en Google por su panel de gestión: «Entendieron a la primera lo que necesitaba, sin tener que dar muchas vueltas»."],
+                      . "\n\nP.D.: IntoTrans nos dejó esta reseña en Google por su panel de gestión: «Entendieron a la primera lo que necesitaba, sin tener que dar muchas vueltas»."],
     'ca' => ['asunto' => 'pregunta per a {empresa}', 'hola' => 'Hola, equip de {empresa}:', 'gancho' => "\n\nHe vist que {gancho} i m'ha sorgit una pregunta.",
              'resto' => "\n\nSóc el Daniel, de PEBAI Systems, una consultora de processos i IA. Mirem com treballa cada empresa i muntem el que més la fa guanyar, com vam fer amb Fran García Cars o Construcciones Gargom."
                       . "\n\nSi us poguéssiu treure de sobre alguna cosa que us fa perdre temps o clients, què seria? Us responc amb com ho resoldríem en el vostre cas, sense compromís."
                       . "\n\n" . PEBAI_IA_CA['baja_email'] . "\n\nDaniel\nPEBAI Systems"
-                      . "\n\nP.D.: L'Adela, d'IntoTrans, ens va deixar aquesta ressenya a Google pel seu panell de gestió: «Entendieron a la primera lo que necesitaba, sin tener que dar muchas vueltas»."],
+                      . "\n\nP.D.: IntoTrans ens va deixar aquesta ressenya a Google pel seu panell de gestió: «Entendieron a la primera lo que necesitaba, sin tener que dar muchas vueltas»."],
 ];
 const PEBAI_WA_GANCHO_REGLAS = '"gancho": frase corta (de 5 a 16 palabras) que completa «He visto que …», basada SOLO en ese dato y en segunda persona del plural '
     . '(lleváis, hacéis, ofrecéis, tenéis, trabajáis…). Elige algo concreto y propio de esa empresa sobre cómo trabajan o atienden a sus clientes '

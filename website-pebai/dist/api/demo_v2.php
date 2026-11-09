@@ -338,7 +338,7 @@ footer.pie{padding:44px 0 34px;color:var(--mu2);font-size:12.5px;text-align:cent
         <ul class="pasos"><li><i>1</i>Dónde perdéis más tiempo o clientes</li><li><i>2</i>Por dónde empezaríamos</li><li><i>3</i>Qué haría falta y cuánto tardaría</li></ul>
         <a class="boton" href="<?= $e($wa) ?>" target="_blank" rel="noopener">Hablarlo por WhatsApp</a>
         <p class="plazas">LA CONSULTORÍA ES GRATUITA SOLO PARA 5 EMPRESAS AL MES</p>
-        <blockquote class="resena" style="margin-inline:0"><p>«Entendieron a la primera lo que necesitaba»</p><footer>Adela, de IntoTrans · Reseña en Google</footer></blockquote>
+        <blockquote class="resena" style="margin-inline:0"><p>«Entendieron a la primera lo que necesitaba»</p><footer>IntoTrans · Reseña en Google</footer></blockquote>
       </div>
       <div class="equipo">
         <figure class="perso"><img src="/brand/home/dani.webp" alt="Daniel Peñuela" loading="lazy"><figcaption><strong>Daniel Peñuela</strong><span>Fundador</span></figcaption></figure>
