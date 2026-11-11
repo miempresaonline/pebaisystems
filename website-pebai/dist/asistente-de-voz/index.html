@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0A0912">
+<title>Asistente de voz | PEBAI Systems</title>
+<meta name="description" content="Un asistente de voz con IA que contesta todas las llamadas de tu empresa, 24 horas, con voz natural en español.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/brand/Manrope-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/brand/InstrumentSerif-latin-italic.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* PEBAI · Asistente de voz para clientes. Móvil primero: frases cortas, detalles plegados, calculadora al centro. Sin indexar. */
+@font-face{font-family:'Manrope';src:url('/brand/Manrope-latin-variable.woff2') format('woff2');font-weight:200 800;font-display:swap}
+@font-face{font-family:'Instrument Serif';src:url('/brand/InstrumentSerif-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Instrument Serif';src:url('/brand/InstrumentSerif-latin-italic.woff2') format('woff2');font-weight:400;font-style:italic;font-display:swap}
+:root{--bg:#0A0912;--fg:#EFEDE7;--fg-70:rgba(239,237,231,.7);--fg-45:rgba(239,237,231,.45);--fg-12:rgba(239,237,231,.12);--fg-06:rgba(239,237,231,.06);
+  --card:rgba(26,22,46,.72);--card-2:rgba(38,32,70,.8);--accent:#B7FF3C;--accent-ink:#121a04;--violet:#8B7DFF;
+  --sans:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;--serif:'Instrument Serif',Georgia,serif;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.bgfx{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.bgfx i{position:absolute;border-radius:50%;filter:blur(80px)}
+.bgfx i:nth-child(1){width:380px;height:380px;background:#4b3dff;opacity:.45;top:-170px;right:-150px}
+.bgfx i:nth-child(2){width:320px;height:320px;background:#b7ff3c;opacity:.12;top:55%;left:-200px}
+main{max-width:560px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:44px}
+h1,h2{font-family:var(--serif);font-weight:400;line-height:1.02;letter-spacing:-.015em;text-wrap:balance}
+h1{font-size:clamp(42px,12vw,64px)} h2{font-size:clamp(32px,9vw,42px)}
+h1 em,h2 em{font-style:italic;color:var(--accent)}
+.lab{font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+.sub{color:var(--fg-70);font-size:16.5px}
+section{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border:1px solid var(--fg-12);border-radius:20px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+/* hero */
+.logo{display:block;width:132px;height:auto}
+.hero{display:flex;flex-direction:column;gap:16px;padding-top:8px}
+.badges{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.badges div{padding:12px;border-radius:14px;background:var(--fg-06);border:1px solid var(--fg-12);font-size:13px;color:var(--fg-70);line-height:1.3}
+.badges b{display:block;color:var(--accent);font-size:17px;font-weight:700}
+/* pasos */
+.steps{list-style:none;display:flex;flex-direction:column;counter-reset:s}
+.steps li{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--fg-12);align-items:baseline}
+.steps li:last-child{border-bottom:0}
+.steps li::before{counter-increment:s;content:counter(s);font-family:var(--serif);font-size:30px;color:var(--accent);line-height:1}
+.steps b{display:block;font-size:16px} .steps span{font-size:14.5px;color:var(--fg-70)}
+/* incluido */
+.inc{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.inc div{padding:12px 12px 12px 34px;border-radius:14px;background:var(--fg-06);font-size:14px;font-weight:600;line-height:1.3;position:relative}
+.inc div::before{content:"";position:absolute;left:13px;top:15px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.tagline{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+/* acordeones */
+.acc{display:flex;flex-direction:column;gap:8px}
+.acc details{background:var(--card);border:1px solid var(--fg-12);border-radius:16px;overflow:hidden}
+.acc summary{list-style:none;cursor:pointer;padding:15px 48px 15px 16px;font-weight:600;font-size:15.5px;position:relative;min-height:52px;display:flex;align-items:center}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary::after{content:"+";position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:22px;font-weight:400;color:var(--violet);transition:transform .2s}
+.acc details[open] summary::after{transform:translateY(-50%) rotate(45deg)}
+.acc summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:16px}
+.acc p{padding:0 16px 16px;color:var(--fg-70);font-size:14.5px}
+.acc details.custom{border-style:dashed;border-color:var(--accent)}
+.note{font-size:13px;color:var(--fg-45)}
+/* calculadora */
+.calc{padding:18px;display:flex;flex-direction:column;gap:18px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:var(--bg);border-radius:14px}
+.seg button{font:inherit;font-size:14px;font-weight:600;padding:11px 4px;border:0;border-radius:11px;background:transparent;color:var(--fg-70);cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.seg button:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.lvl{display:flex;flex-direction:column;gap:8px}
+.lvl .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.lvl .by{font-size:13px;color:var(--fg-45)}
+.meter{display:flex;gap:4px} .meter span{width:22px;height:6px;border-radius:3px;background:var(--fg-12)} .meter span.on{background:var(--accent)}
+.lvl ul{list-style:none;display:flex;flex-direction:column;gap:4px;font-size:14.5px;color:var(--fg-70)}
+.lvl li::before{content:"→ ";color:var(--violet)}
+.field{display:flex;flex-direction:column;gap:8px}
+.field label{display:flex;justify-content:space-between;font-size:14.5px;font-weight:600}
+.field output{color:var(--accent);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;height:32px;accent-color:#B7FF3C}
+.total{background:var(--bg);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:2px}
+.total .l{font-size:13px;color:var(--fg-45)}
+.total .v{font-family:var(--serif);font-size:58px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.total .s{font-size:14px;color:var(--fg-70)}
+.rows{display:flex;flex-direction:column;font-size:14.5px}
+.rows div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--fg-12)}
+.rows div:last-child{border-bottom:0}
+.rows span:first-child{color:var(--fg-70)}
+.rows span:last-child{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* teléfono */
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{padding:16px;display:flex;flex-direction:column;gap:8px}
+.opt h3{font-size:17px;font-weight:700}
+.opt p{font-size:14.5px;color:var(--fg-70)}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12.5px;font-weight:600}
+.flow span{padding:5px 10px;border-radius:999px;background:var(--fg-06);border:1px solid var(--fg-12)}
+.flow i{font-style:normal;color:var(--violet)}
+.pill{align-self:flex-start;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--accent);color:var(--accent-ink)}
+.pill.alt{background:var(--fg-12);color:var(--fg)}
+/* línea de tiempo */
+.time{list-style:none;border-left:2px solid var(--fg-12);margin-left:6px;display:flex;flex-direction:column;gap:16px}
+.time li{position:relative;padding-left:20px}
+.time li::before{content:"";position:absolute;left:-7px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--violet)}
+.time em{font-style:normal;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em}
+.time b{display:block;font-size:16px}
+.time span{font-size:14px;color:var(--fg-70)}
+/* cta fija */
+.cta{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:12px max(16px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:linear-gradient(to top,var(--bg) 60%,transparent)}
+.cta a{display:flex;justify-content:center;align-items:center;gap:8px;max-width:524px;margin:0 auto;min-height:54px;border-radius:16px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:16px;text-decoration:none}
+.cta a:focus-visible{outline:2px solid var(--violet);outline-offset:3px}
+@media(min-width:700px){main{gap:56px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bgfx" aria-hidden="true"><i></i><i></i></div>
+<main>
+
+<header class="hero">
+  <a href="https://pebaisystems.es/" aria-label="PEBAI Systems"><img class="logo" src="/brand/pebai-horizontal-color-mineral-cropped.webp" alt="PEBAI Systems" width="400" height="116"></a>
+  <h1>Tu teléfono, <em>atendido siempre</em></h1>
+  <p class="sub">Un asistente con IA que contesta las llamadas de tu empresa con voz natural en español.</p>
+  <div class="badges">
+    <div><b>24/7</b>también festivos</div>
+    <div><b>Varias</b>llamadas a la vez</div>
+    <div><b>Tu número</b>no cambia</div>
+    <div><b>Voz real</b>en español</div>
+  </div>
+</header>
+
+<section>
+  <span class="lab">Cómo funciona</span>
+  <h2>Una llamada, <em>paso a paso</em></h2>
+  <ol class="steps">
+    <li><div><b>Te llaman</b><span>a tu número de siempre</span></div></li>
+    <li><div><b>Contesta el asistente</b><span>con el nombre de tu empresa</span></div></li>
+    <li><div><b>Resuelve</b><span>responde, toma datos o da cita</span></div></li>
+    <li><div><b>Queda todo apuntado</b><span>grabado y por escrito</span></div></li>
+  </ol>
+</section>
+
+<section>
+  <span class="lab">Qué hace</span>
+  <h2>Lo que hace <em>por ti</em></h2>
+  <span class="tagline">Incluido en tu plan</span>
+  <div class="inc">
+    <div>Responder preguntas</div>
+    <div>Dar citas</div>
+    <div>Tomar datos</div>
+    <div>Pasarte la llamada</div>
+    <div>Grabar y transcribir</div>
+    <div>Atender 24 horas</div>
+  </div>
+</section>
+
+<section>
+  <span class="lab">Extras</span>
+  <h2>Y si quieres, <em>mucho más</em></h2>
+  <p class="sub">Se añaden cuando los necesites. Toca uno para verlo.</p>
+  <div class="acc">
+    <details><summary>Resumen de cada llamada</summary><p>Te llega al momento por email o WhatsApp: quién llamó y qué quería.</p></details>
+    <details><summary>Recordatorio de citas</summary><p>Llama el día antes para confirmar. Menos huecos vacíos.</p></details>
+    <details><summary>Devolver llamadas perdidas</summary><p>Si alguien colgó antes de tiempo, le devuelve la llamada.</p></details>
+    <details><summary>Seguimiento de presupuestos</summary><p>Llama a quien pidió presupuesto para resolver dudas y cerrar.</p></details>
+    <details><summary>Filtrar clientes</summary><p>Hace las preguntas clave y solo te pasa los que encajan.</p></details>
+    <details><summary>Enviar enlaces en la llamada</summary><p>Ubicación, catálogo, formulario o pago por SMS o WhatsApp.</p></details>
+    <details><summary>Conexión con tu programa</summary><p>Guarda los datos en tu CRM o consulta el estado de un pedido.</p></details>
+    <details><summary>Encuesta tras el servicio</summary><p>Pregunta qué tal fue y te avisa si alguien no quedó contento.</p></details>
+    <details><summary>Otros idiomas</summary><p>Atiende también en inglés, francés o alemán.</p></details>
+    <details><summary>Voz propia de tu marca</summary><p>Una voz única que tus clientes reconozcan.</p></details>
+    <details><summary>Llamadas a tus clientes</summary><p>Avisos, ofertas o renovaciones a clientes que han dado su permiso.</p></details>
+    <details><summary>Informe del mes</summary><p>Llamadas, horas punta, preguntas más repetidas y citas dadas.</p></details>
+    <details class="custom"><summary>Lo que se te ocurra</summary><p>Cuéntanos tu idea y te decimos cómo hacerla y cuánto costaría.</p></details>
+  </div>
+  <p class="note">Cada extra tiene su precio según tu caso.</p>
+</section>
+
+<section id="precio">
+  <span class="lab">Precio</span>
+  <h2>¿Cuánto te <em>costaría</em>?</h2>
+  <div class="card calc">
+    <div class="seg" role="group" aria-label="Nivel" id="seg"></div>
+    <div class="lvl" id="lvl"></div>
+    <div class="field"><label for="llamadas">Llamadas al mes <output id="oLl"></output></label><input id="llamadas" type="range" min="20" max="1500" step="10" value="150"></div>
+    <div class="field"><label for="dur">Minutos por llamada <output id="oDur"></output></label><input id="dur" type="range" min="1" max="10" step="0.5" value="3"></div>
+    <div class="total"><span class="l">Al mes, aproximadamente</span><span class="v" id="vMes">–</span><span class="s" id="vLlam">–</span></div>
+    <div class="rows">
+      <div><span>Cuota mensual</span><span id="rCuota"></span></div>
+      <div><span id="rMinL">Minutos</span><span id="rMin"></span></div>
+      <div><span>Alta, una sola vez</span><span id="rAlta"></span></div>
+    </div>
+  </div>
+  <div class="acc">
+    <details><summary>¿Qué incluye cada parte?</summary><p><b>Alta:</b> preparamos el asistente con tu información, lo conectamos y lo probamos contigo.<br><b>Cuota:</b> funcionando todo el mes, con mantenimiento y soporte.<br><b>Minutos:</b> pagas solo lo que habla. Si llaman menos, pagas menos.</p></details>
+  </div>
+  <p class="note">IVA no incluido. Una secretaria virtual cobra de 1 a 2 € por llamada.</p>
+</section>
+
+<section>
+  <span class="lab">Tu teléfono</span>
+  <h2>Tú decides <em>quién contesta</em></h2>
+  <p class="sub">Tu número no cambia: tus llamadas se desvían al asistente. Puedes combinar:</p>
+  <div class="opts">
+    <div class="card opt">
+      <span class="pill">Lo más habitual</span>
+      <h3>Suena primero en tu móvil</h3>
+      <div class="flow"><span>Suena</span><i>→</i><span>15 s sin coger</span><i>→</i><span>Asistente</span></div>
+      <p>Coges las que puedes. Las demás, las atiende el asistente.</p>
+    </div>
+    <div class="card opt">
+      <span class="pill">Lo más habitual</span>
+      <h3>El asistente te la pasa</h3>
+      <div class="flow"><span>Asistente</span><i>→</i><span>«Con una persona»</span><i>→</i><span>Tú</span></div>
+      <p>Si piden una persona o es urgente, te la pasa y te dice quién es.</p>
+    </div>
+    <div class="card opt">
+      <span class="pill alt">Opcional</span>
+      <h3>Por horario</h3>
+      <div class="flow"><span>Horario: tú</span><i>·</i><span>Noches y festivos: asistente</span></div>
+      <p>Ideal para la hora de comer, noches y fines de semana.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="lab">Puesta en marcha</span>
+  <h2>Listo en <em>10 días</em></h2>
+  <ol class="time">
+    <li><em>DÍA 1</em><b>Reunión</b><span>Nos cuentas tu negocio en 45 min</span></li>
+    <li><em>DÍAS 2–4</em><b>Lo preparamos</b><span>Guion, información y conexiones</span></li>
+    <li><em>DÍAS 5–8</em><b>Lo pruebas</b><span>Tu equipo llama y nos dice qué cambiar</span></li>
+    <li><em>DÍAS 9–10</em><b>En marcha</b><span>Activamos el desvío</span></li>
+    <li><em>CADA MES</em><b>Lo mejoramos</b><span>Con lo que preguntan tus clientes</span></li>
+  </ol>
+</section>
+
+<section>
+  <span class="lab">Dudas</span>
+  <h2>Preguntas <em>frecuentes</em></h2>
+  <div class="acc">
+    <details><summary>¿Suena a robot?</summary><p>No. Usa una de las voces más naturales en español y se le puede interrumpir como a una persona.</p></details>
+    <details><summary>¿Y si no sabe la respuesta?</summary><p>No se inventa nada: toma nota y te avisa, o te pasa la llamada.</p></details>
+    <details><summary>¿Cuántas llamadas atiende a la vez?</summary><p>Varias. Se acabaron el «comunica» y las llamadas perdidas.</p></details>
+    <details><summary>¿Es legal? ¿Y los datos?</summary><p>Sí. Avisa de que es un asistente virtual y de que graba, como pide la ley, y firmamos contigo un contrato de protección de datos.</p></details>
+    <details><summary>¿Puedo cambiar lo que dice?</summary><p>Sí, cuando quieras: precios, horarios o respuestas.</p></details>
+  </div>
+</section>
+
+</main>
+<div class="cta"><a href="https://wa.me/34624842799?text=Hola%2C%20me%20interesa%20el%20asistente%20de%20voz">Quiero probarlo con mi negocio</a></div>
+
+<script>
+(function(){
+  var PRECIOS={alta:590,cuota:79};
+  var NIVELES=[
+    {id:"esencial",name:"Esencial",by:"con Gemini",min:0.25,bars:2,does:["Responde preguntas frecuentes","Toma datos y da citas sencillas"]},
+    {id:"pro",name:"Profesional",by:"con GPT",min:0.29,bars:3,does:["Guiones largos con muchas reglas","Más fiable con citas y pases de llamada"]},
+    {id:"avanzado",name:"Avanzado",by:"con Claude",min:0.39,bars:4,does:["Conversaciones difíciles y con matices","Catálogos grandes, objeciones y venta"]}
+  ];
+  var sel="esencial";
+  function $(id){return document.getElementById(id)}
+  function eur(v,d){d=d||0;return v.toLocaleString("es-ES",{style:"currency",currency:"EUR",minimumFractionDigits:d,maximumFractionDigits:d})}
+  NIVELES.forEach(function(n){
+    var b=document.createElement("button");b.type="button";b.textContent=n.name;b.dataset.id=n.id;
+    b.addEventListener("click",function(){sel=n.id;render()});$("seg").appendChild(b);
+  });
+  function render(){
+    var n=NIVELES.filter(function(x){return x.id===sel})[0];
+    [].forEach.call($("seg").children,function(b){b.setAttribute("aria-pressed",b.dataset.id===sel)});
+    var bars="";for(var i=1;i<=4;i++)bars+='<span class="'+(i<=n.bars?"on":"")+'"></span>';
+    $("lvl").innerHTML='<div class="top"><span class="by">'+n.by+' · '+eur(n.min,2)+'/min</span><div class="meter" aria-hidden="true">'+bars+'</div></div><ul>'+n.does.map(function(d){return"<li>"+d+"</li>"}).join("")+"</ul>";
+    var ll=+$("llamadas").value,dur=+$("dur").value,min=ll*dur,mins=min*n.min,total=PRECIOS.cuota+mins;
+    $("oLl").textContent=ll.toLocaleString("es-ES");
+    $("oDur").textContent=String(dur).replace(".",",")+" min";
+    $("vMes").textContent=eur(total);
+    $("vLlam").textContent="≈ "+eur(total/ll,2)+" por llamada";
+    $("rCuota").textContent=eur(PRECIOS.cuota);
+    $("rMinL").textContent=min.toLocaleString("es-ES")+" min × "+eur(n.min,2);
+    $("rMin").textContent=eur(mins);
+    $("rAlta").textContent=eur(PRECIOS.alta);
+  }
+  $("llamadas").addEventListener("input",render);$("dur").addEventListener("input",render);
+  render();
+})();
+</script>
+</body>
+</html>
