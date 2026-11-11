@@ -11,276 +11,545 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/brand/Manrope-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/brand/InstrumentSerif-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/brand/InstrumentSerif-latin-italic.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-/* PEBAI · Asistente de voz para clientes. Móvil primero: frases cortas, detalles plegados, calculadora al centro. Sin indexar. */
+/* PEBAI · Asistente de voz (página para clientes, sin indexar).
+   Gramática de la web: titular serif con cursiva lima, Manrope, cristal violeta tinta, botones violeta.
+   Móvil y ordenador. Movimiento solo con transform/opacity y respetando prefers-reduced-motion. */
 @font-face{font-family:'Manrope';src:url('/brand/Manrope-latin-variable.woff2') format('woff2');font-weight:200 800;font-display:swap}
 @font-face{font-family:'Instrument Serif';src:url('/brand/InstrumentSerif-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:'Instrument Serif';src:url('/brand/InstrumentSerif-latin-italic.woff2') format('woff2');font-weight:400;font-style:italic;font-display:swap}
-:root{--bg:#0A0912;--fg:#EFEDE7;--fg-70:rgba(239,237,231,.7);--fg-45:rgba(239,237,231,.45);--fg-12:rgba(239,237,231,.12);--fg-06:rgba(239,237,231,.06);
-  --card:rgba(26,22,46,.72);--card-2:rgba(38,32,70,.8);--accent:#B7FF3C;--accent-ink:#121a04;--violet:#8B7DFF;
-  --sans:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;--serif:'Instrument Serif',Georgia,serif;color-scheme:dark}
+:root{
+  --bg:#0A0912;--fg:#EFEDE7;--fg-72:rgba(239,237,231,.72);--fg-50:rgba(239,237,231,.5);--fg-14:rgba(239,237,231,.14);--fg-08:rgba(239,237,231,.08);--fg-04:rgba(239,237,231,.04);
+  --ink:#141126;--ink-2:#1B1733;--accent:#B7FF3C;--violet:#6A5CFF;--violet-2:#8B7DFF;
+  --glass:linear-gradient(160deg,rgba(40,34,74,.62),rgba(20,17,38,.72));
+  --r:28px;--sans:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;--serif:'Instrument Serif',Georgia,serif;
+  --pad:max(18px,env(safe-area-inset-left));--padr:max(18px,env(safe-area-inset-right));
+  color-scheme:dark}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{background:var(--bg)}
-body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-.bgfx{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
-.bgfx i{position:absolute;border-radius:50%;filter:blur(80px)}
-.bgfx i:nth-child(1){width:380px;height:380px;background:#4b3dff;opacity:.45;top:-170px;right:-150px}
-.bgfx i:nth-child(2){width:320px;height:320px;background:#b7ff3c;opacity:.12;top:55%;left:-200px}
-main{max-width:560px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:44px}
-h1,h2{font-family:var(--serif);font-weight:400;line-height:1.02;letter-spacing:-.015em;text-wrap:balance}
-h1{font-size:clamp(42px,12vw,64px)} h2{font-size:clamp(32px,9vw,42px)}
+html{background:var(--bg);scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+img,svg{display:block;max-width:100%}
+.wrap{width:100%;max-width:1240px;margin:0 auto;padding-left:var(--pad);padding-right:var(--padr)}
+h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.015em;line-height:1;text-wrap:balance}
+h1{font-size:clamp(46px,7.4vw,96px)}
+h2{font-size:clamp(36px,5.2vw,64px)}
 h1 em,h2 em{font-style:italic;color:var(--accent)}
-.lab{font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
-.sub{color:var(--fg-70);font-size:16.5px}
-section{display:flex;flex-direction:column;gap:14px}
-.card{background:var(--card);border:1px solid var(--fg-12);border-radius:20px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.kick{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--violet-2)}
+.lead{font-size:clamp(16px,1.6vw,19px);color:var(--fg-72);max-width:52ch}
+.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* fondo: aurora + rejilla */
+.bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.bg i{position:absolute;border-radius:50%;filter:blur(90px);will-change:transform}
+.bg i:nth-child(1){width:560px;height:560px;background:#4b3dff;opacity:.38;top:-260px;right:-180px;animation:drift 22s ease-in-out infinite alternate}
+.bg i:nth-child(2){width:460px;height:460px;background:#a64dff;opacity:.2;top:38%;left:-260px;animation:drift 28s ease-in-out -8s infinite alternate}
+.bg i:nth-child(3){width:380px;height:380px;background:#b7ff3c;opacity:.07;bottom:-200px;right:10%;animation:drift 26s ease-in-out -14s infinite alternate}
+.bg b{position:absolute;inset:0;background-image:linear-gradient(to right,var(--fg-04) 1px,transparent 1px),linear-gradient(to bottom,var(--fg-04) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 10%,transparent 75%);mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 10%,transparent 75%)}
+@keyframes drift{to{transform:translate3d(-60px,70px,0) scale(1.12)}}
+
+/* cabecera flotante */
+.top{position:sticky;top:0;z-index:20;padding-top:max(12px,env(safe-area-inset-top))}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px;padding:0 8px 0 18px;border-radius:999px;background:rgba(18,15,34,.62);border:1px solid var(--fg-08);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3)}
+.bar img{height:26px;width:auto}
+.bar nav{display:flex;align-items:center;gap:6px}
+.bar nav a.l{font-size:14px;font-weight:600;color:var(--fg-72);text-decoration:none;padding:10px 14px;border-radius:999px;transition:color .2s,background .2s}
+.bar nav a.l:hover{color:var(--fg);background:var(--fg-08)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;background:var(--violet);color:#fff;font-weight:700;font-size:15px;text-decoration:none;border:0;cursor:pointer;box-shadow:0 10px 30px -10px rgba(106,92,255,.8),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px -12px rgba(106,92,255,.95),inset 0 1px 0 rgba(255,255,255,.25)}
+.btn.ghost{background:var(--fg-08);box-shadow:inset 0 0 0 1px var(--fg-14)}
+.btn:focus-visible,.bar a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.bar .btn{min-height:44px;padding:0 18px;font-size:14px}
+@media(max-width:720px){.bar nav a.l{display:none}.bar{height:56px}.bar img{height:22px}}
+
 /* hero */
-.logo{display:block;width:132px;height:auto}
-.hero{display:flex;flex-direction:column;gap:16px;padding-top:8px}
-.badges{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.badges div{padding:12px;border-radius:14px;background:var(--fg-06);border:1px solid var(--fg-12);font-size:13px;color:var(--fg-70);line-height:1.3}
-.badges b{display:block;color:var(--accent);font-size:17px;font-weight:700}
-/* pasos */
-.steps{list-style:none;display:flex;flex-direction:column;counter-reset:s}
-.steps li{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--fg-12);align-items:baseline}
-.steps li:last-child{border-bottom:0}
-.steps li::before{counter-increment:s;content:counter(s);font-family:var(--serif);font-size:30px;color:var(--accent);line-height:1}
-.steps b{display:block;font-size:16px} .steps span{font-size:14.5px;color:var(--fg-70)}
-/* incluido */
-.inc{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.inc div{padding:12px 12px 12px 34px;border-radius:14px;background:var(--fg-06);font-size:14px;font-weight:600;line-height:1.3;position:relative}
-.inc div::before{content:"";position:absolute;left:13px;top:15px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
-.tagline{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
-/* acordeones */
-.acc{display:flex;flex-direction:column;gap:8px}
-.acc details{background:var(--card);border:1px solid var(--fg-12);border-radius:16px;overflow:hidden}
-.acc summary{list-style:none;cursor:pointer;padding:15px 48px 15px 16px;font-weight:600;font-size:15.5px;position:relative;min-height:52px;display:flex;align-items:center}
-.acc summary::-webkit-details-marker{display:none}
-.acc summary::after{content:"+";position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:22px;font-weight:400;color:var(--violet);transition:transform .2s}
-.acc details[open] summary::after{transform:translateY(-50%) rotate(45deg)}
-.acc summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:16px}
-.acc p{padding:0 16px 16px;color:var(--fg-70);font-size:14.5px}
-.acc details.custom{border-style:dashed;border-color:var(--accent)}
-.note{font-size:13px;color:var(--fg-45)}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding-block:72px 64px;position:relative}
+.hero .txt{display:flex;flex-direction:column;gap:22px}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.facts{display:flex;flex-wrap:wrap;gap:22px 34px;margin-top:14px}
+.facts div{display:flex;flex-direction:column}
+.facts b{font-family:var(--serif);font-size:34px;font-weight:400;line-height:1;color:var(--fg)}
+.facts b em{font-style:italic;color:var(--accent)}
+.facts span{font-size:13px;color:var(--fg-50)}
+@media(max-width:980px){.hero{grid-template-columns:1fr;gap:40px;padding-block:44px 40px}}
+@media(max-width:600px){.facts{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:18px}.facts b{font-size:26px}.chat{min-height:470px}}
+
+/* demo de llamada */
+.call{position:relative;border-radius:34px;padding:22px;background:var(--glass);border:1px solid var(--fg-08);box-shadow:0 40px 80px -40px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.07);overflow:hidden;isolation:isolate}
+.call::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:conic-gradient(from var(--a,0deg),transparent 0 70%,rgba(183,255,60,.9) 80%,rgba(139,125,255,.9) 88%,transparent 96%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 6s linear infinite;z-index:-1}
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes spin{to{--a:360deg}}
+.call .head{display:flex;align-items:center;gap:14px}
+.av{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 30% 30%,#8B7DFF,#3a2fb8);box-shadow:0 0 0 6px rgba(106,92,255,.15);flex:none;position:relative}
+.av::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(139,125,255,.6);animation:ping 2.4s ease-out infinite}
+@keyframes ping{from{transform:scale(1);opacity:.9}to{transform:scale(1.45);opacity:0}}
+.av svg{width:22px;height:22px;stroke:#fff}
+.call .who{min-width:0}
+.call .who b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.call .who span{font-size:13px;color:var(--fg-50);font-variant-numeric:tabular-nums;white-space:nowrap}
+.live{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.08em}
+.wave{display:flex;align-items:center;gap:3px;height:22px}
+.wave i{width:3px;height:100%;border-radius:2px;background:var(--accent);transform:scaleY(.2);transform-origin:center;animation:eq .9s ease-in-out infinite;animation-play-state:paused}
+.wave i:nth-child(2){animation-delay:-.2s}.wave i:nth-child(3){animation-delay:-.5s}.wave i:nth-child(4){animation-delay:-.1s}.wave i:nth-child(5){animation-delay:-.65s}
+.call.talk .wave i{animation-play-state:running}
+@keyframes eq{0%,100%{transform:scaleY(.2)}50%{transform:scaleY(1)}}
+.chat{display:flex;flex-direction:column;gap:10px;margin-top:20px;min-height:286px}
+.msg{max-width:86%;padding:12px 15px;border-radius:20px;font-size:14.5px;line-height:1.45;opacity:0;transform:translateY(10px) scale(.98);transition:opacity .45s,transform .45s cubic-bezier(.2,.8,.2,1)}
+.msg.on{opacity:1;transform:none}
+.msg small{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;opacity:.7}
+.msg.ai{background:rgba(106,92,255,.22);border:1px solid rgba(139,125,255,.35);border-bottom-left-radius:6px}
+.msg.ai small{color:var(--violet-2);opacity:1}
+.msg.cl{align-self:flex-end;background:var(--fg-08);border-bottom-right-radius:6px}
+.done{display:flex;align-items:center;gap:10px;margin-top:6px;padding:12px 14px;border-radius:16px;background:rgba(183,255,60,.1);border:1px solid rgba(183,255,60,.35);color:var(--accent);font-weight:700;font-size:14px;opacity:0;transform:translateY(10px);transition:opacity .45s,transform .45s}
+.done.on{opacity:1;transform:none}
+.done .ic{width:20px;height:20px}
+
+/* secciones */
+section{padding-block:clamp(64px,9vw,120px)}
+.shead{display:flex;flex-direction:column;gap:14px;margin-bottom:clamp(28px,4vw,48px)}
+.shead.c{align-items:center;text-align:center}
+.shead.c .lead{margin-inline:auto}
+
+/* incluido: bento */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.f{position:relative;border-radius:var(--r);padding:26px;background:var(--glass);border:1px solid var(--fg-08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden;display:flex;flex-direction:column;gap:10px;min-height:250px;transition:transform .4s cubic-bezier(.2,.8,.2,1),border-color .3s}
+.f:hover{transform:translateY(-4px);border-color:rgba(139,125,255,.4)}
+.f h3{font-size:clamp(28px,2.6vw,34px)}
+.f p{font-size:15px;color:var(--fg-72);max-width:38ch}
+.f .tag{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.f .vis{margin-top:auto;padding-top:14px}
+.f1{grid-column:span 3}.f2{grid-column:span 3}.f3{grid-column:span 2}.f4{grid-column:span 2}.f5{grid-column:span 2}
+.f.hero-f{background:linear-gradient(150deg,rgba(106,92,255,.5),rgba(38,28,98,.7) 55%,rgba(20,17,38,.8));border-color:rgba(139,125,255,.35)}
+@media(max-width:980px){.bento{grid-template-columns:1fr 1fr}.f1,.f2{grid-column:span 2}.f3,.f4,.f5{grid-column:span 1}.f5{grid-column:span 2}}
+@media(max-width:600px){.bento{grid-template-columns:1fr}.f1,.f2,.f3,.f4,.f5{grid-column:span 1}.f{min-height:0;padding:22px}}
+/* visuales pequeños */
+.qa{display:flex;flex-direction:column;gap:8px}
+.qa span{align-self:flex-start;padding:9px 13px;border-radius:14px;background:var(--fg-08);font-size:13.5px}
+.qa span:nth-child(2){align-self:flex-end;background:rgba(183,255,60,.14);color:var(--accent)}
+.cal{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.cal span{height:34px;border-radius:10px;background:var(--fg-08);display:grid;place-items:center;font-size:12px;color:var(--fg-50);font-weight:600}
+.cal span.pick{background:var(--accent);color:#141a06;animation:pick 4s ease-in-out infinite}
+@keyframes pick{0%,40%{transform:scale(1)}50%{transform:scale(1.12)}60%,100%{transform:scale(1)}}
+.form{display:flex;flex-direction:column;gap:7px}
+.form div{display:flex;justify-content:space-between;gap:8px;padding:9px 12px;border-radius:12px;background:var(--fg-08);font-size:13px}
+.form div span:first-child{color:var(--fg-50)}
+.form div span:last-child{font-weight:700;clip-path:inset(0 100% 0 0);animation:type 5s steps(18) infinite}
+.form div:nth-child(2) span:last-child{animation-delay:.6s}.form div:nth-child(3) span:last-child{animation-delay:1.2s}
+@keyframes type{0%,8%{clip-path:inset(0 100% 0 0)}35%,90%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.pass{display:flex;align-items:center;gap:10px}
+.pass .n{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--fg-08);flex:none}
+.pass .n.me{background:var(--violet)}
+.pass .n svg{width:20px;height:20px;stroke:#fff}
+.pass .line{flex:1;height:2px;background:var(--fg-14);position:relative;overflow:hidden;border-radius:2px}
+.pass .line::after{content:"";position:absolute;inset:0;width:40%;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:run 1.8s linear infinite}
+@keyframes run{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+.trans{display:flex;flex-direction:column;gap:6px}
+.trans i{display:block;height:8px;border-radius:4px;background:var(--fg-14);transform-origin:left;animation:grow 4.5s ease-in-out infinite}
+.trans i:nth-child(1){width:92%}.trans i:nth-child(2){width:74%;animation-delay:.3s}.trans i:nth-child(3){width:84%;animation-delay:.6s}.trans i:nth-child(4){width:56%;animation-delay:.9s;background:rgba(183,255,60,.5)}
+@keyframes grow{0%{transform:scaleX(0)}30%,85%{transform:scaleX(1)}100%{transform:scaleX(0)}}
+.clock{display:flex;align-items:center;gap:16px}
+.clock svg{width:74px;height:74px}
+.clock .ring{stroke:var(--accent);stroke-width:6;fill:none;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:fill 3.4s cubic-bezier(.6,0,.2,1) infinite}
+@keyframes fill{0%{stroke-dashoffset:1}60%,100%{stroke-dashoffset:0}}
+.clock b{font-family:var(--serif);font-size:44px;font-weight:400;line-height:1}
+.clock span{font-size:13px;color:var(--fg-50);display:block}
+
+/* extras */
+.extras{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.x{display:flex;gap:14px;align-items:flex-start;padding:20px;border-radius:22px;background:var(--fg-04);border:1px solid var(--fg-08);transition:background .3s,border-color .3s,transform .4s cubic-bezier(.2,.8,.2,1)}
+.x:hover{background:var(--fg-08);transform:translateY(-3px)}
+.x .i{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:rgba(106,92,255,.18);color:var(--violet-2);flex:none}
+.x b{display:block;font-size:16px;margin-bottom:2px}
+.x span{font-size:14px;color:var(--fg-72)}
+.x.mine{border:1px dashed rgba(183,255,60,.5);background:rgba(183,255,60,.05)}
+.x.mine .i{background:rgba(183,255,60,.14);color:var(--accent)}
+@media(max-width:900px){.extras{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.extras{grid-template-columns:1fr}.x{padding:16px}}
+.note{font-size:13.5px;color:var(--fg-50);margin-top:16px}
+
 /* calculadora */
-.calc{padding:18px;display:flex;flex-direction:column;gap:18px}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:var(--bg);border-radius:14px}
-.seg button{font:inherit;font-size:14px;font-weight:600;padding:11px 4px;border:0;border-radius:11px;background:transparent;color:var(--fg-70);cursor:pointer;min-height:44px}
-.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
-.seg button:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
-.lvl{display:flex;flex-direction:column;gap:8px}
-.lvl .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.lvl .by{font-size:13px;color:var(--fg-45)}
-.meter{display:flex;gap:4px} .meter span{width:22px;height:6px;border-radius:3px;background:var(--fg-12)} .meter span.on{background:var(--accent)}
-.lvl ul{list-style:none;display:flex;flex-direction:column;gap:4px;font-size:14.5px;color:var(--fg-70)}
-.lvl li::before{content:"→ ";color:var(--violet)}
-.field{display:flex;flex-direction:column;gap:8px}
-.field label{display:flex;justify-content:space-between;font-size:14.5px;font-weight:600}
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.panel{border-radius:var(--r);padding:clamp(20px,3vw,32px);background:var(--glass);border:1px solid var(--fg-08);display:flex;flex-direction:column;gap:24px}
+.seg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:5px;border-radius:999px;background:rgba(0,0,0,.35);border:1px solid var(--fg-08)}
+.seg .ind{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px)/3);border-radius:999px;background:var(--violet);box-shadow:0 8px 24px -8px rgba(106,92,255,.9);transition:transform .45s cubic-bezier(.3,1.3,.5,1)}
+.seg button{position:relative;z-index:1;font:inherit;font-size:14.5px;font-weight:700;min-height:44px;border:0;background:transparent;color:var(--fg-72);cursor:pointer;border-radius:999px;transition:color .3s}
+.seg button[aria-pressed="true"]{color:#fff}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lvl{display:flex;flex-direction:column;gap:10px;min-height:96px}
+.lvl .t{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.lvl .t span{font-size:13.5px;color:var(--fg-50)}
+.meter{display:flex;gap:4px}.meter i{width:24px;height:6px;border-radius:3px;background:var(--fg-14);transition:background .4s}.meter i.on{background:var(--accent)}
+.lvl ul{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:15px;color:var(--fg-72)}
+.lvl li{display:flex;gap:10px;align-items:baseline}
+.lvl li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--violet-2);flex:none;transform:translateY(-2px)}
+.field{display:flex;flex-direction:column;gap:10px}
+.field label{display:flex;justify-content:space-between;font-size:15px;font-weight:600}
 .field output{color:var(--accent);font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;height:32px;accent-color:#B7FF3C}
-.total{background:var(--bg);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:2px}
-.total .l{font-size:13px;color:var(--fg-45)}
-.total .v{font-family:var(--serif);font-size:58px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
-.total .s{font-size:14px;color:var(--fg-70)}
-.rows{display:flex;flex-direction:column;font-size:14.5px}
-.rows div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--fg-12)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--violet) var(--p,30%),var(--fg-14) var(--p,30%))}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--violet) var(--p,30%),var(--fg-14) var(--p,30%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-9px;border-radius:50%;background:#fff;box-shadow:0 0 0 6px rgba(106,92,255,.35)}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border:0;border-radius:50%;background:#fff;box-shadow:0 0 0 6px rgba(106,92,255,.35)}
+input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px}
+.res{justify-content:space-between;background:linear-gradient(160deg,rgba(106,92,255,.32),rgba(20,17,38,.85) 60%)}
+.res .l{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-50)}
+.res .v{font-family:var(--serif);font-size:clamp(72px,9vw,112px);line-height:.9;color:var(--accent);font-variant-numeric:tabular-nums}
+.res .s{font-size:15px;color:var(--fg-72)}
+.rows{display:flex;flex-direction:column}
+.rows div{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--fg-08);font-size:15px}
 .rows div:last-child{border-bottom:0}
-.rows span:first-child{color:var(--fg-70)}
+.rows span:first-child{color:var(--fg-72)}
 .rows span:last-child{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-/* teléfono */
-.opts{display:flex;flex-direction:column;gap:10px}
-.opt{padding:16px;display:flex;flex-direction:column;gap:8px}
-.opt h3{font-size:17px;font-weight:700}
-.opt p{font-size:14.5px;color:var(--fg-70)}
-.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12.5px;font-weight:600}
-.flow span{padding:5px 10px;border-radius:999px;background:var(--fg-06);border:1px solid var(--fg-12)}
-.flow i{font-style:normal;color:var(--violet)}
-.pill{align-self:flex-start;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--accent);color:var(--accent-ink)}
-.pill.alt{background:var(--fg-12);color:var(--fg)}
+.parts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.parts div{padding:16px 18px;border-radius:20px;background:var(--fg-04);border:1px solid var(--fg-08);font-size:14px;color:var(--fg-72)}
+.parts b{display:block;color:var(--fg);font-size:15px;margin-bottom:2px}
+@media(max-width:900px){.calc{grid-template-columns:1fr}.parts{grid-template-columns:1fr}}
+
+/* quién contesta */
+.who{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.w{border-radius:var(--r);padding:24px;background:var(--glass);border:1px solid var(--fg-08);display:flex;flex-direction:column;gap:14px}
+.w h3{font-size:30px}
+.w p{font-size:15px;color:var(--fg-72)}
+.w .pill{align-self:flex-start;font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.w .pill.alt{color:var(--fg-50)}
+.track{display:flex;align-items:center;gap:8px;padding:14px;border-radius:18px;background:rgba(0,0,0,.3)}
+.track .st{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--fg-72);text-align:center;flex:none;width:64px}
+.track .st i{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--fg-08)}
+.track .st i.v{background:var(--violet)}
+.track .st i svg{width:18px;height:18px;stroke:#fff}
+.track .ln{flex:1;height:2px;background:var(--fg-14);position:relative;border-radius:2px;margin-bottom:22px}
+.track .ln::after{content:"";position:absolute;top:-3px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:dot 2.6s ease-in-out infinite}
+@keyframes dot{0%{transform:translateX(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateX(var(--d,90px));opacity:0}}
+@media(max-width:980px){.who{grid-template-columns:1fr}}
+
 /* línea de tiempo */
-.time{list-style:none;border-left:2px solid var(--fg-12);margin-left:6px;display:flex;flex-direction:column;gap:16px}
-.time li{position:relative;padding-left:20px}
-.time li::before{content:"";position:absolute;left:-7px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--violet)}
-.time em{font-style:normal;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em}
-.time b{display:block;font-size:16px}
-.time span{font-size:14px;color:var(--fg-70)}
-/* cta fija */
-.cta{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:12px max(16px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:linear-gradient(to top,var(--bg) 60%,transparent)}
-.cta a{display:flex;justify-content:center;align-items:center;gap:8px;max-width:524px;margin:0 auto;min-height:54px;border-radius:16px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:16px;text-decoration:none}
-.cta a:focus-visible{outline:2px solid var(--violet);outline-offset:3px}
-@media(min-width:700px){main{gap:56px}}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.time{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative;list-style:none}
+.time::before{content:"";position:absolute;left:0;right:0;top:9px;height:2px;background:var(--fg-14)}
+.time .prog{position:absolute;left:0;top:9px;height:2px;width:100%;background:linear-gradient(90deg,var(--violet),var(--accent));transform-origin:left;transform:scaleX(var(--t,0));transition:transform 1.6s cubic-bezier(.6,0,.2,1)}
+.time li{position:relative;padding:36px 18px 0 0;display:flex;flex-direction:column;gap:6px}
+.time li::before{content:"";position:absolute;top:2px;left:0;width:16px;height:16px;border-radius:50%;background:var(--bg);border:2px solid var(--violet-2)}
+.time li.prog{padding:0}.time li.prog::before{display:none}
+.time em{font-style:normal;font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--accent)}
+.time b{font-family:var(--serif);font-size:28px;font-weight:400;line-height:1.05}
+.time span{font-size:14.5px;color:var(--fg-72)}
+@media(max-width:820px){
+  .time{grid-template-columns:1fr;gap:26px;padding-left:30px}
+  .time::before,.time .prog{left:7px;right:auto;top:0;bottom:0;width:2px;height:auto}
+  .time .prog{transform:scaleY(var(--t,0));transform-origin:top}
+  .time li{padding:0}
+  .time li::before{left:-30px;top:4px}
+}
+
+/* confianza */
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.trust>div{display:flex;gap:14px;align-items:flex-start;padding:20px;border-radius:22px;background:var(--fg-04);border:1px solid var(--fg-08)}
+.trust .ic{color:var(--accent);flex:none;margin-top:2px}
+.trust b{display:block;font-size:16px}
+.trust span{font-size:14px;color:var(--fg-72)}
+@media(max-width:900px){.trust{grid-template-columns:1fr}}
+
+/* cierre */
+.end{position:relative;border-radius:40px;padding:clamp(36px,6vw,80px);text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;background:radial-gradient(ellipse 80% 90% at 50% 0%,rgba(106,92,255,.55),rgba(20,17,38,.9) 70%);border:1px solid rgba(139,125,255,.3);overflow:hidden;isolation:isolate}
+.end::after{content:"";position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(183,255,60,.18),transparent 60%);bottom:-320px;left:50%;transform:translateX(-50%);z-index:-1}
+.end .lead{text-align:center}
+footer{padding-block:28px calc(110px + env(safe-area-inset-bottom));font-size:13px;color:var(--fg-50);text-align:center}
+@media(min-width:721px){footer{padding-bottom:40px}}
+
+/* botón fijo en móvil */
+.sticky{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:12px var(--padr) calc(12px + env(safe-area-inset-bottom)) var(--pad);background:linear-gradient(to top,rgba(10,9,18,.96) 55%,transparent);transform:translateY(110%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.sticky.on{transform:none}
+.sticky .btn{width:100%;min-height:54px;font-size:16px}
+@media(min-width:721px){.sticky{display:none}}
+
+/* aparición al hacer scroll */
+.js .rv{opacity:0;transform:translateY(26px) scale(.985);transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0s)}
+.js .rv.in{opacity:1;transform:none}
+.js .h1w span{display:inline-block;opacity:0;transform:translateY(.4em);transition:opacity .7s,transform .7s cubic-bezier(.2,.8,.2,1)}
+.js .h1w.in span{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv,.js .h1w span{opacity:1;transform:none}
+  .msg,.done{opacity:1;transform:none}
+}
 </style>
 </head>
 <body>
-<div class="bgfx" aria-hidden="true"><i></i><i></i></div>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+
+<header class="top"><div class="wrap">
+  <div class="bar">
+    <a href="https://pebaisystems.es/" aria-label="PEBAI Systems"><img src="/brand/pebai-horizontal-color-mineral-cropped.webp" alt="PEBAI Systems" width="400" height="116"></a>
+    <nav>
+      <a class="l" href="#incluido">Qué hace</a>
+      <a class="l" href="#precio">Precio</a>
+      <a class="l" href="#pasos">Puesta en marcha</a>
+      <a class="btn" href="https://wa.me/34624842799?text=Hola%2C%20me%20interesa%20el%20asistente%20de%20voz">Hablemos</a>
+    </nav>
+  </div>
+</div></header>
+
 <main>
-
-<header class="hero">
-  <a href="https://pebaisystems.es/" aria-label="PEBAI Systems"><img class="logo" src="/brand/pebai-horizontal-color-mineral-cropped.webp" alt="PEBAI Systems" width="400" height="116"></a>
-  <h1>Tu teléfono, <em>atendido siempre</em></h1>
-  <p class="sub">Un asistente con IA que contesta las llamadas de tu empresa con voz natural en español.</p>
-  <div class="badges">
-    <div><b>24/7</b>también festivos</div>
-    <div><b>Varias</b>llamadas a la vez</div>
-    <div><b>Tu número</b>no cambia</div>
-    <div><b>Voz real</b>en español</div>
-  </div>
-</header>
-
-<section>
-  <span class="lab">Cómo funciona</span>
-  <h2>Una llamada, <em>paso a paso</em></h2>
-  <ol class="steps">
-    <li><div><b>Te llaman</b><span>a tu número de siempre</span></div></li>
-    <li><div><b>Contesta el asistente</b><span>con el nombre de tu empresa</span></div></li>
-    <li><div><b>Resuelve</b><span>responde, toma datos o da cita</span></div></li>
-    <li><div><b>Queda todo apuntado</b><span>grabado y por escrito</span></div></li>
-  </ol>
-</section>
-
-<section>
-  <span class="lab">Qué hace</span>
-  <h2>Lo que hace <em>por ti</em></h2>
-  <span class="tagline">Incluido en tu plan</span>
-  <div class="inc">
-    <div>Responder preguntas</div>
-    <div>Dar citas</div>
-    <div>Tomar datos</div>
-    <div>Pasarte la llamada</div>
-    <div>Grabar y transcribir</div>
-    <div>Atender 24 horas</div>
-  </div>
-</section>
-
-<section>
-  <span class="lab">Extras</span>
-  <h2>Y si quieres, <em>mucho más</em></h2>
-  <p class="sub">Se añaden cuando los necesites. Toca uno para verlo.</p>
-  <div class="acc">
-    <details><summary>Resumen de cada llamada</summary><p>Te llega al momento por email o WhatsApp: quién llamó y qué quería.</p></details>
-    <details><summary>Recordatorio de citas</summary><p>Llama el día antes para confirmar. Menos huecos vacíos.</p></details>
-    <details><summary>Devolver llamadas perdidas</summary><p>Si alguien colgó antes de tiempo, le devuelve la llamada.</p></details>
-    <details><summary>Seguimiento de presupuestos</summary><p>Llama a quien pidió presupuesto para resolver dudas y cerrar.</p></details>
-    <details><summary>Filtrar clientes</summary><p>Hace las preguntas clave y solo te pasa los que encajan.</p></details>
-    <details><summary>Enviar enlaces en la llamada</summary><p>Ubicación, catálogo, formulario o pago por SMS o WhatsApp.</p></details>
-    <details><summary>Conexión con tu programa</summary><p>Guarda los datos en tu CRM o consulta el estado de un pedido.</p></details>
-    <details><summary>Encuesta tras el servicio</summary><p>Pregunta qué tal fue y te avisa si alguien no quedó contento.</p></details>
-    <details><summary>Otros idiomas</summary><p>Atiende también en inglés, francés o alemán.</p></details>
-    <details><summary>Voz propia de tu marca</summary><p>Una voz única que tus clientes reconozcan.</p></details>
-    <details><summary>Llamadas a tus clientes</summary><p>Avisos, ofertas o renovaciones a clientes que han dado su permiso.</p></details>
-    <details><summary>Informe del mes</summary><p>Llamadas, horas punta, preguntas más repetidas y citas dadas.</p></details>
-    <details class="custom"><summary>Lo que se te ocurra</summary><p>Cuéntanos tu idea y te decimos cómo hacerla y cuánto costaría.</p></details>
-  </div>
-  <p class="note">Cada extra tiene su precio según tu caso.</p>
-</section>
-
-<section id="precio">
-  <span class="lab">Precio</span>
-  <h2>¿Cuánto te <em>costaría</em>?</h2>
-  <div class="card calc">
-    <div class="seg" role="group" aria-label="Nivel" id="seg"></div>
-    <div class="lvl" id="lvl"></div>
-    <div class="field"><label for="llamadas">Llamadas al mes <output id="oLl"></output></label><input id="llamadas" type="range" min="20" max="1500" step="10" value="150"></div>
-    <div class="field"><label for="dur">Minutos por llamada <output id="oDur"></output></label><input id="dur" type="range" min="1" max="10" step="0.5" value="3"></div>
-    <div class="total"><span class="l">Al mes, aproximadamente</span><span class="v" id="vMes">–</span><span class="s" id="vLlam">–</span></div>
-    <div class="rows">
-      <div><span>Cuota mensual</span><span id="rCuota"></span></div>
-      <div><span id="rMinL">Minutos</span><span id="rMin"></span></div>
-      <div><span>Alta, una sola vez</span><span id="rAlta"></span></div>
+<div class="wrap hero">
+  <div class="txt">
+    <span class="kick rv">Asistente de voz con IA</span>
+    <h1 class="h1w" aria-label="Tu teléfono, atendido siempre"><span>Tu</span> <span>teléfono,</span> <span><em>atendido</em></span> <span><em>siempre</em></span></h1>
+    <p class="lead rv" style="--d:.25s">Contesta las llamadas de tu empresa con voz natural en español, da citas y te pasa lo urgente. De día, de noche y en festivos.</p>
+    <div class="ctas rv" style="--d:.35s">
+      <a class="btn" href="https://wa.me/34624842799?text=Hola%2C%20me%20interesa%20el%20asistente%20de%20voz">Quiero probarlo</a>
+      <a class="btn ghost" href="#precio">Calcular precio</a>
+    </div>
+    <div class="facts rv" style="--d:.45s">
+      <div><b>24<em>/7</em></b><span>sin descansos</span></div>
+      <div><b>Varias</b><span>llamadas a la vez</span></div>
+      <div><b>Tu número</b><span>no cambia</span></div>
     </div>
   </div>
-  <div class="acc">
-    <details><summary>¿Qué incluye cada parte?</summary><p><b>Alta:</b> preparamos el asistente con tu información, lo conectamos y lo probamos contigo.<br><b>Cuota:</b> funcionando todo el mes, con mantenimiento y soporte.<br><b>Minutos:</b> pagas solo lo que habla. Si llaman menos, pagas menos.</p></details>
-  </div>
-  <p class="note">IVA no incluido. Una secretaria virtual cobra de 1 a 2 € por llamada.</p>
-</section>
 
-<section>
-  <span class="lab">Tu teléfono</span>
-  <h2>Tú decides <em>quién contesta</em></h2>
-  <p class="sub">Tu número no cambia: tus llamadas se desvían al asistente. Puedes combinar:</p>
-  <div class="opts">
-    <div class="card opt">
+  <div class="call rv" id="call" style="--d:.2s" aria-label="Ejemplo de una llamada atendida por el asistente">
+    <div class="head">
+      <div class="av"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3"/></svg></div>
+      <div class="who"><b>Instalaciones Turia</b><span id="timer">Llamada entrante</span></div>
+      <div class="live"><div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="chat" id="chat" aria-live="off"></div>
+  </div>
+</div>
+
+<section id="incluido"><div class="wrap">
+  <div class="shead rv">
+    <span class="kick">Incluido en tu plan</span>
+    <h2>Lo que hace <em>por ti</em></h2>
+    <p class="lead">Lo importante, sin pagar nada más.</p>
+  </div>
+  <div class="bento">
+    <article class="f f1 hero-f rv">
+      <span class="tag">Responde</span>
+      <h3>Contesta a tus clientes</h3>
+      <p>Servicios, precios, horarios y zonas, con tu información. Si no sabe algo, no se lo inventa.</p>
+      <div class="vis qa"><span>¿Trabajáis los sábados?</span><span>Sí, de 9:00 a 14:00.</span></div>
+    </article>
+    <article class="f f2 rv" style="--d:.08s">
+      <span class="tag">Agenda</span>
+      <h3>Da citas</h3>
+      <p>Mira tu agenda, ofrece huecos libres y apunta la cita.</p>
+      <div class="vis cal" aria-hidden="true"><span>L</span><span>M</span><span>X</span><span class="pick">J 10:30</span><span>V</span></div>
+    </article>
+    <article class="f f3 rv">
+      <span class="tag">Apunta</span>
+      <h3>Toma los datos</h3>
+      <p>Nombre, teléfono y qué necesita.</p>
+      <div class="vis form" aria-hidden="true"><div><span>Nombre</span><span>Laura Gómez</span></div><div><span>Teléfono</span><span>6XX XXX XXX</span></div><div><span>Motivo</span><span>Cambio de caldera</span></div></div>
+    </article>
+    <article class="f f4 rv" style="--d:.08s">
+      <span class="tag">Te avisa</span>
+      <h3>Te pasa la llamada</h3>
+      <p>Si es urgente o piden una persona.</p>
+      <div class="vis pass" aria-hidden="true"><span class="n"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M19 11a7 7 0 0 1-14 0"/></svg></span><span class="line"></span><span class="n me"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span></div>
+    </article>
+    <article class="f f5 rv" style="--d:.16s">
+      <span class="tag">Guarda</span>
+      <h3>Graba y lo pone por escrito</h3>
+      <p>Cada llamada, para que no se pierda nada.</p>
+      <div class="vis trans" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    </article>
+  </div>
+</div></section>
+
+<section id="extras" style="padding-top:0"><div class="wrap">
+  <div class="shead rv">
+    <span class="kick">Extras</span>
+    <h2>Cuando lo <em>necesites</em></h2>
+    <p class="lead">Se añaden a tu plan. Cada uno con su precio, según tu caso.</p>
+  </div>
+  <div class="extras">
+    <div class="x rv"><span class="i"><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg></span><div><b>Resumen de cada llamada</b><span>Al momento, por email o WhatsApp.</span></div></div>
+    <div class="x rv" style="--d:.06s"><span class="i"><svg class="ic" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21h4"/></svg></span><div><b>Recordatorio de citas</b><span>Llama el día antes para confirmar.</span></div></div>
+    <div class="x rv" style="--d:.12s"><span class="i"><svg class="ic" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1"/><path d="M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/></svg></span><div><b>Enlaces durante la llamada</b><span>Ubicación, catálogo o pago por SMS o WhatsApp.</span></div></div>
+    <div class="x rv"><span class="i"><svg class="ic" viewBox="0 0 24 24"><path d="M9 7V3M15 7V3M7 7h10v5a5 5 0 0 1-10 0z"/><path d="M12 17v4"/></svg></span><div><b>Conexión con tu programa</b><span>Guarda los datos en tu CRM o consulta pedidos.</span></div></div>
+    <div class="x rv" style="--d:.06s"><span class="i"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Informe del mes</b><span>Llamadas, horas punta y lo que más preguntan.</span></div></div>
+    <div class="x mine rv" style="--d:.12s"><span class="i"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><div><b>Lo que se te ocurra</b><span>Cuéntanos tu idea y te decimos cómo hacerla.</span></div></div>
+  </div>
+</div></section>
+
+<section id="precio"><div class="wrap">
+  <div class="shead c rv">
+    <span class="kick">Precio</span>
+    <h2>Pagas por lo <em>que usas</em></h2>
+    <p class="lead">Mueve los valores y mira cuánto te costaría al mes.</p>
+  </div>
+  <div class="calc">
+    <div class="panel rv">
+      <div class="seg" id="seg" role="group" aria-label="Nivel del asistente"><span class="ind" id="ind"></span></div>
+      <div class="lvl" id="lvl"></div>
+      <div class="field"><label for="llamadas">Llamadas al mes <output id="oLl"></output></label><input id="llamadas" type="range" min="20" max="1500" step="10" value="150"></div>
+      <div class="field"><label for="dur">Minutos por llamada <output id="oDur"></output></label><input id="dur" type="range" min="1" max="10" step="0.5" value="3"></div>
+    </div>
+    <div class="panel res rv" style="--d:.1s">
+      <div><span class="l">Al mes, aproximadamente</span><div class="v" id="vMes">0 €</div><span class="s" id="vLlam"></span></div>
+      <div class="rows">
+        <div><span>Cuota mensual</span><span id="rCuota"></span></div>
+        <div><span id="rMinL">Minutos</span><span id="rMin"></span></div>
+        <div><span>Alta, una sola vez</span><span id="rAlta"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="parts">
+    <div class="rv"><b>Alta</b>Lo preparamos con tu información, lo conectamos y lo probamos contigo.</div>
+    <div class="rv" style="--d:.06s"><b>Cuota</b>Funcionando todo el mes, con mantenimiento y soporte.</div>
+    <div class="rv" style="--d:.12s"><b>Minutos</b>Solo el tiempo que habla. Si llaman menos, pagas menos.</div>
+  </div>
+  <p class="note">IVA no incluido. Como referencia, una secretaria virtual cobra de 1 a 2 € por llamada.</p>
+</div></section>
+
+<section id="telefono" style="padding-top:0"><div class="wrap">
+  <div class="shead rv">
+    <span class="kick">Tu teléfono</span>
+    <h2>Tú decides <em>quién contesta</em></h2>
+    <p class="lead">Tu número no cambia: las llamadas se desvían al asistente. Puedes combinar las tres formas.</p>
+  </div>
+  <div class="who">
+    <div class="w rv">
       <span class="pill">Lo más habitual</span>
       <h3>Suena primero en tu móvil</h3>
-      <div class="flow"><span>Suena</span><i>→</i><span>15 s sin coger</span><i>→</i><span>Asistente</span></div>
-      <p>Coges las que puedes. Las demás, las atiende el asistente.</p>
+      <div class="track" aria-hidden="true"><span class="st"><i><svg class="ic" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></i>Suena</span><span class="ln"></span><span class="st"><i class="v"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M19 11a7 7 0 0 1-14 0"/></svg></i>A los 15 s</span></div>
+      <p>Coges las que puedes y las demás las atiende el asistente.</p>
     </div>
-    <div class="card opt">
+    <div class="w rv" style="--d:.08s">
       <span class="pill">Lo más habitual</span>
       <h3>El asistente te la pasa</h3>
-      <div class="flow"><span>Asistente</span><i>→</i><span>«Con una persona»</span><i>→</i><span>Tú</span></div>
+      <div class="track" aria-hidden="true"><span class="st"><i class="v"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M19 11a7 7 0 0 1-14 0"/></svg></i>Asistente</span><span class="ln"></span><span class="st"><i><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></i>Tú</span></div>
       <p>Si piden una persona o es urgente, te la pasa y te dice quién es.</p>
     </div>
-    <div class="card opt">
+    <div class="w rv" style="--d:.16s">
       <span class="pill alt">Opcional</span>
       <h3>Por horario</h3>
-      <div class="flow"><span>Horario: tú</span><i>·</i><span>Noches y festivos: asistente</span></div>
-      <p>Ideal para la hora de comer, noches y fines de semana.</p>
+      <div class="track" aria-hidden="true"><span class="st"><i><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></i>Horario: tú</span><span class="ln"></span><span class="st"><i class="v"><svg class="ic" viewBox="0 0 24 24"><path d="M20 15A8 8 0 1 1 9 4a7 7 0 0 0 11 11Z"/></svg></i>Noche: asistente</span></div>
+      <p>Comidas, noches, fines de semana y festivos.</p>
     </div>
   </div>
-</section>
+</div></section>
 
-<section>
-  <span class="lab">Puesta en marcha</span>
-  <h2>Listo en <em>10 días</em></h2>
-  <ol class="time">
-    <li><em>DÍA 1</em><b>Reunión</b><span>Nos cuentas tu negocio en 45 min</span></li>
-    <li><em>DÍAS 2–4</em><b>Lo preparamos</b><span>Guion, información y conexiones</span></li>
-    <li><em>DÍAS 5–8</em><b>Lo pruebas</b><span>Tu equipo llama y nos dice qué cambiar</span></li>
-    <li><em>DÍAS 9–10</em><b>En marcha</b><span>Activamos el desvío</span></li>
-    <li><em>CADA MES</em><b>Lo mejoramos</b><span>Con lo que preguntan tus clientes</span></li>
-  </ol>
-</section>
-
-<section>
-  <span class="lab">Dudas</span>
-  <h2>Preguntas <em>frecuentes</em></h2>
-  <div class="acc">
-    <details><summary>¿Suena a robot?</summary><p>No. Usa una de las voces más naturales en español y se le puede interrumpir como a una persona.</p></details>
-    <details><summary>¿Y si no sabe la respuesta?</summary><p>No se inventa nada: toma nota y te avisa, o te pasa la llamada.</p></details>
-    <details><summary>¿Cuántas llamadas atiende a la vez?</summary><p>Varias. Se acabaron el «comunica» y las llamadas perdidas.</p></details>
-    <details><summary>¿Es legal? ¿Y los datos?</summary><p>Sí. Avisa de que es un asistente virtual y de que graba, como pide la ley, y firmamos contigo un contrato de protección de datos.</p></details>
-    <details><summary>¿Puedo cambiar lo que dice?</summary><p>Sí, cuando quieras: precios, horarios o respuestas.</p></details>
+<section id="pasos" style="padding-top:0"><div class="wrap">
+  <div class="shead rv">
+    <span class="kick">Puesta en marcha</span>
+    <h2>Funcionando en <em>10 días</em></h2>
   </div>
-</section>
+  <ol class="time" id="time">
+    <li class="prog" aria-hidden="true"></li>
+    <li class="rv"><em>DÍA 1</em><b>Reunión</b><span>Nos cuentas tu negocio en 45 minutos.</span></li>
+    <li class="rv" style="--d:.1s"><em>DÍAS 2–4</em><b>Lo preparamos</b><span>Guion, información y conexiones.</span></li>
+    <li class="rv" style="--d:.2s"><em>DÍAS 5–8</em><b>Lo pruebas</b><span>Tu equipo llama y nos dice qué cambiar.</span></li>
+    <li class="rv" style="--d:.3s"><em>DÍAS 9–10</em><b>En marcha</b><span>Activamos el desvío.</span></li>
+    <li class="rv" style="--d:.4s"><em>CADA MES</em><b>Lo mejoramos</b><span>Con lo que preguntan tus clientes.</span></li>
+  </ol>
+</div></section>
 
+<section style="padding-top:0"><div class="wrap">
+  <div class="trust">
+    <div class="rv"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg><div><b>Legal desde el primer día</b><span>Avisa de que es un asistente y de que graba. Firmamos un contrato de protección de datos.</span></div></div>
+    <div class="rv" style="--d:.06s"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><div><b>Cambias lo que dice</b><span>Precios, horarios o respuestas, cuando quieras.</span></div></div>
+    <div class="rv" style="--d:.12s"><svg class="ic" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><div><b>No suena a robot</b><span>Una de las voces más naturales en español, y se le puede interrumpir.</span></div></div>
+  </div>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <div class="end rv">
+    <span class="kick">Pruébalo</span>
+    <h2>Escúchalo con <em>tu negocio</em></h2>
+    <p class="lead">Te preparamos una demo con tu información para que llames y lo pruebes.</p>
+    <a class="btn" href="https://wa.me/34624842799?text=Hola%2C%20me%20interesa%20el%20asistente%20de%20voz">Quiero mi demo</a>
+  </div>
+</div></section>
 </main>
-<div class="cta"><a href="https://wa.me/34624842799?text=Hola%2C%20me%20interesa%20el%20asistente%20de%20voz">Quiero probarlo con mi negocio</a></div>
+
+<footer class="wrap">PEBAI Systems · València · <a href="https://pebaisystems.es/">pebaisystems.es</a></footer>
+<div class="sticky" id="sticky"><a class="btn" href="https://wa.me/34624842799?text=Hola%2C%20me%20interesa%20el%20asistente%20de%20voz">Quiero probarlo</a></div>
 
 <script>
 (function(){
-  var PRECIOS={alta:590,cuota:79};
-  var NIVELES=[
-    {id:"esencial",name:"Esencial",by:"con Gemini",min:0.25,bars:2,does:["Responde preguntas frecuentes","Toma datos y da citas sencillas"]},
-    {id:"pro",name:"Profesional",by:"con GPT",min:0.29,bars:3,does:["Guiones largos con muchas reglas","Más fiable con citas y pases de llamada"]},
-    {id:"avanzado",name:"Avanzado",by:"con Claude",min:0.39,bars:4,does:["Conversaciones difíciles y con matices","Catálogos grandes, objeciones y venta"]}
-  ];
-  var sel="esencial";
-  function $(id){return document.getElementById(id)}
-  function eur(v,d){d=d||0;return v.toLocaleString("es-ES",{style:"currency",currency:"EUR",minimumFractionDigits:d,maximumFractionDigits:d})}
-  NIVELES.forEach(function(n){
-    var b=document.createElement("button");b.type="button";b.textContent=n.name;b.dataset.id=n.id;
-    b.addEventListener("click",function(){sel=n.id;render()});$("seg").appendChild(b);
-  });
-  function render(){
-    var n=NIVELES.filter(function(x){return x.id===sel})[0];
-    [].forEach.call($("seg").children,function(b){b.setAttribute("aria-pressed",b.dataset.id===sel)});
-    var bars="";for(var i=1;i<=4;i++)bars+='<span class="'+(i<=n.bars?"on":"")+'"></span>';
-    $("lvl").innerHTML='<div class="top"><span class="by">'+n.by+' · '+eur(n.min,2)+'/min</span><div class="meter" aria-hidden="true">'+bars+'</div></div><ul>'+n.does.map(function(d){return"<li>"+d+"</li>"}).join("")+"</ul>";
-    var ll=+$("llamadas").value,dur=+$("dur").value,min=ll*dur,mins=min*n.min,total=PRECIOS.cuota+mins;
-    $("oLl").textContent=ll.toLocaleString("es-ES");
-    $("oDur").textContent=String(dur).replace(".",",")+" min";
-    $("vMes").textContent=eur(total);
-    $("vLlam").textContent="≈ "+eur(total/ll,2)+" por llamada";
-    $("rCuota").textContent=eur(PRECIOS.cuota);
-    $("rMinL").textContent=min.toLocaleString("es-ES")+" min × "+eur(n.min,2);
-    $("rMin").textContent=eur(mins);
-    $("rAlta").textContent=eur(PRECIOS.alta);
+  var d=document,root=d.documentElement,RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  root.classList.add('js');
+  function $(id){return d.getElementById(id)}
+
+  /* aparición */
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.15,rootMargin:'0px 0px -6% 0px'});
+  d.querySelectorAll('.rv,.h1w').forEach(function(el){io.observe(el)});
+  d.querySelectorAll('.h1w span').forEach(function(s,i){s.style.transitionDelay=(.06+i*.08)+'s'});
+  var tl=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.style.setProperty('--t',1);tl.disconnect()}})},{threshold:.4});
+  tl.observe($('time'));
+  d.querySelectorAll('.track').forEach(function(t){var l=t.querySelector('.ln');function m(){t.style.setProperty('--d',(l.offsetWidth-8)+'px');l.style.setProperty('--d',(l.offsetWidth-8)+'px')}m();addEventListener('resize',m)});
+
+  /* botón fijo en móvil */
+  var st=$('sticky');addEventListener('scroll',function(){st.classList.toggle('on',scrollY>520&&(innerHeight+scrollY)<d.body.scrollHeight-260)},{passive:true});
+
+  /* demo de llamada */
+  var call=$('call'),chat=$('chat'),timer=$('timer'),
+  GUION=[
+    {w:'ai',t:'Hola, le atiende el asistente virtual de Instalaciones Turia. ¿En qué puedo ayudarle?'},
+    {w:'cl',t:'Quería un presupuesto para cambiar la caldera.'},
+    {w:'ai',t:'Claro. ¿Le viene bien que un técnico pase el jueves a las 10:30?'},
+    {w:'cl',t:'Perfecto, el jueves me va bien.'}
+  ],seg=0,tick;
+  function el(tag,cls,html){var e=d.createElement(tag);e.className=cls;e.innerHTML=html;return e}
+  function fmt(s){return '0:'+(s<10?'0':'')+s}
+  function run(){
+    chat.innerHTML='';seg=0;timer.textContent='Llamada entrante';call.classList.remove('talk');
+    var i=0;
+    setTimeout(function(){
+      clearInterval(tick);tick=setInterval(function(){seg++;timer.textContent='Atendida · '+fmt(seg)},1000);
+      next();
+    },RM?0:900);
+    function next(){
+      if(i>=GUION.length){
+        call.classList.remove('talk');
+        var ok=el('div','done','<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Cita creada · jueves 10:30');
+        chat.appendChild(ok);requestAnimationFrame(function(){ok.classList.add('on')});
+        if(!RM)setTimeout(function(){clearInterval(tick);run()},5200);
+        return;
+      }
+      var g=GUION[i++],m=el('div','msg '+g.w,'<small>'+(g.w==='ai'?'Asistente':'Cliente')+'</small>'+g.t);
+      call.classList.toggle('talk',g.w==='ai');
+      chat.appendChild(m);requestAnimationFrame(function(){m.classList.add('on')});
+      if(RM){next();return}
+      setTimeout(next,1200+g.t.length*28);
+    }
   }
-  $("llamadas").addEventListener("input",render);$("dur").addEventListener("input",render);
+  run();
+
+  /* calculadora */
+  var PRECIOS={alta:590,cuota:79},
+  NIVELES=[
+    {id:'esencial',name:'Esencial',by:'con Gemini',min:0.25,bars:2,does:['Responde preguntas frecuentes','Toma datos y da citas sencillas']},
+    {id:'pro',name:'Profesional',by:'con GPT',min:0.29,bars:3,does:['Guiones largos con muchas reglas','Más fiable con citas y pases de llamada']},
+    {id:'avanzado',name:'Avanzado',by:'con Claude',min:0.39,bars:4,does:['Conversaciones difíciles y con matices','Catálogos grandes, objeciones y venta']}
+  ],sel=0,shown=0,anim;
+  function eur(v,dd){dd=dd||0;return v.toLocaleString('es-ES',{style:'currency',currency:'EUR',minimumFractionDigits:dd,maximumFractionDigits:dd})}
+  NIVELES.forEach(function(n,k){var b=d.createElement('button');b.type='button';b.textContent=n.name;b.addEventListener('click',function(){sel=k;render()});$('seg').appendChild(b)});
+  function fill(r){var p=(r.value-r.min)/(r.max-r.min)*100;r.style.setProperty('--p',p+'%')}
+  function count(to){
+    cancelAnimationFrame(anim);var from=shown,t0=performance.now(),D=RM?0:650;
+    (function f(t){var k=D?Math.min(1,(t-t0)/D):1;k=1-Math.pow(1-k,3);shown=from+(to-from)*k;$('vMes').textContent=eur(shown);if(k<1)anim=requestAnimationFrame(f)})(t0);
+  }
+  function render(){
+    var n=NIVELES[sel];
+    $('ind').style.transform='translateX('+(sel*100)+'%)';
+    [].forEach.call($('seg').querySelectorAll('button'),function(b,k){b.setAttribute('aria-pressed',k===sel)});
+    var bars='';for(var i=1;i<=4;i++)bars+='<i class="'+(i<=n.bars?'on':'')+'"></i>';
+    $('lvl').innerHTML='<div class="t"><span>'+n.by+' · '+eur(n.min,2)+' el minuto</span><div class="meter" aria-hidden="true">'+bars+'</div></div><ul>'+n.does.map(function(x){return'<li>'+x+'</li>'}).join('')+'</ul>';
+    var ll=+$('llamadas').value,du=+$('dur').value,min=ll*du,mins=min*n.min,total=PRECIOS.cuota+mins;
+    fill($('llamadas'));fill($('dur'));
+    $('oLl').textContent=ll.toLocaleString('es-ES');
+    $('oDur').textContent=String(du).replace('.',',')+' min';
+    count(total);
+    $('vLlam').textContent='≈ '+eur(total/ll,2)+' por llamada atendida';
+    $('rCuota').textContent=eur(PRECIOS.cuota);
+    $('rMinL').textContent=min.toLocaleString('es-ES')+' min × '+eur(n.min,2);
+    $('rMin').textContent=eur(mins);
+    $('rAlta').textContent=eur(PRECIOS.alta);
+  }
+  $('llamadas').addEventListener('input',render);$('dur').addEventListener('input',render);
   render();
 })();
 </script>
