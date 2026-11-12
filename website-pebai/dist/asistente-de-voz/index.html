@@ -74,37 +74,41 @@ h1 em,h2 em{font-style:italic;color:var(--accent)}
 .facts b em{font-style:italic;color:var(--accent)}
 .facts span{font-size:13px;color:var(--fg-50)}
 @media(max-width:980px){.hero{grid-template-columns:1fr;gap:40px;padding-block:44px 40px}}
-@media(max-width:600px){.facts{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:18px}.facts b{font-size:26px}.chat{min-height:470px}}
+@media(max-width:600px){.facts{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:18px}.facts b{font-size:26px}}
 
-/* demo de llamada */
-.call{position:relative;border-radius:34px;padding:22px;background:var(--glass);border:1px solid var(--fg-08);box-shadow:0 40px 80px -40px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.07);overflow:hidden;isolation:isolate}
+/* demo de llamada: pantalla de llamada de voz */
+.call{position:relative;border-radius:36px;padding:20px 22px 22px;background:radial-gradient(ellipse 90% 60% at 50% 30%,rgba(106,92,255,.35),transparent 70%),linear-gradient(170deg,rgba(32,27,62,.92),rgba(14,12,28,.96));border:1px solid var(--fg-08);box-shadow:0 40px 80px -40px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.07);overflow:hidden;isolation:isolate;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;max-width:440px;width:100%;justify-self:center}
 .call::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:conic-gradient(from var(--a,0deg),transparent 0 70%,rgba(183,255,60,.9) 80%,rgba(139,125,255,.9) 88%,transparent 96%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 6s linear infinite;z-index:-1}
 @property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
 @keyframes spin{to{--a:360deg}}
-.call .head{display:flex;align-items:center;gap:14px}
-.av{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 30% 30%,#8B7DFF,#3a2fb8);box-shadow:0 0 0 6px rgba(106,92,255,.15);flex:none;position:relative}
-.av::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(139,125,255,.6);animation:ping 2.4s ease-out infinite}
-@keyframes ping{from{transform:scale(1);opacity:.9}to{transform:scale(1.45);opacity:0}}
-.av svg{width:22px;height:22px;stroke:#fff}
-.call .who{min-width:0}
-.call .who b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.call .who span{font-size:13px;color:var(--fg-50);font-variant-numeric:tabular-nums;white-space:nowrap}
-.live{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.08em}
-.wave{display:flex;align-items:center;gap:3px;height:22px}
-.wave i{width:3px;height:100%;border-radius:2px;background:var(--accent);transform:scaleY(.2);transform-origin:center;animation:eq .9s ease-in-out infinite;animation-play-state:paused}
-.wave i:nth-child(2){animation-delay:-.2s}.wave i:nth-child(3){animation-delay:-.5s}.wave i:nth-child(4){animation-delay:-.1s}.wave i:nth-child(5){animation-delay:-.65s}
-.call.talk .wave i{animation-play-state:running}
-@keyframes eq{0%,100%{transform:scaleY(.2)}50%{transform:scaleY(1)}}
-.chat{display:flex;flex-direction:column;gap:10px;margin-top:20px;min-height:286px}
-.msg{max-width:86%;padding:12px 15px;border-radius:20px;font-size:14.5px;line-height:1.45;opacity:0;transform:translateY(10px) scale(.98);transition:opacity .45s,transform .45s cubic-bezier(.2,.8,.2,1)}
-.msg.on{opacity:1;transform:none}
-.msg small{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;opacity:.7}
-.msg.ai{background:rgba(106,92,255,.22);border:1px solid rgba(139,125,255,.35);border-bottom-left-radius:6px}
-.msg.ai small{color:var(--violet-2);opacity:1}
-.msg.cl{align-self:flex-end;background:var(--fg-08);border-bottom-right-radius:6px}
-.done{display:flex;align-items:center;gap:10px;margin-top:6px;padding:12px 14px;border-radius:16px;background:rgba(183,255,60,.1);border:1px solid rgba(183,255,60,.35);color:var(--accent);font-weight:700;font-size:14px;opacity:0;transform:translateY(10px);transition:opacity .45s,transform .45s}
-.done.on{opacity:1;transform:none}
-.done .ic{width:20px;height:20px}
+.ctop{width:100%;display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--fg-50);font-weight:600}
+.ctop .st{display:flex;align-items:center;gap:7px;color:var(--accent);font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:11.5px}
+.ctop .st i{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{50%{opacity:.35}}
+.ctop .tm{font-variant-numeric:tabular-nums;color:var(--fg-72)}
+.cname b{display:block;font-family:var(--serif);font-size:28px;font-weight:400;line-height:1.05}
+.cname span{font-size:13px;color:var(--fg-50)}
+.orb{position:relative;width:180px;height:180px;display:grid;place-items:center;margin:0}
+.orb .bars{position:absolute;inset:0}
+.orb .bars i{position:absolute;left:50%;top:50%;width:3px;height:22px;margin:-11px 0 0 -1.5px;border-radius:2px;background:var(--violet-2);transform-origin:50% 50%;opacity:.85}
+.orb .core{position:relative;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#a99dff,#6A5CFF 45%,#2a1f8f);box-shadow:0 0 0 8px rgba(106,92,255,.14),0 0 60px -6px rgba(106,92,255,.9);display:grid;place-items:center;transition:background .5s,box-shadow .5s;will-change:transform}
+.orb .core svg{width:40px;height:40px;stroke:#fff;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.call.cl .orb .core{background:radial-gradient(circle at 32% 28%,#4a4566,#2b2742 50%,#17142a);box-shadow:0 0 0 8px rgba(239,237,231,.06),0 0 50px -10px rgba(239,237,231,.25)}
+.call.cl .orb .bars i{background:rgba(239,237,231,.55)}
+.spk{font-size:11.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--violet-2);min-height:16px;transition:color .3s}
+.call.cl .spk{color:var(--fg-72)}
+.cap{min-height:4.2em;font-size:17px;line-height:1.4;font-weight:600;max-width:34ch}
+.cap span{opacity:.18;transition:opacity .25s}
+.cap span.on{opacity:1}
+.ok{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(183,255,60,.12);border:1px solid rgba(183,255,60,.4);color:var(--accent);font-weight:800;font-size:14px;opacity:0;transform:translateY(8px) scale(.96);transition:opacity .4s,transform .4s cubic-bezier(.2,.8,.2,1);min-height:44px}
+.ok.on{opacity:1;transform:none}
+.ok svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8}
+.ctrl{display:flex;gap:14px;margin-top:4px}
+.ctrl span{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--fg-08);border:1px solid var(--fg-08)}
+.ctrl span svg{width:22px;height:22px;stroke:var(--fg-72);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ctrl span.hang{background:#E5484D;border-color:#E5484D}
+.ctrl span.hang svg{stroke:#fff;transform:rotate(135deg)}
+@media(max-width:600px){.orb{width:160px;height:160px}.orb .core{width:88px;height:88px}.cap{font-size:16px;min-height:5.6em}}
 
 /* secciones */
 section{padding-block:clamp(64px,9vw,120px)}
@@ -314,7 +318,7 @@ footer{padding-block:28px calc(110px + env(safe-area-inset-bottom));font-size:13
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
   .js .rv,.js .h1w span{opacity:1;transform:none}
-  .msg,.done{opacity:1;transform:none}
+  .ok{opacity:1;transform:none}
 }
 </style>
 </head>
@@ -351,13 +355,19 @@ footer{padding-block:28px calc(110px + env(safe-area-inset-bottom));font-size:13
     </div>
   </div>
 
-  <div class="call rv" id="call" style="--d:.2s" aria-label="Ejemplo de una llamada atendida por el asistente">
-    <div class="head">
-      <div class="av"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3"/></svg></div>
-      <div class="who"><b>Instalaciones Turia</b><span id="timer">Llamada entrante</span></div>
-      <div class="live"><div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
+  <div class="call rv" id="call" style="--d:.2s" role="img" aria-label="Ejemplo de llamada: el asistente contesta, entiende al cliente y le da cita para el jueves a las 10:30">
+    <div class="ctop"><span class="st"><i></i>En llamada</span><span class="tm" id="timer">0:00</span></div>
+    <div class="cname"><b>Instalaciones Turia</b><span>Contesta Darío, asistente de voz</span></div>
+    <div class="orb" aria-hidden="true"><div class="bars" id="bars"></div><div class="core" id="core"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3"/></svg></div></div>
+    <div class="spk" id="spk">Asistente · Darío</div>
+    <p class="cap" id="cap" aria-hidden="true"></p>
+    <div class="ok" id="ok" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Cita creada · jueves 10:30</div>
+    <div class="ctrl" aria-hidden="true">
+      <span><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M19 11a7 7 0 0 1-14 0"/></svg></span>
+      <span><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="1"/><circle cx="12" cy="6" r="1"/><circle cx="18" cy="6" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/><circle cx="12" cy="18" r="1"/></svg></span>
+      <span><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></span>
+      <span class="hang"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/></svg></span>
     </div>
-    <div class="chat" id="chat" aria-live="off"></div>
   </div>
 </div>
 
@@ -546,39 +556,39 @@ footer{padding-block:28px calc(110px + env(safe-area-inset-bottom));font-size:13
   /* botón fijo en móvil */
   var st=$('sticky');addEventListener('scroll',function(){st.classList.toggle('on',scrollY>520&&(innerHeight+scrollY)<d.body.scrollHeight-260)},{passive:true});
 
-  /* demo de llamada */
-  var call=$('call'),chat=$('chat'),timer=$('timer'),
+  /* demo de llamada: subtítulos en directo y onda de voz */
+  var call=$('call'),cap=$('cap'),spk=$('spk'),ok=$('ok'),timer=$('timer'),core=$('core'),barsEl=$('bars'),N=56,R=96,bars=[],lvl=0,goal=0,talking=false,seg=0,
   GUION=[
     {w:'ai',t:'Hola, le atiende el asistente virtual de Instalaciones Turia. ¿En qué puedo ayudarle?'},
     {w:'cl',t:'Quería un presupuesto para cambiar la caldera.'},
-    {w:'ai',t:'Claro. ¿Le viene bien que un técnico pase el jueves a las 10:30?'},
-    {w:'cl',t:'Perfecto, el jueves me va bien.'}
-  ],seg=0,tick;
-  function el(tag,cls,html){var e=d.createElement(tag);e.className=cls;e.innerHTML=html;return e}
-  function fmt(s){return '0:'+(s<10?'0':'')+s}
-  function run(){
-    chat.innerHTML='';seg=0;timer.textContent='Llamada entrante';call.classList.remove('talk');
-    var i=0;
-    setTimeout(function(){
-      clearInterval(tick);tick=setInterval(function(){seg++;timer.textContent='Atendida · '+fmt(seg)},1000);
-      next();
-    },RM?0:900);
-    function next(){
-      if(i>=GUION.length){
-        call.classList.remove('talk');
-        var ok=el('div','done','<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Cita creada · jueves 10:30');
-        chat.appendChild(ok);requestAnimationFrame(function(){ok.classList.add('on')});
-        if(!RM)setTimeout(function(){clearInterval(tick);run()},5200);
-        return;
-      }
-      var g=GUION[i++],m=el('div','msg '+g.w,'<small>'+(g.w==='ai'?'Asistente':'Cliente')+'</small>'+g.t);
-      call.classList.toggle('talk',g.w==='ai');
-      chat.appendChild(m);requestAnimationFrame(function(){m.classList.add('on')});
-      if(RM){next();return}
-      setTimeout(next,1200+g.t.length*28);
-    }
+    {w:'ai',t:'Claro. ¿Le viene bien que un técnico pase el jueves a las diez y media?'},
+    {w:'cl',t:'Perfecto, el jueves me va bien.'},
+    {w:'ai',t:'Hecho. Le he dado cita el jueves a las 10:30. ¡Hasta pronto!'}
+  ];
+  function rad(){R=barsEl.offsetWidth/2-14}
+  for(var b=0;b<N;b++){var e=d.createElement('i');barsEl.appendChild(e);bars.push(e)}
+  rad();addEventListener('resize',rad);
+  var ph=[];for(var k=0;k<N;k++)ph.push(Math.random()*6.28);
+  function frame(t){
+    goal=talking?(.45+Math.random()*.55):0.06;lvl+=(goal-lvl)*(talking?.25:.08);
+    for(var i=0;i<N;i++){var a=i/N*360,h=talking?(.35+.65*Math.abs(Math.sin(t/180+ph[i]))*lvl):(.25+.1*Math.sin(t/600+ph[i]));
+      bars[i].style.transform='rotate('+a+'deg) translateY('+(-R)+'px) scaleY('+h.toFixed(3)+')'}
+    core.style.transform='scale('+(1+lvl*.07).toFixed(3)+')';
+    requestAnimationFrame(frame);
   }
-  run();
+  if(!RM)requestAnimationFrame(frame);else bars.forEach(function(x,i){x.style.transform='rotate('+(i/N*360)+'deg) translateY('+(-R)+'px) scaleY(.4)'});
+  setInterval(function(){seg++;timer.textContent=Math.floor(seg/60)+':'+('0'+seg%60).slice(-2)},1000);
+  function say(i){
+    if(i>=GUION.length){talking=false;ok.classList.add('on');if(!RM)setTimeout(function(){ok.classList.remove('on');seg=0;say(0)},3600);return}
+    var g=GUION[i],words=g.t.split(' ');
+    call.classList.toggle('cl',g.w==='cl');spk.textContent=g.w==='ai'?'Asistente · Darío':'Cliente';
+    cap.innerHTML=words.map(function(w){return '<span>'+w+'</span>'}).join(' ');
+    var sp=cap.querySelectorAll('span'),j=0;talking=true;
+    if(RM){sp.forEach(function(x){x.classList.add('on')});talking=false;return}
+    sp[0].classList.add('on');
+    (function next(){j++;if(j<sp.length){sp[j].classList.add('on');setTimeout(next,230+Math.random()*90)}else{talking=false;setTimeout(function(){say(i+1)},750)}})();
+  }
+  say(0);
 
   /* voces */
   var VOCES=[
