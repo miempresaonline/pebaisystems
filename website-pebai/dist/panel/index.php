@@ -180,7 +180,7 @@ if ($auth && $_SERVER['REQUEST_METHOD'] === 'GET' && $_GET && !isset($_GET['sali
 if (isset($_GET['ping'])) {
     json_out(['ok' => $auth]);
 }
-if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || isset($_GET['oficina']) || isset($_GET['oficina_resumen']) || isset($_GET['oficina_explica']) || isset($_GET['oficina_parte']) || isset($_GET['qr']) || isset($_GET['mapa']) || isset($_GET['redes']) || isset($_GET['web']) || isset($_GET['gasto']) || isset($_GET['demo_encargo']) || isset($_GET['buscar']) || isset($_GET['push_clave']) || isset($_GET['avisos_ultimos']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
+if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || isset($_GET['oficina']) || isset($_GET['oficina_resumen']) || isset($_GET['oficina_explica']) || isset($_GET['oficina_parte']) || isset($_GET['qr']) || isset($_GET['mapa']) || isset($_GET['redes']) || isset($_GET['web']) || isset($_GET['gasto']) || isset($_GET['gestoria']) || isset($_GET['demo_encargo']) || isset($_GET['buscar']) || isset($_GET['push_clave']) || isset($_GET['avisos_ultimos']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
     json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 401);
 }
 
@@ -193,7 +193,7 @@ if (is_file(__DIR__ . '/_oficina_panel.php')) {
     require __DIR__ . '/_oficina_panel.php';
 }
 // Captación › QRs para la calle y › Mapa de prospectos
-foreach (['_qr_panel.php', '_mapa_panel.php', '_conversaciones_panel.php', '_global_panel.php', '_redes_panel.php', '_web_panel.php', '_gasto_panel.php', '_avisos_panel.php'] as $f) {
+foreach (['_qr_panel.php', '_mapa_panel.php', '_conversaciones_panel.php', '_global_panel.php', '_redes_panel.php', '_web_panel.php', '_gasto_panel.php', '_avisos_panel.php', '_gestoria_panel.php'] as $f) {
     if (is_file(__DIR__ . '/' . $f)) {
         require __DIR__ . '/' . $f;
     }
@@ -670,7 +670,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '148';
+$v = '149';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -702,6 +702,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <link rel="stylesheet" href="<?= BASE ?>assets/redes.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/web.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/gasto.css?v=<?= $v ?>">
+<link rel="stylesheet" href="<?= BASE ?>assets/gestoria.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/buscar.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/movil.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/solicitudes.css?v=<?= $v ?>">
@@ -788,6 +789,7 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
     </div>
     <div class="grp"><small>Empresa</small>
       <button data-page="caja" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 13h.01"/><path d="M2 10h20"/><path d="M6 6V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg><span>Caja</span></button>
+      <button data-page="gestoria" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg><span>Gestoría</span></button>
     </div>
     <div class="grp"><small>Automático</small>
       <button data-page="agentes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg><span>Agentes</span><i class="pb-live" id="pb-ag-live" title="Estado de los agentes"></i></button>
@@ -951,6 +953,7 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
   <section class="pb-page" id="page-redes" data-page="redes"><div class="rd" id="pb-redes"></div></section>
   <section class="pb-page" id="page-web" data-page="web"><div class="wb" id="pb-web"></div></section>
   <section class="pb-page" id="page-gasto" data-page="gasto"><div class="ga" id="pb-gasto"></div></section>
+  <section class="pb-page" id="page-gestoria" data-page="gestoria"><div class="gs" id="pb-gestoria"></div></section>
 
   <section class="pb-page" id="page-caja" data-page="caja">
     <div class="pb-pagehead">
@@ -1032,6 +1035,7 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
 <script src="<?= BASE ?>assets/redes.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/web.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/gasto.js?v=<?= $v ?>" defer></script>
+<script src="<?= BASE ?>assets/gestoria.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/buscar.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/movil.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/glass.js?v=<?= $v ?>" defer></script>
