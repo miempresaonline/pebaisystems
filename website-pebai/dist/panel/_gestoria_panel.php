@@ -192,7 +192,7 @@ if ($auth && in_array($_POST['action'] ?? '', $gsAcciones, true)) {
                 $canal = array_key_exists($_POST['canal'] ?? '', GESTORIA_CANALES) ? $_POST['canal'] : 'daniel';
                 $coste = gs_txt('coste', 20) === '' ? 0 : (pebai_caja_cent(gs_txt('coste', 20)) ?? 0);
                 $comisionista = gs_txt('comisionista', 80);
-                $comPct = gestoria_pct($_POST['com_pct'] ?? '7', [5.0, 7.0, 10.0], 7.0);
+                $comPct = gestoria_pct($_POST['com_pct'] ?? '8', [5.0, 7.0, 8.0, 10.0], 8.0);
                 $campos = ['fecha' => $fecha, 'cliente' => $cliente, 'cliente_nif' => $nif, 'cliente_dir' => $dir,
                            'lineas' => json_encode($lineas, JSON_UNESCAPED_UNICODE), 'base' => $base, 'iva_pct' => $ivaPct, 'iva' => $iva,
                            'irpf_pct' => $irpfPct, 'irpf' => $irpf, 'total' => $base + $iva - $irpf, 'canal' => $canal, 'coste' => $coste,

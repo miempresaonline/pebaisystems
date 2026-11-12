@@ -159,8 +159,8 @@ function formFactura(f) {
       <label>Retención en tu factura<select name="irpf_pct">${opts([[7, '7 % (los 3 primeros años)'], [15, '15 %'], [0, 'Sin retención']], f.irpf_pct ?? D.ajustes.retencion)}</select></label>
       <label>¿Quién consiguió el cliente?<select name="canal">${opts(Object.entries(D.canales).map(([k, c]) => [k, `${c[0]} (${c[1]}/${c[2]}/${c[3]})`]), f.canal || 'daniel')}</select></label>
       <label>Costes directos de esta venta<input name="coste" value="${f.coste ? esc(centInput(f.coste)) : ''}" inputmode="decimal" placeholder="0,00"></label>
-      <label>Comisionista (si lo hay)<input name="comisionista" value="${esc(f.comisionista || '')}" maxlength="80" list="gs-coms" placeholder="Nadie"><datalist id="gs-coms">${comisionistas.map((c) => `<option value="${esc(c)}">`).join('')}</datalist></label>
-      <label>Su comisión<select name="com_pct">${opts([[7, '7 %'], [5, '5 %'], [10, '10 %']], f.com_pct ?? 7)}</select></label>
+      <label>Growth Partner (solo en la factura de implantación)<input name="comisionista" value="${esc(f.comisionista || '')}" maxlength="80" list="gs-coms" placeholder="Nadie"><datalist id="gs-coms">${comisionistas.map((c) => `<option value="${esc(c)}">`).join('')}</datalist></label>
+      <label>Su comisión<select name="com_pct">${opts([[8, '8 % (Growth Partner)'], [7, '7 %'], [5, '5 %'], [10, '10 %']], f.com_pct ?? 8)}</select></label>
       <label class="w3">Notas (no salen en la factura)<input name="notas" value="${esc(f.notas || '')}" maxlength="2000"></label>
     </div>
     <div class="gs-cuenta" id="gs-cuenta"></div>
@@ -201,7 +201,7 @@ function reparto() {
     <p class="gs-nota">Para hacerte factura, Adrián tiene que estar dado de alta como autónomo.</p>
   </section>
   <section class="gs-card">
-    <div class="gs-card-h"><h3>Comisionistas</h3><span>7 % que ponéis a medias Adrián y tú</span></div>
+    <div class="gs-card-h"><h3>Growth Partners</h3><span>8 % de la implantación, a medias entre Adrián y tú</span></div>
     ${R.comisionistas.length ? `<div class="gs-coms">${R.comisionistas.map((c) => { const p = c.generado - c.pagado; return `
       <div><b>${esc(c.nombre)}</b><span>Ganado ${E(c.generado)} · pagado ${E(c.pagado)}</span><em class="${p > 0 ? 'pend' : ''}">${p > 0 ? 'Le debes ' + E(p) : 'Al día'}</em>
       ${p > 0 ? `<button type="button" class="pb-btn ghost" data-pagar-com="${esc(c.nombre)}" data-imp="${p}">Apuntar pago</button>` : ''}</div>`; }).join('')}</div>`

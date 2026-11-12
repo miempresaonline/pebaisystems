@@ -57,7 +57,7 @@ function gestoria_db(): PDO
             canal TEXT NOT NULL DEFAULT "daniel",
             coste INTEGER NOT NULL DEFAULT 0,
             comisionista TEXT NOT NULL DEFAULT "",
-            com_pct REAL NOT NULL DEFAULT 7,
+            com_pct REAL NOT NULL DEFAULT 8,
             caja_id INTEGER NOT NULL DEFAULT 0,
             notas TEXT NOT NULL DEFAULT "",
             created_at TEXT NOT NULL,
@@ -129,7 +129,8 @@ function gestoria_siguiente_numero(string $fecha): string
     return $y . '-' . str_pad((string)$n, 3, '0', STR_PAD_LEFT);
 }
 
-/** Lo que le toca a cada uno de una factura cobrada. La comisión la ponen a medias Adrián y Daniel; la caja no se toca. */
+/** Lo que le toca a cada uno de una factura cobrada. La comisión del Growth Partner (8 %, solo sobre la implantación) la ponen
+ *  a medias Adrián y Daniel; la caja no se toca. */
 function gestoria_reparto(array $f): array
 {
     $c = GESTORIA_CANALES[$f['canal']] ?? GESTORIA_CANALES['daniel'];
