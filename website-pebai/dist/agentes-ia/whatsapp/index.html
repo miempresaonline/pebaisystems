@@ -2516,7 +2516,7 @@ html.notes .n-qs{display:inline-flex;margin-top:18px}
   if('MutationObserver' in window)new MutationObserver(syncDock).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class','hidden']});
   dockX.addEventListener('click',function(){dismissed=true;try{sessionStorage.setItem('pebai-dock','off');}catch(e){}syncDock();});
   if('IntersectionObserver' in window){
-    new IntersectionObserver(function(en){var e=en[0];pastHero=!e.isIntersecting&&e.boundingClientRect.top<0;syncDock();}).observe(heroCard);
+    new IntersectionObserver(function(en){var e=en[0];pastHero=!e.isIntersecting&&e.boundingClientRect.top<0;syncDock();}).observe(heroCard||document.body);
     new IntersectionObserver(function(en){atFinal=en[0].isIntersecting;syncDock();},{threshold:.15}).observe(finalSec);
     var cs=document.getElementById('casos');if(cs)new IntersectionObserver(function(en){inCases=en[0].isIntersecting;syncDock();}).observe(cs);
   }
