@@ -72,7 +72,7 @@ Los proyectos de implantación parten de 1.500 €.
 ## Casos
 
 - [Fran García Cars: aplicación de gestión de revisiones](https://pebaisystems.es/casos-de-exito/fran-garcia-cars/): importación y revisión de vehículos (España). App a medida con expedientes, fotos, revisores y licitaciones. A 22/10/2026: 659 usuarios, 400 unidades aprobadas y 98 % de tasa de aprobación.
-- [Fran García Cars: asistente de WhatsApp](https://pebaisystems.es/casos-de-exito/fran-garcia-cars-whatsapp/): asistente de Inteligencia Artificial con la información de la empresa que responde dudas frecuentes, agenda citas y deriva a una persona, gestionado desde un panel.
+- [Intotrans: cuadro de mando de su flota](https://pebaisystems.es/casos-de-exito/intotrans/): transporte de alimentación seca y perecedera para Consum (Aldaia, Valencia). Aplicación a medida que sustituye su Power BI: convierte el informe diario de Consum en un panel con facturación, camiones, conductores, tiendas y comparativa de meses, instalable en el móvil. Cifras comprobadas con su Power BI de septiembre de 2026.
 - [Construcciones Gargom: gestión de obras a medida](https://pebaisystems.es/casos-de-exito/construcciones-gargom/): construcción (España). Sustituye un programa antiguo: presupuestos, certificaciones, gastos, pagos, personal, proveedores y rentabilidad por obra en un solo sitio.
 - [Suministros Industriales Santacruz: plataforma de pedidos](https://pebaisystems.es/casos-de-exito/suministros-santacruz/): sedes en España, Francia, Países Bajos y Bélgica. App nueva y segura en 4 idiomas que sustituye otra de 20-30 años; base de datos migrada con 343 pedidos de 2026.
 

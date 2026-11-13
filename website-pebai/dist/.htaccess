@@ -37,6 +37,9 @@ RewriteRule ^sesion-estrategica(/.*)?$ consultoria-gratuita/ [R=301,L,QSA]
 # La portada de pruebas /nueva/ ya es la principal
 RewriteRule ^nueva(/.*)?$ / [R=301,L]
 
+# El caso del asistente de WhatsApp de Fran García Cars se retiró el 13/11/2026 (repetía cliente); lleva al caso de su aplicación
+RewriteRule ^casos-de-exito/fran-garcia-cars-whatsapp(/.*)?$ casos-de-exito/fran-garcia-cars/ [R=301,L]
+
 # Enlaces cortos para perfiles y mensajes: llevan al VSL con el origen ya puesto (ver docs/enlaces-y-utm.md).
 # Se puede añadir ?palabra=XXX (palabra clave de un Short) y se conserva (QSA).
 RewriteRule ^ig/?$ consultoria-gratuita/?utm_source=instagram&utm_medium=bio [R=302,L,QSA,NE]
