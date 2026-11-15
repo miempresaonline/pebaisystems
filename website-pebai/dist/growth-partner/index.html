@@ -156,6 +156,49 @@ textarea.in{height:auto;min-height:128px;padding:16px 18px;line-height:1.5;resiz
   .acts .btn{width:100%}
   .kbd{display:none}
 }
+@media (max-width:640px){
+  .opt{padding:15px 18px}
+  .opts{gap:8px;margin-top:22px}
+  .priv{margin-top:14px;font-size:13px}
+  .rgpd{margin-top:10px}
+  .q[data-q="7"] .field{margin-top:16px}
+  .q[data-q="7"] .field+.field{margin-top:10px}
+  .q[data-q="7"] .in{height:52px}
+  .q[data-q="7"] .acts{margin-top:18px}
+  .trust{padding-top:22px}
+}
+@media (max-height:860px){
+  body[data-paso="7"] .trust{display:none}
+  .q[data-q="7"] .field{margin-top:16px}
+  .q[data-q="7"] .field+.field{margin-top:10px}
+  .q[data-q="7"] .in{height:50px}
+  .q[data-q="7"] .priv{margin-top:12px}
+  .q[data-q="7"] .acts{margin-top:14px}
+  .q[data-q="7"] .h{margin-top:8px}
+  .q[data-q="7"] .rgpd{margin-top:8px}
+  main{padding-top:clamp(8px,3vh,32px)}
+  .prog{margin-bottom:26px}
+  .opts{margin-top:22px}
+  .trust{padding-top:20px}
+}
+@media (max-height:700px){
+  main{padding-top:0}
+  .prog{margin-bottom:20px}
+  .back{margin:-12px 0 12px}
+  .h{font-size:clamp(30px,8.6vw,38px)}
+  .sub{margin-top:10px;font-size:14.5px}
+  .opt{padding:13px 16px}
+  .opt small{font-size:13px}
+  .q[data-q="7"] .h{margin-top:6px}
+  .q[data-q="7"] label.l{margin-bottom:6px}
+  .q[data-q="7"] .in{height:48px}
+  textarea.in{min-height:110px}
+  .trust{padding-top:16px}
+  body[data-paso="7"] .trust{display:none}
+  .q[data-q="7"] .in{height:46px}
+  .q[data-q="7"] .priv{margin-top:12px;font-size:12.5px;line-height:1.45}
+  .q[data-q="7"] .btn{height:52px}
+}
 @media (prefers-reduced-motion:reduce){.q.on,.q.out-back,.state.on{animation:none}}
   </style>
   <script src="/utm.js?v=5"></script>
@@ -185,7 +228,7 @@ textarea.in{height:auto;min-height:128px;padding:16px 18px;line-height:1.5;resiz
       <section class="q on" data-q="1" aria-labelledby="t1">
         <p class="kick">Growth Partner · 8 % por cliente</p>
         <h1 class="h" id="t1">¿Tienes algún negocio en mente que nos <em>necesite?</em></h1>
-        <p class="sub">Tú nos lo presentas, nosotros cerramos y, si firma, te llevas un <b>8 %</b>. Sin poner dinero. Son 7 preguntas rápidas.</p>
+        <p class="sub">Tú nos lo presentas, nosotros cerramos y, si firma, te llevas un <b>8 %</b>. Sin poner dinero.</p>
         <div class="opts" role="group" aria-labelledby="t1"><button type="button" class="opt" data-negocio="uno"><span class="k">A</span><span><b>Sí, uno concreto</b><small>Ya sé a quién se lo diría.</small></span></button><button type="button" class="opt" data-negocio="varios"><span class="k">B</span><span><b>Sí, varios</b><small>Conozco a más de un negocio que lo necesita.</small></span></button><button type="button" class="opt" data-negocio="todavia"><span class="k">C</span><span><b>Todavía no</b><small>Pero conozco gente con negocio.</small></span></button></div>
       </section>
 
@@ -250,8 +293,8 @@ textarea.in{height:auto;min-height:128px;padding:16px 18px;line-height:1.5;resiz
           <label class="l" for="q-email">Email</label>
           <input class="in" id="q-email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="laura@email.com" enterkeyhint="done">
         </div>
-        <label class="priv"><input type="checkbox" id="q-papel"> <span>Entiendo que mi papel es <b>presentar al cliente interesado</b> y que PEBAI hace la llamada, la consultoría y el cierre. Cobro un <b>8 %</b> solo si el cliente firma.</span></label>
-        <label class="priv"><input type="checkbox" id="q-priv"> <span>He leído y acepto la <a href="/privacidad/" target="_blank" rel="noopener">política de privacidad</a> y autorizo el tratamiento de mis datos para valorar mi solicitud como Growth Partner.</span></label>
+        <label class="priv"><input type="checkbox" id="q-papel"> <span>Mi papel es <b>presentar al cliente</b>: PEBAI hace la llamada, la consultoría y el cierre. Cobro un <b>8 %</b> solo si firma.</span></label>
+        <label class="priv"><input type="checkbox" id="q-priv"> <span>Acepto la <a href="/privacidad/" target="_blank" rel="noopener">política de privacidad</a> y que tratéis mis datos para valorar mi solicitud.</span></label>
         <details class="rgpd"><summary>Información básica sobre protección de datos</summary><p><b>Responsable:</b> PEBAI Systems. <b>Finalidad:</b> valorar tu solicitud como Growth Partner y contactarte por WhatsApp o email. <b>Legitimación:</b> tu consentimiento. <b>Destinatarios:</b> no se ceden datos a terceros, salvo obligación legal. <b>Derechos:</b> acceder, rectificar y suprimir tus datos, y los demás que explica la <a href="/privacidad/" target="_blank" rel="noopener">política de privacidad</a>, escribiendo a equipo@pebaisystems.es.</p></details>
         <p class="err" id="e7" role="alert"></p>
         <div class="acts"><button type="submit" class="btn" id="send">Enviar solicitud</button></div>
@@ -265,7 +308,7 @@ textarea.in{height:auto;min-height:128px;padding:16px 18px;line-height:1.5;resiz
       <div class="acts"><button type="button" class="btn" id="retry">Reintentar</button><button type="button" class="link" id="fix">Revisar mis datos</button><a class="link" href="https://wa.me/34624842799" target="_blank" rel="noopener">Escríbenos por WhatsApp</a></div>
     </div>
 
-    <p class="trust"><b>Sin coste</b>· Sin compromiso · Te respondemos por WhatsApp en menos de 48 horas</p>
+    <p class="trust"><b>Sin coste</b>· Sin compromiso · Respuesta por WhatsApp en 48 h</p>
   </main>
 
   <script>
@@ -302,7 +345,7 @@ textarea.in{height:auto;min-height:128px;padding:16px 18px;line-height:1.5;resiz
     function show(n, dir) {
       steps.forEach(function (s, i) { s.classList.toggle('on', i === n - 1); s.classList.toggle('out-back', i === n - 1 && dir < 0); });
       bars.forEach(function (b, i) { b.classList.toggle('on', i < n); });
-      $('n').textContent = n; back.hidden = n === 1; cur = n;
+      $('n').textContent = n; back.hidden = n === 1; cur = n; document.body.setAttribute('data-paso', n);
       window.scrollTo(0, 0); focusStep(n); ev('growth_paso_' + n); cuenta(n);
     }
     function err(n, msg, el) { var e = $('e' + n); if (e) e.textContent = msg || ''; [].slice.call(steps[n - 1].querySelectorAll('.in')).forEach(function (i) { i.classList.remove('bad'); }); if (el) { el.classList.add('bad'); el.focus(); } return !msg; }
