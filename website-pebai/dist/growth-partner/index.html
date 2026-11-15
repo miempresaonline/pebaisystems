@@ -325,7 +325,16 @@ textarea.in{height:auto;min-height:128px;padding:16px 18px;line-height:1.5;resiz
     var P = new URLSearchParams(location.search);
     $('q-nombre').value = (P.get('nombre') || P.get('name') || '').trim();
     $('q-telefono').value = (P.get('telefono') || P.get('phone') || '').trim();
-    S.cta = (P.get('cta') || P.get('origen') || '').trim().slice(0, 60);
+    /* origen (15/11): ?utm_source=tiktok o tt → TikTok; ?cta=gp_menu → menú de la web; si no, quien llega desde Instagram
+       o con el enlace normal sin UTM cuenta como Instagram (ese es el enlace que se comparte allí) */
+    S.cta = (function () {
+      var u = (P.get('utm_source') || '').trim().toLowerCase(), c = (P.get('cta') || P.get('origen') || '').trim().toLowerCase(), r = (document.referrer || '').toLowerCase();
+      if (u === 'tiktok' || u === 'tt') return 'tiktok';
+      if (u) return u.replace(/[^a-z0-9_-]/g, '').slice(0, 40);
+      if (c) return c.replace(/[^a-z0-9_-]/g, '').slice(0, 40);
+      if (r.indexOf('tiktok') > -1) return 'tiktok';
+      return 'instagram';
+    })();
 
     /* embudo del formulario: cuántos llegan a cada paso (sin cookies ni identificadores: solo suma 1 por paso y día) */
     var vistos = {};

@@ -89,7 +89,7 @@ function pebai_gp_paso(int $paso, string $cta): void
 /** Nombre legible del origen (el «cta» de los enlaces de la web). */
 function pebai_gp_origen(string $cta, string $fuente = ''): string
 {
-    $mapa = ['gp_home' => 'Portada', 'gp_footer' => 'Pie de la web', 'gp_quienes' => 'Quiénes somos', 'gp_menu' => 'Menú', 'whatsapp' => 'WhatsApp'];
+    $mapa = ['tiktok' => 'TikTok', 'tt' => 'TikTok', 'instagram' => 'Instagram', 'gp_menu' => 'Menú de la web', 'gp_home' => 'Portada', 'gp_footer' => 'Pie de la web', 'gp_quienes' => 'Quiénes somos', 'whatsapp' => 'WhatsApp'];
     if (isset($mapa[$cta])) {
         return $mapa[$cta];
     }
