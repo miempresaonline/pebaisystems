@@ -259,12 +259,6 @@ textarea.in{height:auto;min-height:128px;padding:16px 18px;line-height:1.5;resiz
     </form>
 
     <div class="state" id="sending" aria-live="polite"><span class="spin" aria-hidden="true"></span><h2 class="h">Enviando tu <em>solicitud…</em></h2></div>
-    <div class="state" id="done" role="status">
-      <p class="kick">Growth Partner</p>
-      <h2 class="h">Solicitud <em>recibida.</em></h2>
-      <p class="sub">Gracias, <b id="done-nombre">ya la tenemos</b>. La revisamos y te escribimos por WhatsApp en menos de 48 horas para explicarte cómo funciona.</p>
-      <div class="acts"><a class="btn" href="/">Volver a la web</a></div>
-    </div>
     <div class="state" id="failed" role="alert">
       <h2 class="h">No se ha podido <em>enviar.</em></h2>
       <p class="sub" id="fail-msg">Revisa tu conexión y vuelve a intentarlo.</p>
@@ -362,7 +356,7 @@ textarea.in{height:auto;min-height:128px;padding:16px 18px;line-height:1.5;resiz
       return t;
     }
 
-    function state(id) { ['sending', 'done', 'failed'].forEach(function (s) { $(s).classList.toggle('on', s === id); }); f.hidden = !!id; back.hidden = !!id || cur === 1; }
+    function state(id) { ['sending', 'failed'].forEach(function (s) { $(s).classList.toggle('on', s === id); }); f.hidden = !!id; back.hidden = !!id || cur === 1; }
 
     function submit() {
       if (sending) return;
@@ -400,10 +394,10 @@ textarea.in{height:auto;min-height:128px;padding:16px 18px;line-height:1.5;resiz
         .then(function (x) {
           clearTimeout(to);
           if (!x.ok || !x.j || x.j.status !== 'ok') { fail(x.j && x.j.message); return; }
-          ev('growth_enviado'); sending = false;
-          $('done-nombre').textContent = S.nombre.split(' ')[0];
-          bars.forEach(function (b) { b.classList.add('on'); });
-          state('done'); window.scrollTo(0, 0);
+          ev('growth_enviado');
+          var nextUrl = '/growth-partner/enviado/?solicitud=' + encodeURIComponent(x.j.id || '');
+          if (window.PEBAI_FUNNEL) window.PEBAI_FUNNEL.go({ title: 'Solicitud enviada', detail: S.nombre, note: 'Preparando el siguiente paso…', href: nextUrl });
+          else location.href = nextUrl;
         })
         .catch(function () { clearTimeout(to); fail(''); });
     }

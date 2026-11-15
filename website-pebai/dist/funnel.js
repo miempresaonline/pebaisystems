@@ -1,6 +1,6 @@
 /*
  * PEBAI · Componentes compartidos del embudo (ver funnel.css)
- * Uso: <script src="/funnel.js" data-step="2" defer></script>
+ * Uso: <script src="/funnel.js" data-step="2" defer></script>  (data-steps="A,B,C" cambia los nombres de los pasos)
  * API: PEBAI_FUNNEL.go({ title, detail, note, href })
  */
 (function () {
@@ -11,6 +11,8 @@
   var CHECK = '<svg viewBox="0 0 132 132" aria-hidden="true"><path d="M42 68 L59 85 L92 50"/></svg>';
   var me = document.currentScript;
   var step = parseInt((me && me.getAttribute('data-step')) || '0', 10);
+  var propios = me && me.getAttribute('data-steps');
+  if (propios) STEPS = propios.split(',').map(function (x) { return x.trim(); }).filter(Boolean);
 
   function stepper(current) {
     var ol = document.createElement('ol');
