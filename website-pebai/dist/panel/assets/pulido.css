@@ -8,7 +8,7 @@
 :root[data-theme=light] #pb-theme svg{transform:rotate(360deg)}
 
 /* Indicador que viaja entre opciones */
-.pb-con-ind{position:relative}
+.pb-con-ind:not(.pb-pastilla){position:relative}   /* la pastilla de abajo ya es fija: no tocar su posición */
 .pb-con-ind>button{position:relative;z-index:1}
 .pb-con-ind>button.on{background:none!important;box-shadow:none!important}
 .pb-ind{position:absolute;z-index:0;display:block;border-radius:999px;pointer-events:none;background:var(--violet);box-shadow:0 6px 18px var(--violet-glow);

@@ -25,9 +25,9 @@ const limpia = (s) => String(s || '').replace(/\s*[|–—-]\s.*$/u, '').replace
 const ST = { trabajando: ['#3DDC84', 'Trabajando'], espera: ['#FFB547', 'En espera'], dormido: ['#6F7189', 'Durmiendo'], pausado: ['#8E84FF', 'En pausa'], error: ['#FF5E6C', 'Con error'], apagado: ['#3A3D52', 'Apagado'] };
 const TIPO = {
   solicitud: ['Solicitud', '#B7FF3C'], cita: ['Cita', '#25D366'], interesado: ['Interesado', '#B7FF3C'], respuesta: ['Respuesta', '#3FD5FF'],
-  demo: ['Demo abierta', '#FB923C'], ia: ['Claude', '#FF5E6C'], plazo: ['Plazo', '#FFB547'], sistema: ['Sistema', '#FF5E6C'],
+  demo: ['Demo abierta', '#FB923C'], growth: ['Growth Partner', '#8E84FF'], ia: ['Claude', '#FF5E6C'], plazo: ['Plazo', '#FFB547'], sistema: ['Sistema', '#FF5E6C'],
 };
-const GRUPOS = [['', 'Todo'], ['demo', 'Demos'], ['resp', 'Respuestas'], ['sol', 'Solicitudes'], ['cita', 'Citas']];
+const GRUPOS = [['', 'Todo'], ['demo', 'Demos'], ['resp', 'Respuestas'], ['sol', 'Solicitudes'], ['cita', 'Citas'], ['gp', 'Partners']];
 const PAGINA = 8;
 
 let G = null;

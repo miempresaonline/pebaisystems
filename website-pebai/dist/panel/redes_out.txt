@@ -1,0 +1,51 @@
+tt 2026-10-27 20:05 dur= 22.0 v=  351 | Comenta RESPUESTA y te mandamos un mensaje con la solicitud. #atencion
+tt 2026-10-26 20:35 dur= 35.0 v=  276 | Comenta CONSULTORÍA y te enviamos la solicitud. Gratuita para cinco em
+tt 2026-10-25 20:00 dur= 37.0 v=  384 | Déjanos ahorrarte mucho dinero con una simple llamada de 25 min #consu
+tt 2026-10-23 19:11 dur= 38.0 v=  279 | Comenta CONSULTORÍA y te enviamos el formulario. Gratuita para cinco e
+tt 2026-10-22 20:30 dur= 45.0 v=  389 | Comenta RESPUESTA y te enviamos el formulario. Plazas limitadas. #aten
+tt 2026-10-22 08:00 dur= 26.0 v=  503 | Deja de MALGASTAR dinero en Nominas INNECESARIAS #automatizacion #para
+tt 2026-10-21 14:00 dur= 24.0 v=  831 | Se el NUMERO 1 en tu competencia y el primero en captar todos los clie
+tt 2026-10-20 19:30 dur= 37.0 v=  688 | Cinco plazas este mes. Comenta CONSULTORÍA y te enviamos la solicitud 
+tt 2026-10-19 20:05 dur= 32.0 v=  470 | Comenta CONSULTORÍA y te enviamos la solicitud para valorar si encaja 
+tt 2026-10-19 14:01 dur= 22.0 v=  731 | Haz que TUS CLIENTES te Encuentren FÁCIL #consultoria#automatizacion #
+tt 2026-10-18 21:05 dur= 22.0 v= 1081 | Deja de PERDER Clientes con Este MÉTODO#consultoria #automatizacion #p
+ig 2026-10-27 20:33 dur= 23.0 v=  123 | Precio, horario, disponibilidad. Si tu equipo responde lo mismo cada d
+ig 2026-10-26 20:39 dur= 35.0 v=   97 | Si mañana se corrompe vuestro Excel de pedidos, ¿cuánto tardaría tu em
+ig 2026-10-25 20:01 dur= 38.0 v=  109 | Déjanos Ahorrarte Mucho DINERO con una Simple llamada de 20 min #consu
+ig 2026-10-23 19:11 dur= 38.0 v=   87 | Antes de invertir en Inteligencia Artificial, conviene saber dónde la 
+ig 2026-10-22 20:35 dur=  0.0 v=   76 | Tu cliente no compara quién lo hace mejor. Se queda con quien le conte
+ig 2026-10-22 20:00 dur= 27.0 v=   68 | Deja de MALGASTAR dinero en Nominas INNECESARIAS #automatizacion #para
+ig 2026-10-21 14:00 dur= 24.0 v=   92 | Se el NUMERO 1 en tu competencia y el primero en captar todos los clie
+ig 2026-10-20 19:30 dur= 37.0 v=  182 | Cinco consultorías gratuitas este mes. Comenta CONSULTORÍA y te enviam
+ig 2026-10-19 20:03 dur= 32.0 v=  204 | Tu equipo no necesita trabajar más horas. Necesita dejar de hacer lo q
+ig 2026-10-19 14:00 dur= 22.0 v=   85 | Haz que TUS CLIENTES te Encuentren FÁCIL#consultoria#consultoria #empr
+ig 2026-10-18 21:07 dur=  0.0 v=   54 | Deja de PERDER Clientes con Este MÉTODO#consultoria #automatizacion #p
+yt 2026-10-27 20:03 dur= 23.0 v=   31 | Deja de responder SIEMPRE lo mismo a tus Clientes.
+yt 2026-10-26 20:34 dur= 36.0 v=   88 | ¿Tu EMPRESA Depende de un Excel? Mira ESTO
+yt 2026-10-25 20:00 dur= 38.0 v=  143 | 5 PLAZAS para Consultoría GRATIUTA
+yt 2026-10-23 19:12 dur= 39.0 v=   77 | Consultoría de IA gratuita, pero no para todas las empresas
+yt 2026-10-22 20:30 dur= 46.0 v=   24 | La EMPRESA que te Quita Clientes no es MEJOR que Tú
+yt 2026-10-22 08:00 dur= 27.0 v=   27 | Deja de MALGASTAR dinero en Nominas INNECESARIAS
+yt 2026-10-21 11:36 dur= 25.0 v=  624 | Se el NUMERO 1 en Tu COMPETENCIA y el Primero en CAPTAR Todos los Clie
+yt 2026-10-20 19:30 dur= 38.0 v=   60 | 5 consultorías de IA gratuitas este mes
+yt 2026-10-19 20:00 dur= 33.0 v=  604 | Si tu EMPRESA Tiene más de 3 empleados, mira esto
+yt 2026-10-19 14:04 dur= 23.0 v=  104 | Haz que TUS CLIENTES te Encuentren FÁCIL
+yt 2026-10-18 21:09 dur= 23.0 v=   38 | Deja de PERDER Clientes con Este MÉTODO
+yt 2026-10-16 20:00 dur=  0.0 v=  192 | Deja de Automatizar TODO sin Ver este Video Antes
+yt 2026-10-15 20:00 dur=  0.0 v=   50 | Deja de Perder CLIENTES por NO Contestar las LLAMADAS #inteligenciaart
+yt 2026-10-14 09:15 dur=  0.0 v=    1 | ¿Tu empresa existe para la IA? Haz esta prueba
+yt 2026-10-13 14:00 dur=  0.0 v=   13 | Lo que la IA ya Puede Hacer dentro de TU EMPRESA (casos reales)
+fb 2026-10-27 20:32 dur= 22.6 v=    8 | Precio, horario, disponibilidad. Si tu equipo responde lo mismo cada d
+fb 2026-10-26 20:38 dur= 35.1 v=   38 | Si mañana se corrompe vuestro Excel de pedidos, ¿cuánto tardaría tu em
+fb 2026-10-25 20:01 dur= 37.9 v=    8 | Déjanos Ahorrarte Mucho DINERO con una Simple llamada de 20 min #consu
+fb 2026-10-23 19:10 dur= 38.4 v=   20 | Antes de invertir en Inteligencia Artificial, conviene saber dónde la 
+fb 2026-10-22 20:00 dur= 26.5 v=    5 | Deja de MALGASTAR dinero en Nominas INNECESARIAS #automatizacion #para
+fb 2026-10-21 14:00 dur= 24.1 v=  155 | Se el NUMERO 1 en tu competencia y el primero en captar todos los clie
+fb 2026-10-20 19:30 dur= 37.3 v=    3 | Cinco consultorías gratuitas este mes. Solicita la tuya aquí: https://
+fb 2026-10-19 20:02 dur= 32.0 v=   48 | Tu equipo no necesita trabajar más horas. Necesita dejar de hacer lo q
+fb 2026-10-19 13:58 dur= 22.3 v=  129 | Haz que TUS CLIENTES te Encuentren FÁCIL#consultoria #empresas #automa
+fb 2026-10-18 21:05 dur= 22.3 v=   17 | Deja de PERDER Clientes con Este MÉTODO#consultoria #automatizacion #p
+--- tiktok raw keys:
+{"openId":"11cae6ea-e962-59a4-9404-5190b5130937","videoId":"7701297979050839318","type":"VIDEO","createTime":"2026-10-27T20:05:00+0100","coverImageUrl":"https:\/\/static.metricool.com\/tkvideocovers\/202610\/7537996-7701297979050839318.jpeg","shareUrl":"https:\/\/www.tiktok.com\/@pebaisystems\/video\/7701297979050839318?utm_campaign=tt4d_open_api&utm_source=awwuexz91plpu87c","duration":22,"height":1920,"width":1080,"title":"Comenta RESPUESTA y te mandamos un mensaje con la solicitud. #atencionalcliente #whatsapp #automatizacion #inteligenciaartificial #empresas","likeCount":12,"commentCount":0,"shareCount":0,"viewCount":351,"engagement":3.4188034188034186,"impressionSources":{"forYou":null,"follow":null,"hashtag":null,"sound":null,"personalProfile":null,"search":null},"tags":[]}
+--- yt raw keys:
+{"videoId":"8-T8pZVMgFQ","thumbnailUrl":"https:\/\/i.ytimg.com\/vi\/8-T8pZVMgFQ\/default.jpg","watchUrl":"https:\/\/www.youtube.com\/watch?v=8-T8pZVMgFQ","title":"Deja de responder SIEMPRE lo mismo a tus Clientes.","publishedAt":{"dateTime":"2026-10-27T20:03:23","timezone":"Europe\/Madrid"},"views":31,"engagedViews":0,"watchMinutes":0.8435,"averageViewDuration":1.6325806451612905,"likes":0,"dislikes":0,"comments":0,"shares":0,"durationSeconds":23,"videoType":"SHORT","tags":[],"hasRevenueData":false}
