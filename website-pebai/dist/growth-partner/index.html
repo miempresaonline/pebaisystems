@@ -331,6 +331,8 @@ textarea.in{height:auto;min-height:128px;padding:16px 18px;line-height:1.5;resiz
       var u = (P.get('utm_source') || '').trim().toLowerCase(), c = (P.get('cta') || P.get('origen') || '').trim().toLowerCase(), r = (document.referrer || '').toLowerCase();
       if (u === 'tiktok' || u === 'tt') return 'tiktok';
       if (u) return u.replace(/[^a-z0-9_-]/g, '').slice(0, 40);
+      var at = (window.PEBAI_ATTR && window.PEBAI_ATTR.get) ? window.PEBAI_ATTR.get() : null, red = ((at && at.last && at.last.utm_source) || '').toLowerCase();
+      if (['tiktok', 'tt', 'instagram', 'facebook', 'youtube', 'linkedin', 'whatsapp'].indexOf(red) > -1) return red === 'tt' ? 'tiktok' : red;
       if (c) return c.replace(/[^a-z0-9_-]/g, '').slice(0, 40);
       if (r.indexOf('tiktok') > -1) return 'tiktok';
       return 'instagram';

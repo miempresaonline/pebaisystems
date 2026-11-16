@@ -4,7 +4,7 @@
  *   pebai_gp_db()        → tablas en la base privada del panel (leads.sqlite)
  *   pebai_gp_encaje()    → puntuación de 0 a 15 según sus respuestas, para saber a quién llamar primero
  *   pebai_gp_estado()    → todo lo que enseña la sección Growth Partner del panel
- * El embudo del formulario (cuántos llegan a cada paso) se guarda sumado por día, paso y origen: sin cookies ni identificadores.
+ * El embudo del formulario (cuántos llegan a cada paso) se guarda sumado por hora, paso y origen: sin cookies ni identificadores.
  */
 require_once __DIR__ . '/_pebai_lib.php';
 
@@ -83,12 +83,17 @@ function pebai_gp_encaje(array $r): int
 function pebai_gp_paso(int $paso, string $cta): void
 {
     pebai_gp_db()->prepare('INSERT INTO gp_pasos (fecha, paso, cta, n) VALUES (?, ?, ?, 1) ON CONFLICT(fecha, paso, cta) DO UPDATE SET n = n + 1')
-        ->execute([date('Y-m-d'), $paso, $cta]);
+        ->execute([date('Y-m-d H:00'), $paso, $cta]);
 }
 
 /** Nombre legible del origen (el «cta» de los enlaces de la web). */
 function pebai_gp_origen(string $cta, string $fuente = ''): string
 {
+    // Si la persona vino de una red (aunque luego entrara por el menú de la web), cuenta esa red
+    $redes = ['tiktok' => 'TikTok', 'tt' => 'TikTok', 'instagram' => 'Instagram', 'facebook' => 'Facebook', 'youtube' => 'YouTube', 'linkedin' => 'LinkedIn', 'whatsapp' => 'WhatsApp'];
+    if (isset($redes[strtolower($fuente)])) {
+        return $redes[strtolower($fuente)];
+    }
     $mapa = ['tiktok' => 'TikTok', 'tt' => 'TikTok', 'instagram' => 'Instagram', 'gp_menu' => 'Menú de la web', 'gp_home' => 'Portada', 'gp_footer' => 'Pie de la web', 'gp_quienes' => 'Quiénes somos', 'whatsapp' => 'WhatsApp'];
     if (isset($mapa[$cta])) {
         return $mapa[$cta];
@@ -128,7 +133,7 @@ function pebai_gp_estado(): array
     for ($i = 29; $i >= 0; $i--) {
         $serie[date('Y-m-d', strtotime("-$i days"))] = ['visitas' => 0, 'solicitudes' => 0];
     }
-    $q = $db->prepare('SELECT fecha, SUM(n) n FROM gp_pasos WHERE paso = 1 AND fecha >= ? GROUP BY fecha');
+    $q = $db->prepare('SELECT substr(fecha, 1, 10) fecha, SUM(n) n FROM gp_pasos WHERE paso = 1 AND fecha >= ? GROUP BY substr(fecha, 1, 10)');
     $q->execute([$desde]);
     foreach ($q as $r) {
         if (isset($serie[$r['fecha']])) {
