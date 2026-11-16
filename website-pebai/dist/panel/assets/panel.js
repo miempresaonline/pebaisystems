@@ -259,7 +259,7 @@ function avisarNuevas() {
   S.conocidas = ids;
   const sinRevisar = S.leads.filter((l) => l.estado === 'nuevo').length;
   document.title = (sinRevisar ? '(' + sinRevisar + ') ' : '') + BASE_TITLE;
-  const dot = $('#pb-leads-dot'); if (dot) dot.hidden = !sinRevisar;
+  const dot = $('#pb-leads-dot'); if (dot) dot.hidden = true;   // ya lo dice el número del menú
 }
 function ping() {
   try { const a = new (window.AudioContext || window.webkitAudioContext)(); const o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = 880; g.gain.setValueAtTime(.0001, a.currentTime); g.gain.exponentialRampToValueAtTime(.12, a.currentTime + .02); g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + .5); o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + .5); } catch (e) {}
@@ -720,7 +720,8 @@ document.addEventListener('keydown', (e) => {
 /* ============ ciclo de dibujo ============ */
 function draw() {
   $$('#pb-periodo button').forEach((b) => b.classList.toggle('on', b.dataset.p === ui.periodo));
-  $('#pb-leads-n').textContent = S.loaded ? N(S.leads.length) : '—';
+  // El número del menú avisa solo de lo que falta por revisar; sin nada pendiente, no sale (16/11)
+  { const pend = S.loaded ? S.leads.filter((l) => l.estado === 'nuevo').length : 0, e = $('#pb-leads-n'); e.textContent = pend ? N(pend) : ''; e.style.display = pend ? '' : 'none'; }
   $('#pb-citas-n').textContent = S.loaded ? N(citasClasificadas().filter((x) => x.tramo === 'proximas').length) : '—';
   if (!S.loaded) return;
   // El resumen de toda la app lo pinta global.js; el análisis del formulario vive en Solicitudes

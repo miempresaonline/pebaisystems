@@ -25,7 +25,7 @@ async function cargar() {
   if (r.status === 401) { if (window.pbCaduca) pbCaduca(); return false; }
   const j = await r.json(); if (!j.ok) throw new Error(j.error || 'Sin datos');
   const f = JSON.stringify(j); const cambio = f !== firma; firma = f; D = j;
-  const n = document.getElementById('pb-gp-n'); if (n) n.textContent = N(D.cifras.nuevos);
+  const n = document.getElementById('pb-gp-n'); if (n) { n.textContent = D.cifras.nuevos ? N(D.cifras.nuevos) : ''; n.style.display = D.cifras.nuevos ? '' : 'none'; }
   return cambio;
 }
 
