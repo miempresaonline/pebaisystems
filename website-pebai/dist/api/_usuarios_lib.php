@@ -20,7 +20,7 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
 }
 require_once __DIR__ . '/_pebai_lib.php';
 
-const PEBAI_ROLES = ['admin' => 'Administrador', 'socio' => 'Socio'];
+const PEBAI_ROLES = ['admin' => 'Administrador', 'socio' => 'Setter y closer'];   // el rol interno sigue siendo «socio»; Daniel quiere que se vea así (17/11)
 const PEBAI_CLAVE_MIN = 10;          // largo mínimo de una contraseña nueva
 const PEBAI_RESET_SEG = 3600;        // el enlace de «He olvidado mi contraseña» vale 1 hora
 const PEBAI_INTENTOS_MAX = 8;        // intentos fallidos de entrar en 15 min, por dispositivo (IP) y por cuenta
