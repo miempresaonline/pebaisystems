@@ -670,7 +670,7 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '152';
+$v = '153';
 $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
@@ -707,6 +707,7 @@ $next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING']
 <link rel="stylesheet" href="<?= BASE ?>assets/buscar.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/movil.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/solicitudes.css?v=<?= $v ?>">
+<link rel="stylesheet" href="<?= BASE ?>assets/comun.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/glass.css?v=<?= $v ?>">
 <link rel="stylesheet" href="<?= BASE ?>assets/pulido.css?v=<?= $v ?>">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
@@ -817,28 +818,36 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
   </div>
 
   <section class="pb-page" id="page-resumen" data-page="resumen">
-    <h1 class="pb-h1"><span id="pb-saludo">Hola</span>, <i>equipo</i></h1>
-    <div class="pb-plazas" id="pb-plazas-resumen"></div>
+    <div class="pbx-cab pgx-cab">
+      <div><h1 class="pb-h1"><span id="pb-saludo">Hola</span>, <i>equipo</i></h1><p class="pbx-sub" id="pb-res-linea"></p></div>
+      <div class="pb-plazas" id="pb-plazas-resumen"></div>
+    </div>
     <div id="pb-global" class="pg"></div>
   </section>
 
   <section class="pb-page" id="page-solicitudes" data-page="solicitudes">
-    <!-- Lo primero, las solicitudes (Daniel, 30/10); lo que toca, las plazas y el análisis, debajo -->
-    <div class="pb-sol-cab">
-      <h1 class="pb-h1">Solicitudes</h1>
-      <div class="pb-filters">
-        <div class="grow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pb-q" type="search" placeholder="Buscar empresa, teléfono, email…" aria-label="Buscar"><span class="pb-kbd">/</span></div>
-        <details class="pb-masfiltros"><summary class="pb-btn ghost">Filtros</summary><div>
-          <select id="pb-f-estado" aria-label="Estado"><option value="">Todos los estados</option></select>
-          <select id="pb-f-fuente" aria-label="Fuente"><option value="">Todas las fuentes</option></select>
-          <select id="pb-f-opcion" aria-label="Opción"><option value="">Con y sin presupuesto</option><option value="A">Con presupuesto</option><option value="B">Explorando</option></select>
-          <select id="pb-f-canal" aria-label="De quién es"><option value="">Todos</option></select>
-          <button class="pb-btn ghost" id="pb-limpiar" type="button">Limpiar</button>
-        </div></details>
-      </div>
+    <!-- Rediseño 17/11: el embudo arriba (pulsar un paso filtra), primero lo que te toca, filas de una línea y la ficha al lado (debajo de la fila en el móvil) -->
+    <div class="pbx-cab"><h1 class="pbx-h1">Solicitudes, <i>en marcha</i></h1></div>
+    <div class="so-top">
+      <div id="so-etapas"></div>
+      <aside class="pbx-c so-fuera" id="so-fuera"></aside>
     </div>
-    <div class="pb-chips" id="pb-chips"></div>
-    <div class="pb-list" id="pb-leads"></div>
+    <div class="so-main">
+      <div class="so-lista">
+        <div class="pb-filters so-filtros">
+          <div class="grow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pb-q" type="search" placeholder="Buscar empresa, teléfono o email" aria-label="Buscar"><span class="pb-kbd">/</span></div>
+          <details class="pb-masfiltros"><summary class="pb-btn ghost">Filtros</summary><div>
+            <select id="pb-f-fuente" aria-label="Fuente"><option value="">Todas las fuentes</option></select>
+            <select id="pb-f-opcion" aria-label="Opción"><option value="">Con y sin presupuesto</option><option value="A">Con presupuesto</option><option value="B">Explorando</option></select>
+            <select id="pb-f-canal" aria-label="De quién es"><option value="">Todos</option></select>
+            <button class="pb-btn ghost" id="pb-limpiar" type="button">Limpiar</button>
+          </div></details>
+        </div>
+        <div id="so-activo"></div>
+        <div class="so-filas" id="pb-leads"></div>
+      </div>
+      <aside class="pbx-c so-ficha" id="so-ficha" aria-label="Ficha de la solicitud"></aside>
+    </div>
     <div class="pb-sol-abajo">
     <details class="pb-analisis" id="pb-analisis">
       <summary><b>Análisis de las solicitudes</b><span>Embudo, ritmo de entrada y de dónde vienen · periodo de arriba</span></summary>
@@ -883,35 +892,45 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
   </section>
 
   <section class="pb-page" id="page-citas" data-page="citas">
-    <h1 class="pb-h1">Agenda de <i>sesiones técnicas</i></h1>
-    <p class="pb-lead">Reservas de Cal.com. Las pasadas se marcan como asistió o no se presentó; las hechas sin enlace del panel se unen a su solicitud.</p>
-    <div class="pb-plazas" id="pb-plazas-citas"></div>
-    <div class="pb-grid two">
-      <div>
-        <div class="pb-card" style="margin-bottom:14px"><h2>Próximas</h2><p class="note">Con recordatorios automáticos a 24 h y 1 h.</p><div class="pb-agenda" id="pb-proximas"></div></div>
-        <div class="pb-card"><h2>Citas sin solicitud</h2><p class="note">Reservas hechas sin el enlace del panel. Escribe el número de solicitud para unirlas.</p><div class="pb-agenda" id="pb-sinvincular"></div></div>
-      </div>
-      <div class="pb-card"><h2>Pasadas · marca si asistió</h2><p class="note">Marcar asistencia actualiza el estado de la solicitud.</p><div class="pb-agenda" id="pb-pasadas"></div></div>
+    <!-- Rediseño 17/11: la próxima cita manda, la semana en calendario y de las pasadas solo las que falta marcar -->
+    <div class="pbx-cab"><h1 class="pbx-h1">Agenda de <i>sesiones técnicas</i></h1><div class="pb-plazas ci-plazas" id="pb-plazas-citas"></div></div>
+    <div class="ci-top">
+      <article class="pbx-c pbx-heroe ci-prox" id="ci-prox"></article>
+      <article class="pbx-c ci-sem" id="ci-semana"></article>
     </div>
+    <div class="ci-mid">
+      <article class="pbx-c" id="ci-marcar"></article>
+      <article class="pbx-c" id="ci-asis"></article>
+    </div>
+    <div id="ci-sinsol"></div>
+    <details class="pbx-pleg ci-hist" id="ci-hist"><summary>Citas pasadas <em id="ci-hist-n"></em></summary><div class="pbx-pleg-in"><div class="pb-agenda" id="pb-pasadas"></div></div></details>
   </section>
 
   <section class="pb-page" id="page-conversaciones" data-page="conversaciones">
-    <div class="pb-pagehead"><div>
-      <div class="pb-eyebrow">Captación · CRM</div>
-      <h1 class="pb-h1">Conversaciones, <i>una a una</i></h1>
-      <p class="pb-lead">Todo lo que han enviado los agentes por WhatsApp y email, y lo que ha contestado cada empresa. La IA lee cada respuesta y la clasifica sola.</p>
+    <div class="pbx-cab pc-cab"><div>
+      <h1 class="pbx-h1">Conversaciones, <i>una a una</i></h1>
+      <p class="pbx-sub">Lo que escriben los agentes y lo que contesta cada empresa. La IA solo lo lee y lo clasifica.</p>
     </div></div>
-    <div class="pc-kpis" id="pc-kpis"></div>
+    <div class="pc-etapas" id="pc-etapas"></div>
     <div class="pc-bar">
-      <div class="pc-estados" id="pc-estados"></div>
+      <div class="pbx-chips una pc-estados" id="pc-estados" role="group" aria-label="Estado"></div>
       <div class="pc-tools">
-        <div class="pc-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pc-q" type="search" placeholder="Buscar empresa, ciudad, teléfono, lo que contestaron…" aria-label="Buscar conversaciones"></div>
-        <div class="pb-seg" id="pc-canal" aria-label="Canal"><button data-c="" type="button">Todos</button><button data-c="whatsapp" type="button">WhatsApp</button><button data-c="email" type="button">Email</button></div>
-        <div class="pb-seg" id="pc-periodo" aria-label="Periodo"><button data-p="hoy" type="button">Hoy</button><button data-p="7" type="button">7 días</button><button data-p="30" type="button">30 días</button><button data-p="todo" type="button">Todo</button></div>
+        <div class="pc-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pc-q" type="search" placeholder="Buscar empresa, ciudad…" aria-label="Buscar conversaciones"></div>
+        <div class="pc-mas">
+          <button class="pbx-btn ico" id="pc-filtro" type="button" title="Canal y periodo" aria-label="Canal y periodo" aria-expanded="false" aria-controls="pc-pop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg><i class="pc-punto" hidden></i></button>
+          <div class="pc-pop" id="pc-pop" hidden>
+            <small>Canal</small>
+            <div class="pb-seg" id="pc-canal" aria-label="Canal"><button data-c="" type="button">Todos</button><button data-c="whatsapp" type="button">WhatsApp</button><button data-c="email" type="button">Email</button></div>
+            <small>Periodo</small>
+            <div class="pb-seg" id="pc-periodo" aria-label="Periodo"><button data-p="hoy" type="button">Hoy</button><button data-p="7" type="button">7 días</button><button data-p="30" type="button">30 días</button><button data-p="todo" type="button">Todo</button></div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="pc-head"><span>Empresa</span><span>Enviado</span><span>Estado</span><span>Qué ha dicho</span><span></span></div>
-    <div class="pc-lista" id="pc-lista"></div>
+    <div class="pc-bandeja">
+      <div class="pbx-c pc-lista" id="pc-lista" role="list" aria-label="Conversaciones"></div>
+      <div class="pbx-c pc-panel" id="pc-panel" aria-label="Conversación abierta"></div>
+    </div>
   </section>
 
   <section class="pb-page" id="page-prospectos" data-page="prospectos">
@@ -1028,6 +1047,7 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>
 <script src="<?= BASE ?>assets/icons.js?v=<?= $v ?>" defer></script>
+<script src="<?= BASE ?>assets/comun.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/panel.js?v=<?= $v ?>" defer></script>
 <script>window.PB_TAB = new URLSearchParams(location.search).get('tab');</script>
 <script src="<?= BASE ?>assets/agentes.js?v=<?= $v ?>" defer></script>

@@ -133,6 +133,7 @@ async function load() {
   S.canales = j.canales || []; S.conocio = j.conocio || {};
   // Solicitudes = solo las del formulario. Los clientes de trato directo (WhatsApp, email, llamada) van aparte.
   S.todos = j.leads; S.leads = j.leads.filter((l) => l.tipo !== 'cliente'); S.clientes = j.leads.filter((l) => l.tipo === 'cliente'); S.citas = j.citas; S.ahora = parse(j.ahora); S.ahoraUTC = new Date(j.ahora_utc); S.csrf = j.csrf; S.loaded = true;
+  S.desfase = isNaN(S.ahoraUTC) ? 0 : S.ahoraUTC.getTime() - Date.now();   // la cuenta atrás de Citas sigue el reloj del servidor
   S.eventos = d3.group(j.eventos || [], (e) => e.lead_id);
   avisarNuevas();
 }
@@ -176,30 +177,36 @@ $('#pb-theme').addEventListener('click', (e) => {
   vt.ready.then(() => root.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radio}px at ${x}px ${y}px)`] }, { duration: 620, easing: 'cubic-bezier(.22,1,.36,1)', pseudoElement: '::view-transition-new(root)' })).catch(() => {});
 });
 
-const fEstado = $('#pb-f-estado'), fFuente = $('#pb-f-fuente'), fOpcion = $('#pb-f-opcion'), fCanal = $('#pb-f-canal'), fQ = $('#pb-q');
+// El estado ya no va en «Filtros»: se elige pulsando un paso del embudo o «Fuera del embudo» (17/11)
+const fFuente = $('#pb-f-fuente'), fOpcion = $('#pb-f-opcion'), fCanal = $('#pb-f-canal'), fQ = $('#pb-q');
 fCanal.addEventListener('change', () => set({ canal: fCanal.value || null, limit: 120 }));
-Object.entries(ESTADOS).forEach(([k, v]) => fEstado.append(new Option(v[0], k)));
-fEstado.addEventListener('change', () => set({ estado: fEstado.value || null, limit: 120 }));
 fFuente.addEventListener('change', () => set({ fuente: fFuente.value || null, limit: 120 }));
 fOpcion.addEventListener('change', () => set({ opcion: fOpcion.value || null, limit: 120 }));
 fQ.addEventListener('input', () => { clearTimeout(fQ.h); fQ.h = setTimeout(() => set({ q: fQ.value.trim() || null, limit: 120 }), 160); });
 $('#pb-limpiar').addEventListener('click', () => { fQ.value = ''; set({ estado: null, fuente: null, opcion: null, canal: null, q: null, limit: 120 }); });
 document.addEventListener('keydown', (e) => {
-  if (e.key === '/' && document.activeElement !== fQ && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && ui.sel == null) { e.preventDefault(); showPage('solicitudes'); fQ.focus(); }
-  if (e.key === 'Escape') closeDetail();
+  if (e.key === '/' && document.activeElement !== fQ && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); if (ui.page !== 'solicitudes') showPage('solicitudes'); fQ.focus(); }
+  if (e.key === 'Escape' && ui.page === 'solicitudes' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) closeDetail();
 });
 
 const marcarVista = (id) => {
   const l = S.todos.find((x) => x.id === Number(id));
   if (!l || l.estado !== 'nuevo') return;
-  l.estado = 'contactado'; // respuesta inmediata en pantalla; el servidor lo confirma
+  l.estado = 'contactado'; S.recien = l.id; // respuesta inmediata en pantalla; el servidor lo confirma (y sigue en «Te toca» mientras su ficha esté abierta)
   post('visto', { id: l.id }).then(() => { toast(l.empresa + ' pasa a En revisión.'); draw(); }).catch(() => {});
 };
 const registrar = (id, tipo) => { post('contacto', { id, tipo }).then(draw).catch(() => {}); };
-const openDetail = (id) => { marcarVista(id); $('#pb-drawer').classList.add('on'); $('#pb-veil').classList.add('on'); document.body.classList.add('pb-locked'); $('#pb-drawer').scrollTop = 0; set({ sel: id }); };
-const closeDetail = () => { if (ui.sel == null) return; $('#pb-drawer').classList.remove('on'); $('#pb-veil').classList.remove('on'); document.body.classList.remove('pb-locked'); set({ sel: null }); };
-$('#pb-cerrar').addEventListener('click', closeDetail);
-$('#pb-veil').addEventListener('click', closeDetail);
+// La ficha ya no es un cajón: vive en Solicitudes, al lado de la lista (debajo de su fila en el móvil). Abrirla desde Citas o un aviso lleva a Solicitudes.
+const esMovil = () => matchMedia('(max-width: 900px)').matches;
+const openDetail = (id) => {
+  id = Number(id);
+  if (ui.page !== 'solicitudes') { ui.page = 'solicitudes'; marcaPagina('solicitudes'); window.scrollTo({ top: 0 }); }
+  marcarVista(id); set({ sel: id });
+  requestAnimationFrame(() => { const f = $('#so-ficha'); if (!f) return; if (esMovil()) f.scrollIntoView({ block: 'start', behavior: 'smooth' }); else { f.scrollTop = 0; const r = f.getBoundingClientRect(); if (r.top < 0 || r.top > innerHeight * .6) f.scrollIntoView({ block: 'start', behavior: 'smooth' }); } });
+};
+const closeDetail = () => { if (ui.sel == null) return; set({ sel: null }); };
+// El cajón antiguo (#pb-drawer) ya no se abre; si sigue en la página, sus botones solo cierran
+{ const c = $('#pb-cerrar'), v = $('#pb-veil'); if (c) c.addEventListener('click', closeDetail); if (v) v.addEventListener('click', closeDetail); }
 
 /* ============ dibujo: resumen ============ */
 const deltaEl = (e, v) => { e.classList.remove('up', 'down', 'flat'); if (v == null) { e.textContent = '—'; e.classList.add('flat'); return; } e.textContent = (v > 0 ? '+' : '') + N(v); e.classList.add(v > 0 ? 'up' : v < 0 ? 'down' : 'flat'); };
@@ -271,8 +278,10 @@ document.addEventListener('pb:abrir-lead', (e) => { showPage('solicitudes'); ope
 let ultimaCarga = Date.now();
 setInterval(() => {
   const embudo = ['resumen', 'solicitudes', 'citas'].includes(document.body.dataset.page);
-  if (!document.hidden && S.loaded && ui.sel == null && Date.now() - ultimaCarga >= (embudo ? 60000 : 120000)) { ultimaCarga = Date.now(); load().then(draw).catch(() => {}); }
+  if (!document.hidden && S.loaded && !fichaOcupada() && Date.now() - ultimaCarga >= (embudo ? 60000 : 120000)) { ultimaCarga = Date.now(); load().then(draw).catch(() => {}); }
 }, 30000);
+// Con la ficha al lado, se refresca igual; solo se espera si estás escribiendo en ella o tienes abierto su menú «···»
+function fichaOcupada() { const f = $('#so-ficha'), a = document.activeElement; return !!(f && ((a && f.contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) || $('.so-mas[open]', f))); }
 document.addEventListener('pb:page', (e) => { if (ui.sel != null && !['solicitudes', 'citas', 'resumen'].includes(e.detail)) closeDetail(); });
 
 function drawSpark(rows) {
@@ -364,20 +373,69 @@ $('#pb-origen tbody').addEventListener('click', (e) => {
   showPage('solicitudes');
 });
 
-/* ============ dibujo: solicitudes ============ */
+/* ============ dibujo: solicitudes (rediseño 17/11) ============ */
+// Embudo arriba con los estados reales; «Fuera del embudo» y de dónde llegan al lado; lista en filas de una línea: primero «Te toca».
+const EST_COLOR = { nuevo: 'var(--lime)', contactado: 'var(--violet-2)', cita: 'var(--green)', sesion: 'var(--cyan)', no_asistio: 'var(--red)', cliente: 'var(--amber)', descartado: 'var(--muted-2)' };
+const EST_CORTO = { nuevo: 'Nueva', contactado: 'En revisión', cita: 'Cita agendada', sesion: 'Sesión hecha', no_asistio: 'No se presentó', cliente: 'Cliente', descartado: 'Descartada' };
+const EMBUDO = [['nuevo', 'Nuevas', 'inbox'], ['contactado', 'En revisión', 'eye'], ['cita', 'Cita', 'calendar'], ['sesion', 'Sesión hecha', 'video'], ['cliente', 'Cliente', 'star']];
+const FUERA = [['no_asistio', 'No se presentó', 'x', 'var(--red)'], ['descartado', 'Descartadas', 'trash', 'var(--muted-2)']];
+const ORI_COLOR = { instagram: '#DD2A7B', youtube: '#FF2D3D', tiktok: '#25F4EE', linkedin: '#0A66C2', facebook: '#1877F2', google: '#4285F4', googlemaps: '#34A853', openai: '#10A37F', perplexity: '#1F6F78', googlegemini: '#9B72CB', whatsapp: '#25D366', gmail: '#EA4335', x: '#8A8995' };
+const E = (s) => window.PBX ? PBX.esc(s) : String(s ?? '');
+const nombreDe = (l) => (l.empresa && !/@/.test(l.empresa) ? l.empresa : '') || l.nombre || l.empresa || 'Sin nombre';
+// Logo del origen (Instagram, Google, ChatGPT…) en el formato de las piezas comunes
+const logoOrigen = (fuente, cls = '') => {
+  const o = ORIGEN(fuente), b = o.key && ICONS.brands[o.key];
+  if (b) return `<span class="pbx-lg ${cls}" style="--lgb:${b.bg}" title="${E(o.label)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${b.d}"/></svg></span>`;
+  return `<span class="pbx-lg st ${cls}" style="--lgb:${o.bg}" title="${E(o.label)}">${PBX.ico(o.ui || 'globe')}</span>`;
+};
+const caraLead = (l, cls = 'sm') => { const n = nombreDe(l); return `<span class="pbx-av ${cls}" style="--c:${PBX.colorDe(n)}" title="${E(n)}">${E(PBX.ini(n))}${logoOrigen(l.fuente)}</span>`; };
+// Citas pasadas que nadie ha marcado (o que se marcaron solas): piden un toque
+const leadsPorMarcar = () => new Set(citasClasificadas().filter((c) => c.tramo === 'pasadas' && c.lead_id && (!c.asistencia || c.asistencia === 'auto')).map((c) => c.lead_id));
+const filtraLeads = () => {
+  const q = (ui.q || '').toLowerCase();
+  return S.leads.filter((l) => (!ui.estado || l.estado === ui.estado) && (ui.fuente == null || (ui.fuente === '(directo)' ? !l.fuente : l.fuente === ui.fuente)) && (!ui.opcion || l.opcion === ui.opcion)
+    && (!ui.canal || (ui.canal === 'revisar' ? l.canal_revisar === '1' : l.canal_dueno === ui.canal))
+    && (!q || ['empresa', 'nombre', 'telefono', 'notas', 'cliente_email', 'palabra', 'campana', 'objetivo'].some((k) => String(l[k] || '').toLowerCase().includes(q)) || String(l.id) === q.replace('#', '')));
+};
+const filaSol = (l, motivo) => {
+  const n = nombreDe(l), c = canalInfo(l.canal_dueno);
+  const cita = l.cita_inicio && l.cita_estado !== 'cancelada' ? parseUTC(l.cita_inicio) : null;
+  const sub = [l.nombre && l.nombre !== n ? l.nombre : '', l.telefono].filter(Boolean).join(' · ');
+  const c3 = cita ? `<span class="so-cita">${PBX.ico('calendar')}${E(fechaCorta(cita))}</span>`
+    : `<span class="so-quien${l.canal_revisar === '1' ? ' rev' : ''}" style="--c:${CANAL_COLOR[c.clave] || '#3A404D'}">${E(QUIEN[c.dueno] || 'Sin asignar')}</span>`;
+  return `<button type="button" class="so-fila${ui.sel === l.id ? ' sel' : ''}${motivo ? ' toca' : ''}" data-id="${l.id}">${caraLead(l)}
+    <span class="so-q"><b>${E(n)}</b><small>${E(sub)}${motivo ? ` · <em>${E(motivo)}</em>` : ''}</small></span>
+    <span class="so-c3">${c3}</span><span class="pbx-pill" style="--c:${EST_COLOR[l.estado] || 'var(--muted)'}">${E(EST_CORTO[l.estado] || l.estado)}</span><time>${E(hace(parse(l.created_at)))}</time></button>`;
+};
+let solFirma = '';
 function drawSolicitudes() {
-  const porEstado = calcPorEstado();
-  // Arriba solo las fases que tienen algo (y «Todas»), para filtrar de un toque
-  const chips = $('#pb-chips'); chips.replaceChildren();
-  const chip = (k, txt, n, color) => {
-    const b = el('button', 'pb-chip' + ((ui.estado || null) === k ? ' on' : '')); b.type = 'button';
-    if (color) { const i = el('i'); i.style.background = color; b.append(i); }
-    b.append(el('small', null, txt), el('b', null, N(n)));
-    b.addEventListener('click', () => set({ estado: k, limit: 120 })); chips.append(b);
-  };
-  chip(null, 'Todas', S.leads.length);
-  Object.entries(ESTADOS).forEach(([k, v]) => { if (porEstado[k]) chip(k, v[0], porEstado[k], v[1]); });
-  fEstado.value = ui.estado ?? '';
+  const movil = esMovil();
+  const firma = JSON.stringify([S.leads, S.citas, S.canales, S.recien, ui.estado, ui.fuente, ui.opcion, ui.canal, ui.q, ui.sel, ui.limit, movil]);
+  if (firma === solFirma && $('#pb-leads').childElementCount) { colocaFicha(movil); return; }
+  solFirma = firma;
+  const porEstado = calcPorEstado(), st = stats(S.leads);
+
+  /* ---------- embudo dibujado ---------- */
+  const llega = { nuevo: st.total, contactado: st.contactadas, cita: st.citas, sesion: st.sesiones, cliente: st.clientes };
+  const sTxt = { nuevo: st.total + ' han llegado', contactado: st.contactadas + ' revisadas', cita: st.citas + ' llegaron a cita', sesion: st.sesiones + ' hicieron la sesión', cliente: st.clientes + ' han firmado' };
+  const pasos = EMBUDO.map(([k, t, i]) => {
+    const de = S.leads.filter((l) => l.estado === k).sort((a, b) => b.id - a.id);
+    return { t, n: porEstado[k] || 0, llega: llega[k], s: sTxt[k], c: EST_COLOR[k], i, on: ui.estado === k, clave: k, caras: de.slice(0, 3).map(nombreDe), mas: Math.max(0, de.length - 3) };
+  });
+  $('#so-etapas').innerHTML = PBX.etapas(pasos);
+
+  /* ---------- fuera del embudo y de dónde llegan ---------- */
+  const grupos = d3.rollups(S.leads, (v) => v.length, (l) => ORIGEN(l.fuente).label).sort((a, b) => b[1] - a[1]);
+  const top = grupos.slice(0, 5), resto = d3.sum(grupos.slice(5), (g) => g[1]);
+  const muestra = (label) => S.leads.find((l) => ORIGEN(l.fuente).label === label);
+  const partes = top.map(([lab, v]) => { const o = ORIGEN(muestra(lab).fuente); return [v, ORI_COLOR[o.key] || (o.ui === 'directo' ? '#6F7189' : '#5A6172'), lab, muestra(lab).fuente]; });
+  if (resto) partes.push([resto, '#3A404D', 'Otros', 'otros']);
+  $('#so-fuera').innerHTML = `<p class="so-t">Fuera del embudo</p>`
+    + FUERA.map(([k, t, i, c]) => `<button type="button" class="so-fu${ui.estado === k ? ' on' : ''}" data-estado="${k}" style="--c:${c}"><span class="pbx-ico sm" style="--c:${c}">${PBX.ico(i)}</span>${t}<b class="pbx-num">${porEstado[k] || 0}</b></button>`).join('')
+    + `<p class="so-t">De dónde llegan</p>` + (S.leads.length ? PBX.split(partes.map((p) => p.slice(0, 3)), false)
+    + `<div class="so-ley">${partes.map(([v, , lab, f]) => `<span title="${E(lab)}">${f === 'otros' ? `<span class="pbx-lg st" style="--lgb:#3A404D">${PBX.ico('more')}</span>` : logoOrigen(f)}<b>${v}</b></span>`).join('')}</div>` : '<p class="pbx-vacio">Aún no hay solicitudes.</p>');
+
+  /* ---------- filtros ---------- */
   const fuentes = d3.rollups(S.leads, (v) => v.length, (l) => l.fuente).sort((a, b) => b[1] - a[1]);
   fFuente.replaceChildren(new Option('Todas las fuentes', ''), ...fuentes.map(([f, c]) => new Option((f || 'directo') + ' (' + c + ')', f || '(directo)')));
   fFuente.value = ui.fuente ?? ''; fOpcion.value = ui.opcion ?? '';
@@ -386,31 +444,48 @@ function drawSolicitudes() {
     ...(S.canales || []).map((c) => new Option(c.label + ' (' + S.leads.filter((l) => l.canal_dueno === c.clave).length + ')', c.clave)));
   fCanal.value = ui.canal ?? '';
   if (fQ !== document.activeElement) fQ.value = ui.q ?? '';
-  const list = $('#pb-leads'); list.replaceChildren();
-  const q = (ui.q || '').toLowerCase();
-  const rows = S.leads.filter((l) => (!ui.estado || l.estado === ui.estado) && (ui.fuente == null || (ui.fuente === '(directo)' ? !l.fuente : l.fuente === ui.fuente)) && (!ui.opcion || l.opcion === ui.opcion)
-    && (!ui.canal || (ui.canal === 'revisar' ? l.canal_revisar === '1' : l.canal_dueno === ui.canal))
-    &&(!q || ['empresa', 'nombre', 'telefono', 'notas', 'cliente_email', 'palabra', 'campana', 'objetivo'].some((k) => String(l[k] || '').toLowerCase().includes(q)) || String(l.id) === q.replace('#', '')));
-  rows.sort((a, b) => b.id - a.id);
-  ui.orden = rows.map((l) => l.id);
-  if (!rows.length) { list.append(el('div', 'pb-empty', S.loaded ? 'Todavía no hay solicitudes con estos filtros.' : '')); return; }
-  rows.slice(0, ui.limit).forEach((l, i) => {
-    const b = el('button', 'pb-row pb-sol pb-anim' + (ui.sel === l.id ? ' sel' : '') + (l.estado === 'nuevo' ? ' nueva' : '')); b.type = 'button'; b.style.setProperty('--i', Math.min(i, 12));
-    const nombre = (l.empresa && !/@/.test(l.empresa) ? l.empresa : '') || l.nombre || l.empresa || 'Sin nombre';
-    const c = canalInfo(l.canal_dueno);
-    const av = el('div', 'pb-avatar', (nombre.match(/[\p{L}\p{N}]/u) || ['·'])[0].toUpperCase()); av.style.setProperty('--c', CANAL_COLOR[c.clave] || '#3A404D');
-    const mid = el('div', 'mid');
-    mid.append(el('div', 'emp', nombre));
-    mid.append(el('div', 'meta', [l.nombre && l.nombre !== nombre ? l.nombre : '', l.telefono, l.problema ? l.problema.slice(0, 70) + (l.problema.length > 70 ? '…' : '') : ''].filter(Boolean).join(' · ')));
-    const o = ORIGEN(l.fuente);
-    const pie = el('div', 'pie'); pie.append(tile(o, 'xs'), el('span', null, o.label));
-    const q = el('span', 'quien'); q.style.setProperty('--c', CANAL_COLOR[c.clave] || '#3A404D'); q.textContent = QUIEN[c.dueno] || 'Sin asignar'; if (l.canal_revisar === '1') q.classList.add('rev'); pie.append(q);
-    if (l.cita_inicio && l.cita_estado !== 'cancelada') pie.append(el('span', 'cita', 'Cita ' + fechaCorta(parseUTC(l.cita_inicio))));
-    mid.append(pie);
-    const r = el('div', 'r'); r.append(badge(l.estado), el('span', 'age', hace(parse(l.created_at))));
-    b.append(av, mid, r); b.addEventListener('click', () => openDetail(l.id)); list.append(b);
+  const activos = [ui.estado && (EST_CORTO[ui.estado] || ui.estado), ui.fuente && 'Fuente: ' + ui.fuente, ui.opcion && (ui.opcion === 'A' ? 'Con presupuesto' : 'Explorando'), ui.canal && (ui.canal === 'revisar' ? 'Canal por revisar' : canalInfo(ui.canal).label), ui.q && '«' + ui.q + '»'].filter(Boolean);
+  $('#so-activo').innerHTML = activos.length ? `<div class="so-activo">${activos.map((a) => `<span class="pbx-chip on">${E(a)}</span>`).join('')}<button type="button" class="pbx-btn ghost sm" data-limpiar>${PBX.ico('x')}Quitar filtros</button></div>` : '';
+
+  /* ---------- lista: te toca + el resto ---------- */
+  const list = $('#pb-leads');
+  { const f = $('#so-ficha'); if (f && list.contains(f)) $('#page-solicitudes .so-main').append(f); }   // que el repintado no se lleve la ficha (móvil)
+  const porMarcar = leadsPorMarcar();
+  const motivo = (l) => l.estado === 'nuevo' ? 'sin revisar' : l.id === S.recien && ui.sel === l.id ? 'revisando ahora' : porMarcar.has(l.id) ? 'marca si asistió' : '';
+  const rows = filtraLeads().sort((a, b) => b.id - a.id);
+  const toca = rows.filter((l) => motivo(l)), otras = rows.filter((l) => !motivo(l));
+  ui.orden = toca.concat(otras).map((l) => l.id);
+  let h = '';
+  if (!rows.length) h = `<div class="pbx-vacio">${S.loaded ? 'No hay solicitudes con estos filtros.' : ''}</div>`;
+  if (toca.length) h += `<div class="so-grupo">${PBX.ico('alert')}Te toca · ${toca.length}</div><div class="so-lst">${toca.map((l) => filaSol(l, motivo(l))).join('')}</div>`;
+  if (otras.length) {
+    h += `<div class="so-grupo n">${toca.length ? 'El resto' : 'Solicitudes'} · ${otras.length}</div><div class="so-lst">${otras.slice(0, ui.limit).map((l) => filaSol(l, '')).join('')}</div>`;
+    if (otras.length > ui.limit) h += `<div class="so-mas-filas"><button class="pbx-btn ghost sm" type="button" data-mas>Ver ${N(otras.length - ui.limit)} más</button></div>`;
+  }
+  list.innerHTML = h;
+  colocaFicha(movil);
+}
+// En escritorio la ficha va en su columna; en el móvil, justo debajo de la fila que se ha tocado
+function colocaFicha(movil) {
+  const f = $('#so-ficha'), main = $('#page-solicitudes .so-main'); if (!f || !main) return;
+  if (movil && ui.sel != null) {
+    const fila = $(`#pb-leads .so-fila[data-id="${Number(ui.sel)}"]`);
+    if (fila) { if (fila.nextElementSibling !== f) fila.after(f); }
+    else if (f.parentNode !== $('#pb-leads') || $('#pb-leads').firstElementChild !== f) $('#pb-leads').prepend(f);
+  } else if (f.parentNode !== main) main.append(f);
+  f.classList.toggle('vacia', ui.sel == null);
+}
+// Clics de la sección (delegados: la lista se repinta entera)
+{
+  const pg = $('#page-solicitudes');
+  pg.addEventListener('click', (e) => {
+    const t = e.target;
+    const et = t.closest('[data-etapa]'); if (et) { const k = et.dataset.etapa; set({ estado: ui.estado === k ? null : k, limit: 120 }); return; }
+    const fu = t.closest('.so-fu'); if (fu) { const k = fu.dataset.estado; set({ estado: ui.estado === k ? null : k, limit: 120 }); return; }
+    if (t.closest('[data-limpiar]')) { fQ.value = ''; set({ estado: null, fuente: null, opcion: null, canal: null, q: null, limit: 120 }); return; }
+    if (t.closest('[data-mas]')) { set({ limit: ui.limit + 200 }); return; }
+    const fila = t.closest('.so-fila'); if (fila) { const id = Number(fila.dataset.id); if (ui.sel === id) closeDetail(); else openDetail(id); }
   });
-  if (rows.length > ui.limit) { const m = el('div', 'pb-more'); const b = el('button', 'pb-btn', 'Ver ' + N(rows.length - ui.limit) + ' más'); b.type = 'button'; b.addEventListener('click', () => set({ limit: ui.limit + 200 })); m.append(b); list.append(m); }
 }
 
 /* ============ dibujo: clientes (trato directo) ============ */
@@ -472,6 +547,119 @@ function drawAgenda(box, tramo, limit) {
     }
     row.append(when, who, acts); box.append(row);
   });
+}
+
+/* ============ dibujo: citas (rediseño 17/11) ============ */
+// Plazas de los dos meses arriba; la próxima cita de protagonista con cuenta atrás; la semana en 7 columnas;
+// de las pasadas, solo las que falta marcar; asistencia de 90 días en donut; reservas sin solicitud en franja ámbar; el resto, plegado.
+const DIAS_L = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const ahoraReal = () => new Date(Date.now() + (S.desfase || 0));
+const hm = (d) => pad(d.getHours()) + ':' + pad(d.getMinutes());
+const mismoDia = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+const quienCita = (c) => c.lead ? nombreDe(c.lead) : (c.empresa || c.nombre || 'Sin solicitud');
+const fechaBaldosa = (d, cls = '') => `<div class="ci-fecha ${cls}"><small>${MESES[d.getMonth()].toUpperCase()}</small><b>${d.getDate()}</b>${cls ? '' : `<small>${DIAS[d.getDay()].toUpperCase()}</small>`}</div>`;
+function cuentaAtras(c) {
+  const ms = c.d - ahoraReal();
+  if (ms <= 0) return ms > -3600000 ? ['En curso', 'empezó a las ' + hm(c.d)] : ['Ya pasó', ''];
+  const min = Math.floor(ms / 60000), dd = Math.floor(min / 1440), h = Math.floor((min % 1440) / 60), m = min % 60;
+  const txt = dd ? dd + ' d ' + h + ' h' : h ? h + ' h ' + m + ' min' : Math.max(1, m) + ' min';
+  return [txt, mismoDia(c.d, ahoraReal()) ? 'para las ' + hm(c.d) : 'para el ' + DIAS[c.d.getDay()] + ' ' + c.d.getDate() + ' a las ' + hm(c.d)];
+}
+const recChip = (c, ok, horas) => {
+  const t = horas === 24 ? '24 h' : '1 h';
+  if (ok) return `<span class="ci-rec ok">${PBX.ico('check')}Recordatorio ${t} enviado</span>`;
+  const sale = new Date(c.d - horas * 3600000);
+  if (sale > ahoraReal()) return `<span class="ci-rec pend">${PBX.ico('clock')}El de ${t} sale ${mismoDia(sale, ahoraReal()) ? 'a las ' + hm(sale) : 'el ' + DIAS[sale.getDay()] + ' ' + sale.getDate() + ' a las ' + hm(sale)}</span>`;
+  return `<span class="ci-rec pend">${PBX.ico('clock')}El de ${t}, pendiente</span>`;
+};
+let ciFirma = '';
+function drawCitas() {
+  const now = ahoraReal();
+  const cs = citasClasificadas();
+  const firma = JSON.stringify([S.citas, cs.map((c) => c.lead && [c.lead.id, nombreDe(c.lead), c.lead.telefono, c.lead.estado]), now.toDateString(), Math.floor(now / 3600000)]);
+  if (firma === ciFirma && $('#ci-prox').childElementCount) { tickCitas(); return; }
+  ciFirma = firma;
+  pintaPlazas($('#pb-plazas-citas'));
+  const prox = cs.filter((c) => c.tramo === 'proximas').sort((a, b) => a.d - b.d);
+  const pas = cs.filter((c) => c.tramo === 'pasadas').sort((a, b) => b.d - a.d);
+  const sin = cs.filter((c) => c.tramo === 'sin_vincular').sort((a, b) => a.d - b.d);
+
+  /* ---------- próxima cita ---------- */
+  const c = prox[0];
+  if (!c) $('#ci-prox').innerHTML = `<span class="pbx-tag">Próxima cita</span><div class="ci-nada"><span class="pbx-ico" style="--c:var(--muted)">${PBX.ico('calendar')}</span><b>No hay citas próximas</b><span>Cuando alguien reserve, sale aquí con su cuenta atrás.</span></div>`;
+  else {
+    const tel = c.lead ? String(c.lead.telefono || '').replace(/\D/g, '') : '';
+    const [ct, cl] = cuentaAtras(c);
+    $('#ci-prox').innerHTML = `<span class="pbx-tag">Próxima cita</span>
+      <div class="ci-pf">${fechaBaldosa(c.d)}<div><h3>${E(quienCita(c))}</h3><p>${E([c.nombre, DIAS_L[c.d.getDay()] + ' ' + c.d.getDate() + ' · ' + hm(c.d)].filter(Boolean).join(' · '))}</p></div></div>
+      <div class="ci-cuenta"><span class="pbx-num" id="ci-cuenta">${E(ct)}</span><span id="ci-cuenta-t">${E(cl)}</span></div>
+      <div class="ci-recs">${recChip(c, c.rec24, 24)}${recChip(c, c.rec1, 1)}</div>
+      <div class="ci-acc">${c.meet_url ? `<a class="pbx-btn lime" href="${E(c.meet_url)}" target="_blank" rel="noopener">${PBX.ico('video')}Abrir Meet</a>` : ''}
+        ${tel ? `<a class="pbx-btn wa" href="https://wa.me/${tel}" target="_blank" rel="noopener">${PBX.logo('wa')}WhatsApp</a>` : ''}
+        ${c.lead ? `<button class="pbx-btn ghost" type="button" data-lead="${c.lead.id}">Ver su solicitud</button>` : `<span class="pbx-pill" style="--c:var(--amber)">Sin solicitud</span>`}</div>`;
+  }
+
+  /* ---------- esta semana ---------- */
+  const lunes = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+  const dom = new Date(lunes.getFullYear(), lunes.getMonth(), lunes.getDate() + 6), finSem = new Date(lunes.getFullYear(), lunes.getMonth(), lunes.getDate() + 7);
+  const deSemana = cs.filter((x) => x.d >= lunes && x.d < finSem).sort((a, b) => a.d - b.d);
+  const dias = [...Array(7)].map((_, i) => new Date(lunes.getFullYear(), lunes.getMonth(), lunes.getDate() + i));
+  const bloque = (x) => {
+    const col = x.tramo === 'sin_vincular' ? 'var(--amber)' : mismoDia(x.d, now) ? 'var(--lime)' : x.d < now ? 'var(--muted-2)' : 'var(--green)';
+    const tag = x.lead ? 'button' : 'div';
+    return `<${tag} ${x.lead ? `type="button" data-lead="${x.lead.id}"` : ''} class="ci-bloque${x.d < now && !mismoDia(x.d, now) ? ' pasada' : ''}" style="--c:${col}" title="${E(quienCita(x) + ' · ' + hm(x.d))}"><b>${hm(x.d)}</b><span>${E(quienCita(x))}</span></${tag}>`;
+  };
+  const rango = lunes.getMonth() === dom.getMonth() ? `${lunes.getDate()} – ${dom.getDate()} ${MESES[dom.getMonth()]}` : `${lunes.getDate()} ${MESES[lunes.getMonth()]} – ${dom.getDate()} ${MESES[dom.getMonth()]}`;
+  const luego = prox.filter((x) => x.d >= finSem);
+  $('#ci-semana').innerHTML = `<div class="pbx-ch"><h3>Esta semana</h3><span>${deSemana.length} ${deSemana.length === 1 ? 'cita' : 'citas'} · ${rango}</span></div>
+    <div class="ci-semana">${dias.map((d, i) => { const hoy = mismoDia(d, now), del = deSemana.filter((x) => mismoDia(x.d, d)); return `<div class="ci-dia${hoy ? ' hoy' : ''}${i > 4 ? ' finde' : ''}${del.length ? '' : ' libre'}"><header>${DIAS[d.getDay()]}<b>${d.getDate()}</b></header>${del.map(bloque).join('')}</div>`; }).join('')}</div>
+    ${luego.length ? `<div class="ci-luego"><p class="so-t">Más adelante · ${luego.length}</p>${luego.slice(0, 5).map((x) => `<${x.lead ? `button type="button" data-lead="${x.lead.id}"` : 'div'} class="ci-luego-f"><span>${E(fechaCorta(x.d))}</span><b>${E(quienCita(x))}</b></${x.lead ? 'button' : 'div'}>`).join('')}${luego.length > 5 ? `<small class="pbx-m2">y ${luego.length - 5} más</small>` : ''}</div>` : ''}`;
+
+  /* ---------- marca si asistieron (solo las pendientes) ---------- */
+  const pend = pas.filter((x) => !x.asistencia || x.asistencia === 'auto');
+  $('#ci-marcar').innerHTML = `<div class="pbx-ch"><h3>Marca si asistieron</h3><span>${pend.length ? pend.length + ' sin marcar' : 'Todo al día'}</span></div>`
+    + (pend.length ? pend.map((x) => `<div class="ci-marcar">${fechaBaldosa(x.d, 'gris')}<div class="ci-mq">${x.lead ? `<button type="button" class="ci-link" data-lead="${x.lead.id}">${E(quienCita(x))}</button>` : `<b>${E(quienCita(x))}</b>`}
+        <small>${E(DIAS_L[x.d.getDay()].replace(/^./, (m) => m.toUpperCase()) + ' ' + x.d.getDate() + ' · ' + hm(x.d) + (x.nombre ? ' · ' + x.nombre : ''))}</small>
+        ${x.asistencia === 'auto' ? `<span class="ci-auto">${PBX.ico('sparkles')}Marcada sola como hecha · confírmalo</span>` : ''}</div>
+      <div class="ci-mb"><button class="pbx-btn lime sm" type="button" data-asis="asistio" data-uid="${E(x.uid)}">${PBX.ico('check')}${x.asistencia === 'auto' ? 'Confirmar' : 'Asistió'}</button><button class="pbx-btn sm" type="button" data-asis="no_asistio" data-uid="${E(x.uid)}">${PBX.ico('x')}No vino</button></div></div>`).join('')
+      : `<div class="ci-ok"><span class="pbx-ico sm" style="--c:var(--lime)">${PBX.ico('check')}</span>Todas las citas pasadas están marcadas.</div>`);
+
+  /* ---------- asistencia de 90 días ---------- */
+  const d90 = new Date(now.getTime() - 90 * 86400000);
+  const ult = pas.filter((x) => x.d >= d90);
+  const vin = ult.filter((x) => x.asistencia === 'asistio' || x.asistencia === 'auto').length, nov = ult.filter((x) => x.asistencia === 'no_asistio').length;
+  const tot = vin + nov;
+  $('#ci-asis').innerHTML = `<div class="pbx-ch"><h3>Asistencia</h3><span>Últimos 90 días</span></div>
+    <div class="ci-dn"><div class="ci-donut">${PBX.donut([[vin, 'var(--lime)'], [nov, 'var(--red)']], tot ? Math.round(vin / tot * 100) + ' %' : '—', tot ? 'vinieron' : 'sin datos')}</div>
+      <div class="ci-dn-l"><span><i class="pbx-dot r" style="--c:var(--lime)"></i>Vinieron<b>${vin}</b></span><span><i class="pbx-dot r" style="--c:var(--red)"></i>No vinieron<b>${nov}</b></span>
+      <small>Si no vienen, la solicitud pasa a «No se presentó».</small></div></div>`;
+
+  /* ---------- reservas sin solicitud ---------- */
+  $('#ci-sinsol').innerHTML = sin.length ? `<div class="ci-sinsol"><div class="ci-ss-h"><span class="pbx-ico" style="--c:var(--amber)">${PBX.ico('link')}</span><b>${sin.length} ${sin.length === 1 ? 'reserva' : 'reservas'} sin solicitud</b><small>Escribe su nº de solicitud y únela.</small></div>
+    ${sin.map((x) => `<div class="ci-ss-f"><span><b>${E(x.nombre || '—')}</b> · ${E(fechaCorta(x.d))}${x.email ? ' · ' + E(x.email) : ''}</span><span class="ci-ss-a"><input type="number" min="1" placeholder="Nº solicitud" aria-label="Número de solicitud" data-uid="${E(x.uid)}"><button class="pbx-btn lime sm" type="button" data-unir="${E(x.uid)}">Unir</button></span></div>`).join('')}</div>` : '';
+
+  /* ---------- historial plegado (todas las pasadas) ---------- */
+  $('#ci-hist-n').textContent = pas.length;
+  $('#ci-hist').hidden = !pas.length;
+  drawAgenda($('#pb-pasadas'), 'pasadas');
+}
+// La cuenta atrás se mueve sola sin repintar la sección
+function tickCitas() {
+  const e = $('#ci-cuenta'); if (!e || !S.loaded) return;
+  const c = citasClasificadas().filter((x) => x.tramo === 'proximas').sort((a, b) => a.d - b.d)[0]; if (!c) return;
+  const [ct, cl] = cuentaAtras(c); if (e.textContent !== ct) e.textContent = ct; const t = $('#ci-cuenta-t'); if (t && t.textContent !== cl) t.textContent = cl;
+}
+setInterval(() => { if (!document.hidden && ui.page === 'citas') tickCitas(); }, 20000);
+{
+  const pg = $('#page-citas');
+  const unir = (uid, b) => { const inp = $(`#ci-sinsol input[data-uid="${CSS.escape(uid)}"]`); if (!inp || !inp.value) { toast('Escribe el número de solicitud.', true); if (inp) inp.focus(); return; } act('vincular', { uid, lead_id: inp.value }, 'Reserva unida a la solicitud #' + inp.value + '.', b); };
+  pg.addEventListener('click', (e) => {
+    const t = e.target;
+    const ld = t.closest('[data-lead]'); if (ld) { openDetail(Number(ld.dataset.lead)); return; }
+    const as = t.closest('[data-asis]'); if (as) { const v = as.dataset.asis; act('asistencia', { uid: as.dataset.uid, valor: v }, v === 'asistio' ? 'Sesión marcada como hecha.' : 'Marcada como no presentada.', as); return; }
+    const un = t.closest('[data-unir]'); if (un) unir(un.dataset.unir, un);
+  });
+  pg.addEventListener('keydown', (e) => { const inp = e.target.closest('#ci-sinsol input[data-uid]'); if (inp && e.key === 'Enter') unir(inp.dataset.uid, inp.nextElementSibling); });
 }
 
 /* ============ dibujo: ficha ============ */
@@ -549,175 +737,169 @@ const postQuiet = async (action, fields) => {
   if (!j.ok) throw new Error(j.error || 'No se ha podido guardar.');
 };
 
+/* Ficha (rediseño 17/11): cabecera con cara, WhatsApp, Llamar, Enlace de reserva y «···»; progreso de 5 puntos que cambia el estado;
+   lo que rellenó en baldosas; de dónde viene y de quién es; notas e historial plegados; borrar dentro de «···». */
 let fichaFirma = '';
+let fichaAcc = {};
+const pleg = { notas: false, hist: false };
 function drawDetalle() {
-  const box = $('#pb-detalle');
-  if (ui.sel == null) { box.replaceChildren(); fichaFirma = ''; return; }
+  const box = $('#so-ficha'); if (!box) return;
+  if (ui.sel == null) {
+    if (fichaFirma !== 'vacia') { fichaFirma = 'vacia'; fichaAcc = {}; box.innerHTML = `<div class="so-fvacia"><span class="pbx-ico" style="--c:var(--violet-2)">${PBX.ico('doc')}</span><b>Elige una solicitud</b><span>Su ficha se abre aquí.</span></div>`; }
+    return;
+  }
   const l = S.todos.find((x) => x.id === Number(ui.sel));
-  if (!l) { if (S.loaded) { box.replaceChildren(el('div', 'pb-empty', 'No existe la solicitud #' + ui.sel + '.')); } return; }
+  if (!l) { if (S.loaded) { fichaFirma = ''; box.innerHTML = `<div class="so-fvacia"><b>No existe la solicitud #${E(ui.sel)}</b><button class="pbx-btn ghost sm" type="button" data-cerrar>Cerrar</button></div>`; } return; }
   const evs = (S.eventos.get(l.id) || []).slice().sort((a, b) => a.ts < b.ts ? -1 : 1);
   const citas = S.citas.filter((c) => c.lead_id === l.id);
   // Solo se vuelve a pintar si cambió algo de esta solicitud: así no se pierde el foco al escribir notas
-  const firma = JSON.stringify([l, evs.length, citas, document.documentElement.dataset.theme]);
+  const firma = JSON.stringify([l, evs.length, citas, S.canales]);
   if (firma === fichaFirma && box.childElementCount) return;
   const prevTa = $('#pb-notas'); const keepNotes = prevTa && Number(prevTa.dataset.id) === l.id ? prevTa.value : null;
   fichaFirma = firma;
-  box.replaceChildren();
+  const A = {}; let nA = 0; const acc = (fn) => { const k = 'a' + (nA++); A[k] = fn; return k; };
 
-  const tel = String(l.telefono).replace(/\D/g, '');
+  const tel = String(l.telefono || '').replace(/\D/g, '');
   const wa = (text) => 'https://wa.me/' + tel + (text ? '?text=' + encodeURIComponent(text) : '');
   const tpl = TPL(l);
-  const btn = (cls, ico, text, onClick) => { const b = el('button', 'pb-btn ' + cls); b.type = 'button'; if (ico) b.append(ico); b.append(text); if (onClick) b.addEventListener('click', onClick); return b; };
-  const link = (cls, ico, text, href, onClick) => { const a = el('a', 'pb-btn ' + cls); if (ico) a.append(ico); a.append(text); a.href = href; a.target = '_blank'; a.rel = 'noopener'; if (onClick) a.addEventListener('click', onClick); return a; };
-  const waTpl = (key, cls) => link(cls, key === 'enlace' || key === 'seguimiento' || key === 'reprogramar' ? brandSvg('whatsapp') : null, tpl[key][0], wa(tpl[key][1]), () => registrar(l.id, ['enlace', 'seguimiento', 'reprogramar', 'no_encaja'].includes(key) ? key : 'whatsapp'));
-  const section = (title, ico, ...nodes) => { const s = el('section', 'pb-fsec'); const h = el('h3'); h.append(icon(ico), title); s.append(h, ...nodes); return s; };
-  const origen = ORIGEN(l.fuente);
-
-  /* ---------- cabecera: quién es, cuándo llegó y cómo contactar ---------- */
-  // Si en «empresa» escribió su email o nada, se enseña su nombre
-  const titulo = (l.empresa && !/@/.test(l.empresa) ? l.empresa : '') || l.nombre || l.empresa || 'Sin nombre';
-  const hero = el('header', 'pb-fh');
-  const fk = el('div', 'k'); fk.append(el('span', null, '#' + l.id + ' · llegó ' + hace(parse(l.created_at)) + ' · ' + fecha(parse(l.created_at))), badge(l.estado));
-  hero.append(fk, el('h2', null, titulo));
-  const datos = el('div', 'cto');
-  if (l.nombre && l.nombre !== titulo) { const s = el('span'); s.append(icon('user'), l.nombre); datos.append(s); }
-  const ph = el('a'); ph.href = 'tel:' + tel; ph.append(icon('phone'), l.telefono); datos.append(ph);
+  const titulo = nombreDe(l);
   const correo = l.cliente_email || (/@/.test(l.empresa || '') ? l.empresa : '');
-  if (correo) { const m = el('a'); m.href = 'mailto:' + correo; m.append(icon('mail'), correo); datos.append(m); }
-  hero.append(datos);
+  const cambiaEstado = (estado, b) => { const ta = $('#pb-notas'); act('update', { id: l.id, estado, notas: ta ? ta.value : l.notas }, 'Fase actualizada: ' + ESTADOS[estado][0] + '.', b); };
+  const waLink = (key, cls, txt) => `<a class="pbx-btn ${cls}" href="${E(wa(tpl[key][1]))}" target="_blank" rel="noopener" data-f="${acc(() => registrar(l.id, ['enlace', 'seguimiento', 'reprogramar', 'no_encaja'].includes(key) ? key : 'whatsapp'))}">${txt}</a>`;
 
-  // Acciones: WhatsApp, llamar, copiar el enlace y UN botón con lo que toca según la fase (sin párrafos)
-  function copiar(e) { const b = e.currentTarget; navigator.clipboard.writeText(l.booking_url).then(() => { b.lastChild.textContent = 'Copiado'; toast('Enlace de reserva copiado.'); registrar(l.id, 'copiar'); }, () => toast('No se pudo copiar.', true)); }
-  function cambiaEstado(estado, b) { const ta = $('#pb-notas'); act('update', { id: l.id, estado, notas: ta ? ta.value : l.notas }, 'Fase actualizada: ' + ESTADOS[estado][0] + '.', b); }
-  const acc = el('div', 'acc');
+  /* ---------- cabecera ---------- */
   const cita = citasClasificadas().filter((c) => c.lead_id === l.id).sort((a, b) => b.d - a.d)[0];
   const plz = plazasAhora(), lleno = plz.usadas >= PLAZAS_MES;
-  const principal = (key, texto) => { const a = waTpl(key, 'primary'); a.lastChild.textContent = texto; return a; };
-  if (['nuevo', 'contactado'].includes(l.estado) && !l.enlace_at) acc.append(lleno ? principal('plazas', 'Plazas llenas: ofrecer otra opción') : principal('enlace', 'Enviar enlace de reserva'));
-  else if (['nuevo', 'contactado'].includes(l.estado) && (S.ahora - parse(l.enlace_at)) / 3600000 > 48) acc.append(principal('seguimiento', 'Hacer seguimiento'));
-  else if (l.estado === 'cita' && cita && cita.meet_url) acc.append(link('primary', icon('video'), 'Sesión ' + fechaCorta(cita.d) + ' · Meet', cita.meet_url));
-  else if (l.estado === 'sesion') acc.append(btn('primary', icon('trophy'), 'Es cliente', (e) => cambiaEstado('cliente', e.currentTarget)));
-  else if (l.estado === 'no_asistio') acc.append(principal('reprogramar', 'Ofrecer otra hora'));
-  acc.append(link('wa', brandSvg('whatsapp'), 'WhatsApp', wa(''), () => registrar(l.id, 'whatsapp')));
-  const call = el('a', 'pb-btn'); call.href = 'tel:' + tel; call.append(icon('phone'), 'Llamar'); acc.append(call);
-  acc.append(btn('', icon('link'), 'Copiar enlace de reserva', copiar));
-  const more = el('details', 'pb-msgs'); const sum = el('summary'); sum.append(icon('msg'), 'Mensajes'); more.append(sum);
-  const ml = el('div', 'list'); Object.keys(tpl).forEach((k) => { const a = waTpl(k, 'ghost'); a.title = tpl[k][1]; ml.append(a); }); more.append(ml);
-  acc.append(more);
-  hero.append(acc);
-  if (l.estado === 'cita' && cita) {
-    const rec = el('div', 'rec'); rec.append(icon('calendar'), 'Sesión ' + fechaCorta(cita.d) + ' · recordatorios: 24 h ' + (cita.rec24 ? '✓' : '·') + '  1 h ' + (cita.rec1 ? '✓' : '·'));
-    hero.append(rec);
-  }
-  box.append(hero);
+  const enlaceH = l.enlace_at ? (S.ahora - parse(l.enlace_at)) / 3600000 : null;
+  let principal = '';
+  if (['nuevo', 'contactado'].includes(l.estado) && !l.enlace_at) principal = lleno ? waLink('plazas', 'lime sm', PBX.ico('send') + 'Plazas llenas: ofrecer otra opción') : waLink('enlace', 'lime sm', PBX.ico('send') + 'Enviar enlace de reserva');
+  else if (['nuevo', 'contactado'].includes(l.estado) && enlaceH > 48) principal = waLink('seguimiento', 'lime sm', PBX.ico('send') + 'Hacer seguimiento');
+  else if (l.estado === 'cita' && cita && cita.meet_url) principal = `<a class="pbx-btn lime sm" href="${E(cita.meet_url)}" target="_blank" rel="noopener">${PBX.ico('video')}Sesión ${E(fechaCorta(cita.d))} · Meet</a>`;
+  else if (l.estado === 'sesion') principal = `<button class="pbx-btn lime sm" type="button" data-f="${acc((e, b) => cambiaEstado('cliente', b))}">${PBX.ico('trophy')}Es cliente</button>`;
+  else if (l.estado === 'no_asistio') principal = waLink('reprogramar', 'lime sm', PBX.ico('send') + 'Ofrecer otra hora');
+  const copiar = acc((e, b) => navigator.clipboard.writeText(l.booking_url).then(() => { const s = $('span', b); if (s) s.textContent = 'Copiado'; toast('Enlace de reserva copiado.'); registrar(l.id, 'copiar'); }, () => toast('No se pudo copiar.', true)));
+  const borrar = acc((e, b) => {
+    if (!confirm('¿Borrar la solicitud #' + l.id + ' (' + titulo + ')? No se puede deshacer.')) return;
+    b.disabled = true;
+    post('borrar_lead', { id: l.id }).then(() => { toast('Solicitud #' + l.id + ' borrada.'); closeDetail(); draw(); }).catch((er) => { toast(er.message, true); b.disabled = false; });
+  });
+  const fueraBtns = FUERA.map(([k, t, i, c]) => l.estado === k ? `<span class="so-mi on" style="--c:${c}">${PBX.ico('check')}${E(t === 'Descartadas' ? 'Descartada' : t)}</span>`
+    : `<button type="button" class="so-mi" style="--c:${c}" data-f="${acc((e, b) => cambiaEstado(k, b))}">${PBX.ico(i)}${E(t === 'Descartadas' ? 'Descartar' : 'Marcar: ' + t)}</button>`).join('');
+  const menu = `<details class="so-mas"><summary class="pbx-btn ghost ico sm" title="Más" aria-label="Más opciones">${PBX.ico('more')}</summary><div class="so-menu">
+      <p>Mensajes de WhatsApp</p>${Object.keys(tpl).map((k) => `<a class="so-mi" href="${E(wa(tpl[k][1]))}" target="_blank" rel="noopener" title="${E(tpl[k][1])}" data-f="${acc(() => registrar(l.id, ['enlace', 'seguimiento', 'reprogramar', 'no_encaja'].includes(k) ? k : 'whatsapp'))}"><span class="so-wa">${PBX.logo('wa')}</span>${E(tpl[k][0])}</a>`).join('')}
+      <p>Fuera del embudo</p>${fueraBtns}
+      ${correo ? `<p>Contacto</p><a class="so-mi" href="mailto:${E(correo)}">${PBX.ico('mail')}${E(correo)}</a>` : ''}
+      <button type="button" class="so-mi rojo" data-f="${borrar}">${PBX.ico('trash')}Borrar esta solicitud</button></div></details>`;
 
-  /* ---------- lo que rellenó: pregunta → respuesta, tal cual y en el orden del formulario ---------- */
-  const form = el('dl', 'pb-form');
-  const fila = (p, valor, extra) => { if (valor == null || valor === '') return; const dt = el('dt', null, p), dd = el('dd'); if (valor instanceof Node) dd.append(valor); else dd.append(String(valor)); if (extra) dd.append(extra); form.append(dt, dd); };
-  if (l.tipo === 'contacto') fila('Su mensaje', l.objetivo || 'Sin mensaje');
+  // Progreso de 5 puntos: pulsar uno cambia el estado. «No se presentó» se queda en Cita (en rojo); «Descartada», fuera.
+  const pos = l.estado === 'no_asistio' ? 2 : EMBUDO.findIndex(([k]) => k === l.estado);
+  const paso = `<div class="so-paso" role="group" aria-label="Estado">${EMBUDO.map(([k, t], i) => `<button type="button" class="so-pt${i < pos ? ' on' : ''}${i === pos ? ' ya' : ''}${i === pos && l.estado === 'no_asistio' ? ' mal' : ''}" ${i === pos && l.estado === k ? 'aria-current="step" disabled' : `data-f="${acc((e, b) => cambiaEstado(k, b))}" title="Pasar a ${E(t)}"`}><span class="d"></span><small>${E(i === 0 ? 'Nueva' : t === 'En revisión' ? 'Revisión' : t === 'Sesión hecha' ? 'Sesión' : t)}</small></button>`).join('')}</div>`;
+  const fueraPill = ['no_asistio', 'descartado'].includes(l.estado) ? `<div class="so-fuera-est"><span class="pbx-pill" style="--c:${EST_COLOR[l.estado]}">${E(EST_CORTO[l.estado])}</span><small>Pulsa un paso para volver al embudo</small></div>` : '';
+  const rec = l.estado === 'cita' && cita ? `<div class="so-rec">${PBX.ico('calendar')}Sesión ${E(fechaCorta(cita.d))}<span class="${cita.rec24 ? 'ok' : ''}">24 h ${cita.rec24 ? '✓' : '·'}</span><span class="${cita.rec1 ? 'ok' : ''}">1 h ${cita.rec1 ? '✓' : '·'}</span></div>` : '';
+  const sub = [l.nombre && l.nombre !== titulo ? l.nombre : '', l.telefono, 'llegó ' + hace(parse(l.created_at))].filter(Boolean).join(' · ');
+  const cab = `<div class="so-ft">
+    <div class="so-ft-f">${caraLead(l, 'xl')}<div class="so-ft-t"><h2>${E(titulo)}</h2><p>${E(sub)}</p></div>
+      <button class="pbx-btn ghost ico sm so-cerrar" type="button" data-cerrar title="Cerrar ficha (Esc)" aria-label="Cerrar ficha">${PBX.ico('x')}</button></div>
+    <div class="so-acc">${principal}<a class="pbx-btn wa sm" href="${E(wa(''))}" target="_blank" rel="noopener" data-f="${acc(() => registrar(l.id, 'whatsapp'))}">${PBX.logo('wa', 'so-wa-ico')}WhatsApp</a>
+      <a class="pbx-btn sm" href="tel:${E(tel)}">${PBX.ico('phone')}Llamar</a>
+      <button class="pbx-btn sm" type="button" data-f="${copiar}">${PBX.ico('link')}<span>Enlace de reserva</span></button>${menu}</div>
+    ${paso}${fueraPill}${rec}</div>`;
+
+  /* ---------- lo que rellenó, en baldosas ---------- */
+  const bal = [];
+  const b = (ico, c, t, v, ancho) => { if (v == null || v === '') return; bal.push(`<div class="so-bal${ancho ? ' ancho' : ''}"><span class="pbx-ico sm" style="--c:${c}">${PBX.ico(ico)}</span><span><small>${E(t)}</small><b>${v}</b></span></div>`); };
+  const T = (s) => s == null || s === '' ? '' : E(s);
+  if (l.tipo === 'contacto') b('msg', 'var(--violet-2)', 'Su mensaje', T(l.objetivo || 'Sin mensaje'), true);
+  b('euro', 'var(--lime)', 'Presupuesto', T(l.opcion === 'A' ? 'Sí, tiene' : l.opcion === 'B' ? 'De momento, explorando' : l.presupuesto));
+  b('msg', 'var(--cyan)', 'Consultas al mes', T(l.volumen));
+  b('users', 'var(--violet-2)', 'Sus clientes llegan por', T(l.canal));
+  if (l.tipo !== 'contacto' && l.objetivo && l.objetivo !== (l.problema || '').slice(0, 500)) b('target', 'var(--amber)', 'Quiere', T(l.objetivo));
+  b('user', 'var(--green)', '¿Decide?', T(l.decisor ? ({ si: 'Sí, decide', varios: 'Entre varios', otro: 'Otra persona', no: 'No decide' }[l.decisor] || l.decisor) : ''));
+  b('users', 'var(--cyan)', 'Personas en la empresa', T(l.equipo));
+  b('sparkles', 'var(--violet-2)', '¿Cómo nos conoció?', T(l.conocio ? ((S.conocio || {})[l.conocio] || l.conocio) : ''));
   if (l.web || l.problema) {
-    let wx = null;
-    if (l.analisis_url) { wx = el('a', 'pb-mini'); wx.href = l.analisis_url + '?equipo=1'; wx.target = '_blank'; wx.rel = 'noopener'; wx.append(icon('sparkles'), 'Ver su análisis'); }
-    else if (l.analisis_estado) wx = el('small', 'pb-mini', l.analisis_estado === 'trabajando' ? 'Analizando su web…' : 'Análisis ' + l.analisis_estado);
     let w = 'No tiene web';
-    if (l.web) { w = el('a'); w.href = /^https?:/.test(l.web) ? l.web : 'https://' + l.web; w.target = '_blank'; w.rel = 'noopener'; w.textContent = l.web.replace(/^https?:\/\//, '').replace(/\/$/, ''); }
-    fila('Web', w, wx);
+    if (l.web) w = `<a href="${E(/^https?:/.test(l.web) ? l.web : 'https://' + l.web)}" target="_blank" rel="noopener">${E(l.web.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</a>`;
+    if (l.analisis_url) w += `<a class="pb-mini" href="${E(l.analisis_url + '?equipo=1')}" target="_blank" rel="noopener">${PBX.ico('sparkles')}Ver su análisis</a>`;
+    else if (l.analisis_estado) w += `<small class="pb-mini">${E(l.analisis_estado === 'trabajando' ? 'Analizando su web…' : 'Análisis ' + l.analisis_estado)}</small>`;
+    b('globe', 'var(--muted)', 'Web', w, !!(l.analisis_url || l.analisis_estado));
   }
-  fila('Lo que les quita tiempo', l.problema);
-  fila('Presupuesto', l.opcion === 'A' ? 'Sí, tiene presupuesto' : l.opcion === 'B' ? 'De momento, explorando' : l.presupuesto);
-  fila('¿Decide?', l.decisor ? ({ si: 'Sí, decide', varios: 'Entre varios', otro: 'Otra persona', no: 'No decide' }[l.decisor] || l.decisor) : '');
-  fila('Personas en la empresa', l.equipo);
-  fila('Consultas al mes', l.volumen);
-  fila('Sus clientes llegan por', l.canal);
-  if (l.tipo !== 'contacto' && l.objetivo && l.objetivo !== (l.problema || '').slice(0, 500)) fila('Objetivo', l.objetivo);
-  fila('¿Cómo nos conoció?', l.conocio ? (S.conocio[l.conocio] || l.conocio) : '');
-  if (!form.childElementCount) form.append(el('dd', 'vacio', 'No rellenó nada más.'));
-  box.append(section('Lo que rellenó', 'msg', form));
+  b('clock', 'var(--red)', 'Lo que les quita tiempo', T(l.problema), true);
+  const relleno = `<div><p class="so-t">Lo que rellenó</p>${bal.length ? `<div class="so-bals">${bal.join('')}</div>` : '<p class="pbx-vacio">No rellenó nada más.</p>'}</div>`;
 
   /* ---------- de dónde viene y de quién es ---------- */
   const leer = (json) => { try { return JSON.parse(json || '{}') || {}; } catch (e) { return {}; } };
-  const t1 = leer(l.primer_toque);
-  const ori = el('div', 'pb-orig');
-  const o1 = el('div', 'fila'); o1.append(tile(origen, 'lg'));
-  const o1t = el('div'); o1t.append(el('b', null, origen.label));
-  const sub = [MEDIO(l.medio), l.campana && 'campaña ' + l.campana, l.palabra && '«' + l.palabra + '»'].filter(Boolean).join(' · ');
+  const t1 = leer(l.primer_toque), origen = ORIGEN(l.fuente);
+  const osub = [MEDIO(l.medio), l.campana && 'campaña ' + l.campana, l.palabra && '«' + l.palabra + '»'].filter(Boolean).join(' · ');
   const entro = (t1.landing || '').replace(/^https?:\/\/[^/]+/, '');
-  o1t.append(el('span', null, [sub, entro && 'entró por ' + entro].filter(Boolean).join(' · ') || 'Llegó directo a la web'));
-  o1.append(o1t); ori.append(o1);
-  // De quién es el cliente (acuerdo Adrián–Daniel): grande y claro; se puede corregir
   const cinfo = canalInfo(l.canal_dueno);
-  const o2 = el('div', 'fila dueno' + (l.canal_revisar === '1' ? ' rev' : ''));
-  const d = el('div'); d.append(el('small', null, 'Cliente de'), el('b', null, QUIEN[cinfo.dueno] || 'Sin asignar'));
-  d.append(el('span', null, cinfo.label + (l.canal_revisar === '1' ? ' · por confirmar' : '') + (l.canal_manual === '1' ? ' · corregido a mano' : '')));
-  if (l.canal_motivo) d.title = l.canal_motivo;
-  o2.style.setProperty('--c', CANAL_COLOR[cinfo.clave] || '#3A404D');
-  const cact = el('div', 'acts');
-  const csel = el('select'); csel.setAttribute('aria-label', 'Cambiar de quién es');
-  (S.canales || []).forEach((c) => csel.append(new Option(c.label, c.clave))); csel.value = l.canal_dueno || 'pendiente';
-  csel.addEventListener('change', () => act('canal', { id: l.id, canal: csel.value }, 'Ahora es: ' + canalInfo(csel.value).label + '.', csel));
-  cact.append(csel);
-  if (l.canal_revisar === '1' && l.canal_dueno !== 'pendiente') cact.append(btn('primary', icon('check'), 'Confirmar', (e) => act('canal', { id: l.id, canal: l.canal_dueno }, 'Confirmado.', e.currentTarget)));
-  o2.append(d, cact); ori.append(o2);
-  box.append(section('De dónde viene', 'pin', ori));
+  const opts = (S.canales || []).map((c) => `<option value="${E(c.clave)}"${c.clave === (l.canal_dueno || 'pendiente') ? ' selected' : ''}>${E(c.label)}</option>`).join('');
+  const confirmar = l.canal_revisar === '1' && l.canal_dueno !== 'pendiente' ? `<button class="pbx-btn lime sm" type="button" data-f="${acc((e, bt) => act('canal', { id: l.id, canal: l.canal_dueno }, 'Confirmado.', bt))}">${PBX.ico('check')}Confirmar</button>` : '';
+  const viene = `<div><p class="so-t">De dónde viene</p>
+    <div class="so-orig">${logoOrigen(l.fuente, 'b')}<span><b>${E(origen.label)}</b>${osub ? ' · ' + E(osub) : ''}<small>${E(entro ? 'Entró por ' + entro : (osub ? '' : 'Llegó directo a la web'))}</small></span></div>
+    <div class="so-dueno${l.canal_revisar === '1' ? ' rev' : ''}" style="--c:${CANAL_COLOR[cinfo.clave] || '#3A404D'}"${l.canal_motivo ? ` title="${E(l.canal_motivo)}"` : ''}>
+      <span><small>Cliente de</small><b>${E(QUIEN[cinfo.dueno] || 'Sin asignar')}</b><em>${E(cinfo.label + (l.canal_revisar === '1' ? ' · por confirmar' : '') + (l.canal_manual === '1' ? ' · corregido a mano' : ''))}</em></span>
+      <span class="so-dueno-a">${opts ? `<select class="so-canal" aria-label="Cambiar de quién es">${opts}</select>` : ''}${confirmar}</span></div></div>`;
 
-  /* ---------- notas y fase ---------- */
-  const notes = el('div', 'pb-notes');
-  const ta = el('textarea'); ta.id = 'pb-notas'; ta.dataset.id = l.id; ta.placeholder = 'Qué se habló, próximos pasos, dudas del cliente…'; ta.value = keepNotes ?? l.notas ?? '';
-  const status = el('span', 'saved', l.updated_at ? 'Guardado · ' + fecha(parse(l.updated_at)) : 'Se guarda solo mientras escribes');
+  /* ---------- notas e historial, plegados ---------- */
+  const notas = `<details class="pbx-pleg so-pleg" data-pleg="notas"${pleg.notas ? ' open' : ''}><summary><span>Notas del equipo</span><em>${l.notas ? 'escritas' : '0'}</em></summary><div class="pbx-pleg-in pb-notes">
+    <textarea id="pb-notas" data-id="${l.id}" placeholder="Qué se habló, próximos pasos, dudas del cliente…"></textarea><span class="saved" id="so-notas-st">${E(l.updated_at ? 'Guardado · ' + fecha(parse(l.updated_at)) : 'Se guarda solo mientras escribes')}</span></div></details>`;
+  const lista = evs.length ? evs.slice().reverse() : [{ ts: l.created_at, tipo: 'nuevo', detalle: 'Formulario de diagnóstico enviado', auto: 1 }];
+  const dv = dispositivo(l.dispositivo);
+  const hist = `<details class="pbx-pleg so-pleg" data-pleg="hist"${pleg.hist ? ' open' : ''}><summary><span>Historial</span><em>${Math.max(1, evs.length)}</em></summary><div class="pbx-pleg-in">
+    <ol class="pb-hist">${lista.map((e) => `<li class="${e.auto ? 'auto' : 'manual'}"><div class="h"><b>${E(e.tipo === 'contacto' ? e.detalle : (EVENTOS[e.tipo] || e.tipo))}</b><span class="tag">${e.auto ? 'Automático' : 'Equipo'}</span></div>
+      <div class="m">${E(fecha(parse(e.ts)) + (e.tipo !== 'contacto' && e.detalle ? ' · ' + (['reserva', 'reprogramada', 'cancelada'].includes(e.tipo) ? 'cita ' + fechaCorta(parseUTC(e.detalle)) : e.detalle) : ''))}</div></li>`).join('')}</ol>
+    <div class="so-tech"><span title="${E(l.dispositivo || '')}">${PBX.ico(dv.movil ? 'mobile' : 'desktop')}${E(dv.txt)}</span><span class="${l.email_enviado ? '' : 'warn'}">${PBX.ico('mail')}${l.email_enviado ? 'Aviso enviado a equipo@' : 'Aviso por email no enviado'}</span><span>#${l.id} · ${E(fecha(parse(l.created_at)))}</span></div></div></details>`;
+
+  fichaAcc = A;
+  box.innerHTML = cab + `<div class="so-fb">${relleno}${viene}${notas}${hist}</div>`;
+
+  /* notas: se guardan solas mientras escribes */
+  const ta = $('#pb-notas', box), status = $('#so-notas-st', box);
+  ta.value = keepNotes ?? l.notas ?? '';
   let tmr;
   ta.addEventListener('input', () => {
     clearTimeout(tmr); status.textContent = 'Escribiendo…'; status.className = 'saved typing';
     tmr = setTimeout(() => postQuiet('update', { id: l.id, estado: l.estado, notas: ta.value })
-      .then(() => { l.notas = ta.value; fichaFirma = JSON.stringify([l, evs.length, citas, document.documentElement.dataset.theme]); status.textContent = 'Guardado'; status.className = 'saved ok'; })
+      .then(() => { l.notas = ta.value; fichaFirma = JSON.stringify([l, evs.length, citas, S.canales]); status.textContent = 'Guardado'; status.className = 'saved ok'; })
       .catch((e) => { status.textContent = e.message; status.className = 'saved err'; }), 900);
   });
-  const sel = el('select'); sel.setAttribute('aria-label', 'Mover a otra fase'); Object.entries(ESTADOS).forEach(([k, v]) => sel.append(new Option(v[0], k))); sel.value = l.estado;
-  sel.addEventListener('change', () => cambiaEstado(sel.value, null));
-  const nf = el('div', 'foot'); const mv = el('label'); mv.append('Mover a', sel); nf.append(status, mv);
-  notes.append(ta, nf);
-  box.append(section('Notas del equipo', 'pencil', notes));
-
-  /* ---------- historial ---------- */
-  const hd = el('details', 'pb-histbox'); const hs = el('summary'); hs.append(icon('history'), 'Historial', el('em', null, String(Math.max(1, evs.length)))); hd.append(hs);
-  const hist = el('ol', 'pb-hist');
-  const lista = evs.length ? evs.slice().reverse() : [{ ts: l.created_at, tipo: 'nuevo', detalle: 'Formulario de diagnóstico enviado', auto: 1 }];
-  lista.forEach((e) => {
-    const li = el('li', e.auto ? 'auto' : 'manual'); const f = parse(e.ts);
-    const head = el('div', 'h'); head.append(el('b', null, e.tipo === 'contacto' ? e.detalle : (EVENTOS[e.tipo] || e.tipo)), el('span', 'tag', e.auto ? 'Automático' : 'Equipo'));
-    li.append(head, el('div', 'm', fecha(f) + (e.tipo !== 'contacto' && e.detalle ? ' · ' + (['reserva', 'reprogramada', 'cancelada'].includes(e.tipo) ? 'cita ' + fechaCorta(parseUTC(e.detalle)) : e.detalle) : '')));
-    hist.append(li);
-  });
-  hd.append(hist);
-  box.append(hd);
-
-  /* ---------- pie técnico ---------- */
-  const dv = dispositivo(l.dispositivo);
-  const foot = el('div', 'pb-tech');
-  const f1 = el('span'); f1.append(icon(dv.movil ? 'mobile' : 'desktop'), dv.txt); f1.title = l.dispositivo || '';
-  const f2 = el('span'); f2.append(icon('mail'), l.email_enviado ? 'Aviso enviado a equipo@' : 'Aviso por email no enviado');
-  if (!l.email_enviado) f2.className = 'warn';
-  foot.append(f1, f2);
-  box.append(foot);
-  const borra = btn('danger pb-borrar', icon('x'), 'Borrar esta solicitud', (e) => {
-    if (!confirm('¿Borrar la solicitud #' + l.id + ' (' + titulo + ')? No se puede deshacer.')) return;
-    const b = e.currentTarget; b.disabled = true;
-    post('borrar_lead', { id: l.id }).then(() => { toast('Solicitud #' + l.id + ' borrada.'); closeDetail(); draw(); }).catch((er) => { toast(er.message, true); b.disabled = false; });
-  });
-  box.append(borra);
+  $$('details.so-pleg', box).forEach((d) => d.addEventListener('toggle', () => { pleg[d.dataset.pleg] = d.open; }));
+}
+// Clics de la ficha (delegados: se repinta cuando cambian sus datos)
+{
+  const box = $('#so-ficha');
+  if (box) {
+    box.addEventListener('click', (e) => {
+      if (e.target.closest('[data-cerrar]')) { closeDetail(); return; }
+      const t = e.target.closest('[data-f]'); if (!t || !box.contains(t)) return;
+      const fn = fichaAcc[t.dataset.f]; if (!fn) return;
+      const m = t.closest('.so-mas'); if (m) m.open = false;
+      fn(e, t);
+    });
+    box.addEventListener('change', (e) => {
+      const s = e.target.closest('select.so-canal'); if (!s || ui.sel == null) return;
+      act('canal', { id: Number(ui.sel), canal: s.value }, 'Ahora es: ' + canalInfo(s.value).label + '.', s);
+    });
+    // «···» se cierra al pulsar fuera
+    document.addEventListener('click', (e) => { $$('.so-mas[open]').forEach((d) => { if (!d.contains(e.target)) d.open = false; }); });
+  }
 }
 
-/* Navegar entre solicitudes sin cerrar la ficha */
+/* Navegar entre solicitudes sin cerrar la ficha (↑ ↓ o j k) */
 const ordenFicha = () => (ui.orden && ui.orden.length ? ui.orden : S.leads.map((l) => l.id).sort((a, b) => b - a));
 const moverFicha = (paso) => { const o = ordenFicha(); const i = o.indexOf(Number(ui.sel)); const n = o[i + paso]; if (n != null) openDetail(n); };
-$('#pb-prev').addEventListener('click', () => moverFicha(-1));
-$('#pb-next').addEventListener('click', () => moverFicha(1));
+{ const p = $('#pb-prev'), n = $('#pb-next'); if (p) p.addEventListener('click', () => moverFicha(-1)); if (n) n.addEventListener('click', () => moverFicha(1)); }
 document.addEventListener('keydown', (e) => {
-  if (ui.sel == null || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  if (ui.sel == null || ui.page !== 'solicitudes' || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
   if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); moverFicha(-1); }
   if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); moverFicha(1); }
 });
 
 /* ============ ciclo de dibujo ============ */
+// El análisis por periodo (plegado al final de Solicitudes) solo se pinta abierto y si cambió algo
+let resFirma = '';
+function pintaAnalisis() { const an = $('#pb-analisis'); if (!an || !an.open) return; const f = JSON.stringify([S.leads, S.citas, ui.periodo, ui.dim, ui.sort, an.clientWidth]); if (f === resFirma) return; resFirma = f; drawResumen(ui.periodo); }
 function draw() {
   $$('#pb-periodo button').forEach((b) => b.classList.toggle('on', b.dataset.p === ui.periodo));
   // El número del menú avisa solo de lo que falta por revisar; sin nada pendiente, no sale (16/11)
@@ -725,10 +907,10 @@ function draw() {
   $('#pb-citas-n').textContent = S.loaded ? N(citasClasificadas().filter((x) => x.tramo === 'proximas').length) : '—';
   if (!S.loaded) return;
   // El resumen de toda la app lo pinta global.js; el análisis del formulario vive en Solicitudes
-  if (ui.page === 'solicitudes') { drawResumen(ui.periodo); drawSolicitudes(); }
+  if (ui.page === 'solicitudes') { pintaAnalisis(); drawSolicitudes(); }
   if (ui.page === 'resumen') pintaPlazas($('#pb-plazas-resumen'), true);   // plazas gratis del mes, en el Resumen (30/10)
   if (ui.page === 'clientes') drawClientes();
-  if (ui.page === 'citas') { pintaPlazas($('#pb-plazas-citas')); drawAgenda($('#pb-proximas'), 'proximas'); drawAgenda($('#pb-pasadas'), 'pasadas'); drawAgenda($('#pb-sinvincular'), 'sin_vincular'); }
+  if (ui.page === 'citas') drawCitas();
   drawDetalle();
   if (!S.drawn) { S.drawn = true; document.body.classList.add('pb-in'); }
 }
@@ -740,7 +922,6 @@ readUrl();
 $$('#pb-kpis .v').forEach((e) => e.classList.add('pb-skel'));
 marcaPagina(ui.page);
 fQ.value = ui.q || '';
-if (ui.sel != null) { $('#pb-drawer').classList.add('on'); $('#pb-veil').classList.add('on'); document.body.classList.add('pb-locked'); }
 writeUrl(); draw();
 // Al abrir el análisis plegable, se repinta con su ancho real (cerrado no tiene tamaño)
 { const an = $('#pb-analisis'); if (an) { try { an.open = localStorage.getItem('pb-analisis') === '1'; } catch (e) { /* nada */ } an.addEventListener('toggle', () => { try { localStorage.setItem('pb-analisis', an.open ? '1' : '0'); } catch (e) { /* nada */ } if (an.open) draw(); }); } }

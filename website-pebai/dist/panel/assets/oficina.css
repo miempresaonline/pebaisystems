@@ -1,7 +1,7 @@
 /* PEBAI · Panel — Automático › Agentes, vista Oficina */
 /* Pantalla completa: sin el ancho máximo ni los márgenes del resto del panel */
-body[data-page=agentes]:not(.pb-ag-ajustes) .pb-main{max-width:none;padding:0;margin:0}
-body[data-page=agentes]:not(.pb-ag-ajustes) .pb-main>.pb-top{display:none}
+body[data-page=agentes]:not(.pb-ag-ajustes):not(.pb-ag-mando) .pb-main{max-width:none;padding:0;margin:0}
+body[data-page=agentes]:not(.pb-ag-ajustes):not(.pb-ag-mando) .pb-main>.pb-top{display:none}
 body.pb-ag-ajustes #pb-of{display:none}
 body:not(.pb-ag-ajustes) #pb-ag-ajustes{display:none}
 .pb-of-volver{margin:4px 0 18px}
@@ -266,22 +266,7 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-lista{display:none;position:absolute;inset:0;z-index:2;overflow:auto;padding:76px 24px 96px;background:#080914}
 .pb-of-wrap.lista .pb-of-lista{display:block}
 .pb-of-wrap.lista canvas,.pb-of-wrap.lista .pb-of-hov{visibility:hidden}
-.pb-of-lista section{max-width:760px;margin:0 auto 18px}
-.pb-of-lista header{display:flex;align-items:center;gap:9px;margin:0 4px 8px;font-size:13px;color:#8C8FA3}
-.pb-of-lista header i{width:9px;height:9px;border-radius:50%}
-.pb-of-lista header b{color:#EFEDE7;font-size:15px}
-.pb-of-lista header span{margin-left:auto}
-.pb-of-lista .fila{display:flex;align-items:center;gap:12px;width:100%;padding:11px 14px;margin-bottom:6px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);color:inherit;font:inherit;text-align:left;cursor:pointer;transition:background .2s,border-color .2s}
-.pb-of-lista .fila:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
-.pb-of-lista .fila .t{flex:0 0 32px;width:32px;height:32px;border-radius:9px;display:grid;place-items:center}
-.pb-of-lista .fila .t svg{width:17px;height:17px}
-.pb-of-lista .nm{flex:1;min-width:0;display:flex;flex-direction:column}
-.pb-of-lista .nm b{color:#fff;font-size:14px}
-.pb-of-lista .nm small{color:#8C8FA3;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pb-of-lista .st{display:inline-flex;align-items:center;gap:6px;font:700 12px var(--sans);color:var(--c);white-space:nowrap}
-.pb-of-lista .st i{width:8px;height:8px;border-radius:50%;background:var(--c)}
-.pb-of-lista .vacias{max-width:760px;margin:4px auto;color:#5C5F73;font-size:12.5px}
-@media (max-width:760px){.pb-of-lista{padding:70px 12px 90px}}
+/* (17/11) La antigua vista Lista se sustituyó por el Mando: sus estilos están más abajo («Mando»). */
 .pb-of-todo .it{position:relative}
 .pb-of-todo .it .quita{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;margin-left:4px;border-radius:50%;color:#6E7186;font:700 15px var(--sans);line-height:1;opacity:0;transition:opacity .2s,background .2s,color .2s}
 .pb-of-todo .it:hover .quita,.pb-of-todo .it .quita:focus{opacity:1}
@@ -456,3 +441,158 @@ a.pb-of-wi:hover{background:rgba(255,255,255,.08);border-color:rgba(183,255,60,.
 .pb-of-pedir{display:inline-flex;align-items:center;gap:8px;border-color:rgba(217,119,87,.45);background:rgba(217,119,87,.12);color:#F4C2AE}
 .pb-of-pedir:hover{border-color:#D97757;background:rgba(217,119,87,.2)}
 .pb-of-pedir svg{width:15px;height:15px}
+
+/* ================= Mando (17/11): la vista por defecto de Agentes; la oficina 3D, en su pestaña =================
+   Fluye como cualquier otra sección (sin alto fijo ni fondo oscuro propio), con los colores del tema. Nada de backdrop-filter
+   ni animaciones propias: la entrada la hace glass.js (.pbg-n). */
+body.pb-ag-mando:not(.pb-ag-ajustes)[data-page=agentes] .pb-main .pb-top{display:flex}
+@media (min-width:961px){
+  body.pb-ag-mando:not(.pb-ag-ajustes)[data-page=agentes] .pb-pastilla{display:flex!important}
+  body.pb-ag-mando:not(.pb-ag-ajustes)[data-page=agentes] .pb-main{padding-bottom:110px}
+}
+.pb-of-wrap.lista{height:auto!important;min-height:0!important;overflow:visible;background:none!important;margin-top:0!important;border-radius:0!important;isolation:auto}
+.pb-of-wrap.lista>canvas,.pb-of-wrap.lista .pb-of-lbl,.pb-of-wrap.lista .pb-of-hud,.pb-of-wrap.lista .pb-of-ayuda,.pb-of-wrap.lista .pb-of-load,.pb-of-wrap.lista .pb-of-hov{display:none!important}
+.pb-of-wrap.lista .pb-of-lista{position:static;display:block;overflow:visible;padding:0!important;background:none!important}
+.pb-of-wrap:not(.lista) .pb-of-mando{display:none}
+/* la ficha del agente y el aviso de «parar todo» flotan sobre la página */
+.pb-of-wrap.lista .pb-of-side{position:fixed;top:18px;right:18px;bottom:18px;z-index:60}
+.pb-of-wrap.lista .pb-of-modal{position:fixed;z-index:70}
+@media (max-width:960px){.pb-of-wrap.lista .pb-of-side{top:auto;bottom:calc(70px + env(safe-area-inset-bottom));height:72dvh;right:12px;width:calc(100% - 24px)}}
+
+.pb-of-mando{font-family:var(--sans);color:var(--fg)}
+.mdo-cab{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.mdo-cab .pb-h1{margin:0}
+.mdo-sub{margin-top:6px}
+.mdo-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mdo-ctl .pbx-btn small{font-weight:600;opacity:.75;font-size:11px}
+.mdo-vivo:before{box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 25%,transparent)}
+.mdo-seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--panel);border:1px solid var(--glass-line,var(--line-2))}
+.mdo-seg button{padding:6px 13px;border:0;border-radius:999px;background:transparent;color:var(--muted);font:700 12.5px var(--sans);cursor:pointer;transition:background .2s,color .2s}
+.mdo-seg button:hover{color:var(--fg)}
+.mdo-seg button.on{background:var(--fg-strong);color:var(--ink,#0b0f14)}
+.mdo-mas{position:relative}
+.mdo-mas .menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:30;min-width:230px;padding:6px;border-radius:14px;background:var(--panel-solid);border:1px solid var(--line-2);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.mdo-mas.on .menu{display:block}
+.mdo-mas .menu button{display:flex;align-items:center;gap:9px;width:100%;padding:10px 12px;border:0;border-radius:10px;background:transparent;color:var(--red);font:700 13px var(--sans);cursor:pointer;text-align:left}
+.mdo-mas .menu button:hover{background:var(--panel)}
+.mdo-mas .menu svg{width:15px;height:15px}
+
+/* avisos */
+.mdo-avisos{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.mdo-aviso{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,var(--red) 10%,transparent);border:1px solid color-mix(in srgb,var(--red) 32%,transparent);flex-wrap:wrap}
+.mdo-aviso>div{flex:1;min-width:200px}
+.mdo-aviso b{display:block;color:var(--fg-strong);font-size:14px}
+.mdo-aviso div span{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;overflow-wrap:anywhere}
+.mdo-x{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--muted-2);cursor:pointer}
+.mdo-x:hover{color:var(--fg);border-color:var(--line-2)}
+.mdo-x svg{width:14px;height:14px}
+.mdo-necesita{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:16px;background:color-mix(in srgb,var(--amber) 8%,transparent);border:1px solid color-mix(in srgb,var(--amber) 28%,transparent)}
+.mdo-necesita>small{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);padding:2px 4px}
+.mdo-nec{display:flex;align-items:center;gap:4px}
+.mdo-nec>button:first-child{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:6px;border:0;border-radius:10px;background:transparent;color:var(--muted);font:500 13px var(--sans);text-align:left;cursor:pointer}
+.mdo-nec>button:first-child:hover{background:var(--panel)}
+.mdo-nec .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mdo-nec b{color:var(--fg-strong)}
+.mdo-nec>button:first-child>svg{width:15px;height:15px;color:var(--muted-2);flex:none}
+
+/* icono de cada agente (el mismo de la oficina) */
+.pb-of-mando .t{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none}
+.pb-of-mando .t svg{width:16px;height:16px}
+
+/* arriba: anillo + equipos */
+.mdo-top{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,2fr);gap:14px;align-items:start}
+.mdo-heroe{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.mdo-anillo{width:180px;max-width:100%}
+.mdo-anillo .g1{font-size:30px}.mdo-anillo .g2{font-size:10.5px}
+.mdo-ley{display:grid;grid-template-columns:1fr;gap:6px;width:100%;max-width:220px;font-size:12.5px;color:var(--muted);text-align:left}
+.mdo-ley span{display:flex;align-items:center;gap:8px}
+.mdo-ley b{margin-left:auto;color:var(--fg-strong)}
+.mdo-sig{display:flex;align-items:baseline;justify-content:space-between;gap:10px;width:100%;max-width:220px;padding-top:10px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);text-align:left}
+.mdo-sig+.mdo-sig{border-top:0;padding-top:0}
+.mdo-sig b{color:var(--fg-strong);font-size:13px;margin-left:auto}
+.mdo-sig .mdo-link{margin-left:-4px}
+.mdo-link{border:0;background:none;padding:0;color:var(--muted);font:700 12px var(--sans);text-decoration:underline;cursor:pointer}
+.mdo-link:hover{color:var(--fg)}
+.mdo-equipos{display:flex;flex-direction:column;gap:14px;min-width:0}
+.mdo-eq .pbx-ch{margin-bottom:12px}
+.mdo-agts{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.mdo-agts-p{margin-top:10px}
+.mdo-agt{display:flex;align-items:center;gap:11px;min-width:0;padding:10px 11px;border-radius:14px;background:var(--panel);border:1px solid var(--line);color:inherit;font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,transform .25s var(--ease)}
+.mdo-agt:hover{border-color:var(--e);transform:translateY(-2px)}
+.mdo-agt .t{box-shadow:0 0 0 2px var(--panel-solid),0 0 0 4px var(--e)}
+.mdo-agt.is-trabajando .t{box-shadow:0 0 0 2px var(--panel-solid),0 0 0 4px var(--e),0 0 16px 2px color-mix(in srgb,var(--e) 55%,transparent)}
+.mdo-agt.is-parado .t,.mdo-agt.is-apagado .t,.mdo-agt.is-dormido .t{opacity:.75}
+.mdo-agt>span{min-width:0;margin-left:3px}
+.mdo-agt b{display:block;font-size:13px;color:var(--fg-strong);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdo-agt small{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdo-agt.is-error small{color:var(--red)}
+.mdo-parados{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;border:1px dashed var(--line-2);color:var(--muted);font-size:12.5px;flex-wrap:wrap}
+.mdo-minis{display:flex;flex:none}
+.mdo-minis .t{width:24px;height:24px;box-shadow:0 0 0 2px var(--panel-solid);opacity:.8}
+.mdo-minis .t+.t{margin-left:-7px}
+.mdo-minis .t svg{width:12px;height:12px}
+.mdo-ptxt{flex:1;min-width:180px}
+.mdo-ptxt b{color:var(--fg)}
+.mdo-otros{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border-radius:16px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:500 12.5px var(--sans);text-align:left;cursor:pointer;transition:border-color .2s}
+.mdo-otros:hover{border-color:var(--glass-hi,var(--line-2))}
+.mdo-otros b{color:var(--fg-strong);font-size:13.5px}
+.mdo-otros svg{width:15px;height:15px;margin-left:auto;color:var(--muted-2)}
+.mdo-vacias{margin:0 4px;font-size:12px;color:var(--muted-2)}
+
+/* línea de tiempo de 7 a 21 h */
+.mdo-gantt{margin-top:14px}
+.mdo-gley{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.mdo-gley span{display:inline-flex;align-items:center;gap:6px}
+.mdo-gley .fut{background:transparent;border:1.5px dashed var(--muted)}
+.mdo-gley .pz{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--violet-2) 60%,transparent) 0 3px,transparent 3px 6px)}
+.mdo-gts{--lbl:140px;display:flex;flex-direction:column}
+.mdo-gt,.mdo-ejes,.mdo-ahora-f{display:grid;grid-template-columns:var(--lbl) minmax(0,1fr);gap:12px;align-items:center}
+.mdo-gt{width:100%;padding:4px 0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;border-radius:8px}
+.mdo-gt>span:first-child{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.mdo-gt:hover>span:first-child{color:var(--fg-strong)}
+.mdo-gt.parados{opacity:.7}
+.mdo-pista{position:relative;display:block;height:22px;border-radius:7px;background:repeating-linear-gradient(90deg,transparent 0 calc(100% / 14 - 1px),var(--line) calc(100% / 14 - 1px) calc(100% / 14))}
+.mdo-gt:hover .mdo-pista{background-color:var(--panel)}
+.mdo-pista i{position:absolute;top:3px;bottom:3px;border-radius:5px;background:var(--lime)}
+.mdo-pista i.err{background:var(--red);box-shadow:0 0 8px color-mix(in srgb,var(--red) 70%,transparent);z-index:1}
+.mdo-pista i.fut{background:transparent;border:1.5px dashed color-mix(in srgb,var(--lime) 65%,var(--muted))}
+.mdo-pista i.pausa{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--violet-2) 45%,transparent) 0 4px,transparent 4px 8px);border:1px solid color-mix(in srgb,var(--violet-2) 40%,transparent)}
+.mdo-pista i.paro{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--amber) 28%,transparent) 0 4px,transparent 4px 8px)}
+.mdo-pista u{position:absolute;top:-4px;bottom:-4px;left:var(--ahora,50%);width:2px;margin-left:-1px;background:var(--lime);box-shadow:0 0 8px color-mix(in srgb,var(--lime) 70%,transparent);z-index:2;pointer-events:none}
+.mdo-ahora-f{height:16px}
+.mdo-ahora-f>div{position:relative;height:16px}
+.mdo-ahora-f em{position:absolute;left:var(--ahora,50%);bottom:0;transform:translateX(-50%);font-style:normal;font-size:10.5px;font-weight:800;color:var(--lime);white-space:nowrap}
+.fuera-hora .mdo-pista u,.fuera-hora .mdo-ahora-f em{display:none}
+.mdo-ejes{margin-top:4px}
+.mdo-ejes>div{display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:var(--muted-2)}
+
+/* «Pregunta a PEBAI» dentro del Mando, con los colores del tema */
+.mdo-preg{margin-top:14px}
+.pb-of-mando .pb-of-ask{position:static;transform:none;width:auto;left:auto;bottom:auto;transition:none}
+.pb-of-mando .pb-of-box,.pb-of-mando .pb-of-ask:not(.abierta) .pb-of-box{width:100%;background:var(--panel)!important;border-color:var(--line-2)!important;box-shadow:none;padding:6px 6px 6px 14px;cursor:auto}
+.pb-of-mando .pb-of-box:focus-within{border-color:color-mix(in srgb,var(--lime) 55%,transparent)!important}
+.pb-of-mando .pb-of-box input{color:var(--fg)}
+.pb-of-mando .pb-of-box input::placeholder{color:var(--muted)}
+.pb-of-mando .pb-of-ask:not(.abierta) .pb-of-box button[type=submit]{display:inline-block}
+.pb-of-mando .pb-of-box kbd{display:none}
+.pb-of-mando .pb-of-ans,.pb-of-mando .pb-of-sug{background:var(--panel-solid);border-color:var(--line-2);color:var(--fg);box-shadow:none}
+.pb-of-mando .pb-of-ans .hd{background:var(--panel-solid);border-color:var(--line)}
+.pb-of-mando .pb-of-ans .hd span,.pb-of-mando .pb-of-sug button{color:var(--fg)}
+.pb-of-mando .pb-of-ans .bd b{color:var(--fg-strong)}
+.pb-of-mando .pb-of-sug button:hover{background:var(--panel)}
+.pb-of-mando .pb-of-sug svg{color:var(--lime)}
+
+@media (max-width:960px){
+  .mdo-top{grid-template-columns:minmax(0,1fr)}
+  .mdo-heroe{flex-direction:row;flex-wrap:wrap;justify-content:center}
+  .mdo-anillo{width:140px}
+}
+@media (max-width:640px){
+  .mdo-cab{align-items:flex-start}
+  .mdo-agts{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .mdo-agt{padding:9px;gap:9px}
+  .mdo-gts{--lbl:84px}
+  .mdo-gley{gap:8px 12px}
+  .mdo-ejes>div span:nth-child(even){visibility:hidden}
+  .mdo-heroe{flex-direction:column;align-items:center}
+}

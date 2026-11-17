@@ -999,8 +999,17 @@ if ($auth && isset($_GET['oficina'])) {
     } catch (Throwable $e) {
         // sin registro de IA todavía
     }
+    // 17/11: gasto de IA de hoy (todos los agentes), para el Mando
+    $iaHoy = null;
+    try {
+        $q = pebai_ia_gasto_db()->prepare('SELECT SUM(usd) FROM ia_gasto WHERE ts >= ?');
+        $q->execute([date('Y-m-d 00:00:00')]);
+        $iaHoy = round((float)$q->fetchColumn(), 3);
+    } catch (Throwable $e) {
+        // sin registro de IA todavía
+    }
     json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'agentes' => $agentes,
-              'ia' => is_file(pebai_private_dir() . '/ia.php'), 'parada' => of_parada(), 'ia_nucleo' => $iaNucleo]);
+              'ia' => is_file(pebai_private_dir() . '/ia.php'), 'parada' => of_parada(), 'ia_nucleo' => $iaNucleo, 'ia_hoy' => $iaHoy]);
 }
 
 // «Explícamelo»: Claude Haiku cuenta en palabras normales qué ha hecho hoy un agente y, si algo va mal, por qué y qué hacer.

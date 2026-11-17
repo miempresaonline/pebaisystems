@@ -173,6 +173,8 @@ function drawHub(P) {
   const sec = $('#page-prospectos');
   let hub = $('#pb-pros-hub');
   if (!hub) { hub = el('div', 'pb-hub'); hub.id = 'pb-pros-hub'; $('.pb-pagehead', sec).after(hub); }
+  // Portada nueva (17/11): la pinta conversaciones.js (recorrido + tres puertas); si no está, se queda la de siempre
+  if (window.PB_PORTADA && window.PB_PORTADA(hub, P, { nicho: nichoDe, prov: provDe, empresas: () => { ui.hub = false; drawProspectos(); window.scrollTo({ top: 0, behavior: 'smooth' }); } })) return;
   const nCarp = new Set(P.map((p) => nichoDe(p))).size, nProv = new Set(P.map((p) => provDe(p)).filter((x) => x && x !== 'Sin provincia')).size;
   const toca = ((document.getElementById('pb-conv-n') || {}).textContent || '').trim();
   const tarjetas = [

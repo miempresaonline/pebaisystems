@@ -75,7 +75,7 @@ function pintaPastilla(p) {
 //    con sus datos y sus tarjetas suben en cascada;
 //  · las siguientes veces aparece al momento con un fundido corto (sus datos ya están): nada de esperas ni de cascadas repetidas;
 //  · todo con opacidad y movimiento, leyendo medidas antes de escribir (sin forzar el navegador a recalcular en bucle).
-const PIEZAS = '.pgx-sol,.pgx-toca,.pgx-col>*,.pgx-act,.pb-card,.pb-row,.pc-kpi,.pc-row,.rd-kpi,.rd-card,.ga-kpi,.ga-card,.ga-hero,.gs-kpi,.gs-card,.gs-prox,.gs-rep,.pb-chip,.pb-plz,.pb-sol-cab,.pb-subnav,.pb-h1,.pb-pagehead,.pb-caja,.pb-hub-c';
+const PIEZAS = '.pgx-sol,.pgx-toca,.pgx-col>*,.pgx-act,.pb-card,.pb-row,.pc-kpi,.pc-row,.rd-kpi,.rd-card,.ga-kpi,.ga-card,.ga-hero,.gs-kpi,.gs-card,.gs-prox,.gs-rep,.pb-chip,.pb-plz,.pb-sol-cab,.pb-subnav,.pb-h1,.pb-pagehead,.pb-caja,.pb-hub-c,.pbx-heroe,.pbx-c,.pbx-et,.pbx-kpi';
 const vistos = new Set();
 const relojes = new Map();
 function limpia(page) {
@@ -96,7 +96,7 @@ function cascada(page) {
     const r = x.getBoundingClientRect();
     if (r.height && r.top < innerHeight && r.bottom > 0) cand.push(x);
   }
-  const graficas = [...page.querySelectorAll('svg.pgx-barras,svg.ga-barras')];
+  const graficas = [...page.querySelectorAll('svg.pgx-barras,svg.ga-barras,svg.pbx-g')];
   // 2) escribir
   cand.forEach((x, n) => { x.style.setProperty('--n', n); x.classList.add('pbg-n'); });
   graficas.forEach((sv) => { [...sv.querySelectorAll('rect')].forEach((x, k) => x.style.setProperty('--n', Math.min(k, 30))); sv.classList.add('pbg-crece'); });

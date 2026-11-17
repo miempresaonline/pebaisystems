@@ -24,10 +24,31 @@ function gs_txt(string $k, int $max): string
     return mb_substr(trim((string)($_POST[$k] ?? '')), 0, $max);
 }
 
+/** Saldo de la caja hoy (céntimos), igual que lo cuenta la sección Caja; null si la caja está vacía o no se puede leer. */
+function gs_caja_saldo(): ?int
+{
+    try {
+        pebai_caja_suscripciones_al_dia();
+        $db = pebai_caja_db();
+        $aj = $db->query('SELECT clave, valor FROM caja_ajustes')->fetchAll(PDO::FETCH_KEY_PAIR);
+        $desde = (string)($aj['saldo_fecha'] ?? '');
+        $q = $db->prepare("SELECT COUNT(*) n, COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN (CASE WHEN cobrado = 1 THEN importe ELSE 0 END) ELSE -importe END), 0) s
+                           FROM caja_movimientos WHERE tipo IN ('ingreso','gasto') AND fecha >= ? AND fecha <= ?");
+        $q->execute([$desde !== '' ? $desde : '0000-00-00', date('Y-m-d')]);
+        $r = pebai_fila($q);
+        if ($desde === '' && !(int)($r['n'] ?? 0)) {
+            return null;
+        }
+        return (int)($aj['saldo_inicial'] ?? 0) + (int)($r['s'] ?? 0);
+    } catch (Throwable $e) {
+        return null;
+    }
+}
+
 /* ------------------------------------------------------------ Datos (JSON) --- */
 if ($auth && isset($_GET['gestoria'])) {
     try {
-        json_out(gestoria_estado() + ['csrf' => csrf()]);
+        json_out(gestoria_estado() + ['caja_saldo' => gs_caja_saldo(), 'csrf' => csrf()]);
     } catch (Throwable $e) {
         json_out(['ok' => false, 'error' => 'No se puede abrir la gestoría: ' . $e->getMessage()], 500);
     }

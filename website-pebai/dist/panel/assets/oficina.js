@@ -1,5 +1,6 @@
-/* PEBAI · Panel — Automático › Agentes: la oficina 3D de los agentes.
-   Datos reales en index.php?oficina=1 (ver _oficina_panel.php). Three.js se carga solo al abrir la sección.
+/* PEBAI · Panel — Automático › Agentes: el Mando (vista por defecto desde el 17/11) y la oficina 3D de los agentes.
+   Datos reales en index.php?oficina=1 (ver _oficina_panel.php). Three.js se carga solo al abrir la pestaña «Oficina 3D»
+   (Daniel, 17/11): el Mando no la necesita y entra al momento.
    Navegación con clics: sala o agente → la cámara va a él; clic fuera, Esc o × → vista general.
    La distribución sale de DEPTS: más departamentos o más agentes por sala se colocan solos.
    Todo texto que llega de los agentes se pinta con textContent o escapado: nunca HTML de los datos. */
@@ -62,7 +63,7 @@ async function cargar() {
   if (!j.ok) throw new Error(j.error || 'No se ha podido cargar la oficina.');
   /* en la oficina solo salen los bots de verdad (los de los departamentos con agentes) */
   j.agentes.forEach((a) => { if (!a.icono && PROPIOS[a.id]) { a.icono = a.id; FONDO[a.id] = FONDO[a.id] || FONDO.geo; } });
-  S.agentes = j.agentes.filter((a) => DEPTS.some((d) => d.activo && d.id === a.dept)); S.autos = j.agentes.filter((a) => a.dept === 'embudo'); S.csrf = j.csrf; S.parada = j.parada || null; S.iaNucleo = j.ia_nucleo || ''; S.cargado = Date.now(); return true;
+  S.agentes = j.agentes.filter((a) => DEPTS.some((d) => d.activo && d.id === a.dept)); S.autos = j.agentes.filter((a) => a.dept === 'embudo'); S.csrf = j.csrf; S.parada = j.parada || null; S.iaNucleo = j.ia_nucleo || ''; S.iaHoy = j.ia_hoy ?? null; S.cargado = Date.now(); return true;
 }
 async function accion(action, fields, ok, btn) {
   if (btn) btn.disabled = true;
@@ -100,7 +101,7 @@ function proximoTurno() {
   const ahora = new Date(), dia = ahora.getDay(), finde = dia === 0 || dia === 6;
   let mejor = null;
   S.agentes.forEach((a) => {
-    if (a.st === 'trabajando' || !a.proxima) return;
+    if (a.st === 'trabajando' || !a.proxima || geoParado(a)) return;
     const txt = String(a.proxima);
     // fin de semana: solo los de «Cada día» o los que dicen sábado/domingo
     if (finde && /L-V/.test(txt) && !/S-D|s[áa]bado|domingo/i.test(txt)) return;
@@ -136,11 +137,11 @@ function pintaHud() {
     b.append(q); lst.append(b);
   });
   hud.append(c, botonParar(), botonVista(), botonRepe()); horaHud();
-  if (lista) pintaLista();
+  if (lista) pintaMando();
 }
-/* Vista Lista: lo mismo que la oficina, en filas (rápida de revisar; en el móvil es la de entrada y no se carga el 3D) */
-let lista = (() => { try { const v = localStorage.getItem('pb-of-vista'); if (v) return v === 'lista'; } catch (e) { /* sin almacenamiento */ } return matchMedia('(max-width: 760px)').matches; })();
-const listaBox = document.createElement('div'); listaBox.className = 'pb-of-lista'; wrap.append(listaBox);
+/* Vista Mando (antes «Lista»): por defecto siempre (Daniel, 17/11). Si en esta sesión se elige la Oficina 3D, se recuerda hasta cerrar. */
+let lista = (() => { try { return sessionStorage.getItem('pb-of-vista2') !== '3d'; } catch (e) { return true; } })();
+const listaBox = document.createElement('div'); listaBox.className = 'pb-of-lista pb-of-mando'; wrap.append(listaBox);
 /* ---------- «Repetir el día»: la oficina reproduce hoy en ~40 s con un reloj que corre ----------
    Turnos sacados del historial real de cada agente (Empieza…Termina; si no, un rato alrededor de cada cosa que hizo)
    y los traspasos en su hora. Al acabar (o con ×) todo vuelve al estado de ahora. */
@@ -272,35 +273,188 @@ function paraRepe() {
 }
 function botonVista() {
   const b = document.createElement('div'); b.className = 'pb-of-vista';
-  b.innerHTML = `<button type="button" data-v="3d" class="${lista ? '' : 'on'}">3D</button><button type="button" data-v="lista" class="${lista ? 'on' : ''}">Lista</button>`;
+  b.innerHTML = `<button type="button" data-v="lista" class="${lista ? 'on' : ''}">Mando</button><button type="button" data-v="3d" class="${lista ? '' : 'on'}">Oficina 3D</button>`;
   b.querySelectorAll('button').forEach((x) => { x.onclick = (e) => { e.stopPropagation(); ponVista(x.dataset.v === 'lista'); }; });
   return b;
 }
 function ponVista(on) {
-  lista = on; try { localStorage.setItem('pb-of-vista', on ? 'lista' : '3d'); } catch (e) { /* nada */ }
-  wrap.classList.toggle('lista', on); pintaHud();
+  lista = on; try { sessionStorage.setItem('pb-of-vista2', on ? 'mando' : '3d'); } catch (e) { /* nada */ }
+  colocaVista(); pintaHud();
   if (!on && !G) montar().catch((e) => toast(e.message || 'No se ha podido cargar la oficina.', true));
+  else if (!on && G) G.refrescarEscena(true);
 }
-function pintaLista() {
-  const ORDEN_ST = { trabajando: 0, error: 1, espera: 2, pausado: 3, dormido: 4, apagado: 5 };
-  const filas = DEPTS.map((d) => {
-    const ags = agsDe(d.id).slice().sort((x, y) => (ORDEN_ST[x.st] ?? 9) - (ORDEN_ST[y.st] ?? 9));
-    if (!d.activo || !ags.length) return '';
-    const tr = ags.filter((a) => a.st === 'trabajando').length;
-    return `<section><header><i style="background:${d.color}"></i><b>${esc(d.nombre)}</b><span>${tr} de ${ags.length} trabajando</span></header>`
-      + ags.map((a) => {
-        const [c, t] = ST[a.st] || ST.espera;
-        const pc = a.st === 'trabajando' && a.cupo ? Math.min(100, Math.round(a.hoy / a.cupo * 100)) : null;
-        const nec = (a.necesita || [])[0];
-        return `<button type="button" class="fila" data-id="${esc(a.id)}">${tileHtml(a, 't')}<span class="nm"><b>${esc(a.nombre)}</b><small>${esc(nec || a.motivo || a.rol || '')}</small>${franjaDia(a)}</span>`
-          + `<span class="st" style="--c:${c}"><i></i>${esc(t)}${pc != null ? ` · ${pc}%` : ''}</span></button>`;
-      }).join('') + '</section>';
+/* ============ Mando (17/11): la vista por defecto de Agentes ============
+   Aviso rojo arriba si algo falló, anillo con un segmento por agente, Captación como rejilla de caras, los de GEO parados
+   por Daniel en una sola fila y una línea de tiempo de 7 a 21 h con una fila por agente. Un clic abre la ficha de siempre
+   (decisiones, Explícamelo, Ajustes, Rendimiento…). Colores con las variables del panel: igual en tema claro y oscuro.
+   Se repinta solo si cambian los datos; la marca «ahora» se mueve sola con una variable. */
+// Daniel paró los agentes de GEO el 5/11: si uno no ha apuntado nada desde entonces, sale como «parado por ti»
+const GEO_PARO = '2026-11-06';
+function geoParado(a) {
+  if (a.dept !== 'geo' || a.st === 'trabajando') return false;
+  if (Array.isArray(a.franja) && a.franja.length) return false;
+  return !(a.actividad || []).some((e) => String(e.ts) >= GEO_PARO);
+}
+const MST = {
+  trabajando: ['var(--lime)', 'Trabajando'], error: ['var(--red)', 'Ha fallado'], pausado: ['var(--violet-2)', 'En pausa'],
+  espera: ['var(--cyan)', 'Atento'], dormido: ['var(--muted-2)', 'Durmiendo'], apagado: ['var(--line-2)', 'Apagado'], parado: ['var(--amber)', 'Parado por ti'],
+};
+const ORDEN_M = ['trabajando', 'error', 'pausado', 'espera', 'dormido', 'apagado', 'parado'];
+const estM = (a) => (geoParado(a) ? 'parado' : MST[a.st] ? a.st : 'espera');
+const hhmm = (t) => { const d = new Date(t); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+const ICOM = {
+  alert: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+  play: '<path d="M7 5v14l11-7z"/>', more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+  stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>', x: '<path d="M18 6 6 18M6 6l12 12"/>', go: '<path d="m9 6 6 6-6 6"/>',
+};
+const icoM = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICOM[k]}</svg>`;
+/* Turnos previstos de hoy a partir de su horario («L-V 9:00 y 16:00 (45 min)», «L-V cada 2 h de 8:00 a 20:00», «Vuelve hoy a las 17:00») */
+function turnosPrevistos(a) {
+  const txt = String(a.proxima || ''); if (!txt || a.st === 'pausado') return [];
+  const ahora = new Date(), dia = ahora.getDay(), finde = dia === 0 || dia === 6;
+  if (finde && /L-V/.test(txt) && !/S-D|s[áa]bado|domingo/i.test(txt)) return [];
+  const partes = txt.split(';');
+  const t = partes.length > 1 ? (partes.find((p) => (finde ? /S-D|s[áa]bado|domingo/i : /L-V/).test(p)) || txt) : txt;
+  const dur = +((/\((\d+) ?min\)/.exec(txt) || [])[1] || 30);
+  const cada = /cada (\d+) ?h de (\d{1,2}):(\d{2}) a (\d{1,2}):(\d{2})/.exec(t), horas = [];
+  if (cada) for (let h = +cada[2]; h <= +cada[4]; h += +cada[1]) horas.push(h + ':' + cada[3]);
+  return (cada ? horas : (t.match(/\b(\d{1,2}):(\d{2})\b/g) || [])).map((hm) => {
+    const [h, m] = hm.split(':').map(Number); const d = new Date(ahora); d.setHours(h, m, 0, 0); return [d.getTime(), d.getTime() + dur * 6e4];
+  });
+}
+const sigTurno = (a) => { const now = Date.now(); const f = turnosPrevistos(a).filter(([x]) => x > now); return f.length ? f[0][0] : null; };
+const hoyMs = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); };
+/* Una línea corta por agente: el estado y lo justo */
+function lineaCorta(a) {
+  const e = estM(a), hoy = a.hoy ? `${N(a.hoy)} ${esc(String(a.unidad || '').replace(/^empresas entregadas$/, 'empresas').replace(/^tareas hechas$/, 'tareas'))} hoy`.replace(/\s+hoy$/, ' hoy') : '';
+  if (e === 'error') { const f = (a.errores || [])[0]; const st = sigTurno(a); return `Falló${f ? ' a las ' + esc(hora(f.ts)) : ''}${st ? ' · vuelve a las ' + hhmm(st) : ''}`; }
+  if (e === 'trabajando') return hoy || 'Trabajando ahora';
+  if (e === 'pausado') return 'En pausa desde el panel';
+  if (e === 'parado') return 'Parado por ti';
+  const st = sigTurno(a);
+  return [MST[e][1], st ? 'turno a las ' + hhmm(st) : hoy].filter(Boolean).join(' · ');
+}
+/* Cabecera (título, «En directo», Mando / Oficina 3D, Repetir el día, parar todo) y hueco para «Pregunta a PEBAI» */
+listaBox.innerHTML = '<header class="mdo-cab"><div><h1 class="pb-h1">Agentes, <i>en directo</i></h1><p class="pbx-sub mdo-sub"></p></div><div class="mdo-ctl"></div></header>'
+  + '<div class="mdo-cuerpo"></div><section class="pbx-c mdo-preg"><header class="pbx-ch"><h3>Pregunta a PEBAI</h3><small>Responde con los datos de ahora mismo</small></header><div class="mdo-ask"></div></section>';
+const mdo = { cab: $('.mdo-sub', listaBox), ctl: $('.mdo-ctl', listaBox), cuerpo: $('.mdo-cuerpo', listaBox), ask: $('.mdo-ask', listaBox), firma: '' };
+function colocaVista() {
+  wrap.classList.toggle('lista', lista);
+  document.body.classList.toggle('pb-ag-mando', lista);
+  // «Pregunta a PEBAI» va dentro del Mando o flotando sobre la oficina
+  if (lista && askW.parentNode !== mdo.ask) { mdo.ask.append(askW); askW.classList.add('abierta'); }
+  else if (!lista && askW.parentNode !== wrap) { wrap.insertBefore(askW, listaBox); cerrarAsk(); }
+  if (lista) { const l = $('#pb-of-load'); if (l) l.remove(); }
+}
+function controlesMando() {
+  const p = S.parada;
+  mdo.ctl.innerHTML = '<span class="pbx-pill mdo-vivo" style="--c:var(--green)">En directo</span>'
+    + '<div class="mdo-seg" role="group" aria-label="Vista"><button type="button" data-v="lista" aria-pressed="true" class="on">Mando</button><button type="button" data-v="3d" aria-pressed="false">Oficina 3D</button></div>'
+    + `<button type="button" class="pbx-btn sm ghost" data-repe title="Ver en 40 segundos todo lo que ha pasado hoy en la oficina">${icoM('play')}Repetir el día</button>`
+    + (p ? `<button type="button" class="pbx-btn sm lime" data-reanudar title="Vuelve a poner en marcha los agentes que estaban funcionando">${icoM('play')}Reanudar todo <small>parado desde ${esc(String(p.ts || '').slice(11, 16))}</small></button>`
+      : `<div class="mdo-mas"><button type="button" class="pbx-btn sm ghost ico" data-mas aria-label="Más opciones" title="Más opciones">${icoM('more')}</button><div class="menu"><button type="button" data-parar>${icoM('stop')}Parar todos los agentes…</button></div></div>`);
+}
+listaBox.addEventListener('click', (e) => {
+  const t = e.target.closest('button,[data-id]');
+  if (!t && side.classList.contains('on') && !e.target.closest('.pb-of-ask')) { cerrar(); return; }   // clic fuera: se cierra la ficha
+  if (!t || !listaBox.contains(t) || t.closest('.pb-of-ask')) return;
+  e.stopPropagation();
+  const mas = $('.mdo-mas', listaBox);
+  if (t.dataset.v) { if (t.dataset.v === '3d') ponVista(false); return; }
+  if ('repe' in t.dataset) { empiezaRepe(); return; }
+  if ('reanudar' in t.dataset) { accion('agentes_parar', { modo: 'reanudar' }, 'Agentes reanudados.', t); return; }
+  if ('mas' in t.dataset) { if (mas) mas.classList.toggle('on'); return; }
+  if ('parar' in t.dataset) { if (mas) mas.classList.remove('on'); confirmaParar(); return; }
+  if (t.dataset.quita) {
+    ocultos.add(t.dataset.quita);
+    try { localStorage.setItem('pb-of-ocultos', JSON.stringify([...ocultos].slice(-200))); } catch (e2) { /* nada */ }
+    pintaHud(); return;
+  }
+  if ('verGeo' in t.dataset) { S.verGeo = !S.verGeo; pintaMando(); return; }
+  if (t.dataset.sala) { abrirSala(DEPTS.find((d) => d.id === t.dataset.sala)); return; }
+  if (t.dataset.ir) { const b = document.querySelector(`#pb-tabs button[data-page="${t.dataset.ir}"]:not(#pb-nav-control)`); if (b) b.click(); return; }
+  if (t.dataset.id) { if (t.dataset.tab) S.tab = t.dataset.tab; abrirAgente(t.dataset.id); }
+});
+document.addEventListener('click', () => { const m = $('.mdo-mas.on', listaBox); if (m) m.classList.remove('on'); });
+function agtHtml(a, i) {
+  const e = estM(a);
+  return `<button type="button" class="mdo-agt is-${e} pbg-n" style="--e:${MST[e][0]};--n:${Math.min(i, 12)}" data-id="${esc(a.id)}">${tileHtml(a, 't')}<span><b>${esc(a.nombre)}</b><small>${lineaCorta(a)}</small></span></button>`;
+}
+// Línea de tiempo: de 7:00 a 21:00
+const T0 = () => hoyMs() + 7 * 36e5, TSPAN = 14 * 36e5;
+const posT = (t) => Math.max(0, Math.min(100, (t - T0()) / TSPAN * 100));
+const bloque = (cls, x, y, tit) => `<i class="${cls}" style="left:${posT(x).toFixed(2)}%;width:${Math.max(.8, posT(y) - posT(x)).toFixed(2)}%"${tit ? ` title="${esc(tit)}"` : ''}></i>`;
+function filaTiempo(a) {
+  const e = estM(a), ini = T0(), fin = ini + TSPAN, now = Date.now();
+  let bl = '';
+  if (e === 'pausado') bl = '<i class="pausa" style="left:0;width:100%"></i>';
+  else {
+    turnosDeHoy(a).filter(([x, y]) => y > ini && x < fin).forEach(([x, y]) => { bl += bloque('', x, Math.min(y, now), `Trabajó de ${hhmm(x)} a ${hhmm(Math.min(y, now))}`); });
+    (a.errores || []).filter((f) => tsMs(f.ts) >= ini && tsMs(f.ts) < fin).forEach((f) => { const x = tsMs(f.ts); bl += bloque('err', x, x + 8 * 6e4, hora(f.ts) + ' · ' + f.txt); });
+    turnosPrevistos(a).filter(([x]) => x > now && x < fin).forEach(([x, y]) => { bl += bloque('fut', x, y, 'Turno previsto a las ' + hhmm(x)); });
+  }
+  return `<button type="button" class="mdo-gt" data-id="${esc(a.id)}" data-tab="actividad" title="Ver lo que ha hecho ${esc(a.nombre)}"><span><i class="pbx-dot r" style="--c:${MST[e][0]}"></i>${esc(a.nombre)}</span><span class="mdo-pista">${bl}<u></u></span></button>`;
+}
+function pintaMando() {
+  const ags = S.agentes, now = Date.now();
+  const vivos = ags.filter((a) => !geoParado(a)), parados = ags.filter(geoParado);
+  const tr = ags.filter((a) => a.st === 'trabajando').length;
+  // la marca «ahora» se mueve sin repintar
+  const pa = (now - T0()) / TSPAN * 100;
+  listaBox.style.setProperty('--ahora', Math.max(0, Math.min(100, pa)).toFixed(2) + '%');
+  listaBox.classList.toggle('fuera-hora', pa < 0 || pa > 100);
+  const ahoraTxt = $('.mdo-ahora-t', listaBox); if (ahoraTxt) ahoraTxt.textContent = 'ahora · ' + hhmm(now);
+  controlesMando();
+  let sig = null;
+  vivos.forEach((a) => { if (a.st === 'trabajando') return; const t = sigTurno(a); if (t && (!sig || t < sig.t)) sig = { t, a }; });
+  const errN = vivos.filter((a) => a.st === 'error').length;
+  mdo.cab.innerHTML = `<b>${tr} de ${ags.length}</b> trabajando ahora` + (errN ? ` · <b class="pbx-rojo">${errN} con fallo</b>` : '') + (sig ? ` · siguiente turno: <b>${esc(sig.a.nombre)} a las ${hhmm(sig.t)}</b>` : '');
+  const firma = JSON.stringify([ags.map((a) => [a.id, a.st, a.motivo, a.hoy, a.proxima, a.franja, (a.errores || []).map((f) => f.ts), a.necesita, a.pausado]),
+    S.parada, S.iaHoy, [...ocultos], S.verGeo, S.autos.map((a) => a.st), new Date().getHours()]);
+  if (firma === mdo.firma && mdo.cuerpo.firstChild) return;
+  mdo.firma = firma;
+  // avisos: primero los fallos (rojo), luego lo que necesita de vosotros (ámbar). Los de GEO parados no avisan: los paró Daniel.
+  const pend = pendientes().filter((p) => !geoParado(p.a));
+  const quita = (a, txt) => `<button type="button" class="mdo-x" data-quita="${esc(claveAviso(a, txt))}" title="Quitar este aviso (vuelve si cambia)" aria-label="Quitar aviso">${icoM('x')}</button>`;
+  const rojos = pend.filter((p) => p.err).slice(0, 3).map(({ a, txt }, i) => {
+    const f = (a.errores || [])[0];
+    return `<div class="mdo-aviso pbg-n" style="--n:${i}"><span class="pbx-ico" style="--c:var(--red)">${icoM('alert')}</span><div><b>${esc(a.nombre)} ${f ? 'falló a las ' + esc(hora(f.ts)) : 'tiene un fallo'}</b><span>${esc(txt)}</span></div>`
+      + `<button type="button" class="pbx-btn sm" data-id="${esc(a.id)}" data-tab="estado">Ver qué pasó</button>${quita(a, txt)}</div>`;
   }).join('');
-  const vacias = DEPTS.filter((d) => !d.activo || !agsDe(d.id).length).map((d) => esc(d.nombre));
-  listaBox.innerHTML = filas + (vacias.length ? `<p class="vacias">Sin agentes aún: ${vacias.join(' · ')}</p>` : '');
-  listaBox.querySelectorAll('.fila').forEach((f) => { f.onclick = (e) => { e.stopPropagation(); abrirAgente(f.dataset.id); }; });
+  const amb = pend.filter((p) => !p.err);
+  const ambar = amb.length ? `<div class="mdo-necesita pbg-n" style="--n:1"><small>Os necesita</small>${amb.slice(0, 4).map(({ a, txt }) => `<div class="mdo-nec"><button type="button" data-id="${esc(a.id)}" data-tab="estado">${tileHtml(a, 't')}<span class="tx"><b>${esc(a.nombre)}</b> ${esc(txt)}</span>${icoM('go')}</button>${quita(a, txt)}</div>`).join('')}${amb.length > 4 ? `<small>y ${amb.length - 4} más en la ficha de cada agente</small>` : ''}</div>` : '';
+  // anillo: un segmento por agente, ordenado por estado
+  const orden = ags.slice().sort((x, y) => ORDEN_M.indexOf(estM(x)) - ORDEN_M.indexOf(estM(y)));
+  const cuenta = {}; orden.forEach((a) => { const e = estM(a); cuenta[e] = (cuenta[e] || 0) + 1; });
+  const PB = window.PBX;
+  const anillo = PB ? PB.anillo(orden.map((a) => MST[estM(a)][0]), `${tr}/${ags.length}`, 'trabajando', 9) : '';
+  const ley = ORDEN_M.filter((k) => cuenta[k]).map((k) => `<span><i class="pbx-dot r" style="--c:${MST[k][0]}"></i>${k === 'parado' ? 'Parados por ti' : MST[k][1]}<b>${cuenta[k]}</b></span>`).join('');
+  const iaHoy = S.iaHoy != null ? `<div class="mdo-sig"><span>Gasto IA hoy</span><b class="pbx-lima">${String((+S.iaHoy).toFixed(2)).replace('.', ',')} $</b><button type="button" class="mdo-link" data-ir="gasto">ver</button></div>` : '';
+  const heroe = `<article class="pbx-c pbx-heroe mdo-heroe pbg-n" style="--n:2;--hc:var(--lime)"><div class="mdo-anillo">${anillo}</div><div class="mdo-ley">${ley}</div>`
+    + (sig ? `<div class="mdo-sig"><span>Siguiente turno</span><b>${esc(sig.a.nombre)} · ${hhmm(sig.t)}</b></div>` : '') + iaHoy + '</article>';
+  // equipos
+  const dept = (id) => vivos.filter((a) => a.dept === id).sort((x, y) => ORDEN_M.indexOf(estM(x)) - ORDEN_M.indexOf(estM(y)));
+  const cap = dept('captacion'), geoV = dept('geo');
+  const dCap = DEPTS.find((d) => d.id === 'captacion'), dGeo = DEPTS.find((d) => d.id === 'geo'), dEmb = DEPTS.find((d) => d.id === 'embudo');
+  const capHtml = cap.length ? `<article class="pbx-c mdo-eq pbg-n" style="--n:3"><header class="pbx-ch"><h3><i class="pbx-dot r" style="--c:${dCap.color}"></i>${esc(dCap.nombre)}</h3><small>${cap.filter((a) => a.st === 'trabajando').length} de ${cap.length} trabajando</small></header><div class="mdo-agts">${cap.map(agtHtml).join('')}</div></article>` : '';
+  let geoHtml = '';
+  if (geoV.length || parados.length) {
+    geoHtml = `<article class="pbx-c mdo-eq pbg-n" style="--n:4"><header class="pbx-ch"><h3><i class="pbx-dot r" style="--c:${dGeo.color}"></i>${esc(dGeo.nombre)}</h3><small>${geoV.length ? `${geoV.filter((a) => a.st === 'trabajando').length} de ${geoV.length} en marcha · ` : ''}${parados.length} parados</small></header>`
+      + (geoV.length ? `<div class="mdo-agts">${geoV.map(agtHtml).join('')}</div>` : '')
+      + (parados.length ? `<div class="mdo-parados"><span class="mdo-minis">${parados.slice(0, 11).map((a) => tileHtml(a, 't')).join('')}</span><span class="mdo-ptxt"><b>${parados.length} parados por ti</b> el 5 de noviembre. Metricool sigue publicando lo programado.</span><button type="button" class="pbx-btn sm ghost" data-ver-geo aria-expanded="${!!S.verGeo}">${S.verGeo ? 'Ocultar' : 'Ver los ' + parados.length}</button></div>`
+        + (S.verGeo ? `<div class="mdo-agts mdo-agts-p">${parados.map(agtHtml).join('')}</div>` : '') : '')
+      + '</article>';
+  }
+  const autos = S.autos.length && dEmb ? `<button type="button" class="mdo-otros pbg-n" style="--n:5" data-sala="embudo"><i class="pbx-dot r" style="--c:${dEmb.color}"></i><b>${esc(dEmb.nombre)}</b><span>${S.autos.length} automáticos · ${S.autos.some((a) => a.st === 'error') ? 'alguno con error' : 'todos atentos'}</span>${icoM('go')}</button>` : '';
+  const vacias = DEPTS.filter((d) => d.id !== 'embudo' && (!d.activo || !agsDe(d.id).length)).map((d) => esc(d.nombre));
+  // línea de tiempo única
+  const filas = [...cap, ...geoV].map(filaTiempo).join('')
+    + (parados.length ? `<button type="button" class="mdo-gt parados" data-sala="geo" title="Ver la sala de Visibilidad en IA"><span><i class="pbx-dot r" style="--c:var(--amber)"></i>${parados.length} de GEO</span><span class="mdo-pista"><i class="paro" style="left:0;width:100%"></i><u></u></span></button>` : '');
+  const gantt = `<article class="pbx-c mdo-gantt pbg-n" style="--n:6"><header class="pbx-ch"><h3>Hoy, de 7:00 a 21:00</h3><div class="mdo-gley"><span><i class="pbx-dot" style="--c:var(--lime)"></i>Trabajó</span><span><i class="pbx-dot" style="--c:var(--red)"></i>Falló</span><span><i class="pbx-dot fut"></i>Turno previsto</span><span><i class="pbx-dot pz"></i>En pausa</span></div></header>`
+    + `<div class="mdo-gts"><div class="mdo-ahora-f"><span></span><div><em class="mdo-ahora-t">ahora · ${hhmm(now)}</em></div></div>${filas}<div class="mdo-ejes"><span></span><div><span>7 h</span><span>10 h</span><span>13 h</span><span>16 h</span><span>19 h</span><span>21 h</span></div></div></div></article>`;
+  mdo.cuerpo.innerHTML = (rojos || ambar ? `<div class="mdo-avisos">${rojos}${ambar}</div>` : '')
+    + `<div class="mdo-top">${heroe}<div class="mdo-equipos">${capHtml}${geoHtml}${autos}${vacias.length ? `<p class="mdo-vacias">Sin agentes aún: ${vacias.join(' · ')}</p>` : ''}</div></div>` + gantt;
 }
-wrap.classList.toggle('lista', lista);
 /* Interruptor general: pausa a la vez a los agentes que escriben a otras empresas (WhatsApp y email).
    «Reanudar todo» solo vuelve a poner en marcha los que estaban funcionando al pararlo. */
 function botonParar() {
@@ -2059,6 +2213,7 @@ async function refrescar() {
     if (side.classList.contains('on') && foco && foco.agente) abrirAgente(foco.agente);
   } catch (e) { toast(e.message || 'No se ha podido cargar la oficina.', true); }
 }
+colocaVista();
 const alEntrar = () => { if (enPagina()) refrescar(); };
 document.addEventListener('pb:page', alEntrar);
 document.addEventListener('pb:agview', alEntrar);

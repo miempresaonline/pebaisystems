@@ -185,6 +185,7 @@ function pebai_gp_estado(): array
         'ok' => true, 'hoy' => date('Y-m-d'),
         'filas' => $filas,
         'preguntas' => array_map(static fn($p) => ['titulo' => $p[0], 'opciones' => $p[1]], PEBAI_GP_PREGUNTAS),
+        'puntos' => PEBAI_GP_PUNTOS,
         'estados_nombre' => PEBAI_GP_ESTADOS,
         'cifras' => [
             'total' => count($filas), 'nuevos' => $estados['nuevo'], 'activos' => $estados['activo'],

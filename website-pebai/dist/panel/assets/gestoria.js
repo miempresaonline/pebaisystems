@@ -23,7 +23,7 @@ const ico = (p) => `<svg class="pb-i" viewBox="0 0 24 24">${p}</svg>`;
 const toast = (msg, err) => { const t = document.getElementById('pb-toast'); if (!t) { if (err) alert(msg); return; } t.querySelector('span').textContent = msg; t.classList.toggle('err', !!err); t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 3200); };
 const pct = (p) => String(+p).replace('.', ',') + ' %';
 
-let D = null;
+let D = null, firma = '', pintadoCon = null;
 const ui = { tab: 'resumen', form: null, gasto: null };
 try { ui.tab = sessionStorage.getItem('pb-gs-tab') || 'resumen'; } catch (e) { /* nada */ }
 
@@ -31,7 +31,7 @@ async function cargar() {
   const r = await fetch(BASE + '?gestoria=1', { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } });
   if (r.status === 401) { pbCaduca(); return; }
   const j = await r.json(); if (!j.ok) throw new Error(j.error || 'Sin datos');
-  D = j;
+  const { csrf, ...sin } = j; firma = JSON.stringify(sin); D = j;
 }
 async function post(action, campos) {
   const r = await fetch(BASE, { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json' },
@@ -50,64 +50,130 @@ const opts = (lista, sel) => lista.map(([v, t]) => `<option value="${esc(v)}"${S
 const faltanDatos = () => !D.ajustes.nombre || !D.ajustes.nif || !D.ajustes.direccion;
 
 function cabecera() {
-  const alta = D.ajustes.fecha_alta, antes = D.hoy < alta;
   const tabs = [['resumen', 'Resumen'], ['facturas', 'Facturas'], ['reparto', 'Reparto'], ['gastos', 'Gastos'], ['datos', 'Mis datos']];
-  return `<header class="gs-cab">
-    <div><h2>Gestoría</h2><p>Tus facturas, lo que le toca a cada uno y lo que tendrás que pagar a Hacienda cada 3 meses. Las cuentas las hace el panel: tú solo apuntas y, cuando toque, presentas.</p></div>
+  return `<header class="pbx-cab gs-cab">
+    <div><h2 class="pbx-h1">Gestoría, <i>sin sustos</i></h2></div>
+    <nav class="pb-seg gs-tabs">${tabs.map(([k, t]) => `<button type="button" data-tab="${k}" class="${ui.tab === k ? 'on' : ''}">${t}</button>`).join('')}</nav>
   </header>
-  ${antes ? `<div class="gs-aviso">${ico('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>')}<div><b>Te das de alta como autónomo el ${esc(F(alta))}.</b> Faltan ${dias(alta, D.hoy)} días. Hasta entonces no hagas facturas; puedes ir dejando listos tus datos.</div></div>` : ''}
-  ${faltanDatos() ? `<div class="gs-aviso amb">${ico('<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>')}<div><b>Faltan tus datos para las facturas.</b> Ve a «Mis datos»: tu NIF es tu DNI con la letra y tu dirección fiscal es donde vives.</div></div>` : ''}
-  <nav class="gs-tabs">${tabs.map(([k, t]) => `<button type="button" data-tab="${k}" class="${ui.tab === k ? 'on' : ''}">${t}</button>`).join('')}</nav>`;
+  ${avisoAlta()}
+  ${faltanDatos() && ui.tab === 'facturas' ? `<div class="gs-aviso amb">${ico('<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>')}<div><b>Faltan tus datos para las facturas.</b> Ve a «Mis datos»: tu NIF es tu DNI con la letra y tu dirección fiscal es donde vives.</div></div>` : ''}`;
+}
+// Aviso del alta: anillo de cuenta atrás (se va llenando en los últimos 60 días)
+function avisoAlta() {
+  const alta = D.ajustes.fecha_alta; if (!alta || D.hoy >= alta) return '';
+  const d = dias(alta, D.hoy), p = Math.max(0, Math.min(1, 1 - d / Math.max(60, d)));
+  const r = 48, L = 2 * Math.PI * r;
+  const anillo = `<svg class="pbx-g gs-anillo" viewBox="0 0 120 120" role="img" aria-label="Faltan ${d} días"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--line-2)" stroke-width="12"/>
+    ${p > 0 ? `<circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--violet-2)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${(p * L).toFixed(1)} ${L.toFixed(1)}" transform="rotate(-90 60 60)"/>` : ''}
+    <text x="60" y="68" class="g1" style="font-size:26px">${d} d</text></svg>`;
+  return `<div class="gs-alta pbg-n" style="--n:0">${anillo}<div><b>Te das de alta como autónomo el ${esc(FL(alta))}</b><span>Hasta entonces no hagas facturas; puedes ir dejando listos tus datos.</span></div>
+    ${faltanDatos() ? '<button type="button" class="pbx-btn sm" data-ir="datos">Completar mis datos</button>' : ''}</div>`;
 }
 
 /* ============ Resumen ============ */
+const MES_L = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const FL = (f) => `${+f.slice(8, 10)} de ${MES_L[+f.slice(5, 7) - 1]}`;
+const totalTri = (t) => Math.max(0, t.m303.pagar) + t.m130.pagar + t.m111.pagar;
+const plazoDe = (y, t) => (t === 4 ? `${y + 1}-01-30` : `${y}-${String(t * 3 + 1).padStart(2, '0')}-20`);
+const E0 = (c) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0, useGrouping: 'always' }).format(Math.round((+c || 0) / 100));
+const info = (t) => `<span class="gs-info" tabindex="0" role="note" aria-label="${esc(t)}">i<span class="gs-tip">${esc(t)}</span></span>`;
+const EXPLICA = {
+  iva: 'El 21 % que cobras en cada factura no es tuyo: das a Hacienda lo cobrado menos lo que pagaste en tus gastos.',
+  irpf: 'Adelanto de tu renta: el 20 % de lo que ganas este año (cobros menos gastos), menos lo ya adelantado y lo que te retienen.',
+  ret: 'Lo que te quedas al pagar a Adrián o a un comisionista con recibí (7 o 15 %): se lo das tú a Hacienda en su nombre.',
+};
+
 function resumen() {
   const tri = D.trimestres, prox = tri.find((t) => t.plazo >= D.hoy) || tri[0];
-  const total = (t) => Math.max(0, t.m303.pagar) + t.m130.pagar + t.m111.pagar;
-  const pend = D.caja_pendientes.length;
-  const adrPend = D.reparto.total.adrian - D.reparto.adrian_facturado;
+  const total = totalTri(prox), d = dias(prox.plazo, D.hoy);
+  const iva = prox.m303.pagar, irpf = prox.m130.pagar, ret = prox.m111.pagar;
+  const partes = [[Math.max(0, iva), 'var(--violet-2)', 'IVA'], [irpf, 'var(--cyan)', 'Adelanto de IRPF'], [ret, 'var(--amber)', 'Retenciones']];
+  const ley = [['IVA', iva, 'var(--violet-2)', EXPLICA.iva], ['Adelanto de IRPF', irpf, 'var(--cyan)', EXPLICA.irpf], ['Retenciones', ret, 'var(--amber)', EXPLICA.ret]]
+    .map(([n, v, c, t]) => `<span><i class="pbx-dot" style="--c:${c}"></i>${n} <b class="${v < 0 ? 'pbx-lima' : ''}">${E(v)}</b>${v < 0 ? '<small>a favor</small>' : ''}${info(t)}</span>`).join('');
+  const saldo = D.caja_saldo;
+  const cubre = saldo == null || total <= 0 ? '' : saldo >= total
+    ? `<div class="gs-cubre ok">${PBX.ico('check')}<span>Tu caja (<b>${E0(saldo)}</b>) ya cubre esta entrega</span></div>`
+    : `<div class="gs-cubre falta">${PBX.ico('alert')}<span>Tu caja tiene <b>${E0(saldo)}</b>: te faltan <b>${E(total - Math.max(0, saldo))}</b></span></div>`;
   return `
-  <section class="gs-hero">
-    <div class="gs-prox">
-      <small>Próxima entrega a Hacienda</small>
-      <b>${esc(F(prox.plazo))}</b>
-      <span>${dias(prox.plazo, D.hoy) >= 0 ? `Quedan ${dias(prox.plazo, D.hoy)} días` : 'Ya ha pasado'} · trimestre ${prox.t}.º de ${prox.y}</span>
-      <em>Aparta ${E(total(prox))}</em>
+  <section class="pbx-c pbx-heroe gs-heroe pbg-n" style="--n:1">
+    <div class="gs-izq">
+      <span class="pbx-tag">Próxima entrega a Hacienda</span>
+      <div class="pbx-num gs-fecha">${esc(FL(prox.plazo))}</div>
+      <p class="gs-quedan">${d >= 0 ? `Quedan <b>${d} día${d === 1 ? '' : 's'}</b>` : '<b>Ya ha pasado</b>'} · ${prox.t}.º trimestre de ${prox.y}</p>
+      <p class="gs-fact">Facturado este trimestre <b>${E(prox.ingresos)}</b> · ${prox.facturas} factura${prox.facturas === 1 ? '' : 's'} · gastos ${E(prox.gastos)}</p>
     </div>
-    <div class="gs-kpis">
-      ${kpi('IVA', prox.m303.pagar, prox.m303.pagar < 0 ? 'Te sale a favor: se resta del siguiente' : 'El IVA que cobraste menos el que pagaste')}
-      ${kpi('Adelanto de IRPF', prox.m130.pagar, 'El 20 % de lo que has ganado este año, menos lo ya adelantado')}
-      ${kpi('Retenciones', prox.m111.pagar, 'El 15 % que guardaste de Adrián o de los comisionistas')}
-      ${kpi('Facturado este trimestre', prox.ingresos, `${prox.facturas} factura${prox.facturas === 1 ? '' : 's'} · gastos ${E(prox.gastos)}`)}
+    <div class="gs-aparta">
+      <div class="gs-fila"><span>Aparta</span><span class="pbx-num">${E0(total)}</span></div>
+      ${total > 0 ? PBX.split(partes, false) : '<div class="pbx-split"></div>'}
+      <div class="pbx-ley gs-ley">${ley}</div>
+      ${cubre}
     </div>
   </section>
-  ${pend || adrPend > 0 ? `<section class="gs-card gs-tareas"><div class="gs-card-h"><h3>Para tener al día</h3></div>
-    ${pend ? `<button type="button" class="gs-tarea" data-ir="gastos">${ico('<path d="M5 12h14M12 5v14"/>')}<span><b>${pend} gasto${pend === 1 ? '' : 's'} de la caja</b> sin pasar a la gestoría. Si tienen factura, te los desgravas.</span></button>` : ''}
-    ${adrPend > 0 ? `<button type="button" class="gs-tarea" data-ir="reparto">${ico('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>')}<span><b>Adrián te tiene que facturar ${E(adrPend)}</b> de lo ya cobrado.</span></button>` : ''}
-  </section>` : ''}
-  <section class="gs-card">
-    <div class="gs-card-h"><h3>Trimestre a trimestre</h3><span>Lo que tocará presentar en cada fecha</span></div>
-    <div class="gs-tri">${tri.map((t) => `
-      <div class="gs-tri-f${t === prox ? ' on' : ''}">
-        <div class="q"><b>${t.t}T ${t.y}</b><span>${esc(F(t.desde))} – ${esc(F(t.hasta))}</span></div>
-        <div><small>IVA</small><b>${E(t.m303.pagar)}</b></div>
-        <div><small>IRPF</small><b>${E(t.m130.pagar)}</b></div>
-        <div><small>Retenciones</small><b>${E(t.m111.pagar)}</b></div>
-        <div class="pl"><small>Presentar hasta</small><b>${esc(F(t.plazo))}</b></div>
-      </div>`).join('')}</div>
-  </section>
-  <section class="gs-card gs-como">
-    <div class="gs-card-h"><h3>Qué es cada cosa</h3></div>
-    <div class="gs-exp">
+  <div class="gs-mid">
+    ${lineaTri(tri, prox)}
+    ${tareas()}
+  </div>
+  ${repartoBarra()}
+  <details class="pbx-pleg gs-como">
+    <summary>¿Qué es cada cosa? IVA, IRPF, retenciones y fechas</summary>
+    <div class="pbx-pleg-in"><div class="gs-exp">
       <div><b>IVA</b><p>A cada factura le sumas un 21 %. Ese dinero no es tuyo: es de Hacienda. Cada 3 meses le das el IVA que cobraste, menos el IVA que tú pagaste en tus gastos.</p></div>
       <div><b>Adelanto de IRPF</b><p>Es un adelanto de tu impuesto de la renta: el 20 % de lo que ganas (lo que cobras menos tus gastos). Si tus clientes ya te retienen en la factura, puede que no tengas que hacerlo; lo vemos con tus primeras facturas.</p></div>
       <div><b>Retenciones</b><p>Cuando pagas a Adrián o a un comisionista con recibí, te quedas un trocito (7 o 15 %) y se lo das tú a Hacienda en su nombre.</p></div>
       <div><b>Fechas</b><p>Del 1 al 20 de abril, julio y octubre, y del 1 al 30 de enero. En enero, además, los resúmenes del año. La renta, de abril a junio.</p></div>
     </div>
     <p class="gs-nota">Son cuentas para preparar las declaraciones. Las presentas tú en la sede de Hacienda con tu certificado digital o Cl@ve; antes de presentar, repásalas conmigo.</p>
-  </section>`;
+    ${tablaTri(tri, prox)}</div>
+  </details>`;
 }
-const kpi = (t, v, s) => `<div class="gs-kpi${v < 0 ? ' fav' : ''}"><small>${esc(t)}</small><b>${E(v)}</b><span>${esc(s)}</span></div>`;
+// Línea de tiempo de 4 trimestres: el de la próxima entrega en lima; los siguientes, apagados con su previsión
+function lineaTri(tri, prox) {
+  const puntos = tri.filter((t) => t.plazo < prox.plazo).slice(0, 1);
+  puntos.push(prox);
+  let { y, t } = prox;
+  const conDatos = tri.filter((x) => x.ingresos > 0);
+  const media = conDatos.length ? conDatos.reduce((s, x) => s + totalTri(x), 0) / conDatos.length : 0;
+  while (puntos.length < 4) { t++; if (t > 4) { t = 1; y++; } puntos.push({ y, t, plazo: plazoDe(y, t), prevision: media }); }
+  const corto = (f) => `${+f.slice(8, 10)} ${MES3[+f.slice(5, 7) - 1]}`;
+  return `<article class="pbx-c gs-tri-c pbg-n" style="--n:2"><div class="pbx-ch"><h3>Trimestre a trimestre</h3><span>Lo que tocará presentar</span></div>
+    <div class="gs-linea">${puntos.map((p) => { const on = p === prox, fut = 'prevision' in p;
+      return `<div class="${on ? 'on' : fut ? 'fut' : 'pas'}" title="${fut ? 'Previsión: la media de los trimestres con facturas' : ''}"><i>${p.t}T</i><b>${p.t}.º ${p.y}</b><em>${fut ? (p.prevision > 0 ? '≈ ' + E0(p.prevision) : '—') : E0(totalTri(p))}</em><small>hasta ${corto(p.plazo)}</small></div>`; }).join('')}</div>
+  </article>`;
+}
+function tablaTri(tri, prox) {
+  return `<div class="gs-tri">${tri.map((t) => `
+      <div class="gs-tri-f${t === prox ? ' on' : ''}">
+        <div class="q"><b>${t.t}T ${t.y}</b><span>${esc(F(t.desde))} – ${esc(F(t.hasta))}</span></div>
+        <div><small>IVA</small><b>${E(t.m303.pagar)}</b></div>
+        <div><small>IRPF</small><b>${E(t.m130.pagar)}</b></div>
+        <div><small>Retenciones</small><b>${E(t.m111.pagar)}</b></div>
+        <div class="pl"><small>Presentar hasta</small><b>${esc(F(t.plazo))}</b></div>
+      </div>`).join('')}</div>`;
+}
+// Tareas: solo lo que ya calcula el panel (gastos de la caja sin pasar, datos que faltan, factura pendiente de Adrián)
+function tareas() {
+  const pend = D.caja_pendientes.length, adrPend = D.reparto.total.adrian - D.reparto.adrian_facturado;
+  const falta = ['nombre', 'nif', 'direccion'].filter((k) => !D.ajustes[k]).map((k) => ({ nif: 'NIF', direccion: 'dirección', nombre: 'nombre' })[k]);
+  const t = [];
+  if (pend) t.push(['var(--amber)', 'plus', `<b>${pend} gasto${pend === 1 ? '' : 's'} de la caja</b> sin pasar`, 'gastos', 'Pasar']);
+  if (falta.length) t.push(['var(--violet-2)', 'user', `<b>Tus datos</b>: falta ${falta.length > 1 ? falta.slice(0, -1).join(', ') + ' y ' + falta[falta.length - 1] : falta[0]}`, 'datos', 'Rellenar']);
+  if (adrPend > 0) t.push(['var(--cyan)', 'doc', `<b>Factura de Adrián</b> pendiente: ${E(adrPend)}`, 'reparto', 'Ver']);
+  return `<article class="pbx-c gs-tareas-c pbg-n" style="--n:3"><div class="pbx-ch"><h3>Para tener al día</h3><span>${t.length || ''}</span></div>
+    ${t.length ? `<div class="gs-tareas">${t.map(([c, ic, txt, ir, btn]) => `<div class="gs-tarea"><span class="pbx-ico sm" style="--c:${c}">${PBX.ico(ic)}</span><span>${txt}</span><button type="button" class="pbx-btn sm" data-ir="${ir}">${btn}</button></div>`).join('')}</div>`
+      : `<p class="gs-todo">${PBX.ico('check')}Todo al día.</p>`}</article>`;
+}
+// Reparto de lo cobrado: solo enseña el reparto que ya existe (Daniel / Adrián / Caja)
+function repartoBarra() {
+  const T = D.reparto.total, bolsa = T.daniel + T.adrian + T.caja, adrPend = T.adrian - D.reparto.adrian_facturado;
+  const pc = (v) => (bolsa ? Math.round(v / bolsa * 100) + ' %' : '');
+  return `<article class="pbx-c gs-reparto pbg-n" style="--n:4"><div class="pbx-ch"><h3>Reparto de lo cobrado</h3><span>${bolsa ? `Bolsa de ${E0(bolsa)} · ` : ''}solo lo cobrado</span></div>
+    ${bolsa ? PBX.split([[T.daniel, 'var(--lime)', 'Daniel'], [T.adrian, '#9C93FF', 'Adrián'], [T.caja, 'var(--cyan)', 'Caja']], false) : '<div class="pbx-split"></div>'}
+    <div class="gs-rep3">
+      <div style="--c:var(--lime)"><small>Daniel <em>${pc(T.daniel)}</em></small><b>${E0(T.daniel)}</b><span>Lo tuyo</span></div>
+      <div style="--c:#9C93FF"><small>Adrián <em>${pc(T.adrian)}</em></small><b>${E0(T.adrian)}</b><span>${adrPend > 0 ? `Pendiente de su factura: ${E(adrPend)}` : 'Todo facturado'}</span></div>
+      <div style="--c:var(--cyan)"><small>Caja <em>${pc(T.caja)}</em></small><b>${E0(T.caja)}</b><span>El 15 % de la empresa</span></div>
+    </div></article>`;
+}
 
 /* ============ Facturas ============ */
 function facturas() {
@@ -302,7 +368,9 @@ function datos() {
 function pintar() {
   if (!D) return;
   const cuerpo = { resumen, facturas, reparto, gastos, datos }[ui.tab] || resumen;
+  pintadoCon = firma;
   raiz.innerHTML = cabecera() + `<div class="gs-cuerpo">${cuerpo()}</div>`;
+  if (window.pbSeg) raiz.querySelectorAll('.pb-seg').forEach((x) => window.pbSeg(x));
   cuentaFactura(); cuentaGasto();
 }
 
@@ -353,8 +421,9 @@ raiz.addEventListener('change', (e) => {
 
 async function abrir() {
   if (!raiz.firstChild) raiz.innerHTML = '<div class="ga-cargando"><i></i><i></i><i></i></div>';
-  try { await cargar(); if (!ui.form && !ui.gasto) pintar(); else if (!raiz.querySelector('.gs-cab')) pintar(); }
-  catch (e) { raiz.innerHTML = `<p class="gs-vacio">No se ha podido abrir la gestoría: ${esc(e.message)}</p>`; }
+  // Solo repinta si cambian los datos (o no hay nada pintado); con un formulario abierto no se toca
+  try { await cargar(); if (!raiz.querySelector('.gs-cab') || (!ui.form && !ui.gasto && pintadoCon !== firma)) pintar(); }
+  catch (e) { pintadoCon = null; raiz.innerHTML = `<p class="gs-vacio">No se ha podido abrir la gestoría: ${esc(e.message)}</p>`; }
 }
 document.addEventListener('pb:page', (e) => { if (e.detail === 'gestoria') abrir(); });
 if (document.body.dataset.page === 'gestoria' || window.PB_TAB === 'gestoria') abrir();

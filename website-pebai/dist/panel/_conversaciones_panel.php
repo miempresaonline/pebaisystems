@@ -30,7 +30,22 @@ if ($auth && isset($_GET['foto'])) {
 
 if ($auth && isset($_GET['conv'])) {
     try {
-        json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'filas' => pebai_conv_datos()]);
+        $filas = pebai_conv_datos();
+        // Cuándo abrió cada empresa su demo (agente Demos): sale en el chat como «Abrió su demo». Si falla, el chat sigue sin ello.
+        try {
+            require_once dirname(__DIR__) . '/api/_demos_lib.php';
+            $demos = [];
+            foreach (pebai_demos_db()->query("SELECT canal, prospecto_id, visitas, primera_visita, ultima_visita FROM demos WHERE visitas > 0 AND primera_visita <> ''") as $d) {
+                $demos[$d['canal'] . ':' . $d['prospecto_id']] = ['visitas' => (int)$d['visitas'], 'primera' => (string)$d['primera_visita'], 'ultima' => (string)$d['ultima_visita']];
+            }
+            foreach ($filas as &$f) {
+                $f['demo'] = $demos[$f['k']] ?? null;
+            }
+            unset($f);
+        } catch (Throwable $e) {
+            pebai_log('CONVERSACIONES (demos): ' . $e->getMessage());
+        }
+        json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'filas' => $filas]);
     } catch (Throwable $e) {
         pebai_log('CONVERSACIONES: ' . $e->getMessage());
         json_out(['ok' => false, 'error' => 'No se han podido cargar las conversaciones.'], 500);
