@@ -45,10 +45,70 @@ function gs_caja_saldo(): ?int
     }
 }
 
+/* ------------------------------------------------------------ Pactos (17/11/2026) ---
+ * Los pactos internos Daniel–Adrián en PDF. Tienen datos personales: viven SOLO en la carpeta privada del servidor
+ * (private/documentos/pactos, fuera de public_html) y nunca en el repositorio. Se ven y descargan solo con la sesión del panel.
+ * pactos.json guarda el título y la fecha de cada archivo. */
+function gs_pactos_dir(): string
+{
+    $d = pebai_private_dir() . '/documentos/pactos';
+    if (!is_dir($d)) {
+        @mkdir($d, 0700, true);
+    }
+    return $d;
+}
+function gs_pactos_indice(): array
+{
+    $f = gs_pactos_dir() . '/pactos.json';
+    $j = is_file($f) ? json_decode((string)file_get_contents($f), true) : null;
+    return is_array($j) ? $j : [];
+}
+function gs_pactos(): array
+{
+    $ind = gs_pactos_indice();
+    $out = [];
+    foreach (glob(gs_pactos_dir() . '/*.pdf') ?: [] as $ruta) {
+        $a = basename($ruta);
+        $i = $ind[$a] ?? [];
+        $out[] = [
+            'archivo' => $a,
+            'titulo' => (string)($i['titulo'] ?? ucfirst(str_replace(['-', '_'], ' ', substr($a, 0, -4)))),
+            'fecha' => (string)($i['fecha'] ?? date('Y-m-d', (int)filemtime($ruta))),
+            'kb' => (int)round(filesize($ruta) / 1024),
+        ];
+    }
+    usort($out, static fn($x, $y) => strcmp($y['fecha'], $x['fecha']) ?: strcmp($x['titulo'], $y['titulo']));
+    return $out;
+}
+function gs_slug(string $s): string
+{
+    $s = strtr(mb_strtolower($s), ['á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ü' => 'u', 'ñ' => 'n', 'ç' => 'c', 'à' => 'a', 'è' => 'e', 'ò' => 'o']);
+    $s = trim((string)preg_replace('/[^a-z0-9]+/', '-', $s), '-');
+    return substr($s !== '' ? $s : 'documento', 0, 80);
+}
+
+if ($auth && isset($_GET['pacto'])) {
+    $a = basename((string)$_GET['pacto']);
+    $ruta = gs_pactos_dir() . '/' . $a;
+    if (!preg_match('/^[a-z0-9-]+\.pdf$/', $a) || !is_file($ruta)) {
+        http_response_code(404);
+        exit('No existe ese documento.');
+    }
+    $titulo = (gs_pactos_indice()[$a]['titulo'] ?? substr($a, 0, -4));
+    $nombre = gs_slug($titulo) . '.pdf';
+    header('Content-Type: application/pdf');
+    header('Content-Length: ' . filesize($ruta));
+    header('Content-Disposition: ' . (isset($_GET['descargar']) ? 'attachment' : 'inline') . '; filename="' . $nombre . '"');
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: private, no-store');
+    readfile($ruta);
+    exit;
+}
+
 /* ------------------------------------------------------------ Datos (JSON) --- */
 if ($auth && isset($_GET['gestoria'])) {
     try {
-        json_out(gestoria_estado() + ['caja_saldo' => gs_caja_saldo(), 'csrf' => csrf()]);
+        json_out(gestoria_estado() + ['caja_saldo' => gs_caja_saldo(), 'pactos' => gs_pactos(), 'csrf' => csrf()]);
     } catch (Throwable $e) {
         json_out(['ok' => false, 'error' => 'No se puede abrir la gestoría: ' . $e->getMessage()], 500);
     }
@@ -131,7 +191,7 @@ NIF: <?= gs_h($f['cliente_nif'] ?: '—') ?>
 
 /* ------------------------------------------------------------ Acciones --- */
 $gsAcciones = ['gestoria_ajustes', 'gestoria_factura_guardar', 'gestoria_factura_cobrar', 'gestoria_factura_anular', 'gestoria_factura_borrar',
-               'gestoria_gasto_guardar', 'gestoria_gasto_borrar'];
+               'gestoria_gasto_guardar', 'gestoria_gasto_borrar', 'gestoria_pacto_subir'];
 if ($auth && in_array($_POST['action'] ?? '', $gsAcciones, true)) {
     if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
         json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 400);
@@ -145,6 +205,29 @@ if ($auth && in_array($_POST['action'] ?? '', $gsAcciones, true)) {
             return pebai_fila($q);
         };
         switch ($_POST['action']) {
+            case 'gestoria_pacto_subir':
+                $t = gs_txt('titulo', 120);
+                $up = $_FILES['pdf'] ?? null;
+                if ($t === '' || !$up || ($up['error'] ?? 1) !== UPLOAD_ERR_OK || !is_uploaded_file($up['tmp_name'])) {
+                    json_out(['ok' => false, 'error' => 'Falta el título o el PDF.'], 400);
+                }
+                if ($up['size'] > 25 * 1024 * 1024 || file_get_contents($up['tmp_name'], false, null, 0, 5) !== '%PDF-') {
+                    json_out(['ok' => false, 'error' => 'Tiene que ser un PDF de menos de 25 MB.'], 400);
+                }
+                $dir = gs_pactos_dir();
+                $base = gs_slug($t);
+                $a = $base . '.pdf';
+                for ($n = 2; is_file("$dir/$a"); $n++) {
+                    $a = "$base-$n.pdf";
+                }
+                if (!move_uploaded_file($up['tmp_name'], "$dir/$a")) {
+                    json_out(['ok' => false, 'error' => 'No se ha podido guardar el PDF.'], 500);
+                }
+                @chmod("$dir/$a", 0600);
+                $ind = gs_pactos_indice();
+                $ind[$a] = ['titulo' => $t, 'fecha' => date('Y-m-d')];
+                file_put_contents("$dir/pactos.json", json_encode($ind, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+                json_out(['ok' => true, 'archivo' => $a]);
             case 'gestoria_ajustes':
                 $v = [];
                 foreach (['nombre' => 120, 'direccion' => 200, 'ciudad' => 120, 'email' => 120, 'telefono' => 30, 'pie' => 500] as $k => $max) {

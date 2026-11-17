@@ -50,7 +50,7 @@ const opts = (lista, sel) => lista.map(([v, t]) => `<option value="${esc(v)}"${S
 const faltanDatos = () => !D.ajustes.nombre || !D.ajustes.nif || !D.ajustes.direccion;
 
 function cabecera() {
-  const tabs = [['resumen', 'Resumen'], ['facturas', 'Facturas'], ['reparto', 'Reparto'], ['gastos', 'Gastos'], ['datos', 'Mis datos']];
+  const tabs = [['resumen', 'Resumen'], ['facturas', 'Facturas'], ['reparto', 'Reparto'], ['gastos', 'Gastos'], ['pactos', 'Pactos'], ['datos', 'Mis datos']];
   return `<header class="pbx-cab gs-cab">
     <div><h2 class="pbx-h1">Gestoría, <i>sin sustos</i></h2></div>
     <nav class="pb-seg gs-tabs">${tabs.map(([k, t]) => `<button type="button" data-tab="${k}" class="${ui.tab === k ? 'on' : ''}">${t}</button>`).join('')}</nav>
@@ -341,6 +341,29 @@ function cuentaGasto() {
   box.innerHTML = `<div class="gs-tot"><div><span>Importe</span><b>${E(g.base)}</b></div>${iva ? `<div><span>+ IVA</span><b>${E(iva)}</b></div>` : ''}${ret ? `<div><span>− Te quedas para Hacienda</span><b>${E(ret)}</b></div>` : ''}<div class="fin"><span>${g.tipo === 'comision' ? 'Le das' : 'Pagas'}</span><b>${E(g.base + iva - ret)}</b></div></div>`;
 }
 
+/* ============ Pactos (17/11/2026): los acuerdos internos en PDF, solo en el servidor privado ============ */
+function pactos() {
+  const L = D.pactos || [];
+  const fecha = (f) => new Date(f + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  const doc = '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>';
+  return `<section class="pbx-c gs-pactos pbg-n" style="--n:0">
+    <div class="pbx-ch"><h3>Pactos entre socios</h3><span>${L.length} ${L.length === 1 ? 'documento' : 'documentos'} · solo se ven con tu sesión</span></div>
+    ${L.length ? `<div class="gs-pac-lista">${L.map((d) => `<article class="gs-pac">
+      <span class="pbx-ico" style="--c:var(--violet-2)">${ico(doc)}</span>
+      <div><b>${esc(d.titulo)}</b><small>${esc(fecha(d.fecha))} · ${d.kb >= 1024 ? (d.kb / 1024).toFixed(1).replace('.', ',') + ' MB' : d.kb + ' KB'}</small></div>
+      <a class="pbx-btn sm" href="${BASE}?pacto=${encodeURIComponent(d.archivo)}" target="_blank" rel="noopener">Ver</a>
+      <a class="pbx-btn sm ghost" href="${BASE}?pacto=${encodeURIComponent(d.archivo)}&descargar=1">Descargar</a>
+    </article>`).join('')}</div>` : '<p class="pbx-vacio">Todavía no hay ningún pacto guardado.</p>'}
+  </section>
+  <details class="pbx-pleg gs-pac-subir"><summary>Añadir un pacto o una versión nueva</summary><div class="pbx-pleg-in">
+    <form id="gs-fpacto" class="gs-campos">
+      <label class="w2">Título<input name="titulo" maxlength="120" required placeholder="Pacto de herramientas y caja v1.1"></label>
+      <label>PDF<input type="file" name="pdf" accept="application/pdf,.pdf" required></label>
+    </form>
+    <div class="gs-acc"><button type="button" class="pbx-btn lime" id="gs-subir-pacto">Guardar el PDF</button></div>
+  </div></details>`;
+}
+
 /* ============ Mis datos ============ */
 function datos() {
   const a = D.ajustes;
@@ -367,7 +390,7 @@ function datos() {
 /* ============ pintar y eventos ============ */
 function pintar() {
   if (!D) return;
-  const cuerpo = { resumen, facturas, reparto, gastos, datos }[ui.tab] || resumen;
+  const cuerpo = { resumen, facturas, reparto, gastos, pactos, datos }[ui.tab] || resumen;
   pintadoCon = firma;
   raiz.innerHTML = cabecera() + `<div class="gs-cuerpo">${cuerpo()}</div>`;
   if (window.pbSeg) raiz.querySelectorAll('.pb-seg').forEach((x) => window.pbSeg(x));
@@ -406,6 +429,18 @@ raiz.addEventListener('click', (e) => {
     await post('gestoria_gasto_guardar', { ...g, base: centInput(g.base) });
     ui.gasto = null; pintar(); toast('Gasto apuntado');
   });
+  if (b.id === 'gs-subir-pacto') return guardar(async () => {
+    const f = document.getElementById('gs-fpacto'); if (!f.reportValidity()) return;
+    const fd = new FormData(f); fd.append('action', 'gestoria_pacto_subir'); fd.append('csrf', D.csrf || app.dataset.csrf);
+    b.disabled = true; b.textContent = 'Subiendo…';
+    try {
+      const r = await fetch(BASE, { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json' }, body: fd });
+      if (r.status === 401) { pbCaduca(); throw new Error('Sesión caducada'); }
+      const j = await r.json().catch(() => ({ ok: false, error: 'Respuesta inesperada del servidor.' }));
+      if (!j.ok) throw new Error(j.error || 'No se ha podido guardar.');
+      await cargar(); pintar(); toast('Pacto guardado');
+    } finally { b.disabled = false; b.textContent = 'Guardar el PDF'; }
+  });
   if (b.id === 'gs-guardar-datos') return guardar(async () => {
     const c = document.getElementById('gs-fdatos'); const campos = {};
     c.querySelectorAll('[name]').forEach((i) => { campos[i.name] = i.value; });
@@ -422,7 +457,7 @@ raiz.addEventListener('change', (e) => {
 async function abrir() {
   if (!raiz.firstChild) raiz.innerHTML = '<div class="ga-cargando"><i></i><i></i><i></i></div>';
   // Solo repinta si cambian los datos (o no hay nada pintado); con un formulario abierto no se toca
-  try { await cargar(); if (!raiz.querySelector('.gs-cab') || (!ui.form && !ui.gasto && pintadoCon !== firma)) pintar(); }
+  try { await cargar(); if (!raiz.querySelector('.gs-cab') || (!ui.form && !ui.gasto && !document.querySelector('#gs-fpacto input[type=file]')?.files?.length && pintadoCon !== firma)) pintar(); }
   catch (e) { pintadoCon = null; raiz.innerHTML = `<p class="gs-vacio">No se ha podido abrir la gestoría: ${esc(e.message)}</p>`; }
 }
 document.addEventListener('pb:page', (e) => { if (e.detail === 'gestoria') abrir(); });
