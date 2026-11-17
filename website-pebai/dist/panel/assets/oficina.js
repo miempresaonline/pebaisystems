@@ -65,7 +65,10 @@ async function cargar() {
   j.agentes.forEach((a) => { if (!a.icono && PROPIOS[a.id]) { a.icono = a.id; FONDO[a.id] = FONDO[a.id] || FONDO.geo; } });
   S.agentes = j.agentes.filter((a) => DEPTS.some((d) => d.activo && d.id === a.dept)); S.autos = j.agentes.filter((a) => a.dept === 'embudo'); S.csrf = j.csrf; S.parada = j.parada || null; S.iaNucleo = j.ia_nucleo || ''; S.iaHoy = j.ia_hoy ?? null; S.cargado = Date.now(); return true;
 }
+// Cuentas por usuario (17/11/2026): un socio ve la oficina, pero no pausa, no para, no cambia ajustes ni encarga trabajo
+const SOCIO = !!(window.PB_YO && window.PB_YO.rol !== 'admin');
 async function accion(action, fields, ok, btn) {
+  if (SOCIO) { toast('Los agentes los maneja Daniel: tu cuenta solo puede verlos.', true); return; }
   if (btn) btn.disabled = true;
   try {
     const r = await fetch(BASE, { method: 'POST', credentials: 'same-origin', headers: { 'Accept': 'application/json' }, body: new URLSearchParams({ action, csrf: S.csrf, ...fields }) });
@@ -136,7 +139,8 @@ function pintaHud() {
     };
     b.append(q); lst.append(b);
   });
-  hud.append(c, botonParar(), botonVista(), botonRepe()); horaHud();
+  if (SOCIO) hud.append(c, botonVista()); else hud.append(c, botonParar(), botonVista(), botonRepe());
+  horaHud();
   if (lista) pintaMando();
 }
 /* Vista Mando (antes «Lista»): por defecto siempre (Daniel, 17/11). Si en esta sesión se elige la Oficina 3D, se recuerda hasta cerrar. */
@@ -182,6 +186,7 @@ function botonRepe() {
   return b;
 }
 function empiezaRepe() {
+  if (SOCIO) return;
   if (!G || lista) { if (lista) ponVista(false); setTimeout(() => G && empiezaRepe(), 900); return; }
   cerrar();
   const reales = new Map(S.agentes.map((a) => [a.id, a.st]));
@@ -350,8 +355,8 @@ function controlesMando() {
   const p = S.parada;
   mdo.ctl.innerHTML = '<span class="pbx-pill mdo-vivo" style="--c:var(--green)">En directo</span>'
     + '<div class="mdo-seg" role="group" aria-label="Vista"><button type="button" data-v="lista" aria-pressed="true" class="on">Mando</button><button type="button" data-v="3d" aria-pressed="false">Oficina 3D</button></div>'
-    + `<button type="button" class="pbx-btn sm ghost" data-repe title="Ver en 40 segundos todo lo que ha pasado hoy en la oficina">${icoM('play')}Repetir el día</button>`
-    + (p ? `<button type="button" class="pbx-btn sm lime" data-reanudar title="Vuelve a poner en marcha los agentes que estaban funcionando">${icoM('play')}Reanudar todo <small>parado desde ${esc(String(p.ts || '').slice(11, 16))}</small></button>`
+    + (SOCIO ? '<span class="pbx-pill pb-solo-ver">Solo para ver</span>' : `<button type="button" class="pbx-btn sm ghost" data-repe title="Ver en 40 segundos todo lo que ha pasado hoy en la oficina">${icoM('play')}Repetir el día</button>`)
+    + (SOCIO ? '' : p ? `<button type="button" class="pbx-btn sm lime" data-reanudar title="Vuelve a poner en marcha los agentes que estaban funcionando">${icoM('play')}Reanudar todo <small>parado desde ${esc(String(p.ts || '').slice(11, 16))}</small></button>`
       : `<div class="mdo-mas"><button type="button" class="pbx-btn sm ghost ico" data-mas aria-label="Más opciones" title="Más opciones">${icoM('more')}</button><div class="menu"><button type="button" data-parar>${icoM('stop')}Parar todos los agentes…</button></div></div>`);
 }
 listaBox.addEventListener('click', (e) => {
@@ -561,7 +566,7 @@ function abrirAgente(id) {
   const [c, txt] = ST[a.st] || ST.espera;
   const pct = a.cupo ? Math.min(100, Math.round(a.hoy / a.cupo * 100)) : 0;
   const F = (window.PB_FICHA || {})[a.id] || {};
-  const tabs = [['estado', 'Estado'], a.entregas && ['trabajo', 'Su trabajo'], ['actividad', 'Actividad'], F.ajustes && ['ajustes', 'Ajustes'], F.rendimiento && ['rendimiento', 'Rendimiento']].filter(Boolean);
+  const tabs = [['estado', 'Estado'], a.entregas && ['trabajo', 'Su trabajo'], ['actividad', 'Actividad'], F.ajustes && !SOCIO && ['ajustes', 'Ajustes'], F.rendimiento && ['rendimiento', 'Rendimiento']].filter(Boolean);
   if (!tabs.some(([k]) => k === S.tab)) S.tab = 'estado';
   sideIn.innerHTML = (S.agentes.length > 1 ? '<div class="pb-of-nav"><button type="button" data-d="-1" aria-label="Agente anterior" title="Anterior (←)">‹</button><button type="button" data-d="1" aria-label="Agente siguiente" title="Siguiente (→)">›</button></div>' : '')
     + `<div class="k">${esc(d.nombre)}</div><h2>${tileHtml(a)}${esc(a.nombre)}</h2><div class="rol">${esc(a.rol || '')}</div>
@@ -584,7 +589,7 @@ function abrirAgente(id) {
   sideIn.querySelectorAll('.pb-of-tabs button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); S.tab = b.dataset.t; abrirAgente(a.id); }; });
   const caja = $('#pb-of-tab');
   if (S.tab === 'estado') explicaBoton(a);
-  if (S.tab === 'estado' && a.id === 'demos') $('.pb-of-qa', caja).prepend(cajaCrearDemo());
+  if (S.tab === 'estado' && a.id === 'demos' && !SOCIO) $('.pb-of-qa', caja).prepend(cajaCrearDemo());
   if (S.tab === 'actividad') caja.append(lineaTiempo(a));
   else if (S.tab === 'trabajo') caja.append(suTrabajo(a));
   else if (S.tab !== 'estado') {
@@ -595,7 +600,7 @@ function abrirAgente(id) {
   const acts = $('#pb-of-acts');
   const boton = (cls, t, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'pb-of-btn ' + cls; b.textContent = t; b.onclick = (e) => { e.stopPropagation(); fn(b); }; acts.append(b); };
   const A = a.acciones || {};
-  if (A.pausa) boton(a.pausado ? 'primary' : '', a.pausado ? 'Reanudar' : 'Pausar', (b) => accion(A.pausa, { pausado: a.pausado ? '0' : '1' }, a.pausado ? `${a.nombre} reanudado.` : `${a.nombre} en pausa: no enviará nada.`, b));
+  if (A.pausa && !SOCIO) boton(a.pausado ? 'primary' : '', a.pausado ? 'Reanudar' : 'Pausar', (b) => accion(A.pausa, { pausado: a.pausado ? '0' : '1' }, a.pausado ? `${a.nombre} reanudado.` : `${a.nombre} en pausa: no enviará nada.`, b));
   if (A.ir) boton('ghost', A.ir === 'email' ? 'Ver su lista de empresas' : 'Ver las empresas', () => { const b = document.querySelector(`#pb-tabs button[data-page="${A.ir}"]`); if (b) b.click(); });
   if (!acts.childElementCount) acts.remove();
   sideIn.querySelectorAll('.pb-of-nav button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); vecino(+b.dataset.d); }; });
@@ -614,7 +619,9 @@ function cajaCrearDemo() {
   const inp = $('input', box), btn = $('button', box), est = $('.est', box), ult = $('.ult', box);
   inp.value = S.demoUrl || ''; inp.oninput = () => { S.demoUrl = inp.value; };
   // Quién la envía: en la página sale su cara y su nombre (se recuerda en este navegador)
-  let autor = 'daniel'; try { autor = localStorage.getItem('pb-demo-autor') || 'daniel'; } catch (e) { /* sin almacenamiento */ }
+  // Por defecto, quien está dentro (se puede cambiar)
+  const yo = window.PB_YO && ['daniel', 'adrian'].includes(window.PB_YO.usuario) ? window.PB_YO.usuario : '';
+  let autor = yo || 'daniel'; if (!yo) { try { autor = localStorage.getItem('pb-demo-autor') || 'daniel'; } catch (e) { /* sin almacenamiento */ } }
   const pintaAutor = () => box.querySelectorAll('.autor button').forEach((b) => { b.classList.toggle('on', b.dataset.a === autor); b.setAttribute('aria-checked', b.dataset.a === autor); });
   box.querySelectorAll('.autor button').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); autor = b.dataset.a; try { localStorage.setItem('pb-demo-autor', autor); } catch (er) { /* nada */ } pintaAutor(); }; });
   pintaAutor();
@@ -755,7 +762,7 @@ function lineaTiempo(a) {
     const dd = dia(e.ts); if (dd !== ult) { ult = dd; const h = document.createElement('div'); h.className = 'pb-of-tld'; h.textContent = dd; box.append(h); }
     const [c, t] = TIPO[e.tipo] || ['#8C8FA3', e.tipo || ''];
     const r = document.createElement('div'); r.className = 'pb-of-tle'; r.style.setProperty('--c', c);
-    r.innerHTML = `<i></i><time>${esc(String(e.ts).slice(11, 16))}</time><div><span>${esc(e.txt)}</span><small>${esc(t)}</small></div>`;
+    r.innerHTML = `<i></i><time>${esc(String(e.ts).slice(11, 16))}</time><div><span>${esc(e.txt)}</span><small>${esc(t)}${e.por ? ' · ' + esc((window.PB_USUARIOS || {})[e.por] || e.por) : ''}</small></div>`;
     box.append(r);
   });
   return box;

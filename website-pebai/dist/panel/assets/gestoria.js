@@ -26,6 +26,9 @@ const pct = (p) => String(+p).replace('.', ',') + ' %';
 let D = null, firma = '', pintadoCon = null;
 const ui = { tab: 'resumen', form: null, gasto: null };
 try { ui.tab = sessionStorage.getItem('pb-gs-tab') || 'resumen'; } catch (e) { /* nada */ }
+// Cuentas por usuario (17/11/2026): un socio solo tiene «Su parte del reparto» y «Pactos» (ver y descargar)
+const SOCIO = !!(window.PB_YO && window.PB_YO.rol !== 'admin');
+if (SOCIO && !['suparte', 'pactos'].includes(ui.tab)) ui.tab = 'suparte';
 
 async function cargar() {
   const r = await fetch(BASE + '?gestoria=1', { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } });
@@ -50,6 +53,12 @@ const opts = (lista, sel) => lista.map(([v, t]) => `<option value="${esc(v)}"${S
 const faltanDatos = () => !D.ajustes.nombre || !D.ajustes.nif || !D.ajustes.direccion;
 
 function cabecera() {
+  if (SOCIO) {
+    return `<header class="pbx-cab gs-cab">
+    <div><h2 class="pbx-h1">Gestoría, <i>lo tuyo</i></h2></div>
+    <nav class="pb-seg gs-tabs">${[['suparte', 'Su parte del reparto'], ['pactos', 'Pactos']].map(([k, t]) => `<button type="button" data-tab="${k}" class="${ui.tab === k ? 'on' : ''}">${t}</button>`).join('')}</nav>
+  </header>`;
+  }
   const tabs = [['resumen', 'Resumen'], ['facturas', 'Facturas'], ['reparto', 'Reparto'], ['gastos', 'Gastos'], ['pactos', 'Pactos'], ['datos', 'Mis datos']];
   return `<header class="pbx-cab gs-cab">
     <div><h2 class="pbx-h1">Gestoría, <i>sin sustos</i></h2></div>
@@ -355,13 +364,31 @@ function pactos() {
       <a class="pbx-btn sm ghost" href="${BASE}?pacto=${encodeURIComponent(d.archivo)}&descargar=1">Descargar</a>
     </article>`).join('')}</div>` : '<p class="pbx-vacio">Todavía no hay ningún pacto guardado.</p>'}
   </section>
-  <details class="pbx-pleg gs-pac-subir"><summary>Añadir un pacto o una versión nueva</summary><div class="pbx-pleg-in">
+  ${SOCIO ? '' : `<details class="pbx-pleg gs-pac-subir"><summary>Añadir un pacto o una versión nueva</summary><div class="pbx-pleg-in">
     <form id="gs-fpacto" class="gs-campos">
       <label class="w2">Título<input name="titulo" maxlength="120" required placeholder="Pacto de herramientas y caja v1.1"></label>
       <label>PDF<input type="file" name="pdf" accept="application/pdf,.pdf" required></label>
     </form>
     <div class="gs-acc"><button type="button" class="pbx-btn lime" id="gs-subir-pacto">Guardar el PDF</button></div>
-  </div></details>`;
+  </div></details>`}`;
+}
+
+/* ============ Su parte del reparto (socio): lo que le toca de cada proyecto, y nada más ============ */
+function suParte() {
+  const P = D.su_parte || { proyectos: [] };
+  const L = P.proyectos || [];
+  return `<section class="gs-tres">
+    ${repC('Cobrado: te toca', P.cobrado, '#9C93FF', 'De las facturas ya cobradas')}
+    ${repC('Por cobrar', P.por_cobrar, '#FFB547', 'Cuando paguen las facturas emitidas')}
+    ${repC('Falta que factures', P.pendiente_facturar, '#B7FF3C', P.ya_facturado ? `Ya has facturado ${E(P.ya_facturado)}` : 'Tu factura a Daniel por lo cobrado')}
+  </section>
+  <section class="gs-card">
+    <div class="gs-card-h"><h3>Proyecto a proyecto</h3><span>Tu parte de cada factura, según quién consiguió el cliente</span></div>
+    ${L.length ? `<div class="gs-rep-tabla su"><div class="h"><span>Proyecto</span><span>Canal</span><span>Estado</span><span>Tu %</span><span>Tu parte</span></div>
+      ${L.map((f) => `<div><span><b>${esc(f.numero)}</b> ${esc(f.cliente)}<small style="display:block;color:var(--muted)">${esc(F(f.fecha))}</small></span><span>${esc(f.canal)}</span><span>${chip(f.estado)}</span><span>${esc(pct(f.pct))}</span><span><b>${E(f.parte)}</b></span></div>`).join('')}</div>`
+      : '<p class="gs-vacio">Todavía no hay facturas.</p>'}
+    <p class="gs-nota">Se reparte la base de la factura (sin IVA) menos los costes directos, como dice el pacto. Lo que te toca de lo cobrado se lo facturas a Daniel.</p>
+  </section>`;
 }
 
 /* ============ Mis datos ============ */
@@ -390,7 +417,7 @@ function datos() {
 /* ============ pintar y eventos ============ */
 function pintar() {
   if (!D) return;
-  const cuerpo = { resumen, facturas, reparto, gastos, pactos, datos }[ui.tab] || resumen;
+  const cuerpo = SOCIO ? ({ suparte: suParte, pactos }[ui.tab] || suParte) : ({ resumen, facturas, reparto, gastos, pactos, datos }[ui.tab] || resumen);
   pintadoCon = firma;
   raiz.innerHTML = cabecera() + `<div class="gs-cuerpo">${cuerpo()}</div>`;
   if (window.pbSeg) raiz.querySelectorAll('.pb-seg').forEach((x) => window.pbSeg(x));
@@ -401,7 +428,7 @@ const guardar = async (fn) => { try { await fn(); } catch (e) { toast(e.message,
 raiz.addEventListener('click', (e) => {
   const b = e.target.closest('button, [data-ir]'); if (!b || !D) return;
   const d = b.dataset;
-  if (d.tab || d.ir) { ui.tab = d.tab || d.ir; try { sessionStorage.setItem('pb-gs-tab', ui.tab); } catch (x) { /* nada */ } pintar(); return; }
+  if (d.tab || d.ir) { ui.tab = d.tab || d.ir; if (SOCIO && !['suparte', 'pactos'].includes(ui.tab)) ui.tab = 'suparte'; try { sessionStorage.setItem('pb-gs-tab', ui.tab); } catch (x) { /* nada */ } pintar(); return; }
   if (b.id === 'gs-nueva') { ui.form = { fecha: D.hoy > D.ajustes.fecha_alta ? D.hoy : D.ajustes.fecha_alta, irpf_pct: D.ajustes.retencion }; pintar(); return; }
   if ('cerrar' in d) { ui.form = null; pintar(); return; }
   if (b.id === 'gs-mas-linea') { ui.form = leerFactura(); ui.form.lineas.push({ c: '', n: 1, p: 0 }); pintar(); return; }

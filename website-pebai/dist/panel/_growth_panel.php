@@ -28,6 +28,6 @@ if ($auth && ($_POST['action'] ?? '') === 'growth_estado') {
     if (!array_key_exists($estado, PEBAI_GP_ESTADOS)) {
         json_out(['ok' => false, 'error' => 'Estado no válido.'], 422);
     }
-    pebai_gp_db()->prepare('UPDATE gp_solicitudes SET estado = ?, estado_at = ? WHERE id = ?')->execute([$estado, date('Y-m-d H:i:s'), (int)($_POST['id'] ?? 0)]);
+    pebai_gp_db()->prepare('UPDATE gp_solicitudes SET estado = ?, estado_at = ?, estado_por = ? WHERE id = ?')->execute([$estado, date('Y-m-d H:i:s'), pebai_quien(), (int)($_POST['id'] ?? 0)]);
     json_out(['ok' => true]);
 }

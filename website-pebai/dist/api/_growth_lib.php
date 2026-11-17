@@ -65,6 +65,8 @@ function pebai_gp_db(): PDO
         n INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (fecha, paso, cta)
     )');
+    // Quién cambió el estado de cada solicitud desde el panel (cuentas por usuario, 17/11/2026)
+    pebai_columna($db, 'gp_solicitudes', 'estado_por');
     $listo = true;
     return $db;
 }
@@ -108,7 +110,7 @@ function pebai_gp_origen(string $cta, string $fuente = ''): string
 function pebai_gp_estado(): array
 {
     $db = pebai_gp_db();
-    $filas = $db->query('SELECT id, created_at, estado, estado_at, nombre, telefono, email, negocio, red, experiencia, mentalidad, motivo, porque, encaje, cta, fuente, medio, campana, pagina FROM gp_solicitudes ORDER BY id DESC')->fetchAll();
+    $filas = $db->query('SELECT id, created_at, estado, estado_at, estado_por, nombre, telefono, email, negocio, red, experiencia, mentalidad, motivo, porque, encaje, cta, fuente, medio, campana, pagina FROM gp_solicitudes ORDER BY id DESC')->fetchAll();
     foreach ($filas as &$f) {
         $f['origen'] = pebai_gp_origen((string)$f['cta'], (string)$f['fuente']);
         $f['id'] = (int)$f['id'];

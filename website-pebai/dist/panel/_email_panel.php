@@ -28,6 +28,7 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
     };
     switch ($_POST['action']) {
         case 'email_importar':
+            pebai_solo_admin();   // lo importado entra en la cola del agente: lo decide Daniel
             $raw = (string)($_POST['texto'] ?? '');
             if (!empty($_FILES['archivo']['tmp_name']) && is_uploaded_file($_FILES['archivo']['tmp_name'])) {
                 if ($_FILES['archivo']['size'] > 5 * 1024 * 1024) {
@@ -62,6 +63,7 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
                 json_out(['ok' => false, 'error' => 'Estado no válido.'], 400);
             }
             if ($estado === 'pendiente') {
+                pebai_solo_admin();   // volver a la cola = que el agente le escriba
                 $q = $edb->prepare('SELECT COUNT(*) FROM bajas_email WHERE email = ?');
                 $q->execute([$p['email']]);
                 if ((int)$q->fetchColumn()) {
@@ -81,6 +83,7 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
             $msg = pebai_email_componer($p, $paso, pebai_email_cfg());
             json_out(['ok' => true, 'paso' => $paso, 'msg' => $msg, 'problemas' => $msg ? pebai_email_qa($p, $msg, $paso) : ['Falta la ficha del nicho «' . $p['nicho'] . '» o su vídeo no está grabado.']]);
         case 'email_pausa':
+            pebai_solo_admin();
             $pausar = ($_POST['pausado'] ?? '') === '1';
             $edb->prepare("UPDATE agente_estado SET pausado = ?, estado = ?, detalle = ? WHERE agente = 'email'")
                 ->execute([$pausar ? 1 : 0, $pausar ? 'pausado' : 'activo', $pausar ? 'En pausa desde el panel' : 'Reanudado desde el panel']);
@@ -90,6 +93,7 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
             }
             json_out(['ok' => true]);
         case 'email_ajustes':
+            pebai_solo_admin();
             // El horario es fijo (PEBAI_EMAIL_HORARIO, 3/11): aquí solo el tope y los formularios web
             $tope = max(0, min(50, (int)($_POST['limite_max'] ?? 50)));
             $form = !empty($_POST['formularios']) ? 1 : 0;
@@ -98,6 +102,7 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
             pebai_actividad('email', 'cambio', "Ajustes: tope {$tope} al día" . ($form ? ", formularios web activados ({$pct} %)" : ', formularios web apagados'));
             json_out(['ok' => true]);
         case 'email_nicho':
+            pebai_solo_admin();
             $slug = preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($_POST['slug'] ?? '')));
             if ($slug === '') {
                 json_out(['ok' => false, 'error' => 'Pon un identificador corto del nicho (p. ej. reformas).'], 400);
@@ -123,12 +128,14 @@ if ($auth && $db && isset($_POST['action']) && str_starts_with((string)$_POST['a
             pebai_actividad('email', 'cambio', 'Ficha del nicho «' . $slug . '» guardada' . ($ficha['video'] ? ' (vídeo grabado: ya se puede escribir a este nicho)' : ' (sin vídeo: aún no se escribe)'), json_encode($ficha, JSON_UNESCAPED_UNICODE));
             json_out(['ok' => true]);
         case 'email_nicho_borrar':
+            pebai_solo_admin();
             $cfg = pebai_email_cfg();
             unset($cfg['nichos'][(string)($_POST['slug'] ?? '')]);
             pebai_email_cfg_guardar(['nichos' => $cfg['nichos']]);
             pebai_actividad('email', 'cambio', 'Ficha del nicho «' . (string)($_POST['slug'] ?? '') . '» borrada');
             json_out(['ok' => true]);
         case 'email_plantilla':
+            pebai_solo_admin();
             $pl = str_replace("\r", '', trim((string)($_POST['plantilla'] ?? '')));
             $rec = str_replace("\r", '', trim((string)($_POST['recordatorio'] ?? '')));
             $asuntos = array_values(array_filter(array_map('trim', explode("\n", str_replace("\r", '', (string)($_POST['asuntos'] ?? ''))))));

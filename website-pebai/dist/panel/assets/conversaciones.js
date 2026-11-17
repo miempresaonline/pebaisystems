@@ -292,7 +292,8 @@ function drawChat(forzar) {
       m = { ...m, texto: trozos[trozos.length - 1] || m.texto };
     }
     const b = el('div', 'pc-b ' + (m.de === 'sale' ? 'yo' : 'ellos'));
-    b.append(el('p', null, m.texto), el('time', null, hora(d) + (m.de === 'sale' ? (m.manual || m.respuesta ? ' · enviado por ti' : ' · enviado por el agente') : '')));
+    const porQuien = m.por ? (m.por === (window.PB_YO || {}).usuario ? 'ti' : (window.PB_USUARIOS || {})[m.por] || m.por) : 'ti';
+    b.append(el('p', null, m.texto), el('time', null, hora(d) + (m.de === 'sale' ? (m.manual || m.respuesta ? ' · enviado por ' + porQuien : ' · enviado por el agente') : '')));
     if (m.manual) {
       // Por si se pegó mal: solo los «enviados por ti» se pueden quitar
       const q = el('button', 'pc-quitar', '×'); q.type = 'button'; q.title = 'Quitar este mensaje de la conversación';

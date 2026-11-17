@@ -10,10 +10,13 @@ return [
         'pass' => '',
         'from_name' => 'PEBAI · Formulario web',
     ],
+    // Contraseña compartida ANTIGUA del panel: solo vale mientras no exista la cuenta admin (api/_usuarios_lib.php).
+    // Desde el 17/11/2026 cada persona entra con su cuenta; se crean por SSH con pebai_usuario_guardar().
     // php -r "echo password_hash('CONTRASEÑA', PASSWORD_DEFAULT);"
     'panel_password_hash' => '',
-    // Clave rápida: solo vale desde la casilla que abre el atajo Ctrl + 5 × Espacio en el login
-    'panel_password_atajo_hash' => '',
+    // SOLO para el banco de pruebas en local: los correos del panel («He olvidado mi contraseña») se escriben en este archivo
+    // en vez de enviarse. En producción, no ponerlo.
+    // 'panel_correo_archivo' => '/ruta/a/correos.log',
     // Secreto del webhook de Cal.com (mismo valor en Cal.com)
     'calcom_webhook_secret' => '',
     // Token para lanzar api/recordatorios.php por URL desde el cron de Hostinger

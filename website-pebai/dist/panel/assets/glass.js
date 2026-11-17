@@ -25,7 +25,7 @@ let avisos = [], iAviso = 0;
 function pintaAviso() {
   if (!avisos.length) {
     const d = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-    pill.innerHTML = `<i class="lime"></i><b>${saludo()},</b><em>equipo</em><small>· ${esc(d)}</small>`;
+    pill.innerHTML = `<i class="lime"></i><b>${saludo()},</b><em>${esc(window.PB_YO && window.PB_YO.usuario ? window.PB_YO.nombre : 'equipo')}</em><small>· ${esc(d)}</small>`;
     pill.dataset.ir = ''; pill.hidden = false; return;
   }
   const a = avisos[iAviso % avisos.length];

@@ -85,8 +85,8 @@ if ($auth && in_array($_POST['action'] ?? '', ['conv_enviar', 'conv_mio', 'conv_
             if ((int)$q->fetchColumn()) {
                 json_out(['ok' => false, 'error' => 'Ese mensaje ya está en la conversación.'], 422);
             }
-            $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla) VALUES (?, ?, ?, ?, 'sale', ?, 'manual')")
-               ->execute([$ts, $agente, $id, $canal === 'email' ? (string)$p['email'] : (string)$p['telefono'], $texto]);
+            $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla, usuario) VALUES (?, ?, ?, ?, 'sale', ?, 'manual', ?)")
+               ->execute([$ts, $agente, $id, $canal === 'email' ? (string)$p['email'] : (string)$p['telefono'], $texto, pebai_quien()]);
             json_out(['ok' => true]);
         case 'conv_mio_quitar':
             // Solo se pueden quitar mensajes «enviados por ti» (por si se pegó mal); lo del agente y lo que contestan, nunca

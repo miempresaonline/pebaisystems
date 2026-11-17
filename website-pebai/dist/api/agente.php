@@ -315,8 +315,8 @@ switch ($in['accion'] ?? '') {
         $quien = (string)pebai_uno($q) ?: $w['telefono'];
         if (!empty($in['ok'])) {
             $db->prepare("UPDATE wa_salida SET estado = 'enviado', enviado_at = ?, error = '' WHERE id = ?")->execute([$now, $w['id']]);
-            $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla) VALUES (?, 'whatsapp', ?, ?, 'sale', ?, ?)")
-               ->execute([$now, $w['prospecto_id'], $w['telefono'], $w['texto'], $w['plantilla'] ?: 'respuesta']);
+            $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla, usuario) VALUES (?, 'whatsapp', ?, ?, 'sale', ?, ?, ?)")
+               ->execute([$now, $w['prospecto_id'], $w['telefono'], $w['texto'], $w['plantilla'] ?: 'respuesta', (string)($w['usuario'] ?? '')]);
             pebai_actividad('whatsapp', 'envio', 'Respuesta enviada a ' . $quien, $w['texto'], 'wa:' . $w['prospecto_id']);
         } elseif (!empty($in['cancelado'])) {
             $db->prepare("UPDATE wa_salida SET estado = 'cancelado', error = ? WHERE id = ?")->execute([mb_substr((string)($in['error'] ?? ''), 0, 250), $w['id']]);

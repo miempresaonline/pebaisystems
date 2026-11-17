@@ -10,6 +10,8 @@ const BASE = app.dataset.base;
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const N = (n) => new Intl.NumberFormat('es-ES').format(n || 0);
 const coma = (n) => String(n).replace('.', ',');
+// Cuentas por usuario (17/11/2026): el enlace para compartir lleva el origen de quien está dentro (docs/enlaces-y-utm.md)
+const MI_ORIGEN = window.PB_YO && ['daniel', 'adrian'].includes(window.PB_YO.usuario) ? window.PB_YO.usuario : '';
 const MES3 = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const toast = (msg, err) => { const t = document.getElementById('pb-toast'); if (!t) return; t.querySelector('span').textContent = msg; t.classList.toggle('err', !!err); t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 3200); };
 
@@ -99,7 +101,7 @@ function tarjeta(f, i) {
   return `<article class="pbx-c gpc ${esc(f.estado)} pbg-n" style="--n:${Math.min(i + 1, 12)}" data-gp="${f.id}">
     <header>
       ${PBX.cara(f.nombre, red)}
-      <div class="gpc-q-n"><b>${esc(f.nombre)}</b><small class="gpc-org">${PBX.logo(red)}<em>${esc(nombreOrigen(f.origen))}</em> · ${esc(hace(f.created_at))}</small></div>
+      <div class="gpc-q-n"><b>${esc(f.nombre)}</b><small class="gpc-org">${PBX.logo(red)}<em>${esc(nombreOrigen(f.origen))}</em> · ${esc(hace(f.created_at))}${f.estado_por ? ' · ' + esc((window.PB_USUARIOS || {})[f.estado_por] || f.estado_por) : ''}</small></div>
       <div class="gpc-med" title="Encaje ${enc} de 15">${PBX.medidor(enc, 15, nombreEncaje(enc), [11 / 15, 7 / 15])}</div>
     </header>
     ${f.porque ? `<button type="button" class="gpc-porque" data-porque title="Ver entero">«${esc(f.porque)}»</button>` : '<p class="gpc-porque vacio">No escribió por qué.</p>'}
@@ -173,7 +175,7 @@ function pintar() {
   pintadoCon = firma;
   const sol = ui.tab !== 'estadisticas';
   raiz.innerHTML = `<header class="pbx-cab"><div><h2 class="pbx-h1">Growth <i>Partner</i></h2></div>
-      <a class="pbx-btn ghost sm" href="https://pebaisystems.es/growth-partner/" target="_blank" rel="noopener">Ver el formulario ↗</a></header>
+      <span>${MI_ORIGEN ? `<button type="button" class="pbx-btn ghost sm" data-copiar-gp title="El enlace lleva tu nombre (origen=${esc(MI_ORIGEN)}): quien se apunte por él cuenta como tuyo">Copiar mi enlace</button> ` : ''}<a class="pbx-btn ghost sm" href="https://pebaisystems.es/growth-partner/" target="_blank" rel="noopener">Ver el formulario ↗</a></span></header>
     ${heroe()}
     <div class="gp-barra"><nav class="pb-seg gp-tabs"><button type="button" data-tab="solicitudes" class="${sol ? 'on' : ''}">Solicitudes</button><button type="button" data-tab="estadisticas" class="${sol ? '' : 'on'}">Estadísticas</button></nav>${sol ? chips() : ''}</div>
     <div class="gp-cuerpo">${sol ? lista() : `<div class="gp-est">${embudo()}<div class="gp-col">${origenes()}${respuestas()}</div></div>${serie()}`}</div>`;
@@ -184,6 +186,11 @@ const cierraMenus = (salvo) => raiz.querySelectorAll('details.gpc-est[open]').fo
 raiz.addEventListener('toggle', (e) => { if (e.target.matches && e.target.matches('details.gpc-est') && e.target.open) cierraMenus(e.target); }, true);
 document.addEventListener('click', (e) => { if (!e.target.closest('details.gpc-est')) cierraMenus(); });
 raiz.addEventListener('click', async (e) => {
+  if (e.target.closest('[data-copiar-gp]')) {
+    const url = 'https://pebaisystems.es/growth-partner/?origen=' + MI_ORIGEN;
+    navigator.clipboard.writeText(url).then(() => toast('Enlace copiado: ' + url), () => toast(url));
+    return;
+  }
   const t = e.target.closest('[data-tab]'); if (t) { if (ui.tab !== t.dataset.tab) { ui.tab = t.dataset.tab; guarda(); pintar(); } return; }
   const fl = e.target.closest('[data-filtro]'); if (fl) { ui.estado = fl.dataset.filtro; guarda(); pintar(); return; }
   const pq = e.target.closest('[data-porque]'); if (pq) { pq.classList.toggle('abierto'); return; }

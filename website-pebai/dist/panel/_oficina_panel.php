@@ -52,7 +52,7 @@ function of_actividad(string $agente, int $n = 25): array
     if (!function_exists('pebai_actividad_ultimas')) {
         return [];
     }
-    return array_map(static fn($r) => ['ts' => $r['ts'], 'tipo' => $r['tipo'], 'txt' => $r['resumen']], array_slice(pebai_actividad_ultimas($agente, $n), 0, $n));
+    return array_map(static fn($r) => ['ts' => $r['ts'], 'tipo' => $r['tipo'], 'txt' => $r['resumen'], 'por' => (string)($r['usuario'] ?? '')], array_slice(pebai_actividad_ultimas($agente, $n), 0, $n));
 }
 
 function of_errores(array $act): array
@@ -964,6 +964,7 @@ function of_pausar(string $id, bool $pausar): void
 }
 
 if ($auth && ($_POST['action'] ?? '') === 'agentes_parar') {
+    pebai_solo_admin();   // parar o reanudar los agentes lo decide Daniel
     if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
         json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 400);
     }
@@ -1008,8 +1009,11 @@ if ($auth && isset($_GET['oficina'])) {
     } catch (Throwable $e) {
         // sin registro de IA todavía
     }
+    if (!pebai_es_admin()) {
+        $iaHoy = null;   // el gasto de IA es solo para Daniel
+    }
     json_out(['ok' => true, 'ahora' => date('Y-m-d H:i:s'), 'csrf' => csrf(), 'agentes' => $agentes,
-              'ia' => is_file(pebai_private_dir() . '/ia.php'), 'parada' => of_parada(), 'ia_nucleo' => $iaNucleo, 'ia_hoy' => $iaHoy]);
+              'ia' => is_file(pebai_private_dir() . '/ia.php'), 'parada' => of_parada(), 'ia_nucleo' => $iaNucleo, 'ia_hoy' => $iaHoy, 'solo_ver' => !pebai_es_admin()]);
 }
 
 // «Explícamelo»: Claude Haiku cuenta en palabras normales qué ha hecho hoy un agente y, si algo va mal, por qué y qué hacer.
@@ -1137,6 +1141,7 @@ if ($auth && isset($_GET['demo_encargo'])) {
 }
 
 if ($auth && ($_POST['action'] ?? '') === 'demo_manual') {
+    pebai_solo_admin();   // un encargo a un agente (cuesta y prepara contacto con terceros): solo Daniel
     if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
         json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 400);
     }

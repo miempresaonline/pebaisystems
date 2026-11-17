@@ -1,7 +1,8 @@
 <?php
 /*
  * PEBAI · Panel privado del embudo (panel.pebaisystems.es).
- * Resumen por origen, solicitudes y citas. Acceso con contraseña (hash en private/config.php).
+ * Resumen por origen, solicitudes y citas. Acceso con cuenta por persona y rol (api/_usuarios_lib.php, desde el 17/11/2026);
+ * mientras no exista la cuenta admin, con la contraseña compartida de antes (hash en private/config.php).
  *
  * Sirve igual como raíz del subdominio (carpeta public_html/panel como document root)
  * que en https://pebaisystems.es/panel/ mientras el subdominio no exista: BASE lo decide.
@@ -12,6 +13,7 @@
 require dirname(__DIR__) . '/api/_pebai_lib.php';
 require dirname(__DIR__) . '/api/_agentes_lib.php';
 require dirname(__DIR__) . '/api/_caja_lib.php';
+require dirname(__DIR__) . '/api/_usuarios_lib.php';
 
 header('X-Robots-Tag: noindex, nofollow');
 header('X-Frame-Options: DENY');
@@ -22,6 +24,10 @@ header('Cache-Control: no-store');
 const PANEL_HOST = 'panel.pebaisystems.es';
 $host = strtolower($_SERVER['HTTP_HOST'] ?? '');
 define('BASE', $host === PANEL_HOST ? '/' : '/panel/');
+// Solo para probar en el ordenador (php -S): las cookies sin «secure», que en http no se guardarían
+define('PANEL_LOCAL', (bool)preg_match('/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/', $host));
+// Dirección del panel para los enlaces que salen por correo: fija en producción (nunca la que diga la petición)
+define('PANEL_URL', PANEL_LOCAL ? 'http://' . $host . BASE : 'https://' . PANEL_HOST . '/');
 
 // El panel vive en panel.pebaisystems.es (activo desde el 14/10/2026): la ruta antigua /panel/ redirige allí.
 if (BASE !== '/' && $_SERVER['REQUEST_METHOD'] === 'GET' && in_array($host, ['pebaisystems.es', 'www.pebaisystems.es'], true)) {
@@ -30,7 +36,7 @@ if (BASE !== '/' && $_SERVER['REQUEST_METHOD'] === 'GET' && in_array($host, ['pe
 }
 
 session_name('pebai_panel');
-session_set_cookie_params(['lifetime' => 0, 'path' => BASE, 'secure' => true, 'httponly' => true, 'samesite' => 'Strict']);
+session_set_cookie_params(['lifetime' => 0, 'path' => BASE, 'secure' => !PANEL_LOCAL, 'httponly' => true, 'samesite' => 'Strict']);
 session_start();
 
 const ESTADOS = ['nuevo', 'contactado', 'cita', 'sesion', 'no_asistio', 'cliente', 'descartado'];
@@ -52,6 +58,7 @@ function json_out(array $data, int $code = 200): void
 }
 
 $error = '';
+$aviso = '';
 $dbError = '';
 try {
     $db = pebai_db();
@@ -64,7 +71,9 @@ try {
 /* Daniel, 01/11: «nunca se me guarda el inicio de sesión». La sesión de PHP se pierde al cerrar el navegador y el servidor la borra
    a los ~24 min sin uso; por eso, al entrar se guarda también una llave aleatoria en una cookie de 60 días (solo su huella sha256 en la
    base de datos, con su csrf para que las pestañas abiertas sigan valiendo). Si la sesión se ha perdido y llega esa llave, se entra solo.
-   Cada uso alarga los 60 días; «Salir» la borra. */
+   Cada uso alarga los 60 días; «Salir» la borra.
+   17/11 (cuentas por usuario): cada llave sabe de quién es y con qué contraseña se creó. Si la cuenta cambia de contraseña o se
+   desactiva, la llave deja de valer; las llaves antiguas sin usuario (de la contraseña compartida) caen en cuanto existe la cuenta admin. */
 const PEBAI_RECUERDA = 'pebai_recuerda';
 const PEBAI_RECUERDA_DIAS = 60;
 function pebai_recuerda_db(?PDO $db): ?PDO
@@ -72,13 +81,12 @@ function pebai_recuerda_db(?PDO $db): ?PDO
     if (!$db) {
         return null;
     }
-    $db->exec('CREATE TABLE IF NOT EXISTS sesiones_recuerdo (hash TEXT PRIMARY KEY, csrf TEXT NOT NULL, creada TEXT NOT NULL, caduca INTEGER NOT NULL,
-               ua TEXT NOT NULL DEFAULT "", usada TEXT NOT NULL DEFAULT "")');
+    pebai_recuerdo_tabla($db);
     return $db;
 }
 function pebai_recuerda_cookie(string $valor, int $hasta): void
 {
-    setcookie(PEBAI_RECUERDA, $valor, ['expires' => $hasta, 'path' => BASE, 'secure' => true, 'httponly' => true, 'samesite' => 'Lax']);
+    setcookie(PEBAI_RECUERDA, $valor, ['expires' => $hasta, 'path' => BASE, 'secure' => !PANEL_LOCAL, 'httponly' => true, 'samesite' => 'Lax']);
 }
 function pebai_recuerda_poner(?PDO $db): void
 {
@@ -88,8 +96,9 @@ function pebai_recuerda_poner(?PDO $db): void
     $t = bin2hex(random_bytes(32));
     $hasta = time() + PEBAI_RECUERDA_DIAS * 86400;
     $db->prepare('DELETE FROM sesiones_recuerdo WHERE caduca < ?')->execute([time()]);
-    $db->prepare('INSERT INTO sesiones_recuerdo (hash, csrf, creada, caduca, ua, usada) VALUES (?, ?, ?, ?, ?, ?)')
-       ->execute([hash('sha256', $t), csrf(), date('Y-m-d H:i:s'), $hasta, mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 200), date('Y-m-d H:i:s')]);
+    $db->prepare('INSERT INTO sesiones_recuerdo (hash, csrf, creada, caduca, ua, usada, usuario, clave) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+       ->execute([hash('sha256', $t), csrf(), date('Y-m-d H:i:s'), $hasta, mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 200), date('Y-m-d H:i:s'),
+                  (string)($_SESSION['usuario'] ?? ''), (string)($_SESSION['clave'] ?? '')]);
     pebai_recuerda_cookie($t, $hasta);
 }
 function pebai_recuerda_entrar(?PDO $db): bool
@@ -98,16 +107,27 @@ function pebai_recuerda_entrar(?PDO $db): bool
     if (!preg_match('/^[0-9a-f]{64}$/', $t) || !($db = pebai_recuerda_db($db))) {
         return false;
     }
-    $q = $db->prepare('SELECT csrf, caduca FROM sesiones_recuerdo WHERE hash = ? AND caduca > ?');
+    $q = $db->prepare('SELECT csrf, caduca, usuario, clave FROM sesiones_recuerdo WHERE hash = ? AND caduca > ?');
     $q->execute([hash('sha256', $t), time()]);
     $r = $q->fetch(PDO::FETCH_ASSOC);
     $q->closeCursor();
-    if (!$r) {
-        pebai_recuerda_cookie('', time() - 3600);   // llave caducada o borrada: fuera
+    // ¿De quién es la llave y sigue valiendo?
+    $u = null;
+    if ($r && $r['usuario'] === '') {
+        $u = pebai_hay_admin() ? null : ['usuario' => '', 'nombre' => 'Equipo', 'rol' => 'admin', 'hash' => ''];
+    } elseif ($r) {
+        $c = pebai_usuario($r['usuario']);
+        $u = $c && (int)$c['activo'] && $c['hash'] !== '' && hash_equals(pebai_usuario_huella($c['hash']), (string)$r['clave']) ? $c : null;
+    }
+    if (!$u) {
+        if ($r) {
+            $db->prepare('DELETE FROM sesiones_recuerdo WHERE hash = ?')->execute([hash('sha256', $t)]);
+        }
+        pebai_recuerda_cookie('', time() - 3600);   // llave caducada, borrada o de una contraseña que ya no vale: fuera
         return false;
     }
     session_regenerate_id(true);
-    $_SESSION['auth'] = true;
+    pebai_sesion_poner($u);
     $_SESSION['csrf'] = $r['csrf'];   // el mismo csrf de antes: las pestañas abiertas siguen funcionando
     $hasta = time() + PEBAI_RECUERDA_DIAS * 86400;
     $db->prepare('UPDATE sesiones_recuerdo SET caduca = ?, usada = ? WHERE hash = ?')->execute([$hasta, date('Y-m-d H:i:s'), hash('sha256', $t)]);
@@ -123,54 +143,108 @@ function pebai_recuerda_quitar(?PDO $db): void
     pebai_recuerda_cookie('', time() - 3600);
 }
 
-/* ------------------------------------------------------------ Login --- */
-/** Contraseña normal, o la clave rápida si viene de la casilla del atajo (Ctrl + 5 × Espacio). */
-function pebai_login_ok(): bool
-{
-    $cfg = pebai_config();
-    if (($_POST['modo'] ?? '') === 'atajo') {
-        $hash = (string)($cfg['panel_password_atajo_hash'] ?? '');
-        // da igual mayúsculas o minúsculas, y la ñ escrita como n + tilde
-        $clave = mb_strtolower(str_replace("n\u{303}", 'ñ', trim((string)($_POST['clave'] ?? ''))), 'UTF-8');
-        return $hash !== '' && $clave !== '' && password_verify($clave, $hash);
+/* ------------------------------------------------------------ Entrar, «He olvidado mi contraseña» y contraseña nueva --- */
+/* 17/11/2026: se entra con «usuario o correo» + contraseña (api/_usuarios_lib.php). Mientras no exista la cuenta admin, la
+   contraseña compartida antigua sigue valiendo (sin usuario); la «clave rápida» del atajo de teclado ya no existe. */
+$accion = (string)($_POST['action'] ?? '');
+$vistaCuenta = '';   // '' = entrar · olvido · olvido_enviado · restablecer · restablecer_mal
+$token = '';
+$csrfEntrada = in_array($accion, ['login', 'olvido', 'restablecer'], true) && hash_equals(csrf(), (string)($_POST['csrf'] ?? ''));
+$caducada = 'La página llevaba mucho rato abierta. Vuelve a intentarlo.';
+try {
+    if ($accion === 'login') {
+        $login = pebai_usuario_normaliza((string)($_POST['usuario'] ?? ''));
+        if (!$db) {
+            $error = $dbError;
+        } elseif (!$csrfEntrada) {
+            $error = $caducada;
+        } elseif (pebai_intentos_bloqueado('login', $login)) {
+            $error = 'Demasiados intentos. Espera 15 minutos.';
+        } elseif ($u = pebai_login($login, (string)($_POST['password'] ?? ''))) {
+            session_regenerate_id(true);
+            pebai_sesion_poner($u);
+            $_SESSION['csrf'] = bin2hex(random_bytes(16));
+            pebai_recuerda_poner($db);
+            $next = (string)($_POST['next'] ?? '');
+            header('Location: ' . BASE . ($next !== '' && $next[0] === '?' && strlen($next) < 200 ? $next : ''));
+            exit;
+        } else {
+            $error = pebai_hay_admin() || $login !== '' ? 'Usuario o contraseña incorrectos.' : 'Contraseña incorrecta.';
+            pebai_intento_fallido('login', $login);
+        }
+    } elseif ($accion === 'olvido') {
+        // Respuesta siempre igual, exista o no la cuenta: así no se puede saber quién tiene cuenta
+        $vistaCuenta = 'olvido_enviado';
+        if (!$csrfEntrada) {
+            $vistaCuenta = 'olvido';
+            $error = $caducada;
+        } elseif ($db && !pebai_intentos_bloqueado('olvido', '', 5)) {
+            $login = pebai_usuario_normaliza((string)($_POST['usuario'] ?? ''));
+            pebai_intento_fallido('olvido', $login);   // cada petición cuenta: 5 por dispositivo cada 15 min
+            if ($login !== '') {
+                pebai_reset_pedir($login, PANEL_URL);
+            }
+        }
+    } elseif ($accion === 'restablecer') {
+        $token = (string)($_POST['token'] ?? '');
+        if (!$csrfEntrada) {
+            $error = $caducada;
+        } elseif (!$db || pebai_intentos_bloqueado('restablecer')) {
+            $error = 'Demasiados intentos. Espera 15 minutos.';
+        } elseif (($e = pebai_reset_usar($token, (string)($_POST['nueva'] ?? ''), (string)($_POST['repite'] ?? ''))) === '') {
+            pebai_sesion_quitar();
+            header('Location: ' . BASE . '?clave_nueva=1');
+            exit;
+        } else {
+            $error = $e;
+            if (!pebai_reset_buscar($token)) {
+                pebai_intento_fallido('restablecer');
+            }
+        }
+        $vistaCuenta = $db && pebai_reset_buscar($token) ? 'restablecer' : 'restablecer_mal';
     }
-    return password_verify($_POST['password'] ?? '', $cfg['panel_password_hash']);
-}
-if (isset($_POST['action']) && $_POST['action'] === 'login') {
-    $ip = pebai_ip_hash();
-    $blocked = false;
-    if ($db) {
-        $db->prepare('DELETE FROM login_attempts WHERE ts < ?')->execute([time() - 900]);
-        $q = $db->prepare('SELECT COUNT(*) FROM login_attempts WHERE ip_hash = ?');
-        $q->execute([$ip]);
-        $blocked = (int)$q->fetchColumn() >= 8;
-    }
-    if ($blocked) {
-        $error = 'Demasiados intentos. Espera 15 minutos.';
-    } elseif (pebai_login_ok()) {
-        session_regenerate_id(true);
-        $_SESSION['auth'] = true;
-        pebai_recuerda_poner($db);
-        $next = (string)($_POST['next'] ?? '');
-        header('Location: ' . BASE . ($next !== '' && $next[0] === '?' && strlen($next) < 200 ? $next : ''));
-        exit;
-    } else {
-        $error = 'Contraseña incorrecta.';
-        if ($db) {
-            $db->prepare('INSERT INTO login_attempts (ip_hash, ts) VALUES (?, ?)')->execute([$ip, time()]);
+    if ($accion === '' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+        if (isset($_GET['restablecer'])) {
+            $token = (string)$_GET['restablecer'];
+            $vistaCuenta = $db && pebai_reset_buscar($token) ? 'restablecer' : 'restablecer_mal';
+        } elseif (isset($_GET['olvido'])) {
+            $vistaCuenta = 'olvido';
+        } elseif (isset($_GET['clave_nueva'])) {
+            $aviso = 'Contraseña cambiada. Ya puedes entrar con la nueva.';
         }
     }
+} catch (Throwable $e) {
+    pebai_log('PANEL entrar: ' . $e->getMessage());
+    $error = 'No se ha podido comprobar ahora. Vuelve a intentarlo en un momento.';
 }
 
 if (isset($_GET['salir'])) {
-    pebai_recuerda_quitar($db);
+    pebai_recuerda_quitar($db);   // la llave de este dispositivo, nada más
     $_SESSION = [];
     session_destroy();
     header('Location: ' . BASE);
     exit;
 }
 
-$auth = !empty($_SESSION['auth']) || pebai_recuerda_entrar($db);
+// ¿Hay sesión y sigue valiendo? (cuenta activa, misma contraseña; la compartida antigua solo mientras no haya admin)
+$auth = false;
+if (!empty($_SESSION['auth'])) {
+    try {
+        $auth = !$db || pebai_sesion_valida();
+    } catch (Throwable $e) {
+        pebai_log('PANEL sesión: ' . $e->getMessage());
+    }
+    if (!$auth) {
+        pebai_sesion_quitar();
+    }
+}
+if (!$auth) {
+    try {
+        $auth = pebai_recuerda_entrar($db);
+    } catch (Throwable $e) {
+        pebai_log('PANEL recordar: ' . $e->getMessage());
+    }
+}
 // Las lecturas de datos (GET con parámetro, no la página) sueltan la sesión al momento: así varias peticiones a la vez no hacen
 // cola esperando el bloqueo de la sesión. El csrf ya existe desde que se cargó la página.
 if ($auth && $_SERVER['REQUEST_METHOD'] === 'GET' && $_GET && !isset($_GET['salir']) && !isset($_GET['tab']) && !empty($_SESSION['csrf'])) {
@@ -180,8 +254,62 @@ if ($auth && $_SERVER['REQUEST_METHOD'] === 'GET' && $_GET && !isset($_GET['sali
 if (isset($_GET['ping'])) {
     json_out(['ok' => $auth]);
 }
-if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || isset($_GET['oficina']) || isset($_GET['oficina_resumen']) || isset($_GET['oficina_explica']) || isset($_GET['oficina_parte']) || isset($_GET['qr']) || isset($_GET['mapa']) || isset($_GET['redes']) || isset($_GET['web']) || isset($_GET['gasto']) || isset($_GET['gestoria']) || isset($_GET['growth']) || isset($_GET['demo_encargo']) || isset($_GET['buscar']) || isset($_GET['push_clave']) || isset($_GET['avisos_ultimos']) || (isset($_POST['action']) && $_POST['action'] !== 'login'))) {
+if (!$auth && (isset($_GET['data']) || isset($_GET['caja']) || isset($_GET['oficina']) || isset($_GET['oficina_resumen']) || isset($_GET['oficina_explica']) || isset($_GET['oficina_parte']) || isset($_GET['qr']) || isset($_GET['mapa']) || isset($_GET['redes']) || isset($_GET['web']) || isset($_GET['gasto']) || isset($_GET['gestoria']) || isset($_GET['growth']) || isset($_GET['demo_encargo']) || isset($_GET['buscar']) || isset($_GET['push_clave']) || isset($_GET['avisos_ultimos']) || ($accion !== '' && !in_array($accion, ['login', 'olvido', 'restablecer'], true)))) {
     json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 401);
+}
+
+/* ------------------------------------------------------------ Permisos por rol --- */
+/* admin (Daniel) lo hace todo. socio (Adrián): lo comercial con sus acciones; Agentes y Caja solo para ver; en Gestoría solo los
+   pactos y su parte del reparto; nada de Gasto IA ni de lo técnico. Aquí se corta todo lo que no está en la lista (lo nuevo que se
+   añada al panel queda solo para Daniel hasta que se diga); además, cada acción solo de Daniel lo vuelve a comprobar en su sitio
+   con pebai_solo_admin(). Daniel decide sobre los agentes: ningún agente escribe a terceros sin su OK. */
+const PANEL_SOCIO_ACCIONES = [
+    // Embudo: solicitudes, citas y Growth Partner
+    'update', 'borrar_lead', 'visto', 'contacto', 'canal', 'asistencia', 'vincular', 'growth_estado',
+    // Captación: prospectos (lo importado entra en revisión), conversaciones y QRs
+    'prospectos_importar', 'prospecto_estado', 'prospecto_notas', 'email_estado', 'email_vista',
+    'conv_enviar', 'conv_mio', 'conv_mio_quitar', 'conv_contestado', 'qr_guardar', 'qr_borrar', 'qr_orden',
+    // Avisos en su móvil, «Pregunta a PEBAI» (solo responde, no cambia nada) y su contraseña
+    'push_alta', 'push_baja', 'push_prueba', 'oficina_preguntar', 'mi_clave',
+];
+const PANEL_SOCIO_GET_NO = ['gasto', 'gestoria_factura'];
+if ($auth && !pebai_es_admin()) {
+    if ($accion !== '' && !in_array($accion, PANEL_SOCIO_ACCIONES, true) && !in_array($accion, ['login', 'olvido', 'restablecer'], true)) {
+        pebai_solo_admin();
+    }
+    // Devolver una empresa a la cola de un agente es decidir que el agente le escriba: eso solo lo decide Daniel
+    if (in_array($accion, ['prospecto_estado', 'email_estado'], true) && ($_POST['estado'] ?? '') === 'pendiente') {
+        pebai_solo_admin();
+    }
+    if ($accion === 'prospectos_importar') {
+        $_POST['revision'] = '1';   // lo que importa un socio entra «en revisión»: el agente no escribe hasta que Daniel lo apruebe
+    }
+    foreach (PANEL_SOCIO_GET_NO as $k) {
+        if (isset($_GET[$k])) {
+            pebai_solo_admin();
+        }
+    }
+    unset($_GET['fresh'], $_GET['fresco']);   // el parte y los resúmenes de la oficina con IA: el que ya hay (rehacerlos cuesta)
+}
+
+/* ------------------------------------------------------------ Registro: quién cambia qué --- */
+// Cada acción que cambia algo queda en panel_registro con quién la hizo (si sale bien). Nunca el contenido del formulario.
+if ($auth && $db && $accion !== '' && !in_array($accion, ['login', 'olvido', 'restablecer', 'email_vista', 'oficina_preguntar', 'push_prueba'], true)
+    && hash_equals((string)($_SESSION['csrf'] ?? ''), (string)($_POST['csrf'] ?? ''))) {
+    $ref = '';
+    foreach (['id', 'uid', 'slug', 'lote', 'modo', 'estado', 'pausado'] as $k) {
+        if (isset($_POST[$k]) && is_scalar($_POST[$k]) && $_POST[$k] !== '') {
+            $ref .= ($ref !== '' ? ' ' : '') . $k . '=' . mb_substr((string)$_POST[$k], 0, 40);
+        }
+    }
+    if (isset($_POST['canal']) && is_scalar($_POST['canal'])) {
+        $ref .= ' canal=' . mb_substr((string)$_POST['canal'], 0, 20);
+    }
+    register_shutdown_function(static function () use ($accion, $ref) {
+        if (http_response_code() < 400) {
+            pebai_registro($accion, trim($ref));
+        }
+    });
 }
 
 // Captación › Email (todo lo del email vive en ese archivo). Condicional: si aún no está subido, el panel sigue funcionando.
@@ -200,7 +328,7 @@ foreach (['_qr_panel.php', '_mapa_panel.php', '_conversaciones_panel.php', '_glo
 }
 
 /* ------------------------------------------------------------ Acciones (JSON) --- */
-if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
+if ($auth && $accion !== '' && !in_array($accion, ['login', 'olvido', 'restablecer'], true)) {
     if (!$db) {
         json_out(['ok' => false, 'error' => $dbError], 500);
     }
@@ -209,6 +337,35 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
     }
     $now = date('Y-m-d H:i:s');
     switch ($_POST['action']) {
+        case 'mi_clave':
+            // «Cambiar mi contraseña» (menú de usuario): pide la actual. Las demás sesiones y llaves de esa cuenta dejan de valer.
+            $yo = pebai_yo();
+            if ($yo['usuario'] === '') {
+                json_out(['ok' => false, 'error' => 'Has entrado con la contraseña compartida: entra con tu usuario para cambiar la tuya.'], 422);
+            }
+            if (pebai_intentos_bloqueado('clave', $yo['usuario'], 5)) {
+                json_out(['ok' => false, 'error' => 'Demasiados intentos. Espera 15 minutos.'], 429);
+            }
+            $u = pebai_usuario($yo['usuario']);
+            if (!$u || !password_verify((string)($_POST['actual'] ?? ''), $u['hash'])) {
+                pebai_intento_fallido('clave', $yo['usuario']);
+                json_out(['ok' => false, 'error' => 'La contraseña actual no es correcta.'], 422);
+            }
+            $nueva = (string)($_POST['nueva'] ?? '');
+            if ($nueva !== (string)($_POST['repite'] ?? '')) {
+                json_out(['ok' => false, 'error' => 'Las dos contraseñas nuevas no coinciden.'], 422);
+            }
+            if (($e = pebai_clave_valida($nueva)) !== '') {
+                json_out(['ok' => false, 'error' => $e], 422);
+            }
+            if (password_verify($nueva, $u['hash'])) {
+                json_out(['ok' => false, 'error' => 'La nueva tiene que ser distinta de la actual.'], 422);
+            }
+            $llave = (string)($_COOKIE[PEBAI_RECUERDA] ?? '');
+            pebai_usuario_poner_clave($u['usuario'], $nueva, preg_match('/^[0-9a-f]{64}$/', $llave) ? hash('sha256', $llave) : '');
+            session_regenerate_id(true);
+            pebai_sesion_poner(pebai_usuario($u['usuario']));
+            json_out(['ok' => true]);
         case 'update':
             $id = (int)($_POST['id'] ?? 0);
             $estado = in_array($_POST['estado'] ?? '', ESTADOS, true) ? $_POST['estado'] : 'nuevo';
@@ -225,6 +382,11 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
         case 'borrar_lead':
             // Borrar una solicitud (pruebas o duplicadas), con sus eventos; sus citas se quedan, sin unir
             $id = (int)($_POST['id'] ?? 0);
+            $q = $db->prepare('SELECT empresa, nombre FROM leads WHERE id = ?');
+            $q->execute([$id]);
+            if ($b = pebai_fila($q)) {
+                pebai_registro('borrar_lead', 'id=' . $id, 'Solicitud borrada: ' . trim($b['empresa'] . ' · ' . $b['nombre'], ' ·'));
+            }
             $db->prepare('DELETE FROM eventos WHERE lead_id = ?')->execute([$id]);
             $db->prepare('UPDATE citas SET lead_id = 0 WHERE lead_id = ?')->execute([$id]);
             $db->prepare('DELETE FROM leads WHERE id = ?')->execute([$id]);
@@ -323,7 +485,8 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
             pebai_actividad('whatsapp', 'cambio', 'Importados ' . $res['nuevos'] . ' prospectos nuevos (lote ' . $lote . ')', json_encode($res, JSON_UNESCAPED_UNICODE));
             json_out(['ok' => true, 'res' => $res]);
         case 'prospectos_aprobar':
-            // Aprueba de golpe las que están en revisión (todas o las de un lote): pasan a la cola del agente
+            // Aprueba de golpe las que están en revisión (todas o las de un lote): pasan a la cola del agente. Solo Daniel.
+            pebai_solo_admin();
             $lote = (string)($_POST['lote'] ?? '');
             $q = pebai_agentes_db()->prepare("UPDATE prospectos SET estado = 'pendiente', updated_at = ? WHERE estado = 'revision'" . ($lote !== '' ? ' AND lote = ?' : ''));
             $q->execute($lote !== '' ? [$now, $lote] : [$now]);
@@ -334,6 +497,9 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
             $estado = (string)($_POST['estado'] ?? '');
             if (!in_array($estado, ['pendiente', 'descartado', 'baja', 'respondio'], true)) {
                 json_out(['ok' => false, 'error' => 'Estado no válido.'], 400);
+            }
+            if ($estado === 'pendiente') {
+                pebai_solo_admin();   // volver a la cola del agente = que le escriba: lo decide Daniel
             }
             $q = pebai_agentes_db()->prepare('SELECT telefono FROM prospectos WHERE id = ?');
             $q->execute([$id]);
@@ -359,10 +525,12 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 ->execute([mb_substr(trim((string)($_POST['notas'] ?? '')), 0, 3000), $now, $id]);
             json_out(['ok' => true]);
         case 'agente_pausa':
+            pebai_solo_admin();
             pebai_agentes_db()->prepare("UPDATE agente_estado SET pausado = ? WHERE agente = 'whatsapp'")->execute([($_POST['pausado'] ?? '') === '1' ? 1 : 0]);
             pebai_actividad('whatsapp', 'cambio', ($_POST['pausado'] ?? '') === '1' ? 'Pausado desde el panel' : 'Reanudado desde el panel');
             json_out(['ok' => true]);
         case 'agente_config':
+            pebai_solo_admin();
             $cfg = pebai_wa_config();
             $cfg['limite_dia'] = max(0, min(200, (int)($_POST['limite_dia'] ?? $cfg['limite_dia'])));
             // Días y horario son fijos (PEBAI_WA_HORARIO, 3/11): desde el panel solo se cambian el cupo y las esperas
@@ -400,6 +568,7 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
             json_out(['ok' => true, 'caben' => pebai_wa_caben($cfg)]);
         /* ---- Empresa › Caja ---- */
         case 'caja_guardar':
+            pebai_solo_admin();   // la caja, para los socios, solo se ve
             $cdb = pebai_caja_db();
             $id = (int)($_POST['id'] ?? 0);
             $tipo = ($_POST['tipo'] ?? '') === 'ingreso' ? 'ingreso' : 'gasto';
@@ -425,6 +594,7 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 'forma' => $forma,
                 'cobrado' => ($_POST['cobrado'] ?? '1') === '0' ? 0 : 1,
                 'notas' => mb_substr(trim((string)($_POST['notas'] ?? '')), 0, 2000),
+                'usuario' => pebai_quien(),
             ];
             if ($id > 0) {
                 $set = implode(', ', array_map(fn($k) => "$k = ?", array_keys($campos)));
@@ -438,6 +608,7 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
             }
             json_out(['ok' => true, 'id' => $id]);
         case 'caja_borrar':
+            pebai_solo_admin();
             $cdb = pebai_caja_db();
             $id = (int)($_POST['id'] ?? 0);
             // Un cargo de suscripción no se borra: se anula, para que no vuelva a apuntarse solo
@@ -445,6 +616,7 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
             $cdb->prepare('DELETE FROM caja_movimientos WHERE id = ? AND suscripcion_id = 0')->execute([$id]);
             json_out(['ok' => true]);
         case 'sus_guardar':
+            pebai_solo_admin();
             $cdb = pebai_caja_db();
             $id = (int)($_POST['id'] ?? 0);
             $nombre = mb_substr(trim((string)($_POST['nombre'] ?? '')), 0, 120);
@@ -463,6 +635,7 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
                 'activa' => ($_POST['activa'] ?? '1') === '0' ? 0 : 1,
                 'forma' => in_array($_POST['forma'] ?? '', CAJA_FORMAS, true) ? $_POST['forma'] : 'tarjeta',
                 'notas' => mb_substr(trim((string)($_POST['notas'] ?? '')), 0, 1000),
+                'usuario' => pebai_quien(),
             ];
             if ($id > 0) {
                 $set = implode(', ', array_map(fn($k) => "$k = ?", array_keys($campos)));
@@ -476,10 +649,12 @@ if ($auth && isset($_POST['action']) && $_POST['action'] !== 'login') {
             pebai_caja_suscripciones_al_dia();
             json_out(['ok' => true]);
         case 'sus_borrar':
+            pebai_solo_admin();
             // Los cargos ya apuntados se quedan en la caja: fueron gastos reales
             pebai_caja_db()->prepare('DELETE FROM caja_suscripciones WHERE id = ?')->execute([(int)($_POST['id'] ?? 0)]);
             json_out(['ok' => true]);
         case 'caja_ajuste':
+            pebai_solo_admin();
             $raw = trim((string)($_POST['saldo_inicial'] ?? ''));
             $neg = strpos($raw, '-') === 0;
             $cent = $raw === '' || preg_match('/^-?0+([.,]0+)?$/', $raw) ? 0 : pebai_caja_cent(ltrim($raw, '-'));
@@ -540,7 +715,7 @@ if ($auth && isset($_GET['data'])) {
         $c['rec1'] = (int)$c['rec1'];
     }
     unset($c);
-    $eventos = $db->query('SELECT lead_id, ts, tipo, detalle, auto FROM eventos ORDER BY id DESC LIMIT 20000')->fetchAll();
+    $eventos = $db->query('SELECT lead_id, ts, tipo, detalle, auto, usuario FROM eventos ORDER BY id DESC LIMIT 20000')->fetchAll();
     foreach ($eventos as &$e) {
         $e['lead_id'] = (int)$e['lead_id'];
         $e['auto'] = (int)$e['auto'];
@@ -670,8 +845,11 @@ if ($auth && isset($_GET['agentes'])) {
                              'abierta' => $vent['abierta'], 'proxima' => $vent['proxima'] ? date('Y-m-d H:i:s', $vent['proxima']) : '']]);
 }
 
-$v = '154';
-$next = ($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '';
+$v = '155';
+$next = ($_SERVER['QUERY_STRING'] ?? '') !== '' && !preg_match('/(^|&)(restablecer|olvido|clave_nueva|salir)=/', $_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '';
+// Quién está dentro (para el menú, los permisos de la interfaz y rellenar solo «quién lo enseña», el origen de los enlaces…)
+$yo = pebai_yo() ?? ['usuario' => '', 'nombre' => 'Equipo', 'rol' => 'admin'];
+$esAdmin = $yo['rol'] === 'admin';
 ?><!doctype html>
 <html lang="es" data-theme="dark">
 <head>
@@ -725,49 +903,69 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
 }; })();
 </script>
 </head>
-<body>
+<body<?= $auth ? ' data-rol="' . h($yo['rol']) . '"' : '' ?>>
 <div class="pb-bg"><i></i><i></i><i></i></div>
 <?php if ($dbError): ?><div class="pb-shell"><div class="pb-err"><?= h($dbError) ?></div></div><?php endif; ?>
 
-<?php if (!$auth): ?>
+<?php if (!$auth || $vistaCuenta !== ''):
+    $hayAdmin = false;
+    try {
+        $hayAdmin = $db && pebai_hay_admin();
+    } catch (Throwable $e) {
+        // sin base: como antes
+    }
+    $escrito = (string)($_POST['usuario'] ?? ''); ?>
 <main class="pb-login-wrap">
   <form class="pb-login" method="post" action="<?= BASE ?>">
     <div class="pb-brand"><img class="pb-mark" src="<?= BASE ?>assets/pebai-mark.png" width="122" height="144" alt=""><svg class="pb-word" viewBox="30 15 700 112" aria-label="PEBAI" role="img"><g fill="currentColor"><g transform="translate(30 15) scale(2.72003 1.55556) translate(-7 72)"><path d="M12.7500 0L7 0L7-72L34.1500-72Q35.2000-72 36.4250-71.9250Q37.6500-71.8500 39-71.6000L39-71.6000Q44.4000-70.7500 48.2750-67.7250Q52.1500-64.7000 54.2000-60.1250Q56.2500-55.5500 56.2500-50.0500L56.2500-50.0500Q56.2500-44.5000 54.2000-39.9250Q52.1500-35.3500 48.2750-32.3250Q44.4000-29.3000 39-28.4500L39-28.4500Q37.6500-28.2500 36.4250-28.1500Q35.2000-28.0500 34.1500-28.0500L34.1500-28.0500L12.7500-28.0500L12.7500 0ZM12.7500-66.4000L12.7500-33.7000L34.0500-33.7000Q34.9500-33.7000 36.1250-33.8000Q37.3000-33.9000 38.5000-34.1000L38.5000-34.1000Q42.4000-34.9000 45-37.2750Q47.6000-39.6500 48.9000-43Q50.2000-46.3500 50.2000-50.0500L50.2000-50.0500Q50.2000-53.7500 48.9000-57.0750Q47.6000-60.4000 45-62.7750Q42.4000-65.1500 38.5000-65.9500L38.5000-65.9500Q37.3000-66.2000 36.1250-66.3000Q34.9500-66.4000 34.0500-66.4000L34.0500-66.4000L12.7500-66.4000Z"/><path d="M113.7500 0L69.2500 0L69.2500-72L113.7500-72L113.7500-66.4000L75-66.4000L75-39.0500L107.7500-39.0500L107.7500-33.4500L75-33.4500L75-5.6000L113.7500-5.6000L113.7500 0Z"/><path d="M158.4000 0L128.7500 0L128.7500-72L156.3000-72Q161.9000-72 166.3750-69.6250Q170.8500-67.2500 173.4250-63.1500Q176-59.0500 176-53.9000L176-53.9000Q176-48.1000 172.8000-43.4750Q169.6000-38.8500 164.3000-37L164.3000-37L164.1000-39.4000Q171.2000-37.2500 175.3750-32.2250Q179.5500-27.2000 179.5500-19.8000L179.5500-19.8000Q179.5500-13.6000 176.8250-9.1750Q174.1000-4.7500 169.3000-2.3750Q164.5000 0 158.4000 0L158.4000 0ZM134.5500-35.1000L134.5500-5.6500L156.5000-5.6500Q161.3000-5.6500 165.1250-7.3000Q168.9500-8.9500 171.1750-12.0500Q173.4000-15.1500 173.4000-19.5500L173.4000-19.5500Q173.4000-23.9000 171.3750-27.4250Q169.3500-30.9500 165.9000-33.0250Q162.4500-35.1000 158.1500-35.1000L158.1500-35.1000L134.5500-35.1000ZM134.5500-66.4500L134.5500-40.6500L156.2500-40.6500Q160-40.6500 163.1250-42.4000Q166.2500-44.1500 168.1000-47.1750Q169.9500-50.2000 169.9500-54.1000L169.9500-54.1000Q169.9500-59.6500 166.0250-63.0500Q162.1000-66.4500 156.2500-66.4500L156.2500-66.4500L134.5500-66.4500Z"/><path d="M193.5500 0L187.4500 0L212.9500-72L220.1000-72L245.6000 0L239.5000 0L215-69L217.9000-69L193.5500 0ZM235-18.1000L198-18.1000L198-23.5500L235-23.5500L235-18.1000Z"/><path d="M264.3500 0L258.6000 0L258.6000-72L264.3500-72L264.3500 0Z"/></g></g></svg></div>
+    <input type="hidden" name="csrf" value="<?= h(csrf()) ?>">
+<?php if ($vistaCuenta === 'olvido' || $vistaCuenta === 'olvido_enviado'): ?>
+    <h1>¿Has olvidado <i>tu contraseña?</i></h1>
+<?php if ($vistaCuenta === 'olvido_enviado'): ?>
+    <p class="muted">Si existe una cuenta con ese usuario o correo y tiene un correo apuntado, te acaba de llegar un enlace para poner una contraseña nueva. Vale 1 hora.</p>
+    <a class="pb-btn primary wide pb-login-btn" href="<?= BASE ?>">Volver a entrar</a>
+<?php else: ?>
+    <p class="muted">Escribe tu usuario o tu correo y te mandamos un enlace para poner una nueva.</p>
+    <?php if ($error): ?><div class="pb-err"><?= h($error) ?></div><?php endif; ?>
+    <input type="hidden" name="action" value="olvido">
+    <label class="pb-field"><span>Usuario o correo</span><input name="usuario" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus value="<?= h($escrito) ?>"></label>
+    <button class="pb-btn primary wide" type="submit">Enviarme el enlace</button>
+    <p class="pb-login-pie"><a href="<?= BASE ?>">Volver a entrar</a></p>
+<?php endif; ?>
+<?php elseif ($vistaCuenta === 'restablecer'): ?>
+    <h1>Pon tu <i>contraseña nueva</i></h1>
+    <p class="muted">Al menos <?= PEBAI_CLAVE_MIN ?> caracteres. Al guardarla se cierran las sesiones que tengas abiertas.</p>
+    <?php if ($error): ?><div class="pb-err"><?= h($error) ?></div><?php endif; ?>
+    <input type="hidden" name="action" value="restablecer">
+    <input type="hidden" name="token" value="<?= h($token) ?>">
+    <label class="pb-field"><span>Contraseña nueva</span><input type="password" name="nueva" autocomplete="new-password" minlength="<?= PEBAI_CLAVE_MIN ?>" required autofocus></label>
+    <label class="pb-field"><span>Repítela</span><input type="password" name="repite" autocomplete="new-password" minlength="<?= PEBAI_CLAVE_MIN ?>" required></label>
+    <button class="pb-btn primary wide" type="submit">Guardar la contraseña</button>
+<?php elseif ($vistaCuenta === 'restablecer_mal'): ?>
+    <h1>Este enlace <i>ya no vale</i></h1>
+    <p class="muted">Ha caducado (dura 1 hora) o ya se ha usado. Pide otro y usa el último que te llegue.</p>
+    <?php if ($error): ?><div class="pb-err"><?= h($error) ?></div><?php endif; ?>
+    <a class="pb-btn primary wide pb-login-btn" href="<?= BASE ?>?olvido=1">Pedir otro enlace</a>
+    <p class="pb-login-pie"><a href="<?= BASE ?>">Volver a entrar</a></p>
+<?php else: ?>
     <h1>Panel del <i>embudo</i></h1>
     <p class="muted">Solicitudes, citas y origen de cada cliente.</p>
+    <?php if ($aviso): ?><div class="pb-err pb-ok"><?= h($aviso) ?></div><?php endif; ?>
     <?php if ($error): ?><div class="pb-err"><?= h($error) ?></div><?php endif; ?>
     <input type="hidden" name="action" value="login">
     <input type="hidden" name="next" value="<?= h($next) ?>">
-    <label class="pb-field" id="pb-login-normal"><span>Contraseña</span><input type="password" name="password" autocomplete="current-password" required autofocus></label>
-    <label class="pb-field" id="pb-login-atajo" hidden style="display:none"><span>Clave rápida</span><input type="password" name="clave" autocomplete="off" disabled></label>
-    <input type="hidden" name="modo" value="" id="pb-login-modo">
+    <label class="pb-field"><span>Usuario o correo</span><input name="usuario" autocomplete="username" autocapitalize="none" spellcheck="false"<?= $hayAdmin ? ' required' : '' ?><?= $escrito === '' ? ' autofocus' : '' ?> value="<?= h($escrito) ?>"></label>
+    <label class="pb-field"><span>Contraseña</span><input type="password" name="password" autocomplete="current-password" required<?= $escrito !== '' ? ' autofocus' : '' ?>></label>
     <button class="pb-btn primary wide" type="submit">Entrar</button>
+    <p class="pb-login-pie"><a href="<?= BASE ?>?olvido=1">He olvidado mi contraseña</a></p>
+<?php endif; ?>
   </form>
-  <script>
-  /* Ctrl + 5 veces Espacio (en menos de 4 s, soltando o no el Ctrl) cambia a la casilla de la clave rápida; Esc vuelve. */
-  (() => {
-    const normal = document.getElementById('pb-login-normal'), atajo = document.getElementById('pb-login-atajo'), modo = document.getElementById('pb-login-modo');
-    const pass = normal.querySelector('input'), clave = atajo.querySelector('input');
-    let n = 0, t0 = 0;
-    const poner = (rapida) => {
-      normal.hidden = rapida; normal.style.display = rapida ? 'none' : ''; pass.disabled = rapida; pass.required = !rapida;
-      atajo.hidden = !rapida; atajo.style.display = rapida ? '' : 'none'; clave.disabled = !rapida; clave.required = rapida;
-      modo.value = rapida ? 'atajo' : ''; (rapida ? clave : pass).focus();
-    };
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modo.value) { poner(false); return; }
-      if (e.code !== 'Space' || !e.ctrlKey) return;
-      e.preventDefault();
-      const ahora = Date.now(); if (ahora - t0 > 4000) { n = 0; t0 = ahora; }
-      if (++n >= 5) { n = 0; poner(!modo.value); }
-    });
-  })();
-  </script>
 </main>
 
 <?php else: ?>
 <?php require __DIR__ . '/_intro.php'; ?>
-<div class="pb-app" id="pb-app" data-base="<?= h(BASE) ?>" data-csrf="<?= h(csrf()) ?>">
+<div class="pb-app" id="pb-app" data-base="<?= h(BASE) ?>" data-csrf="<?= h(csrf()) ?>" data-rol="<?= h($yo['rol']) ?>">
+<script>window.PB_YO = <?= json_encode(['usuario' => $yo['usuario'], 'nombre' => $yo['nombre'], 'rol' => $yo['rol'], 'roles' => PEBAI_ROLES], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?>; window.PB_USUARIOS = <?= json_encode((object)pebai_usuarios_nombres(), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?>;</script>
 
 <aside class="pb-side" aria-label="Secciones del panel">
   <a class="pb-brand" href="<?= BASE ?>" aria-label="Panel PEBAI">
@@ -796,13 +994,16 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
     </div>
     <div class="grp"><small>Automático</small>
       <button data-page="agentes" type="button"><svg class="pb-i" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg><span>Agentes</span><i class="pb-live" id="pb-ag-live" title="Estado de los agentes"></i></button>
+<?php if ($esAdmin): ?>
       <button data-page="gasto" type="button"><svg class="pb-i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4"/><path d="M12 12h9"/></svg><span>Gasto IA</span></button>
       <button data-page="agentes" id="pb-nav-control" type="button" hidden><svg class="pb-i" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span>Control de envíos</span></button>
+<?php endif; ?>
     </div>
   </nav>
   <div class="pb-side-foot">
     <button class="pb-btn icon" id="pb-avisos" title="Activar avisos de nuevas solicitudes" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
     <button class="pb-btn icon" id="pb-theme" title="Cambiar tema" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg></button>
+    <button class="pb-btn icon pb-yo" id="pb-yo" type="button" title="<?= h($yo['nombre'] . ' · ' . (PEBAI_ROLES[$yo['rol']] ?? $yo['rol'])) ?>" aria-label="Tu cuenta: <?= h($yo['nombre']) ?>" aria-haspopup="menu" aria-expanded="false"><b><?= h(mb_strtoupper(mb_substr($yo['nombre'] !== '' ? $yo['nombre'] : 'E', 0, 1))) ?></b></button>
     <a class="pb-btn ghost" href="<?= BASE ?>?salir=1">Salir</a>
   </div>
 </aside>
@@ -819,7 +1020,7 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
 
   <section class="pb-page" id="page-resumen" data-page="resumen">
     <div class="pbx-cab pgx-cab">
-      <div><h1 class="pb-h1"><span id="pb-saludo">Hola</span>, <i>equipo</i></h1><p class="pbx-sub" id="pb-res-linea"></p></div>
+      <div><h1 class="pb-h1"><span id="pb-saludo">Hola</span>, <i><?= h($yo["usuario"] !== "" ? $yo["nombre"] : "equipo") ?></i></h1><p class="pbx-sub" id="pb-res-linea"></p></div>
       <div class="pb-plazas" id="pb-plazas-resumen"></div>
     </div>
     <div id="pb-global" class="pg"></div>
@@ -973,7 +1174,9 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
 
   <section class="pb-page" id="page-redes" data-page="redes"><div class="rd" id="pb-redes"></div></section>
   <section class="pb-page" id="page-web" data-page="web"><div class="wb" id="pb-web"></div></section>
+<?php if ($esAdmin): ?>
   <section class="pb-page" id="page-gasto" data-page="gasto"><div class="ga" id="pb-gasto"></div></section>
+<?php endif; ?>
   <section class="pb-page" id="page-gestoria" data-page="gestoria"><div class="gs" id="pb-gestoria"></div></section>
   <section class="pb-page" id="page-growth" data-page="growth"><div class="gp" id="pb-growth"></div></section>
 
@@ -984,10 +1187,14 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
         <h1 class="pb-h1">La caja, <i>al día</i></h1>
         <p class="pb-lead">Lo que entra, por qué entra y lo que sale. Las suscripciones se apuntan solas cada mes.</p>
       </div>
+<?php if ($esAdmin): ?>
       <div class="pb-cj-acts">
         <button class="pb-btn primary big" data-cj-nuevo="ingreso" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Ingreso</button>
         <button class="pb-btn big" data-cj-nuevo="gasto" type="button"><svg class="pb-i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg>Gasto</button>
       </div>
+<?php else: ?>
+      <span class="pbx-pill pb-solo-ver">Solo para ver</span>
+<?php endif; ?>
     </div>
     <div class="pb-cj-mes">
       <button class="pb-btn icon" id="pb-cj-prev" type="button" title="Mes anterior"><svg class="pb-i" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
@@ -1048,6 +1255,7 @@ window.pbCaduca = (function () { var enCurso = null; return function () {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>
 <script src="<?= BASE ?>assets/icons.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/comun.js?v=<?= $v ?>" defer></script>
+<script src="<?= BASE ?>assets/cuenta.js?v=<?= $v ?>" defer></script>
 <script src="<?= BASE ?>assets/panel.js?v=<?= $v ?>" defer></script>
 <script>window.PB_TAB = new URLSearchParams(location.search).get('tab');</script>
 <script src="<?= BASE ?>assets/agentes.js?v=<?= $v ?>" defer></script>

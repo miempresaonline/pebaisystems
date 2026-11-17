@@ -24,6 +24,9 @@ const canalInfo = (k) => (S.canales || []).find((c) => c.clave === k) || { clave
 const DUENO = { adrian: 'Adrián', daniel: 'Daniel', compartido: 'Los dos', '': 'Sin dueño' };
 // De quién es el cliente, en una palabra (ficha y lista)
 const QUIEN = { adrian: 'Adrián', daniel: 'Daniel', compartido: 'Los dos', '': 'Sin asignar' };
+// Quién está dentro (cuentas por usuario, 17/11/2026) y el nombre de cada cuenta, para el historial
+const YO = window.PB_YO || { usuario: '', rol: 'admin' };
+const nombreUsuario = (u) => (window.PB_USUARIOS || {})[u] || QUIEN[u] || u;
 const FASES = [['Solicitud', ['nuevo']], ['Revisión', ['contactado']], ['Reserva', ['cita', 'reserva']], ['Sesión', ['sesion']]];
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -835,11 +838,14 @@ function drawDetalle() {
   const cinfo = canalInfo(l.canal_dueno);
   const opts = (S.canales || []).map((c) => `<option value="${E(c.clave)}"${c.clave === (l.canal_dueno || 'pendiente') ? ' selected' : ''}>${E(c.label)}</option>`).join('');
   const confirmar = l.canal_revisar === '1' && l.canal_dueno !== 'pendiente' ? `<button class="pbx-btn lime sm" type="button" data-f="${acc((e, bt) => act('canal', { id: l.id, canal: l.canal_dueno }, 'Confirmado.', bt))}">${PBX.ico('check')}Confirmar</button>` : '';
+  // Sin dueño: un clic la pone a nombre de quien está dentro (su canal de salida); el menú sigue para elegir otro
+  const mio = YO.usuario && (S.canales || []).find((c) => c.clave === 'salida_' + YO.usuario);
+  const paraMi = mio && (!l.canal_dueno || l.canal_dueno === 'pendiente') ? `<button class="pbx-btn lime sm" type="button" data-f="${acc((e, bt) => act('canal', { id: l.id, canal: mio.clave }, 'Ahora es tuya.', bt))}">${PBX.ico('check')}Para mí</button>` : '';
   const viene = `<div><p class="so-t">De dónde viene</p>
     <div class="so-orig">${logoOrigen(l.fuente, 'b')}<span><b>${E(origen.label)}</b>${osub ? ' · ' + E(osub) : ''}<small>${E(entro ? 'Entró por ' + entro : (osub ? '' : 'Llegó directo a la web'))}</small></span></div>
     <div class="so-dueno${l.canal_revisar === '1' ? ' rev' : ''}" style="--c:${CANAL_COLOR[cinfo.clave] || '#3A404D'}"${l.canal_motivo ? ` title="${E(l.canal_motivo)}"` : ''}>
       <span><small>Cliente de</small><b>${E(QUIEN[cinfo.dueno] || 'Sin asignar')}</b><em>${E(cinfo.label + (l.canal_revisar === '1' ? ' · por confirmar' : '') + (l.canal_manual === '1' ? ' · corregido a mano' : ''))}</em></span>
-      <span class="so-dueno-a">${opts ? `<select class="so-canal" aria-label="Cambiar de quién es">${opts}</select>` : ''}${confirmar}</span></div></div>`;
+      <span class="so-dueno-a">${opts ? `<select class="so-canal" aria-label="Cambiar de quién es">${opts}</select>` : ''}${confirmar}${paraMi}</span></div></div>`;
 
   /* ---------- notas e historial, plegados ---------- */
   const notas = `<details class="pbx-pleg so-pleg" data-pleg="notas"${pleg.notas ? ' open' : ''}><summary><span>Notas del equipo</span><em>${l.notas ? 'escritas' : '0'}</em></summary><div class="pbx-pleg-in pb-notes">
@@ -847,7 +853,7 @@ function drawDetalle() {
   const lista = evs.length ? evs.slice().reverse() : [{ ts: l.created_at, tipo: 'nuevo', detalle: 'Formulario de diagnóstico enviado', auto: 1 }];
   const dv = dispositivo(l.dispositivo);
   const hist = `<details class="pbx-pleg so-pleg" data-pleg="hist"${pleg.hist ? ' open' : ''}><summary><span>Historial</span><em>${Math.max(1, evs.length)}</em></summary><div class="pbx-pleg-in">
-    <ol class="pb-hist">${lista.map((e) => `<li class="${e.auto ? 'auto' : 'manual'}"><div class="h"><b>${E(e.tipo === 'contacto' ? e.detalle : (EVENTOS[e.tipo] || e.tipo))}</b><span class="tag">${e.auto ? 'Automático' : 'Equipo'}</span></div>
+    <ol class="pb-hist">${lista.map((e) => `<li class="${e.auto ? 'auto' : 'manual'}"><div class="h"><b>${E(e.tipo === 'contacto' ? e.detalle : (EVENTOS[e.tipo] || e.tipo))}</b><span class="tag">${e.usuario ? E(nombreUsuario(e.usuario)) : e.auto ? 'Automático' : 'Equipo'}</span></div>
       <div class="m">${E(fecha(parse(e.ts)) + (e.tipo !== 'contacto' && e.detalle ? ' · ' + (['reserva', 'reprogramada', 'cancelada'].includes(e.tipo) ? 'cita ' + fechaCorta(parseUTC(e.detalle)) : e.detalle) : ''))}</div></li>`).join('')}</ol>
     <div class="so-tech"><span title="${E(l.dispositivo || '')}">${PBX.ico(dv.movil ? 'mobile' : 'desktop')}${E(dv.txt)}</span><span class="${l.email_enviado ? '' : 'warn'}">${PBX.ico('mail')}${l.email_enviado ? 'Aviso enviado a equipo@' : 'Aviso por email no enviado'}</span><span>#${l.id} · ${E(fecha(parse(l.created_at)))}</span></div></div></details>`;
 

@@ -55,6 +55,30 @@ function pebai_fila(PDOStatement $q)
     return $v;
 }
 
+/** Añade una columna a una tabla si aún no la tiene (sin perder datos). Mira la tabla una sola vez por petición. */
+function pebai_columna(PDO $db, string $tabla, string $col, string $def = "TEXT NOT NULL DEFAULT ''"): void
+{
+    static $vistas = [];
+    $k = spl_object_id($db) . '|' . $tabla;
+    if (!isset($vistas[$k])) {
+        $vistas[$k] = array_column($db->query("PRAGMA table_info($tabla)")->fetchAll(PDO::FETCH_ASSOC), 'name');
+    }
+    if (!in_array($col, $vistas[$k], true)) {
+        $db->exec("ALTER TABLE $tabla ADD COLUMN $col $def");
+        $vistas[$k][] = $col;
+    }
+}
+
+/**
+ * Quién está haciendo esto en el panel (17/11/2026: cuentas por usuario): 'daniel', 'adrian'…
+ * Vacío fuera del panel (agentes, cron, formularios de la web) o con la contraseña compartida antigua.
+ * Lo usan los registros (historial de solicitudes, actividad de agentes, caja…) para apuntar quién hizo cada cambio.
+ */
+function pebai_quien(): string
+{
+    return isset($_SESSION) && is_array($_SESSION) && !empty($_SESSION['auth']) ? (string)($_SESSION['usuario'] ?? '') : '';
+}
+
 function pebai_db(): PDO
 {
     static $pdo = null;
@@ -142,6 +166,8 @@ function pebai_db(): PDO
             auto INTEGER NOT NULL DEFAULT 1
         )');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_eventos_lead ON eventos(lead_id)');
+        // Quién lo hizo desde el panel (cuentas por usuario, 17/11/2026); vacío si fue el sistema
+        pebai_columna($pdo, 'eventos', 'usuario');
     }
     return $pdo;
 }
@@ -505,8 +531,8 @@ function pebai_evento(int $leadId, string $tipo, string $detalle = '', bool $aut
         return;
     }
     try {
-        pebai_db()->prepare('INSERT INTO eventos (lead_id, ts, tipo, detalle, auto) VALUES (?, ?, ?, ?, ?)')
-            ->execute([$leadId, date('Y-m-d H:i:s'), $tipo, mb_substr($detalle, 0, 300), $auto ? 1 : 0]);
+        pebai_db()->prepare('INSERT INTO eventos (lead_id, ts, tipo, detalle, auto, usuario) VALUES (?, ?, ?, ?, ?, ?)')
+            ->execute([$leadId, date('Y-m-d H:i:s'), $tipo, mb_substr($detalle, 0, 300), $auto ? 1 : 0, pebai_quien()]);
     } catch (Throwable $e) {
         pebai_log('EVENTO: ' . $e->getMessage());
     }

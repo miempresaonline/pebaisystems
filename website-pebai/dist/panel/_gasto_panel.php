@@ -12,6 +12,7 @@ if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
 }
 
 if ($auth && isset($_GET['gasto'])) {
+    pebai_solo_admin();   // el gasto de IA es solo para Daniel
     require_once dirname(__DIR__) . '/api/_claude_lib.php';
     $db = pebai_ia_gasto_db();
     // Periodo pedido (01/11: poder ver el mes pasado o unas fechas concretas); por defecto, este mes

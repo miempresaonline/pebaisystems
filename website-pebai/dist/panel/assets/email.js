@@ -10,6 +10,9 @@ const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const S = { loaded: false, csrf: app.dataset.csrf };
 const ui = { estado: '', nicho: '', q: '', limit: 150 };
+// Cuentas por usuario (17/11/2026): un socio ve la lista y el agente, pero no importa, no toca fichas ni ajustes, ni pausa
+const SOCIO = !!(window.PB_YO && window.PB_YO.rol !== 'admin');
+const nombreUsuario = (u) => (window.PB_USUARIOS || {})[u] || u;
 
 const ESTADOS = {
   pendiente: ['En cola', '#3A404D', '#C9CED8'], enviado: ['Enviado', '#6A5CFF', '#FFFFFF'], recordado: ['Recordatorio enviado', '#6A5CFF', '#FFFFFF'],
@@ -103,7 +106,7 @@ function kpis() {
 }
 function cuerpo() {
   const box = $('#pe-cuerpo'); box.textContent = '';
-  box.append(tarjetaImportar(), tarjetaNichos(), tarjetaLista(), tarjetaAjustes());
+  if (SOCIO) box.append(tarjetaLista()); else box.append(tarjetaImportar(), tarjetaNichos(), tarjetaLista(), tarjetaAjustes());
 }
 function tarjetaImportar() {
   const d = el('details', 'pb-histbox pe-det');
@@ -182,7 +185,7 @@ function fila(p) {
   const acts = el('div', 'pe-acts');
   if (p.paso < 2 && !['baja', 'rebote'].includes(p.estado)) acts.append(btn('ghost', 'Vista previa', (e) => vista(p, e.currentTarget)));
   if (p.estado === 'pendiente') acts.append(btn('ghost', 'Descartar', (e) => accion('email_estado', { id: p.id, estado: 'descartado' }, 'Descartado.', e.currentTarget)));
-  if (['descartado', 'error'].includes(p.estado) && p.paso === 0) acts.append(btn('ghost', 'A la cola', (e) => accion('email_estado', { id: p.id, estado: 'pendiente' }, 'Vuelve a la cola.', e.currentTarget)));
+  if (['descartado', 'error'].includes(p.estado) && p.paso === 0 && !SOCIO) acts.append(btn('ghost', 'A la cola', (e) => accion('email_estado', { id: p.id, estado: 'pendiente' }, 'Vuelve a la cola.', e.currentTarget)));
   if (['respondio'].includes(p.estado)) acts.append(btn('ghost', 'Quiere el vídeo', (e) => accion('email_estado', { id: p.id, estado: 'interesado' }, 'Marcado.', e.currentTarget)));
   if (p.estado !== 'baja') acts.append(btn('danger', 'Baja', (e) => { if (confirm('¿Baja para siempre de ' + p.email + '? Tampoco recibirá WhatsApp.')) accion('email_estado', { id: p.id, estado: 'baja' }, 'Baja aplicada.', e.currentTarget); }));
   der.append(acts);
@@ -249,9 +252,9 @@ function tarjetaAgente() {
   const pill = el('span', 'pe-state'); pill.append(dot, vivo || a.estado === 'sin_configurar' ? t : 'Sin señal del cron'); st.append(pill, el('span', null, a.detalle || ''));
   info.append(st, el('div', 'muted', `Buzón: ${a.buzon || '—'} · Último latido: ${hace(parse(a.latido_at))} · Hoy ${a.enviados_hoy}/${a.limite} · ${a.abierta ? 'en horario' : 'próximo tramo ' + fecha(parse(a.proxima))}`));
   const acts = el('div', 'pe-acts');
-  acts.append(a.pausado ? btn('primary', 'Reanudar', (e) => accion('email_pausa', { pausado: '0' }, 'Agente de email reanudado.', e.currentTarget))
-    : btn('', 'Pausar', (e) => accion('email_pausa', { pausado: '1' }, 'Agente de email en pausa.', e.currentTarget)),
-  btn('ghost', 'Ver prospectos', () => { const b = $('#pb-tabs button[data-page="email"]'); if (b) b.click(); }));
+  if (!SOCIO) acts.append(a.pausado ? btn('primary', 'Reanudar', (e) => accion('email_pausa', { pausado: '0' }, 'Agente de email reanudado.', e.currentTarget))
+    : btn('', 'Pausar', (e) => accion('email_pausa', { pausado: '1' }, 'Agente de email en pausa.', e.currentTarget)));
+  acts.append(btn('ghost', 'Ver prospectos', () => { const b = $('#pb-tabs button[data-page="email"]'); if (b) b.click(); }));
   top.append(info, acts);
   const s7 = S.salud7;
   const stats = el('div', 'pe-stats');
@@ -328,7 +331,7 @@ function registro() {
     const [l, color] = TIPO_ACT[a.tipo] || [a.tipo, 'var(--muted)'];
     const d = el('details', 'pe-log-i');
     const s = el('summary'); const chip = el('em', null, l); chip.style.setProperty('--c', color);
-    s.append(el('time', null, fecha(parse(a.ts))), chip, el('span', null, a.resumen));
+    s.append(el('time', null, fecha(parse(a.ts))), chip, el('span', null, a.resumen + (a.usuario ? ' · ' + nombreUsuario(a.usuario) : '')));
     d.append(s); if (a.detalle) d.append(el('pre', 'pe-pre', a.detalle));
     list.append(d);
   });

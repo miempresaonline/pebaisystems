@@ -63,7 +63,8 @@ function pebai_conv_db(): PDO
             error TEXT NOT NULL DEFAULT ""
         )');
         $colsW = array_column($db->query('PRAGMA table_info(wa_salida)')->fetchAll(), 'name');
-        foreach (['no_antes' => 'TEXT NOT NULL DEFAULT ""', 'plantilla' => 'TEXT NOT NULL DEFAULT "respuesta"'] as $col => $def) {
+        // usuario: quién aprobó la respuesta en el panel (cuentas por usuario, 17/11/2026)
+        foreach (['no_antes' => 'TEXT NOT NULL DEFAULT ""', 'plantilla' => 'TEXT NOT NULL DEFAULT "respuesta"', 'usuario' => 'TEXT NOT NULL DEFAULT ""'] as $col => $def) {
             if (!in_array($col, $colsW, true)) {
                 $db->exec("ALTER TABLE wa_salida ADD COLUMN $col $def");
             }
@@ -698,12 +699,12 @@ function pebai_conv_enviar(string $canal, int $id, string $texto, int $retraso =
             pebai_actividad('email', 'error', 'No se pudo enviar la respuesta a ' . $quien, $e->getMessage(), 'em:' . $id);
             return ['error' => 'El correo no ha salido: ' . $e->getMessage()];
         }
-        $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla) VALUES (?, 'email', ?, ?, 'sale', ?, 'respuesta')")
-           ->execute([$now, $id, $p['email'], 'Asunto: ' . $asunto . "\n\n" . $cuerpo]);
+        $db->prepare("INSERT INTO agente_mensajes (ts, agente, prospecto_id, telefono, sentido, texto, plantilla, usuario) VALUES (?, 'email', ?, ?, 'sale', ?, 'respuesta', ?)")
+           ->execute([$now, $id, $p['email'], 'Asunto: ' . $asunto . "\n\n" . $cuerpo, pebai_quien()]);
         pebai_actividad('email', 'envio', 'Respuesta aprobada enviada a ' . $quien, $cuerpo, 'em:' . $id);
     } else {
-        $db->prepare('INSERT INTO wa_salida (ts, prospecto_id, telefono, texto, no_antes) VALUES (?, ?, ?, ?, ?)')
-           ->execute([$now, $id, $p['telefono'], $final, $retraso > 0 ? date('Y-m-d H:i:s', time() + $retraso) : '']);
+        $db->prepare('INSERT INTO wa_salida (ts, prospecto_id, telefono, texto, no_antes, usuario) VALUES (?, ?, ?, ?, ?, ?)')
+           ->execute([$now, $id, $p['telefono'], $final, $retraso > 0 ? date('Y-m-d H:i:s', time() + $retraso) : '', pebai_quien()]);
         pebai_actividad('whatsapp', 'envio', $como === 'auto'
             ? 'Respuesta de la IA para ' . $quien . ': sale sola en unos minutos (puedes revisarla en Conversaciones)'
             : 'Respuesta aprobada para ' . $quien . ': el agente la envía en un momento', $final, 'wa:' . $id);
@@ -727,8 +728,8 @@ function pebai_conv_datos(): array
         $cls[$c['canal'] . ':' . $c['prospecto_id']] = $c;
     }
     $msgs = [];
-    foreach ($db->query("SELECT id, ts, agente, prospecto_id, sentido, texto, plantilla FROM agente_mensajes WHERE prospecto_id > 0 ORDER BY ts, id") as $m) {
-        $msgs[($m['agente'] === 'email' ? 'email' : 'whatsapp') . ':' . $m['prospecto_id']][] = ['id' => (int)$m['id'], 'ts' => $m['ts'], 'de' => $m['sentido'], 'texto' => $m['texto'], 'manual' => $m['plantilla'] === 'manual' ? 1 : 0, 'respuesta' => $m['plantilla'] === 'respuesta' ? 1 : 0, 'cortesia' => $m['plantilla'] === 'cortesia' ? 1 : 0];
+    foreach ($db->query("SELECT id, ts, agente, prospecto_id, sentido, texto, plantilla, usuario FROM agente_mensajes WHERE prospecto_id > 0 ORDER BY ts, id") as $m) {
+        $msgs[($m['agente'] === 'email' ? 'email' : 'whatsapp') . ':' . $m['prospecto_id']][] = ['id' => (int)$m['id'], 'ts' => $m['ts'], 'de' => $m['sentido'], 'texto' => $m['texto'], 'manual' => $m['plantilla'] === 'manual' ? 1 : 0, 'respuesta' => $m['plantilla'] === 'respuesta' ? 1 : 0, 'cortesia' => $m['plantilla'] === 'cortesia' ? 1 : 0, 'por' => (string)$m['usuario']];
     }
     $cola = [];
     foreach ($db->query("SELECT prospecto_id, texto, estado, error FROM wa_salida WHERE estado <> 'enviado' ORDER BY id") as $w) {

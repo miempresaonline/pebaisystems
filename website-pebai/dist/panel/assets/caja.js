@@ -8,6 +8,8 @@ const BASE = app.dataset.base;
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const S = { loaded: false, csrf: app.dataset.csrf, movimientos: [], suscripciones: [], clientes: [], saldo_inicial: 0, saldo_fecha: '', hoy: '' };
+// Cuentas por usuario (17/11/2026): para un socio la caja es solo para ver (el servidor tampoco le deja guardar)
+const SOLO_VER = !!(window.PB_YO && window.PB_YO.rol !== 'admin');
 const ui = { mes: '', filtro: '', q: '', ambito: 'mes' };
 
 /* ============ formato ============ */
@@ -110,7 +112,8 @@ function kpis() {
   const hayPrev = delMes(sumaMes(ui.mes, -1)).length > 0;
   const delta = (a, b, bueno) => { const s = el('span', 'delta'); const d = a - b; if (!hayPrev) { s.textContent = 'Primer mes'; s.classList.add('flat'); return s; } if (!b && !a) { s.textContent = '—'; s.classList.add('flat'); return s; } s.textContent = (d > 0 ? '+' : d < 0 ? '−' : '') + E0(Math.abs(d)); s.classList.add(d === 0 ? 'flat' : (d > 0) === bueno ? 'up' : 'down'); return s; };
   const hero = k('hero', ui.mes >= mesDe(S.hoy) ? 'Saldo en caja hoy' : 'Saldo a final de mes', E0(saldo), null, 0);
-  if (!S.saldo_fecha) { hero.classList.add('sin-saldo'); const b = btn('primary', null, 'Poner saldo inicial', abrirSaldo); b.classList.add('pb-cj-mini'); hero.append(sub(el('span', null, 'Cuenta desde 0 €: falta lo que había en caja.'), b)); }
+  if (SOLO_VER) { if (S.saldo_fecha) hero.append(sub(el('span', null, 'Desde ' + E0(S.saldo_inicial) + ' el ' + new Date(S.saldo_fecha + 'T12:00:00').toLocaleDateString('es-ES')))); }
+  else if (!S.saldo_fecha) { hero.classList.add('sin-saldo'); const b = btn('primary', null, 'Poner saldo inicial', abrirSaldo); b.classList.add('pb-cj-mini'); hero.append(sub(el('span', null, 'Cuenta desde 0 €: falta lo que había en caja.'), b)); }
   else { const b = btn('ghost', null, 'Ajustar', abrirSaldo); b.classList.add('pb-cj-mini'); hero.append(sub(el('span', null, 'Desde ' + E0(S.saldo_inicial) + ' el ' + new Date(S.saldo_fecha + 'T12:00:00').toLocaleDateString('es-ES')), b)); }
   if (saldo < 0) hero.classList.add('neg');
   k('ing', 'Ingresos del mes', E0(t.ingresos), sub(delta(t.ingresos, prev.ingresos, true), el('span', null, hayPrev ? 'vs ' + MES3[Number(sumaMes(ui.mes, -1).slice(5)) - 1] : '')), 1);
@@ -230,13 +233,13 @@ function desgloses() {
   return wrap;
 }
 
-function vacio(texto, tipo) { const d = el('div', 'pb-cj-vacio'); d.append(el('span', null, texto), btn('ghost', I.plus(), tipo === 'ingreso' ? 'Apuntar ingreso' : 'Apuntar gasto', () => abrirMov({ tipo }))); return d; }
+function vacio(texto, tipo) { const d = el('div', 'pb-cj-vacio'); d.append(el('span', null, texto)); if (!SOLO_VER) d.append(btn('ghost', I.plus(), tipo === 'ingreso' ? 'Apuntar ingreso' : 'Apuntar gasto', () => abrirMov({ tipo }))); return d; }
 
 function suscripciones() {
   const c = card('Suscripciones', 'Se apuntan solas como gasto el día de cada cargo.');
   const hd = c.querySelector('.hd');
   const fijo = el('div', 'pb-cj-fijo'); fijo.append(el('small', null, 'Fijo al mes'), el('b', null, E(fijoMensual())));
-  hd.append(fijo, btn('', I.plus(), 'Suscripción', () => abrirSus({})));
+  hd.append(fijo); if (!SOLO_VER) hd.append(btn('', I.plus(), 'Suscripción', () => abrirSus({})));
   const list = el('div', 'pb-cj-subs');
   if (!S.suscripciones.length) list.append(el('div', 'pb-empty', 'Añade las herramientas que pagáis cada mes o cada año: hosting, dominios, software…'));
   S.suscripciones.forEach((s, i) => {
@@ -322,6 +325,7 @@ async function guardar(b, action, fields, ok) {
 }
 
 function abrirMov(x) {
+  if (SOLO_VER) return;
   const nuevo = !x.id; let tipo = x.tipo || 'ingreso';
   const seg = el('div', 'pb-cj-tipo'); const bi = el('button', 'in', 'Ingreso'); const bg = el('button', 'out', 'Gasto'); bi.type = bg.type = 'button'; seg.append(bi, bg);
   const imp = input('importe', x.importe ? centAInput(x.importe) : '', { inputmode: 'decimal', placeholder: '0,00', autocomplete: 'off', 'data-focus': '' }); imp.className = 'pb-cj-imp';
@@ -367,6 +371,7 @@ function abrirMov(x) {
 }
 
 function abrirSus(s) {
+  if (SOLO_VER) return;
   const nuevo = !s.id;
   const nombre = input('nombre', s.nombre, { maxlength: 120, placeholder: 'Hostinger, Cal.com, Google Workspace…', 'data-focus': '' });
   const imp = input('importe', s.importe ? centAInput(s.importe) : '', { inputmode: 'decimal', placeholder: '0,00', autocomplete: 'off' }); imp.className = 'pb-cj-imp';
@@ -395,6 +400,7 @@ function abrirSus(s) {
 }
 
 function abrirSaldo() {
+  if (SOLO_VER) return;
   const imp = input('saldo_inicial', S.saldo_fecha ? centAInput(S.saldo_inicial) : '', { inputmode: 'decimal', placeholder: '0,00', 'data-focus': '' }); imp.className = 'pb-cj-imp';
   const impWrap = el('div', 'pb-cj-impw'); impWrap.append(imp, el('span', null, '€'));
   const fecha = input('saldo_fecha', S.saldo_fecha || S.hoy, { type: 'date' });

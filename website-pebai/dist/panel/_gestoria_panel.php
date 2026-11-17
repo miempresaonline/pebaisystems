@@ -3,7 +3,8 @@
  * PEBAI · Panel — Empresa › Gestoría. Lo incluye panel/index.php después de comprobar la sesión: usa $auth, csrf() y json_out().
  *   GET  ?gestoria=1            → todo lo de la sección (ver gestoria_estado() en api/_gestoria_lib.php)
  *   GET  ?gestoria_factura=ID   → la factura lista para imprimir o guardar en PDF
- *   POST action=gestoria_*      → guardar datos, facturas y gastos
+ *   POST action=gestoria_*      → guardar datos, facturas y gastos (solo admin)
+ * Socio (Adrián): ?gestoria=1 le da solo los pactos y su parte del reparto; ?pacto= sí; lo demás, 403.
  */
 if (basename($_SERVER['SCRIPT_FILENAME'] ?? '') === basename(__FILE__)) {
     http_response_code(404);
@@ -108,6 +109,10 @@ if ($auth && isset($_GET['pacto'])) {
 /* ------------------------------------------------------------ Datos (JSON) --- */
 if ($auth && isset($_GET['gestoria'])) {
     try {
+        // Socio: solo los pactos y su parte del reparto (nada de facturas, trimestres, gastos, Mis datos ni saldo de la caja)
+        if (!pebai_es_admin()) {
+            json_out(['ok' => true, 'socio' => true, 'hoy' => date('Y-m-d'), 'pactos' => gs_pactos(), 'su_parte' => gestoria_parte_de((string)(pebai_yo()['usuario'] ?? '')), 'csrf' => csrf()]);
+        }
         json_out(gestoria_estado() + ['caja_saldo' => gs_caja_saldo(), 'pactos' => gs_pactos(), 'csrf' => csrf()]);
     } catch (Throwable $e) {
         json_out(['ok' => false, 'error' => 'No se puede abrir la gestoría: ' . $e->getMessage()], 500);
@@ -116,6 +121,7 @@ if ($auth && isset($_GET['gestoria'])) {
 
 /* ------------------------------------------------------------ Factura para imprimir --- */
 if ($auth && isset($_GET['gestoria_factura'])) {
+    pebai_solo_admin();
     $q = gestoria_db()->prepare('SELECT * FROM gestoria_facturas WHERE id = ?');
     $q->execute([(int)$_GET['gestoria_factura']]);
     $f = pebai_fila($q);
@@ -193,6 +199,7 @@ NIF: <?= gs_h($f['cliente_nif'] ?: '—') ?>
 $gsAcciones = ['gestoria_ajustes', 'gestoria_factura_guardar', 'gestoria_factura_cobrar', 'gestoria_factura_anular', 'gestoria_factura_borrar',
                'gestoria_gasto_guardar', 'gestoria_gasto_borrar', 'gestoria_pacto_subir'];
 if ($auth && in_array($_POST['action'] ?? '', $gsAcciones, true)) {
+    pebai_solo_admin();   // facturas, gastos, Mis datos y subir pactos: solo Daniel (los socios ven y descargan los pactos)
     if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
         json_out(['ok' => false, 'error' => 'Sesión caducada. Recarga la página.'], 400);
     }

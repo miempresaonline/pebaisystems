@@ -17,6 +17,8 @@ require_once __DIR__ . '/_pebai_lib.php';
 /** Avisos que sí suenan en el móvil y el ordenador (Daniel, 02/11): solicitud nueva; cita reservada, cancelada, cambiada o a 1 h;
  *  Claude desconectado o al 80 % del gasto; WhatsApp o web caídos; solicitud a punto de pasar las 24 h sin contestar. */
 const PEBAI_AVISOS_SUENAN = ['solicitud', 'growth', 'cita', 'ia', 'sistema', 'plazo', 'prueba'];
+/** Avisos técnicos (claves y gasto de IA, web o agentes caídos): solo para las cuentas de administrador, no para los socios (17/11/2026). */
+const PEBAI_AVISOS_TECNICOS = ['ia', 'sistema'];
 
 function pebai_avisos_db(): PDO
 {
@@ -32,6 +34,8 @@ function pebai_avisos_db(): PDO
                titulo TEXT NOT NULL, texto TEXT NOT NULL DEFAULT "", ir TEXT NOT NULL DEFAULT "")');
     $db->exec('CREATE TABLE IF NOT EXISTS subs (endpoint TEXT PRIMARY KEY, creada TEXT NOT NULL, ua TEXT NOT NULL DEFAULT "", visto_id INTEGER NOT NULL DEFAULT 0,
                ultimo_ok TEXT NOT NULL DEFAULT "", fallos INTEGER NOT NULL DEFAULT 0)');
+    // De quién es cada dispositivo (cuentas por usuario): a los socios no les llegan los avisos técnicos
+    pebai_columna($db, 'subs', 'usuario');
     return $db;
 }
 
@@ -75,10 +79,15 @@ function pebai_vapid_jwt(string $aud, array $v): string
 }
 
 /** Despierta a todos los dispositivos apuntados (en paralelo, 6 s como mucho). Borra los que ya no existen. */
-function pebai_push_todos(): int
+function pebai_push_todos(string $tipo = ''): int
 {
     $db = pebai_avisos_db();
-    $subs = $db->query('SELECT endpoint FROM subs')->fetchAll(PDO::FETCH_COLUMN);
+    $subs = $db->query('SELECT endpoint, usuario FROM subs')->fetchAll(PDO::FETCH_KEY_PAIR);
+    // Un aviso técnico no despierta los dispositivos de los socios
+    if (in_array($tipo, PEBAI_AVISOS_TECNICOS, true)) {
+        $subs = array_filter($subs, static fn($u) => pebai_avisos_es_admin((string)$u));
+    }
+    $subs = array_keys($subs);
     if (!$subs) {
         return 0;
     }
@@ -132,7 +141,7 @@ function pebai_aviso(string $tipo, string $titulo, string $texto, string $ir = '
         // Al móvil y al ordenador solo llega lo importante (Daniel, 02/11: «que cuando vea una notificación diga: ostras, es importante»).
         // Lo demás (respuestas de clientes, que ya llegan por WhatsApp, o demos abiertas) se queda en la actividad del panel, sin sonar.
         if ($q->rowCount() && in_array($tipo, PEBAI_AVISOS_SUENAN, true)) {
-            pebai_push_todos();
+            pebai_push_todos($tipo);
         }
     } catch (Throwable $e) {
         pebai_log('AVISOS: ' . $e->getMessage());
@@ -143,17 +152,36 @@ function pebai_aviso(string $tipo, string $titulo, string $texto, string $ir = '
 function pebai_avisos_para(string $endpoint): ?array
 {
     $db = pebai_avisos_db();
-    $q = $db->prepare('SELECT visto_id FROM subs WHERE endpoint = ?');
+    $q = $db->prepare('SELECT visto_id, usuario FROM subs WHERE endpoint = ?');
     $q->execute([$endpoint]);
-    $visto = $q->fetchColumn();
+    $sub = $q->fetch();
     $q->closeCursor();
-    if ($visto === false) {
+    if ($sub === false) {
         return null;
     }
-    $q = $db->prepare("SELECT id, tipo, titulo, texto, ir FROM avisos WHERE id > ? AND ts >= ? AND tipo IN ('" . implode("','", PEBAI_AVISOS_SUENAN) . "') ORDER BY id DESC LIMIT 3");
+    $visto = $sub['visto_id'];
+    $tipos = pebai_avisos_es_admin((string)$sub['usuario']) ? PEBAI_AVISOS_SUENAN : array_diff(PEBAI_AVISOS_SUENAN, PEBAI_AVISOS_TECNICOS);
+    $q = $db->prepare("SELECT id, tipo, titulo, texto, ir FROM avisos WHERE id > ? AND ts >= ? AND tipo IN ('" . implode("','", $tipos) . "') ORDER BY id DESC LIMIT 3");
     $q->execute([(int)$visto, date('Y-m-d H:i:s', time() - 3600)]);
     $l = $q->fetchAll();
     $max = (int)$db->query('SELECT MAX(id) FROM avisos')->fetchColumn();
     $db->prepare('UPDATE subs SET visto_id = ? WHERE endpoint = ?')->execute([$max, $endpoint]);
     return $l;
+}
+
+/** ¿Es de un administrador el dispositivo apuntado por este usuario? Los apuntados antes de las cuentas (sin usuario) cuentan como de Daniel. */
+function pebai_avisos_es_admin(string $usuario): bool
+{
+    if ($usuario === '') {
+        return true;
+    }
+    try {
+        $q = pebai_db()->prepare('SELECT rol FROM usuarios WHERE usuario = ?');
+        $q->execute([$usuario]);
+        $rol = $q->fetchColumn();
+        $q->closeCursor();
+        return $rol === false || $rol === 'admin';
+    } catch (Throwable $e) {
+        return true;   // sin tabla de cuentas todavía: todo como antes
+    }
 }

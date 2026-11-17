@@ -45,6 +45,8 @@ function pebai_qr_db(): PDO
         dispositivo TEXT NOT NULL DEFAULT ""
     )');
     $db->exec('CREATE INDEX IF NOT EXISTS idx_qr_escaneos ON qr_escaneos(slug, ts)');
+    // Quién creó o cambió por última vez cada QR desde el panel (cuentas por usuario, 17/11/2026)
+    pebai_columna($db, 'qr_codigos', 'usuario');
     if (!(int)$db->query('SELECT COUNT(*) FROM qr_codigos')->fetchColumn()) {
         $now = date('Y-m-d H:i:s');
         $ins = $db->prepare('INSERT INTO qr_codigos (slug, titulo, situacion, frase, tipo, color, orden, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');

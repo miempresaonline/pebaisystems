@@ -18,6 +18,8 @@ const X = () => window.PBX;
 const S = { csrf: app.dataset.csrf, codigos: [], cargado: false, i: 0, firma: '' };
 const PERSONAS = [['adrian', 'Adrián'], ['daniel', 'Dani']];
 let persona = ''; try { persona = localStorage.getItem('pebai-qr-persona') || ''; } catch (e) { /* sin almacenamiento: sin persona */ }
+// Cuentas por usuario (17/11/2026): al abrir el panel se elige solo quien está dentro (se puede cambiar con los botones)
+if (window.PB_YO && PERSONAS.some(([k]) => k === window.PB_YO.usuario)) persona = window.PB_YO.usuario;
 const TIPOS = { reservar: 'Formulario de la consultoría', video: 'Vídeo de la consultoría', whatsapp: 'Chat de WhatsApp con nosotros', tarjeta: 'Tarjeta digital (guardar contacto)', web: 'Nuestra web', url: 'Un enlace a elegir' };
 const COLORES = ['#B7FF3C', '#8E84FF', '#25D366', '#3FD5FF', '#FFB547', '#E25CFF', '#EFEDE7'];
 const ICO = {

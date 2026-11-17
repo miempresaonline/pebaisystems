@@ -124,6 +124,8 @@ function pebai_agentes_db(): PDO
                 $db->exec("ALTER TABLE $t ADD COLUMN plantilla TEXT NOT NULL DEFAULT ''");
             }
         }
+        // Quién escribió desde el panel los mensajes «enviados por ti» (cuentas por usuario, 17/11/2026)
+        pebai_columna($db, 'agente_mensajes', 'usuario');
         // Tipo de empresa y prioridad en la cola (auditoría del CEO de captación, 15/10/2026): primero las solares puras
         $colsP = array_column($db->query('PRAGMA table_info(prospectos)')->fetchAll(), 'name');
         // Nicho de cada empresa (21/10): placas solares y las carpetas nuevas del scraper (climatización, oposiciones, formación, idiomas).

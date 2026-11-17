@@ -50,6 +50,9 @@ function pebai_caja_db(): PDO
             updated_at TEXT NOT NULL DEFAULT ""
         )');
         $db->exec('CREATE TABLE IF NOT EXISTS caja_ajustes (clave TEXT PRIMARY KEY, valor TEXT NOT NULL DEFAULT "")');
+        // Quién apuntó o cambió por última vez cada movimiento y suscripción (cuentas por usuario, 17/11/2026)
+        pebai_columna($db, 'caja_movimientos', 'usuario');
+        pebai_columna($db, 'caja_suscripciones', 'usuario');
         $ready = true;
     }
     return $db;

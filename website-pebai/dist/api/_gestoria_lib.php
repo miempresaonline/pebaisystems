@@ -278,6 +278,33 @@ function gestoria_estado(): array
     ];
 }
 
+/**
+ * «Su parte del reparto» (cuentas por usuario, 17/11/2026): lo que le toca a un socio de cada proyecto facturado, y nada más
+ * (ni lo de Daniel, ni la caja, ni datos fiscales del cliente). $quien = 'adrian' o 'daniel' (las claves del reparto).
+ */
+function gestoria_parte_de(string $quien): array
+{
+    $out = ['quien' => $quien, 'proyectos' => [], 'cobrado' => 0, 'por_cobrar' => 0, 'ya_facturado' => 0, 'pendiente_facturar' => 0];
+    if (!in_array($quien, ['adrian', 'daniel'], true)) {
+        return $out;
+    }
+    $db = gestoria_db();
+    foreach ($db->query("SELECT numero, fecha, cliente, estado, fecha_cobro, canal, base, coste, comisionista, com_pct FROM gestoria_facturas
+                         WHERE estado <> 'anulada' ORDER BY fecha DESC, numero DESC")->fetchAll() as $f) {
+        $r = gestoria_reparto($f);
+        $out['proyectos'][] = ['numero' => $f['numero'], 'fecha' => $f['fecha'], 'cliente' => $f['cliente'], 'estado' => $f['estado'],
+                               'fecha_cobro' => $f['fecha_cobro'], 'canal' => (GESTORIA_CANALES[$f['canal']] ?? GESTORIA_CANALES['daniel'])[0],
+                               'pct' => $r['pct'][$quien], 'parte' => $r[$quien]];
+        $out[$f['estado'] === 'cobrada' ? 'cobrado' : 'por_cobrar'] += $r[$quien];
+    }
+    if ($quien === 'adrian') {
+        // Lo que Adrián ya ha facturado a Daniel de su parte (gastos «Factura de Adrián»)
+        $out['ya_facturado'] = (int)$db->query("SELECT COALESCE(SUM(base), 0) FROM gestoria_gastos WHERE tipo = 'adrian'")->fetchColumn();
+        $out['pendiente_facturar'] = max(0, $out['cobrado'] - $out['ya_facturado']);
+    }
+    return $out;
+}
+
 /** Al cobrar una factura, entra en la caja; si se deshace, sale. */
 function gestoria_caja_ingreso(array $f): int
 {

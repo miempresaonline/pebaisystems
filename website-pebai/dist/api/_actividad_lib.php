@@ -40,6 +40,8 @@ function pebai_actividad_db(): PDO
             ref TEXT NOT NULL DEFAULT ""
         )');
         $db->exec('CREATE INDEX IF NOT EXISTS idx_actividad ON agente_actividad(agente, id)');
+        // Quién lo cambió desde el panel (cuentas por usuario, 17/11/2026); vacío si lo hizo el propio agente
+        pebai_columna($db, 'agente_actividad', 'usuario');
         $ready = true;
     }
     return $db;
@@ -52,8 +54,8 @@ function pebai_actividad_db(): PDO
 function pebai_actividad(string $agente, string $tipo, string $resumen, string $detalle = '', string $ref = ''): void
 {
     try {
-        pebai_actividad_db()->prepare('INSERT INTO agente_actividad (ts, agente, tipo, resumen, detalle, ref) VALUES (?, ?, ?, ?, ?, ?)')
-            ->execute([date('Y-m-d H:i:s'), $agente, in_array($tipo, PEBAI_ACTIVIDAD_TIPOS, true) ? $tipo : 'hito', mb_substr($resumen, 0, 300), mb_substr($detalle, 0, 4000), mb_substr($ref, 0, 60)]);
+        pebai_actividad_db()->prepare('INSERT INTO agente_actividad (ts, agente, tipo, resumen, detalle, ref, usuario) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            ->execute([date('Y-m-d H:i:s'), $agente, in_array($tipo, PEBAI_ACTIVIDAD_TIPOS, true) ? $tipo : 'hito', mb_substr($resumen, 0, 300), mb_substr($detalle, 0, 4000), mb_substr($ref, 0, 60), pebai_quien()]);
     } catch (Throwable $e) {
         pebai_log('ACTIVIDAD: ' . $e->getMessage());
     }
@@ -82,7 +84,7 @@ function pebai_actividad_unica(string $agente, string $tipo, string $resumen, st
 /** Últimos apuntes de un agente (para el panel). */
 function pebai_actividad_ultimas(string $agente, int $n = 200): array
 {
-    $q = pebai_actividad_db()->prepare('SELECT id, ts, tipo, resumen, detalle, ref FROM agente_actividad WHERE agente = ? ORDER BY id DESC LIMIT ' . max(1, min(1000, $n)));
+    $q = pebai_actividad_db()->prepare('SELECT id, ts, tipo, resumen, detalle, ref, usuario FROM agente_actividad WHERE agente = ? ORDER BY id DESC LIMIT ' . max(1, min(1000, $n)));
     $q->execute([$agente]);
     return $q->fetchAll();
 }

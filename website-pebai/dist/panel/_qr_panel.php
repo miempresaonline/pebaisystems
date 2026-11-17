@@ -162,12 +162,12 @@ if ($auth && in_array($_POST['action'] ?? '', ['qr_guardar', 'qr_borrar', 'qr_or
                     $slug = $base . '-' . $i;
                 }
                 $orden = (int)$db->query('SELECT COALESCE(MAX(orden), 0) + 1 FROM qr_codigos')->fetchColumn();
-                $db->prepare('INSERT INTO qr_codigos (slug, titulo, situacion, frase, tipo, destino, color, orden, activo, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)')
-                    ->execute([$slug, $titulo, mb_substr(trim((string)($_POST['situacion'] ?? '')), 0, 80), mb_substr(trim((string)($_POST['frase'] ?? '')), 0, 200), $tipo, $destino, $color, $orden, $now, $now]);
+                $db->prepare('INSERT INTO qr_codigos (slug, titulo, situacion, frase, tipo, destino, color, orden, activo, created_at, updated_at, usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)')
+                    ->execute([$slug, $titulo, mb_substr(trim((string)($_POST['situacion'] ?? '')), 0, 80), mb_substr(trim((string)($_POST['frase'] ?? '')), 0, 200), $tipo, $destino, $color, $orden, $now, $now, pebai_quien()]);
             } else {
-                $db->prepare('UPDATE qr_codigos SET titulo = ?, situacion = ?, frase = ?, tipo = ?, destino = ?, color = ?, activo = ?, updated_at = ? WHERE slug = ?')
+                $db->prepare('UPDATE qr_codigos SET titulo = ?, situacion = ?, frase = ?, tipo = ?, destino = ?, color = ?, activo = ?, updated_at = ?, usuario = ? WHERE slug = ?')
                     ->execute([$titulo, mb_substr(trim((string)($_POST['situacion'] ?? '')), 0, 80), mb_substr(trim((string)($_POST['frase'] ?? '')), 0, 200), $tipo, $destino, $color,
-                               ($_POST['activo'] ?? '1') === '0' ? 0 : 1, $now, $slug]);
+                               ($_POST['activo'] ?? '1') === '0' ? 0 : 1, $now, pebai_quien(), $slug]);
             }
             json_out(['ok' => true, 'slug' => $slug]);
         case 'qr_borrar':
@@ -175,7 +175,7 @@ if ($auth && in_array($_POST['action'] ?? '', ['qr_guardar', 'qr_borrar', 'qr_or
             $st = $db->prepare('SELECT COUNT(*) FROM qr_escaneos WHERE slug = ?');
             $st->execute([$slug]);
             if ($st->fetchColumn()) {
-                $db->prepare('UPDATE qr_codigos SET activo = 0, updated_at = ? WHERE slug = ?')->execute([$now, $slug]);
+                $db->prepare('UPDATE qr_codigos SET activo = 0, updated_at = ?, usuario = ? WHERE slug = ?')->execute([$now, pebai_quien(), $slug]);
                 json_out(['ok' => true, 'oculto' => true]);
             }
             $db->prepare('DELETE FROM qr_codigos WHERE slug = ?')->execute([$slug]);

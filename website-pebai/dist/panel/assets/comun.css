@@ -129,3 +129,24 @@ details.pbx-pleg>.pbx-pleg-in{padding:0 16px 16px}
   .pbx-et .pbx-num{font-size:36px}
   .pbx-heroe{padding:18px}
 }
+
+/* ---------- Cuentas por usuario (17/11/2026): entrada, menú de tu cuenta y lo que un socio solo puede ver ---------- */
+.pb-login .pb-ok{background:color-mix(in srgb,var(--lime) 12%,transparent);border-color:color-mix(in srgb,var(--lime) 55%,transparent);color:var(--fg-strong)}
+.pb-login-pie{margin:14px 0 0!important;text-align:center;font-size:13px}
+.pb-login-pie a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.pb-login-pie a:hover{color:var(--fg-strong)}
+.pb-login .pb-login-btn{display:flex;justify-content:center;margin-top:18px;text-decoration:none}
+.pb-yo b{font:800 14px var(--sans);color:var(--fg-strong);line-height:1}
+.pb-yo[aria-expanded="true"]{border-color:color-mix(in srgb,var(--lime) 45%,var(--line))}
+.pb-yo-menu{width:240px}
+.pb-yo-quien{display:flex;flex-direction:column;gap:2px;padding:6px 8px 8px;border-bottom:1px solid var(--line);margin-bottom:2px}
+.pb-yo-quien b{font-size:14px;color:var(--fg-strong)}
+.pb-yo-quien span{font-size:12px;color:var(--muted)}
+.pb-yo-menu a{display:block;color:var(--fg);font:600 13px var(--sans);padding:9px 8px;border-radius:9px;text-decoration:none}
+.pb-yo-menu a:hover{background:rgba(255,255,255,.06);color:#FF8A95}
+.pb-yo-modal{width:min(420px,100%)}
+.pb-yo-err{margin:12px 0 0;color:#FFC2C8;font-size:13px}
+.pb-solo-ver{--c:var(--amber)}
+.gs-rep-tabla.su>div{grid-template-columns:1.8fr 1.2fr 1fr .7fr 1fr}
+@media (max-width:900px){.gs-rep-tabla.su>div{min-width:520px}}
+body[data-rol="socio"] .pb-cj-mov,body[data-rol="socio"] .pb-cj-sub{cursor:default}

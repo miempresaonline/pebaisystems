@@ -8,6 +8,9 @@ const BASE = app.dataset.base;
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const S = { loaded: false, csrf: app.dataset.csrf };
+// Cuentas por usuario (17/11/2026): un socio no aprueba ni devuelve a la cola (eso es decidir que el agente escriba) ni pausa
+const SOCIO = !!(window.PB_YO && window.PB_YO.rol !== 'admin');
+const nombreUsuario = (u) => (window.PB_USUARIOS || {})[u] || u;
 const ui = { estado: '', q: '', lote: '', limit: 150, act: '', vista: 'cajas', caja: '', prov: '', ciudad: '', fijo: false, canal: '', hub: true };
 try { if (localStorage.getItem('pebai-pros-vista') === 'lista') ui.vista = 'lista'; } catch (e) { /* sin almacenamiento */ }
 
@@ -297,7 +300,7 @@ function drawProspectos() {
     const nAprobar = loteAprobar === null ? 0 : P.filter((p) => p.estado === 'revision' && (!loteAprobar || p.lote === loteAprobar)).length;
     const bar = el('div', 'pb-card'); bar.style.cssText = 'display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px;border-color:color-mix(in srgb,var(--amber) 50%,var(--line))';
     bar.append(el('div', null, N(enRev) + ' en revisión aquí: el agente no les escribe hasta que las apruebes.' + (loteAprobar === null ? ' Apruébalas una a una, o abre una provincia para aprobarlas de golpe.' : '')));
-    if (loteAprobar !== null) bar.append(btn('primary', null, (loteAprobar ? 'Aprobar las ' + N(nAprobar) + ' del lote «' + loteAprobar + '»' : 'Aprobar todas (' + N(nAprobar) + ')'), (e) => {
+    if (loteAprobar !== null && !SOCIO) bar.append(btn('primary', null, (loteAprobar ? 'Aprobar las ' + N(nAprobar) + ' del lote «' + loteAprobar + '»' : 'Aprobar todas (' + N(nAprobar) + ')'), (e) => {
       if (!confirm('¿Pasar ' + nAprobar + ' empresas' + (loteAprobar ? ' del lote «' + loteAprobar + '»' : '') + ' a la cola del agente de WhatsApp? Empezará a escribirles en su horario, a su ritmo diario.')) return;
       post('prospectos_aprobar', { lote: loteAprobar }, e.currentTarget).then((j) => { toast(N(j.aprobados) + ' aprobadas: ya están en la cola.'); }).catch((er) => toast(er.message, true));
     }));
@@ -341,10 +344,10 @@ function filaProspecto(p) {
   if (['enviado', 'respondio', 'error'].includes(p.estado)) {
     const a = el('a', 'pb-btn wa'); a.href = 'https://wa.me/' + p.telefono; a.target = '_blank'; a.rel = 'noopener'; a.append(ICO.chat(), 'Abrir chat'); acts.append(a);
   }
-  if (p.estado === 'revision') acts.append(btn('primary', null, 'Aprobar', (e) => cambia(p, 'pendiente', e.currentTarget)));
+  if (p.estado === 'revision' && !SOCIO) acts.append(btn('primary', null, 'Aprobar', (e) => cambia(p, 'pendiente', e.currentTarget)));
   if (p.web) { const a = el('a', 'pb-btn ghost'); a.href = p.web; a.target = '_blank'; a.rel = 'noopener'; a.append('Ver web'); acts.append(a); }
   if (['pendiente', 'error', 'revision'].includes(p.estado)) acts.append(btn('ghost', null, 'Descartar', (e) => cambia(p, 'descartado', e.currentTarget)));
-  if (['descartado', 'error', 'sin_whatsapp'].includes(p.estado)) acts.append(btn('ghost', ICO.back(), 'A la cola', (e) => cambia(p, 'pendiente', e.currentTarget)));
+  if (['descartado', 'error', 'sin_whatsapp'].includes(p.estado) && !SOCIO) acts.append(btn('ghost', ICO.back(), 'A la cola', (e) => cambia(p, 'pendiente', e.currentTarget)));
   if (p.estado !== 'baja') acts.append(btn('danger', null, 'Baja', (e) => { if (confirm('¿Dar de baja a ' + (p.empresa || telBonito(p.telefono)) + '? No se le volverá a escribir nunca.')) cambia(p, 'baja', e.currentTarget); }, 'Pidió no recibir más mensajes'));
   r.append(acts);
   row.append(av, who, r);
@@ -409,7 +412,7 @@ function drawAgentes() {
   const fgRing = $('.fg', ring); if ($('#page-agentes').classList.contains('pb-quiet')) fgRing.style.strokeDashoffset = C * (1 - frac); else requestAnimationFrame(() => requestAnimationFrame(() => { fgRing.style.strokeDashoffset = C * (1 - frac); }));
 
   const acts = el('div', 'acts');
-  acts.append(w.pausado ? btn('primary', ICO.play(), 'Reanudar', (ev) => post('agente_pausa', { pausado: '0' }, ev.currentTarget).then(() => toast('Agente reanudado.')).catch((er) => toast(er.message, true)))
+  if (!SOCIO) acts.append(w.pausado ? btn('primary', ICO.play(), 'Reanudar', (ev) => post('agente_pausa', { pausado: '0' }, ev.currentTarget).then(() => toast('Agente reanudado.')).catch((er) => toast(er.message, true)))
     : btn('', ICO.pausa(), 'Pausar', (ev) => post('agente_pausa', { pausado: '1' }, ev.currentTarget).then(() => toast('Agente en pausa: no enviará nada.')).catch((er) => toast(er.message, true))));
   top.append(tile, info, ring, acts);
   card.append(top);
@@ -755,7 +758,7 @@ function registroCard() {
   filas.forEach((a) => {
     const [l, color] = TIPO_ACT[a.tipo] || [a.tipo, 'var(--muted)'];
     const d = el('details', 'pw-log-i'); const sm = el('summary'); const chip = el('em', null, l); chip.style.setProperty('--c', color);
-    sm.append(el('time', null, cuando(parse(a.ts))), chip, el('span', null, a.resumen));
+    sm.append(el('time', null, cuando(parse(a.ts))), chip, el('span', null, a.resumen + (a.usuario ? ' · ' + nombreUsuario(a.usuario) : '')));
     d.append(sm); if (a.detalle) d.append(el('pre', 'pw-pre', a.detalle));
     list.append(d);
   });

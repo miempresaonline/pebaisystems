@@ -20,8 +20,10 @@ if (isset($_GET['avisos_sw']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // La pastilla de arriba del panel: los últimos avisos (solicitudes, citas, respuestas, demos abiertas) de los últimos 3 días
+// Los socios no ven los avisos técnicos (claves y gasto de IA, web o agentes caídos)
+$avNo = pebai_es_admin() ? "tipo <> 'prueba'" : "tipo NOT IN ('prueba', '" . implode("', '", PEBAI_AVISOS_TECNICOS) . "')";
 if ($auth && isset($_GET['avisos_ultimos'])) {
-    $q = pebai_avisos_db()->prepare("SELECT id, ts, tipo, titulo, texto, ir FROM avisos WHERE tipo <> 'prueba' AND ts >= ? ORDER BY id DESC LIMIT 6");
+    $q = pebai_avisos_db()->prepare("SELECT id, ts, tipo, titulo, texto, ir FROM avisos WHERE $avNo AND ts >= ? ORDER BY id DESC LIMIT 6");
     $q->execute([date('Y-m-d H:i:s', time() - 3 * 86400)]);
     json_out(['ok' => true, 'avisos' => $q->fetchAll()]);
 }
@@ -32,7 +34,7 @@ if ($auth && isset($_GET['avisos_hist'])) {
     $g = (string)($_GET['tipo'] ?? '');
     $antes = (int)($_GET['antes'] ?? 0);
     $n = min(50, max(1, (int)($_GET['n'] ?? 20)));
-    $w = "tipo <> 'prueba'";
+    $w = $avNo;
     $a = [];
     if (isset($grupos[$g])) {
         $w .= ' AND tipo IN (' . implode(',', array_fill(0, count($grupos[$g]), '?')) . ')';
@@ -74,8 +76,9 @@ if ($auth && in_array($_POST['action'] ?? '', ['push_alta', 'push_baja', 'push_p
         json_out(['ok' => true]);
     }
     $max = (int)$db->query('SELECT MAX(id) FROM avisos')->fetchColumn();
-    $db->prepare('INSERT INTO subs (endpoint, creada, ua, visto_id) VALUES (?, ?, ?, ?) ON CONFLICT(endpoint) DO UPDATE SET ua = excluded.ua')
-       ->execute([$ep, date('Y-m-d H:i:s'), mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 200), $max]);
+    // usuario: de quién es este dispositivo (a los socios no les llegan los avisos técnicos)
+    $db->prepare('INSERT INTO subs (endpoint, creada, ua, visto_id, usuario) VALUES (?, ?, ?, ?, ?) ON CONFLICT(endpoint) DO UPDATE SET ua = excluded.ua, usuario = excluded.usuario')
+       ->execute([$ep, date('Y-m-d H:i:s'), mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 200), $max, pebai_quien()]);
     json_out(['ok' => true, 'dispositivos' => (int)$db->query('SELECT COUNT(*) FROM subs')->fetchColumn()]);
 }
 
